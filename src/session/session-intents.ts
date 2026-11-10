@@ -8,6 +8,7 @@
  * seed plan; only its request id is drawn.
  */
 
+import { OFF_CHORD_FAMILIES } from '../domain/chords/chord-families'
 import { makeGenerationControls } from '../domain/controls/generation-controls'
 import { resolveGeneratedNoteDensity } from '../domain/controls/generated-note-density'
 import { deepFreeze } from '../domain/events/deep-freeze'
@@ -307,7 +308,8 @@ export function resolvedRegister(
  * on, the attempt carries its phrase's rhythm lock group: the re-lock group when one is pending
  * and this attempt is built with Eighth by the step-down, the phrase's group otherwise. In a
  * steered session every attempt, the standalone one included, carries the session's steering
- * block: it only orders candidates.
+ * block: it only orders candidates. Every attempt carries the Seventh chords level at Off, since no
+ * session state holds a level yet.
  */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_session_density_only_steps_down]]
@@ -337,6 +339,7 @@ export function buildAttemptIntent(
     seed: phraseAttemptSeed(seams.sessionSeed, slot.phraseNumber, slot.rung),
     controls: { ...chosen, noteDensity, register },
     figureLevels: sessionFigureLevels(settings),
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...suppliedProfileOf(settings),
     ...(group === undefined ? {} : { rhythmLock: group }),
     ...(seams.steering === undefined ? {} : { steering: seams.steering }),

@@ -8,6 +8,7 @@
  * and frees the pending slot; and `discardPendingBuild` cancels the unfinished job.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
@@ -65,6 +66,7 @@ function buildCheapIntent(seed: number) {
     seed: makeSeed(seed),
     controls: makeGenerationControls(CHEAP_CONTROLS),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 }
 

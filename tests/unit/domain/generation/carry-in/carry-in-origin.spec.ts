@@ -5,6 +5,7 @@
  * that also holds a steering block.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -69,6 +70,7 @@ function intentInput(carryIn: CarryIn) {
     seed: makeSeed(12),
     controls: BASE_CONTROLS,
     figureLevels: levelsForProfile('Neutral'),
+    chordFamilies: OFF_CHORD_FAMILIES,
     carryIn,
   }
 }

@@ -14,6 +14,7 @@
  * settles the debt with its very first note. The matrix must contain both kinds of debt.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls, type Leapiness } from '@/domain/controls/generation-controls'
@@ -71,6 +72,7 @@ function phraseIntent(cell: MatrixCell, phraseNumber: number, carryIn?: CarryIn)
       instrumentProfileId: cell.instrumentProfileId,
     }),
     figureLevels: levelsForProfile(cell.set.musicalProfile),
+    chordFamilies: OFF_CHORD_FAMILIES,
   }
   return carryIn === undefined
     ? createGenerationIntent(input)

@@ -6,6 +6,7 @@
  * clef); both at the doodle's capture tempo, as many measures as the doodle. The raw notes played
  * during the doodle never reach it.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
@@ -56,6 +57,7 @@ function tenorPhraseOne(): Pick<ReviewedPhrase, 'intent' | 'clef'> {
       instrumentProfileId: 'bb-tenor',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
   return { intent, clef: 'treble' }
 }

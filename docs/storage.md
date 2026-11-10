@@ -353,7 +353,9 @@ from the history, never looked up from my instrument as it is now, so a later ch
 instrument's clef leaves a kept session as it was. When the phrase had them, its request and its
 intent hold v3.2's request inputs: the rhythm lock group (`rhythmLock`), the steering block
 (`steering`), and a carry-in from the phrase before or, on a Jam's phrase 1 only, from no phrase
-(the doodle's join into phrase 1).
+(the doodle's join into phrase 1). The intent is written with exactly data version 4's intent keys,
+so an intent's Seventh chords level (`chordFamilies`) is never stored: at Off it is left out, and an
+intent above Off is refused rather than stored as Off.
 
 A Jam session's body holds its `doodle`: the quantized doodle (`quantized`), which holds no tempo,
 and `captureTempo`, the tempo it was captured at. A fresh Jam's body also holds its
@@ -400,7 +402,10 @@ own parser where one exists: `parseGenerationRequest`, `parseConcertEventTimelin
 `parseQuantizedDoodle` and `parseConcertPitch`, with `isInstrumentClef` for the clef.
 `kept-phrase-parsers.ts` adds `parseKeptHarmony`, and `kept-intent-parsers.ts` `parseKeptIntent`,
 for what no domain parser covers. A data version 4 intent holds the seven figure levels
-(`figureLevels`) and no musical profile; one holding a `musicalProfile` is refused. When the
+(`figureLevels`) and no musical profile; one holding a `musicalProfile` is refused. No stored
+intent holds the Seventh chords level (`chordFamilies`): `parseKeptIntent`, `parseKeptIntentV2`
+and `parseKeptIntentV1` give the intent they read at Off, and a stored intent holding the key is
+refused as an unknown field. When the
 phrase had them, it also holds its carry-in, its rhythm lock group and its steering block, each
 read through the generation request's own parsers; a carry-in from no phrase is read only beside a
 steering block. An intent's instrument profile is read from the data it holds, through the
@@ -1582,7 +1587,7 @@ kept-session codec's need no database (see
 | `kept-phrase-parsers.spec.ts`           | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                                     |
 | `kept-session-record.spec.ts`           | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session.               |
 | `kept-session-summary.spec.ts`          | The session-wide record: its facts, its length, the recording app version, and newer and unreadable records.                                                                                           |
-| `kept-session-v32-codec.spec.ts`        | v3.2's body: a locked session and a Jam-style session round-trip with every request input, each phrase replaying from its kept intent; a body of another data version.                                 |
+| `kept-session-v32-codec.spec.ts`        | v3.2's body: a locked and a Jam-style session round-trip with every request input, each replaying from its kept intent; another data version; intents kept with data version 4's keys only.            |
 | `kept-session-agreement.spec.ts`        | The request-intent agreement on the rhythm lock group, the steering block and the carry-in's origin, a carry-in from no phrase on phrase 1 only, and the data version 2 readers refusing either group. |
 | `kept-session-jam-codec.spec.ts`        | A fresh Jam with its doodle, clock and raw doodle notes, a Jam on a kept doodle, the Jam mark and the declined suggestion, records that disagree or break the clock, and the encoder's refusals.       |
 | `kept-sessions-v4.spec.ts`              | Step 4 over v3.1's sessions at data version 3, each carried over as no Jam and decoding, reviewing and exporting as before, other records untouched; a v3.0 database reaching 4 through 2.             |

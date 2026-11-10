@@ -9,6 +9,7 @@
  * phrase); failures are counted and printed, and most joins must still be made.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
@@ -49,6 +50,7 @@ function phraseIntent(cell: MatrixCell, phraseNumber: number, carryIn?: CarryIn)
       instrumentProfileId: cell.instrumentProfileId,
     }),
     figureLevels: freeTonesOff(cell),
+    chordFamilies: OFF_CHORD_FAMILIES,
   }
   return carryIn === undefined
     ? createGenerationIntent(input)

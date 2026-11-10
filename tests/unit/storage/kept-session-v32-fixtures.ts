@@ -10,6 +10,7 @@
  * during the doodle.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeQuantizedDoodle } from '@/domain/doodle/quantized-doodle'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
@@ -88,6 +89,7 @@ function joinedLockIntent(
     seed: base.seed,
     controls: base.controls,
     figureLevels: base.figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     rhythmLock,
     carryIn,
   })
@@ -166,6 +168,7 @@ function jamIntent(seed: number, carryIn: CarryIn, steering: SteeringBlock): Gen
     seed: makeSeed(seed),
     controls: BASE_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     steering,
     carryIn,
   })

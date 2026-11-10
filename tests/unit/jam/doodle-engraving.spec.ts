@@ -6,6 +6,7 @@
  * system is cut at the doodle's last barline in it, on SVGs sized as the engraver sizes them, and
  * the note identities the engraver tagged are removed.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -64,6 +65,7 @@ function phraseOne(
       instrumentProfileId,
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
   return { intent, clef }
 }

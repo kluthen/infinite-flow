@@ -3,6 +3,7 @@
  * phrases, the carry-in each one hands forward, and the attack facts a join is judged on.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -66,6 +67,7 @@ export function buildIntent(options: {
     seed: makeSeed(options.seed),
     controls,
     figureLevels: options.figureLevels ?? levelsForProfile(options.musicalProfile ?? 'Neutral'),
+    chordFamilies: OFF_CHORD_FAMILIES,
   }
   return options.carryIn === undefined
     ? createGenerationIntent(input)

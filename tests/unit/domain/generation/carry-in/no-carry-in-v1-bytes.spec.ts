@@ -6,6 +6,7 @@
  * a later phrase generated without one (the Idle phrase, or the failure ladder's standalone phrase).
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls, PITCH_CLASSES } from '@/domain/controls/generation-controls'
@@ -35,6 +36,7 @@ function goldenIntent(goldenCase: GoldenCase) {
     seed: makeSeed(goldenCase.seed),
     controls: makeGenerationControls({ ...goldenCase.controls, tonalCenter: written }),
     figureLevels: levelsForProfile(goldenCase.musicalProfile.musicalProfile),
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 }
 

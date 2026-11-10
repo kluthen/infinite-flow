@@ -5,6 +5,7 @@
  * fresh session starts with. Every workspace/coordinator spec that needs a real generated phrase
  * without paying for an expensive control combination should build it from here.
  */
+import { OFF_CHORD_FAMILIES } from '../../src/domain/chords/chord-families'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import type { WorkspaceSessionResult } from '../../src/composables/workspace-session-result'
 import type { GenerationControls } from '../../src/domain/controls/generation-controls'
@@ -38,6 +39,7 @@ export function buildWorkspaceSessionResult(
     seed: makeSeed(seed),
     controls: CHEAP_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') {

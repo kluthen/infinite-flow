@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
+import {
+  CHORD_FAMILY_LEVEL_IDS,
+  OFF_CHORD_FAMILIES,
+  type ChordFamilies,
+} from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
 import { GenerationRequestError, makeRequestId } from '@/domain/generation/generation-request'
@@ -42,6 +47,7 @@ function requestFixture() {
       instrumentProfileId: 'bb-tenor',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
   return structuredClone({ type: 'generate', id: 1, intent })
 }
@@ -68,6 +74,7 @@ function successOutcome(rhythmLock?: RequestRhythmLock) {
       instrumentProfileId: 'c-keyboard',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(rhythmLock === undefined ? {} : { rhythmLock }),
   })
   const outcome = generatePhrase(intent)
@@ -203,6 +210,7 @@ function groupIntent(groups: RequestGroups): Record<string, unknown> {
       tonalCenter: intent.writtenTonalCenter,
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...groups,
   })
   return structuredClone(built) as unknown as Record<string, unknown>
@@ -383,4 +391,83 @@ describe("parseGenerationWorkerResponse: the rhythm change's record in the prove
         GenerationWorkerProtocolError,
       )
   })
+})
+
+/** Intent: a structured clone of a real intent at the given Seventh chords level. */
+function chordFamiliesIntent(chordFamilies: ChordFamilies): Record<string, unknown> {
+  const { intent } = requestFixture()
+  const built = createGenerationIntent({
+    requestId: makeRequestId('protocol-chord-families'),
+    seed: makeSeed(6),
+    controls: makeGenerationControls({
+      ...intent.controls,
+      tonalCenter: intent.writtenTonalCenter,
+    }),
+    figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies,
+    rhythmLock: SAMPLE_RHYTHM_LOCK,
+  })
+  return structuredClone(built) as unknown as Record<string, unknown>
+}
+
+/** Intent: the wire intent at Off with its Seventh chords level replaced, or removed for REMOVED. */
+function wireIntentWithChordFamilies(chordFamilies: unknown): Record<string, unknown> {
+  const { chordFamilies: atOff, ...rest } = chordFamiliesIntent(OFF_CHORD_FAMILIES)
+  void atOff
+  return chordFamilies === REMOVED ? rest : { ...rest, chordFamilies }
+}
+
+/** Marks the Seventh chords level as absent from the wire intent. */
+const REMOVED = Symbol('removed')
+
+const REFUSED_CHORD_FAMILIES: readonly (readonly [string, unknown, RegExp])[] = [
+  ['a missing level', REMOVED, /intent\.chordFamilies is missing/u],
+  ['an unknown family', { 'ninth-chords': 'off' }, /intent\.chordFamilies is invalid/u],
+  ['an unknown level', { 'seventh-chords': 'often' }, /intent\.chordFamilies is invalid/u],
+  [
+    'an extra field',
+    { 'seventh-chords': 'off', level: 'off' },
+    /intent\.chordFamilies is invalid.*unknown family "level"/u,
+  ],
+  ['a level that is not an object', 'off', /intent\.chordFamilies is invalid/u],
+]
+
+// @test-link [[module_generation_worker_protocol]]
+// @test-link [[rule_seventh_chord_draws_reproducible]]
+describe('parseGenerationWorkerInboundMessage: the Seventh chords level', () => {
+  it.each(CHORD_FAMILY_LEVEL_IDS)(
+    'round-trips an intent at %s through a generate request and a prewarm unchanged',
+    (level) => {
+      const intent = chordFamiliesIntent({ 'seventh-chords': level })
+      const request = parseGenerationWorkerInboundMessage(
+        structuredClone({ type: 'generate', id: 13, intent }),
+      )
+      const prewarm = parseGenerationWorkerInboundMessage(
+        structuredClone({ type: 'prewarm', intent }),
+      )
+
+      expect(request).toEqual({ type: 'generate', id: 13, intent })
+      expect(prewarm).toEqual({ type: 'prewarm', intent })
+      for (const parsed of [request, prewarm]) {
+        expect(parsed.intent.chordFamilies).toStrictEqual({ 'seventh-chords': level })
+        expect(JSON.stringify(parsed.intent)).toBe(JSON.stringify(intent))
+      }
+    },
+  )
+
+  it.each(REFUSED_CHORD_FAMILIES)(
+    'refuses an intent with %s in a generate request and a prewarm',
+    (_name, chordFamilies, cause) => {
+      const intent = wireIntentWithChordFamilies(chordFamilies)
+      for (const wire of [
+        { type: 'generate', id: 14, intent },
+        { type: 'prewarm', intent },
+      ]) {
+        expect(() => parseGenerationWorkerInboundMessage(wire)).toThrow(
+          GenerationWorkerProtocolError,
+        )
+        expect(() => parseGenerationWorkerInboundMessage(wire)).toThrow(cause)
+      }
+    },
+  )
 })

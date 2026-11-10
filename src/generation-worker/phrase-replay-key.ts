@@ -19,9 +19,11 @@
  *   7. the rhythm lock group as the generation request holds it, or null;
  *   8. the steering block as the generation request holds it, or null.
  *
- * The first seven entries keep the `ifk3.` order and meaning. No musical profile's or preset's
- * name is stored, nor the doodle, its raw notes, the drift or the capture tempo: the steering
- * block and the join are what the generator read. The older versions are decoded only: `ifk1.`, a
+ * The first seven entries keep the `ifk3.` order and meaning. The tuple holds no Seventh chords
+ * level, so an `ifk4.` key always decodes with it at Off: an intent above Off is refused rather
+ * than written as a key that would replay it at Off. No musical profile's or preset's name is
+ * stored, nor the doodle, its raw notes, the drift or the capture tempo: the steering block and
+ * the join are what the generator read. The older versions are decoded only: `ifk1.`, a
  * 7-tuple (request id, seed, controls, musical profile name, customized flag, phrase number,
  * carry-in) for a built-in instrument; `ifk2.`, an 8-tuple of those seven entries then my
  * instrument's owning profile fields; and `ifk3.`, the first seven entries above, its carry-in
@@ -29,6 +31,7 @@
  * never pulls in the protocol's intent validation.
  */
 
+import { isOffChordFamilies } from '../domain/chords/chord-families'
 import type { GenerationControls } from '../domain/controls/generation-controls'
 import { FIGURE_IDS, type FigureLevels } from '../domain/figures/figure-levels'
 import { isPhraseCarryIn } from '../domain/generation/carry-in/carry-in'
@@ -182,19 +185,36 @@ function figureLevelsEntry(levels: FigureLevels): Record<string, string> {
 }
 
 /**
+ * Intent: refuse an intent whose Seventh chords level is above Off: an `ifk4.` key holds no level
+ * and decodes with it at Off, so writing one would name a different phrase than the one played.
+ */
+// @spec-link [[module_phrase_replay_key]]
+// @spec-link [[rule_seventh_chord_draws_reproducible]]
+function requireChordFamiliesOff(intent: GenerationIntent): void {
+  if (!isOffChordFamilies(intent.chordFamilies)) {
+    throw new PhraseReplayKeyError(
+      `Phrase replay key cannot hold the Seventh chords level ${JSON.stringify(intent.chordFamilies)}, which is above Off: an "ifk4" key decodes with it at Off.`,
+    )
+  }
+}
+
+/**
  * Intent: encode one generation intent and its phrase number into an `ifk4.` phrase replay key,
  * whatever its instrument, over the 9-tuple the file header states: request id, seed, the controls
  * in the codec's fixed order with the written tonal center in the tonal-center slot, the figure
  * levels by figure id, the phrase number, the carry-in of either origin or null, my instrument's
  * owning profile fields or null for a built-in, the rhythm lock group or null and the steering
- * block or null. No musical profile and no derived field is ever stored. A phrase number that is
- * not a positive integer, not its phrase carry-in's number plus one, or not 1 beside a carry-in
- * from no phrase, is rejected rather than stored.
+ * block or null. No musical profile and no derived field is ever stored, nor the Seventh chords
+ * level, which the key gives as Off: an intent above Off is refused rather than stored as Off. A
+ * phrase number that is not a positive integer, not its phrase carry-in's number plus one, or not
+ * 1 beside a carry-in from no phrase, is rejected rather than stored.
  */
 // @spec-link [[module_phrase_replay_key]]
 // @spec-link [[req_my_instrument]]
 // @spec-link [[rule_seeded_phrase_reproduction]]
+// @spec-link [[rule_seventh_chord_draws_reproducible]]
 export function encodePhraseReplayKey(intent: GenerationIntent, phraseNumber: number): string {
+  requireChordFamiliesOff(intent)
   requireConsistentPhraseNumber(intent, phraseNumber)
   const controls = PHRASE_REPLAY_KEY_CONTROL_ORDER.map((key) =>
     key === 'tonalCenter' ? intent.writtenTonalCenter : intent.controls[key],

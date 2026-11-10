@@ -10,11 +10,14 @@
  * phrase. An `ifk1.` (7-tuple, built-in) or `ifk2.` (8-tuple, my instrument) key holds a musical
  * profile name and its customized flag in slots 3 and 4 instead; the name becomes that profile's
  * levels through `levelsForProfile`, whatever the flag. A key of versions 1 to 3 decodes with no
- * rhythm lock group and no steering block. A decoded intent never holds a profile. Kept apart from
- * the encoder in phrase-replay-key.ts so the app bundle, which only encodes, never pulls in the
- * protocol.
+ * rhythm lock group and no steering block. No key version holds the Seventh chords level, so every
+ * key decodes with it at Off, and an `ifk4.` key still decodes to the intent it was encoded from
+ * (the encoder refuses an intent above Off). A decoded intent never holds a profile. Kept apart
+ * from the encoder in phrase-replay-key.ts so the app bundle, which only encodes, never pulls in
+ * the protocol.
  */
 
+import { OFF_CHORD_FAMILIES, type ChordFamilies } from '../domain/chords/chord-families'
 import { MUSICAL_PROFILES, type MusicalProfile } from '../domain/controls/generation-controls'
 import {
   FigureLevelsError,
@@ -423,6 +426,16 @@ function carryInReaderFor(version: PhraseReplayKeyVersion): (input: unknown) => 
 }
 
 /**
+ * Intent: the Seventh chords level a key of any of the four versions gives: Off, since none holds
+ * one. The decoder hands this reader to the intent rebuild, which defaults nothing itself.
+ */
+// @spec-link [[module_phrase_replay_key]]
+// @spec-link [[module_generation_worker_protocol]]
+function chordFamiliesOfKey(): ChordFamilies {
+  return OFF_CHORD_FAMILIES
+}
+
+/**
  * Intent: decode a phrase replay key of any of the four versions back into the exact generation
  * intent and phrase number. The prefix and version are checked first, then the base64url, UTF-8,
  * JSON and the version's tuple shape (each a PhraseReplayKeyError), then the levels (an `ifk3` or
@@ -435,10 +448,12 @@ function carryInReaderFor(version: PhraseReplayKeyVersion): (input: unknown) => 
  * steering block among them). An `ifk4` key's carry-in is read through `parseCarryIn`, either
  * origin; an older key's through `parsePhraseCarryIn`, v3.1's exact form, so a carry-in from no
  * phrase (an `origin` key), which those versions have no form for, is refused as v3.1 refuses it.
- * A key of versions 1 to 3 decodes with no rhythm lock group and no steering block. Nothing
- * missing or invalid is ever defaulted or repaired.
+ * A key of versions 1 to 3 decodes with no rhythm lock group and no steering block. Every key
+ * decodes with the Seventh chords level at Off, which no key version holds. Nothing missing or
+ * invalid is ever defaulted or repaired.
  */
 // @spec-link [[module_phrase_replay_key]]
+// @spec-link [[module_generation_worker_protocol]]
 // @spec-link [[req_my_instrument]]
 // @spec-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
 export function decodePhraseReplayKey(key: string): DecodedPhraseReplayKey {
@@ -464,6 +479,7 @@ export function decodePhraseReplayKey(key: string): DecodedPhraseReplayKey {
       ...(fields.steering === null ? {} : { steering: fields.steering }),
     },
     carryInReaderFor(version),
+    chordFamiliesOfKey,
   )
   requireConsistentPhraseNumber(intent, fields.phraseNumber)
   return { keyVersion: version, intent, phraseNumber: fields.phraseNumber }

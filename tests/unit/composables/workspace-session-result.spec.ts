@@ -1,3 +1,4 @@
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -36,6 +37,7 @@ function cheapIntent(
       ...overrides,
     },
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 }
 

@@ -7,6 +7,7 @@
  * phrase that generates with the outcome a case needs. Test plumbing: nothing in the app reads it.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   isUnsupportedRhythmSetting,
   suggestNearestSupportedRhythmChange,
@@ -141,6 +142,7 @@ export function corpusIntent(options: CorpusIntentOptions): GenerationIntent {
       instrumentProfileId: instrument.instrumentProfileId,
     }),
     figureLevels: options.levels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(instrument.instrumentProfile === undefined
       ? {}
       : { instrumentProfile: instrument.instrumentProfile }),

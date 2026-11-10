@@ -1,3 +1,4 @@
+import { parseChordFamilies, type ChordFamilies } from '../chords/chord-families'
 import { deepFreeze } from '../events/deep-freeze'
 import {
   PITCH_CLASSES,
@@ -28,11 +29,14 @@ import {
  * The outer request accepted by Step 7 orchestration; its register intent may still be Varying.
  * `controls.tonalCenter` is always the concert-pitch tonal center the generator consumes;
  * `writtenTonalCenter` is the player's written-pitch selection it was converted from.
- * `figureLevels` are the seven figure levels the generator may read what it writes from. The
+ * `figureLevels` are the seven figure levels the generator may read what it writes from;
+ * `chordFamilies` is the Seventh chords level, each chord family by its capability id with its
+ * level, a setting of its own beside the figure levels that nothing reads to generate yet. The
  * intent holds no musical profile.
  */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[module_figure_levels]]
+// @spec-link [[rule_seventh_chord_draws_reproducible]]
 // @spec-link [[entity_request_rhythm_lock]]
 // @spec-link [[entity_steering_block]]
 export interface GenerationIntent {
@@ -43,6 +47,8 @@ export interface GenerationIntent {
   readonly controls: GenerationControls
   readonly writtenTonalCenter: PitchClass
   readonly figureLevels: FigureLevels
+  /** The Seventh chords level; Off for every intent the app builds until a later chunk. */
+  readonly chordFamilies: ChordFamilies
   readonly instrumentProfile: InstrumentProfile
   readonly registerIntent: RegisterIntent
   /** What the session phrase before hands forward; absent for a phrase generated without one. */
@@ -55,7 +61,8 @@ export interface GenerationIntent {
 
 /**
  * What the intent factory takes. `controls.tonalCenter` here is the player's written-pitch
- * selection, not concert pitch. `figureLevels` are the seven figure levels the intent holds. It
+ * selection, not concert pitch. `figureLevels` are the seven figure levels the intent holds;
+ * `chordFamilies` is its Seventh chords level, which every input gives and nothing defaults. It
  * holds no carry-in: an intent that receives one is built by `makeCarryInGenerationIntent`, which
  * checks the carry-in against the intent. `instrumentProfile` is my instrument's profile, given as
  * data exactly when the controls name `my-instrument`; a built-in is resolved from its id. The
@@ -64,6 +71,7 @@ export interface GenerationIntent {
  */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[module_figure_levels]]
+// @spec-link [[rule_seventh_chord_draws_reproducible]]
 // @spec-link [[entity_my_instrument]]
 // @spec-link [[entity_request_rhythm_lock]]
 // @spec-link [[entity_steering_block]]
@@ -72,6 +80,7 @@ export interface GenerationIntentInput {
   readonly seed: Seed
   readonly controls: GenerationControls
   readonly figureLevels: FigureLevels
+  readonly chordFamilies: ChordFamilies
   readonly instrumentProfile?: InstrumentProfile
   readonly rhythmLock?: RequestRhythmLock
   readonly steering?: SteeringBlock
@@ -189,13 +198,16 @@ export function writtenToConcertTonalCenter(
  * `my-instrument`. An input that still holds a carry-in is a caller bug and is refused, never
  * silently dropped: such an intent is built by `makeCarryInGenerationIntent`, which checks the
  * carry-in against it. The figure levels are a fresh frozen copy of the input's own, keys in
- * FIGURE_IDS order (an invalid value is refused as a FigureLevelsError). A rhythm lock group and a
- * steering block are kept as given, last and in that order, and are not re-validated here (their
- * constructors validated them; the worker re-validates them at its boundary), which keeps their
- * validators out of the code the app loads at start-up. Without them the intent has neither key
- * and is exactly v3.1's.
+ * FIGURE_IDS order (an invalid value is refused as a FigureLevelsError). The Seventh chords level
+ * follows them, a fresh frozen copy read through `parseChordFamilies` (an invalid or missing
+ * value is refused as a ChordFamiliesError; nothing reads a missing level as Off). A rhythm lock
+ * group and a steering block are kept as given, last and in that order, and are not re-validated
+ * here (their constructors validated them; the worker re-validates them at its boundary), which
+ * keeps their validators out of the code the app loads at start-up. Without them the intent has
+ * neither key and is exactly v3.1's, its Seventh chords level apart.
  */
 // @spec-link [[module_generation_request_construction]]
+// @spec-link [[rule_seventh_chord_draws_reproducible]]
 // @spec-link [[entity_request_rhythm_lock]]
 // @spec-link [[entity_steering_block]]
 // @spec-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
@@ -225,6 +237,7 @@ export function makeGenerationIntent(input: GenerationIntentInput): GenerationIn
     controls,
     writtenTonalCenter,
     figureLevels: parseFigureLevels(input.figureLevels),
+    chordFamilies: parseChordFamilies(input.chordFamilies),
     instrumentProfile,
     registerIntent,
     ...(input.rhythmLock === undefined ? {} : { rhythmLock: input.rhythmLock }),
@@ -245,13 +258,14 @@ export function createGenerationIntent(input: GenerationIntentInput): Generation
 }
 
 /**
- * Regeneration retains the active controls and figure levels and obtains a fresh injected seed and
- * identity. My instrument's profile is handed on as data, since its id alone resolves nothing; a
- * built-in is resolved from its id again. The rhythm lock group and the steering block, when the
- * previous intent holds them, are handed on unchanged.
+ * Regeneration retains the active controls, figure levels and Seventh chords level and obtains a
+ * fresh injected seed and identity. My instrument's profile is handed on as data, since its id
+ * alone resolves nothing; a built-in is resolved from its id again. The rhythm lock group and the
+ * steering block, when the previous intent holds them, are handed on unchanged.
  */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[rule_seeded_phrase_reproduction]]
+// @spec-link [[rule_seventh_chord_draws_reproducible]]
 // @spec-link [[entity_my_instrument]]
 // @spec-link [[entity_request_rhythm_lock]]
 // @spec-link [[entity_steering_block]]
@@ -268,6 +282,7 @@ export function regenerateGenerationIntent(
     seed: providers.nextSeed(),
     controls: { ...previous.controls, tonalCenter: previous.writtenTonalCenter },
     figureLevels: previous.figureLevels,
+    chordFamilies: previous.chordFamilies,
     ...suppliedProfile,
     ...(previous.rhythmLock === undefined ? {} : { rhythmLock: previous.rhythmLock }),
     ...(previous.steering === undefined ? {} : { steering: previous.steering }),

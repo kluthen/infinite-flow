@@ -1,3 +1,4 @@
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { deriveCarryIn } from '@/domain/generation/carry-in/carry-in-derivation'
@@ -68,6 +69,7 @@ describe('generation under locked bars', () => {
         seed: standalone.seed,
         controls: standalone.controls,
         figureLevels: standalone.figureLevels,
+        chordFamilies: OFF_CHORD_FAMILIES,
         rhythmLock: lockOn(LOCKED_BARS),
         carryIn,
       })
@@ -101,6 +103,7 @@ describe('generation under locked bars', () => {
         seed: base.seed,
         controls: base.controls,
         figureLevels: base.figureLevels,
+        chordFamilies: OFF_CHORD_FAMILIES,
         rhythmLock: lockOn(LOCKED_BARS),
         carryIn: deriveCarryIn({ intent: PHRASE_ONE_INTENT, outcome: PHRASE_ONE, phraseNumber: 1 }),
       }),

@@ -5,6 +5,7 @@
  * a barline, a short note before a rest, repeated pitches), plus real phrases from the generator at
  * every note density. `ACKNOWLEDGEMENT_TEMPOS` is every tempo the tempo control offers.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeMeasure } from '@/domain/events/measure'
 import { makeNoteEvent, makeRestEvent, type MeasureEvent } from '@/domain/events/measure-event'
@@ -152,6 +153,7 @@ function generatedFixture(
         tension: 'Settled',
       }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     }),
   )
   if (outcome.kind !== 'generation_success') {

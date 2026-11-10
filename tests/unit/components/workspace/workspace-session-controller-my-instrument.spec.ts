@@ -6,6 +6,7 @@
  * No Idle path selects my instrument yet (chunk 20), so the rig's Idle state is set to a
  * my-instrument phrase 1 by hand.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it, vi } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
@@ -53,6 +54,7 @@ describe('session controller: Start with my instrument', () => {
       seed: makeSeed(11),
       controls,
       figureLevels: rig.idle.figureLevels,
+      chordFamilies: OFF_CHORD_FAMILIES,
       instrumentProfile: MY_PROFILE,
     })
     rig.idle.controls = controls
@@ -91,6 +93,7 @@ describe('session controller: Start with my instrument', () => {
       seed: makeSeed(11),
       controls,
       figureLevels: rig.idle.figureLevels,
+      chordFamilies: OFF_CHORD_FAMILIES,
       instrumentProfile: horn.profile,
     })
     const outcome = generateSuccess(intent)

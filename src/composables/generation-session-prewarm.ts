@@ -13,6 +13,7 @@ import type {
   Syncopation,
   TensionArc,
 } from '@/domain/controls/generation-controls'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import type { FigureLevels } from '@/domain/figures/figure-levels'
 import {
@@ -109,7 +110,8 @@ export function rhythmSettingKeyOf(intent: GenerationIntent): string {
  * Intent: build a trigger that posts one prewarm whenever the rhythm setting it is given differs
  * from the last one it posted (the first call always posts), so a non-rhythm edit (tonal center,
  * tempo, contour...) and a width crossing that leaves the generated density unchanged post nothing.
- * My instrument's profile goes into the intent as data, never looked up by its id.
+ * My instrument's profile goes into the intent as data, never looked up by its id. The intent's
+ * Seventh chords level is Off, as every intent the app builds carries it for now.
  */
 // @spec-link [[module_generation_prewarm]]
 // @spec-link [[entity_my_instrument]]
@@ -121,6 +123,7 @@ export function createRhythmPrewarmTrigger(post: PostPrewarm): RhythmPrewarmTrig
       seed: PREWARM_SEED,
       controls: generatedControls,
       figureLevels,
+      chordFamilies: OFF_CHORD_FAMILIES,
       ...(instrumentProfile === undefined ? {} : { instrumentProfile }),
     })
     const key = rhythmSettingKeyOf(intent)

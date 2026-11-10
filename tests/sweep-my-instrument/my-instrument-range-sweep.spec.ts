@@ -10,6 +10,7 @@
  * assertion is that every planned generation ran.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
@@ -79,6 +80,7 @@ function generateOnce(
       instrumentProfileId: 'my-instrument',
     },
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     instrumentProfile: instrument.profile,
   })
   return generatePhrase(intent)

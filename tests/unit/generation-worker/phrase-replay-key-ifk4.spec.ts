@@ -10,8 +10,12 @@
  * the doodle, its raw notes, the drift or the capture tempo.
  */
 
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+
 import { describe, expect, it, vi } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
@@ -89,6 +93,7 @@ function intentWith(seed: number, groups: Groups, mine = false): GenerationInten
       ...(mine ? { tonalCenter: 'D', instrumentProfileId: 'my-instrument' } : {}),
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(mine ? { instrumentProfile: HORN_IN_A.profile } : {}),
     ...(groups.rhythmLock === undefined ? {} : { rhythmLock: groups.rhythmLock }),
     ...(groups.steering === undefined ? {} : { steering: groups.steering }),
@@ -340,4 +345,60 @@ describe('ifk4 decoding refuses a malformed key with the reason', () => {
     expect(() => decodePhraseReplayKey(key)).toThrow(PhraseReplayKeyError)
     expect(() => decodePhraseReplayKey(key)).toThrow(/unsupported key version "ifk5"/u)
   })
+})
+
+/**
+ * The four recorded replay-key corpora: v2.0's `ifk1.` keys, v3.0's `ifk1.` and `ifk2.` keys,
+ * v3.1's `ifk3.` keys and v3.2's `ifk4.` keys.
+ */
+const RECORDED_CORPORA = [
+  'ifk1-v2.0.json',
+  'v3.0-neutral-jazz.json',
+  'v3.1-corpus.json',
+  'v3.2-corpus.json',
+] as const
+
+/** Intent: every key a recorded corpus file holds. */
+function recordedKeys(file: string): readonly string[] {
+  const corpus = JSON.parse(
+    readFileSync(
+      fileURLToPath(new URL(`../../fixtures/replay-keys/${file}`, import.meta.url)),
+      'utf8',
+    ),
+  ) as { readonly cases: readonly { readonly key: string }[] }
+  return corpus.cases.map((corpusCase) => corpusCase.key)
+}
+
+// @test-link [[module_phrase_replay_key]]
+// @test-link [[rule_seventh_chord_draws_reproducible]]
+describe('every recorded key and the Seventh chords level', () => {
+  it(
+    'decodes every ifk1 to ifk4 key with the level at Off, an ifk4 key to the intent it encodes',
+    () => {
+      const versions = new Set<string>()
+      for (const file of RECORDED_CORPORA)
+        for (const key of recordedKeys(file)) {
+          const decoded = decodePhraseReplayKey(key)
+          versions.add(decoded.keyVersion)
+          expect(decoded.intent.chordFamilies, key).toStrictEqual(OFF_CHORD_FAMILIES)
+          if (decoded.keyVersion === 'ifk4')
+            expect(encodePhraseReplayKey(decoded.intent, decoded.phraseNumber)).toBe(key)
+        }
+      expect([...versions].sort()).toEqual(['ifk1', 'ifk2', 'ifk3', 'ifk4'])
+    },
+    TIMEOUT_MS,
+  )
+
+  it.each([false, true])(
+    'round-trips every request group combination at Off to an equal intent (my instrument: %s)',
+    (mine) => {
+      for (const [, groups, phraseNumber] of groupCases(mine)) {
+        const intent = intentWith(41, groups, mine)
+        const decoded = decodePhraseReplayKey(encodePhraseReplayKey(intent, phraseNumber))
+        expect(decoded.intent).toStrictEqual(intent)
+        expect(decoded.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+      }
+    },
+    TIMEOUT_MS,
+  )
 })

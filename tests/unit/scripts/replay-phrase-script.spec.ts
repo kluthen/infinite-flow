@@ -7,6 +7,7 @@
  * unsupported key with exit code 1, a stderr message and nothing on stdout.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
@@ -63,6 +64,7 @@ const KEY = encodePhraseReplayKey(
       instrumentProfileId: 'bb-tenor',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   }),
   1,
 )

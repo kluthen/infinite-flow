@@ -1,5 +1,6 @@
 import { readonly, shallowReactive } from 'vue'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { PITCH_CLASSES } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
@@ -225,7 +226,8 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
    * Build a fresh, freshly identified/seeded intent from the current controls and figure levels,
    * with the note density the window's width gives now: the intent carries that plain
    * density, never the width itself, while `state.controls` keeps the chosen value. My instrument's
-   * profile goes in as data while the controls name it.
+   * profile goes in as data while the controls name it. The Seventh chords level is Off: no Idle
+   * state holds one yet.
    */
   // @spec-link [[rule_generated_density_follows_window_width]]
   // @spec-link [[service_idle_generation_session]]
@@ -237,6 +239,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       seed: options.providers.nextSeed(),
       controls: resolveGeneratedControls(state.controls, readNoteDensityContext()),
       figureLevels: state.figureLevels,
+      chordFamilies: OFF_CHORD_FAMILIES,
       ...(instrumentProfile === undefined ? {} : { instrumentProfile }),
     })
   }

@@ -16,6 +16,7 @@
  * 12 of the 72 cells to a rest-crossing two-note approach, all still successful.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -160,6 +161,7 @@ function buildCellIntent(cell: MatrixCell): GenerationIntent {
     seed: cell.seed,
     controls,
     figureLevels: levelsForProfile(cell.set.musicalProfile),
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 }
 

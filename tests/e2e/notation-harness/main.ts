@@ -45,6 +45,7 @@
  * clef the phrase was engraved in (`clef`), the size it engraved with (`systemPositionUnits`) and
  * the staff's top line placed in it.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { createApp, h, nextTick, ref, shallowRef, type Ref } from 'vue'
 
 import {
@@ -445,6 +446,7 @@ function buildHarnessIntent(
     seed,
     controls,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(myInstrument === null ? {} : { instrumentProfile: myInstrument.profile }),
   })
 }
