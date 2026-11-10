@@ -52,3 +52,23 @@ Chunks 0 (Intent re-sync, `documentalist`) and 1 (Baselines, `coding-leader`); �
   `docs/testing.md` and the plan.
 - Risk noted: Jam phrases 2+ and the lock chain's groups are assembled the way the session builds
   them, with the app's own builders, not recorded from a session-engine run.
+
+### Wave 0 gate (2026-11-10, on 78ce77c6)
+
+Reference machine (AMD Ryzen 5 PRO 8640HS), shared that morning with another project's database
+jobs. No source change since `v3.2.0`.
+
+- Run 1, 10:28–10:35 (load 2.3 → 19.1): red on one e2e, `audio-guide.spec.ts:359` (240 BPM,
+  19 backing notes heard for 15 planned); alone, 60 of 60 passed.
+- Run 2, 10:37–10:45 (load 6.0 → 18.0): unit 9,635 tests in 623 files green; build and boundaries
+  green; red on `audio-transport-mix.spec.ts:44` and `:103`, both the harness not ready within 30 s.
+- Run 3, waited for load under 2.5, 10:47–10:58 (load 2.1 → 11.3): format, lint, links,
+  `lint:health` (0 errors, 332 atd warnings), unit 9,635 in 623 files, typecheck and build,
+  boundaries (525 source files, 66 chunks, **entry 311,455 B**, equal to v3.2's), e2e 726 + 1
+  skipped twice (pregeneration off, on), all green; a11y red on `accessibility.spec.ts:770`, the
+  harness not ready within 30 s.
+- The steps run 3 did not reach, run on their own at 10:58–10:59: a11y 76 passed, notation 107 + 4
+  skipped, `atd:lint`, `atd:check` (no atom in scope): green.
+- So every `quality` step is green on 78ce77c6, each failure a start-up timeout or a real-time count
+  under load that passed on its own. Filed **ISS-017** (Low): end-to-end harness waits time out
+  under heavy machine load.
