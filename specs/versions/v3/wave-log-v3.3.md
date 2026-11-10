@@ -1,0 +1,26 @@
+# Infinite Flow v3.3 — Wave log
+
+The execution record of the [v3.3 build plan](build-plan-v3.3.md), kept by the wave driver: what
+each wave preflight found, each gate's results and figures, what was moved and why, and each
+report to the owner. Rulings live in [`decisions.md`](../../decisions.md); the plan holds only the
+current state.
+
+## Before wave 0
+
+- 2026-11-09: gates A0 and D0 cleared (the owner: "Approve both"; spec D520, ux D482); R0 cleared
+  at the `v3.2.0` tag (spec D523).
+- 2026-11-10: gate I0, `documentalist`'s ingestion of Part D v1.2 (521359be, merged into `main`
+  eb28071d, `main` pushed): 20 DRAFT `release-v3.3` atoms, `changes-in-v3.3` on 32 atoms, the
+  change set [`docs/release/v3.3-intent-change-set.md`](../../../docs/release/v3.3-intent-change-set.md)
+  (parts A–H). No STABLE atom, CONTRACT or VISION touched.
+- 2026-11-10: the owner was shown part A's items A1–A11 in plain words ("today it says / it would
+  say", the wave each is applied at), the bump policy (one MAJOR per wave sync, 15.0.0–19.0.0) and
+  a summary of part C's VISION v3.3 line, and answered "approved". Recorded as spec D526 (d0b629be,
+  on `v3.3-w0`): gates I0 and C1 done; plan v8; Part D v1.3 with I0's part H corrections. Part C's
+  optional out-of-scope line was not in the summary shown; D526 reads the approval as covering
+  part C as written, the line included, and the owner is told so in the wave 0 report.
+
+## Wave 0 (started 2026-11-10)
+
+Branch `v3.3-w0`, worktree `/home/bastien/work/infinite_flow-v3.3-w0`, cut from `main` eb28071d.
+Chunks 0 (Intent re-sync, `documentalist`) and 1 (Baselines, `coding-leader`); κ 1; order 0 → 1.

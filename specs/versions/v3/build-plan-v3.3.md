@@ -463,7 +463,7 @@ Architecture capture: none
 
 ### Chunk 1 — Baselines: the v3.2 corpus, the goldens at Off and the bundle
 
-Status: planned (R0 cleared at the `v3.2.0` tag; I0 cleared, D526)
+Status: ready
 Wave: 0
 Depends on: R0
 Architecture capture: none
