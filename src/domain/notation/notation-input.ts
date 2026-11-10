@@ -2,12 +2,18 @@
  * Assembles the explicit NotationPhraseInput a display transform reads: the unchanged concert
  * timeline of a completed generation, its selected tonal context, and the concert chord symbols
  * derived from the harmony candidate that produced it. This module never re-decides harmony or
- * pitch; it only restates the already-planned triads as chord symbols placed on the sixteenth
- * grid and validates the explicit input shape a display transform depends on.
+ * pitch; it only restates the already-planned chords (triads, or seventh chords in seventh form)
+ * as chord symbols placed on the sixteenth grid and validates the explicit input shape a display
+ * transform depends on.
  */
 import { deepFreeze } from '../events/deep-freeze'
 import type { MeasureIndex } from '../events/measure'
-import type { HarmonyCandidate, HarmonyEvent, TriadQuality } from '../harmony/harmony-types'
+import type {
+  HarmonyCandidate,
+  HarmonyEvent,
+  SeventhQuality,
+  TriadQuality,
+} from '../harmony/harmony-types'
 import type { GenerationIntent } from '../generation/generation-intent'
 import type { GenerationProvenance } from '../generation/orchestration/orchestration-types'
 import type { GenerationResult } from '../generation/generation-result'
@@ -26,6 +32,34 @@ export const CHORD_SUFFIX_BY_TRIAD_QUALITY: Readonly<Record<TriadQuality, string
   minor: 'm',
   diminished: 'dim',
 })
+
+/** The chord-symbol suffix carried by each diatonic seventh-chord quality, its ♭ the app's flat. */
+// @spec-link [[rule_seventh_chord_symbols]]
+export const CHORD_SUFFIX_BY_SEVENTH_QUALITY: Readonly<Record<SeventhQuality, string>> = deepFreeze(
+  {
+    'major-seventh': 'maj7',
+    'minor-seventh': 'm7',
+    'dominant-seventh': '7',
+    'half-diminished-seventh': 'm7♭5',
+  },
+)
+
+/** Every suffix a chord symbol may carry: the triad suffixes and the seventh-chord suffixes. */
+const KNOWN_CHORD_SUFFIXES: ReadonlySet<string> = new Set([
+  ...Object.values(CHORD_SUFFIX_BY_TRIAD_QUALITY),
+  ...Object.values(CHORD_SUFFIX_BY_SEVENTH_QUALITY),
+])
+
+/**
+ * Intent: the chord-symbol suffix of a harmony chord: its seventh's suffix when the chord is in
+ * seventh form, its triad's suffix otherwise.
+ */
+// @spec-link [[rule_seventh_chord_symbols]]
+export function chordSuffixOf(chord: Pick<HarmonyEvent, 'triad' | 'seventh'>): string {
+  return chord.seventh === undefined
+    ? CHORD_SUFFIX_BY_TRIAD_QUALITY[chord.triad.quality]
+    : CHORD_SUFFIX_BY_SEVENTH_QUALITY[chord.seventh.quality]
+}
 
 /** One harmony event's sounding interval in absolute phrase beats [0, 16). */
 interface HarmonyInterval {
@@ -67,7 +101,10 @@ function assertBeatsTileExactly(intervals: readonly HarmonyInterval[]): void {
   }
 }
 
-/** Intent: build one root-position concert chord symbol from a harmony event's sounding triad. */
+/**
+ * Intent: build one root-position concert chord symbol from a harmony event's sounding chord, its
+ * triad or, in seventh form, its seventh chord.
+ */
 function chordSymbolFor(
   event: HarmonyEvent,
   measureIndex: MeasureIndex,
@@ -77,7 +114,7 @@ function chordSymbolFor(
     measureIndex,
     startTick,
     root: event.triad.pitchClasses[0],
-    suffix: CHORD_SUFFIX_BY_TRIAD_QUALITY[event.triad.quality],
+    suffix: chordSuffixOf(event),
     bass: null,
   }
 }
@@ -121,6 +158,7 @@ function chordsForMeasure(
  * the phrase's 16 beats exactly, or when a measure would otherwise carry no chord.
  */
 // @spec-link [[module_notation_display_convention]]
+// @spec-link [[rule_seventh_chord_symbols]]
 export function chordSymbolsFromHarmony(harmony: HarmonyCandidate): readonly ConcertChordSymbol[] {
   const intervals = intervalsOf(harmony)
   assertBeatsTileExactly(intervals)
@@ -135,10 +173,11 @@ export function chordSymbolsFromHarmony(harmony: HarmonyCandidate): readonly Con
 /**
  * Intent: crash early unless a notation input's clef is treble or bass, its concert range is two
  * integers, low below high, and its chord symbols are strictly ascending by measure then tick, every tick is an integer in
- * [0, 15], every measure index is 0-3, and every measure carries a chord symbol at tick 0 — the
- * explicit shape the display transform depends on.
+ * [0, 15], every measure index is 0-3, every suffix is a triad or seventh-chord suffix, and every
+ * measure carries a chord symbol at tick 0 — the explicit shape the display transform depends on.
  */
 // @spec-link [[module_notation_display_convention]]
+// @spec-link [[rule_seventh_chord_symbols]]
 export function validateNotationPhraseInput(input: NotationPhraseInput): void {
   if (!isInstrumentClef(input.clef)) {
     throw new NotationInputError(
@@ -174,6 +213,12 @@ export function validateNotationPhraseInput(input: NotationPhraseInput): void {
     if (!Number.isInteger(chord.startTick) || chord.startTick < 0 || chord.startTick > 15) {
       throw new NotationInputError(
         `Chord symbol start tick must be an integer in [0, 15], got ${chord.startTick}.`,
+      )
+    }
+    if (!KNOWN_CHORD_SUFFIXES.has(chord.suffix)) {
+      throw new NotationInputError(
+        `Chord symbol suffix ${JSON.stringify(chord.suffix)} in measure ${chord.measureIndex} at ` +
+          `tick ${chord.startTick} is neither a triad nor a seventh chord suffix.`,
       )
     }
     const isAscending =

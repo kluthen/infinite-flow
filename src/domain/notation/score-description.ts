@@ -15,9 +15,12 @@
  * - `describeEmptySystem`, the name of Jam's empty system, follows the summary without the
  *   display convention and the measures: "Empty staff, <clef> clef, key signature <...> (<tonic>
  *   <collection>), 4/4 time."
- * - accidentals are always spelled as words from the pitch's letter/alteration ('F sharp', 'B
- *   flat', 'double sharp', 'double flat'); the word 'natural' is added only when the written note
- *   carries a displayed natural sign.
+ * - suffix words name the whole suffix: none for a major triad, 'minor', 'diminished', 'major
+ *   seventh', 'minor seventh', 'dominant seventh', 'half-diminished seventh' ('m7♭5'); a suffix is
+ *   never read letter by letter, and an unknown suffix crashes.
+ * - accidentals of a root, bass or pitch are always spelled as words from its letter/alteration
+ *   ('F sharp', 'B flat', 'double sharp', 'double flat'); the word 'natural' is added only when the
+ *   written note carries a displayed natural sign.
  */
 import type { InstrumentClef } from '../profile/instrument-clef'
 import { pitchClassText } from './pitch-spelling'
@@ -65,12 +68,35 @@ function durationWords(duration: NotatedDuration): string {
   return `${dotted}${duration.value}`
 }
 
-/** Intent: render a chord suffix as spoken words, keeping any unmapped suffix verbatim. */
+/**
+ * The spoken words of each whole chord-symbol suffix: the triad suffixes and the seventh-chord
+ * suffixes. A suffix is looked up as one whole, never read letter by letter, so the ♭ of 'm7♭5'
+ * is never read as "flat" on its own.
+ */
+// @spec-link [[rule_seventh_chord_symbols_spoken]]
+const SUFFIX_WORDS: ReadonlyMap<string, string> = new Map([
+  ['', ''],
+  ['m', 'minor'],
+  ['dim', 'diminished'],
+  ['maj7', 'major seventh'],
+  ['m7', 'minor seventh'],
+  ['7', 'dominant seventh'],
+  ['m7♭5', 'half-diminished seventh'],
+])
+
+/**
+ * Intent: render a whole chord suffix as spoken words; crashes on a suffix that is neither a
+ * triad nor a seventh-chord suffix, which the notation input validator already refuses.
+ */
+// @spec-link [[rule_seventh_chord_symbols_spoken]]
 function suffixWords(suffix: string): string {
-  if (suffix === '') return ''
-  if (suffix === 'm') return 'minor'
-  if (suffix === 'dim') return 'diminished'
-  return suffix
+  const words = SUFFIX_WORDS.get(suffix)
+  if (words === undefined) {
+    throw new NotationInputError(
+      `Chord symbol suffix ${JSON.stringify(suffix)} is neither a triad nor a seventh chord suffix.`,
+    )
+  }
+  return words
 }
 
 /** Intent: render one written chord symbol as spoken words: root, spoken suffix, spoken bass. */
@@ -172,6 +198,7 @@ function describeMeasure(measure: WrittenMeasure, measureNumber: number): string
  * alongside its engraving — without mutating or otherwise reading anything beyond the phrase.
  */
 // @spec-link [[module_notation_layout_preflight]]
+// @spec-link [[rule_seventh_chord_symbols_spoken]]
 export function describeWrittenPhrase(phrase: WrittenPhrase): ScoreDescription {
   const [first, second, third, fourth] = phrase.measures
   return {

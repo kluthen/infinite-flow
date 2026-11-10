@@ -308,6 +308,49 @@ describe('describeWrittenPhrase measure wording', () => {
     )
   })
 
+  // @test-link [[rule_seventh_chord_symbols_spoken]]
+  it.each([
+    { symbol: 'Cmaj7', root: { letter: 'C', alter: 0 }, suffix: 'maj7', spoken: 'C major seventh' },
+    { symbol: 'Dm7', root: { letter: 'D', alter: 0 }, suffix: 'm7', spoken: 'D minor seventh' },
+    { symbol: 'G7', root: { letter: 'G', alter: 0 }, suffix: '7', spoken: 'G dominant seventh' },
+    {
+      symbol: 'Bm7♭5',
+      root: { letter: 'B', alter: 0 },
+      suffix: 'm7♭5',
+      spoken: 'B half-diminished seventh',
+    },
+    {
+      symbol: 'B♭maj7',
+      root: { letter: 'B', alter: -1 },
+      suffix: 'maj7',
+      spoken: 'B flat major seventh',
+    },
+  ] as const)('speaks $symbol as "chord $spoken", its suffix read as one whole', (entry) => {
+    const { root, suffix, spoken } = entry
+    const measure0 = measure(0, [rest(0), rest(4), rest(8), rest(12)], [chord(0, root, suffix)])
+    const p = phrase({
+      measures: [measure0, phrase().measures[1], phrase().measures[2], phrase().measures[3]],
+    })
+    const result = describeWrittenPhrase(p)
+    expect(result.measures[0]).toContain(`chord ${spoken};`)
+    for (const text of result.measures) {
+      for (const symbol of ['m7', 'maj7', '♭', ' flat five']) expect(text).not.toContain(symbol)
+    }
+  })
+
+  // @test-link [[rule_seventh_chord_symbols_spoken]]
+  it('refuses to speak a suffix that is neither a triad nor a seventh chord suffix', () => {
+    const measure0 = measure(
+      0,
+      [rest(0), rest(4), rest(8), rest(12)],
+      [chord(0, { letter: 'C', alter: 0 }, 'sus4')],
+    )
+    const p = phrase({
+      measures: [measure0, phrase().measures[1], phrase().measures[2], phrase().measures[3]],
+    })
+    expect(() => describeWrittenPhrase(p)).toThrow(NotationInputError)
+  })
+
   it('does not mutate its frozen input', () => {
     const input = phrase({ key: D_IONIAN_KEY })
     const before = JSON.parse(JSON.stringify(input))

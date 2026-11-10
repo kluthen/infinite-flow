@@ -32,8 +32,8 @@ export interface NotationTonalContext {
 
 /**
  * One concert chord symbol placed at a measure-relative sixteenth tick (0-15). `suffix` carries
- * quality, alterations, extensions, additions and omissions verbatim (for example '', 'm', 'dim',
- * 'm7b5'); only the root and optional slash bass are respelled by a display convention.
+ * the chord's quality verbatim: a triad's ('', 'm', 'dim') or a seventh chord's ('maj7', 'm7',
+ * '7', 'm7♭5'); only the root and optional slash bass are respelled by a display convention.
  */
 // @spec-link [[module_notation_display_convention]]
 export interface ConcertChordSymbol {
