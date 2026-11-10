@@ -5,6 +5,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { lockedBarsOfOutcome } from '@/session/rhythm-lock-session'
 import { jamPhraseOneSeed } from '@/session/session-seed-plan'
 import { DEFAULT_SESSION_SEED, sessionSettings } from '../session/session-harness'
@@ -60,6 +61,34 @@ describe("with Jam's rhythm lock on", () => {
       kind: 'locked',
       bars: lockedBarsOfOutcome(decided.outcome),
     })
+  })
+})
+
+// @test-link [[module_generation_request_construction]]
+// @test-link [[rule_seventh_chord_draws_reproducible]]
+describe('the Seventh chords level', () => {
+  // @test-link [[rule_jam_phrase_one_failure_ladder]]
+  it("is Off on every rung of phrase 1's ladder and on the phrases after it", () => {
+    const run = runJam({
+      tempo: 120,
+      doodle: ONE_MEASURE,
+      until: 20,
+      settings: lockedSettings(),
+      generate: (request) =>
+        request.phraseNumber === 1 && request.retry < 5
+          ? { after: 0.1, answer: 'search_limit_exceeded' }
+          : { after: 0.1, answer: 'real' },
+    })
+    const phraseOne = phraseOneRequests(run).map(({ request }) => request)
+    const later = run.requests.filter(({ request }) => request.phraseNumber > 1)
+
+    expect(new Set(phraseOne.map((request) => request.step))).toEqual(
+      new Set(['carry-in', 'standalone']),
+    )
+    expect(phraseOne.at(-1)!.retry).toBe(5)
+    expect(later.length).toBeGreaterThan(0)
+    for (const request of [...phraseOne, ...later.map((timed) => timed.request)])
+      expect(request.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
   })
 })
 

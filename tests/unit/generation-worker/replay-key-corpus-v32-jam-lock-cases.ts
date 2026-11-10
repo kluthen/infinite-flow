@@ -20,6 +20,7 @@
  * whose bars use sixteenth notes, or a phrase at all. Test plumbing: nothing in the app reads it.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { fileURLToPath } from 'node:url'
 
 import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
@@ -297,6 +298,7 @@ function laterJamPhrase(
         seed: makeSeed(seed),
         controls: settings.controls,
         figureLevels: settings.figureLevels,
+        chordFamilies: OFF_CHORD_FAMILIES,
         ...(settings.instrumentProfile === undefined
           ? {}
           : { instrumentProfile: settings.instrumentProfile }),

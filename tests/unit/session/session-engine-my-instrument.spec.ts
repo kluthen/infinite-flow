@@ -6,6 +6,7 @@
  * name my instrument without its profile, or a built-in with one, are refused at the start.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -78,6 +79,7 @@ function myPhraseOne(settings: SessionSettings, seed = 11): SessionStart['phrase
     seed: makeSeed(seed),
     controls: settings.controls,
     figureLevels: sessionFigureLevels(settings),
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(settings.instrumentProfile === undefined
       ? {}
       : { instrumentProfile: settings.instrumentProfile }),

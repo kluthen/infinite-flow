@@ -6,6 +6,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import {
   JAZZ_FIGURE_LEVELS,
@@ -15,10 +16,14 @@ import {
 } from '@/domain/figures/figure-levels'
 import { RHYTHM_CHANGE_KINDS, type RhythmChangeKind } from '@/domain/generation/request-rhythm-lock'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
+import { buildSteeringBlock } from '@/jam/steering-block-builder'
 import { freezeSessionSettings } from '@/session/session-intents'
+import { createPregenerationPlan } from '@/session/session-pregeneration'
 import { SessionEngineError, type SessionSettings } from '@/session/session-types'
 import { ALL_GROUPS_ALLOWED, type AllowedGroups } from '@/session/settings-mutation'
 import { BASE_CONTROLS } from '../domain/generation/carry-in/carry-in-fixture'
+import { KEPT_DOODLE } from '../storage/kept-session-v32-fixtures'
+import { planSeams, planStart, realResult, runPlan } from './pregeneration-harness'
 import { SessionDriver, fakeViewport, phraseOneFor, sessionSettings } from './session-harness'
 
 /** The selections the figure-level cases start from. */
@@ -135,6 +140,45 @@ describe("every attempt carries the settings' own figure levels, whatever the se
     expect(driver.requests().length).toBeGreaterThan(1)
     for (const request of driver.requests()) {
       expect(request.intent.figureLevels).toStrictEqual(levels)
+    }
+  })
+})
+
+// @test-link [[module_generation_request_construction]]
+// @test-link [[rule_seventh_chord_draws_reproducible]]
+describe('every attempt carries the Seventh chords level at Off', () => {
+  it('on every rung of the ladder, the carry-in retries and the standalone retry', () => {
+    const settings = sessionSettings({ tempo: 60 })
+    const driver = new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
+    for (let rung = 0; rung < 4; rung += 1)
+      driver.fail(0.1 * (rung + 1), undefined, 'search_limit_exceeded')
+
+    const requests = driver.requests(2)
+    expect(requests.map((request) => request.step)).toEqual([
+      'carry-in',
+      'carry-in',
+      'carry-in',
+      'carry-in',
+      'standalone',
+    ])
+    for (const request of requests)
+      expect(request.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+  })
+
+  it("in a steered session, a Jam's phrases from phrase 2 on, the standalone retry included", () => {
+    const steering = buildSteeringBlock(KEPT_DOODLE.quantized, 'Near')
+    const { attempts } = runPlan(
+      createPregenerationPlan(planSeams(), { ...planStart(), steering }, []),
+      (attempt) =>
+        attempt.phraseNumber === 2 && attempt.step === 'carry-in'
+          ? { kind: 'generation-failure', code: 'search_limit_exceeded' }
+          : realResult(attempt),
+    )
+
+    expect(attempts.some((attempt) => attempt.step === 'standalone')).toBe(true)
+    for (const attempt of attempts) {
+      expect(attempt.intent.steering).toEqual(steering)
+      expect(attempt.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
     }
   })
 })

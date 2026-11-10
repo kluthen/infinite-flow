@@ -6,6 +6,7 @@
  * leaves everything as it was, the retry it held back running again. On the fake audio clock at
  * 240 BPM from 5 s: phrase 1 sounds from 6.1 s.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it, vi } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
@@ -115,6 +116,7 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
     seed: makeSeed(11),
     controls,
     figureLevels: rig.idle.figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     instrumentProfile: HORN.profile,
   })
   rig.idle.controls = controls

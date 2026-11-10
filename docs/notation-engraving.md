@@ -11,7 +11,7 @@ Notation is a strict consumer of a successful generation. It never changes a gen
    - the tonal context (tonal center and collection) from the intent's controls;
    - the chord symbols derived from the selected harmony candidate in `outcome.provenance.harmony`.
 
-   Each harmony span becomes one concert chord symbol at its start. The chord is restated at the downbeat of every measure the span crosses, and the spans must tile all four measures exactly. Triad quality maps to a suffix: major is empty, minor is `m`, diminished is `dim`. Planner internals are never consulted.
+   Each harmony span becomes one concert chord symbol at its start. The chord is restated at the downbeat of every measure the span crosses, and the spans must tile all four measures exactly. Triad quality maps to a suffix: major is empty, minor is `m`, diminished is `dim`. A harmony event in seventh form takes its seventh's quality instead, in letters: `maj7` (major seventh, Cmaj7), `m7` (minor seventh, Dm7), `7` (dominant seventh, G7) and `m7♭5` (half-diminished seventh, Bm7♭5, the ♭ marking the lowered fifth). `validateNotationPhraseInput` refuses any other suffix, naming it. Planner internals are never consulted.
 
 2. **Transformation** — `transformToWrittenPhrase(input, mode)` (`src/domain/notation/written-phrase.ts`) is pure. It returns a deep-frozen `WrittenPhrase` (`src/domain/notation/written-phrase-types.ts`) that has everything engraving needs and nothing it has to infer: clef, meter, spelled key, and four measures of written notes and rests with notated durations, ties, beam groups, displayed accidentals, and spelled chord symbols. Calling it again with another mode is how a display switch works. The source input is left untouched.
 3. **Description** — `describeWrittenPhrase(phrase)` (`src/domain/notation/score-description.ts`) produces the spoken-English summary and per-measure text (see Accessible Representation).
@@ -37,7 +37,7 @@ The enharmonic rule lives in `src/domain/notation/pitch-spelling.ts` and applies
   - a white key is its natural letter;
   - in a flat key, a black key is a flat of the letter above;
   - in any other key, a black key is a sharp of the letter below.
-- **Chord symbols.** Roots and any slash bass are spelled with the same rule. Quality, alterations, and extensions are carried unchanged as the suffix.
+- **Chord symbols.** Roots and any slash bass are spelled with the same rule. Quality, alterations, and extensions are carried unchanged as the suffix: a sounding G7 is written A7 for the B-flat tenor saxophone.
 - **Displayed accidentals.** Accidentals are derived per measure. Each measure starts from the key signature, and state is kept per letter and octave. An accidental is shown only when a pitch's alteration differs from the current state for that letter and octave. A tied continuation never shows an accidental, and state resets at each barline.
 
 ## Rhythm Notation
@@ -463,7 +463,7 @@ The controller connection's transposition check shows the player one [written pi
 Each successful engraving includes a text equivalent of what is drawn:
 
 - **Summary.** `describeWrittenPhrase` builds one summary sentence covering the display mode, clef, key, meter, and measure count. The top system's SVG carries it as its `aria-label`. In the split layout, the bottom system's SVG is `aria-hidden`: the phrase's one description already covers bars 3 and 4, so the phrase is announced once. During a session each phrase on screen is named once the same way, on the first of its systems shown, its other system `aria-hidden`.
-- **Measure descriptions.** One plain-language description per measure lists, in order, the chord symbols, the notes (spelled pitch, octave, value, and displayed accidental or tie), and the rests. They sit in a visually hidden element that the top system's SVG references with `aria-describedby`. During a session the description follows the playhead's phrase (phrase 1 during the count-in), referenced from that phrase's named system.
+- **Measure descriptions.** One plain-language description per measure lists, in order, the chord symbols, the notes (spelled pitch, octave, value, and displayed accidental or tie), and the rests. A chord is read as its root, its accidental in words, then its suffix as one whole in words: `m` "minor", `dim` "diminished", `maj7` "major seventh", `m7` "minor seventh", `7` "dominant seventh", `m7♭5` "half-diminished seventh" ("chord B flat major seventh"); a suffix is never read letter by letter, and the ♭ of `m7♭5` is never read as "flat" on its own. The descriptions sit in a visually hidden element that the top system's SVG references with `aria-describedby`. During a session the description follows the playhead's phrase (phrase 1 during the count-in), referenced from that phrase's named system.
 - **Updates.** The description is replaced only when a new score is swapped in, and it is cleared with the score on failure. Assistive technology therefore never hears a description of notation that is not on screen.
 
 ## Verification

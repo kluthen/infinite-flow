@@ -1,3 +1,4 @@
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -41,6 +42,7 @@ describe('request-resolution', () => {
             seed: makeSeed(1),
             controls: controlsFor(profileId, register),
             figureLevels: NEUTRAL_FIGURE_LEVELS,
+            chordFamilies: OFF_CHORD_FAMILIES,
           })
           const requests = resolveCoreRequests(intent)
           expect(requests).toHaveLength(1)
@@ -62,6 +64,7 @@ describe('request-resolution', () => {
         seed: makeSeed(1),
         controls: controlsFor('bb-tenor', 'Varying'),
         figureLevels: NEUTRAL_FIGURE_LEVELS,
+        chordFamilies: OFF_CHORD_FAMILIES,
       })
       const requests = resolveCoreRequests(intent)
       expect(requests).toHaveLength(3)
@@ -83,6 +86,7 @@ describe('request-resolution', () => {
           seed: makeSeed(3),
           controls: controlsFor('bb-tenor', register),
           figureLevels: NEUTRAL_FIGURE_LEVELS,
+          chordFamilies: OFF_CHORD_FAMILIES,
           rhythmLock: SAMPLE_RHYTHM_LOCK,
           steering: SAMPLE_STEERING,
         })
@@ -103,6 +107,7 @@ describe('request-resolution', () => {
         seed: makeSeed(3),
         controls: controlsFor('bb-tenor', 'Varying'),
         figureLevels: NEUTRAL_FIGURE_LEVELS,
+        chordFamilies: OFF_CHORD_FAMILIES,
       })
 
       for (const request of resolveCoreRequests(intent)) {
@@ -119,6 +124,7 @@ describe('request-resolution', () => {
       seed: makeSeed(7),
       controls: controlsFor('bb-tenor', 'Varying'),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     })
 
     const ALL: readonly RegisterId[] = ['Low', 'Middle', 'High']
@@ -161,6 +167,7 @@ describe('request-resolution', () => {
           seed,
           controls: controlsFor('bb-tenor', 'Varying'),
           figureLevels: NEUTRAL_FIGURE_LEVELS,
+          chordFamilies: OFF_CHORD_FAMILIES,
         })
         return selectVaryingRegister(seededIntent, ALL)
       })

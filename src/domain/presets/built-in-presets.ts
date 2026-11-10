@@ -4,6 +4,7 @@
  * interface, clock or random source.
  */
 
+import { OFF_CHORD_FAMILIES } from '../chords/chord-families'
 import { deepFreeze } from '../events/deep-freeze'
 import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '../figures/figure-levels'
 import { ANY_KEY_AND_MODE } from './key-and-mode-restriction'
@@ -29,9 +30,10 @@ export type BuiltInPresetId = (typeof BUILT_IN_PRESET_IDS)[number]
 
 /**
  * Intent: the eight built-in presets in id order, each holding exactly its B6.5 values: the ten
- * controls, the seven figure levels and the restriction ("any" except Reel, Bebop, Pop song and
- * Modal (Dorian), which restrict the modes only).
+ * controls, the seven figure levels, the Seventh chords level at Off, and the restriction ("any"
+ * except Reel, Bebop, Pop song and Modal (Dorian), which restrict the modes only).
  */
+// @spec-link [[req_seventh_chords_level]]
 // @spec-link [[rule_built_in_preset_values]]
 // @spec-link [[rule_preset_contents]]
 // @spec-link [[rule_profile_presets_apply_defined_controls]]
@@ -52,6 +54,7 @@ export const BUILT_IN_PRESETS: readonly Preset[] = deepFreeze([
       arpeggioChaos: 'Varied',
     },
     levels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: ANY_KEY_AND_MODE,
     kind: 'builtIn',
   }),
@@ -71,6 +74,7 @@ export const BUILT_IN_PRESETS: readonly Preset[] = deepFreeze([
       arpeggioChaos: 'Varied',
     },
     levels: JAZZ_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: ANY_KEY_AND_MODE,
     kind: 'builtIn',
   }),
@@ -98,6 +102,7 @@ export const BUILT_IN_PRESETS: readonly Preset[] = deepFreeze([
       chromaticApproach: 'off',
       chromaticEnclosure: 'off',
     },
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: ANY_KEY_AND_MODE,
     kind: 'builtIn',
   }),
@@ -125,6 +130,7 @@ export const BUILT_IN_PRESETS: readonly Preset[] = deepFreeze([
       chromaticApproach: 'favored',
       chromaticEnclosure: 'asToday',
     },
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: ANY_KEY_AND_MODE,
     kind: 'builtIn',
   }),
@@ -152,6 +158,7 @@ export const BUILT_IN_PRESETS: readonly Preset[] = deepFreeze([
       chromaticApproach: 'off',
       chromaticEnclosure: 'off',
     },
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: { keys: 'any', modes: ['Mixolydian', 'Dorian'] },
     kind: 'builtIn',
   }),
@@ -179,6 +186,7 @@ export const BUILT_IN_PRESETS: readonly Preset[] = deepFreeze([
       chromaticApproach: 'stronglyFavored',
       chromaticEnclosure: 'stronglyFavored',
     },
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: { keys: 'any', modes: ['Major'] },
     kind: 'builtIn',
   }),
@@ -206,6 +214,7 @@ export const BUILT_IN_PRESETS: readonly Preset[] = deepFreeze([
       chromaticApproach: 'off',
       chromaticEnclosure: 'off',
     },
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: { keys: 'any', modes: ['Major'] },
     kind: 'builtIn',
   }),
@@ -233,6 +242,7 @@ export const BUILT_IN_PRESETS: readonly Preset[] = deepFreeze([
       chromaticApproach: 'off',
       chromaticEnclosure: 'off',
     },
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: { keys: 'any', modes: ['Dorian'] },
     kind: 'builtIn',
   }),

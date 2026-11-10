@@ -12,6 +12,7 @@ import {
   DEFAULT_PRESET_SELECTION,
   isBuiltInPresetId,
 } from '@/domain/presets/built-in-presets'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { FIGURE_IDS } from '@/domain/figures/figure-levels'
 import { PRESET_HELD_CONTROL_KEYS } from '@/domain/presets/preset-selection'
 
@@ -44,6 +45,7 @@ const EXPECTED_BUILT_INS = [
       chromaticApproach: 'off',
       chromaticEnclosure: 'off',
     },
+    chordFamilies: { 'seventh-chords': 'off' },
     restriction: { keys: 'any', modes: 'any' },
     kind: 'builtIn',
   },
@@ -71,6 +73,7 @@ const EXPECTED_BUILT_INS = [
       chromaticApproach: 'asToday',
       chromaticEnclosure: 'asToday',
     },
+    chordFamilies: { 'seventh-chords': 'off' },
     restriction: { keys: 'any', modes: 'any' },
     kind: 'builtIn',
   },
@@ -98,6 +101,7 @@ const EXPECTED_BUILT_INS = [
       chromaticApproach: 'off',
       chromaticEnclosure: 'off',
     },
+    chordFamilies: { 'seventh-chords': 'off' },
     restriction: { keys: 'any', modes: 'any' },
     kind: 'builtIn',
   },
@@ -125,6 +129,7 @@ const EXPECTED_BUILT_INS = [
       chromaticApproach: 'favored',
       chromaticEnclosure: 'asToday',
     },
+    chordFamilies: { 'seventh-chords': 'off' },
     restriction: { keys: 'any', modes: 'any' },
     kind: 'builtIn',
   },
@@ -152,6 +157,7 @@ const EXPECTED_BUILT_INS = [
       chromaticApproach: 'off',
       chromaticEnclosure: 'off',
     },
+    chordFamilies: { 'seventh-chords': 'off' },
     restriction: { keys: 'any', modes: ['Mixolydian', 'Dorian'] },
     kind: 'builtIn',
   },
@@ -179,6 +185,7 @@ const EXPECTED_BUILT_INS = [
       chromaticApproach: 'stronglyFavored',
       chromaticEnclosure: 'stronglyFavored',
     },
+    chordFamilies: { 'seventh-chords': 'off' },
     restriction: { keys: 'any', modes: ['Major'] },
     kind: 'builtIn',
   },
@@ -206,6 +213,7 @@ const EXPECTED_BUILT_INS = [
       chromaticApproach: 'off',
       chromaticEnclosure: 'off',
     },
+    chordFamilies: { 'seventh-chords': 'off' },
     restriction: { keys: 'any', modes: ['Major'] },
     kind: 'builtIn',
   },
@@ -233,6 +241,7 @@ const EXPECTED_BUILT_INS = [
       chromaticApproach: 'off',
       chromaticEnclosure: 'off',
     },
+    chordFamilies: { 'seventh-chords': 'off' },
     restriction: { keys: 'any', modes: ['Dorian'] },
     kind: 'builtIn',
   },
@@ -271,6 +280,16 @@ describe('the eight built-in presets', () => {
 
   it('list exactly the B6.5 table, field by field', () => {
     expect(BUILT_IN_PRESETS).toStrictEqual(EXPECTED_BUILT_INS)
+  })
+
+  // @test-link [[req_seventh_chords_level]]
+  // @test-link [[rule_built_in_preset_values]]
+  // @test-link [[module_preset_model]]
+  it('hold the Seventh chords level at Off, every one of them, frozen', () => {
+    for (const preset of BUILT_IN_PRESETS) {
+      expect(preset.chordFamilies).toEqual(OFF_CHORD_FAMILIES)
+      expect(Object.isFrozen(preset.chordFamilies)).toBe(true)
+    }
   })
 
   it('tells a built-in id from any other value', () => {

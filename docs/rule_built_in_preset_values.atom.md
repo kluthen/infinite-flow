@@ -1,7 +1,7 @@
 ---
 id: rule_built_in_preset_values
 status: REVIEW
-version: 0.1
+version: 0.2
 parents:
   - [[req_presets]]
 dependents:
@@ -30,11 +30,13 @@ v3.1 ships eight built-in presets with exactly these values. Controls are listed
 - Pop song, any key, Major: Gentle diatonic, Lift, Eighth, Heavily varied, Occasional offbeats, Conversational, Arch, Middle, Shaped, Varied; passing, accented passing and neighbor tone As today; appoggiatura Favored; every other figure Off.
 - Modal (Dorian), any key, Dorian: Gentle diatonic, Lift, Eighth, Slightly varied, Occasional offbeats, Conversational, Wandering, Varying, Leaping, Varied; passing and neighbor tone Favored; accented passing tone As today; every other figure Off.
 
+Every built-in preset holds the Seventh chords level at Off.
+
 Neutral and Jazz therefore now also hold Tension Lift, Leapiness Shaped and Arpeggio chaos Varied, their earlier first-load values, so choosing either resets those three. The names are working names: each built-in preset is known by a fixed internal identifier, so a later version may rename one without breaking a saved selection or a Custom base. No built-in preset holds a rhythm combination the generator does not support, at Sixteenth or stepped down to Eighth.
 
 ## TECHNICAL INTERFACE
 Eight built-in presets, each with a fixed internal identifier, hold these values.
 
 ## EXPECTATION
-- Each built-in preset holds exactly these values and this restriction.
+- Each built-in preset holds exactly these values and this restriction, and the Seventh chords level at Off.
 - Each is a supported rhythm setting at Sixteenth and when stepped down to Eighth, and generates in every mode its restriction allows.

@@ -7,6 +7,7 @@
  * `generateAndEngrave` must mock `@/notation/vexflow-engraver-loader` with the fake engraver loader,
  * since the fit check plans through it.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { countingSessionSeeds } from '../../composables/fake-session-seed'
 import { countingPresetIds } from './quiet-saved-data'
@@ -88,6 +89,7 @@ function cheapOutcome(requestId: string, seed: number): GenerationOutcome {
     seed: makeSeed(seed),
     controls: CHEAP_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
   return generatePhrase(intent)
 }

@@ -11,6 +11,7 @@
  * disagrees with its instrument, and a profile no my instrument can have are all rejected.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
@@ -91,6 +92,7 @@ function myInstrumentIntent(
       instrumentProfileId: 'my-instrument',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     instrumentProfile: instrument.profile,
   }
   return carryIn === undefined

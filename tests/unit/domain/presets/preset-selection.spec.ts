@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
 import {
   COLLECTIONS,
   makeGenerationControls,
@@ -8,6 +9,7 @@ import {
   type Collection,
   type PitchClass,
 } from '@/domain/controls/generation-controls'
+import { presetLabel } from '@/domain/controls/preset-label'
 import {
   FIGURE_IDS,
   FIGURE_LEVEL_IDS,
@@ -43,6 +45,7 @@ const KEPT_TO_G_DORIAN: Preset = makePreset({
   name: 'Kept to G Dorian',
   controls: builtInPreset('bebop').controls,
   levels: JAZZ_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: onlyKeyAndMode('G', 'Dorian'),
   kind: 'player',
 })
@@ -53,11 +56,15 @@ const KEYS_D_OR_A: Preset = makePreset({
   name: 'D or A',
   controls: builtInPreset('gentle').controls,
   levels: NEUTRAL_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: makeKeyAndModeRestriction({ keys: ['D', 'A'], modes: 'any' }),
   kind: 'player',
 })
 
 const PRESETS: readonly Preset[] = [...BUILT_IN_PRESETS, KEPT_TO_G_DORIAN, KEYS_D_OR_A]
+
+/** The Seventh chords level raised to its highest. */
+const MOSTLY: ChordFamilies = { 'seventh-chords': 'stronglyFavored' }
 
 /** Intent: the player's settings at a written key and collection, other controls at Neutral's. */
 function settingsAt(key: PitchClass, mode: Collection): PresetSettings {
@@ -70,6 +77,7 @@ function settingsAt(key: PitchClass, mode: Collection): PresetSettings {
       instrumentProfileId: 'bb-tenor',
     }),
     levels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   }
 }
 
@@ -110,12 +118,13 @@ type Step =
   | { readonly kind: 'change'; readonly change: SettingChange; readonly after: PresetSettings }
 
 /** Intent: one random step from the current settings, every kind about as likely. */
-function randomStep(random: Mulberry32Generator, { controls, levels }: PresetSettings): Step {
+function randomStep(random: Mulberry32Generator, settings: PresetSettings): Step {
+  const { controls, levels } = settings
   /** Intent: a change step, the settings after it being the current ones with `after` laid over. */
   const change = (change: SettingChange, after: Partial<PresetSettings>): Step => ({
     kind: 'change',
     change,
-    after: { controls, levels, ...after },
+    after: { ...settings, ...after },
   })
   const key = pick(random, PITCH_CLASSES)
   const mode = pick(random, COLLECTIONS)
@@ -188,6 +197,7 @@ function expectChosen(
     collection: modes === 'any' || modes.includes(mode) ? mode : modes[0],
   })
   expect(after.settings.levels).toStrictEqual(preset.levels)
+  expect(after.settings.chordFamilies).toStrictEqual(preset.chordFamilies)
 }
 
 // @test-link [[module_preset_model]]
@@ -198,6 +208,7 @@ describe('making a preset', () => {
     name: 'Warm-up',
     controls: builtInPreset('gentle').controls,
     levels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     restriction: ANY_KEY_AND_MODE,
     kind: 'player',
   }
@@ -218,10 +229,18 @@ describe('making a preset', () => {
     expect(Object.isFrozen(PRESET_HELD_CONTROL_KEYS)).toBe(true)
   })
 
-  it('returns a deep-frozen preset holding exactly its six fields', () => {
+  it('returns a deep-frozen preset holding exactly its seven fields', () => {
     const preset = makePreset(valid)
     expect(preset).toStrictEqual(valid)
-    expect(Object.keys(preset)).toEqual(['id', 'name', 'controls', 'levels', 'restriction', 'kind'])
+    expect(Object.keys(preset)).toEqual([
+      'id',
+      'name',
+      'controls',
+      'levels',
+      'chordFamilies',
+      'restriction',
+      'kind',
+    ])
     expect(Object.isFrozen(preset)).toBe(true)
     expect(Object.isFrozen(preset.controls)).toBe(true)
   })
@@ -233,7 +252,15 @@ describe('making a preset', () => {
       controls: settings.controls,
       ...{ tempo: 120, extra: true },
     } as Preset)
-    expect(Object.keys(preset)).toEqual(['id', 'name', 'controls', 'levels', 'restriction', 'kind'])
+    expect(Object.keys(preset)).toEqual([
+      'id',
+      'name',
+      'controls',
+      'levels',
+      'chordFamilies',
+      'restriction',
+      'kind',
+    ])
     expect(Object.keys(preset.controls)).toEqual([...PRESET_HELD_CONTROL_KEYS])
   })
 
@@ -265,6 +292,43 @@ describe('making a preset', () => {
     expect(() => makePreset({ ...valid, kind: 'shared' } as unknown as Preset)).toThrow(
       PresetModelError,
     )
+  })
+
+  // @test-link [[req_seventh_chords_level]]
+  // @test-link [[module_preset_model]]
+  // @test-link [[rule_preset_contents]]
+  it('holds the Seventh chords level given by value: equal, frozen, never the same object', () => {
+    const given: ChordFamilies = { 'seventh-chords': 'favored' }
+    const preset = makePreset({ ...valid, chordFamilies: given })
+    expect(preset.chordFamilies).toStrictEqual({ 'seventh-chords': 'favored' })
+    expect(preset.chordFamilies).not.toBe(given)
+    expect(Object.isFrozen(preset.chordFamilies)).toBe(true)
+  })
+
+  // @test-link [[req_seventh_chords_level]]
+  // @test-link [[module_preset_model]]
+  // @test-link [[rule_preset_contents]]
+  it('refuses an unknown Seventh chords level and an unknown or extra chord family', () => {
+    for (const chordFamilies of [
+      { 'seventh-chords': 'always' },
+      { ninth: 'off' },
+      { 'seventh-chords': 'off', ninth: 'off' },
+      {},
+      null,
+    ]) {
+      const input = { ...valid, chordFamilies } as unknown as Preset
+      expect(() => makePreset(input)).toThrow(PresetModelError)
+      expect(() => makePreset(input)).toThrow(/chordFamilies/u)
+    }
+  })
+
+  // @test-link [[req_seventh_chords_level]]
+  // @test-link [[module_preset_model]]
+  // @test-link [[rule_preset_contents]]
+  it('refuses a preset with no Seventh chords level', () => {
+    const { chordFamilies, ...without } = valid
+    void chordFamilies
+    expect(() => makePreset(without as Preset)).toThrow(PresetModelError)
   })
 
   it('finds a preset by its id', () => {
@@ -309,6 +373,7 @@ describe('choosing a preset', () => {
       settings: {
         controls: { ...settings.controls, tempo: 200, instrumentProfileId: 'eb-alto' as const },
         levels: JAZZ_FIGURE_LEVELS,
+        chordFamilies: OFF_CHORD_FAMILIES,
       },
       selection: fromJazz,
     }
@@ -339,6 +404,28 @@ describe('choosing a preset', () => {
     expectChosen(fromCustom, builtInPreset('reel'), chosen)
     expect(keyAndMode(chosen.settings)).toBe('C Mixolydian')
     expect(chosen.settings.controls.tension).toBe('Settled')
+  })
+
+  // @test-link [[req_seventh_chords_level]]
+  // @test-link [[rule_choosing_preset_sets_its_settings]]
+  it('returns the Seventh chords level to Off when Bebop is chosen', () => {
+    const raised = { ...settingsAt('A', 'Dorian'), chordFamilies: MOSTLY }
+    const chosen = choosePreset(raised, fromJazz, builtInPreset('bebop'))
+    expect(chosen.settings.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+    expect(chosen.selection).toStrictEqual({ kind: 'preset', presetId: 'bebop' })
+  })
+
+  // @test-link [[req_seventh_chords_level]]
+  // @test-link [[rule_choosing_preset_sets_its_settings]]
+  it("sets a player preset's Seventh chords level when it is chosen", () => {
+    const often = makePreset({
+      ...KEYS_D_OR_A,
+      id: 'player-often',
+      name: 'Often',
+      chordFamilies: { 'seventh-chords': 'favored' },
+    })
+    const chosen = choosePreset(settingsAt('D', 'Ionian'), fromJazz, often)
+    expect(chosen.settings.chordFamilies).toStrictEqual({ 'seventh-chords': 'favored' })
   })
 })
 
@@ -405,6 +492,29 @@ describe('Custom and the restriction in force, case by case', () => {
     expect(selectionAfterChange(reelSelected, { kind: 'notPresetHeld' }, PRESETS)).toBe(
       reelSelected,
     )
+  })
+
+  // @test-link [[rule_custom_selection]]
+  // @test-link [[module_profile_control_customization]]
+  // @test-link [[req_seventh_chords_level]]
+  it('makes Custom based on Bebop for a change of the Seventh chords level, and keeps it', () => {
+    const bebop: PresetSelection = { kind: 'preset', presetId: 'bebop' }
+    const change: SettingChange = { kind: 'chordFamilyLevel', family: 'seventh-chords' }
+    const custom = selectionAfterChange(bebop, change, PRESETS)
+    expect(custom).toStrictEqual({ kind: 'custom', baseId: 'bebop' })
+    expect(presetLabel(custom, PRESETS)).toBe('Custom, based on Bebop')
+    expect(selectionAfterChange(custom, change, PRESETS)).toBe(custom)
+  })
+
+  // @test-link [[rule_custom_selection]]
+  // @test-link [[module_profile_control_customization]]
+  // @test-link [[req_seventh_chords_level]]
+  it('leaves Custom when a preset is chosen after a change of the Seventh chords level', () => {
+    const custom: PresetSelection = { kind: 'custom', baseId: 'bebop' }
+    const changed = { ...settingsAt('A', 'Dorian'), chordFamilies: MOSTLY }
+    const chosen = choosePreset(changed, custom, builtInPreset('bebop'))
+    expect(chosen.selection).toStrictEqual({ kind: 'preset', presetId: 'bebop' })
+    expect(chosen.settings.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
   })
 
   it('makes Custom for a key or mode outside the restriction, never inside', () => {

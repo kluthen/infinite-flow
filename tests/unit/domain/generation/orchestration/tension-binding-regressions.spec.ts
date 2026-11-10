@@ -13,6 +13,7 @@
  * genuinely separates two of that figure's attacks.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
@@ -106,6 +107,7 @@ function buildIntent(testCase: RegressionCase) {
     seed: makeSeed(1),
     controls,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 }
 

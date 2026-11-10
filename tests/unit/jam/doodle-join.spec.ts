@@ -8,6 +8,7 @@
  * the join opens with an interval that obeys the limits of two notes inside a phrase, owing the
  * doodle nothing, and phrase 1 hands phrase 2 v2's carry-in.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import type { Leapiness } from '@/domain/controls/generation-controls'
@@ -114,6 +115,7 @@ function phraseOneInput(
       seed: makeSeed(7),
       controls,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       steering,
     },
     steering,

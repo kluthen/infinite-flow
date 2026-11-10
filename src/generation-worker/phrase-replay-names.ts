@@ -14,7 +14,7 @@ import {
 import { isPhraseCarryIn, type CarryIn } from '../domain/generation/carry-in/carry-in'
 import type { CarriedHarmony } from '../domain/harmony/harmony-join'
 import type { DiatonicTriad, PitchClassNumber } from '../domain/harmony/harmony-types'
-import { CHORD_SUFFIX_BY_TRIAD_QUALITY } from '../domain/notation/notation-input'
+import { chordSuffixOf } from '../domain/notation/notation-input'
 import {
   naturalPitchClassOf,
   pitchClassText,
@@ -138,17 +138,24 @@ export function namedRange(
   }
 }
 
-/** Intent: the root-position concert chord symbol of a triad, spelled in the given key. */
+/**
+ * Intent: the root-position concert chord symbol of a carried chord, spelled in the given key,
+ * with the notation path's own suffix: its seventh's when it holds one, its triad's otherwise.
+ */
 // @spec-link [[service_headless_phrase_replay]]
-export function triadSymbolInKey(triad: DiatonicTriad, key: WrittenKey): string {
-  return `${pitchClassNameInKey(triad.pitchClasses[0], key)}${CHORD_SUFFIX_BY_TRIAD_QUALITY[triad.quality]}`
+// @spec-link [[rule_seventh_chord_symbols]]
+export function chordSymbolInKey(
+  chord: Pick<CarriedHarmony, 'triad' | 'seventh'>,
+  key: WrittenKey,
+): string {
+  return `${pitchClassNameInKey(chord.triad.pitchClasses[0], key)}${chordSuffixOf(chord)}`
 }
 
 /** Intent: restate a carried chord readably: its symbol and pitch classes spelled in the key. */
 function namedCarriedChord(harmony: CarriedHarmony, concertKey: WrittenKey): NamedCarriedChord {
   const { triad, role, endpoint } = harmony
   return {
-    symbol: triadSymbolInKey(triad, concertKey),
+    symbol: chordSymbolInKey(harmony, concertKey),
     degree: triad.degree,
     quality: triad.quality,
     pitchClasses: triad.pitchClasses,

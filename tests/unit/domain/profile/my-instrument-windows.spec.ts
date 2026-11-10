@@ -1,3 +1,4 @@
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
@@ -55,6 +56,7 @@ function myInstrumentIntent(instrument: MyInstrument, requestId: string, seed: n
     seed: makeSeed(seed),
     controls: { ...DEFAULT_GENERATION_CONTROLS, instrumentProfileId: 'my-instrument' },
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     instrumentProfile: instrument.profile,
   })
 }

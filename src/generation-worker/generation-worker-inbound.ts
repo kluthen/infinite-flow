@@ -7,6 +7,11 @@
  */
 
 import {
+  ChordFamiliesError,
+  parseChordFamilies,
+  type ChordFamilies,
+} from '../domain/chords/chord-families'
+import {
   makeGenerationControls,
   PITCH_CLASSES,
   type GenerationControls,
@@ -159,6 +164,7 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
   'controls',
   'writtenTonalCenter',
   'figureLevels',
+  'chordFamilies',
   'instrumentProfile',
   'registerIntent',
   'carryIn',
@@ -185,6 +191,32 @@ function parseWireFigureLevels(record: Record<string, unknown>): FigureLevels {
     if (error instanceof FigureLevelsError) {
       throw new GenerationWorkerProtocolError(
         `${FIGURE_LEVELS_CONTEXT} is invalid: ${error.message}`,
+      )
+    }
+    throw error
+  }
+}
+
+const CHORD_FAMILIES_CONTEXT = 'GenerationWorkerRequest.intent.chordFamilies'
+
+/**
+ * Intent: parse an untrusted wire intent's Seventh chords level through the domain's parser: a
+ * missing field or any ChordFamiliesError (a missing, unknown or extra family, an unknown level, a
+ * non-object) is a GenerationWorkerProtocolError naming the field and the cause. The worker's
+ * reader of the level for `rebuildGenerationWorkerIntent`: a sent intent always holds it.
+ */
+// @spec-link [[module_generation_worker_protocol]]
+// @spec-link [[rule_seventh_chord_draws_reproducible]]
+function parseWireChordFamilies(record: Record<string, unknown>): ChordFamilies {
+  if (!Object.hasOwn(record, 'chordFamilies')) {
+    throw new GenerationWorkerProtocolError(`${CHORD_FAMILIES_CONTEXT} is missing.`)
+  }
+  try {
+    return parseChordFamilies(record.chordFamilies)
+  } catch (error) {
+    if (error instanceof ChordFamiliesError) {
+      throw new GenerationWorkerProtocolError(
+        `${CHORD_FAMILIES_CONTEXT} is invalid: ${error.message}`,
       )
     }
     throw error
@@ -225,25 +257,31 @@ function parseWireRequestGroups(record: Record<string, unknown>): {
 
 /**
  * Intent: validate the owning fields of an untrusted GenerationIntent record (requestId, seed,
- * writtenTonalCenter, controls, figureLevels and an optional carryIn) through the existing domain
- * constructors and rebuild the full intent via `makeGenerationIntent`, or `makeCarryInGenerationIntent`
- * when the record holds a carry-in, with no default for a missing or invalid field. Both builders
- * take the player's written-pitch tonal center (never the record's already-converted concert
- * `controls.tonalCenter`) and re-derive the concert value themselves, so the rebuild substitutes the
- * record's `writtenTonalCenter` back into the controls. A `carryIn`, when present, is parsed field
- * by field (any fault is a CarryInError) and then checked against the rebuilt intent by
- * `makeCarryInGenerationIntent` itself; its `finalHarmony` is a carried chord or an explicit null
- * (dropped by a key or collection change), never missing. Shared by the worker request parser and
- * the phrase replay key decoder so neither keeps a parallel schema; each names the carry-in parser
- * it reads with (the worker and an `ifk4.` replay key read both origins through `parseCarryIn`, an
- * older replay key only v3.1's form through `parsePhraseCarryIn`). A built-in's profile is
- * resolved from its id; my instrument's, which its id alone cannot give, is read from the record's
- * `instrumentProfile` through `parseMyInstrumentProfile`. The `figureLevels` are required and read
- * through the domain's figure-levels parser, then handed to the factory as the intent's levels; a
- * record holds no musical profile, so none is read. The rhythm lock group and the steering block,
- * each when its key is present, are parsed by `parseWireRequestGroups` and handed to the builders.
+ * writtenTonalCenter, controls, figureLevels, chordFamilies and an optional carryIn) through the
+ * existing domain constructors and rebuild the full intent via `makeGenerationIntent`, or
+ * `makeCarryInGenerationIntent` when the record holds a carry-in, with no default for a missing or
+ * invalid field. Both builders take the player's written-pitch tonal center (never the record's
+ * already-converted concert `controls.tonalCenter`) and re-derive the concert value themselves, so
+ * the rebuild substitutes the record's `writtenTonalCenter` back into the controls. A `carryIn`,
+ * when present, is parsed field by field (any fault is a CarryInError) and then checked against
+ * the rebuilt intent by `makeCarryInGenerationIntent` itself; its `finalHarmony` is a carried
+ * chord or an explicit null (dropped by a key or collection change), never missing. Shared by the
+ * worker request parser and the phrase replay key decoder so neither keeps a parallel schema; each
+ * names the carry-in parser it reads with (the worker reads both origins through `parseCarryIn`
+ * taking a carried seventh, an `ifk4.` replay key both origins through `parseCarryIn` reading the
+ * carried chord as a triad only, an older replay key only v3.1's form through
+ * `parsePhraseCarryIn`, also triad-only). A built-in's profile is resolved from its id; my
+ * instrument's, which its id alone cannot give, is read from the record's `instrumentProfile`
+ * through `parseMyInstrumentProfile`. The
+ * `figureLevels` are required and read through the domain's figure-levels parser, then handed to
+ * the factory as the intent's levels; a record holds no musical profile, so none is read. The
+ * Seventh chords level is read by the reader its caller passes, since the forms differ and nothing
+ * is defaulted here: the worker requires it (`parseWireChordFamilies`); a replay key up to
+ * `ifk4.`, which holds none, reads Off. The rhythm lock group and the steering block, each when
+ * its key is present, are parsed by `parseWireRequestGroups` and handed to the builders.
  */
 // @spec-link [[module_generation_worker_protocol]]
+// @spec-link [[rule_seventh_chord_draws_reproducible]]
 // @spec-link [[module_phrase_replay_key]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 // @spec-link [[entity_my_instrument]]
@@ -252,6 +290,7 @@ function parseWireRequestGroups(record: Record<string, unknown>): {
 export function rebuildGenerationWorkerIntent(
   record: Record<string, unknown>,
   readCarryIn: (input: unknown) => CarryIn,
+  readChordFamilies: (record: Record<string, unknown>) => ChordFamilies,
 ): GenerationIntent {
   if (typeof record.requestId !== 'string') {
     throw new GenerationWorkerProtocolError(
@@ -278,13 +317,22 @@ export function rebuildGenerationWorkerIntent(
     tonalCenter: writtenTonalCenter,
   })
   const figureLevels = parseWireFigureLevels(record)
+  const chordFamilies = readChordFamilies(record)
   const carryIn = 'carryIn' in record ? readCarryIn(record.carryIn) : undefined
   const suppliedProfile =
     controls.instrumentProfileId === MY_INSTRUMENT_ID
       ? { instrumentProfile: parseMyInstrumentProfile(record.instrumentProfile) }
       : {}
   const groups = parseWireRequestGroups(record)
-  const input = { requestId, seed, controls, figureLevels, ...suppliedProfile, ...groups }
+  const input = {
+    requestId,
+    seed,
+    controls,
+    figureLevels,
+    chordFamilies,
+    ...suppliedProfile,
+    ...groups,
+  }
 
   return carryIn === undefined
     ? makeGenerationIntent(input)
@@ -292,24 +340,43 @@ export function rebuildGenerationWorkerIntent(
 }
 
 /**
+ * Intent: parse an untrusted wire carry-in of either origin as the worker's messages hold it: its
+ * carried chord a triad or a triad holding its same-degree seventh.
+ */
+// @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[module_generation_worker_protocol]]
+function parseCarryInTakingSeventh(input: unknown): CarryIn {
+  return parseCarryIn(input, 'triad-or-seventh')
+}
+
+/**
  * Intent: parse one untrusted wire GenerationIntent by rejecting any unknown field (a
  * `musicalProfile` among them: the intent holds none), rebuilding the intent from its owning
  * fields via `rebuildGenerationWorkerIntent` (which requires the `figureLevels` and parses them
- * through the domain's figure-levels parser), then asserting the rebuilt intent deep-equals the
- * received record field-for-field. A built-in's `instrumentProfile` and every `registerIntent` are
- * derived deterministically from those owning fields (my instrument's profile and the figure levels
- * are themselves owning fields, validated as data), so this both validates them and proves the
- * wire value was not tampered with or corrupted in transit. An intent without a carry-in must have
- * no such field, and likewise for the rhythm lock group and the steering block; a group sent with
- * a field its parser does not rebuild, or in a non-canonical form, fails the deep-equal check.
+ * through the domain's figure-levels parser, and is told to require the `chordFamilies` and parse
+ * them through the chord families' parser), then asserting the rebuilt intent deep-equals the
+ * received record field-for-field. A carry-in is read through `parseCarryInTakingSeventh`, so its
+ * carried chord may hold its same-degree seventh, kept unchanged. A built-in's
+ * `instrumentProfile` and every `registerIntent` are derived deterministically from those owning
+ * fields (my instrument's profile, the figure levels and the Seventh chords level are themselves
+ * owning fields, validated as data), so this both validates them and proves the wire value was
+ * not tampered with or corrupted in transit. An
+ * intent without a carry-in must have no such field, and likewise for the rhythm lock group and
+ * the steering block; a group sent with a field its parser does not rebuild, or in a non-canonical
+ * form, fails the deep-equal check.
  */
 // @spec-link [[service_workspace_session_runner_factory]]
 // @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[module_generation_worker_protocol]]
 export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
   const record = asPlainRecord(input, 'GenerationWorkerRequest.intent')
   requireAllowedKeys(record, GENERATION_INTENT_ALLOWED_KEYS, 'GenerationWorkerRequest.intent')
 
-  const rebuilt = rebuildGenerationWorkerIntent(record, parseCarryIn)
+  const rebuilt = rebuildGenerationWorkerIntent(
+    record,
+    parseCarryInTakingSeventh,
+    parseWireChordFamilies,
+  )
 
   if (!deepEqual(rebuilt, record)) {
     throw new GenerationWorkerProtocolError(

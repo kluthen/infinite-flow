@@ -28,7 +28,9 @@ Represent a collection as seven ordered pitch classes relative to the selected c
 
 Build the triad on degree `d` from collection degrees `d`, `d+2`, and `d+4`, wrapping modulo seven. Store degree and pitch classes; derive the displayed quality from those pitch classes. Do not alter a collection degree to manufacture a major dominant or leading tone. Major and Minor use the tonal template family; the seven explicitly named church modes, including Ionian and Aeolian, use the modal family so their separately selectable labels retain distinct planning behavior.
 
-The first-release chord vocabulary is root-position diatonic triads only. Inversions, sevenths, suspensions, slash chords, and non-triad sonorities are outside this policy even when they could be diatonic.
+The collection also holds, on each degree `d`, the seventh chord built from collection degrees `d`, `d+2`, `d+4`, and `d+6` (see [table A](chord-research.md#table-a-the-seventh-chord-on-each-degree)). Derive its quality from its intervals above the root: a major triad with a major seventh is a major seventh chord, a minor triad with a minor seventh is a minor seventh chord, a major triad with a minor seventh is a dominant seventh chord, and a diminished triad with a minor seventh is a half-diminished seventh chord. Refuse any other shape. A harmony event keeps its triad and may also hold its degree's seventh (pitch class and quality); the seventh is absent in triad form. No plan holds a seventh yet: every candidate stays in triad form until the seventh chords level lets the planner offer one.
+
+Inversions, suspensions, slash chords, borrowed chords, and non-diatonic sonorities stay outside this policy.
 
 ## Harmonic event rules
 

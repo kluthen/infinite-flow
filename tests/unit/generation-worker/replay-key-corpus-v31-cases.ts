@@ -13,6 +13,7 @@
  * corpus spec reads only that file.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   ARPEGGIO_CHAOS_VALUES,
   COLLECTIONS,
@@ -162,6 +163,7 @@ function corpusIntent(options: {
       instrumentProfileId: instrument.instrumentProfileId,
     }),
     figureLevels: options.levels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(instrument.instrumentProfile === undefined
       ? {}
       : { instrumentProfile: instrument.instrumentProfile }),
@@ -229,6 +231,7 @@ function presetCases(): readonly ReplayKeyCorpusV31Case[] {
             instrumentProfileId: instrument.instrumentProfileId,
           }),
           levels: JAZZ_FIGURE_LEVELS,
+          chordFamilies: OFF_CHORD_FAMILIES,
         },
         { kind: 'custom', baseId: null },
         preset,

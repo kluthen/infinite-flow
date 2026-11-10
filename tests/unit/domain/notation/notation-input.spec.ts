@@ -28,6 +28,7 @@ import {
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { BUILT_IN_INSTRUMENT_CLEF, type InstrumentClef } from '@/domain/profile/instrument-clef'
 import { buildOrchestratorIntent } from '../generation/orchestration/generation-orchestrator-fixture'
+import { chordPlan } from '../harmony/seventh-chord-fixtures'
 
 const C_MAJOR = makeHarmonyCollection('C', 'Major')
 
@@ -114,6 +115,44 @@ describe('chordSymbolsFromHarmony', () => {
     expect(chords[1]!.suffix).toBe(CHORD_SUFFIX_BY_TRIAD_QUALITY.diminished)
   })
 
+  // @test-link [[rule_seventh_chord_symbols]]
+  it('gives maj7, m7, 7 and m7♭5 to the seven seventh chords of C Major in seventh form', () => {
+    const sevenths = chordPlan([
+      { degree: 1, beat: 0, beats: 2, seventh: true },
+      { degree: 2, beat: 2, beats: 2, seventh: true },
+      { degree: 3, beat: 4, beats: 2, seventh: true },
+      { degree: 4, beat: 6, beats: 2, seventh: true },
+      { degree: 5, beat: 8, beats: 2, seventh: true },
+      { degree: 6, beat: 10, beats: 2, seventh: true },
+      { degree: 7, beat: 12, beats: 4, seventh: true },
+    ])
+    const chords = chordSymbolsFromHarmony(harmonyCandidate(sevenths))
+    expect(chords.map((c) => [c.root, c.suffix])).toEqual([
+      [0, 'maj7'],
+      [2, 'm7'],
+      [4, 'm7'],
+      [5, 'maj7'],
+      [7, '7'],
+      [9, 'm7'],
+      [11, 'm7♭5'],
+    ])
+  })
+
+  // @test-link [[rule_seventh_chord_symbols]]
+  it('keeps the triad suffix for a triad-form event beside a seventh-form one', () => {
+    const mixed = chordPlan([
+      { degree: 1, beat: 0, beats: 8 },
+      { degree: 5, beat: 8, beats: 8, seventh: true },
+    ])
+    const chords = chordSymbolsFromHarmony(harmonyCandidate(mixed))
+    expect(chords.map((c) => [c.root, c.suffix])).toEqual([
+      [0, ''],
+      [0, ''],
+      [7, '7'],
+      [7, '7'],
+    ])
+  })
+
   it('rejects harmony events that leave a gap in the 16 beats', () => {
     const candidate = harmonyCandidate([chord(1, 0, 4), chord(1, 8, 8)])
     expect(() => chordSymbolsFromHarmony(candidate)).toThrow(NotationInputError)
@@ -169,6 +208,38 @@ describe('validateNotationPhraseInput', () => {
       { measureIndex: 0, startTick: 16, root: 0, suffix: '', bass: null },
     ]
     expect(() => validateNotationPhraseInput(inputWithChords(chords))).toThrow(NotationInputError)
+  })
+
+  // @test-link [[rule_seventh_chord_symbols]]
+  it.each(['', 'm', 'dim', 'maj7', 'm7', '7', 'm7♭5'])(
+    'accepts the triad or seventh chord suffix "%s"',
+    (suffix) => {
+      const chords = [0, 1, 2, 3].map((measureIndex) => ({
+        measureIndex: measureIndex as 0 | 1 | 2 | 3,
+        startTick: 0,
+        root: 0 as const,
+        suffix,
+        bass: null,
+      }))
+      expect(() => validateNotationPhraseInput(inputWithChords(chords))).not.toThrow()
+    },
+  )
+
+  // @test-link [[rule_seventh_chord_symbols]]
+  it('refuses a suffix that is neither a triad nor a seventh chord suffix, naming it and its place', () => {
+    const chords: NotationPhraseInput['chords'] = [
+      { measureIndex: 0, startTick: 0, root: 0, suffix: '', bass: null },
+      { measureIndex: 1, startTick: 0, root: 0, suffix: '', bass: null },
+      { measureIndex: 1, startTick: 8, root: 5, suffix: 'sus4', bass: null },
+      { measureIndex: 2, startTick: 0, root: 0, suffix: '', bass: null },
+      { measureIndex: 3, startTick: 0, root: 0, suffix: '', bass: null },
+    ]
+    expect(() => validateNotationPhraseInput(inputWithChords(chords))).toThrow(
+      new NotationInputError(
+        'Chord symbol suffix "sus4" in measure 1 at tick 8 is neither a triad nor a seventh ' +
+          'chord suffix.',
+      ),
+    )
   })
 
   it('accepts treble and bass clef and refuses any other clef', () => {

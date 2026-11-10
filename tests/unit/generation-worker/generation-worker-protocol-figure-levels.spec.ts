@@ -6,6 +6,7 @@
  * field.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
@@ -49,6 +50,7 @@ function intentFor(musicalProfile: 'Neutral' | 'Jazz'): GenerationIntent {
       instrumentProfileId: 'c-keyboard',
     }),
     figureLevels: levelsForProfile(musicalProfile),
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 }
 
@@ -65,6 +67,7 @@ function intentWithOwnLevels(): GenerationIntent {
     seed,
     controls: { ...controls, tonalCenter: writtenTonalCenter },
     figureLevels: levels,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 }
 

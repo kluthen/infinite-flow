@@ -7,6 +7,7 @@
  * seed is drawn once, at publish; each run climbs the ladder afresh; a stopped run's late
  * continuations do nothing.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 import { shallowReactive } from 'vue'
 
@@ -66,6 +67,7 @@ function ladderRun(options: { readonly failing?: (rung: string) => boolean } = {
           seed: makeSeed(++counts.seed),
           controls: DEFAULT_GENERATION_CONTROLS,
           figureLevels: NEUTRAL_FIGURE_LEVELS,
+          chordFamilies: OFF_CHORD_FAMILIES,
         })
         built.push({ rung: RUNGS[at]!, intent })
         return intent

@@ -10,8 +10,13 @@ import { makeSeed } from '@/domain/random/seed'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import { writtenToConcertTonalCenter } from '@/domain/generation/generation-intent'
 import type { InstrumentTransposition } from '@/domain/profile/instrument-profile'
-import { BB_TENOR_PROFILE, EB_ALTO_PROFILE } from '@/domain/profile/instrument-profiles'
-import { notationInputFromOutcome } from '@/domain/notation/notation-input'
+import {
+  ADOPTED_INSTRUMENT_PROFILES,
+  BB_TENOR_PROFILE,
+  EB_ALTO_PROFILE,
+} from '@/domain/profile/instrument-profiles'
+import type { HarmonyCandidate, HarmonyEvent } from '@/domain/harmony/harmony-types'
+import { chordSymbolsFromHarmony, notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import {
@@ -22,6 +27,7 @@ import {
   type WrittenNote,
 } from '@/domain/notation/written-phrase-types'
 import { buildOrchestratorIntent } from '../generation/orchestration/generation-orchestrator-fixture'
+import { chordPlan } from '../harmony/seventh-chord-fixtures'
 
 const LETTERS: readonly Letter[] = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 
@@ -252,7 +258,7 @@ describe('transformToWrittenPhrase: chord symbols', () => {
     }
   })
 
-  it.each(['m7b5', 'maj7#11', 'sus4', '7(omit3)'])(
+  it.each(['maj7', 'm7', '7', 'm7♭5'])(
     'preserves the exact suffix string "%s" at every instrument transposition',
     (suffix) => {
       const chords = tonicChordEachMeasure(3, suffix, null)
@@ -307,6 +313,88 @@ describe('transformToWrittenPhrase: chord symbols', () => {
       expect(measureResult.chords).toHaveLength(1)
       expect(measureResult.chords[0]!.startTick).toBe(0)
     })
+  })
+})
+
+/** The concert chord symbols of a hand-built C Major harmony holding the given events. */
+function concertChordsOf(events: readonly HarmonyEvent[]): readonly ConcertChordSymbol[] {
+  const harmony: HarmonyCandidate = {
+    candidateIndex: 0,
+    identity: 'fixture',
+    templateId: 'fixture',
+    degreeSequence: [1, 1, 1, 1],
+    events,
+    endpoint: { kind: 'tonal_static_degree_five', degree: 5 },
+    tensionRequirement: {
+      arc: 'Settled',
+      allowedBars: [0, 1, 2],
+      maximumResolutionDelay: 'next_strong_sounding_onset',
+      permittedFigureKinds: [],
+      requiredFigureCount: 0,
+      maximumFigureCount: 1,
+      resolutionPreference: 'ordinary',
+      mustResolveBeforeFinalSoundingEvent: true,
+    },
+  }
+  return chordSymbolsFromHarmony(harmony)
+}
+
+/** The seven seventh chords of C Major in seventh form: two per bar, the last one a whole bar. */
+const C_MAJOR_SEVENTH_CHORDS = concertChordsOf(
+  chordPlan([
+    { degree: 1, beat: 0, beats: 2, seventh: true },
+    { degree: 2, beat: 2, beats: 2, seventh: true },
+    { degree: 3, beat: 4, beats: 2, seventh: true },
+    { degree: 4, beat: 6, beats: 2, seventh: true },
+    { degree: 5, beat: 8, beats: 2, seventh: true },
+    { degree: 6, beat: 10, beats: 2, seventh: true },
+    { degree: 7, beat: 12, beats: 4, seventh: true },
+  ]),
+)
+
+/** Per built-in instrument: its written key for concert C Major and the expected chord texts. */
+const WRITTEN_SEVENTH_CHORDS: Record<string, { key: PitchClass; texts: readonly string[] }> = {
+  'c-keyboard': { key: 'C', texts: ['Cmaj7', 'Dm7', 'Em7', 'Fmaj7', 'G7', 'Am7', 'Bm7♭5'] },
+  'bb-tenor': { key: 'D', texts: ['Dmaj7', 'Em7', 'F♯m7', 'Gmaj7', 'A7', 'Bm7', 'C♯m7♭5'] },
+  'eb-alto': { key: 'A', texts: ['Amaj7', 'Bm7', 'C♯m7', 'Dmaj7', 'E7', 'F♯m7', 'G♯m7♭5'] },
+}
+
+// @test-link [[rule_seventh_chord_symbols]]
+describe('transformToWrittenPhrase: seventh chord symbols', () => {
+  // @test-link [[rule_seventh_chord_symbols]]
+  it.each(ADOPTED_INSTRUMENT_PROFILES.map((profile) => [profile.id, profile] as const))(
+    'writes the seven seventh chords of concert C Major in the written key of %s',
+    (id, profile) => {
+      const expected = WRITTEN_SEVENTH_CHORDS[id]!
+      const input = inputOf(
+        wholeNoteTimeline(60),
+        expected.key,
+        'Major',
+        C_MAJOR_SEVENTH_CHORDS,
+        profile.transposition,
+      )
+      const phrase = transformToWrittenPhrase(input)
+      const texts = phrase.measures.flatMap((m) => m.chords.map((chord) => chord.text))
+      expect(texts).toEqual(expected.texts)
+    },
+  )
+
+  // @test-link [[rule_seventh_chord_symbols]]
+  it('writes sounding G7 as A7 for the B-flat tenor saxophone, its suffix unchanged', () => {
+    const chords = concertChordsOf(chordPlan([{ degree: 5, beat: 0, beats: 16, seventh: true }]))
+    const input = inputOf(
+      wholeNoteTimeline(60),
+      'D',
+      'Major',
+      chords,
+      BB_TENOR_PROFILE.transposition,
+    )
+    const phrase = transformToWrittenPhrase(input)
+    const written = phrase.measures[0]!.chords[0]!
+    expect(chords[0]!.suffix).toBe('7')
+    expect(written.root).toEqual({ letter: 'A', alter: 0 })
+    expect(written.suffix).toBe('7')
+    expect(written.text).toBe('A7')
   })
 })
 

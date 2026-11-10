@@ -7,6 +7,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { builtInPreset } from '@/domain/presets/built-in-presets'
 import { makePreset, type Preset } from '@/domain/presets/preset-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
@@ -25,6 +26,7 @@ const LATE_NIGHT: Preset = makePreset({
   name: 'Late night',
   controls: { ...builtInPreset('jazz').controls, tension: 'Build' },
   levels: { ...NEUTRAL_FIGURE_LEVELS, chromaticApproach: 'favored' },
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: { keys: 'any', modes: ['Dorian'] },
   kind: 'player',
 })
@@ -35,6 +37,7 @@ const WARM_UP: Preset = makePreset({
   name: 'Warm-up',
   controls: builtInPreset('neutral').controls,
   levels: NEUTRAL_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: { keys: 'any', modes: 'any' },
   kind: 'player',
 })

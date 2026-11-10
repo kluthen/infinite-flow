@@ -12,6 +12,7 @@
  * none the phrases are exactly those generated without a block.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { describe, expect, it } from 'vitest'
 
 import type { GenerationControls } from '@/domain/controls/generation-controls'
@@ -98,6 +99,7 @@ function intentOf(request: PopulationRequest, steering?: SteeringBlock): Generat
     seed,
     controls,
     figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     carryIn: request.carryIn,
     ...(steering === undefined ? {} : { steering }),
   })

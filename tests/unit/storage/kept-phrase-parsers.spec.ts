@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   GenerationControlError,
   makeGenerationControls,
@@ -45,9 +46,14 @@ const REMOVE = Symbol('remove')
 /** One step of a path into a JSON-shaped value: a field name or an array index. */
 type Step = string | number
 
-/** Intent: a stored copy of a value, as a kept session's JSON-shaped record holds it. */
+/**
+ * Intent: a stored copy of a value, as a kept session's JSON-shaped record holds it: an intent
+ * without its Seventh chords level, which no stored data version holds.
+ */
 function stored(value: unknown): Record<string, unknown> {
-  return JSON.parse(JSON.stringify(value)) as Record<string, unknown>
+  return JSON.parse(
+    JSON.stringify(value, (key, entry: unknown) => (key === 'chordFamilies' ? undefined : entry)),
+  ) as Record<string, unknown>
 }
 
 /** Intent: a stored copy of a value with the field at a path replaced, or removed. */
@@ -370,6 +376,7 @@ describe('parseKeptIntent', () => {
         instrumentProfileId: 'my-instrument',
       }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       instrumentProfile: mine.profile,
     })
 
@@ -632,5 +639,51 @@ describe.each(LEVELS_ONLY_READERS)('%s: figure levels only', (_, read) => {
   // @test-link [[module_kept_session_codec]]
   it('reads back every real intent it was stored from, carry-ins included', () => {
     for (const record of records) expect(read(stored(record.intent))).toEqual(record.intent)
+  })
+})
+
+/** Every reader of a stored intent: data version 4's, 2's and 1's. */
+const EVERY_INTENT_READER = [
+  ['parseKeptIntent', parseKeptIntent],
+  ['parseKeptIntentV2', parseKeptIntentV2],
+  ['parseKeptIntentV1', parseKeptIntentV1],
+] as const
+
+// @test-link [[module_kept_session_codec]]
+// @test-link [[rule_seventh_chord_draws_reproducible]]
+describe.each(EVERY_INTENT_READER)('%s and the Seventh chords level', (_, read) => {
+  // @test-link [[module_kept_session_codec]]
+  it('reads every stored intent, carry-ins included, with the level at Off after its figure levels', () => {
+    for (const record of records) {
+      const parsed = read(stored(record.intent))
+
+      expect(parsed.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+      expect(Object.keys(parsed)).toEqual(Object.keys(record.intent))
+      expect(isDeepFrozen(parsed)).toBe(true)
+    }
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  it.each([
+    ['at Off', OFF_CHORD_FAMILIES],
+    ['above Off', { 'seventh-chords': 'favored' }],
+  ] as const)('refuses a stored intent holding the level %s as an unknown field', (__, level) => {
+    const input = { ...stored(intentOfProfile('Neutral')), chordFamilies: level }
+
+    expect(() => read(input)).toThrow(KeptRecordError)
+    expect(() => read(input)).toThrow(/chordFamilies/u)
+    expect(isKeptPhraseRefusal(catchError(() => read(input)))).toBe(true)
+  })
+})
+
+// @test-link [[module_kept_session_codec]]
+// @test-link [[module_kept_session_upgrade_step]]
+describe('parseKeptIntentV1, a musical profile in place of the levels, and the Seventh chords level', () => {
+  it.each(SELECTIONS)('reads a v3.0-shaped intent of %j with the level at Off', (selection) => {
+    const intent = intentOfProfile(selection.musicalProfile)
+    const parsed = parseKeptIntentV1(v30Shaped(intent, selection))
+
+    expect(parsed.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+    expect(Object.keys(parsed)).toEqual(Object.keys(intent))
   })
 })

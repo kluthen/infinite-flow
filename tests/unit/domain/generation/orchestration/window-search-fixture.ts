@@ -6,6 +6,7 @@
  * domain both stay small and window-search tests run in well under a second.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import {
   createGenerationIntent,
@@ -66,6 +67,7 @@ export function buildWindowSearchFixture(seed: Seed = makeSeed(7)): WindowSearch
     seed,
     controls,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 
   const middleCandidate = intent.registerIntent.candidates.find(

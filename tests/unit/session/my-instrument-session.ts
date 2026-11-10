@@ -6,6 +6,7 @@
  * runner into a history drawn in the clef given.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { createGenerationIntent } from '@/domain/generation/generation-intent'
@@ -58,6 +59,7 @@ export function myInstrumentPhraseOne(
     seed: makeSeed(seed),
     controls: settings.controls,
     figureLevels: sessionFigureLevels(settings),
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(settings.instrumentProfile === undefined
       ? {}
       : { instrumentProfile: settings.instrumentProfile }),

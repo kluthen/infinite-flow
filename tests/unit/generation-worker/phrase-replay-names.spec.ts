@@ -8,8 +8,11 @@ import { describe, expect, it } from 'vitest'
 
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeCarryIn, parseCarryIn } from '@/domain/generation/carry-in/carry-in'
+import { makeHarmonyCollection } from '@/domain/harmony/collection'
+import type { CollectionDegree } from '@/domain/harmony/harmony-types'
 import { makeRegisterWindow } from '@/domain/profile/register-window'
 import { carryInNames, keyFor } from '@/generation-worker/phrase-replay-names'
+import { seventhOf } from '../domain/harmony/seventh-chord-fixtures'
 
 /** The carry-in a real phrase 1 (C keyboard, Middle, seed 11) hands forward, as v3.1 wrote it. */
 const V31_PHRASE_CARRY_IN =
@@ -73,5 +76,37 @@ describe('carry-in names', () => {
       finalChord: null,
     })
     expect(Object.keys(names)).toEqual(['origin', 'lastPitch', 'registerWindow', 'finalChord'])
+  })
+})
+
+/** The v3.1 phrase carry-in, its carried chord moved to `degree` of C Major in seventh form. */
+function carryInWithSeventhOn(degree: CollectionDegree): unknown {
+  const wire = JSON.parse(V31_PHRASE_CARRY_IN)
+  wire.finalHarmony.triad = makeHarmonyCollection('C', 'Major').triads[degree - 1]
+  wire.finalHarmony.seventh = seventhOf(degree)
+  return wire
+}
+
+// @test-link [[rule_seventh_chord_symbols]]
+describe('carried chord symbol', () => {
+  // @test-link [[rule_seventh_chord_symbols]]
+  it.each([
+    [5, 'G7'],
+    [7, 'Bm7♭5'],
+  ] as const)(
+    'names a carried seventh chord on degree %i with its seventh suffix: %s',
+    (degree, symbol) => {
+      const carryIn = parseCarryIn(carryInWithSeventhOn(degree), 'triad-or-seventh')
+      const names = carryInNames(carryIn, C_MAJOR)
+
+      expect(names.finalChord?.symbol).toBe(symbol)
+    },
+  )
+
+  // @test-link [[rule_seventh_chord_symbols]]
+  it('keeps the triad symbol and the triad-only names for a carried triad', () => {
+    const names = carryInNames(parseCarryIn(JSON.parse(V31_PHRASE_CARRY_IN)), C_MAJOR)
+
+    expect(names.finalChord).toStrictEqual(V31_PHRASE_NAMES.finalChord)
   })
 })

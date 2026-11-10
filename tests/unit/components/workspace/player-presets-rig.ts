@@ -8,6 +8,7 @@ import { shallowRef } from 'vue'
 
 import { usePlayerPresets } from '@/components/workspace/use-player-presets'
 import type { SessionControllerPhase } from '@/components/workspace/workspace-session-controller-types'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -70,6 +71,7 @@ export const LATE_NIGHT: Preset = makePreset({
   name: 'Late night',
   controls: { ...builtInPreset('jazz').controls, tension: 'Build' },
   levels: { ...NEUTRAL_FIGURE_LEVELS, chromaticApproach: 'favored' },
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: { keys: 'any', modes: ['Dorian'] },
   kind: 'player',
 })
@@ -80,6 +82,7 @@ export const WARM_UP: Preset = makePreset({
   name: 'Warm-up',
   controls: builtInPreset('neutral').controls,
   levels: NEUTRAL_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   restriction: ANY_KEY_AND_MODE,
   kind: 'player',
 })

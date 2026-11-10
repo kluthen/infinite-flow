@@ -1,3 +1,4 @@
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -60,6 +61,7 @@ function buildFixture(): GenerationResultValidationInput {
     seed: makeSeed(7),
     controls,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 
   const middleCandidate = intent.registerIntent.candidates.find(

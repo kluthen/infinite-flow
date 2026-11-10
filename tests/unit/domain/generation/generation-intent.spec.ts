@@ -9,7 +9,14 @@ import {
   type FigureLevels,
 } from '@/domain/figures/figure-levels'
 import {
+  CHORD_FAMILY_LEVEL_IDS,
+  ChordFamiliesError,
+  OFF_CHORD_FAMILIES,
+  type ChordFamilies,
+} from '@/domain/chords/chord-families'
+import {
   GenerationIntentError,
+  type GenerationIntent,
   createGenerationIntent,
   makeGenerationIntent,
   getInstrumentProfile,
@@ -18,6 +25,7 @@ import {
   writtenToConcertTonalCenter,
 } from '@/domain/generation/generation-intent'
 import { makeRequestId } from '@/domain/generation/generation-request'
+import { resolveCoreRequests } from '@/domain/generation/orchestration/request-resolution'
 import { type InstrumentProfile, makeInstrumentProfile } from '@/domain/profile/instrument-profile'
 import { BB_TENOR_PROFILE } from '@/domain/profile/instrument-profiles'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
@@ -70,6 +78,7 @@ describe('GenerationIntent', () => {
     seed: makeSeed(1),
     controls: DEFAULT_GENERATION_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   })
 
   it('is complete, serializable, immutable, and reuses the selected Step 3 profile policy', () => {
@@ -105,6 +114,7 @@ describe('GenerationIntent', () => {
         instrumentProfileId: 'bb-tenor',
       },
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     })
     expect(tenor.writtenTonalCenter).toBe('C')
     expect(tenor.controls.tonalCenter).toBe('A#')
@@ -118,6 +128,7 @@ describe('GenerationIntent', () => {
         instrumentProfileId: 'eb-alto',
       },
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     })
     expect(alto.writtenTonalCenter).toBe('C')
     expect(alto.controls.tonalCenter).toBe('D#')
@@ -131,6 +142,7 @@ describe('GenerationIntent', () => {
         instrumentProfileId: 'c-keyboard',
       },
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     })
     expect(keyboard.writtenTonalCenter).toBe('C')
     expect(keyboard.controls.tonalCenter).toBe('C')
@@ -148,6 +160,7 @@ describe('GenerationIntent', () => {
         instrumentProfileId: 'bb-tenor',
       },
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     })
     expect(dorian.writtenTonalCenter).toBe('D')
     expect(dorian.controls.tonalCenter).toBe('C')
@@ -160,6 +173,7 @@ describe('GenerationIntent', () => {
       seed: makeSeed(2),
       controls: { ...DEFAULT_GENERATION_CONTROLS, register: 'Varying' },
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     })
     expect(varying.registerIntent.requestedRegister).toBe('Varying')
     expect(varying.registerIntent.candidates.map((candidate) => candidate.id)).toEqual([
@@ -235,6 +249,7 @@ function myInstrumentInput(instrumentProfile?: InstrumentProfile) {
     seed: makeSeed(3),
     controls: MY_INSTRUMENT_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     ...(instrumentProfile === undefined ? {} : { instrumentProfile }),
   }
 }
@@ -332,6 +347,7 @@ describe('GenerationIntent: the figure levels are the levels the input gives', (
         seed: makeSeed(7),
         controls: DEFAULT_GENERATION_CONTROLS,
         figureLevels: levels,
+        chordFamilies: OFF_CHORD_FAMILIES,
       })
       expect(intent.figureLevels).toStrictEqual(levels)
       expect(Object.isFrozen(intent.figureLevels)).toBe(true)
@@ -363,6 +379,7 @@ describe('GenerationIntent: the figure levels are the levels the input gives', (
         seed: makeSeed(9),
         controls: DEFAULT_GENERATION_CONTROLS,
         figureLevels: levels,
+        chordFamilies: OFF_CHORD_FAMILIES,
       })
       const keys = Object.keys(intent)
       expect(keys).not.toContain('musicalProfile')
@@ -394,6 +411,7 @@ describe('GenerationIntent: the figure levels given as levels', () => {
       seed: makeSeed(10),
       controls: DEFAULT_GENERATION_CONTROLS,
       figureLevels: GIVEN_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
     })
   }
 
@@ -423,6 +441,7 @@ function plainInput() {
     seed: makeSeed(21),
     controls: DEFAULT_GENERATION_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
   }
 }
 
@@ -435,6 +454,7 @@ const FULL_INTENT_KEYS = [
   'controls',
   'writtenTonalCenter',
   'figureLevels',
+  'chordFamilies',
   'instrumentProfile',
   'registerIntent',
   'carryIn',
@@ -470,7 +490,7 @@ describe('GenerationIntent: the rhythm lock group and the steering block', () =>
     const v31Intent = makeGenerationIntent(plainInput())
     const intent = makeGenerationIntent({ ...plainInput() })
 
-    expect(Object.keys(intent)).toEqual(FULL_INTENT_KEYS.slice(0, 9))
+    expect(Object.keys(intent)).toEqual(FULL_INTENT_KEYS.slice(0, 10))
     expect(intent).toStrictEqual(v31Intent)
     expect(JSON.stringify(intent)).toBe(JSON.stringify(v31Intent))
   })
@@ -500,7 +520,7 @@ describe('GenerationIntent: the rhythm lock group and the steering block', () =>
       nextSeed: () => makeSeed(23),
     })
 
-    expect(Object.keys(regenerated)).toEqual(FULL_INTENT_KEYS.slice(0, 9))
+    expect(Object.keys(regenerated)).toEqual(FULL_INTENT_KEYS.slice(0, 10))
   })
 
   // @test-link [[entity_request_rhythm_lock]]
@@ -520,6 +540,109 @@ describe('GenerationIntent: the rhythm lock group and the steering block', () =>
     expect(Object.isFrozen(withGroups)).toBe(true)
     expect(withGroups.rhythmLock).toStrictEqual(SAMPLE_RHYTHM_LOCK)
     expect(withGroups.steering).toStrictEqual(SAMPLE_STEERING)
-    expect(Object.keys(withoutGroups)).toEqual(FULL_INTENT_KEYS.slice(0, 10))
+    expect(Object.keys(withoutGroups)).toEqual(FULL_INTENT_KEYS.slice(0, 11))
+  })
+})
+
+/** Intent: the same intent as one built before v3.3: every field but the Seventh chords level. */
+function intentBeforeTheLevel(intent: GenerationIntent): GenerationIntent {
+  const { chordFamilies, ...earlier } = intent
+  void chordFamilies
+  return earlier as GenerationIntent
+}
+
+/** Intent: a plain intent input whose Seventh chords level is missing, as an untyped caller sends it. */
+function inputWithoutTheLevel(): Parameters<typeof makeGenerationIntent>[0] {
+  const input = plainInput()
+  Reflect.deleteProperty(input, 'chordFamilies')
+  return input
+}
+
+// @test-link [[module_generation_request_construction]]
+// @test-link [[rule_seventh_chord_draws_reproducible]]
+describe('GenerationIntent: the Seventh chords level', () => {
+  it('holds the Off level it is given, right after the figure levels', () => {
+    const intent = makeGenerationIntent(plainInput())
+    const keys = Object.keys(intent)
+
+    expect(intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+    expect(keys[keys.indexOf('figureLevels') + 1]).toBe('chordFamilies')
+    expect(Object.isFrozen(intent.chordFamilies)).toBe(true)
+  })
+
+  it('refuses an input without the level as a ChordFamiliesError, never reading it as Off', () => {
+    expect(() => makeGenerationIntent(inputWithoutTheLevel())).toThrow(ChordFamiliesError)
+    expect(() => createGenerationIntent(inputWithoutTheLevel())).toThrow(ChordFamiliesError)
+  })
+
+  it.each(CHORD_FAMILY_LEVEL_IDS)(
+    'carries the level %s it is given, as a fresh frozen copy',
+    (level) => {
+      const chordFamilies: ChordFamilies = { 'seventh-chords': level }
+      const intent = makeGenerationIntent({ ...plainInput(), chordFamilies })
+
+      expect(intent.chordFamilies).toStrictEqual(chordFamilies)
+      expect(intent.chordFamilies).not.toBe(chordFamilies)
+      expect(Object.isFrozen(intent.chordFamilies)).toBe(true)
+      expect(Object.keys(intent)).toEqual(FULL_INTENT_KEYS.slice(0, 10))
+    },
+  )
+
+  it('refuses an unknown family or level as a ChordFamiliesError', () => {
+    for (const chordFamilies of [
+      { 'seventh-chords': 'often' },
+      { 'seventh-chords': 'off', 'ninth-chords': 'off' },
+    ])
+      expect(() =>
+        makeGenerationIntent({
+          ...plainInput(),
+          chordFamilies: chordFamilies as unknown as ChordFamilies,
+        }),
+      ).toThrow(ChordFamiliesError)
+  })
+
+  // @test-link [[rule_seeded_phrase_reproduction]]
+  it('regenerates with the previous level kept', () => {
+    const intent = makeGenerationIntent({
+      ...plainInput(),
+      chordFamilies: { 'seventh-chords': 'stronglyFavored' },
+    })
+    const regenerated = regenerateGenerationIntent(intent, {
+      nextRequestId: () => makeRequestId('request-seventh-chords-2'),
+      nextSeed: () => makeSeed(31),
+    })
+
+    expect(regenerated.chordFamilies).toStrictEqual({ 'seventh-chords': 'stronglyFavored' })
+    expect(Object.keys(regenerated)).toEqual(Object.keys(intent))
+  })
+
+  it('an intent receiving a carry-in keeps the level it was given, after the figure levels', () => {
+    const first = buildIntent({ seed: 11, label: 'seventh-chords' })
+    const carryIn = carryInAfter(first, generateSuccess(first), 1)
+    const intent = makeCarryInGenerationIntent({
+      ...plainInput(),
+      controls: BASE_CONTROLS,
+      chordFamilies: { 'seventh-chords': 'sometimes' },
+      carryIn,
+    })
+
+    expect(intent.chordFamilies).toStrictEqual({ 'seventh-chords': 'sometimes' })
+    expect(Object.keys(intent)).toEqual(FULL_INTENT_KEYS.slice(0, 11))
+  })
+
+  // @test-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
+  it('resolves, at every level, the very request an intent without the level resolves to', () => {
+    for (const level of CHORD_FAMILY_LEVEL_IDS) {
+      const intent = makeGenerationIntent({
+        ...plainInput(),
+        controls: { ...DEFAULT_GENERATION_CONTROLS, register: 'Varying' },
+        chordFamilies: { 'seventh-chords': level },
+        rhythmLock: SAMPLE_RHYTHM_LOCK,
+      })
+      const requests = JSON.stringify(resolveCoreRequests(intent))
+
+      expect(requests).toBe(JSON.stringify(resolveCoreRequests(intentBeforeTheLevel(intent))))
+      expect(requests).not.toMatch(/chordFamilies|seventh-chords/u)
+    }
   })
 })

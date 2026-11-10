@@ -5,15 +5,23 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { CHORD_FAMILY_LEVEL_IDS } from '@/domain/chords/chord-families'
 import {
   CarryInError,
+  carriedPitchIsTense,
+  carriedPitchOnCarriedChord,
   makeCarryIn,
   parseCarryIn,
+  parsePhraseCarryIn,
   type CarryIn,
   type PhraseCarryIn,
 } from '@/domain/generation/carry-in/carry-in'
+import { makeCarryInGenerationIntent } from '@/domain/generation/carry-in/carry-in-intent'
+import { owedRecoveryCanSettle } from '@/domain/generation/carry-in/phrase-ending-debt'
 import { GenerationIntentError, makeGenerationIntent } from '@/domain/generation/generation-intent'
+import { carriedMotionState } from '@/domain/pitch/pitch-carry-in'
 import { makeRegisterWindow } from '@/domain/profile/register-window'
+import { seventhOf, withSeventh } from '../../harmony/seventh-chord-fixtures'
 import {
   attackMidis,
   buildIntent,
@@ -51,6 +59,21 @@ function tenseNeighbour(carryIn: CarryIn): number {
 /** Intent: a copy of a carry-in with its last pitch replaced. */
 function withLastPitch(carryIn: CarryIn, lastPitch: Record<string, unknown>): CarryIn {
   return { ...carryIn, lastPitch: { ...carryIn.lastPitch, ...lastPitch } } as CarryIn
+}
+
+/** Intent: a copy of a carry-in whose carried chord holds the given seventh (G7's by default). */
+function withCarriedSeventh(carryIn: CarryIn, seventh: unknown = seventhOf(5)): CarryIn {
+  return { ...carryIn, finalHarmony: { ...carryIn.finalHarmony!, seventh } } as CarryIn
+}
+
+/** Intent: an F inside the carried window, the seventh of a carried G7, reached by a step up. */
+function onTheSeventh(carryIn: CarryIn): CarryIn {
+  const { minMidi, maxMidi } = carryIn.registerWindow
+  const f = Array.from({ length: maxMidi - minMidi + 1 }, (_, index) => minMidi + index).find(
+    (midi) => midi % 12 === 5,
+  )
+  if (f === undefined) throw new Error('No F inside the carried window.')
+  return withLastPitch(carryIn, { midi: f, arrivingInterval: 1 })
 }
 
 // @test-link [[entity_phrase_carry_in]]
@@ -173,6 +196,21 @@ describe('deriveCarryIn', () => {
     })
     expect(carryIn.phraseNumber).toBe(1)
   })
+
+  // @test-link [[entity_phrase_carry_in]]
+  // @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+  it("carries the final event's seventh when it has one, and no seventh after a triad", () => {
+    const intent = buildIntent({ seed: 11 })
+    const outcome = generateSuccess(intent)
+    const { harmony } = outcome.provenance
+    const events = [...harmony.events.slice(0, -1), withSeventh(harmony.events.at(-1)!)]
+    const endsOnSeventh: SuccessOutcome = {
+      ...outcome,
+      provenance: { ...outcome.provenance, harmony: { ...harmony, events } },
+    }
+    expect(carryInAfter(intent, endsOnSeventh, 1).finalHarmony!.seventh).toEqual(seventhOf(5))
+    expect(Object.hasOwn(carryInAfter(intent, outcome, 1).finalHarmony!, 'seventh')).toBe(false)
+  })
 })
 
 // @test-link [[entity_phrase_carry_in]]
@@ -201,12 +239,37 @@ describe('a carry-in checked against the intent that receives it', () => {
       seed: plain.seed,
       controls: { ...plain.controls, tonalCenter: plain.writtenTonalCenter },
       figureLevels: plain.figureLevels,
+      chordFamilies: plain.chordFamilies,
     }
     expect(makeGenerationIntent(input)).toStrictEqual(plain)
     expect(() => makeGenerationIntent(Object.assign({}, input, { carryIn }))).toThrow(
       GenerationIntentError,
     )
   })
+
+  // @test-link [[rule_seventh_chord_draws_reproducible]]
+  it.each(CHORD_FAMILY_LEVEL_IDS.filter((level) => level !== 'off'))(
+    'keeps the Seventh chords level %s it is given, the rest as at Off',
+    (level) => {
+      const { carryIn } = realCarryIn()
+      const atOff = buildIntent({ seed: 12, carryIn })
+      const intent = makeCarryInGenerationIntent({
+        requestId: atOff.requestId,
+        seed: atOff.seed,
+        controls: { ...atOff.controls, tonalCenter: atOff.writtenTonalCenter },
+        figureLevels: atOff.figureLevels,
+        chordFamilies: { 'seventh-chords': level },
+        carryIn,
+      })
+      const { chordFamilies, ...rest } = intent
+      const { chordFamilies: offLevel, ...restAtOff } = atOff
+
+      expect(chordFamilies).toStrictEqual({ 'seventh-chords': level })
+      expect(offLevel).toStrictEqual({ 'seventh-chords': 'off' })
+      expect(rest).toStrictEqual(restAtOff)
+      expect(Object.keys(intent)).toEqual(Object.keys(atOff))
+    },
+  )
 
   it('refuses a window the register choice does not offer', () => {
     const { carryIn } = realCarryIn()
@@ -277,5 +340,138 @@ describe('a carry-in checked against the intent that receives it', () => {
     expect(() =>
       buildIntent({ seed: 12, carryIn, controls: { instrumentProfileId: 'eb-alto' } }),
     ).toThrow(CarryInError)
+  })
+})
+
+// @test-link [[entity_phrase_carry_in]]
+describe('a carried seventh chord', () => {
+  // @test-link [[entity_phrase_carry_in]]
+  // @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+  it('is accepted with exactly its same-degree seventh and quality, kept and frozen', () => {
+    const { carryIn } = realCarryIn()
+    expect(carryIn.finalHarmony!.triad).toEqual({
+      degree: 5,
+      pitchClasses: [7, 11, 2],
+      quality: 'major',
+    })
+    const g7 = makeCarryIn(withCarriedSeventh(carryIn))
+    expect(g7).toEqual(withCarriedSeventh(carryIn))
+    expect(g7.finalHarmony!.seventh).toEqual({ pitchClass: 5, quality: 'dominant-seventh' })
+    expect(Object.isFrozen(g7.finalHarmony!.seventh)).toBe(true)
+    expect(Object.hasOwn(makeCarryIn(carryIn).finalHarmony!, 'seventh')).toBe(false)
+  })
+
+  // @test-link [[entity_phrase_carry_in]]
+  // @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+  it('refuses a fourth note that is not the seventh of its own degree, with the reason', () => {
+    const { carryIn } = realCarryIn()
+    for (const pitchClass of [9, 7, 11, 2])
+      expect(() =>
+        makeCarryIn(withCarriedSeventh(carryIn, { pitchClass, quality: 'dominant-seventh' })),
+      ).toThrow(/is not the seventh of the chord's own degree/)
+  })
+
+  // @test-link [[entity_phrase_carry_in]]
+  // @test-link [[rule_carried_seventh_chord_compared_by_triad]]
+  it('refuses a quality its four notes do not form, naming the given and the expected', () => {
+    const { carryIn } = realCarryIn()
+    expect(() =>
+      makeCarryIn(withCarriedSeventh(carryIn, { pitchClass: 5, quality: 'major-seventh' })),
+    ).toThrow(/"major-seventh".*"dominant-seventh"/)
+  })
+
+  // @test-link [[entity_phrase_carry_in]]
+  it('refuses an unknown seventh chord quality and a malformed seventh pitch class', () => {
+    const { carryIn } = realCarryIn()
+    expect(() =>
+      makeCarryIn(withCarriedSeventh(carryIn, { pitchClass: 5, quality: 'diminished-seventh' })),
+    ).toThrow('The carried seventh chord quality "diminished-seventh" is unknown.')
+    for (const pitchClass of [12, -1, 5.5, '5'])
+      expect(() =>
+        makeCarryIn(withCarriedSeventh(carryIn, { pitchClass, quality: 'dominant-seventh' })),
+      ).toThrow(/The carried seventh must be a pitch class 0-11/)
+  })
+
+  // @test-link [[rule_join_reads_carried_chord_as_triad]]
+  it('reads a carried note on the seventh as a tense note that must have been reached by a step', () => {
+    const { carryIn } = realCarryIn()
+    const onSeventh = withCarriedSeventh(onTheSeventh(carryIn))
+    expect(carriedPitchOnCarriedChord(onSeventh)).toBe(false)
+    expect(carriedPitchIsTense(onSeventh)).toBe(true)
+    expect(makeCarryIn(onSeventh).finalHarmony!.seventh).toEqual(seventhOf(5))
+    expect(() => makeCarryIn(withLastPitch(onSeventh, { arrivingInterval: -5 }))).toThrow(
+      'A tense carried note must have been reached by a step.',
+    )
+  })
+
+  // @test-link [[rule_join_reads_carried_chord_as_triad]]
+  it('recognizes no run across the join through a carried note on the seventh', () => {
+    const { carryIn } = realCarryIn()
+    const overTriad = makeCarryIn(onTheSeventh(carryIn))
+    const overSeventh = makeCarryIn(withCarriedSeventh(overTriad))
+    expect(overSeventh.finalHarmony!.seventh).toEqual(seventhOf(5))
+    const state = carriedMotionState(overSeventh)
+    expect(state).toStrictEqual(carriedMotionState(overTriad))
+    expect(state.prior!.chordTone).toBe(false)
+    expect(state.chainNotes).toEqual([])
+  })
+
+  // @test-link [[rule_join_reads_carried_chord_as_triad]]
+  it('the landing after an owed note is a tonic-triad note with a carried seventh chord', () => {
+    const { carryIn } = realCarryIn()
+    const { minMidi, maxMidi } = carryIn.registerWindow
+    const leapt = Array.from({ length: maxMidi - minMidi + 1 }, (_, index) => minMidi + index).find(
+      (midi) =>
+        [7, 11, 2].includes(midi % 12) &&
+        midi - 7 >= minMidi &&
+        owedRecoveryCanSettle(midi, 1, [0, 2, 4, 5, 7, 9, 11], carryIn.registerWindow),
+    )
+    expect(leapt).toBeDefined()
+    const owed = { arrivingInterval: 7, recovery: { kind: 'owed', leapDirection: 1 } }
+    for (const debt of [onTheSeventh(carryIn), withLastPitch(carryIn, { midi: leapt, ...owed })]) {
+      const seventh = makeCarryIn(withCarriedSeventh(debt))
+      expect(seventh.finalHarmony!.seventh).toEqual(seventhOf(5))
+      const overTriad = generateSuccess(buildIntent({ seed: 12, carryIn: makeCarryIn(debt) }))
+      const overSeventh = generateSuccess(buildIntent({ seed: 12, carryIn: seventh }))
+      expect(overSeventh).toEqual({
+        ...overTriad,
+        request: { ...overTriad.request, carryIn: seventh },
+      })
+      expect([0, 4, 7]).toContain(attackMidis(overSeventh.result.timeline.measures)[0]! % 12)
+    }
+  })
+
+  // @test-link [[entity_phrase_carry_in]]
+  it('is refused with the reason by the triad-only default of both parsers', () => {
+    const { carryIn } = realCarryIn()
+    const wire = structuredClone(withCarriedSeventh(carryIn))
+    const reason = 'CarryIn.finalHarmony holds a seventh, which this form cannot carry.'
+    expect(() => parseCarryIn(wire)).toThrow(reason)
+    expect(() => parsePhraseCarryIn(wire)).toThrow(reason)
+    const coloured = { ...structuredClone(carryIn.finalHarmony!), colour: 'blue' }
+    expect(() => parseCarryIn({ ...structuredClone(carryIn), finalHarmony: coloured })).toThrow(
+      'CarryIn.finalHarmony has unknown field "colour".',
+    )
+  })
+
+  // @test-link [[entity_phrase_carry_in]]
+  it('round-trips unchanged through the reading that takes a seventh, still refusing others', () => {
+    const { carryIn } = realCarryIn()
+    const g7 = makeCarryIn(withCarriedSeventh(carryIn))
+    expect(parseCarryIn(structuredClone(g7), 'triad-or-seventh')).toStrictEqual(g7)
+    expect(parseCarryIn(structuredClone(carryIn), 'triad-or-seventh')).toStrictEqual(carryIn)
+    const wire = structuredClone(g7)
+    const extra = { ...wire.finalHarmony!, seventh: { ...wire.finalHarmony!.seventh, extra: 1 } }
+    expect(() => parseCarryIn({ ...wire, finalHarmony: extra }, 'triad-or-seventh')).toThrow(
+      'CarryIn.finalHarmony.seventh has unknown field "extra".',
+    )
+    const coloured = { ...wire.finalHarmony!, colour: 'blue' }
+    expect(() => parseCarryIn({ ...wire, finalHarmony: coloured }, 'triad-or-seventh')).toThrow(
+      'CarryIn.finalHarmony has unknown field "colour".',
+    )
+    const wrong = { ...wire.finalHarmony!, seventh: { pitchClass: 9, quality: 'dominant-seventh' } }
+    expect(() => parseCarryIn({ ...wire, finalHarmony: wrong }, 'triad-or-seventh')).toThrow(
+      CarryInError,
+    )
   })
 })

@@ -106,6 +106,7 @@ test.describe('my instrument: a player-made transposition in its written pitch',
     expect(chordTexts).toEqual([`F${sharp}`, 'B', `C${sharp}7`, `F${sharp}`])
   })
 
+  // @test-link [[rule_seventh_chord_symbols_spoken]]
   test('describes the written notes with sharps, written F as E sharp', async ({ page }) => {
     const describedBy = await page.locator('svg.staff-svg').getAttribute('aria-describedby')
     const description = page.locator(`#${describedBy}`)
@@ -117,7 +118,7 @@ test.describe('my instrument: a player-made transposition in its written pitch',
         'F sharp 4 eighth, E sharp 4 eighth, C sharp 4 eighth, A sharp 3 eighth',
     )
     expect(measures[1]).toContain('chord B; B 3 quarter, D sharp 4 quarter, F sharp 4 quarter')
-    expect(measures[2]).toContain('chord C sharp 7; C sharp 4 half, E sharp 4 half')
+    expect(measures[2]).toContain('chord C sharp dominant seventh; C sharp 4 half, E sharp 4 half')
     expect(measures[3]).toContain('chord F sharp; F sharp 3 whole')
     // No written note is spelled with a flat, or as a plain F.
     for (const measure of measures) {

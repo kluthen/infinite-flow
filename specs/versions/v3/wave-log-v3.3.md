@@ -83,3 +83,146 @@ jobs. No source change since `v3.2.0`.
 - `doc-ids compare main v3.3-w0`: 0 collisions.
 - Report to the owner: chunks 0 and 1 merged, none moved; the gate green step by step on 78ce77c6
   with ISS-017 filed; entry 311,455 B; nothing to sign. Merge into `main` on the owner's word.
+
+## Wave 1
+
+### Wave 1 start and preflight (2026-11-10)
+
+- Wave 0 merged into `main` 21843b4a (the owner: "merge"). Branch `v3.3-w1` cut from it, worktree
+  `/home/bastien/work/infinite_flow-v3.3-w1`. Chunks 2, 3, 8, 10, 11; κ = 1; order 2, 3, 8, 10, 11.
+- `documentalist`'s wave preflight (8195f107): every chunk **PROCEED** (3, 8 and 11 with notes:
+  missing files on their Files lines). Captures: `module_harmony_candidate_domain` 0.3 (chunk 2:
+  the optional `seventh` beside `triad`, four qualities, `chordTones`), `module_generation_request_construction`
+  0.9 and `module_generation_worker_protocol` 0.11 (chunk 3: `chordFamilies` beside `figureLevels`,
+  family `seventh-chords`, levels `off`, `sometimes`, `favored`, `stronglyFavored`; every builder
+  passes Off), `entity_phrase_carry_in` 0.7 (chunk 8: the carried chord's same-degree seventh,
+  compared by its triad).
+- Wordings wave 1's sync applies: A8 at the preset level, A10, A12 (CONTRACT 15.0.0). Drift for the
+  sync: `module_generation_request_construction`'s "Nothing builds an intent with either group yet"
+  is false since v3.2 (`session-intents.ts`, `jam-phrase-one-attempts.ts`).
+- Plan corrections sent to `spec-writer` before the first chunk: plan v10 (a9d7d707), spec D527.
+  Files lines fixed on chunks 3, 8, 10 and 11; chunk 3 split three ways (3a, 3b, 3c); chunk 8 and
+  11 gain split rules; the v3.2-format writers refuse a level above Off. **A8 timing (D527, option
+  b):** A8's Idle-state sentences apply with chunk 16 at wave 3's sync (17.0.0); the confirmed
+  wording is unchanged, only the wave moves, so the owner is told, not asked.
+
+### Chunk 2 merged (2026-11-10)
+
+- e4e9cbdc (79b174e3): the seventh chord on every degree, its four qualities, any other shape
+  throws; `HarmonyEvent.seventh?` is `{ pitchClass, quality }`, absent in triad form; `chordTones`;
+  every candidate still in triad form. Table A checked on 12 tonics × 9 collections; a triad event's
+  JSON equals the pre-chunk literal; corpus guard green (21 files, 557 tests). No deviation.
+
+### Chunk 3 merged (2026-11-10)
+
+- 056ea511 (3a 1213728c, 3b 5bab9862, 3c b06b844e): `chordFamilies` on every intent at Off, the
+  resolved request unchanged; the worker refuses a missing, unknown or extra family or level;
+  `ifk1.`–`ifk4.` decode at Off, `ifk4.` round-trips, the encoder refuses a level above Off; kept
+  bodies keep data version 4's keys and reopen at Off. Corpus guard green after each half (18 files,
+  498 tests). No deviation.
+- Files-line gap (for `spec-writer`, no decision): `use-generation-session.ts` and
+  `generation-session-prewarm.ts` also build intents and pass Off.
+- For the wave gate: `npm run lint:health` fails on `tests/unit/domain/harmony/collection.spec.ts:251`
+  (nesting depth 5, from chunk 2); the perf, sweep and e2e-harness files 3c edited are typechecked,
+  not run.
+- For the sync: the two captured atoms still write `rebuildGenerationWorkerIntent(record,
+readCarryIn)` (now a third argument); the known drift stands.
+- For chunk 15 (`spec-writer`): `phrase-replay-report.ts` copies intent fields by name and does not
+  show `chordFamilies`; `docs/phrase-workspace.md`'s "Until the `ifk4.` key exists, …" sentence was
+  already stale.
+
+### Chunk 8 merged (2026-11-10)
+
+- The first owner handed back early with an unverified WIP (0b8bc77b) while its executor still
+  ran; the driver stopped that executor and a fresh owner resumed, reviewed its two uncommitted test
+  edits (a finished test move) and kept them.
+- 553691c2 (8a d0b9e670, 8b 5c3551c7): a carried chord may hold its same-degree seventh, judged by
+  its triad; a final note on the seventh is tense; the landing stays the tonic triad. Only the
+  worker's two readers take a seventh; `ifk1.`–`ifk4.` keys and the data-version-4 kept body refuse
+  one. Corpus guard green (22 files, 560 tests). No deviation.
+- For `spec-writer` (chunks 15 and 17): the `ifk4.` encoder and the data-version-4 writer do not
+  refuse a carried seventh (unreachable before chunk 12 makes one); settle it with `ifk5.` and data
+  version 5, or have them refuse it as chunk 3's did a level above Off. FYI: a carry-in has no key,
+  so `assertCarriedHarmony` checks the stack and quality only; a hand-made C7 on degree 1 in C major
+  passes on the wire (every app-derived carry-in uses the key's own seventh).
+- For the sync: A10 holds against the code (`adaptedHarmony` keeps the seventh while the triad
+  fits); new links to `rule_carried_seventh_chord_compared_by_triad`,
+  `rule_join_reads_carried_chord_as_triad`, `entity_phrase_carry_in`,
+  `module_generation_worker_protocol`.
+
+### Chunk 10 merged (2026-11-10)
+
+- c5c10eb1 (3bdcc98a): the four seventh suffixes in written pitch for each built-in instrument
+  (G7 written A7 for the B-flat tenor); the description reads each suffix as one whole ("chord B
+  half-diminished seventh"); an unknown suffix is refused with its place; the replay tool names a
+  carried G7 and Bm7♭5. Corpus guard green (36 files, 722 tests); `notation-my-instrument` and
+  `notation-visual` 24 passed, no snapshot written. No deviation.
+- For the release gate's list of replaced tests: `written-phrase.spec.ts` › 'preserves the exact
+  suffix string "%s" …' now lists `maj7`, `m7`, `7`, `m7♭5` (the free-form suffixes it used are
+  refused by design).
+- For the sync: revise `module_notation_layout_preflight`; `service_headless_phrase_replay` sees
+  `chordSymbolInKey`. For `documentalist` at the release gate: the lexicon's Chord symbol and four
+  seventh-chord entries. For `spec-writer` (chunk 15 or the replay report): the replay bars' and
+  carried chord's `quality` and `pitchClasses` stay the triad's. Chunk 13 owns MusicXML's
+  `CHORD_KIND_BY_SUFFIX`, which throws on a seventh until then (unreachable before chunk 12).
+
+### Chunk 11 merged (2026-11-10)
+
+- 70f425b1 (11a 367794ab, 11b 32df286e; C1: spec D526, D527): every preset holds the Seventh
+  chords level, the built-ins at Off; choosing a preset sets it; a change of it makes "Custom, based
+  on {name}"; a player preset holds it by value; a v3.2 player preset loads at Off and a new one is
+  stored in v3.2's bytes, a level above Off refused. `selectPreset` drops the level until chunk 16
+  (D527). No deviation.
+- A8 at the preset level holds against the code (`rule_choosing_preset_sets_its_settings`' LOGIC
+  and first EXPECTATION, `module_preset_model`, `module_profile_control_customization`'s Custom
+  sentence); the Idle-state sentences wait for chunk 16 (wave 3).
+- For the wave gate: the e2e preset specs (`presets-load`, `presets-saving`) run on the changed
+  `seedPresets` seam.
+
+### Wave 1 gate (2026-11-10, on 2020de0f)
+
+Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
+
+- Fix 2020de0f (chunk 2): `collection.spec.ts`'s triple loop moved into a helper for
+  `lint:health`'s nesting limit, the assertions unchanged.
+- Run 1, 13:34–13:41 (load 1.8 → 23.8): format, lint, links, `lint:health` (0 errors), unit 9,794
+  tests in 626 files, typecheck and build, boundaries green; e2e 725 + 1 skipped, red on
+  `session-ends.spec.ts:244` (the harness not ready within 30 s). Alone, 13:45 (load 2.0): 9 of 9
+  passed: an ISS-017 load flake.
+- Run 2, the remaining steps, 13:46–13:50 (load 1.9 → 12.5): e2e with pre-generation 726 + 1
+  skipped, a11y 76, notation 107 + 4 skipped, `atd:lint`, `atd:check`: green. The preset specs
+  (`presets-load`, `presets-saving`, 31 tests) green on chunk 11's `seedPresets` seam in both.
+- Sweep, 13:53–13:55 (load 1.8 → 1.4): 114 tests in 10 files (v3.2's 91 plus chunk 33's 23). At
+  Off it gives v3.2's recorded figures: pre-generation at 240 BPM 568 cases, phrase 2 by carry-in
+  100.0 %, 0 refused, 0 shortfalls; 0 repeats and 0 undecided everywhere; carry-in lost to the
+  time rule at 240 BPM in every case (Eighth 216 of 216), none at 60 and 120 BPM. The standalone
+  per-reason counts have no recorded v3.2 figure; they are in the log as a baseline.
+- **Entry chunk 313,113 B** (+1,658 B on wave 0's 311,455 B; budget 327,680 B); Jam's chunk
+  61,211 B (+19 B); no `src/jam/` module in the first load; 526 source files, 66 chunks.
+
+### Wave 1 sync and report (2026-11-10)
+
+- `spec-writer`, plan v11 (1ea7795f), spec D528: the chunk owners' items settled by order, not by
+  interim refusals (chunk 15 retires the `ifk4.` writer, chunk 17 the data-version-4 body writer;
+  chunk 19 now waits for 9, 10, 13, 14, 15 and 17); chunk 15 gains the replay report and a 15a/15b
+  split; chunk 16 gains the prewarm file; **chunk 13 moves to wave 4** (it had no edge to chunk 19
+  in wave 5, so a blocked 13 could have let the app make a seventh it cannot export). No owner
+  ruling.
+- `documentalist`'s wave sync (6758f1fd): **CONTRACT 15.0.0**; A8 at the preset level
+  (`rule_choosing_preset_sets_its_settings` 0.2 without its TECHNICAL INTERFACE,
+  `module_preset_model` 0.3), A10 (`rule_harmony_change_drops_unfit_harmonic_carry_in` 0.3), A12;
+  `module_generative_profile_selection` and `module_profile_control_customization` wait whole for
+  wave 3 (chunk 16, 17.0.0). Every chunk's Revisions applied; the known drift fixed. Drift found:
+  `module_generation_worker_protocol` said every malformed message throws
+  `GenerationWorkerProtocolError`; the driver ruled the tested code right (typed errors per part),
+  applied in e5917cc0 and 88fd7fc8 (0.14).
+- Promotion candidates put to the owner (DRAFT → REVIEW): `rule_seventh_chords_diatonic_only`,
+  `rule_seventh_chord_symbols_spoken`, `rule_carried_seventh_chord_compared_by_triad`,
+  `rule_join_reads_carried_chord_as_triad`.
+- `doc-ids compare main v3.3-w1`: 0 collisions.
+- Report to the owner: chunks 2, 3, 8, 10 and 11 merged, none moved out of the wave; the gate green
+  on 2020de0f with one ISS-017 flake; sweep at v3.2's figures; entry 313,113 B; A8's split (D527)
+  told. Merge into `main` on the owner's word.
+- The owner, 2026-11-10: "Merge and push"; the four promotions "Promote all four": applied in
+  d2519a7d (each REVIEW at 0.1). Next: wave 2 (chunks 4, 5, 6, 7, 9) in a fresh session; wave 1's
+  row in the waves table is set to merged by wave 2's start.

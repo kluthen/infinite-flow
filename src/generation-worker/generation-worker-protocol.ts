@@ -13,7 +13,7 @@
 
 import { deepFreeze } from '../domain/events/deep-freeze'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
-import { parseGenerationRequest } from '../domain/generation/generation-request'
+import { parseGenerationRequestTakingSeventh } from '../domain/generation/generation-request'
 import { RHYTHM_CHANGE_KINDS } from '../domain/generation/request-rhythm-lock'
 import { makeGenerationResult } from '../domain/generation/generation-result'
 import { parseConcertEventTimeline } from '../domain/events/timeline-parser'
@@ -200,12 +200,13 @@ const GENERATION_RESULT_ALLOWED_KEYS = new Set(['requestId', 'seed', 'timeline']
 
 /**
  * Intent: parse an untrusted wire GenerationOutcome. A success outcome re-validates its retained
- * `request` through `parseGenerationRequest` and its `result.timeline` through
- * `parseConcertEventTimeline` — the two existing boundary parsers that cover GenerationResult's
- * fields — and requires `result.requestId`/`result.seed` to match the validated request exactly.
- * A failure outcome requires `code` to be one of the closed GenerationFailureCode values. Either
- * way the parsed outcome is deep-frozen before being returned, since `structuredClone` strips the
- * freezing generatePhrase itself applied.
+ * `request` through `parseGenerationRequestTakingSeventh` (its carry-in's carried chord may hold
+ * its same-degree seventh, which the worker's messages carry unchanged) and its `result.timeline`
+ * through `parseConcertEventTimeline` — the two existing boundary parsers that cover
+ * GenerationResult's fields — and requires `result.requestId`/`result.seed` to match the validated
+ * request exactly. A failure outcome requires `code` to be one of the closed GenerationFailureCode
+ * values. Either way the parsed outcome is deep-frozen before being returned, since
+ * `structuredClone` strips the freezing generatePhrase itself applied.
  */
 // @spec-link [[module_generation_worker_protocol]]
 export function parseGenerationOutcome(input: unknown): GenerationOutcome {
@@ -213,7 +214,7 @@ export function parseGenerationOutcome(input: unknown): GenerationOutcome {
 
   if (record.kind === 'generation_success') {
     requireAllowedKeys(record, OUTCOME_SUCCESS_ALLOWED_KEYS, 'GenerationOutcome')
-    const request = parseGenerationRequest(record.request)
+    const request = parseGenerationRequestTakingSeventh(record.request)
     const resultRecord = asPlainRecord(record.result, 'GenerationOutcome.result')
     requireAllowedKeys(resultRecord, GENERATION_RESULT_ALLOWED_KEYS, 'GenerationOutcome.result')
     if (

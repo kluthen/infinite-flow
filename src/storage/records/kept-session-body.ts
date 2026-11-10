@@ -2,18 +2,20 @@
  * The body of a kept session, stored in the sessionBodies store: for each phrase that sounded, in
  * sounding order, its number, its start in seconds from phrase 1's scheduled start, the request and
  * the generated concert timeline as shown, the harmony its chord symbols come from, its generation
- * intent with the instrument profile as data, its tempo, its repeat mark, its favorite mark and the
- * clef the history recorded it in, with the record envelope's two versions; for a Jam session
- * only, its quantized doodle with the tempo it was captured at; and, for a fresh Jam only, the
- * clock its played notes are counted on. Every field is copied by name, so
- * the acknowledgements, the rhythm and tension provenance (the rhythm lock's outcome included) and
- * the diagnostics the history holds never reach it. Read back through the domain's own parsers,
- * never rebuilding a profile from its id, each phrase's request agreeing with its intent: a current
- * body's reader, the only one that reads a doodle or a played-notes clock, is the codec's own
- * (`kept-session-body-read.ts`). The data version 1 and 2 readers and the data version 2 writer
- * serve only the upgrade steps that carry those bodies over. Pure: no storage access.
+ * intent with the instrument profile as data (data version 4's intent keys, no Seventh chords
+ * level), its tempo, its repeat mark, its favorite mark and the clef the history recorded it in,
+ * with the record envelope's two versions; for a Jam session only, its quantized doodle with the
+ * tempo it was captured at; and, for a fresh Jam only, the clock its played notes are counted on.
+ * Every field is copied by name, so the acknowledgements, the rhythm and tension provenance (the
+ * rhythm lock's outcome included) and the diagnostics the history holds never reach it. Read back
+ * through the domain's own parsers, never rebuilding a profile from its id, each phrase's request
+ * agreeing with its intent: a current body's reader, the only one that reads a doodle or a
+ * played-notes clock, is the codec's own (`kept-session-body-read.ts`). The data version 1 and 2
+ * readers and the data version 2 writer serve only the upgrade steps that carry those bodies over.
+ * Pure: no storage access.
  */
 
+import { isOffChordFamilies, type ChordFamilies } from '@/domain/chords/chord-families'
 import type { QuantizedDoodle } from '@/domain/doodle/quantized-doodle'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import type { ConcertEventTimeline } from '@/domain/events/timeline'
@@ -43,6 +45,14 @@ import {
 } from './kept-record-shape'
 
 /**
+ * A kept phrase's stored intent: exactly data version 4's intent keys, never the Seventh chords
+ * level, which data version 4 cannot store.
+ */
+// @spec-link [[entity_kept_session_record]]
+// @spec-link [[module_kept_session_codec]]
+export type KeptIntentRecord = Omit<GenerationIntent, 'chordFamilies'>
+
+/**
  * One kept phrase: its number, its start in seconds from phrase 1's scheduled start, its request,
  * its concert timeline as shown, its harmony, its intent, its tempo, its repeat mark (with the
  * number of the phrase it repeats, present only on a repeat), its favorite mark and its clef.
@@ -55,7 +65,7 @@ export interface KeptPhraseRecord {
   readonly request: GenerationRequest
   readonly timeline: ConcertEventTimeline
   readonly harmony: HarmonyCandidate
-  readonly intent: GenerationIntent
+  readonly intent: KeptIntentRecord
   readonly tempo: number
   readonly isRepeat: boolean
   readonly repeatOf?: number
@@ -163,6 +173,38 @@ export interface ParsedKeptBody {
 export type KeptBodyJamParts = Pick<ParsedKeptBody, 'doodle' | 'playedNotesClock'>
 
 /**
+ * Intent: an intent as a kept phrase stores it, written with exactly data version 4's intent keys,
+ * each copied by name in the order every intent holds them: the fields every intent holds, then
+ * the carry-in, the rhythm lock group and the steering block, each only when the intent holds it.
+ * A Seventh chords level at Off is left out, since data version 4 reads every phrase at Off; one
+ * above Off throws, as a caller defect, rather than being stored as Off.
+ */
+// @spec-link [[module_kept_session_codec]]
+// @spec-link [[entity_kept_session_record]]
+function keptIntentRecord(
+  intent: GenerationIntent & { readonly chordFamilies?: ChordFamilies },
+): KeptIntentRecord {
+  if (intent.chordFamilies !== undefined && !isOffChordFamilies(intent.chordFamilies))
+    throw new Error(
+      `kept session record: an intent's Seventh chords level ${JSON.stringify(intent.chordFamilies)} is above Off, which data version 4 cannot store`,
+    )
+  return {
+    requestId: intent.requestId,
+    seed: intent.seed,
+    measureCount: intent.measureCount,
+    meter: intent.meter,
+    controls: intent.controls,
+    writtenTonalCenter: intent.writtenTonalCenter,
+    figureLevels: intent.figureLevels,
+    instrumentProfile: intent.instrumentProfile,
+    registerIntent: intent.registerIntent,
+    ...(intent.carryIn === undefined ? {} : { carryIn: intent.carryIn }),
+    ...(intent.rhythmLock === undefined ? {} : { rhythmLock: intent.rhythmLock }),
+    ...(intent.steering === undefined ? {} : { steering: intent.steering }),
+  }
+}
+
+/**
  * Intent: one recorded phrase as kept, every field copied by name from the history record (the
  * clef too, as the history recorded it, never looked up from the instrument as it is now), its
  * start rebased to seconds from `origin` (phrase 1's scheduled start on the audio clock).
@@ -180,7 +222,7 @@ function keptPhraseRecord(
     request: record.outcome.request,
     timeline: record.outcome.result.timeline,
     harmony: record.outcome.provenance.harmony,
-    intent: record.intent,
+    intent: keptIntentRecord(record.intent),
     tempo: record.tempo,
     isRepeat: record.isRepeat,
     ...(record.repeatOf === undefined ? {} : { repeatOf: record.repeatOf }),
@@ -211,7 +253,7 @@ function jamEntries({
  * marked a favorite when its number is in `favorites`, with every start rebased to seconds from
  * phrase 1's scheduled start, the session's doodle with its capture tempo when it is a Jam (null
  * otherwise) and its played-notes clock when it is a fresh Jam (null otherwise). Throws for an
- * empty app version or a clock without a doodle.
+ * empty app version, a clock without a doodle or an intent whose Seventh chords level is above Off.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_kept_session_content]]
@@ -233,7 +275,10 @@ export function keptSessionBodyRecord(
   }
 }
 
-/** Intent: phrases read back, each copied by name (its start as `startsAt`) with its new mark. */
+/**
+ * Intent: phrases read back, each copied by name (its start as `startsAt`, its intent with data
+ * version 4's intent keys) with its new mark.
+ */
 function rewrittenPhrases(
   phrases: readonly ParsedKeptPhrase[],
   favorite: (phraseNumber: number) => boolean,
@@ -244,7 +289,7 @@ function rewrittenPhrases(
     request: phrase.request,
     timeline: phrase.timeline,
     harmony: phrase.harmony,
-    intent: phrase.intent,
+    intent: keptIntentRecord(phrase.intent),
     tempo: phrase.tempo,
     isRepeat: phrase.isRepeat,
     ...(phrase.repeatOf === undefined ? {} : { repeatOf: phrase.repeatOf }),
@@ -258,7 +303,8 @@ function rewrittenPhrases(
  * phrases each copied by name as read (its start as `startsAt`), with the favorite mark `favorite`
  * gives it by its number, and its doodle and played-notes clock as read, none when it has none: a
  * stored body encoded again after the session's save, or a data version 2 body the upgrade step to
- * data version 4 read. Throws for an empty app version or a clock without a doodle.
+ * data version 4 read. Throws for an empty app version, a clock without a doodle or an intent
+ * whose Seventh chords level is above Off.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[module_kept_session_changes]]
@@ -280,7 +326,8 @@ export function rewrittenKeptBodyRecord(
  * Intent: phrases read back, encoded as v3.1's body at data version 2 by `appVersion`, each copied
  * by name with the favorite mark `favorite` gives it, and no doodle: the body the upgrade step to
  * data version 2 writes for a data version 1 body it read, which the step to data version 4 then
- * carries on. Throws for an empty app version.
+ * carries on. Throws for an empty app version or an intent whose Seventh chords level is above
+ * Off.
  */
 // @spec-link [[module_kept_session_upgrade_step]]
 export function rewrittenKeptBodyRecordV2(
