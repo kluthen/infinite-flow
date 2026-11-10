@@ -24,3 +24,17 @@ current state.
 
 Branch `v3.3-w0`, worktree `/home/bastien/work/infinite_flow-v3.3-w0`, cut from `main` eb28071d.
 Chunks 0 (Intent re-sync, `documentalist`) and 1 (Baselines, `coding-leader`); κ 1; order 0 → 1.
+
+### Preflight and chunk 0 (2026-11-10)
+
+- `documentalist`'s wave preflight: chunk 0 PROCEED; chunk 1 PROCEED (test plumbing; governing
+  STABLE `module_phrase_replay_key` and `rule_seeded_phrase_reproduction` through the `ifk4.`
+  corpus's test links). No architecture capture named or made; no record changed.
+- Plan correction from the preflight, sent to `spec-writer` before chunk 1: chunk 1's Atoms line
+  names the two STABLE atoms whose test links the `ifk4.` corpus spec carries; the stale "until I0"
+  prose rewritten (c6fedba8, plan v9).
+- Chunk 0, `documentalist`: a108b5b4 (VISION 0.11 → 0.12 per part C, applied with `--force` past
+  the STABLE guard on D526; the change set records C1's applying syncs and the Part D v1.3
+  re-check, part I) and e5612be6 (every chunk's Atoms line names ids). No C1 wording applied, the
+  contract stays 14.1.0; no drift. `atd:lint`, `atd:check`, `atd crawl --gaps`, `lint:links` pass.
+- Chunk 1 dispatched to `coding-leader`.
