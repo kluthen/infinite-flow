@@ -231,6 +231,7 @@ function presetCases(): readonly ReplayKeyCorpusV31Case[] {
             instrumentProfileId: instrument.instrumentProfileId,
           }),
           levels: JAZZ_FIGURE_LEVELS,
+          chordFamilies: OFF_CHORD_FAMILIES,
         },
         { kind: 'custom', baseId: null },
         preset,

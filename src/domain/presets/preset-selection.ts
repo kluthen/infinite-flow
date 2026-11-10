@@ -21,6 +21,13 @@ import {
   type GenerationControls,
   type PitchClass,
 } from '../controls/generation-controls'
+import {
+  ChordFamiliesError,
+  OFF_CHORD_FAMILIES,
+  parseChordFamilies,
+  type ChordFamilies,
+  type ChordFamilyId,
+} from '../chords/chord-families'
 import { deepFreeze } from '../events/deep-freeze'
 import {
   FigureLevelsError,
@@ -69,16 +76,19 @@ export type PresetKind = 'builtIn' | 'player'
 export type PresetId = string
 
 /**
- * A preset: an id, a name, the ten preset-held controls, the seven figure levels, a key and mode
- * restriction, and its kind. Never a tempo, an instrument, a key or mode value or a session option.
+ * A preset: an id, a name, the ten preset-held controls, the seven figure levels, the Seventh
+ * chords level, a key and mode restriction, and its kind. Never a tempo, an instrument, a key or
+ * mode value or a session option.
  */
 // @spec-link [[module_preset_model]]
 // @spec-link [[rule_preset_contents]]
+// @spec-link [[req_seventh_chords_level]]
 export interface Preset {
   readonly id: PresetId
   readonly name: string
   readonly controls: PresetHeldControls
   readonly levels: FigureLevels
+  readonly chordFamilies: ChordFamilies
   readonly restriction: KeyAndModeRestriction
   readonly kind: PresetKind
 }
@@ -126,6 +136,7 @@ function readField<T>(field: string, read: () => T): T {
     const refused =
       error instanceof GenerationControlError ||
       error instanceof FigureLevelsError ||
+      error instanceof ChordFamiliesError ||
       error instanceof KeyAndModeRestrictionError
     if (!refused) throw error
     throw new PresetModelError(`A preset's ${field} is refused: ${error.message}`)
@@ -160,14 +171,19 @@ function readText(value: unknown, field: string): string {
 }
 
 /**
- * Intent: build a preset from its six fields: every control checked against its catalog, the
- * levels and the restriction parsed, id and name non-empty strings, the kind known. A refusal
- * throws a PresetModelError; nothing is defaulted. Returns a fresh deep-frozen preset holding
- * exactly those six fields, no other key carried over.
+ * Intent: build a preset from its seven fields: every control checked against its catalog, the
+ * figure levels, the Seventh chords level and the restriction parsed, id and name non-empty
+ * strings, the kind known. A refusal throws a PresetModelError. The Seventh chords level reads Off
+ * when the input has none, until the player preset record passes it; nothing else is defaulted.
+ * Returns a fresh deep-frozen preset holding exactly those seven fields, the level by value, no
+ * other key carried over.
  */
 // @spec-link [[module_preset_model]]
 // @spec-link [[rule_preset_contents]]
-export function makePreset(input: Preset): Preset {
+// @spec-link [[req_seventh_chords_level]]
+export function makePreset(
+  input: Omit<Preset, 'chordFamilies'> & { readonly chordFamilies?: ChordFamilies },
+): Preset {
   if (!isPlainObject(input)) throw new PresetModelError('A preset must be a plain object.')
   const kind = PRESET_KINDS.find((candidate) => candidate === input.kind)
   if (kind === undefined) {
@@ -178,6 +194,10 @@ export function makePreset(input: Preset): Preset {
     name: readText(input.name, 'name'),
     controls: readHeldControls(input.controls),
     levels: readField('levels', () => parseFigureLevels(input.levels)),
+    chordFamilies:
+      input.chordFamilies === undefined
+        ? OFF_CHORD_FAMILIES
+        : readField('chordFamilies', () => parseChordFamilies(input.chordFamilies)),
     restriction: readField('restriction', () => makeKeyAndModeRestriction(input.restriction)),
     kind,
   })
@@ -190,11 +210,16 @@ export type PresetSelection =
   | { readonly kind: 'preset'; readonly presetId: PresetId }
   | { readonly kind: 'custom'; readonly baseId: PresetId | null }
 
-/** The player's current settings: the written key is `tonalCenter`, the mode `collection`. */
+/**
+ * The player's current settings: the controls (the written key is `tonalCenter`, the mode
+ * `collection`), the seven figure levels and the Seventh chords level.
+ */
 // @spec-link [[module_preset_model]]
+// @spec-link [[req_seventh_chords_level]]
 export interface PresetSettings {
   readonly controls: GenerationControls
   readonly levels: FigureLevels
+  readonly chordFamilies: ChordFamilies
 }
 
 /** Intent: the preset with an id, or undefined when none has it. */
@@ -209,15 +234,16 @@ function keptOrFirst<T>(half: RestrictionHalf<T>, current: T): T {
 }
 
 /**
- * Intent: choose a preset. The ten preset-held controls and the seven levels take its values;
- * each half of its restriction separately keeps the current written key (collection) when it
- * allows it, otherwise sets the half's first entry; the tempo and the instrument never change,
- * and the selection becomes that preset. Choosing the preset already selected, outside Custom,
- * returns the same settings and selection, untouched (never frozen, so a caller's own state stays
- * its own); from Custom, choosing its base applies it.
+ * Intent: choose a preset. The ten preset-held controls, the seven figure levels and the Seventh
+ * chords level take its values; each half of its restriction separately keeps the current written
+ * key (collection) when it allows it, otherwise sets the half's first entry; the tempo and the
+ * instrument never change, and the selection becomes that preset. Choosing the preset already
+ * selected, outside Custom, returns the same settings and selection, untouched (never frozen, so a
+ * caller's own state stays its own); from Custom, choosing its base applies it.
  */
 // @spec-link [[rule_choosing_preset_sets_its_settings]]
 // @spec-link [[rule_choosing_preset_keeps_allowed_key_and_mode]]
+// @spec-link [[req_seventh_chords_level]]
 export function choosePreset(
   settings: PresetSettings,
   selection: PresetSelection,
@@ -236,6 +262,7 @@ export function choosePreset(
         collection: keptOrFirst(preset.restriction.modes, controls.collection),
       },
       levels: preset.levels,
+      chordFamilies: preset.chordFamilies,
     },
     selection: { kind: 'preset', presetId: preset.id },
   })
@@ -246,6 +273,8 @@ export function choosePreset(
 export type SettingChange =
   | { readonly kind: 'presetHeldControl'; readonly control: PresetHeldControlKey }
   | { readonly kind: 'figureLevel'; readonly figure: FigureId }
+  /** The Seventh chords level (one chord family's level). */
+  | { readonly kind: 'chordFamilyLevel'; readonly family: ChordFamilyId }
   /** The written key and collection after the change. */
   | { readonly kind: 'keyOrMode'; readonly key: PitchClass; readonly mode: Collection }
   /** Tempo, instrument, theme, audio mix or a session option. */
@@ -253,10 +282,10 @@ export type SettingChange =
 
 /**
  * Intent: the selection after a change of setting, never comparing values. Custom stays Custom
- * with the same base. With a preset selected, a preset-held control or figure level makes Custom
- * based on it, and so does a key and mode outside its restriction; a key and mode inside it, or a
- * setting no preset holds, change nothing. A selected id no preset has puts no restriction in
- * force, so a key or mode leaves it as it is.
+ * with the same base. With a preset selected, a preset-held control, a figure level or the Seventh
+ * chords level makes Custom based on it, and so does a key and mode outside its restriction; a key
+ * and mode inside it, or a setting no preset holds, change nothing. A selected id no preset has
+ * puts no restriction in force, so a key or mode leaves it as it is.
  */
 // @spec-link [[rule_custom_selection]]
 // @spec-link [[rule_restriction_in_force]]
@@ -271,6 +300,7 @@ export function selectionAfterChange(
   switch (change.kind) {
     case 'presetHeldControl':
     case 'figureLevel':
+    case 'chordFamilyLevel':
       return custom
     case 'keyOrMode': {
       const selected = findPreset(presets, selection.presetId)

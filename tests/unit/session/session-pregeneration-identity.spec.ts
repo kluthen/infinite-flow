@@ -10,6 +10,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   mutationFlagFor,
   startWorkspaceSessionRunner,
@@ -91,7 +92,7 @@ interface SessionCase {
 function settingsUnder(preset: BuiltInPresetId): SessionSettings {
   const base = sessionSettings({ tempo: TEMPO })
   const chosen = choosePreset(
-    { controls: base.controls, levels: base.figureLevels },
+    { controls: base.controls, levels: base.figureLevels, chordFamilies: OFF_CHORD_FAMILIES },
     base.selection,
     builtInPreset(preset),
   )

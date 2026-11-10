@@ -14,6 +14,7 @@
  * session: they run on the return to Idle. A stale phrase 1 stops nothing: the queue plans its
  * phrases under phrase 1's own settings, as a session started with Use it would.
  */
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { describe, expect, it } from 'vitest'
 
@@ -55,7 +56,11 @@ const KEY_CHANGES: readonly KeyChange[] = [
     name: 'a chosen preset whose values differ (Gentle)',
     apply: (rig) => {
       const chosen = choosePreset(
-        { controls: rig.idle.controls, levels: rig.idle.figureLevels },
+        {
+          controls: rig.idle.controls,
+          levels: rig.idle.figureLevels,
+          chordFamilies: OFF_CHORD_FAMILIES,
+        },
         rig.idle.selection,
         builtInPreset('gentle'),
       )
@@ -435,7 +440,7 @@ const REEL_SESSION_SEED = makeSeed(69)
 function reelSettings(): SessionSettings {
   const base = sessionSettings({ tempo: 60 })
   const chosen = choosePreset(
-    { controls: base.controls, levels: base.figureLevels },
+    { controls: base.controls, levels: base.figureLevels, chordFamilies: OFF_CHORD_FAMILIES },
     base.selection,
     builtInPreset('reel'),
   )

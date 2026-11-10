@@ -15,6 +15,7 @@ import type {
   GenerationSessionActions,
   GenerationSessionState,
 } from '@/composables/use-generation-session'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import type { KeyAndModeRestriction } from '@/domain/presets/key-and-mode-restriction'
 import {
   checkPresetName,
@@ -199,7 +200,13 @@ export function usePlayerPresets(deps: PlayerPresetsDependencies): PlayerPresets
 
   /** Intent: the current preset-held settings a save stores. */
   function currentSettings(): PresetSettings {
-    return { controls: state.controls, levels: state.figureLevels }
+    // A save's settings hold the Seventh chords level at Off until the session holds a level
+    // (spec D527).
+    return {
+      controls: state.controls,
+      levels: state.figureLevels,
+      chordFamilies: OFF_CHORD_FAMILIES,
+    }
   }
 
   /**

@@ -237,7 +237,7 @@ function readName(stored: unknown): string | null {
 }
 
 /** A readable record's fields, its name still null when it has to be numbered. */
-type ReadRecord = Omit<Preset, 'name' | 'kind'> & { readonly name: string | null }
+type ReadRecord = Omit<Preset, 'name' | 'kind' | 'chordFamilies'> & { readonly name: string | null }
 
 /**
  * Intent: the fields of one stored entry, or null when it cannot be read at all: not a record, a
