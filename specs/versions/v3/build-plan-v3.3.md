@@ -493,8 +493,8 @@ Architecture capture: none
   under `scripts/` (tooling, beside `scripts/record-replay-key-corpus.mjs`), `docs/testing.md`.
 - **Spec sections:** items 2 (as the guard for chunks 2, 3, 5–10, 12, 13, 15, 16, 20 and 21), 18
   (`ifk4.` decoding), 10 and 12 (triads unchanged).
-- **Atoms:** none (test plumbing). The corpus later backs Part D §D15 item 2's atom until I0 and
-  `rule_seeded_phrase_reproduction`, whose test links chunks 12 and 15 add.
+- **Atoms:** none (test plumbing). The corpus later backs (v3.3) `rule_seventh_chords_off_changes_nothing`
+  and `rule_seeded_phrase_reproduction`, whose test links chunks 12 and 15 add.
 - **Revisions:** none.
 - **Done when:** both corpus tests pass on the tag and on `main`; each is red if a stored value is
   changed by hand; the baseline size is recorded here and in `docs/testing.md`.
@@ -540,7 +540,8 @@ in this wave build on it.
   ("Collection and chord vocabulary": the sevenths exist, used only from chunk 12).
 - **Spec sections:** [§D4](master-spec.md#d4-words-used-in-this-part),
   [§D5.1](master-spec.md#d51-the-chords); items 3 (the construction), 2 (guarded).
-- **Atoms:** Part D §D5.1 until I0 (only the four diatonic sevenths). Drift check:
+- **Atoms:** (v3.3) `rule_seventh_chords_diatonic_only` (only the four diatonic sevenths). Drift
+  check:
   `module_harmony_candidate_domain`.
 - **Revisions:** revise `module_harmony_candidate_domain` ("triad material").
 - **Done when:**
@@ -600,7 +601,7 @@ builds on it.
   [§D9](master-spec.md#d9-the-generation-request-the-replay-key-and-kept-sessions),
   [§D14](master-spec.md#d14-architectural-decisions-and-their-reasons) (by capability name); items
   20, 2 (guarded).
-- **Atoms:** Part D §D9 until I0 (the request carries the level); (v2)
+- **Atoms:** (v3.3) `rule_seventh_chord_draws_reproducible` (the request carries the level); (v2)
   `rule_seeded_phrase_reproduction`. Drift check: `module_generation_request_envelope`,
   `module_generation_worker_cancellation` (STABLE, unchanged).
 - **Revisions:** revise `module_generation_request_construction`,
@@ -700,8 +701,9 @@ Chunk 7 in this wave builds on it.
   [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check),
   [§D8.4](master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion) (a Jam's ranks);
   items 7 (the search's half), 9 (the triad reading, search half), 22 (a Jam's ranks), 2 (guarded).
-- **Atoms:** Part D §D6.1 until I0 (the seventh is a chord tone, extensions are not), Part D §D6.3
-  until I0 (endings read the triad); (v2, STABLE) `rule_open_phrase_ending`,
+- **Atoms:** (v3.3) `rule_seventh_is_chord_tone`, `rule_extensions_never_chord_tones` (the seventh
+  is a chord tone, extensions are not), `rule_join_reads_carried_chord_as_triad` (endings read the
+  triad); (v2, STABLE) `rule_open_phrase_ending`,
   `rule_join_carry_in_limited`; (v3.1) `rule_figures_resolve_onto_chord_tones`,
   `rule_figure_level_orders_search`; (v3.2) `rule_jam_melody_follows_doodle_moves`. Drift check:
   `module_pitch_search_context`, `module_pitch_search_transition`, `entity_pitch_candidate_domain`,
@@ -757,7 +759,8 @@ landing read the triad-tone fact. Chunk 7 in this wave builds on it.
 - **Spec sections:** [§D6.1](master-spec.md#d61-the-seventh-is-a-chord-tone),
   [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check);
   items 7 (the validator's half), 9 (validator half), 2 (guarded).
-- **Atoms:** Part D §D6.1 and §D6.3 until I0; (v2, STABLE) `rule_open_phrase_ending`. Drift check:
+- **Atoms:** (v3.3) `rule_seventh_is_chord_tone`, `rule_extensions_never_chord_tones`,
+  `rule_join_reads_carried_chord_as_triad`; (v2, STABLE) `rule_open_phrase_ending`. Drift check:
   `module_pitch_domain_validation`, `module_pitch_search_transition`.
 - **Revisions:** revise `rule_figures_resolve_onto_chord_tones`,
   `rule_levels_govern_free_figures_only`.
@@ -800,7 +803,8 @@ Architecture capture: none (it builds on chunks 5's and 6's)
 - **Spec sections:** [§D6.2](master-spec.md#d62-runs-stay-three-notes),
   [§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation) (`rule_leap_recovery`,
   wording unchanged); items 8, 7 (runs), 2 (guarded).
-- **Atoms:** Part D §D6.2 until I0; (v2, STABLE) `rule_leap_recovery`. Drift check:
+- **Atoms:** (v3.3) `rule_seventh_is_chord_tone` (its run clause); (v2, STABLE) `rule_leap_recovery`.
+  Drift check:
   `module_pitch_search_transition`, `module_pitch_domain_validation`.
 - **Revisions:** revise `rule_leapiness_arpeggio_run_limits`, `rule_join_inherits_leap_recovery`.
 - **Done when:**
@@ -849,7 +853,8 @@ landing.
 - **Spec sections:** [§D8.3](master-spec.md#d83-vary-settings-and-the-session) (the join),
   [§D9](master-spec.md#d9-the-generation-request-the-replay-key-and-kept-sessions); items 17, 9
   (the join's landing), 2 (guarded).
-- **Atoms:** Part D §D8.3 until I0 (a carried chord compared by its triad); (v2, STABLE)
+- **Atoms:** (v3.3) `rule_carried_seventh_chord_compared_by_triad` (a carried chord compared by its
+  triad), `rule_join_reads_carried_chord_as_triad`; (v2, STABLE)
   `rule_join_carry_in_limited`, `rule_harmony_change_drops_unfit_harmonic_carry_in`,
   `rule_key_change_drops_harmonic_carry_in`. Drift check: `module_session_carry_in_after_change`.
 - **Revisions:** revise (STABLE, C1's wording, §D12 item 10, applied at wave 1's sync)
@@ -894,7 +899,8 @@ Architecture capture: none
   [`docs/audio-transport.md`](../../../docs/audio-transport.md).
 - **Spec sections:** [§D7.3](master-spec.md#d73-the-backing-plays-the-seventh),
   [§D7.2](master-spec.md#d72-exports) (MIDI); items 10, 2 (guarded).
-- **Atoms:** Part D §D7.3 until I0; (v2, STABLE) `req_session_backing_track`. Drift check:
+- **Atoms:** no v3.3 atom of its own (the four-note backing is `req_session_backing_track`'s, C1's
+  A1); (v2, STABLE) `req_session_backing_track`. Drift check:
   `module_review_export_pipeline`, `module_session_phrase_steps`,
   `module_session_transport_tempo_map`.
 - **Revisions:** revise `rule_generated_notes_midi_export`.
@@ -941,7 +947,8 @@ Architecture capture: none
   (Notation Contract: Seventh chord symbols; The score's spoken description),
   [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.3/screens/last-session-review/handoff.md)
   (Seventh chords).
-- **Atoms:** Part D §D7.1 until I0 (the symbols and their words; a new BUSINESS atom, D285); (v2)
+- **Atoms:** (v3.3) `rule_seventh_chord_symbols`, `rule_seventh_chord_symbols_spoken` (the symbols
+  and their words, D285); (v2)
   `module_notation_display_convention`, `rule_notation_display_preserves_phrase`. Drift check:
   `module_notation_display_convention`.
 - **Revisions:** revise `module_notation_layout_preflight` (the description's words).
@@ -981,7 +988,7 @@ Architecture capture: none (it builds on chunk 3's)
   (Components and Content: Custom),
   [`screens/preset-sheet/handoff.md`](../../../ui_ux/versions/v3.3/screens/preset-sheet/handoff.md) (What the
   Main Action Does).
-- **Atoms:** Part D §D8.1 until I0; (v3.1) `rule_custom_selection`.
+- **Atoms:** (v3.3) `req_seventh_chords_level` (held by every preset); (v3.1) `rule_custom_selection`.
 - **Revisions:** revise (STABLE, C1's wordings) `rule_choosing_preset_sets_its_settings`,
   `module_preset_model`, `module_generative_profile_selection`,
   `module_profile_control_customization`; revise `rule_preset_contents`,
@@ -1053,8 +1060,11 @@ same list from the level, the seed and the plans. Chunks 15 and 16 in this wave 
   [§D5.4](master-spec.md#d54-determinism),
   [§D14](master-spec.md#d14-architectural-decisions-and-their-reasons); items 3, 4, 5 (the order),
   6, 2 (guarded).
-- **Atoms:** Part D §D5.2–§D5.4 until I0 (a preference, never a quota; the triad fallback per
-  phrase; same plans; Off draws nothing; Off reproduces v3.2); (v2)
+- **Atoms:** (v3.3) `rule_seventh_chords_level_steps`, `rule_seventh_chords_level_never_a_quota`
+  (a preference, never a quota), `rule_triad_fallback_per_phrase` (the triad fallback per phrase),
+  `rule_seventh_chords_keep_the_chord_plan` (same plans), `rule_seventh_chance_same_at_every_degree`,
+  `rule_seventh_chord_draws_reproducible`, `rule_seventh_chords_off_changes_nothing` (Off draws
+  nothing; Off reproduces v3.2), `rule_rhythm_lock_tries_both_forms`; (v2)
   `rule_seeded_phrase_reproduction`, `rule_neutral_profile_diatonic_harmony`,
   `rule_jazz_chromatic_resolution`. Drift check: `mechanic_pitch_search_policy` (the allowance
   unchanged), `service_generation_window_search`, `module_rhythm_lock_order`,
@@ -1108,7 +1118,8 @@ Architecture capture: none
 - **Spec sections:** [§D7.2](master-spec.md#d72-exports); items 12, 2 (guarded).
 - **Design docs:** [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.3/flows/review-and-export/handoff.md)
   (Seventh chords in the files).
-- **Atoms:** Part D §D7.2 until I0; (v2) `rule_export_contents_never_merged`. Drift check:
+- **Atoms:** (v3.3) `rule_no_export_carries_seventh_chords_level`; (v2)
+  `rule_export_contents_never_merged`. Drift check:
   `module_review_export_pipeline`.
 - **Revisions:** revise `rule_generated_notes_musicxml_export`.
 - **Done when:** a phrase with each quality exports with the four kinds and suffixes and passes the
@@ -1158,7 +1169,8 @@ Architecture capture: none
   (Notation Contract: Seventh chord symbols, Fit; Layout Tree, `chord-symbol`),
   [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.3/screens/last-session-review/handoff.md)
   (Seventh chords).
-- **Atoms:** Part D §D7.1 until I0 (the layout half); (v2) `module_notation_engraving_anchors`,
+- **Atoms:** (v3.3) `rule_seventh_chord_symbols` (the layout half); (v2)
+  `module_notation_engraving_anchors`,
   `rule_session_layout_fixed_at_start`, `req_last_session_review` (STABLE, wording unchanged).
   Drift check: `module_session_display_fit`, `module_idle_fit_round`.
 - **Revisions:** revise `module_notation_layout_preflight`.
@@ -1209,7 +1221,9 @@ reason.
 - **Spec sections:**
   [§D9](master-spec.md#d9-the-generation-request-the-replay-key-and-kept-sessions); items 18, 2
   (older keys).
-- **Atoms:** Part D §D9 until I0 (`ifk5.`; older keys at Off; an unknown capability refused); (v2)
+- **Atoms:** (v3.3) `rule_seventh_chords_off_changes_nothing` (older keys at Off),
+  `rule_seventh_chord_draws_reproducible` (the level carried with every phrase's request; the key
+  itself, `ifk5.` and an unknown capability refused, is `module_phrase_replay_key`, C1's A3); (v2)
   `rule_seeded_phrase_reproduction`. Drift check: `module_phrase_replay_key`,
   `module_generation_worker_protocol`.
 - **Revisions:** revise (STABLE, C1's wording) `module_phrase_replay_key`,
@@ -1266,7 +1280,9 @@ Architecture capture: none (it builds on chunk 12's)
   [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md) (Prepared
   phrases), [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.3/flows/presets/handoff.md) (prepared phrases
   and presets).
-- **Atoms:** Part D §D8.3 and §D8.4 until I0; (v2, STABLE) `rule_mutation_setting_scales`,
+- **Atoms:** (v3.3) `rule_vary_settings_never_moves_seventh_chords_level`,
+  `rule_seventh_chord_draws_reproducible` (a phrase generated ahead equals the session's at every
+  level); (v2, STABLE) `rule_mutation_setting_scales`,
   `rule_mutation_marks_profile_customized`, `rule_mutation_reverts_at_session_end`; (v3.0)
   `rule_pregenerated_phrase_matches_session`. Drift check: `module_settings_mutation`,
   `module_generation_prewarm`.
@@ -1335,7 +1351,7 @@ newer. A kept body's harmony without a seventh reads as triads.
   Is Saved; Load),
   [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.3/flows/review-and-export/handoff.md) (Saving
   the Session).
-- **Atoms:** Part D §D8.2 and §D9's kept-session atoms until I0; (v3.0)
+- **Atoms:** (v3.3) `rule_earlier_kept_sessions_read_at_off`; (v3.0)
   `rule_saved_settings_load_tolerantly`, `rule_saved_setting_is_players_choice`,
   `rule_no_save_during_session`, `rule_outdated_tab_stops_saving`, `rule_delete_everything`. Drift
   check: `service_session_history`, `req_last_session_review` (STABLE, wording unchanged).
@@ -1447,7 +1463,7 @@ Architecture capture: none
   (Layout Tree; Components and Content: Seventh chords, Custom, Vary settings; Responsive
   Behavior), [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.3/flows/play-session/handoff.md),
   [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md).
-- **Atoms:** Part D §D5.2 and §D11 until I0 (the level, set at Idle, locked in a session); (v3.1)
+- **Atoms:** (v3.3) `req_seventh_chords_level` (the level, set at Idle, locked in a session); (v3.1)
   `rule_custom_selection`; (v3.0) `rule_session_settings_locked`.
 - **Revisions:** revise `user_story_controlled_phrase_generation` (its controls gain the level);
   `module_generation_control_catalog` (if the level gets its first-load value there); revise
@@ -1488,7 +1504,8 @@ Architecture capture: the finer variants and their fixed order.
   `tests/unit/domain/generation/orchestration/`.
 - **Spec sections:** [§D5.3](master-spec.md#d53-how-the-planner-applies-it),
   [§D10](master-spec.md#d10-the-cost-guard-generation-time-with-seventh-chords); items 5, 21, 6.
-- **Atoms:** Part D §D5.3 until I0. Drift check: `service_generation_result_validation`.
+- **Atoms:** none until gate DP adopts the finer fallback; it then revises (v3.3)
+  `rule_triad_fallback_per_phrase`. Drift check: `service_generation_result_validation`.
 - **Revisions:** revise `module_harmony_candidate_domain`.
 - **Done when:** M1 at Strongly favored reaches 3 in 4 over the sweep; M2 still meets §D10; the
   triads-only variant is still found where nothing else works (chunk 12's dead-end test); at Off
@@ -1518,7 +1535,8 @@ Architecture capture: none
 - **Spec sections:** [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check),
   [§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation) item 2; items 9 (second
   option), 25 (its record).
-- **Atoms:** Part D §D6.3 until I0 (second option); (v2, STABLE) `rule_open_phrase_ending`. Drift
+- **Atoms:** none new (the second option); it revises (v3.3) `rule_join_reads_carried_chord_as_triad`,
+  only once gate L1 approves it; (v2, STABLE) `rule_open_phrase_ending`. Drift
   check: `module_pitch_search_context`, `module_pitch_search_transition`.
 - **Revisions:** revise `rule_join_tense_note_resolution`, `entity_phrase_carry_in`.
 - **Done when:** over seventh-form final events, a phrase with no join may end on the seventh, F
@@ -1577,7 +1595,8 @@ loaded tolerantly at Off. It is never shared with session mode's level.
   [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md),
   [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.3/flows/review-and-export/handoff.md) (a
   Jam's kept phrases and "Jam again on this doodle").
-- **Atoms:** Part D §D8.4 until I0 (Jam's own level); (v3.2) `rule_jam_phrase_one_failure_ladder`,
+- **Atoms:** (v3.3) `rule_jam_has_own_seventh_chords_level` (Jam's own level); (v3.2)
+  `rule_jam_phrase_one_failure_ladder`,
   `rule_held_doodle_dropped_on_change`. Drift check: `module_kept_doodle`,
   `rule_jam_pregeneration_only_for_kept_doodle`, `rule_shared_setting_changed_in_jam_mode`.
 - **Revisions:** revise (STABLE, C1's wordings, applied at wave 5's sync with both modes' halves
