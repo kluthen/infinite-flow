@@ -130,3 +130,22 @@ readCarryIn)` (now a third argument); the known drift stands.
 - For chunk 15 (`spec-writer`): `phrase-replay-report.ts` copies intent fields by name and does not
   show `chordFamilies`; `docs/phrase-workspace.md`'s "Until the `ifk4.` key exists, …" sentence was
   already stale.
+
+### Chunk 8 merged (2026-11-10)
+
+- The first owner handed back early with an unverified WIP (0b8bc77b) while its executor still
+  ran; the driver stopped that executor and a fresh owner resumed, reviewed its two uncommitted test
+  edits (a finished test move) and kept them.
+- 553691c2 (8a d0b9e670, 8b 5c3551c7): a carried chord may hold its same-degree seventh, judged by
+  its triad; a final note on the seventh is tense; the landing stays the tonic triad. Only the
+  worker's two readers take a seventh; `ifk1.`–`ifk4.` keys and the data-version-4 kept body refuse
+  one. Corpus guard green (22 files, 560 tests). No deviation.
+- For `spec-writer` (chunks 15 and 17): the `ifk4.` encoder and the data-version-4 writer do not
+  refuse a carried seventh (unreachable before chunk 12 makes one); settle it with `ifk5.` and data
+  version 5, or have them refuse it as chunk 3's did a level above Off. FYI: a carry-in has no key,
+  so `assertCarriedHarmony` checks the stack and quality only; a hand-made C7 on degree 1 in C major
+  passes on the wire (every app-derived carry-in uses the key's own seventh).
+- For the sync: A10 holds against the code (`adaptedHarmony` keeps the seventh while the triad
+  fits); new links to `rule_carried_seventh_chord_compared_by_triad`,
+  `rule_join_reads_carried_chord_as_triad`, `entity_phrase_carry_in`,
+  `module_generation_worker_protocol`.

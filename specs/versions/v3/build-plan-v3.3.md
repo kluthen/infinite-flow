@@ -864,7 +864,8 @@ Architecture capture: none (it builds on chunks 5's and 6's)
 
 ### Chunk 8 — The join carries a seventh chord
 
-Status: planned
+Status: merged (w1, 553691c2)
+Record: d0b9e670 (8a), 5c3551c7 (8b): `CarriedHarmony.seventh?`, `CarriedChordReading`; `parseGenerationRequest` stays triad-only, the worker reads through `parseCarryInTakingSeventh` and `parseGenerationRequestTakingSeventh`. Beside the Files line: tests `phrase-replay-key-carried-seventh.spec.ts`, `kept-carried-seventh-refused.spec.ts` (new), `generation-request.spec.ts` (extended); docs `session-engine.md`, `music/pitch-planner-validation.md`, `phrase-workspace.md`. No deviation from spec or design.
 Wave: 1
 Depends on: 2
 Architecture capture: the carried chord's optional seventh (a revision of
