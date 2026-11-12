@@ -60,11 +60,12 @@ export function contourFailures(facts: PhraseFacts): readonly PitchValidationFai
 }
 
 /**
- * The final sounding attack must be an open continuation: a chord tone of the final degree-5
- * harmony (tonal gentle/active), collection degree 5 (tonal static), or a non-tonic chord tone
- * (modal). A trailing rest is irrelevant because only sounding attacks are examined. A phrase
- * generated with carry-in may instead end on a tense note its next phrase resolves, when the
- * levels allow a free scale note there.
+ * The final sounding attack must be an open continuation: a triad tone of the final degree-5
+ * harmony (tonal gentle/active), collection degree 5 (tonal static), or a non-tonic triad tone
+ * (modal). The ending reads the final chord as its triad, so its seventh is never an endpoint. A
+ * trailing rest is irrelevant because only sounding attacks are examined. A phrase generated with
+ * carry-in may instead end on a tense note its next phrase resolves (the final seventh among
+ * them), when the levels allow a free scale note there.
  */
 // @spec-link [[module_pitch_domain_validation]]
 // @spec-link [[rule_open_phrase_ending]]
@@ -76,9 +77,9 @@ export function endpointFailures(facts: PhraseFacts): readonly PitchValidationFa
   const open =
     isOwedTenseEnding(facts, final) ||
     (endpoint.kind === 'tonal_degree_five_chord_tone'
-      ? final.chordTone && final.harmony.triad.degree === 5
+      ? final.triadTone && final.harmony.triad.degree === 5
       : endpoint.kind === 'tonal_static_degree_five'
-        ? final.chordTone && final.pitchClass === dominant
-        : final.chordTone && final.pitchClass !== tonic)
+        ? final.triadTone && final.pitchClass === dominant
+        : final.triadTone && final.pitchClass !== tonic)
   return open ? [] : [{ code: 'open_endpoint_violation', attackIndex: final.index }]
 }
