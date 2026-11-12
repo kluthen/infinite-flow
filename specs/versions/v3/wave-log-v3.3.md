@@ -406,3 +406,31 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   66 chunks.
 - Deferred, not checked here: H4's DAW half (chunk 13), the balance by ear (H2), the renders by ear
   (H1); the final-note-on-the-seventh path rests on hand-written tests until chunk 12.
+
+### Wave 2 sync and report (2026-11-12)
+
+- `documentalist`'s wave sync (4e56f43a): **CONTRACT 16.0.0**; C1 A1 (`req_session_backing_track`
+  0.3) and A2 (`rule_open_phrase_ending` 0.5, first option), applied with `--force` on the owner's
+  confirmation (spec D526); every merged chunk's Revisions applied, the addendum's
+  (`rule_join_reads_carried_chord_as_triad` 0.2) and D530's clause in
+  `rule_join_inherits_leap_recovery` 0.4 included; part E's rows for D529 and D530 updated. Drift
+  fixed as named: `module_pitch_search_transition` 0.4, `module_pitch_domain_validation` 1.4. No
+  status changed; every link the chunks placed sits above its function or test.
+- Promotion candidates put to the owner (DRAFT → REVIEW): `rule_seventh_is_chord_tone`,
+  `rule_extensions_never_chord_tones` (built in the search, the validator and the runs; no
+  generated seventh before chunk 12).
+- `spec-writer`, plan v14 (7c8cc72e), spec D531: chunk 4's hand-offs placed on chunks 12, 16, 18
+  and 23 (chunk 18 now depends on 16); chunk 12's census-at-Strongly-favored dropped (not
+  measurable before 18) and its property test now searches with a carry-in and must hold phrases
+  ending on the seventh as a tense note; chunk 18 records join loss by cause per level and tempo
+  and counts joins lost because the seventh was the only first note; above Off, Jam's phrase 1 is
+  measured through the ladder's double until chunk 23 (D531); M2's Bebop row runs in the modes
+  its preset allows (Major); chunk 21 moves the three fact readers (`noteFacts`,
+  `reconstructPhraseFacts`, `finalMotionState`) together and depends on 7. The addendum's warning
+  about joins lost to D530 looks unfounded on the code (a phrase may end owing a recovery only when
+  a tonic-triad note lies 1 to 4 semitones back, and every template opens on the tonic chord);
+  chunk 18's count settles it. §D10's "every mode" left as is (a spec edit would need a decision).
+- `doc-ids compare main v3.3-w2`: 0 collisions (`main` holds 0dae7070, ux D484).
+- Report to the owner: chunks 4, 5 (with the D530 addendum), 6, 7 and 9 merged, none moved; the
+  gate green on 47b2656d with no flake; sweep at v3.2's figures; entry 313,896 B (+783 B); CONTRACT
+  16.0.0; D529, D530, D531 told. Merge into `main` on the owner's word.
