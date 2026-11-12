@@ -256,3 +256,24 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   `carry-in-derivation.ts`; chunk 9's export test is `generated-notes-file.spec.ts`; chunk 4 names
   the census's four files. For `documentalist` at the sync: part E's
   `rule_doodle_only_orders_candidates` row reads chunk 23.
+
+### Chunk 4 merged (2026-11-12)
+
+- fe934cc9 (ad063119): the seventh census (`measure:sevenths`), the level as a dimension of the
+  cost runner (`COST_SETTINGS=sevenths`, §D10's settings in order, those not yet measurable printed
+  as such), the Jam sweep (`JAM_LEVELS`) and the lock census (`LOCK_LEVELS`), and the ending renders
+  (`render:seventh-endings`, refusing what D280 forbids). No deviation; plumbing beyond the Files
+  line: `tests/sweep/seventh-levels.ts`, `SweepCase.seventhLevel`, the ATD exemption list.
+- Off baselines, reference machine, one run at a time (load up to 4.7; wall times only moved):
+  census 10,217 of 10,224 phrases (7 `search_limit_exceeded`, as v3.0's figure census), 28,715
+  events, 0 in seventh form, 0 fallbacks; the cost runner equal to v3.1's final run count for count
+  (v3.2 never re-ran it); Jam at 180 BPM equal to v3.2 chunk 33's rows (7,384 Jams, phrase 1 by its
+  deadline 100 %); the lock census equal to v3.2 chunk 34's sweep-cases table (7,952 sessions).
+  Logs: the session scratchpad (`m1-sevenths-off`, `m2-cost-off`, `m2-jam-off`, `m2-lock-off`).
+- The renders were checked by the repo's MIDI reader, not heard (no player here; heard at H1). Until
+  chunk 9 they play the backing's triads under the hand-set seventh chords.
+- For `spec-writer` (chunks 12, 16, 18): `drawnSeventhsOf` in `seventh-census.ts` gives way to chunk
+  12's draw; `caseSettings`' refusal above Off gives way to the session level (chunk 16), and Jam's
+  `jamPhraseOneIntent` takes the level (16, 23); chunk 18 opens `MEASURABLE_SEVENTH_LEVELS` to all
+  four. §D10's "Strongly favored with Bebop in every mode" can only run Bebop in Major (Bebop is
+  restricted to Major).

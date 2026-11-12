@@ -673,7 +673,7 @@ builds on it.
 
 ### Chunk 4 — Measurement tools: the seventh census, the cost runs and the ending renders
 
-Status: planned
+Status: merged (w2, fe934cc9)
 Wave: 2
 Depends on: 1, 2 (and v3.1 chunk 3 and v3.2 chunk 3, the runners it extends)
 Architecture capture: none
@@ -713,6 +713,8 @@ Architecture capture: none
   hand-built phrase with a seventh-form final event.
 - **Verification:** chunk checks (the census's own unit test); the baseline run (M1, M2).
 - **Split rule:** none needed (tooling).
+
+Record: fe934cc9 (ad063119). No deviation. Beyond the Files line, plumbing only: `tests/sweep/seventh-levels.ts` (the levels a run may measure, Off today), `SweepCase.seventhLevel` in `tests/unit/session/deadline-sweep-cases.ts`, the two tooling specs on the ATD exemption list in `scripts/code-health/config.mjs`.
 
 ### Chunk 5 — The seventh as a chord tone in the pitch search
 
