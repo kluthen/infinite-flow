@@ -145,6 +145,7 @@ function attack(overrides: Partial<PitchAttack> = {}): PitchAttack {
     start: 0,
     end: 4,
     chordPitchClasses: [0, 4, 7],
+    triadPitchClasses: [0, 4, 7],
     harmonyIndex: 0,
     harmonyIdentity: 'fixture/0/0',
     isCheckpoint: true,

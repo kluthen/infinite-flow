@@ -36,9 +36,15 @@ const PINNED_HASH = 765058683
  */
 const PINNED_HASH_WITH_FIGURES = 1628130814
 
-/** JSON of a value without the `figures` fields, as the plan serialized before they existed. */
-function jsonWithoutFigures(value: unknown): string {
-  return JSON.stringify(value, (key, field: unknown) => (key === 'figures' ? undefined : field))
+/**
+ * Fields added to the plan after both pins were recorded: each attack's triad tones (v3.3), a
+ * second chord fact that equals its chord tones over the triad events this plan holds.
+ */
+const ADDED_AFTER_PINS: ReadonlySet<string> = new Set(['triadPitchClasses'])
+
+/** JSON of a value without the fields in `omitted`, as the plan serialized before they existed. */
+function jsonWithout(value: unknown, omitted: ReadonlySet<string>): string {
+  return JSON.stringify(value, (key, field: unknown) => (omitted.has(key) ? undefined : field))
 }
 
 /** The first Gentle-diatonic Jazz harmony candidate over its first Eighth/Conversational rhythm. */
@@ -103,7 +109,11 @@ describe('pitch planner: a pinned Jazz case actually selects a chromatic figure'
     const roles = result.phrase.assignments.map((assignment) => assignment.candidate.role)
     expect(roles).toContain('chromatic_enclosure_lower')
     expect(roles).toContain('chromatic_enclosure_upper')
-    expect(fnv1a32(jsonWithoutFigures(result))).toBe(PINNED_HASH)
-    expect(fnv1a32(JSON.stringify(result))).toBe(PINNED_HASH_WITH_FIGURES)
+    const attacks = result.phrase.assignments.map(({ attack }) => attack)
+    expect(attacks.map((a) => a.triadPitchClasses)).toEqual(attacks.map((a) => a.chordPitchClasses))
+    expect(fnv1a32(jsonWithout(result, new Set(['figures', ...ADDED_AFTER_PINS])))).toBe(
+      PINNED_HASH,
+    )
+    expect(fnv1a32(jsonWithout(result, ADDED_AFTER_PINS))).toBe(PINNED_HASH_WITH_FIGURES)
   })
 })
