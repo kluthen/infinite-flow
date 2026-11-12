@@ -1,6 +1,9 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v13 (2026-11-12): v12 with spec D530 written in: a leap recovery owed across the join is
+Status: v14 (2026-11-12): v13 with wave 2's chunk reports and spec D531 written in: the sweep
+tools' hand-offs to chunks 12, 16, 18 and 23; M2's Bebop runs in Major; chunk 18 reports join loss
+by cause; chunk 12's property covers joined phrases; chunk 21 moves the three fact readers together.
+v13 (2026-11-12): v12 with spec D530 written in: a leap recovery owed across the join is
 never repaid on the tonic chord's seventh; chunk 5 gains an addendum in the search, chunk 6 the
 validator's twin, chunk 21 lifts both (O310 asks what the phrase before may then owe).
 v12 (2026-11-12): v11 with wave 2's preflight corrections and spec D529 written in.
@@ -240,6 +243,7 @@ flowchart LR
   C9 --> C18
   C12 --> C18
   C15 --> C18
+  C16 --> C18
   C18 --> G18
   G18 --> C19
   G18 --> C20
@@ -255,6 +259,7 @@ flowchart LR
   C15 --> C19
   D0 --> C19
   C5 --> C21
+  C7 --> C21
   C6 --> C21
   C8 --> C21
   C16 --> C23
@@ -364,19 +369,27 @@ passes, or the chunk stops.
   21: whether seventh chords slow the generator or make it fail. **The search allowance is not
   raised.** Recorded for each setting: the share of phrases generated, the slowest and the
   95th-percentile generation time, the seventh share, at 240 BPM the share of phrases that fall
-  back to being generated without the join, at 180 BPM (Jam's fastest, D506) the share of a fresh
-  Jam's phrase 1 ready by its deadline, and with locked bars the share of locked rhythms kept
-  (D516).
+  back to being generated without the join, **join loss by cause** at each tempo beside Off's
+  (D531: the standalone productions by kind, and the joins lost because the only first note left
+  was the first chord's seventh, which D530 refuses), at 180 BPM (Jam's fastest, D506) the share
+  of a fresh Jam's phrase 1 ready by its deadline, and with locked bars the share of locked
+  rhythms kept (D516).
 - **Settings**, exactly §D10's: the baseline, Off with the Neutral and Jazz defaults (it must equal
   v3.2's figures, since the phrases are the same); Sometimes, Favored and Strongly favored with the
   Neutral and Jazz defaults; Strongly favored with **Speed drill, measured first** (the most
-  expensive setting v3.1 found), and with Bebop; each in every mode; and a session with locked bars
-  at Off and at Strongly favored.
+  expensive setting v3.1 found), and with Bebop; each in every mode its preset allows; and a
+  session with locked bars at Off and at Strongly favored. Bebop restricts the modes to Major, so
+  Strongly favored with Bebop runs in Major only (the cost runner's `SEVENTH_SETTINGS`); every
+  other setting runs in all nine modes. §D10's "each in every mode" reads this way; what is
+  measured does not change.
 - **How:** v3.1 chunk 3's cost runner (`tests/sweep/cost-guard*.ts`, `npm run measure:cost`) on
   the deadline sweep's 568 cases at 60, 120 and 240 BPM, each attempt charged its measured time, in
   a 240 BPM session; v3.2 chunk 3's Jam sweep (`tests/sweep/jam-sweep*.ts`, `npm run measure:jam`)
   for a fresh Jam's phrase 1 at 180 BPM; and v3.2's lock measurement (`npm run measure:lock`) for
   locked bars. Chunk 4 adds the level as a dimension to all three. The owner runs the deciding runs on the reference machine.
+  Above Off, chunk 18 runs Jam's phrase 1 through the Jam sweep's double of the ladder: the real
+  ladder (`JAM_LADDER=real`) builds its intents in `jam-phrase-one-attempts.ts`, which carries
+  Jam's level only from chunk 23, so the release gate's final run uses the real ladder (D531).
 - **Run by:** chunk 4 (the Off baseline); chunk 18; chunks 20 and 21 if built; the release gate,
   after L2's tuning.
 - **Acceptance**, against the baseline, as §D10's:
@@ -1201,6 +1214,11 @@ same list from the level, the seed and the plans. Chunks 15 and 16 in this wave 
     whose plan is a variant built from the same level and seed, and nothing else) and
     `carriedHarmonyFits`; otherwise a session would refuse its own phrases.
   - Off calls no draw and builds no variant: the list is today's, object for object.
+  - **The census reads the draw** (chunk 4's hand-off): `drawnSeventhsOf`
+    (`tests/sweep/seventh-census.ts`), which refuses any level above Off today, counts the events
+    the draw gave their seventh form first, from `seventh-draw.ts`, so a fallback is classified as
+    the generator made it. The measurement harnesses stay at Off until chunk 18 opens them
+    (`MEASURABLE_SEVENTH_LEVELS`); this chunk's census properties call the census directly.
   - [`docs/music/harmony-planner-policy.md`](../../../docs/music/harmony-planner-policy.md): the
     chord vocabulary and the variants. The generator contract (`specs/generator-contract.md`,
     "seven root-position diatonic triads") goes to `spec-writer` with this chunk's report (D283).
@@ -1210,8 +1228,10 @@ same list from the level, the seed and the plans. Chunks 15 and 16 in this wave 
   `src/domain/generation/orchestration/window-search.ts` (both walks; tests only if the walks need
   no change),
   `src/domain/validation/generation-result-validator-checks.ts`,
-  `src/domain/generation/carry-in/carry-in-fit.ts`; tests under `tests/unit/domain/harmony/`,
-  `tests/unit/domain/generation/orchestration/`, `tests/unit/domain/validation/`.
+  `src/domain/generation/carry-in/carry-in-fit.ts`; `tests/sweep/seventh-census.ts`
+  (`drawnSeventhsOf`) and `tests/sweep/seventh-census.spec.ts`; tests under
+  `tests/unit/domain/harmony/`, `tests/unit/domain/generation/orchestration/`,
+  `tests/unit/domain/validation/`, `tests/unit/domain/pitch/validation/`.
 - **Spec sections:** [§D5.2](master-spec.md#d52-four-levels),
   [§D5.3](master-spec.md#d53-how-the-planner-applies-it),
   [§D5.4](master-spec.md#d54-determinism),
@@ -1240,7 +1260,14 @@ same list from the level, the seed and the plans. Chunks 15 and 16 in this wave 
   - The seventh share never decreases from Sometimes to Favored to Strongly favored, and a phrase
     is all its drawn sevenths or all triads (census properties over a reduced sweep).
   - The search and the validator agree over seventh plans: every phrase generated above Off passes
-    the result validator (`planner-validator-property.spec.ts`, extended to each level).
+    the result validator (`planner-validator-property.spec.ts`, extended to each level), **phrases
+    searched with a carry-in included**. The property counts the joined phrases that end on their
+    final chord's seventh as a tense note, and the count is above zero (seeds added until it is),
+    so the final-note-on-the-seventh path (`mayEndPhrase`, the final note's triad fact,
+    `isOwedTenseEnding`) runs over searched phrases, not only chunk 5's and 6's hand-written
+    tests.
+  - The census counts a phrase's drawn sevenths above Off (`drawnSeventhsOf`; its refusal test
+    replaced).
   - No floating-point operation in the draw (a test over the module's source, and golden draws for
     a fixed seed list); the result validator refuses a phrase claiming a variant the level and seed
     do not give.
@@ -1249,10 +1276,11 @@ same list from the level, the seed and the plans. Chunks 15 and 16 in this wave 
     locked cases).
   - At Off the corpus, the cold-generation goldens and `generation-outcome-golden.spec.ts` pass
     unchanged.
-- **Verification:** chunk checks; the sweep at the wave gate; the census at Strongly favored for
-  the record.
+- **Verification:** chunk checks; the sweep at the wave gate. The census's first run above Off is
+  chunk 18's.
 - **Split rule:** if the brief passes about five source files, 12a the draw and the variant builder
-  as pure modules with their tests (`seventh-draw.ts`, `harmony-variants.ts`), 12b the three
+  as pure modules with their tests (`seventh-draw.ts`, `harmony-variants.ts`, and the census's
+  `drawnSeventhsOf`), 12b the three
   rebuild sites taking the level together and the walks (`generation-orchestrator.ts`,
   `generation-result-validator-checks.ts`, `carry-in-fit.ts`, `window-search.ts`).
 
@@ -1462,13 +1490,24 @@ Architecture capture: none (it builds on chunk 12's)
     Session mode holds no doodle since v3.2, so nothing else goes (D513).
   - **The suggestion:** the key and mode suggestion's answer for a doodle is the same at every
     level (a test over v3.2's doodle set).
+  - **The sweep's sessions take the level** (chunk 4's hand-off, measurement plumbing):
+    `caseSettings` (`tests/unit/session/deadline-sweep-cases.ts`) puts a case's `seventhLevel` into
+    its session settings instead of refusing it above Off; the sweep's phrase 1
+    (`phraseOneIntent`, `tests/unit/session/deadline-sweep.ts`) and the Jam double's
+    (`jamPhraseOneIntent`, `tests/sweep/jam-sweep-ladder.ts`, whose steering and lock branch passes
+    `OFF_CHORD_FAMILIES`) carry it, as the session's attempts do. The cost runner, the lock census
+    and the Jam double then build their intents at the case's level; their gate
+    (`MEASURABLE_SEVENTH_LEVELS`) stays at Off until chunk 18.
 - **Files:** `src/composables/use-generation-session.ts`,
   `src/composables/generation-session-prewarm.ts` (a comment and its test only),
   `src/composables/generation-session-control-actions.ts` (`selectPreset`),
   `src/components/workspace/use-player-presets.ts` (`currentSettings`),
   `src/components/workspace/workspace-pregeneration.ts` (`settingsKeyOf`),
   `src/session/session-intents.ts`, `src/session/settings-mutation-scales.ts` (a guard comment and
-  its test only); tests under `tests/unit/composables/`, `tests/unit/session/`,
+  its test only); the sweep's `tests/unit/session/deadline-sweep-cases.ts` (`caseSettings`),
+  `tests/unit/session/deadline-sweep.ts` (`phraseOneIntent`), `tests/sweep/jam-sweep-ladder.ts`
+  (`jamPhraseOneIntent`) and `tests/sweep/seventh-census.spec.ts` (its `/chunk 16/` refusal
+  test); tests under `tests/unit/composables/`, `tests/unit/session/`,
   `tests/unit/components/workspace/`, `tests/e2e/workspace/pregeneration.spec.ts` (extended).
 - **Spec sections:** [§D8.3](master-spec.md#d83-vary-settings-and-the-session),
   [§D8.4](master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion), Part A §8; items
@@ -1502,11 +1541,13 @@ Architecture capture: none (it builds on chunk 12's)
   - The suggestion's answer is the same at every level.
   - Choosing a preset sets the state's level to the preset's; the request built next carries it.
   - A level change posts no rhythm-domain prewarm; the prewarm intent holds Off.
+  - A sweep case above Off gives session settings at its level, and the sweep's phrase 1 and the
+    Jam double's carry it (the census spec's refusal test replaced); at Off both are unchanged.
 - **Verification:** chunk checks; the sweep at the wave gate.
 - **Split rule:** if the brief passes about five source files (seven named, two taking a comment
   only): 16a the state and the session (`use-generation-session.ts`,
   `generation-session-prewarm.ts`, `generation-session-control-actions.ts`,
-  `use-player-presets.ts`, `session-intents.ts`); 16b
+  `use-player-presets.ts`, `session-intents.ts`, and the sweep's plumbing); 16b
   pre-generation and Vary settings (`workspace-pregeneration.ts`, `settings-mutation-scales.ts`).
 
 ### Chunk 17 — The level on the device: data version 5
@@ -1604,24 +1645,45 @@ newer. A kept body's harmony without a seventh reads as triads.
 
 Status: planned
 Wave: 4
-Depends on: 4, 9, 12, 15
+Depends on: 4, 9, 12, 15, 16 (the sweep's sessions carry the level)
 Architecture capture: none
 
 - **Goal:** measure M1 and M2 on the complete generator, take the finer-fallback decision, report
   the shares to `ux-writer`, and prepare L1's examples.
 - **Scope:** no product code beyond tuning the two share constants.
+  - **The runs open to every level** (chunk 4's hand-off): `MEASURABLE_SEVENTH_LEVELS`
+    (`tests/sweep/seventh-levels.ts`) lists all four, so the census, the cost runner, the lock
+    census and the Jam sweep measure each; the tests that pin today's refusal follow
+    (`seventh-census.spec.ts`'s `seventhLevelsFrom` cases, `lock-census-runner.spec.ts`'s
+    `/chunk 12/` case), and `unmeasurableSeventhSettings` (`cost-guard.ts`) is empty. Jam's
+    phrase 1 runs through the double of the ladder above Off (M2's How; the real one at the
+    release gate).
   - **M1** at each level and mode; the shares and the fallback share to `ux-writer` (U1a) and the
     owner; **DP** taken.
   - **M2** on §D10's settings, Speed drill first, at 60, 120 and 240 BPM, a 240 BPM session, a
     fresh Jam's phrase 1 at 180 BPM (D506) and a session with locked bars. A setting outside the acceptance is tuned down (Sometimes and
     Favored) or reported (Strongly favored, through DP); never by raising the allowance.
+  - **Join loss by cause** (M2, D531): at each level and tempo, the standalone productions by kind
+    beside Off's (the cost runner's `productions`: after the cutover, after a failure past it,
+    after no legal pitch plan, after three retries, carry-in unusable), and a count of the failed
+    joins whose carry-in owed a recovery and whose only first note 1 to 4 semitones back was the
+    first chord's seventh (refused by D530, `carried_recovery_on_seventh`). The phrase before may
+    end owing a recovery only when a tonic-triad tone lies 1 to 4 semitones back inside the window
+    (`owedRecoveryCanSettle`), and the first chord is the tonic chord, so that count is expected
+    to be zero or near it. If it is not, this chunk adds the case and its share to the joins
+    section's "Known limit" note in
+    [`docs/music/pitch-planner-validation.md`](../../../docs/music/pitch-planner-validation.md);
+    either way the figure is recorded with M2.
   - **Replay** a sample of every kind of phrase (each level, a fallback, a carried seventh, a Jam
     phrase 1) from its `ifk5.` key.
   - **L1's examples:** chunk 4's renders over phrases generated at Mostly in C major, C Dorian, C
     Mixolydian and two other keys, for the built-in instruments' registers. Each altered phrase
     sits beside its original. They are written to the HARDWARE-CHECKLIST's v3.3 part for H1.
 - **Files:** `src/domain/harmony/seventh-draw.ts` (constants only, if tuned),
-  `docs/generation-latency.md`, [`HARDWARE-CHECKLIST.md`](../../../HARDWARE-CHECKLIST.md) (the v3.3
+  `tests/sweep/seventh-levels.ts`, `tests/sweep/seventh-census.spec.ts`,
+  `tests/sweep/lock-census-runner.spec.ts`, `tests/sweep/cost-guard*.ts` (the join-loss count),
+  `docs/generation-latency.md`, `docs/music/pitch-planner-validation.md` (only if the count is
+  above zero), [`HARDWARE-CHECKLIST.md`](../../../HARDWARE-CHECKLIST.md) (the v3.3
   part: H1, with L1's examples).
 - **Spec sections:** [§D5.2](master-spec.md#d52-four-levels),
   [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check),
@@ -1629,10 +1691,12 @@ Architecture capture: none
   measurement; reported), 21 (first measurement), 9 (the examples), 18 (every kind replays).
 - **Atoms:** none (measurement).
 - **Revisions:** none.
-- **Done when:** M1 and M2 are recorded, on the reference machine for the deciding runs; DP is
-  recorded by `spec-writer`; the shares are reported to `ux-writer`; every replayed sample matches;
-  L1's examples are ready.
-- **Verification:** the runs themselves (M1, M2); chunk checks if a constant changed.
+- **Done when:** every level is measurable; M1 and M2 are recorded, on the reference machine for
+  the deciding runs, M2 with join loss by cause at each level and the D530 count (the "Known
+  limit" note written if it is above zero); DP is recorded by `spec-writer`; the shares are
+  reported to `ux-writer`; every replayed sample matches; L1's examples are ready.
+- **Verification:** the runs themselves (M1, M2); chunk checks (the tooling changes, and a constant
+  if one is tuned).
 - **Split rule:** none needed (measurement).
 
 ### Chunk 19 — The Seventh chords control
@@ -1736,7 +1800,7 @@ Architecture capture: the finer variants and their fixed order.
 
 Status: planned (built only if L1 approves the seventh)
 Wave: 5
-Depends on: L1, 5, 6, 8, 18; C2 to merge (`rule_open_phrase_ending`, second option)
+Depends on: L1, 5, 6, 7, 8, 18; C2 to merge (`rule_open_phrase_ending`, second option)
 Architecture capture: none
 
 - **Goal:** let any phrase end on its final chord's seventh, and the next phrase land on the tonic
@@ -1749,10 +1813,20 @@ Architecture capture: none
   is in its seventh form, and a tense note is a scale note outside
   the whole four-note chord. Triad events are unchanged. M1 and M2 are run again, since endings
   change the search.
+  - **The three fact readers move together** (chunks 5, 6 and 7's mirror): the search's
+    `noteFacts` (`pitch-advance.ts`), the validator's `reconstructPhraseFacts`
+    (`validation/phrase-facts.ts`) and the carry-in derivation's `finalMotionState`
+    (`carry-in/carry-in-derivation.ts`) each read the chord tones inside the phrase and the triad
+    on the final note. The final note's chord-tone fact changes in all three in one commit, or the
+    validator refuses phrases the search writes, or a carry-in derived from a phrase differs from
+    the one the search wrote (`CarryInError`).
 - **Files:** `src/domain/pitch/pitch-context.ts`, `src/domain/pitch/pitch-candidates.ts`,
-  `src/domain/pitch/pitch-advance.ts`, `src/domain/pitch/validation/contour-endpoint-rules.ts`,
-  `src/domain/pitch/validation/join-rules.ts`,
-  `src/domain/generation/carry-in/phrase-ending-debt.ts`; tests in each area.
+  `src/domain/pitch/pitch-advance.ts` (`noteFacts` and the landings),
+  `src/domain/pitch/validation/contour-endpoint-rules.ts`,
+  `src/domain/pitch/validation/join-rules.ts`, `src/domain/pitch/validation/phrase-facts.ts`
+  (`reconstructPhraseFacts`), `src/domain/generation/carry-in/phrase-ending-debt.ts`,
+  `src/domain/generation/carry-in/carry-in-derivation.ts` (`finalMotionState`); tests in each
+  area.
 - **Spec sections:** [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check),
   [§D12](master-spec.md#d12-contract-changes-needing-owner-confirmation) item 2; items 9 (second
   option), 25 (its record).
@@ -1765,10 +1839,13 @@ Architecture capture: none
   four-note chord; a landing may be the tonic chord's seventh; triad phrases are unchanged (the
   corpus); M1 and M2 still pass; the owner's C2 confirmation is cited in the merge commit.
 - **Verification:** chunk checks; M1 and M2 again; the sweep at the wave gate.
-- **Split rule:** if the brief passes about five source files, 21a the validator first
-  (`contour-endpoint-rules.ts`, `join-rules.ts`: it accepts the seventh endings before the search
-  writes any), 21b the search and the landing (`pitch-context.ts`, `pitch-candidates.ts`,
-  `pitch-advance.ts`, `phrase-ending-debt.ts`).
+- **Split rule:** if the brief passes about five source files, 21a the validator's rules first
+  (`contour-endpoint-rules.ts`, `join-rules.ts`: they accept the seventh endings and landings
+  before the search writes any), only if they can while the final note's fact still reads the
+  triad; 21b the search, the landing and the three fact readers in one commit
+  (`pitch-context.ts`, `pitch-candidates.ts`, `pitch-advance.ts`, `phrase-ending-debt.ts`,
+  `phrase-facts.ts`, `carry-in-derivation.ts`). If 21a needs the fact changed, there is no split:
+  the mirror outranks the size rule.
 
 ### Chunk 23 — Jam's own Seventh chords level
 
@@ -1802,9 +1879,15 @@ loaded tolerantly at Off. It is never shared with session mode's level.
     Jam.
   - Session mode's level and Jam's never move each other, and neither enters the other mode's
     pre-generation.
+  - **The Jam sweep's real ladder** (chunk 4's hand-off, measurement plumbing): `JAM_REAL_LADDER`
+    (`tests/sweep/jam-sweep-real-ladder.ts`) runs `createJamPhraseOne`, whose intents this chunk
+    gives Jam's level; it takes the case's level, and `jam-sweep-real-ladder.spec.ts`, which
+    checks that the real ladder and the double chunk 16 opened make the same attempts from the
+    same intents, also runs above Off, so the double chunk 18 measured with still matches the app.
 - **Files:** `src/jam/jam-settings.ts`, `src/storage/records/settings-record.ts`,
   `src/components/workspace/use-jam-settings.ts`, `src/jam/jam-phrase-one-attempts.ts`,
-  `src/components/workspace/use-kept-doodle-phrase.ts`, `src/jam/JamControls.vue`; tests under
+  `src/components/workspace/use-kept-doodle-phrase.ts`, `src/jam/JamControls.vue`;
+  `tests/sweep/jam-sweep-real-ladder.ts` and `jam-sweep-real-ladder.spec.ts`; tests under
   `tests/unit/jam/`, `tests/unit/storage/`, `tests/e2e/workspace/` (a Jam at Mostly).
 - **Spec sections:** [§D8.4](master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion),
   [§D11](master-spec.md#d11-for-the-interface-design),
@@ -1839,13 +1922,15 @@ loaded tolerantly at Off. It is never shared with session mode's level.
   - The control sits after Harmonic motion in Jam's settings, read-only during a Jam, with chunk
     19's segments and note.
   - The corpus's Jam cases pass at Off.
+  - The sweep's real ladder and its double make the same attempts from the same intents at a level
+    above Off.
   - Then **H2**'s Jam half with the owner.
 - **Verification:** chunk checks; the sweep at the wave gate; the accessibility checks of what it
   adds.
 - **Split rule:** if the brief passes about five source files, 23a Jam's level in its state, saving
   and generation (`jam-settings.ts`, `settings-record.ts`, `use-jam-settings.ts`,
-  `jam-phrase-one-attempts.ts`, `use-kept-doodle-phrase.ts`), 23b the control in `JamControls.vue`
-  and its e2e.
+  `jam-phrase-one-attempts.ts`, `use-kept-doodle-phrase.ts`, and the real ladder's plumbing), 23b
+  the control in `JamControls.vue` and its e2e.
 
 ## Chunk 22 — v3.3 release gate
 
@@ -1859,7 +1944,8 @@ It runs the [build workflow's release gate](build-workflow.md#release-gate), plu
   replaced or extended test and its v3.3 counterpart (item 24, from
   [Read first](#read-first-what-v33-changes-in-v32-v31-v30-and-v2)), then M1–M4 with their
   figures, DP's outcome and L1's result.
-- **Final M1 and M2** after L2's tuning, on the reference machine; the final shares re-reported to
+- **Final M1 and M2** after L2's tuning, on the reference machine, Jam's phrase 1 through the real
+  ladder (D531); the final shares re-reported to
   `ux-writer` for U1b; DP re-checked (3 in 4 still reached).
 - The v3.2 corpus, every earlier corpus, the Vary settings draws, the backing and file corpus and
   the goldens re-run at Off.

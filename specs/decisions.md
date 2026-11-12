@@ -583,3 +583,10 @@ archived range D407–D509 that its archive notice lists.
   leaves Off untouched. Built as chunk 5's addendum, mirrored by chunk 6. Now in:
   [Part D §D6.3](versions/v3/master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check),
   [build plan v3.3, chunk 5](versions/v3/build-plan-v3.3.md#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search).
+
+- **D531 (2026-11-12): chunk 18 reports join loss by cause; Jam above Off is measured first
+  through the ladder's double.** Chunk 5's addendum feared D530 leaves some joins without a first
+  note; the ending side already requires a tonic-triad tone 1 to 4 semitones back, so it should be
+  rare, and the cause count shows it. The real ladder reads Jam's level only from chunk 23, so the
+  release gate's final M2 runs it. Now in: [build plan v3.3, M2](versions/v3/build-plan-v3.3.md#m2--the-cost-guard)
+  and [chunk 18](versions/v3/build-plan-v3.3.md#chunk-18--measurements-first-run-shares-cost-guard-and-ending-examples).
