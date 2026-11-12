@@ -1,6 +1,9 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v12 (2026-11-12): v11 with wave 2's preflight corrections and spec D529 written in.
+Status: v13 (2026-11-12): v12 with spec D530 written in: a leap recovery owed across the join is
+never repaid on the tonic chord's seventh; chunk 5 gains an addendum in the search, chunk 6 the
+validator's twin, chunk 21 lifts both (O310 asks what the phrase before may then owe).
+v12 (2026-11-12): v11 with wave 2's preflight corrections and spec D529 written in.
 v11 (2026-11-10): v10 with wave 1's chunk reports and spec D528 written in: chunk 13 moves
 to wave 4 and chunk 19 waits on every chunk a seventh passes through; chunks 15 and 17 retire the
 `ifk4.` and data-version-4 writers and read a carried seventh; chunk 15 gains the replay report;
@@ -34,8 +37,8 @@ changes, since every design link cites a v3.3 item at the root of `ui_ux/`, not 
 v3 (2026-10-16): migrated to the build-plan model and waves re-formed (spec D351).
 
 The Seventh chords level (richer chords, optional), written from
-[master spec Part D](master-spec.md#part-d--v33) (v1.3, 2026-11-10, with spec D263–D275,
-D511–D519 and D526; v1.2 approved by the owner on 2026-11-09: gate A0, spec D520) and the v3.3 design, frozen at its approval in
+[master spec Part D](master-spec.md#part-d--v33) (v1.4, 2026-11-12, with spec D263–D275,
+D511–D519, D526 and D530; v1.2 approved by the owner on 2026-11-09: gate A0, spec D520) and the v3.3 design, frozen at its approval in
 [`ui_ux/versions/v3.3/`](../../../ui_ux/versions/v3.3/README.md) (ux D252–D264, refreshed by ux D477–D481; approved by the owner on
 2026-11-09: gate D0, ux D482):
 everything marked `[v3.3 new]`, `[v3.3 changed]` or with a `_v3.3 …:_` change-block line. Its
@@ -754,11 +757,23 @@ Chunk 7 in this wave builds on it.
     On the final attack the seventh is then both a chord-tone candidate, which the endpoint check
     stops, and a tense candidate; the final-MIDI check in `pitch-advance.ts` compares MIDI only, so
     the chunk decides how the duplicate is handled, and the seventh ends a phrase only as a tense
-    note. And the first attack's landing after an owed tense note or recovery (the tonic triad),
-    which the search checks in `leavesCarriedTensionUnresolved` (`pitch-advance.ts`).
+    note. And the first attack after an owed tense note resolves onto the tonic triad, which the
+    search checks in `leavesCarriedTensionUnresolved` (`pitch-advance.ts`); after an owed recovery
+    it is any note 1 to 4 semitones back except the tonic chord's seventh (the addendum, D530).
     `freeDomainKey` still determines the triad (the chord tones list root, third, fifth, then the
     seventh).
   - With triad events the two lists are equal, so the order and every phrase are unchanged.
+  - **Addendum (spec D530), a fix on the wave branch in its own commit, before chunk 6:** in
+    `pitch-advance.ts`, beside `leavesCarriedTensionUnresolved`, the first attack refuses a
+    candidate whose pitch class is in `chordPitchClasses` but not in `triadPitchClasses` (the tonic
+    chord's seventh) when the carry-in owes a recovery (`lastPitch.recovery.kind === 'owed'`).
+    Nothing else about the recovery changes: any other note 1 to 4 semitones back still repays it,
+    a figure's decorating note included, as in v3.2, and a first note that owes nothing may be the
+    seventh. Over a triad first event the two lists are equal, so nothing moves at Off. It shares
+    no helper with chunk 6, which reads its own facts, so no in-wave edge is added. Files:
+    `pitch-advance.ts` and a test under `tests/unit/domain/pitch/`. `documentalist`'s peek before it
+    starts extends `module_pitch_search_context` 0.4's capture, which names only the tense note's
+    landing, to the recovery's.
 - **Files:** `src/domain/pitch/pitch-types.ts`, `src/domain/pitch/pitch-context.ts` (the two facts,
   the open ending), `src/domain/pitch/pitch-candidates.ts` (the tense ending),
   `src/domain/pitch/pitch-advance.ts` (the landing); `pitch-ranking.ts` and
@@ -784,7 +799,8 @@ Chunk 7 in this wave builds on it.
 - **Revisions:** revise `rule_embellishment_figures_defined`, `rule_tension_arc_settled`,
   `rule_tension_arc_build`, `rule_arpeggio_chaos_respects_constraints`,
   `rule_join_tense_note_resolution`, `rule_figure_level_orders_search`,
-  `rule_jam_melody_follows_doodle_moves`.
+  `rule_jam_melody_follows_doodle_moves`; the addendum revises `rule_join_reads_carried_chord_as_triad`
+  (its recovery sentence, as D530 reads it).
 - **Done when:**
   - On hand-built plans with seventh-form events: the seventh is tried with the chord tones, before
     the decorating notes; every free figure's resolution may land on it; Arpeggio chaos orders four
@@ -792,8 +808,11 @@ Chunk 7 in this wave builds on it.
     a decorating note above the seventh.
   - No phrase generated without a join ends on its final chord's seventh; a joined phrase may end
     on it as a tense note, and never as a chord tone that passed the final check on the tense
-    note's MIDI; the landing after an owed note is a tonic-triad note (property tests over
+    note's MIDI; the landing after an owed tense note is a tonic-triad note (property tests over
     hand-built final events of each plan kind).
+  - Addendum: under a seventh-form first event, a recovery owed across the join is never repaid on
+    the seventh, and is still repaid on any other note 1 to 4 semitones back; a first note owing
+    nothing may be the seventh (named tests); the corpus guard passes unchanged.
   - Extensions (the ninth, eleventh and thirteenth) are never chord tones (named tests).
   - Triad events: the corpus and the goldens pass unchanged.
 - **Verification:** chunk checks; the sweep at the wave gate.
@@ -828,6 +847,11 @@ landing read the triad-tone fact. Chunk 7 in this wave builds on it.
     seventh.
   - `contour-endpoint-rules.ts` (the final note) and `join-rules.ts` (the tense ending, the
     landing) read the triad facts.
+  - The recovery's landing (D530, chunk 5's addendum mirrored): when the carried pitch owes a
+    recovery (`joinLead`'s `owedLeapDirection`), `join-rules.ts` refuses a first attack that repays
+    it on a chord tone outside the triad, the tonic chord's seventh, as a failure at attack 0 (its
+    code the chunk's). The recovery's own interval rule is unchanged: any other note 1 to 4
+    semitones back passes, a figure's decorating note included, as in v3.2.
   - Named phrases over hand-built seventh plans, written by hand from §D6.1's rules, so the chunk
     needs neither chunk 5 nor chunk 7. The property test that runs the search and validates every
     result over seventh plans is chunk 12's, once both halves are merged.
@@ -845,9 +869,10 @@ landing read the triad-tone fact. Chunk 7 in this wave builds on it.
   `rule_levels_govern_free_figures_only`.
 - **Done when:**
   - The validator accepts hand-written phrases that land on, resolve onto and run through the
-    seventh of a seventh-form event, and refuses a phrase with no join ending on the final
-    seventh, a landing on the tonic chord's seventh, and a ninth treated as a chord tone (named
-    tests).
+    seventh of a seventh-form event, and a phrase owing nothing across the join that starts on
+    the seventh; it refuses a phrase with no join ending on the final seventh, a tense carried
+    note resolved onto the tonic chord's seventh, a carried recovery repaid on it, and a ninth
+    treated as a chord tone (named tests).
   - Over triad plans its answers are unchanged (the existing validator suites, the corpus).
 - **Verification:** chunk checks; the sweep at the wave gate.
 - **Split rule:** none needed (one validator; the facts and the rules that read them land
@@ -1710,14 +1735,16 @@ Architecture capture: none
 
 - **Goal:** let any phrase end on its final chord's seventh, and the next phrase land on the tonic
   chord's seventh, as the second option of §D12 says.
-- **Scope:** in the search (`isOpenEndpointMidi`, `tenseEndingCandidates`, the landing) and the
-  validator (`contour-endpoint-rules.ts`, `join-rules.ts`), plus `tonicTriadPitchClasses`'s landing
-  in `phrase-ending-debt.ts`: the final chord's seventh is an ending note, the tonic chord's seventh
-  a landing note when that chord is in its seventh form, and a tense note is a scale note outside
+- **Scope:** in the search (`isOpenEndpointMidi`, `tenseEndingCandidates`, the landing of a
+  tense note and of a recovery in `pitch-advance.ts`, D530) and the validator
+  (`contour-endpoint-rules.ts`, `join-rules.ts`), plus `tonicTriadPitchClasses`'s landing in
+  `phrase-ending-debt.ts`, unless O310 keeps the phrase before's settle checks on the triad: the
+  final chord's seventh is an ending note, the tonic chord's seventh a landing note when that chord
+  is in its seventh form, and a tense note is a scale note outside
   the whole four-note chord. Triad events are unchanged. M1 and M2 are run again, since endings
   change the search.
 - **Files:** `src/domain/pitch/pitch-context.ts`, `src/domain/pitch/pitch-candidates.ts`,
-  `src/domain/pitch/validation/contour-endpoint-rules.ts`,
+  `src/domain/pitch/pitch-advance.ts`, `src/domain/pitch/validation/contour-endpoint-rules.ts`,
   `src/domain/pitch/validation/join-rules.ts`,
   `src/domain/generation/carry-in/phrase-ending-debt.ts`; tests in each area.
 - **Spec sections:** [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check),
@@ -1735,7 +1762,7 @@ Architecture capture: none
 - **Split rule:** if the brief passes about five source files, 21a the validator first
   (`contour-endpoint-rules.ts`, `join-rules.ts`: it accepts the seventh endings before the search
   writes any), 21b the search and the landing (`pitch-context.ts`, `pitch-candidates.ts`,
-  `phrase-ending-debt.ts`).
+  `pitch-advance.ts`, `phrase-ending-debt.ts`).
 
 ### Chunk 23 — Jam's own Seventh chords level
 
