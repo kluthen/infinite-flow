@@ -302,3 +302,35 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   `module_pitch_search_transition` (the final check is per candidate; "onto a chord tone" becomes
   "a triad tone"; the final note's fact reads the triad); `module_pitch_search_context` 0.4 does not
   yet name the final note's triad fact or `mayEndPhrase`.
+
+### Spec D530 (2026-11-12)
+
+- `spec-writer` (fb4e4192): plan v13, Part D v1.4, spec D530, O310. §D6.3's "a leap recovery …
+  owed across the join still settles on a note of the tonic triad" overstated the code (v3.2 lets a
+  recovery land on any note 1 to 4 semitones back, decorating notes included; the tonic triad
+  holds only on the ending side, `owedRecoveryCanSettle`). Ruling: a recovery owed across a join is
+  never repaid on the first chord's seventh; any other landing as in v3.2; a first note owing
+  nothing may be the seventh. Nothing changes at Off. No STABLE wording touched
+  (`rule_join_reads_carried_chord_as_triad`, at REVIEW, is revised at the sync); the owner told,
+  not asked.
+- What it adds: a **chunk 5 addendum**, a fix on the wave branch in its own commit before chunk 6
+  (`pitch-advance.ts`, one test); chunk 6's validator mirror (`join-rules.ts`); chunk 21 lifts both
+  landings if L1 approves. O310 (the ending side keeps reading the triad) is needed only before
+  chunk 21.
+- `documentalist` peek over the addendum's files, extending the captures
+  `module_pitch_search_context` and `module_pitch_domain_validation`: running.
+
+### Chunk 9 merged (2026-11-12)
+
+- 75274107 (660ef0af; C1: spec D526): each attack carries `chordTones`; the chord is voiced in the
+  highest close position with its top at or below E4, four arrangements for a seventh chord, three
+  for a triad (unchanged); a seventh that is not stacked on its triad (interval, quality) throws.
+  The bass reads the triad. 48 chords checked against a separate expectation (top ≤ E4, lowest ≥
+  D3); a backing-included MIDI export of a seventh-form session holds the renderer's four notes;
+  the Rhythm guide's roots unchanged. Corpus guard green (19 files, 517 tests), the MIDI golden
+  unchanged. Debug run: the ending renders now play G7 as 53 55 59 62 over a bass of 43. No
+  deviation.
+- For the sync: A1 (`req_session_backing_track` 0.2 → 0.3), revise
+  `rule_generated_notes_midi_export`; new test links to `req_session_backing_track`,
+  `rule_generated_notes_midi_export`, `rule_rhythm_guide_notes`. `docs/audio-transport.md` near
+  line 478 records v3.0 chunk 11's choices ("top note between F3 and E4"), history left as is.

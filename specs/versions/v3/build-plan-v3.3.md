@@ -1001,7 +1001,7 @@ landing.
 
 ### Chunk 9 — The backing plays the seventh
 
-Status: planned
+Status: merged (w2, 75274107)
 Wave: 2
 Depends on: 2; C1, done (`req_session_backing_track`, applied at wave 2's sync)
 Architecture capture: none
@@ -1043,6 +1043,8 @@ Architecture capture: none
   - The Rhythm guide plays the same roots over a seventh-form event as over its triad form.
 - **Verification:** chunk checks; H4's DAW half later, at chunk 13; the balance by ear at H2.
 - **Split rule:** none needed (one source file).
+
+Record: 75274107 (660ef0af; C1: spec D526). No deviation.
 
 ### Chunk 10 — Seventh chord symbols and their spoken words
 
