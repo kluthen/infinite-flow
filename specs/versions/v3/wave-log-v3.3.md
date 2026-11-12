@@ -434,3 +434,8 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
 - Report to the owner: chunks 4, 5 (with the D530 addendum), 6, 7 and 9 merged, none moved; the
   gate green on 47b2656d with no flake; sweep at v3.2's figures; entry 313,896 B (+783 B); CONTRACT
   16.0.0; D529, D530, D531 told. Merge into `main` on the owner's word.
+- The owner, 2026-11-12: "Merge and push"; the two promotions "Promote both": applied in acfff0bf
+  (each REVIEW at 0.1). Branch `v3.3-plan-refs` (609fdf32, the plan's design citations named
+  exactly for `doc-get`, cut from this branch at 50b41aa5) merged into the wave first, as plan v15;
+  `doc-get lint plan`: 0 unresolved references. Next: wave 3 (chunks 12, 15, 16) in a fresh
+  session; its sync applies A3, A4 and A8's Idle-state sentences (CONTRACT 17.0.0).
