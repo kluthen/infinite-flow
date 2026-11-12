@@ -21,32 +21,66 @@ import {
   type PhraseProduction,
 } from '../unit/session/deadline-sweep-productions'
 import { settingKey } from '../unit/domain/generation/orchestration/cold-generation-golden/cold-generation-golden-fixture'
+import { seventhCensusOf } from './seventh-census'
 
 /** One measured outcome: what `generatePhrase` gave an intent, and the wall time it took. */
 export type TimedOutcome = ReturnType<OutcomeCache['of']>
 
 /**
  * What the figures keep of one measured outcome: the wall time `generatePhrase` took, its failure
- * code, or null for a generated phrase, and the Tension value its intent asked for.
+ * code, or null for a generated phrase, the Tension value its intent asked for, and, for a
+ * generated phrase, its seventh census (v3.3 M2): its harmony events, how many are in their
+ * seventh form, and whether its plan fell back to triads (all zero and false for a failure).
  */
 export interface AttemptTime {
   readonly seconds: number
   readonly failureCode: GenerationFailureCode | null
   readonly tension: string
+  readonly harmonyEvents: number
+  readonly seventhEvents: number
+  readonly fallback: boolean
 }
 
 /**
- * Intent: what the figures keep of a measured outcome: its time, failure code and Tension value,
- * not the phrase.
+ * Intent: what the figures keep of a measured outcome: its time, failure code, Tension value and
+ * seventh census, not the phrase.
  */
 export function attemptTime(
   { outcome, seconds }: TimedOutcome,
   intent: GenerationIntent,
 ): AttemptTime {
+  const census = seventhCensusOf(intent, outcome)
+  const generated = 'kind' in census ? undefined : census
   return {
     seconds,
     failureCode: outcome.kind === 'generation_failure' ? outcome.code : null,
     tension: intent.controls.tension,
+    harmonyEvents: generated?.events.length ?? 0,
+    seventhEvents: generated?.seventhEvents ?? 0,
+    fallback: generated?.fallback ?? false,
+  }
+}
+
+/** The seventh shares of some measured attempts (v3.3 M2), over the phrases they generated. */
+export interface SeventhShares {
+  /** Harmony events in their seventh form, over the harmony events of the phrases generated. */
+  readonly seventhEvents: Share
+  /** Phrases whose plan fell back to triads, over the phrases generated. */
+  readonly fallbacks: Share
+}
+
+/** Intent: the seventh shares of some measured attempts. */
+export function seventhShares(attempts: readonly AttemptTime[]): SeventhShares {
+  const generated = attempts.filter((attempt) => attempt.failureCode === null)
+  /** Intent: one count added up over the phrases generated. */
+  const sum = (count: (attempt: AttemptTime) => number): number =>
+    generated.reduce((total, attempt) => total + count(attempt), 0)
+  return {
+    seventhEvents: shareOf(
+      sum((attempt) => attempt.seventhEvents),
+      sum((attempt) => attempt.harmonyEvents),
+    ),
+    fallbacks: shareOf(generated.filter((attempt) => attempt.fallback).length, generated.length),
   }
 }
 

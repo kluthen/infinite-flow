@@ -66,11 +66,15 @@ describe('lock census runner plumbing', () => {
   })
 
   it('reads its choices from the environment and refuses anything else', () => {
-    expect(lockCensusChoices({})).toEqual({ limit: undefined, settings: 'sweep' })
-    expect(lockCensusChoices({ LOCK_LIMIT: '6', LOCK_SETTINGS: 'Both' })).toEqual({
+    expect(lockCensusChoices({})).toEqual({ limit: undefined, settings: 'sweep', levels: ['off'] })
+    expect(
+      lockCensusChoices({ LOCK_LIMIT: '6', LOCK_SETTINGS: 'Both', LOCK_LEVELS: 'off' }),
+    ).toEqual({
       limit: 6,
       settings: 'both',
+      levels: ['off'],
     })
+    expect(() => lockCensusChoices({ LOCK_LEVELS: 'stronglyFavored' })).toThrow(/chunk 12/)
     expect(() => lockCensusChoices({ LOCK_LIMIT: '0' })).toThrow(/LOCK_LIMIT/)
     expect(() => lockCensusChoices({ LOCK_SETTINGS: 'presets' })).toThrow(/LOCK_SETTINGS/)
   })

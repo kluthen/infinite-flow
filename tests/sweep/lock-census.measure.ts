@@ -20,7 +20,8 @@
  *
  * Env: `LOCK_OUT` writes the full figures JSON (with the machine, the date and the run duration)
  * to that path; `LOCK_LIMIT` keeps N evenly spaced sweep cases; `LOCK_SETTINGS` sweep (default),
- * builtin or both.
+ * builtin or both; `LOCK_LEVELS` the Seventh chords levels each group plays at, comma-separated
+ * level ids (default every level measurable today: Off only until v3.3 chunks 12 and 16).
  */
 
 import { writeFileSync } from 'node:fs'
@@ -41,6 +42,7 @@ import {
   settingGroups,
   type LockGroupTally,
 } from './lock-census-sweep'
+import { SEVENTH_LEVEL_NAMES } from './seventh-levels'
 
 describe('lock census runner (M2)', () => {
   it('reports, per setting group, Tension across phrases and allowed list, the lock census, the draws and the replays', async () => {
@@ -51,16 +53,19 @@ describe('lock census runner (M2)', () => {
     const cases = evenlySpaced(sweepCases(), choices.limit)
     const groups = settingGroups(choices.settings)
     const tallies: LockGroupTally[] = []
-    for (const group of groups) {
-      const tally = await censusOfGroup(group, cases, (density, count) => {
-        const heap = Math.round(process.memoryUsage().heapUsed / 2 ** 20)
-        console.log(
-          `LOCK-CENSUS [${group.label}] density ${density}: ${count} cases played, heap ${heap} MB`,
-        )
-      })
-      console.log(tally.lines().join('\n'))
-      tallies.push(tally)
-    }
+    for (const level of choices.levels)
+      for (const group of groups) {
+        /** Intent: report one density part played, with the heap in use. */
+        const onPart = (density: string, count: number): void => {
+          const heap = Math.round(process.memoryUsage().heapUsed / 2 ** 20)
+          console.log(
+            `LOCK-CENSUS [${group.label} at seventh chords ${SEVENTH_LEVEL_NAMES[level]}] density ${density}: ${count} cases played, heap ${heap} MB`,
+          )
+        }
+        const tally = await censusOfGroup(group, cases, onPart, level)
+        console.log(tally.lines().join('\n'))
+        tallies.push(tally)
+      }
 
     const report = {
       date,
@@ -71,6 +76,7 @@ describe('lock census runner (M2)', () => {
           'every supported rhythm setting with each seed (or LOCK_LIMIT evenly spaced cases), under each setting group (the sweep cases, or a built-in preset applied to every case with per-case seeds); per case one seeded session with the rhythm lock on per Tension across phrases (on, off) and allowed list, every attempt generated at the flat modelled cost; per draw (phrases 2 to 8, repeats and re-locks skipped, some kind allowed) what it drew and the kinds one change from the locked rhythm in effect in the phrase own rhythm domain; availability pooled over the all-five sessions; a sample of each class replayed from its key',
         sweepCases: cases.length,
         settingGroups: groups.map((group) => group.label),
+        seventhLevels: choices.levels,
         seeds: seedScheme(choices.settings),
         sessions: tallies.reduce((sum, tally) => sum + tally.sessions, 0),
         phrasesPerSession: LOCK_PHRASE_COUNT,
@@ -92,10 +98,11 @@ describe('lock census runner (M2)', () => {
     if (outPath !== undefined) writeFileSync(outPath, JSON.stringify(report, null, 2))
     const sessionsPerGroup = cases.length * TENSION_ACROSS_PHRASES.length * ALLOWED_SETS.length
     expect(tallies.map((tally) => [tally.sessions, tally.completed])).toEqual(
-      groups.map(() => [sessionsPerGroup, sessionsPerGroup]),
+      tallies.map(() => [sessionsPerGroup, sessionsPerGroup]),
     )
+    expect(tallies).toHaveLength(groups.length * choices.levels.length)
     expect(report.mismatches.flatMap(({ first }) => first)).toEqual([])
-    expect(report.mismatches.map(({ count }) => count)).toEqual(groups.map(() => 0))
+    expect(report.mismatches.map(({ count }) => count)).toEqual(tallies.map(() => 0))
     for (const { byClass, mismatchedKeys } of report.replay) {
       expect(mismatchedKeys).toEqual([])
       for (const { replayed, matched } of Object.values(byClass)) expect(matched).toBe(replayed)

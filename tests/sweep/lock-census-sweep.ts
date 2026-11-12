@@ -20,6 +20,7 @@
  * a full part of a preset group.
  */
 
+import type { ChordFamilyLevel } from '@/domain/chords/chord-families'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO } from '@/domain/generation/orchestration/canonical-rhythm-domain'
 import { rhythmDomainInputOf } from '@/domain/generation/orchestration/generation-orchestrator'
@@ -52,6 +53,7 @@ import {
   type ReplayFigures,
   type ReplayablePhrase,
 } from './lock-census-replay'
+import { SEVENTH_LEVEL_NAMES, seventhLevelsFrom } from './seventh-levels'
 
 /** How many phrases each census session plays before Stop, phrase 1 included. */
 export const LOCK_PHRASE_COUNT = 8
@@ -88,12 +90,15 @@ export type LockSettingsChoice = 'sweep' | 'builtin' | 'both'
 export interface LockCensusChoices {
   readonly limit: number | undefined
   readonly settings: LockSettingsChoice
+  /** The Seventh chords levels every setting group is played at, in increasing order. */
+  readonly levels: readonly ChordFamilyLevel[]
 }
 
 /**
  * Intent: the runner's choices from an environment: `LOCK_LIMIT` a positive whole number of
- * evenly spaced cases (none: every case), `LOCK_SETTINGS` sweep (default), builtin or both.
- * Anything else fails.
+ * evenly spaced cases (none: every case), `LOCK_SETTINGS` sweep (default), builtin or both,
+ * `LOCK_LEVELS` the Seventh chords levels, comma-separated level ids (default every level
+ * measurable today, seventh-levels.ts). Anything else fails.
  */
 export function lockCensusChoices(env: NodeJS.ProcessEnv = process.env): LockCensusChoices {
   const rawLimit = env.LOCK_LIMIT?.trim() ?? ''
@@ -105,7 +110,7 @@ export function lockCensusChoices(env: NodeJS.ProcessEnv = process.env): LockCen
     throw new Error(
       `LOCK_SETTINGS must be one of sweep, builtin, both, got "${env.LOCK_SETTINGS}".`,
     )
-  return { limit, settings }
+  return { limit, settings, levels: seventhLevelsFrom('LOCK_LEVELS', env.LOCK_LEVELS) }
 }
 
 /** Intent: the setting groups a choice measures, the sweep's cases first, then the built-ins. */
@@ -515,8 +520,9 @@ export class LockGroupTally {
 }
 
 /**
- * Intent: play every case under one setting group (`lockGroupCases`), density by density, once
- * per Tension across phrases (on, off) and allowed list, each case with one outcome cache shared
+ * Intent: play every case under one setting group (`lockGroupCases`) at one Seventh chords level
+ * (Off by default; the tally's label names it), density by density, once per Tension across
+ * phrases (on, off) and allowed list, each case with one outcome cache shared
  * by its sessions and dropped after them (a wider cache saves next to nothing and holds the heap),
  * and tally the sessions. `onPart` hears of each density part finished.
  */
@@ -524,9 +530,14 @@ export async function censusOfGroup(
   group: CostSetting,
   cases: readonly SweepCase[],
   onPart: (density: string, cases: number) => void = () => {},
+  level: ChordFamilyLevel = 'off',
 ): Promise<LockGroupTally> {
-  const tally = new LockGroupTally(group.label)
-  for (const part of byNoteDensity(lockGroupCases(group, cases))) {
+  const tally = new LockGroupTally(`${group.label} at seventh chords ${SEVENTH_LEVEL_NAMES[level]}`)
+  const played = lockGroupCases(group, cases).map((sweepCase) => ({
+    ...sweepCase,
+    seventhLevel: level,
+  }))
+  for (const part of byNoteDensity(played)) {
     for (const sweepCase of part) {
       const outcomes = new OutcomeCache()
       for (const tensionAcrossPhrases of TENSION_ACROSS_PHRASES)

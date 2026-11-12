@@ -1,6 +1,7 @@
 /**
  * The Jam sweep's figures (measurement tooling, v3.2 measurements M1 and M5): what the runs of one
- * configuration (mode, tempo, lock, rhythm domain, steering block present or not) add up to. A
+ * configuration (mode, tempo, lock, rhythm domain, steering block present or not, Seventh chords
+ * level) add up to. A
  * Jam's phrase 1 by rung and how often it never came or extended the wait; every attempt's time
  * and the share of it spent ordering candidates; the repeats; the standalone attempts against the
  * standalone reserve; the deadline shortfalls; and, with the lock on, the lock census. For Jams
@@ -9,12 +10,14 @@
  * keep times, counts and lines only, never a phrase.
  */
 
+import type { ChordFamilyLevel } from '@/domain/chords/chord-families'
 import { RHYTHM_CHANGE_KINDS } from '@/domain/generation/request-rhythm-lock'
 import { STANDALONE_RESERVE_SECONDS } from '@/session/session-timing'
 import { nearestRank, shareOf, type Share } from './cost-guard-figures'
 import type { JamLock, LadderRung, RhythmDomainState } from './jam-sweep-ladder'
 import type { JamMode, JamRunRecord } from './jam-sweep'
 import { LockCensusTally, type LockCensusFigures } from './lock-census-tally'
+import { SEVENTH_LEVEL_NAMES } from './seventh-levels'
 
 /**
  * One attempt of a run, as the figures keep it: the phrase it was for, how it was asked for (a
@@ -42,6 +45,8 @@ export interface ConfigurationKey {
   readonly lock: JamLock
   readonly domain: RhythmDomainState
   readonly steering: boolean
+  /** The Seventh chords level the runs play at (v3.3 M2). */
+  readonly level: ChordFamilyLevel
 }
 
 /** A Jam's phrase 1 over the Jams: by the rung that made it, or never came. */
@@ -141,12 +146,15 @@ const MAX_SHORTFALL_LINES = 5
 /** Why a configuration's orderings share is null. */
 export const NO_ORDERINGS_NOTE = 'no attempt reports ordering time'
 
-/** Intent: a configuration's readable label, e.g. `jam 120 BPM lock off warm no block`. */
+/**
+ * Intent: a configuration's readable label, e.g. `jam 120 BPM lock off warm no block seventh
+ * chords Off`.
+ */
 export function configurationLabel(key: ConfigurationKey): string {
   const lock = key.lock.on
     ? `lock on (${key.lock.allowedChanges.length === RHYTHM_CHANGE_KINDS.length ? 'all changes' : key.lock.allowedChanges.join('+') || 'no change'})`
     : 'lock off'
-  return `${key.mode} ${key.tempo} BPM ${lock} ${key.domain} ${key.steering ? 'with block' : 'no block'}`
+  return `${key.mode} ${key.tempo} BPM ${lock} ${key.domain} ${key.steering ? 'with block' : 'no block'} seventh chords ${SEVENTH_LEVEL_NAMES[key.level]}`
 }
 
 /** Intent: a Jam's phrase 1 over the Jams, by the rung that made it (null: it never came). */

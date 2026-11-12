@@ -14,12 +14,15 @@
  * through chunk 18's real ladder, jam-sweep-real-ladder.ts; baseline: chunk 3's runs, rung 3 only,
  * no steering block); `JAM_DOODLES` none or all (default all with the double or the real ladder,
  * none with the baseline; all crosses each Jam with every doodle of the doodle set; the double and
- * the real ladder need them). A steered Jam's drift walks Close, Near, Free over the case and
- * doodle indices, so every doodle meets every drift.
+ * the real ladder need them); `JAM_LEVELS` the Seventh chords levels, comma-separated level ids
+ * (default every level measurable today: Off only until v3.3 chunks 12 and 16, seventh-levels.ts).
+ * A steered Jam's drift walks Close, Near, Free over the case and doodle indices, so every doodle
+ * meets every drift.
  */
 
 import { performance } from 'node:perf_hooks'
 
+import type { ChordFamilyLevel } from '@/domain/chords/chord-families'
 import { RHYTHM_CHANGE_KINDS } from '@/domain/generation/request-rhythm-lock'
 import { JAM_DRIFTS, type JamDrift } from '@/jam/steering-block-builder'
 import { OutcomeCache, type SweepCase } from '../unit/session/deadline-sweep'
@@ -30,6 +33,7 @@ import type { JamLock, PhraseOneLadder, RhythmDomainState } from './jam-sweep-la
 import { JAM_REAL_LADDER } from './jam-sweep-real-ladder'
 import { runJamCase, type JamDoodle, type JamMode } from './jam-sweep'
 import { JamReplaySampler } from './jam-sweep-replay'
+import { seventhLevelsFrom } from './seventh-levels'
 
 /** A Jam's tempos by default (M1: 240 BPM comes later). */
 export const JAM_TEMPOS: readonly number[] = [60, 120, 180]
@@ -50,6 +54,8 @@ export interface JamSweepChoices {
    * chunk 18's real one, or plays the baseline.
    */
   readonly ladder: 'double' | 'real' | 'baseline'
+  /** The Seventh chords levels every configuration is played at, in increasing order. */
+  readonly levels: readonly ChordFamilyLevel[]
 }
 
 /** Intent: one of some allowed words, or the default when unset; anything else fails. */
@@ -116,6 +122,7 @@ export function jamSweepChoices(env: NodeJS.ProcessEnv = process.env): JamSweepC
     ],
     doodles,
     ladder,
+    levels: seventhLevelsFrom('JAM_LEVELS', env.JAM_LEVELS),
   }
 }
 
@@ -132,22 +139,25 @@ export function evenlySpaced(
 }
 
 /**
- * Intent: every configuration the choices give, in run order: per mode, its tempos, the locks,
- * then the domains (warm only for a session). A Jam carries its doodle's steering block with the
- * double or the real ladder, none with the baseline; a session never does.
+ * Intent: every configuration the choices give, in run order: per Seventh chords level, per mode,
+ * its tempos, the locks, then the domains (warm only for a session). A Jam carries its doodle's
+ * steering block with the double or the real ladder, none with the baseline; a session never does.
  */
 export function configurations(choices: JamSweepChoices): readonly ConfigurationKey[] {
-  return choices.modes.flatMap((mode) =>
-    choices.tempos[mode].flatMap((tempo) =>
-      choices.locks.flatMap((lock) =>
-        (mode === 'jam' ? choices.domains : (['warm'] as const)).map(
-          (domain): ConfigurationKey => ({
-            mode,
-            tempo,
-            lock,
-            domain,
-            steering: mode === 'jam' && choices.ladder !== 'baseline',
-          }),
+  return choices.levels.flatMap((level) =>
+    choices.modes.flatMap((mode) =>
+      choices.tempos[mode].flatMap((tempo) =>
+        choices.locks.flatMap((lock) =>
+          (mode === 'jam' ? choices.domains : (['warm'] as const)).map(
+            (domain): ConfigurationKey => ({
+              mode,
+              tempo,
+              lock,
+              domain,
+              steering: mode === 'jam' && choices.ladder !== 'baseline',
+              level,
+            }),
+          ),
         ),
       ),
     ),
@@ -184,10 +194,11 @@ export interface PlayedConfiguration {
 }
 
 /**
- * Intent: play one case under one configuration, with the doodle at its index (a session runs once
- * per case, with the first doodle's turn; a Jam once per doodle, steered with its drift when the
- * configuration carries a block, its phrase 1 through `phraseOneLadder` when one is named), and
- * add the run to the configuration's tally and replay sample.
+ * Intent: play one case under one configuration, at its Seventh chords level, with the doodle at
+ * its index (a session runs once per case, with the first doodle's turn; a Jam once per doodle,
+ * steered with its drift when the configuration carries a block, its phrase 1 through
+ * `phraseOneLadder` when one is named), and add the run to the configuration's tally and replay
+ * sample.
  */
 async function playOne(
   { tally, replays }: PlayedConfiguration,
@@ -200,7 +211,7 @@ async function playOne(
   if (tally.key.mode === 'session' && doodleIndex > 0) return
   const playedDoodle = tally.key.mode === 'jam' ? doodle : undefined
   const startedAt = performance.now()
-  const { mode, tempo, lock, domain, steering } = tally.key
+  const { mode, tempo, lock, domain, steering, level } = tally.key
   if (steering && playedDoodle === undefined)
     throw new Error('A steered Jam configuration needs the doodle set.')
   const { record, session, phraseOneInput } = await runJamCase(
@@ -209,7 +220,7 @@ async function playOne(
       tempo,
       lock,
       domain,
-      sweepCase,
+      sweepCase: { ...sweepCase, seventhLevel: level },
       ...(playedDoodle === undefined ? {} : { doodle: playedDoodle }),
       ...(steering ? { drift: driftOf(sweepCase, doodleIndex) } : {}),
       ...(steering && phraseOneLadder !== undefined ? { phraseOneLadder } : {}),

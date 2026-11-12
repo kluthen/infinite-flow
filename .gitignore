@@ -21,3 +21,6 @@ pipeline_output/
 
 # v3.2 rhythm renders (npm run render:rhythms), regenerated on demand
 rhythm-renders/
+
+# v3.3 seventh-ending renders (npm run render:seventh-endings), regenerated on demand
+seventh-endings/
