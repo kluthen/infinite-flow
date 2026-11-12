@@ -30,6 +30,7 @@ import type { DiatonicTriad, HarmonyEvent } from '@/domain/harmony/harmony-types
 import { makeSeed } from '@/domain/random/seed'
 import { addRational, makeRational, type Rational } from '@/domain/time/rational'
 import { phraseFromBars } from '../acknowledgement/acknowledgement-fixtures'
+import { withSeventh } from '../harmony/seventh-chord-fixtures'
 
 const C_MAJOR: DiatonicTriad = { degree: 1, pitchClasses: [0, 4, 7], quality: 'major' }
 const F_MAJOR: DiatonicTriad = { degree: 4, pitchClasses: [5, 9, 0], quality: 'major' }
@@ -356,6 +357,22 @@ describe('the rhythm guide on hand-built phrases', () => {
     expect(renderGuide(timeline, harmony).rhythm.map((note) => Number(note.pitch))).toEqual([
       60, 71, 69, 67,
     ])
+  })
+
+  // @test-link [[rule_rhythm_guide_notes]]
+  it('plays the same roots over seventh-form events as over their triad form', () => {
+    const timeline = phraseFromBars(['q h q', '~:h h', 'w', 'w'], [64, 67, 72, 71, 69, 67])
+    const triads = [
+      event(0, 0, 2, C_MAJOR),
+      event(0, 2, 6, F_MAJOR),
+      event(2, 0, 4, B_DIMINISHED),
+      event(3, 0, 4, G_MAJOR),
+    ]
+    const sevenths = triads.map((triadEvent) => withSeventh(triadEvent))
+    expect(sevenths.every((seventhEvent) => seventhEvent.seventh !== undefined)).toBe(true)
+    const rhythm = renderGuide(timeline, sevenths).rhythm
+    expect(rhythm).toEqual(renderGuide(timeline, triads).rhythm)
+    expect(rhythm.map((note) => Number(note.pitch))).toEqual([60, 60, 65, 65, 71, 67])
   })
 })
 
