@@ -568,3 +568,10 @@ archived range D407–D509 that its archive notice lists.
   (§D8.3), so no check is added. Rejected: a refusal in each writer, removed again within two
   waves. Now in: [build plan v3.3](versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5),
   chunks 13, 15, 17 and 19, and the [waves](versions/v3/build-plan-v3.3.md#waves).
+
+- **D529 (2026-11-12): `rule_doodle_only_orders_candidates` is revised with Jam's own level
+  (chunk 23), not with the chord tones (chunk 5).** Its change ("the chords' forms come from Jam's
+  level, never from the doodle") is built by chunk 23; the atom says nothing about chord tones, so
+  chunk 5 leaves its wording as it is. Found by wave 2's preflight; the change set's part E row
+  and §D12's grouping of it under §D6.1 read accordingly. Now in:
+  [build plan v3.3, chunk 23](versions/v3/build-plan-v3.3.md#chunk-23--jams-own-seventh-chords-level).

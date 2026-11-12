@@ -1,6 +1,7 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v11 (2026-11-10): v10 with wave 1's chunk reports and spec D528 written in: chunk 13 moves
+Status: v12 (2026-11-12): v11 with wave 2's preflight corrections and spec D529 written in.
+v11 (2026-11-10): v10 with wave 1's chunk reports and spec D528 written in: chunk 13 moves
 to wave 4 and chunk 19 waits on every chunk a seventh passes through; chunks 15 and 17 retire the
 `ifk4.` and data-version-4 writers and read a carried seventh; chunk 15 gains the replay report;
 chunk 16 names the prewarm; Read first lists chunk 10's replaced suffix test.
@@ -695,7 +696,10 @@ Architecture capture: none
     only rewrites notes of phrases it is given; it never generates an ending the spec does not
     allow (D280).
   - Until chunk 12 exists the census and the runs see Off only, the baseline.
-- **Files:** `tests/sweep/seventh-census.ts`, `tests/sweep/seventh-census.spec.ts` (new, added to
+- **Files:** following the figure census's files, `tests/sweep/seventh-census.ts` (the classifier),
+  `tests/sweep/seventh-census-sweep.ts` (the population, the settings and the aggregate),
+  `tests/sweep/seventh-census.measure.ts` (the harness, which the config's `*.measure.ts` pattern
+  runs), `tests/sweep/seventh-census.spec.ts` (all new; the spec added to
   `vitest.measure-sweep.config.ts`'s list as `figure-census.spec.ts` is), the cost-guard, Jam
   sweep and lock measurement modules under `tests/sweep/` (a level dimension),
   `scripts/render-seventh-endings.mjs` (new), `package.json` (`measure:sevenths`,
@@ -735,19 +739,33 @@ Chunk 7 in this wave builds on it.
     every figure still resolves onto a chord tone, the seventh included; Arpeggio chaos orders the
     four chord tones; Tension's scheduled figure (`boundPaths`) may land on the seventh. A Jam's
     doodle ranks need no change: the doodle's move term orders within the rank, and the seventh
-    now shares the first one.
-  - **Triad tones** (first option of §D12): `isOpenEndpointMidi`'s final notes (a note of the
-    degree-5 triad in tonal plans that move; scale degree 5 in tonal static plans; a non-home note
-    of the home triad in modal plans), `tenseEndingCandidates` (a tense note is a scale note
-    outside the final triad, so the seventh may end a joined phrase), and the first attack's
-    landing after an owed tense note or recovery (the tonic triad), which the search checks in
-    `leavesCarriedTensionUnresolved` (`pitch-advance.ts`). `freeDomainKey` still determines the
-    triad (the chord tones list root, third, fifth, then the seventh).
+    now shares the first one. `pitch-ranking.ts` reads the candidate's `chord_tone` role and
+    `pitch-figures.ts` each note's chord-tone fact, both set from `chordPitchClasses`
+    (`pitch-candidates.ts`, `pitch-advance.ts`), so they likely need tests only.
+  - **Triad tones** (first option of §D12): `isOpenEndpointMidi`'s final notes (`pitch-context.ts`,
+    which also holds the final-MIDI filter in `compilePitchSearchContext`; `isOpenPitchEndpoint` in
+    `pitch-planner.ts` calls it and needs no change): a note of the degree-5 triad in tonal plans
+    that move; scale degree 5 in tonal static plans; a non-home note of the home triad in modal
+    plans. `tenseEndingCandidates` (`pitch-candidates.ts`): a tense note is a scale note outside
+    the final triad, so the seventh may end a joined phrase. It builds on `diatonicNonChord`, which
+    now leaves the seventh out, so it must read "outside the triad", not "outside the chord tones".
+    On the final attack the seventh is then both a chord-tone candidate, which the endpoint check
+    stops, and a tense candidate; the final-MIDI check in `pitch-advance.ts` compares MIDI only, so
+    the chunk decides how the duplicate is handled, and the seventh ends a phrase only as a tense
+    note. And the first attack's landing after an owed tense note or recovery (the tonic triad),
+    which the search checks in `leavesCarriedTensionUnresolved` (`pitch-advance.ts`).
+    `freeDomainKey` still determines the triad (the chord tones list root, third, fifth, then the
+    seventh).
   - With triad events the two lists are equal, so the order and every phrase are unchanged.
-- **Files:** `src/domain/pitch/pitch-types.ts`, `src/domain/pitch/pitch-context.ts`,
-  `src/domain/pitch/pitch-candidates.ts`, `src/domain/pitch/pitch-advance.ts` (the landing),
-  `src/domain/pitch/pitch-ranking.ts`, `src/domain/pitch/pitch-figures.ts`; tests under `tests/unit/domain/pitch/`
-  (`pitch-candidates.spec.ts`, `pitch-ranking.spec.ts`, `pitch-figures.spec.ts` extended);
+- **Files:** `src/domain/pitch/pitch-types.ts`, `src/domain/pitch/pitch-context.ts` (the two facts,
+  the open ending), `src/domain/pitch/pitch-candidates.ts` (the tense ending),
+  `src/domain/pitch/pitch-advance.ts` (the landing); `pitch-ranking.ts` and
+  `pitch-figures.ts` only if their tests show a change; tests under `tests/unit/domain/pitch/`
+  (`pitch-candidates.spec.ts`, `pitch-ranking.spec.ts`, `pitch-figures.spec.ts` extended), and the
+  fixtures that build a `PitchAttack` by hand, which a required `triadPitchClasses` breaks:
+  `favored-fixtures.ts`, `pitch-search-equivalence.spec.ts`, `pitch-ranking.spec.ts` and
+  `free-appoggiatura-enclosure-candidates.spec.ts` (`withChordChangeAtSix` overrides
+  `chordPitchClasses` alone and needs the triad beside it);
   [`docs/music/pitch-planner-validation.md`](../../../docs/music/pitch-planner-validation.md).
 - **Spec sections:** [§D6.1](master-spec.md#d61-the-seventh-is-a-chord-tone),
   [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check),
@@ -758,26 +776,31 @@ Chunk 7 in this wave builds on it.
   triad); (v2, STABLE) `rule_open_phrase_ending`,
   `rule_join_carry_in_limited`; (v3.1) `rule_figures_resolve_onto_chord_tones`,
   `rule_figure_level_orders_search`; (v3.2) `rule_jam_melody_follows_doodle_moves`. Drift check:
-  `module_pitch_search_context`, `module_pitch_search_transition`, `entity_pitch_candidate_domain`,
-  `mechanic_pitch_search_policy`.
+  `module_pitch_search_context`, `module_pitch_search_transition` (its "by a step onto a chord
+  tone" becomes "a triad tone"), `entity_pitch_candidate_domain`, `mechanic_pitch_search_policy`,
+  `module_pitch_steering`, (STABLE, contract; its wording holds) `module_favored_figure_draw`.
 - **Revisions:** revise `rule_embellishment_figures_defined`, `rule_tension_arc_settled`,
   `rule_tension_arc_build`, `rule_arpeggio_chaos_respects_constraints`,
-  `rule_doodle_only_orders_candidates`, `rule_join_tense_note_resolution`.
+  `rule_join_tense_note_resolution`, `rule_figure_level_orders_search`,
+  `rule_jam_melody_follows_doodle_moves`.
 - **Done when:**
   - On hand-built plans with seventh-form events: the seventh is tried with the chord tones, before
     the decorating notes; every free figure's resolution may land on it; Arpeggio chaos orders four
     chord tones; Tension's scheduled figure may land on it; a doodle's move preference never lifts
     a decorating note above the seventh.
   - No phrase generated without a join ends on its final chord's seventh; a joined phrase may end
-    on it as a tense note; the landing after an owed note is a tonic-triad note (property tests
-    over hand-built final events of each plan kind).
+    on it as a tense note, and never as a chord tone that passed the final check on the tense
+    note's MIDI; the landing after an owed note is a tonic-triad note (property tests over
+    hand-built final events of each plan kind).
   - Extensions (the ninth, eleventh and thirteenth) are never chord tones (named tests).
   - Triad events: the corpus and the goldens pass unchanged.
 - **Verification:** chunk checks; the sweep at the wave gate.
-- **Split rule:** if the brief passes about five source files, 5a the two facts and what reads the
-  triad (`pitch-types.ts`, `pitch-context.ts`, the open ending and the tense ending in
-  `pitch-candidates.ts`, the landing in `pitch-advance.ts`), 5b what reads the chord tones (`pitch-ranking.ts`, `pitch-figures.ts`,
-  the decorating notes and Tension's scheduled figure in `pitch-candidates.ts`).
+- **Split rule:** about four source files, so likely none; only if the brief passes about five,
+  5a the two facts and what reads the triad (`pitch-types.ts`, the open ending in
+  `pitch-context.ts`, the tense ending and its duplicate in `pitch-candidates.ts`, the
+  landing in `pitch-advance.ts`), 5b what reads the chord tones (`pitch-ranking.ts`,
+  `pitch-figures.ts`, the decorating notes and Tension's scheduled figure in
+  `pitch-candidates.ts`).
 
 ### Chunk 6 — The validator reads the seventh as a chord tone
 
@@ -838,17 +861,17 @@ Architecture capture: none (it builds on chunks 5's and 6's)
   tones of one chord in a row, in one direction) include the seventh, and keep every four-note
   one-way [arpeggio](../../../docs/music/lexicon.md#arpeggio) rejected.
 - **Scope:** `recognizable` in `pitch-motion.ts` and its validator twin in
-  `validation/motion-rules.ts` read the chord tones (each note's chord-tone fact, as chunks 5 and 6
-  set it). So E–G–B over Cmaj7, or B–D–F over G7, is a run. A large leap inside such a run may
-  defer its recovery to the note after the run, at Leaping and Angular only. The third place that
+  `validation/motion-rules.ts` already read each note's chord-tone fact, so once chunks 5 and 6 set
+  it from the chord tones they recognize runs through the seventh with no source change there: E–G–B
+  over Cmaj7, or B–D–F over G7, is a run. A large leap inside such a run may defer its recovery to
+  the note after the run, at Leaping and Angular only. The source change is the third place that
   recognizes runs, `finalMotionState` in `carry-in-derivation.ts`, which replays a phrase's motion
-  to derive what it owes the next phrase, reads the same chord-tone facts, so a run through the
-  seventh with a deferred recovery derives the right owed recovery instead of throwing
-  `CarryInError`. `WIDE`, the chain cap
-  and `wide_chain_too_long` are unchanged: C–E–G–B in one direction is still refused, as C–E–G–C is
-  today.
-- **Files:** `src/domain/pitch/pitch-motion.ts`, `src/domain/pitch/validation/motion-rules.ts`,
-  `src/domain/generation/carry-in/carry-in-derivation.ts` (`finalMotionState`); tests
+  to derive what it owes the next phrase and builds each note's chord-tone fact from the event's
+  triad: it reads `chordTones` instead, so a run through the seventh with a deferred recovery
+  derives the right owed recovery instead of throwing `CarryInError` (unreachable before chunk
+  12). `WIDE`, the chain cap and `wide_chain_too_long` are unchanged: C–E–G–B in one direction is
+  still refused, as C–E–G–C is today.
+- **Files:** `src/domain/generation/carry-in/carry-in-derivation.ts` (`finalMotionState`); tests
   `tests/unit/domain/pitch/pitch-motion.spec.ts` (extended), the validator's run and chain cases in
   `tests/unit/domain/pitch/validation/pitch-phrase-validator.spec.ts`, a derivation case in
   `tests/unit/domain/generation/carry-in/`.
@@ -869,7 +892,7 @@ Architecture capture: none (it builds on chunks 5's and 6's)
     what the search wrote (a named test).
   - Over triad events, runs and recoveries are unchanged (the existing motion suites, the corpus).
 - **Verification:** chunk checks; the sweep at the wave gate.
-- **Split rule:** none needed (three source files).
+- **Split rule:** none needed (one source file).
 
 ### Chunk 8 — The join carries a seventh chord
 
@@ -961,14 +984,16 @@ Architecture capture: none
   inside one octave, here each of the four at the bottom in turn: four arrangements instead of
   three) whose top note is at or below E4 (MIDI 64), so its lowest note reaches about D3. The bass,
   the attack rhythm and the registers are unchanged. The session plays the renderer's notes
-  (`queuePhrase`, `src/audio/transport-session.ts`), each chord note on the backing channel's
-  `chord` voice at today's loudness, so a fourth note sounds with no audio change (D518). The MIDI
+  (`queuePhrase`, `src/audio/transport-session.ts`), and `scheduleBacking`
+  (`src/audio/backing-track.ts`) puts every chord note on the backing channel's `chord` voice at
+  today's loudness, so a fourth note sounds with no audio change (D518). The MIDI
   export takes its backing from the renderer (`backingForExport`, `src/export/generated-notes-file.ts`),
   so its four-note chords follow with no export change. The Rhythm guide
   (`src/domain/backing/guide-renderer.ts`) reads only the root, unchanged.
 - **Files:** `src/domain/backing/backing-renderer.ts`; tests
   `tests/unit/domain/backing/backing-renderer.spec.ts` (a seventh case beside the triad one),
-  `tests/unit/export/midi/` (a backing-included export with a seventh chord), the guide renderer's
+  `tests/unit/export/generated-notes-file.spec.ts` (a backing-included export with a seventh chord,
+  through `backingForExport`), the guide renderer's
   tests (a seventh-form event's root unchanged);
   [`docs/audio-transport.md`](../../../docs/audio-transport.md).
 - **Spec sections:** [§D7.3](master-spec.md#d73-the-backing-plays-the-seventh),
@@ -976,7 +1001,7 @@ Architecture capture: none
 - **Atoms:** no v3.3 atom of its own (the four-note backing is `req_session_backing_track`'s, C1's
   A1); (v2, STABLE) `req_session_backing_track`. Drift check:
   `module_review_export_pipeline`, `module_session_phrase_steps`,
-  `module_session_transport_tempo_map`.
+  `module_session_transport_tempo_map`, `module_guide_playback_layers`.
 - **Revisions:** revise `rule_generated_notes_midi_export`.
 - **Done when:**
   - Each of the four qualities, on every root, renders its four notes in the highest close position
@@ -1762,7 +1787,9 @@ loaded tolerantly at Off. It is never shared with session mode's level.
   built) `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly`; revise
   `req_jam_settings`, `module_jam_settings`, `rule_jam_settings_saved_on_change`,
   `rule_jam_settings_first_values`, `rule_jam_settings_load_tolerantly`,
-  `rule_jam_setting_change_rewrites_kept_phrase_one`, `rule_held_doodle_phrase_one_at_idle`.
+  `rule_jam_setting_change_rewrites_kept_phrase_one`, `rule_held_doodle_phrase_one_at_idle`,
+  `rule_doodle_only_orders_candidates` (the chords' forms come from Jam's level, never from the
+  doodle; D529).
 - **Done when:**
   - Jam's level is Off on a first visit and after Delete everything, survives a reload at each
     value, and a corrupt or unknown value loads Off with every other Jam setting kept.
