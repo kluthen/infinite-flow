@@ -1,6 +1,9 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v14 (2026-11-12): v13 with wave 2's chunk reports and spec D531 written in: the sweep
+Status: v15 (2026-11-12): v14 with the design citations of chunks 11, 14, 16, 17, 19 and 23 named
+exactly as the frozen v3.3 design writes them, no decision (branch `v3.3-plan-refs`, 609fdf32,
+written as "v14" beside wave 2's v14).
+v14 (2026-11-12): v13 with wave 2's chunk reports and spec D531 written in: the sweep
 tools' hand-offs to chunks 12, 16, 18 and 23; M2's Bebop runs in Major; chunk 18 reports join loss
 by cause; chunk 12's property covers joined phrases; chunk 21 moves the three fact readers together.
 v13 (2026-11-12): v12 with spec D530 written in: a leap recovery owed across the join is
@@ -1143,8 +1146,8 @@ Architecture capture: none (it builds on chunk 3's)
   `tests/unit/storage/preset-record.spec.ts`.
 - **Spec sections:** [§D8.1](master-spec.md#d81-presets); items 13 (the rules), 1 (held by every
   preset).
-- **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.3/flows/presets/handoff.md) (Routing
-  Rules, the `[v3.3 changed]` items),
+- **Design docs:** [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.3/flows/presets/handoff.md) (Choosing
+  a preset; Prepared phrases), Routing Rules' two `[v3.3 changed]` items,
   [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.3/screens/phrase-workspace/handoff.md)
   (Components and Content: Custom),
   [`screens/preset-sheet/handoff.md`](../../../ui_ux/versions/v3.3/screens/preset-sheet/handoff.md) (What the
@@ -1353,7 +1356,8 @@ Architecture capture: none
   [§D11](master-spec.md#d11-for-the-interface-design); item 11 (the layout holds the longest
   symbol; the review and the live view).
 - **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.3/screens/phrase-workspace/handoff.md)
-  (Notation Contract: Seventh chord symbols, Fit; Layout Tree, `chord-symbol`),
+  (Notation Contract: Seventh chord symbols; Fit; Layout Tree), the Layout Tree for its
+  `chord-symbol` nodes,
   [`screens/last-session-review/handoff.md`](../../../ui_ux/versions/v3.3/screens/last-session-review/handoff.md)
   (Seventh chords).
 - **Atoms:** (v3.3) `rule_seventh_chord_symbols` (the layout half); (v2)
@@ -1513,10 +1517,10 @@ Architecture capture: none (it builds on chunk 12's)
   [§D8.4](master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion), Part A §8; items
   15, 16, 22, 1 (locked during a session).
 - **Design docs:** [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.3/flows/play-session/handoff.md)
-  (the Seventh chords level never moves),
+  (The Seventh chords level never moves),
   [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md) (Prepared
-  phrases), [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.3/flows/presets/handoff.md) (prepared phrases
-  and presets).
+  phrases and presets), with the `[v3.3 new]` line after it,
+  [`flows/presets/handoff.md`](../../../ui_ux/versions/v3.3/flows/presets/handoff.md) (Prepared phrases).
 - **Atoms:** (v3.3) `rule_vary_settings_never_moves_seventh_chords_level`,
   `rule_seventh_chord_draws_reproducible` (a phrase generated ahead equals the session's at every
   level); (v2, STABLE) `rule_mutation_setting_scales`,
@@ -1603,7 +1607,7 @@ newer. A kept body's harmony without a seventh reads as triads.
   [§D17](master-spec.md#d17-access-model); items 14, 19, 1 (saved and restored), 13 (a player
   preset saves it by value).
 - **Design docs:** [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.3/flows/saved-data/handoff.md) (What
-  Is Saved; Load),
+  Is Saved, and When; Load),
   [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.3/flows/review-and-export/handoff.md) (Saving
   the Session).
 - **Atoms:** (v3.3) `rule_earlier_kept_sessions_read_at_off`; (v3.0)
@@ -1744,8 +1748,10 @@ Architecture capture: none
   phrase).
 - **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.3/screens/phrase-workspace/handoff.md)
   (Layout Tree; Components and Content: Seventh chords, Custom, Vary settings; Responsive
-  Behavior), [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.3/flows/play-session/handoff.md),
-  [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md).
+  Behavior), [`flows/play-session/handoff.md`](../../../ui_ux/versions/v3.3/flows/play-session/handoff.md)
+  (A phrase made before the settings changed; The Seventh chords level never moves),
+  [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md)
+  (Saved settings; Prepared phrases and presets), with the `[v3.3 new]` line after the last.
 - **Atoms:** (v3.3) `req_seventh_chords_level` (the level, set at Idle, locked in a session); (v3.1)
   `rule_custom_selection`; (v3.0) `rule_session_settings_locked`.
 - **Revisions:** revise `user_story_controlled_phrase_generation` (its controls gain the level);
@@ -1893,12 +1899,14 @@ loaded tolerantly at Off. It is never shared with session mode's level.
   [§D11](master-spec.md#d11-for-the-interface-design),
   [§D17](master-spec.md#d17-access-model); items 1, 14, 16, 19, 22 (Jam's halves), 2 (guarded).
 - **Design docs:** [`screens/phrase-workspace/handoff.md`](../../../ui_ux/versions/v3.3/screens/phrase-workspace/handoff.md)
-  (Jam's Foundation: Seventh chords),
+  (Jam's Seventh chords level),
   [`flows/jam/handoff.md`](../../../ui_ux/versions/v3.3/flows/jam/handoff.md) (A Jam setting changed with a kept
-  doodle), [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.3/flows/saved-data/handoff.md),
-  [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md),
-  [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.3/flows/review-and-export/handoff.md) (a
-  Jam's kept phrases and "Jam again on this doodle").
+  doodle), [`flows/saved-data/handoff.md`](../../../ui_ux/versions/v3.3/flows/saved-data/handoff.md)
+  (What Is Saved, and When; Load; What each deletion removes),
+  [`flows/generate-phrase/handoff.md`](../../../ui_ux/versions/v3.3/flows/generate-phrase/handoff.md)
+  (One of Jam's settings changed; Prepared phrases and presets), with the `[v3.3 new]` line after the
+  last, [`flows/review-and-export/handoff.md`](../../../ui_ux/versions/v3.3/flows/review-and-export/handoff.md)
+  (Saving the Session; `Jam again on this doodle`), for a Jam's kept phrases and Jam again.
 - **Atoms:** (v3.3) `rule_jam_has_own_seventh_chords_level` (Jam's own level); (v3.2)
   `rule_jam_phrase_one_failure_ladder`,
   `rule_held_doodle_dropped_on_change`. Drift check: `module_kept_doodle`,
