@@ -827,7 +827,7 @@ Record: eae28948 (7b89fa89; C1: spec D526). The final check reads the candidate,
 
 ### Chunk 6 — The validator reads the seventh as a chord tone
 
-Status: planned
+Status: merged (w2, aa114496)
 Wave: 2
 Depends on: 2; C1, done (`rule_open_phrase_ending`, first option, applied at wave 2's sync)
 Architecture capture: the validator's mirror of chunk 5's facts, recorded with chunk 5's capture.
@@ -877,6 +877,8 @@ landing read the triad-tone fact. Chunk 7 in this wave builds on it.
 - **Verification:** chunk checks; the sweep at the wave gate.
 - **Split rule:** none needed (one validator; the facts and the rules that read them land
   together).
+
+Record: aa114496 (52ea7ede; C1: spec D526; D530). No deviation; as the search's `noteFacts` does, the final note's chord-tone fact reads the triad (wording for `module_pitch_domain_validation` at the sync). Code `carried_recovery_on_seventh` at attack 0.
 
 ### Chunk 7 — Runs may include the seventh
 

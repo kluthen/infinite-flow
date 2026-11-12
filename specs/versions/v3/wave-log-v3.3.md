@@ -355,3 +355,19 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   above Off may rise a little; the joins section's "Known limit" note may want the case.
 - `main` gained 0dae7070 (ux D484, not from this wave) while the wave ran; `doc-ids compare`
   checks it before the merge.
+
+### Chunk 6 merged (2026-11-12)
+
+- aa114496 (52ea7ede; C1: spec D526; D530): each note's chord-tone fact from `chordTones` (the
+  final note's from the triad, as the search's `noteFacts`) and a triad-tone fact beside it; the
+  endpoint and the tense ending read the triad; `carriedRecoveryFailures` refuses an owed recovery
+  repaid on the first chord's seventh (`carried_recovery_on_seventh`); `figure-rules.ts`' false
+  premise rewritten in its comment (the logic already bit). Named tests accept and refuse exactly
+  the Done-when list; corpus guard green (18 files, 505 tests). Debug run (temporary spec): 1,056
+  phrases the search wrote over seventh plans, 976 holding a seventh, none refused by the new
+  validator (944 by the old); none ended on the seventh, so that path rests on the hand-written
+  tests until chunk 12's property test. No deviation.
+- For the sync: `module_pitch_domain_validation` 1.3's text and interface add "except the final
+  note's, which reads the triad"; new links on `reconstructPhraseFacts`, `isOwedTenseEnding`,
+  `carriedTensionFailures`, `carriedRecoveryFailures` and the two specs; revisions of
+  `rule_figures_resolve_onto_chord_tones` and `rule_levels_govern_free_figures_only`.
