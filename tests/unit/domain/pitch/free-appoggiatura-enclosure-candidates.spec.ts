@@ -64,7 +64,7 @@ function fixture(
 
 /**
  * The fixture's attacks with a new harmony event from attack 6 on: an F major chord unless
- * `chordPitchClasses` names another.
+ * `chordPitchClasses` names another triad, which is then both its chord tones and its triad tones.
  */
 function withChordChangeAtSix(
   attacks: readonly PitchAttack[],
@@ -78,6 +78,7 @@ function withChordChangeAtSix(
           harmonyIndex: 1,
           harmonyIdentity: 'fixture/1',
           chordPitchClasses,
+          triadPitchClasses: chordPitchClasses,
           isFirstUnderHarmonyChange: attack.attackIndex === 6,
         },
   )

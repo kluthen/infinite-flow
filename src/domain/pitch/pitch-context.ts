@@ -2,6 +2,7 @@ import type { ConcertPitch } from '../events/concert-pitch'
 import { carriedPitchIsTense } from '../generation/carry-in/carry-in'
 import { phraseEndingDebtAllowance } from '../generation/carry-in/phrase-ending-debt'
 import { deepFreeze } from '../events/deep-freeze'
+import { chordTones } from '../harmony/harmony-types'
 import {
   buildCandidateDomains,
   freeFigureAllowanceKey,
@@ -80,7 +81,10 @@ function checkpointIndices(spans: readonly SoundingSpan[]): ReadonlyMap<number, 
   return new Map([...first].map(([bar, index]) => [bar, anchored.get(bar) ?? index]))
 }
 
-/** Rebuild chronological sounding attacks with tie-inclusive spans and absolute-beat harmony. */
+/**
+ * Rebuild chronological sounding attacks with tie-inclusive spans and absolute-beat harmony, each
+ * holding its event's chord tones (the seventh included in seventh form) and its triad tones.
+ */
 // @spec-link [[module_pitch_search_context]]
 export function compileAttacks(input: BoundPitchPlannerInput): readonly PitchAttack[] {
   const spans = soundingSpans(input.rhythm)
@@ -89,6 +93,7 @@ export function compileAttacks(input: BoundPitchPlannerInput): readonly PitchAtt
   return deepFreeze(
     spans.map((span, index): PitchAttack => {
       const harmonyIndex = harmonyIndices[index]!
+      const event = input.harmony.events[harmonyIndex]!
       return {
         attackIndex: index,
         identity: `${span.barIndex}:${span.startTick}`,
@@ -97,7 +102,8 @@ export function compileAttacks(input: BoundPitchPlannerInput): readonly PitchAtt
         durationTicks: span.end - span.start,
         start: span.start,
         end: span.end,
-        chordPitchClasses: input.harmony.events[harmonyIndex]!.triad.pitchClasses,
+        chordPitchClasses: chordTones(event),
+        triadPitchClasses: event.triad.pitchClasses,
         harmonyIndex,
         harmonyIdentity: harmonyIdentityAtTick(input.harmony, span.start),
         isCheckpoint: checkpointOf.get(span.barIndex) === index,
@@ -110,9 +116,9 @@ export function compileAttacks(input: BoundPitchPlannerInput): readonly PitchAtt
 }
 
 /**
- * True when a chord tone on the final attack leaves the phrase open: a chord tone of a degree-5
- * harmony (tonal gentle/active), collection degree 5 (tonal static), or a non-tonic chord tone
- * (modal).
+ * True when a triad tone on the final attack leaves the phrase open: a triad tone of a degree-5
+ * harmony (tonal gentle/active), collection degree 5 (tonal static), or a non-tonic triad tone
+ * (modal). The ending reads the final chord as its triad, so its seventh is never an endpoint.
  */
 // @spec-link [[module_pitch_search_context]]
 export function isOpenEndpointMidi(
@@ -122,11 +128,31 @@ export function isOpenEndpointMidi(
   collection: readonly number[],
 ): boolean {
   const pitchClass = ((midi % 12) + 12) % 12
-  if (!attack.isFinal || !attack.chordPitchClasses.includes(pitchClass)) return false
+  if (!attack.isFinal || !attack.triadPitchClasses.includes(pitchClass)) return false
   const endpoint = input.harmony.endpoint
   if (endpoint.kind === 'tonal_static_degree_five') return pitchClass === collection[4]
   if (endpoint.kind === 'modal_non_tonic_chord_tone') return pitchClass !== collection[0]
   return input.harmony.events[attack.harmonyIndex]!.triad.degree === endpoint.degree
+}
+
+/**
+ * True when a candidate may be the phrase's final note: a tense ending (a free scale tone, offered
+ * only to a phrase that may end owing its resolution) or an open endpoint. It reads the candidate,
+ * not only its MIDI value: the final chord's seventh is offered both as a chord tone and as a
+ * tense ending, and it may end a phrase only as the tense note.
+ */
+// @spec-link [[module_pitch_search_context]]
+// @spec-link [[rule_join_reads_carried_chord_as_triad]]
+export function mayEndPhrase(
+  input: BoundPitchPlannerInput,
+  attack: PitchAttack,
+  candidate: Pick<PitchCandidate, 'role' | 'reservation' | 'midi'>,
+  collection: readonly number[],
+): boolean {
+  return (
+    (candidate.role === 'passing_or_neighbor' && candidate.reservation === undefined) ||
+    isOpenEndpointMidi(input, attack, candidate.midi, collection)
+  )
 }
 
 /**
@@ -257,10 +283,8 @@ export function compilePitchSearchContext(input: BoundPitchPlannerInput): PitchS
   const final = attacks.at(-1)
   const finalMidis = final
     ? distinctMidis(
-        candidateDomains[final.attackIndex]!.filter(
-          (candidate) =>
-            (candidate.role === 'passing_or_neighbor' && candidate.reservation === undefined) ||
-            isOpenEndpointMidi(input, final, candidate.midi, collection),
+        candidateDomains[final.attackIndex]!.filter((candidate) =>
+          mayEndPhrase(input, final, candidate, collection),
         ),
       )
     : []
