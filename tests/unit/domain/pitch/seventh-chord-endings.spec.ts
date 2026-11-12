@@ -3,12 +3,19 @@
  * generated without a join ends on its final chord's seventh, a joined phrase may end on it only as
  * a tense note (never as a chord tone that passes the final check on the tense note's MIDI), and
  * the first note after a tense carried note lands on a tone of the tonic triad, never on the tonic
- * chord's seventh. Property tests run over hand-built seventh-chord plans of each plan kind.
+ * chord's seventh. A recovery owed across the join is never repaid on the tonic chord's seventh,
+ * and is still repaid on any other note 1 to 4 semitones back. Property tests run over hand-built
+ * seventh-chord plans of each plan kind.
  */
 
 import { describe, expect, it } from 'vitest'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
-import { makeCarryIn, type CarryIn } from '@/domain/generation/carry-in/carry-in'
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import {
+  makeCarryIn,
+  type CarryIn,
+  type LeapDirection,
+} from '@/domain/generation/carry-in/carry-in'
 import { makeHarmonyCollection } from '@/domain/harmony/collection'
 import { advance, initialPitchSearchState } from '@/domain/pitch/pitch-advance'
 import { compilePitchSearchContext, isOpenEndpointMidi } from '@/domain/pitch/pitch-context'
@@ -65,6 +72,52 @@ function tenseCarryIn(midi: number, seventh: boolean): CarryIn {
     },
     phraseNumber: 1,
   })
+}
+
+/**
+ * A carry-in with no carried chord whose last pitch `midi` was reached by a leap of
+ * `arrivingInterval` semitones and still owes its recovery: a move back of 1 to 4 semitones.
+ */
+function owedCarryIn(midi: number, arrivingInterval: number): CarryIn {
+  return makeCarryIn({
+    lastPitch: {
+      midi: makeConcertPitch(midi),
+      arrivingInterval,
+      recovery: { kind: 'owed', leapDirection: Math.sign(arrivingInterval) as LeapDirection },
+    },
+    registerWindow: makeRegisterWindow(48, 72),
+    finalHarmony: null,
+    phraseNumber: 1,
+  })
+}
+
+/** A carry-in with no carried chord whose last pitch `midi`, reached by a step, owes nothing. */
+function settledCarryIn(midi: number): CarryIn {
+  return makeCarryIn({
+    lastPitch: {
+      midi: makeConcertPitch(midi),
+      arrivingInterval: -2,
+      recovery: { kind: 'settled' },
+    },
+    registerWindow: makeRegisterWindow(48, 72),
+    finalHarmony: null,
+    phraseNumber: 1,
+  })
+}
+
+/** The first attack's candidate at `midi` with `role`. */
+function firstCandidate(input: BoundPitchPlannerInput, midi: number, role: string) {
+  const candidate = compilePitchSearchContext(input).candidateDomains[0]!.find(
+    (c) => c.role === role && c.midi === midi,
+  )
+  if (!candidate) throw new Error(`no first ${role} at ${midi}`)
+  return candidate
+}
+
+/** The result of trying `midi` with `role` as the first note of `input`. */
+function tryFirst(input: BoundPitchPlannerInput, midi: number, role = 'chord_tone') {
+  const context = compilePitchSearchContext(input)
+  return advance(context, initialPitchSearchState(context), firstCandidate(input, midi, role))
 }
 
 /**
@@ -229,5 +282,64 @@ describe('pitch-advance: the first note after a tense carried note lands on the 
     for (const carryIn of [tenseCarryIn(69, false), tenseCarryIn(65, true)])
       for (const { phrase } of generated(TONAL_GENTLE, carryIn))
         expect(C_TONIC_TRIAD).toContain(pc(phrase.assignments[0]!.candidate.midi))
+  })
+})
+
+// @test-link [[rule_join_reads_carried_chord_as_triad]]
+// @test-link [[rule_join_inherits_leap_recovery]]
+describe("pitch-advance: a recovery owed across the join is never repaid on the tonic chord's seventh", () => {
+  it('rejects the seventh as the first note when the carried pitch owes a recovery', () => {
+    // A3 reached by a leap down owes a move up: B3 is Cmaj7's seventh, C4 a triad tone.
+    expect(tryFirst(boundSeventhInput({ carryIn: owedCarryIn(57, -5) }), 59)).toEqual({
+      kind: 'rejected',
+      reason: 'carried_recovery_on_seventh',
+    })
+    // C5 reached by a leap up owes a move down: B4 is the seventh.
+    expect(tryFirst(boundSeventhInput({ carryIn: owedCarryIn(72, 5) }), 71)).toEqual({
+      kind: 'rejected',
+      reason: 'carried_recovery_on_seventh',
+    })
+  })
+
+  it('still repays the recovery on a triad tone 1 to 4 semitones back', () => {
+    expect(tryFirst(boundSeventhInput({ carryIn: owedCarryIn(57, -5) }), 60).kind).toBe('accepted')
+  })
+
+  it("still repays the recovery on a figure's decorating note 1 to 4 semitones back", () => {
+    // Under Jazz levels the first attack offers chromatic approaches: B-flat4 approaches B4.
+    const input = boundSeventhInput({
+      carryIn: owedCarryIn(72, 5),
+      figureLevels: JAZZ_FIGURE_LEVELS,
+    })
+    expect(tryFirst(input, 70, 'chromatic_approach').kind).toBe('accepted')
+    expect(tryFirst(input, 71)).toEqual({ kind: 'rejected', reason: 'carried_recovery_on_seventh' })
+  })
+
+  it('lets a first note that owes nothing be the seventh', () => {
+    expect(tryFirst(boundSeventhInput({ carryIn: settledCarryIn(72) }), 71).kind).toBe('accepted')
+    expect(tryFirst(boundSeventhInput(), 71).kind).toBe('accepted')
+  })
+
+  it('refuses nothing new over a triad first event', () => {
+    const input = boundSeventhInput({
+      carryIn: owedCarryIn(57, -5),
+      sevenths: (_event, index) => index !== 0,
+    })
+    const context = compilePitchSearchContext(input)
+    const state = initialPitchSearchState(context)
+    for (const candidate of context.candidateDomains[0]!) {
+      const result = advance(context, state, candidate)
+      expect(result.kind === 'rejected' && result.reason).not.toBe('carried_recovery_on_seventh')
+    }
+  })
+
+  it('never starts a phrase owing a recovery on the seventh of its first chord', () => {
+    // In C major A3's recovery lands on C4 (a triad tone) or B3 (the seventh), never both refused.
+    for (const kind of PLAN_KINDS.filter((k) => k.tonalCenter === 'C'))
+      for (const { input, phrase } of generated(kind, owedCarryIn(57, -5))) {
+        const first = compilePitchSearchContext(input).attacks[0]!
+        const seventh = first.chordPitchClasses.find((p) => !first.triadPitchClasses.includes(p))
+        expect(pc(phrase.assignments[0]!.candidate.midi)).not.toBe(seventh)
+      }
   })
 })
