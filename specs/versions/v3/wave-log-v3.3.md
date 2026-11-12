@@ -277,3 +277,28 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   `jamPhraseOneIntent` takes the level (16, 23); chunk 18 opens `MEASURABLE_SEVENTH_LEVELS` to all
   four. §D10's "Strongly favored with Bebop in every mode" can only run Bebop in Major (Bebop is
   restricted to Major).
+
+### Chunk 5 merged (2026-11-12)
+
+- eae28948 (7b89fa89; C1: spec D526): each attack's chord tones (`chordTones`) and triad; under a
+  seventh chord the seventh is tried with the chord tones, the decorating notes are three, figures
+  may resolve onto it, Arpeggio chaos orders four, Tension's scheduled figure may land on it, a
+  doodle's move never lifts a decorating note above it. The open endpoints, the tense ending and the
+  landing after a tense carried pitch read the triad. The seventh, offered twice on a joined
+  phrase's final attack (chord tone and tense ending), ends it only as a tense note: the final check
+  reads the candidate (`mayEndPhrase`), and the final note's chord-tone fact reads the triad (so it
+  is prepared and owed). `pitch-ranking.ts` and `pitch-figures.ts` unchanged. Corpus guard green
+  (36 files, 709 tests). `chromatic-figure-selection.spec.ts`'s plan hash leaves out the new field
+  (pins unchanged, notes unchanged).
+- **Open point, sent to `spec-writer`:** §D6.3 says "a leap recovery or a tense note owed across
+  the join still settles on a note of the tonic triad"; the capture names only the tense note, and
+  the search has never required a recovery landing to be a chord tone (1 to 4 semitones back). A
+  recovery owed across a join may now land on the first chord's seventh. Chunk 6 waits for the
+  ruling (it mirrors the search); chunk 9 goes ahead of it.
+- For chunk 6: mirror the final attack's seventh as a tense note judged against the triad, and the
+  final candidate as a tense ending or an open endpoint.
+- For the sync: links placed on `noteFacts`, `leavesCarriedTensionUnresolved`, `mayEndPhrase`,
+  `endsPhrase` and the two new specs; `pitch-candidates.ts` is at the ten-atom limit. Drift:
+  `module_pitch_search_transition` (the final check is per candidate; "onto a chord tone" becomes
+  "a triad tone"; the final note's fact reads the triad); `module_pitch_search_context` 0.4 does not
+  yet name the final note's triad fact or `mayEndPhrase`.

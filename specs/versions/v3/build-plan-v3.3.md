@@ -718,7 +718,7 @@ Record: fe934cc9 (ad063119). No deviation. Beyond the Files line, plumbing only:
 
 ### Chunk 5 — The seventh as a chord tone in the pitch search
 
-Status: planned
+Status: merged (w2, eae28948)
 Wave: 2
 Depends on: 2 (and v3.1 chunks 5–7, the figure rules as v3.1 leaves them; v3.2 chunk 9, the
 doodle's move term); C1, done (`rule_open_phrase_ending`, first option, applied at wave 2's sync)
@@ -803,6 +803,8 @@ Chunk 7 in this wave builds on it.
   landing in `pitch-advance.ts`), 5b what reads the chord tones (`pitch-ranking.ts`,
   `pitch-figures.ts`, the decorating notes and Tension's scheduled figure in
   `pitch-candidates.ts`).
+
+Record: eae28948 (7b89fa89; C1: spec D526). The final check reads the candidate, not only its MIDI (`mayEndPhrase`), and the final note's chord-tone fact reads the triad, so the seventh ends a phrase only as a tense note. Open point reported to `spec-writer` (wave log, chunk 5): §D6.3's leap recovery owed across the join "settles on a note of the tonic triad", which the capture does not name and the search never enforced.
 
 ### Chunk 6 — The validator reads the seventh as a chord tone
 
