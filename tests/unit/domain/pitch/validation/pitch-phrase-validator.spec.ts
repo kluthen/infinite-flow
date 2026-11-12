@@ -229,6 +229,44 @@ describe('independent pitch phrase validation: runs through a seventh chord', ()
       { code: 'unrecognized_wide_chain', attackIndex: 6 },
     ])
   })
+
+  /** C major's tonic, with bar 1 on the dominant: G7 (G B D F) or the G triad. */
+  const G7_IN_BAR_1 = [chord(1, 0, 4), seventhChordEvent(5, 4, 4), chord(1, 8, 8)]
+  const G_IN_BAR_1 = [chord(1, 0, 4), chord(5, 4, 4), chord(1, 8, 8)]
+
+  it('recognizes a run through the seventh: B D F over G7', () => {
+    const run = [64, 62, 60, 60, 62, 59, 62, 65, 64, 62, 60, 62, 64, 65, 67, 67]
+    expect(failures(run, { events: G7_IN_BAR_1 })).toEqual([])
+    expect(failures(run, { events: G_IN_BAR_1 })).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 7 },
+      { code: 'unrecognized_wide_chain', attackIndex: 7 },
+    ])
+  })
+
+  it('never passes four chord tones in one direction: C E G B over Cmaj7, E G B D over Em7', () => {
+    expect(failures(withMidis({ 1: 64, 2: 67, 3: 71 }), { events: CMAJ7_THROUGHOUT })).toEqual([
+      { code: 'wide_chain_too_long', attackIndex: 3 },
+    ])
+    const em7 = [chord(1, 0, 4), seventhChordEvent(3, 4, 4), chord(1, 8, 8)]
+    const egbd = [60, 62, 64, 62, 64, 67, 71, 74, 72, 67, 64, 62, 64, 65, 67, 67]
+    expect(failures(egbd, { events: em7 })).toEqual([
+      { code: 'wide_chain_too_long', attackIndex: 7 },
+    ])
+  })
+
+  // @test-link [[rule_leap_recovery]]
+  it('defers a large leap inside a run through the seventh at Leaping and Angular only', () => {
+    const run = [64, 62, 60, 60, 59, 55, 62, 65, 64, 62, 60, 62, 64, 65, 67, 67]
+    for (const leapiness of ['Leaping', 'Angular'] as const)
+      expect(failures(run, { events: G7_IN_BAR_1, leapiness })).toEqual([])
+    expect(failures(run, { events: G7_IN_BAR_1, leapiness: 'Shaped' })).toEqual([
+      { code: 'unrecovered_large_leap', attackIndex: 6 },
+    ])
+    expect(failures(run, { events: G7_IN_BAR_1, leapiness: 'Smooth' })).toContainEqual({
+      code: 'interval_cap_exceeded',
+      attackIndex: 6,
+    })
+  })
 })
 
 /** C major's tonic for three bars, then G7 (G B D F), whose seventh is F. */
