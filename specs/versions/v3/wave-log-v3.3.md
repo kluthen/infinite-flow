@@ -226,3 +226,12 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
 - The owner, 2026-11-10: "Merge and push"; the four promotions "Promote all four": applied in
   d2519a7d (each REVIEW at 0.1). Next: wave 2 (chunks 4, 5, 6, 7, 9) in a fresh session; wave 1's
   row in the waves table is set to merged by wave 2's start.
+
+## Wave 2
+
+### Wave 2 start (2026-11-12)
+
+- Wave 1 merged into `main` 24e509fb and pushed. Branch `v3.3-w2` cut from it, worktree
+  `/home/bastien/work/infinite_flow-v3.3-w2`. Chunks 4, 5, 6, 7, 9; κ = 1; order 4, 5, 6, 7, 9
+  (7 after 5 and 6). Wordings wave 2's sync applies: A1, A2 (CONTRACT 16.0.0), with chunks 5, 6
+  and 9.
