@@ -242,9 +242,10 @@ request and seed, and owes nothing at its end.
   phrase, not a joined one. It is rare at the default settings and common in the High and Low
   registers. The fixes are deferred past v3.2; the floor case is accepted as designed.
 - **The next phrase settles the debt on its first note, never later.** An owed recovery is repaid
-  by the first interval (opposite direction, 1-4 semitones). A tense carried note is resolved by
-  the first note: a collection step onto a tone of the first chord's triad (v3.3: never onto the
-  tonic chord's seventh).
+  by the first interval (opposite direction, 1-4 semitones), onto any note the first attack offers
+  except the tonic chord's seventh (v3.3); a first note that owes nothing may be the seventh. A
+  tense carried note is resolved by the first note: a collection step onto a tone of the first
+  chord's triad (v3.3: never onto the tonic chord's seventh).
 - **A join made without carry-in settles nothing.** The standalone phrase and a repeated phrase
   are not held to any of these rules, and a debt the phrase before left owing is simply dropped.
 

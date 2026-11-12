@@ -137,6 +137,26 @@ function leavesCarriedTensionUnresolved(
 }
 
 /**
+ * True when the first attack would repay a recovery the carried pitch owes on its chord's seventh
+ * (a chord tone outside its triad): the join reads the tonic chord as its triad, so the recovery
+ * lands on any other note 1 to 4 semitones back, and a first note that owes nothing may be the
+ * seventh.
+ */
+// @spec-link [[rule_join_reads_carried_chord_as_triad]]
+function repaysCarriedRecoveryOnSeventh(
+  context: PitchSearchContext,
+  attack: PitchAttack,
+  midi: number,
+): boolean {
+  if (attack.attackIndex !== 0) return false
+  if (context.input.request.carryIn?.lastPitch.recovery.kind !== 'owed') return false
+  const pitchClass = ((midi % 12) + 12) % 12
+  return (
+    attack.chordPitchClasses.includes(pitchClass) && !attack.triadPitchClasses.includes(pitchClass)
+  )
+}
+
+/**
  * True when a candidate on the final attack may end the phrase: its MIDI value is one of the
  * context's final values and the candidate itself is a tense ending or an open endpoint, so the
  * final chord's seventh never passes as a chord tone on its tense ending's MIDI value.
@@ -239,6 +259,8 @@ function transition(
     return finish({ kind: 'rejected', reason: 'open_endpoint_violation' })
   if (leavesCarriedTensionUnresolved(context, attack, candidate.midi))
     return finish({ kind: 'rejected', reason: 'carried_tension_unresolved' })
+  if (repaysCarriedRecoveryOnSeventh(context, attack, candidate.midi))
+    return finish({ kind: 'rejected', reason: 'carried_recovery_on_seventh' })
   const figure = advanceFigure(state.figure, {
     attackIndex: attack.attackIndex,
     isFinal: attack.isFinal,
