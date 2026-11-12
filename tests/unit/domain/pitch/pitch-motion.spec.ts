@@ -117,6 +117,37 @@ function oneWayWideChains(tones: readonly number[], cap: number, direction: 1 | 
   return chains
 }
 
+/** A one-way wide chain over a seventh chord, with the level whose cap bounds it. */
+interface SeventhChordChain {
+  readonly level: string
+  readonly limits: (typeof LEAPINESS_LIMITS)['Smooth']
+  readonly direction: 1 | -1
+  readonly chain: readonly number[]
+}
+
+/** Every degree's seventh-chord tones in each collection the property reads. */
+function seventhChordToneSets(): (readonly number[])[] {
+  return SEVENTH_COLLECTIONS.flatMap(([tonalCenter, collection]) =>
+    ([1, 2, 3, 4, 5, 6, 7] as const).map((degree) =>
+      chordToneMidis(tonalCenter, collection, degree),
+    ),
+  )
+}
+
+/**
+ * Every one-way wide chain over every degree's seventh chord in each collection the property
+ * reads, at each level and in both directions.
+ */
+function seventhChordChains(): SeventhChordChain[] {
+  const cases: SeventhChordChain[] = []
+  for (const tones of seventhChordToneSets())
+    for (const [level, limits] of Object.entries(LEAPINESS_LIMITS))
+      for (const direction of [1, -1] as const)
+        for (const chain of oneWayWideChains(tones, limits.maxInterval, direction))
+          cases.push({ level, limits, direction, chain })
+  return cases
+}
+
 // @test-link [[module_pitch_search_transition]]
 describe('pitch-motion', () => {
   // @test-link [[rule_leapiness_interval_budget]]
@@ -441,35 +472,29 @@ describe('pitch-motion', () => {
     it('keeps every run three notes and defers only at Leaping and Angular, over every seventh chord (property)', () => {
       let runs = 0
       let deferred = 0
-      for (const [tonalCenter, collection] of SEVENTH_COLLECTIONS)
-        for (const degree of [1, 2, 3, 4, 5, 6, 7] as const) {
-          const tones = chordToneMidis(tonalCenter, collection, degree)
-          for (const [level, limits] of Object.entries(LEAPINESS_LIMITS))
-            for (const direction of [1, -1] as const)
-              for (const chain of oneWayWideChains(tones, limits.maxInterval, direction)) {
-                const result = advanceAll(
-                  limits,
-                  chain.map((midi) => note(midi)),
-                )
-                if (chain.length === 4) {
-                  expect(result.kind).toBe('rejected')
-                  continue
-                }
-                if (result.kind === 'accepted') {
-                  runs += 1
-                  expect(result.state.runs).toBe(1)
-                  expect(result.state.chainNotes).toHaveLength(3)
-                }
-                const firstLeap = Math.abs(chain[1]! - chain[0]!)
-                const secondLeap = Math.abs(chain[2]! - chain[1]!)
-                if (firstLeap < 7 || secondLeap >= 7) continue
-                const defers = level === 'Leaping' || level === 'Angular'
-                expect(result.kind === 'accepted' && result.state.debt).toEqual(
-                  defers ? { direction, mode: 'due_next' } : false,
-                )
-                if (defers) deferred += 1
-              }
+      for (const { level, limits, direction, chain } of seventhChordChains()) {
+        const result = advanceAll(
+          limits,
+          chain.map((midi) => note(midi)),
+        )
+        if (chain.length === 4) {
+          expect(result.kind).toBe('rejected')
+          continue
         }
+        if (result.kind === 'accepted') {
+          runs += 1
+          expect(result.state.runs).toBe(1)
+          expect(result.state.chainNotes).toHaveLength(3)
+        }
+        const firstLeap = Math.abs(chain[1]! - chain[0]!)
+        const secondLeap = Math.abs(chain[2]! - chain[1]!)
+        if (firstLeap < 7 || secondLeap >= 7) continue
+        const defers = level === 'Leaping' || level === 'Angular'
+        expect(result.kind === 'accepted' && result.state.debt).toEqual(
+          defers ? { direction, mode: 'due_next' } : false,
+        )
+        if (defers) deferred += 1
+      }
       expect(runs).toBeGreaterThan(0)
       expect(deferred).toBeGreaterThan(0)
     })
