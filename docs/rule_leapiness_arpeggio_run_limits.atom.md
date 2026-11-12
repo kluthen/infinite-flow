@@ -9,7 +9,7 @@ layer: BUSINESS
 priority: 1
 human_name: Leapiness Arpeggio Run Limits
 type: RULE
-version: 0.2
+version: 0.3
 ---
 
 # Leapiness Arpeggio Run Limits
@@ -18,10 +18,10 @@ version: 0.2
 Limit recognized same-direction chord-tone runs according to the selected leapiness.
 
 ## THE RULE / LOGIC
-A recognized run is exactly three consecutive sounding chord tones of one unchanged harmony connected by two same-direction intervals of at least 3 semitones; rests do not break adjacency. A single chord-tone interval is ordinary motion and never counts as a run. Two consecutive same-direction intervals of at least 3 semitones are legal only as a recognized run, and a third such interval is always invalid. Smooth, Shaped, and Leaping permit at most one run per phrase (Smooth runs contain only skips because of its 4-semitone cap). Angular permits at most two runs per phrase and one per measure, counted in the measure of the run's first note.
+A recognized run is exactly three consecutive sounding chord tones of one unchanged harmony connected by two same-direction intervals of at least 3 semitones; rests do not break adjacency. Under a chord played as a seventh chord the three may include its seventh (E, G, B over Cmaj7, or B, D, F over G7), and the run is still three notes: a four-note arpeggio in one direction (C, E, G, B) is a chain longer than a run. A single chord-tone interval is ordinary motion and never counts as a run. Two consecutive same-direction intervals of at least 3 semitones are legal only as a recognized run, and a third such interval is always invalid. Smooth, Shaped, and Leaping permit at most one run per phrase (Smooth runs contain only skips because of its 4-semitone cap). Angular permits at most two runs per phrase and one per measure, counted in the measure of the run's first note.
 
 ## TECHNICAL INTERFACE
 The selected leapiness constrains recognized arpeggio-run acceptance.
 
 ## EXPECTATION
-A phrase contains no unrecognized chain of same-direction intervals of at least 3 semitones, no chain longer than a recognized run, and never exceeds its level's per-measure or phrase run limit.
+A phrase contains no unrecognized chain of same-direction intervals of at least 3 semitones, no chain longer than a recognized run, and never exceeds its level's per-measure or phrase run limit. Under a seventh chord a recognized run may hold the seventh, and a four-note arpeggio in one direction is never accepted.

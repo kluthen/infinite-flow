@@ -9,6 +9,7 @@ version: 0.1
 dependents:
   - [[module_pitch_domain_validation]]
   - [[module_pitch_search_context]]
+  - [[module_pitch_search_transition]]
 type: RULE
 priority: 1
 human_name: A Seventh Chord's Seventh Is a Chord Tone

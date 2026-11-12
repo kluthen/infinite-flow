@@ -1,7 +1,7 @@
 ---
 id: rule_figures_resolve_onto_chord_tones
 status: REVIEW
-version: 0.1
+version: 0.2
 human_name: Every Figure Resolves Once Onto a Chord Tone
 tags: [v3, release-v3.1, generation, figures, changes-in-v3.3]
 parents:
@@ -18,7 +18,7 @@ dependents: []
 Keep every decoration resolved, whatever the levels, so favoring figures never leaves a clash hanging.
 
 ## THE RULE / LOGIC
-Every free figure, at every level, resolves once, onto a chord tone, and no figure spans a chord change. Among free figures, two notes outside the chord in a row are allowed only inside an enclosure, diatonic or chromatic, where the two outer notes surround their target. Tension's scheduled figure keeps its own rules.
+Every free figure, at every level, resolves once, onto a chord tone, and no figure spans a chord change. Under a chord played as a seventh chord, its seventh is a chord tone a figure may resolve onto. Among free figures, two notes outside the chord in a row are allowed only inside an enclosure, diatonic or chromatic, where the two outer notes surround their target. Tension's scheduled figure keeps its own rules.
 
 ## TECHNICAL INTERFACE
 The result check accepts a phrase only when each of its figures obeys these limits.

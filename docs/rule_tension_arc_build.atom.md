@@ -1,7 +1,7 @@
 ---
 id: rule_tension_arc_build
 status: REVIEW
-version: 0.1
+version: 0.2
 human_name: Tension Arc: Build
 type: RULE
 tags: [tension, melody, harmony, controls, changes-in-v3.3]
@@ -19,7 +19,7 @@ priority: 1
 Apply the Build tension arc as a concentration of active notes with one limited two-note diatonic approach permitted in the phrase's middle.
 
 ## THE RULE / LOGIC
-Under the Build tension arc, the phrase concentrates active (non-chord-tone) notes and permits exactly one limited two-note diatonic approach figure in the middle of the phrase.
+Under the Build tension arc, the phrase concentrates active (non-chord-tone) notes and permits exactly one limited two-note diatonic approach figure in the middle of the phrase. When a chord is played as a seventh chord, its seventh is a chord tone, never an active note.
 
 ## TECHNICAL INTERFACE
 The tension-arc control selects Build as one of its four permitted values.
