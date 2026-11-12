@@ -334,3 +334,24 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   `rule_generated_notes_midi_export`; new test links to `req_session_backing_track`,
   `rule_generated_notes_midi_export`, `rule_rhythm_guide_notes`. `docs/audio-transport.md` near
   line 478 records v3.0 chunk 11's choices ("top note between F3 and E4"), history left as is.
+
+### Chunk 5 addendum merged (2026-11-12)
+
+- `documentalist`'s peek (b77db3be): PROCEED; captures extended, `module_pitch_search_context`
+  0.5 (the recovery's landing, the final note's triad fact, `mayEndPhrase`) and
+  `module_pitch_domain_validation` 1.3 (chunk 6's mirror). For the sync: revise
+  `rule_join_reads_carried_chord_as_triad`'s recovery sentence (the addendum's Revisions) and give
+  `rule_join_inherits_leap_recovery` §D12's D530 clause (chunk 7's revision; if chunk 7 leaves the
+  wave, the addendum's line must carry it); `module_pitch_search_transition` drift as listed.
+- f77acbc7 (1a2a68b2; spec D530): `repaysCarriedRecoveryOnSeventh` in `pitch-advance.ts` refuses
+  the first chord's seventh as the first note when the carry-in owes a recovery, reason
+  `carried_recovery_on_seventh`; any other note 1 to 4 semitones back still repays it (a
+  chromatic approach included), and a first note owing nothing may be the seventh. Corpus guard
+  green (68 files, 1,221 tests). Nothing changes at Off.
+- Consequence for chunk 18 and `spec-writer` (no action now): above Off, some joins have no first
+  note left. At Neutral levels the first attack offers chord tones only, so when the seventh is the
+  only one 1 to 4 semitones back (D Dorian, A3 owing a move up under Dm7; C major, C4 owing a move
+  down under Cmaj7), the join fails and the ladder gives a standalone phrase. The carry-in loss
+  above Off may rise a little; the joins section's "Known limit" note may want the case.
+- `main` gained 0dae7070 (ux D484, not from this wave) while the wave ran; `doc-ids compare`
+  checks it before the merge.

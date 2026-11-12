@@ -823,7 +823,7 @@ Chunk 7 in this wave builds on it.
   `pitch-figures.ts`, the decorating notes and Tension's scheduled figure in
   `pitch-candidates.ts`).
 
-Record: eae28948 (7b89fa89; C1: spec D526). The final check reads the candidate, not only its MIDI (`mayEndPhrase`), and the final note's chord-tone fact reads the triad, so the seventh ends a phrase only as a tense note. Open point reported to `spec-writer` (wave log, chunk 5): §D6.3's leap recovery owed across the join "settles on a note of the tonic triad", which the capture does not name and the search never enforced.
+Record: eae28948 (7b89fa89; C1: spec D526). The final check reads the candidate, not only its MIDI (`mayEndPhrase`), and the final note's chord-tone fact reads the triad, so the seventh ends a phrase only as a tense note. Open point reported to `spec-writer` (wave log, chunk 5): §D6.3's leap recovery owed across the join "settles on a note of the tonic triad", which the capture does not name and the search never enforced. Addendum (D530): f77acbc7 (1a2a68b2), refusal `carried_recovery_on_seventh`.
 
 ### Chunk 6 — The validator reads the seventh as a chord tone
 
