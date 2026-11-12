@@ -12,6 +12,8 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { renderBacking } from '@/domain/backing/backing-renderer'
 import { FOUR_FOUR_METER } from '@/domain/generation/generation-request'
+import { makeHarmonyCollection } from '@/domain/harmony/collection'
+import { chordTones, type HarmonyEvent } from '@/domain/harmony/harmony-types'
 import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import {
   GeneratedNotesFileError,
@@ -38,6 +40,7 @@ import {
 } from '@/session/session-history-export'
 import type { SessionDoodle } from '@/session/session-history-played-notes'
 import type { SessionOutput } from '@/session/session-types'
+import { withSeventh } from '../domain/harmony/seventh-chord-fixtures'
 import { jamHistory, reviewedJamPart } from '../components/workspace/reviewed-jam-part-fixture'
 import { idlePhraseOne, recordRunnerSession } from '../session/history-recording'
 import {
@@ -93,6 +96,31 @@ function expectedBackingNotes(records: readonly SessionHistoryRecord[]) {
       return { pitch: note.pitch as number, startTick, endTick: startTick + length }
     })
   })
+}
+
+/** Intent: the recorded phrase with every harmony event in seventh form, its collection's seventh. */
+function inSeventhForm(record: SessionHistoryRecord): SessionHistoryRecord {
+  const { tonalCenter, collection } = record.intent.controls
+  const harmonyCollection = makeHarmonyCollection(tonalCenter, collection)
+  const { provenance } = record.outcome
+  const events = provenance.harmony.events.map((event) => withSeventh(event, harmonyCollection))
+  return {
+    ...record,
+    outcome: {
+      ...record.outcome,
+      provenance: { ...provenance, harmony: { ...provenance.harmony, events } },
+    },
+  }
+}
+
+/** Intent: the harmony event of a phrase holding a beat counted from the phrase's start. */
+function eventHolding(events: readonly HarmonyEvent[], beat: number): HarmonyEvent {
+  const found = events.find((event) => {
+    const start = event.barIndex * 4 + event.startBeat
+    return start <= beat && beat < start + event.durationBeats
+  })
+  if (found === undefined) throw new Error(`no harmony event holds beat ${beat}`)
+  return found
 }
 
 /** Intent: a list of tick spans in one canonical order, for comparing as sets. */
@@ -155,6 +183,34 @@ describe('buildGeneratedNotesFile on a recorded session', () => {
     expect(
       sortedSpans(backing.map(({ pitch, startTick, endTick }) => ({ pitch, startTick, endTick }))),
     ).toEqual(sortedSpans(expectedBackingNotes(records)))
+  })
+
+  // @test-link [[rule_generated_notes_midi_export]]
+  it("holds the renderer's four-note chords when the phrases' harmony is in seventh form", () => {
+    const sevenths = records.map(inSeventhForm)
+    const file = buildGeneratedNotesFile(
+      { phrases: () => sevenths, startedAt: SESSION_START_EPOCH_MS },
+      { format: 'midi', backingTrack: true },
+    )
+
+    const backing = notesOf(readSmf(file.bytes).tracks[2]!)
+    expect(
+      sortedSpans(backing.map(({ pitch, startTick, endTick }) => ({ pitch, startTick, endTick }))),
+    ).toEqual(sortedSpans(expectedBackingNotes(sevenths)))
+    const chordAttacks = new Map<number, number[]>()
+    for (const { pitch, startTick } of backing.filter((note) => note.pitch >= 48)) {
+      chordAttacks.set(startTick, [...(chordAttacks.get(startTick) ?? []), pitch])
+    }
+    expect(chordAttacks.size).toBeGreaterThanOrEqual(4 * sevenths.length)
+    for (const [startTick, pitches] of chordAttacks) {
+      const record = sevenths[Math.floor(startTick / TICKS_PER_PHRASE)]!
+      const beat = (startTick % TICKS_PER_PHRASE) / (TICKS_PER_WHOLE_NOTE / 4)
+      const tones = chordTones(eventHolding(record.outcome.provenance.harmony.events, beat))
+      expect(pitches, `chord at tick ${startTick}`).toHaveLength(4)
+      expect(pitches.map((pitch) => pitch % 12).sort((a, b) => a - b)).toEqual(
+        [...tones].sort((a, b) => a - b),
+      )
+    }
   })
 
   // @test-link [[req_session_export]]

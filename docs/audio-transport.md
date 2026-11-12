@@ -147,20 +147,30 @@ result is frozen.
   root: G over C. Any shorter segment, such as
   each half of a two-chord measure, plays the root throughout. The fifth stays in the same octave
   band, MIDI 36 to 47, so it can sit below the root: under a G chord the bass plays G2 then D2.
-- **The chords.** Each segment holds one close-position [triad](music/lexicon.md#triad): the
-  three chord notes stacked as tightly as possible. A triad has three such stacks, with the root,
-  the third or the fifth at the bottom (its inversions). The renderer takes the one whose top note
-  is the highest at or below E4 (MIDI 64). So the inversion changes with the chord, and every
-  chord note stays between F3 (MIDI 53) and E4, its top note between B3 and E4. C major is played
-  G3, C4, E4; G major is played G3, B3, D4.
+- **The chords.** Each segment holds every note of the chord the phrase uses (`chordTones`):
+  three for a [triad](music/lexicon.md#triad), four for a
+  [seventh chord](music/lexicon.md#seventh-chord). They are played in close position: the chord's
+  notes stacked as tightly as possible, inside one octave. A chord has one such stack per note at
+  the bottom: three for a triad (its [inversions](music/lexicon.md#chord-inversion)), four for a
+  seventh chord. The renderer takes the one whose top note is the highest at or below E4 (MIDI
+  64). So the inversion changes with the chord. A triad's notes stay between F3 (MIDI 53) and E4,
+  its top note between B3 and E4: C major is played G3, C4, E4; G major is played G3, B3, D4. A
+  seventh chord's top note lies between C#4 and E4 and its lowest note at or above D3 (MIDI 50):
+  Cmaj7 is played G3, B3, C4, E4; G7 is played F3, G3, B3, D4. The bass reads the triad only, so
+  it is the same under a seventh chord as under its triad (v3.3 chunk 9, spec §D7.3). The session
+  and the MIDI export take these notes as they are: `scheduleBacking` puts every chord note on the
+  `chord` voice at the same loudness, and `backingForExport` writes them to the backing track.
 - **The register.** `BACKING_REGISTER` holds the proposed default
   [register](music/lexicon.md#register) (how high or low the notes sit) of the master spec's open
   question O57: the bass from MIDI 36 to 47, the chords' top note at most MIDI 64. It is a
   placeholder until the listening test.
 - **What it refuses.** It throws a `BackingRenderError`, and repairs nothing, on a meter other than
   4/4, on harmony events that don't tile the phrase's 16 beats exactly (a gap, an overlap, events
-  out of order, a length that isn't a positive whole number of beats), and on a triad whose three
-  pitch classes aren't the root, third and fifth of its stated quality.
+  out of order, a length that isn't a positive whole number of beats), on a triad whose three
+  pitch classes aren't the root, third and fifth of its stated quality, and on a seventh that
+  doesn't stack on its triad as its quality states (the seventh's interval above the root, and the
+  triad's quality: major for a major or dominant seventh, minor for a minor seventh, diminished
+  for a half-diminished seventh).
 
 ### Timing on the click's grid
 
