@@ -235,3 +235,24 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   `/home/bastien/work/infinite_flow-v3.3-w2`. Chunks 4, 5, 6, 7, 9; κ = 1; order 4, 5, 6, 7, 9
   (7 after 5 and 6). Wordings wave 2's sync applies: A1, A2 (CONTRACT 16.0.0), with chunks 5, 6
   and 9.
+
+### Wave 2 preflight (2026-11-12)
+
+- `documentalist`'s wave preflight (c359201d): every chunk **PROCEED** (4, 5, 7 and 9 with notes).
+  Captures: `module_pitch_search_context` 0.4 (chunk 5: each attack's `chordPitchClasses` is
+  `chordTones(event)`, beside a new `triadPitchClasses`; the open endpoints, the tense endings and
+  the landing after a tense carried pitch read the triad) and `module_pitch_domain_validation` 1.2
+  (chunk 6: a chord-tone fact and a triad-tone fact per note). Both stay at REVIEW.
+- Wordings wave 2's sync applies: A1 (`req_session_backing_track`, with chunk 9) and A2
+  (`rule_open_phrase_ending`, first option, with chunks 5 **and** 6), CONTRACT 16.0.0. If chunk 5 or
+  6 leaves the wave, A2 moves with it; if chunk 9 leaves, A1 moves alone. Drift expected at the
+  sync: `module_pitch_search_transition`'s "onto a chord tone" becomes "a triad tone".
+- Plan corrections sent to `spec-writer` before the first chunk: plan v12 (b858f28c), spec D529.
+  Chunk 5's Files gain the hand-built `PitchAttack` fixtures, its split rule's files corrected (about
+  four source files), the tense ending reads "outside the triad" and handles the seventh as both a
+  chord-tone and a tense candidate; chunk 5's Revisions gain `rule_figure_level_orders_search` and
+  `rule_jam_melody_follows_doodle_moves`, and **`rule_doodle_only_orders_candidates` moves to chunk
+  23 (D529)**, the owner told, not asked; chunk 7's only source change is `finalMotionState` in
+  `carry-in-derivation.ts`; chunk 9's export test is `generated-notes-file.spec.ts`; chunk 4 names
+  the census's four files. For `documentalist` at the sync: part E's
+  `rule_doodle_only_orders_candidates` row reads chunk 23.
