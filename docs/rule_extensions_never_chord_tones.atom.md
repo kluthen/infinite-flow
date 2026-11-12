@@ -1,7 +1,9 @@
 ---
 id: rule_extensions_never_chord_tones
 status: DRAFT
-dependents: []
+dependents:
+  - [[module_pitch_domain_validation]]
+  - [[module_pitch_search_context]]
 version: 0.1
 human_name: Ninths, Elevenths and Thirteenths Are Not Chord Tones
 parents:

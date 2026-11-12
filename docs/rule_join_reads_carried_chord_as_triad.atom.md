@@ -7,6 +7,8 @@ parents:
   - [[req_seventh_chords_level]]
 dependents:
   - [[entity_phrase_carry_in]]
+  - [[module_pitch_domain_validation]]
+  - [[module_pitch_search_context]]
 layer: BUSINESS
 human_name: The Join Reads a Carried Seventh Chord as Its Triad
 tags: [v3, release-v3.3, session, phrase-join, chords]
