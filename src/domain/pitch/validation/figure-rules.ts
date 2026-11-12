@@ -178,8 +178,10 @@ function boundFigureShapeHolds(facts: PhraseFacts): boolean {
   const first = members[0]!
   const last = members.at(-1)!
   const before = facts.attacks[first.index - 1]
-  // A member adjacent by step to a triad tone can never itself be a triad tone, so requiring the
-  // last member to be a non-chord tone only matters for single-member figures.
+  // The last member must be a non-chord tone. Over a triad no note one scale step from a chord
+  // tone is itself a chord tone, but over a seventh chord the seventh and the root lie one scale
+  // step apart, so a member one step from its target may be a chord tone: no figure fits between
+  // the seventh and the root.
   const settles =
     members.every((member) => member.inCollection) &&
     !last.chordTone &&

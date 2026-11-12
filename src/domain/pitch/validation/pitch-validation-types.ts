@@ -36,6 +36,7 @@ export const PITCH_VALIDATION_CODES = [
   'tension_binding_invalid',
   'tension_figure_invalid',
   'carried_tension_unresolved',
+  'carried_recovery_on_seventh',
   'interval_cap_exceeded',
   'leap_budget_exceeded',
   'large_leap_budget_exceeded',
@@ -70,7 +71,13 @@ export interface SoundingFact {
   readonly midi: number
   readonly pitchClass: number
   readonly harmony: HarmonyEvent
+  /**
+   * One of its event's chord tones, the seventh included in seventh form; on the final note, one of
+   * its chord's triad tones, as the ending reads it.
+   */
   readonly chordTone: boolean
+  /** One of its event's triad tones: the phrase's ends and the join's landing read this one. */
+  readonly triadTone: boolean
   readonly inCollection: boolean
   readonly strongOnset: boolean
 }
