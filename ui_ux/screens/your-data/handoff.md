@@ -11,8 +11,8 @@
 >   here returns focus to `Done` ([Focus and Keyboard](#focus-and-keyboard))
 > - _v3.1 changed:_ the Settings line names the preset; Delete everything's confirmation names the
 >   presets ([Overview copy](#overview-copy), [Confirmations](#confirmations))
-> - _v3.1 changed:_ a visit that saves nothing hides the Presets section too ([States](#states))
-> - _v3.2 changed:_ the Settings line names Jam's settings ([Overview copy](#overview-copy))
+> - _v3.1 changed:_ a visit that saves nothing hides the Presets section too ([States](#states): Saving off this visit: Presets absent)
+> - _v3.2 changed:_ the Settings line names Jam's settings ([Overview copy](#overview-copy): Settings in v3.2)
 > - _v3.2 new:_ Jam sessions counted with the sessions; the played-notes confirmation says the
 >   written-out doodles stay ([Overview copy](#overview-copy), [Confirmations](#confirmations))
 
@@ -69,14 +69,14 @@ sheet-backdrop
 
 ## Components and Content
 
-- `sheet-backdrop`, `sheet`, `sheet-header`, `sheet-close`, `sheet-body`, `sheet-hint` and
+- **Shared sheet parts.** `sheet-backdrop`, `sheet`, `sheet-header`, `sheet-close`, `sheet-body`, `sheet-hint` and
   `sheet-actions` behave as in the connection sheet (`screens/controller-connection/handoff.md`):
   same layer, scrim, centring, inner scroll, and `Close` always present and enabled. `sheet-wide`
   widens the panel to `--sheet-wide-max-inline-size`.
-- `sheet-section` groups each kind of kept data under an `h3`; sections are in the order of the
+- **Data sections.** `sheet-section` groups each kind of kept data under an `h3`; sections are in the order of the
   tree. Value lines are plain `p` at the sheet's body type; secondary lines are `sheet-hint`.
-- No `status-dot`, no icon: every state is in words.
-- Counts use the singular for 1 ("1 session", "1 favorite phrase").
+- **Words only.** No `status-dot`, no icon: every state is in words.
+- **Singular counts.** Counts use the singular for 1 ("1 session", "1 favorite phrase").
 
 ### Overview copy
 
@@ -85,7 +85,7 @@ sheet-backdrop
 - **[v3.1 changed]** **Settings.** `p`: "The phrase controls, the preset, the instrument choice,
   the theme, the audio mix, the During a session options and the review's choices. They come back
   as you left them." `sheet-hint`: "Delete everything returns them to their defaults."
-- **[v3.2 changed]** In v3.2 the Settings `p` reads instead: "The phrase controls, the preset,
+- **[v3.2 changed]** **Settings in v3.2.** In v3.2 the Settings `p` reads instead: "The phrase controls, the preset,
   the instrument choice, the theme, the audio mix, the During a session options, your Jam
   settings and the review's choices. They come back as you left them." The `sheet-hint` is
   unchanged: Delete everything returns Jam's settings to their defaults too.
@@ -119,7 +119,7 @@ sheet-backdrop
   one whose summary is damaged, or one left unlisted for the visit after the device refused to
   delete it (`flows/kept-sessions/handoff.md`, A Damaged Session). `Delete every session` deletes
   it with the others, though {n} does not count it.
-  - **[v3.2 new]** Jam sessions are counted with the others, by the same words; nothing about a
+  - **[v3.2 new]** **Jam sessions.** Jam sessions are counted with the others, by the same words; nothing about a
     doodle is listed.
 - **Played notes.** `btn toggle-button` "Keep my played notes" with `toggle-button-state` "on" /
   "off" (accessible name "Keep my played notes", `aria-pressed`). `sheet-hint`: "When this is on,
@@ -197,18 +197,18 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
 
 ## Responsive Behavior
 
-- At `bp-tablet-landscape` and `bp-desktop`: `sheet sheet-wide` centred, up to
+- **Tablet landscape and desktop.** At `bp-tablet-landscape` and `bp-desktop`: `sheet sheet-wide` centred, up to
   `--sheet-wide-max-inline-size`; `sheet-actions` in one row aligned to the end, as in the
   connection sheet (Confirmation: the confirming action first, then the way back).
-- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
+- **Mobile landscape.** At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
   `--sheet-wide-max-inline-size`; `sheet-actions` stacks its buttons full width, the first on top. Section buttons and
   `Delete everything` keep their own width, aligned to the inline start.
-- **[v3.1 new]** At every breakpoint, a preset's row holds its name, then its `Delete` at its own
+- **[v3.1 new]** **Preset row.** At every breakpoint, a preset's row holds its name, then its `Delete` at its own
   width; a long name wraps, and when the row cannot hold both, `Delete` goes under the name, at
   the inline start.
-- At every breakpoint: sections stack in one column; long names (an instrument, a device) wrap;
+- **Every breakpoint.** At every breakpoint: sections stack in one column; long names (an instrument, a device) wrap;
   the sheet scrolls vertically inside itself, never horizontally.
-- Every visual value comes from the token source; this handoff
+- **Visual values and animation.** Every visual value comes from the token source; this handoff
   declares none of its own. Opening and closing follow the sheet's existing fade; changing between
   the Overview and a Confirmation has no animation.
 
@@ -220,12 +220,12 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
 - **Empty** (nothing kept yet, a first visit): the Overview as above, with "None.", "None
   remembered.", "No sessions kept yet." and "None kept."; `Delete every session` and
   `Delete all played notes` absent; `Delete everything` shown.
-  - **[v3.1 new]** The Presets section reads "None." with no list.
+  - **[v3.1 new]** **No presets.** The Presets section reads "None." with no list.
 - **Saving off this visit:** an outdated tab, or a visit started from the defaults because the
   saved data couldn't be read, or not within the start-up wait. Under the intro,
   `inline-alert alert-notice`, then Space used and Protection; the other five sections are
   absent.
-  - **[v3.1 new]** *Presets* is absent as well, in both visits: the sheet cannot honestly count
+  - **[v3.1 new]** **Presets absent.** *Presets* is absent as well, in both visits: the sheet cannot honestly count
     what the visit could not read or may not keep. The preset box still lists, in an outdated tab,
     the player presets it could read, and in a visit started from the defaults the built-in
     presets only (`flows/saved-data/handoff.md`).

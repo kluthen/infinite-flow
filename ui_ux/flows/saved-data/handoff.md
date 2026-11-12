@@ -25,9 +25,9 @@
 > - _v3.2 changed:_ the audio mix holds the guide playback's switches and volumes
 >   ([What Is Saved, and When](#what-is-saved-and-when))
 > - _v3.3 new:_ Jam's own Seventh chords level in Jam's settings
->   ([What Is Saved, and When](#what-is-saved-and-when), [Load](#load))
+>   ([What Is Saved, and When](#what-is-saved-and-when), [Load](#load): Jam's own Seventh chords level)
 > - _v3.3 new:_ the Seventh chords level in the settings and in every player preset, and how it
->   loads ([What Is Saved, and When](#what-is-saved-and-when), [Load](#load))
+>   loads ([What Is Saved, and When](#what-is-saved-and-when), [Load](#load): The Seventh chords level)
 
 Screens: [`phrase-workspace`](../../screens/phrase-workspace/handoff.md) (the load, the notice
 row, the footer), [`your-data`](../../screens/your-data/handoff.md) (the sheet),
@@ -197,9 +197,9 @@ flowchart TD
   `Delete everything`), Jam's written key, collection and tempo are taken from session mode's
   values when Jam mode first opens, not at load, and saved then. Being in Jam mode never comes
   back: every load opens session mode, and no doodle is kept.
-- **[v3.2 new]** Sessions kept before v3.2 are migrated with no doodle and open as before.
+- **[v3.2 new]** **Sessions kept before v3.2.** Sessions kept before v3.2 are migrated with no doodle and open as before.
 - **[v3.3 new]** **The Seventh chords level** loads tolerantly too: a settings record or player preset written before v3.3 has none and loads at `Off`, and an unknown or invalid value loads at `Off`, every other setting still loading. The values win as for every preset-held setting: a saved level that differs from the selected preset's loads as Custom based on it. Sessions kept before v3.3 migrate with their phrases' level at `Off` and open as before.
-- **[v3.3 new]** Jam's own Seventh chords level loads the same way, at `Off` when Jam's record has none or an invalid one; no preset is involved.
+- **[v3.3 new]** **Jam's own Seventh chords level.** Jam's own Seventh chords level loads the same way, at `Off` when Jam's record has none or an invalid one; no preset is involved.
 
 ## Notices
 
@@ -362,8 +362,8 @@ flowchart TD
   values); its description line and `preset-actions` follow (`flows/presets/`).
 - **A deletion that fails** keeps the confirmation open, with one error line, and its confirming
   action tries again (`screens/your-data/`, States).
-- The per-session deletions (one session, one session's played notes) and deleting my instrument
+- **Per-session deletions.** The per-session deletions (one session, one session's played notes) and deleting my instrument
   are specified with their screens: `flows/kept-sessions/`, `flows/review-and-export/`,
   `flows/my-instrument/`.
-- **[v3.1 new]** Deleting one player preset, by `Delete preset` in the controls or by its row's
+- **[v3.1 new]** **Deleting one player preset.** Deleting one player preset, by `Delete preset` in the controls or by its row's
   `Delete` in Your data's Presets section, is specified with the presets: `flows/presets/`.

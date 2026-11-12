@@ -232,3 +232,12 @@ applies (D119, D135, archived; spec D414).
   phone (20 and 31 record none; 24's scroll and 40's popover were accepted as built, D468, D475).
   The copy differs from the root only by v3.3's parts and link paths, and matches what ships.
   Nothing to restate in a tier document; the check is history. Recorded in `todo.md`.
+- **D484 (2026-11-12): the root tier documents take the dev team's UI/UX document format; the
+  frozen copies stay as they are.** The owner's request: every rule a builder follows sits in a
+  section or a bold-labelled item, so `doc-get` can fetch it without a window of text around it.
+  A format-only pass: labels and headings added, eight diagram headings moved under `## Flow`,
+  change-block lines given their section and label; no wording changed. `versions/` is left as
+  approved (owner, 2026-11-12), so v3.3's plan cites the frozen copy as it is. Left as warnings:
+  routing kept in stage sections (kept-sessions, review-and-export, saved-data), and
+  controller-connection's and phrase-workspace's focus rules outside a Focus and Keyboard section.
+  Now in: the dev team's `references/ui-ux-docs.md`, checked by `doc-get lint ui`.

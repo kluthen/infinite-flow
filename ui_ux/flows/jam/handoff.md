@@ -6,7 +6,7 @@
 >
 > - _v3.3 changed:_ Jam's own Seventh chords level is one of the settings phrase 1 is written
 >   from: changing it with a kept doodle rewrites phrase 1 and keeps the doodle
->   ([Routing Rules](#routing-rules))
+>   ([Routing Rules](#routing-rules): A Jam setting changed with a kept doodle: Seventh chords level)
 
 Screens: `screens/phrase-workspace/` for every step (the header's `mode-switch`, Jam's controls
 with `tap-tempo` and `doodle-readings`, `staff-jam` with `jam-instruction` and `jam-notice`, the
@@ -18,7 +18,9 @@ a Jam is a session: `flows/play-session/`. The review side (the doodle section, 
 `flows/review-and-export/handoff.md`, The Doodle and the Suggestion. The reasoning is in
 [`intent.md`](intent.md).
 
-## Entering and Leaving Jam Mode
+## Flow
+
+### Entering and Leaving Jam Mode
 
 ```mermaid
 flowchart TD
@@ -39,7 +41,7 @@ flowchart TD
   RV["A kept Jam session's review, over session mode"] -->|"Jam again on this doodle"| KD["Jam mode with that doodle kept (see The Kept Doodle)"]
 ```
 
-## A Jam
+### A Jam
 
 ```mermaid
 flowchart TD
@@ -65,7 +67,7 @@ flowchart TD
   END2["Ends as a count-in end; Jam mode's Idle, Start Jam disabled, jam-needs-controller; focus on controller-status"]
 ```
 
-## The Kept Doodle
+### The Kept Doodle
 
 ```mermaid
 flowchart TD
@@ -90,6 +92,8 @@ flowchart TD
 ```
 
 ## Routing Rules
+
+### Switching Modes
 
 - **Terms.** _Jam mode_ is the mode `mode-switch` shows as `Jam`; _session mode_ the one it shows
   as `Session`. A _fresh Jam_ is one started without a kept doodle; a _Jam on the kept doodle_ is
@@ -142,6 +146,9 @@ flowchart TD
   A kept doodle stays, its phrase 1 still written and shown. A controller attaching enables
   `Start Jam` and `jam-needs-controller` gives way to `start-note-line`; nothing else changes. A
   controller arriving or leaving never switches the mode.
+
+### A Fresh Jam
+
 - **Jam mode at Idle, no kept doodle.** `staff-frame staff-jam`: the empty system (clef, the key
   signature of Jam's written key and collection, 4/4) and `jam-instruction`. The phrase action
   reads `Generate phrase`, disabled, secondary; the session action `Start Jam`, primary. No phrase
@@ -172,18 +179,18 @@ flowchart TD
   starting note included: `start-note-line` is hidden and the note starts nothing; `Start Jam`
   still works and ends listening. Listening ends 2 seconds after the last tap, or when anything
   else is used (another control, a header action, `mode-switch`, a sheet opened, the page left).
-  - From the fourth tap of a listening run, the tempo is the mean beat of the last four taps,
+  - **Four taps.** From the fourth tap of a listening run, the tempo is the mean beat of the last four taps,
     rounded to the stepper's step of 10 BPM and kept within 60–180 BPM: set at once in the
     stepper and `tempo-readout`, saved like a change by hand, and set again by each further tap.
     Fewer than four taps change nothing.
-  - Its `field-note`, a polite live region (`aria-live="polite"`), reads at rest "Tap the beat
+  - **The note's wording.** Its `field-note`, a polite live region (`aria-live="polite"`), reads at rest "Tap the beat
     here, or press once and tap on your controller." ("Tap the beat here." without a controller
     connected); after a first tap, "Keep tapping: four beats set the tempo."; once set, "Set to
     {tempo} BPM. Keep tapping to correct it."; at a limit, "Set to 180 BPM, the fastest a Jam
     goes." or "Set to 60 BPM, the slowest a Jam goes.". When listening ends, a "Set to" sentence
     stays until the tempo is changed another way or Jam mode is left, then the note reads its rest
     wording again; "Keep tapping" returns to the rest wording at once.
-  - Unevenness is never judged or told; tapping starts nothing and sounds nothing.
+  - **Unevenness.** Unevenness is never judged or told; tapping starts nothing and sounds nothing.
 - **Count-in.** v2's, in every respect, with `staff-jam` on the staff instead of phrase 1: one
   measure of click at Jam's tempo, its beats in `count-in`, the start's jump, the wake and
   orientation locks, the phone's `session-cue-actions`. No phrase 2 is requested and nothing
@@ -263,6 +270,9 @@ flowchart TD
   under it, phrase 1 is written from the doodle with a fresh seed, `jam-bar` is shown (hidden with
   the staff area until the review mode is left), and `doodle-readings` keeps the doodle's
   readings.
+
+### Jamming Again on the Kept Doodle
+
 - **Jam on the kept doodle.** A v2 session start from **Ready**, in every respect
   (`flows/play-session/`): `Start Jam` or phrase 1's first note, the count-in, phrase 1, with no
   capture, no 30-second wait, no generation or read-in measures and no `jam-capture` or
@@ -286,7 +296,7 @@ flowchart TD
   prepared phrases discarded), so a Jam never meets the out-of-date phrase prompt. The tempo, the
   theme and the audio mix rewrite nothing. A change made while the review mode shows takes effect
   the same way, out of sight.
-  - **[v3.3 changed]** Jam's own Seventh chords level (`screens/phrase-workspace/handoff.md`, Jam's
+  - **[v3.3 changed]** **Seventh chords level.** Jam's own Seventh chords level (`screens/phrase-workspace/handoff.md`, Jam's
     Seventh chords level) is one of those settings: a change of it at Idle rewrites phrase 1 from
     the kept doodle at once, through **Loading**, a fresh seed, prepared phrases discarded, and
     the doodle stays kept, with no message. Session mode's level is a separate setting and never
@@ -331,6 +341,9 @@ flowchart TD
   - **`Keep {key} {mode}`** changes nothing and declines the suggestion for good, the decline kept
     with the session the doodle came from (in memory only while saving is off) and recorded in any
     session played on it. The row leaves; focus moves to `jam-bar`'s sentence (`tabindex="-1"`).
+
+### What Is Saved
+
 - **Saving.** Jam's settings are their own saved record, apart from session mode's, each saved
   when the player changes it (by hand, by a tap, or by `Jam in {answer}`), reset to their defaults
   by `Delete everything`; the instrument, the theme and the audio mix are shared with session

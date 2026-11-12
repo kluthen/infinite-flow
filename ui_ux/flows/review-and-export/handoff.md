@@ -16,14 +16,14 @@
 >   are saved ([Export](#export))
 > - _New:_ `Keep my played notes` and `Delete played notes`; _Changed:_ the `Played notes` switch
 >   is saved, and the lane leaves out very short notes ([Played Notes](#played-notes))
-> - _Changed:_ what is kept and what leaves ([Privacy](#privacy))
-> - _Changed:_ the phone gets every function ([At Every Breakpoint](#at-every-breakpoint))
+> - _Changed:_ what is kept and what leaves ([Privacy](#privacy): What is kept and what leaves)
+> - _Changed:_ the phone gets every function ([At Every Breakpoint](#at-every-breakpoint): The phone included)
 > - _Removed:_ "Only one Review exists", the session start discarding the Review, the page's close
 >   or reload discarding everything, Format and the `Played notes` switch "kept for the page
 >   session", and "The Review and its data live in memory only" (v2 in the
 >   [frozen copy](../../versions/v2/flows/review-and-export/handoff.md))
 > - _v3.1 changed:_ the session is saved with its preset label, a snapshot, in place of its
->   musical profile ([Saving the Session](#saving-the-session))
+>   musical profile ([Saving the Session](#saving-the-session): The save at the session's end)
 > - _v3.2 new:_ `Jam in {answer}`, `Keep` and `Jam again on this doodle` in a Jam's review; a Jam
 >   ended before phrase 1 sounds opens no review; the review over either mode ([Flow](#flow),
 >   [Screens and Conditions](#screens-and-conditions))
@@ -31,7 +31,7 @@
 >   Jam, Jam mode's Idle with the kept doodle; the kept doodle's bar hidden while the review
 >   shows ([Showing](#showing))
 > - _v3.2 new:_ `Close review` returns to the mode the review showed over
->   ([Leaving and Coming Back](#leaving-and-coming-back))
+>   ([Leaving and Coming Back](#leaving-and-coming-back): Close review returns to the mode the Review showed over)
 > - _v3.2 new:_ what a Jam session's save adds, and its summary's missing preset part
 >   ([Saving the Session](#saving-the-session))
 > - _v3.2 new:_ a Jam's review, its doodle loaded with Jam's code, the suggestion's actions and
@@ -40,9 +40,9 @@
 > - _v3.2 new:_ both exports open with the doodle, still line up, and wait for Jam's code
 >   ([Export](#export))
 > - _v3.2 changed:_ the raw doodle notes are played notes, in the lane and the played-notes export
->   ([Played Notes](#played-notes))
-> - _v3.2 new:_ the doodle's two forms ([Privacy](#privacy))
-> - _v3.2 new:_ the doodle section at every breakpoint ([At Every Breakpoint](#at-every-breakpoint))
+>   ([Played Notes](#played-notes): The raw doodle notes)
+> - _v3.2 new:_ the doodle's two forms ([Privacy](#privacy): The doodle's two forms)
+> - _v3.2 new:_ the doodle section at every breakpoint ([At Every Breakpoint](#at-every-breakpoint): The doodle section)
 > - _v3.3 new:_ a kept phrase's inputs hold the Seventh chords level, a Jam's Jam's own
 >   ([Saving the Session](#saving-the-session)); `Jam again on this doodle` writes with Jam's level
 >   as it stands then ([The Doodle and the Suggestion](#the-doodle-and-the-suggestion));
@@ -106,7 +106,7 @@ flowchart TD
 
 ## Screens and Conditions
 
-- Screens: `screens/last-session-review/` (`review-panel`, its export and its list),
+- **Screens in this flow.** Screens: `screens/last-session-review/` (`review-panel`, its export and its list),
   `screens/phrase-workspace/` (the header, the cue row, the staff and every idle state) and,
   **[v3 new]** `screens/session-list/` (the review mode's second level). Every idle transition
   (Loading, the fit retries, **Needs more room** and its clearing, the errors, **Empty**) is drawn
@@ -212,7 +212,7 @@ flowchart TD
 
 **[v3 new]**
 
-- **[v3.1 changed]** As a session's Review opens at its end, the session is saved once (master
+- **[v3.1 changed]** **The save at the session's end.** As a session's Review opens at its end, the session is saved once (master
   spec §5.1, §5.2, §B9): each phrase's timeline, chord symbols, reproduction inputs (the seven
   figure levels in place of the profile), tempo and repeat flag; the session's start, length,
   phrase count, preset label, instrument, starting and reached tempo, pinned state, comment and
@@ -221,11 +221,11 @@ flowchart TD
   Bebop", "Custom"): a snapshot that a later rename or deletion of the preset never changes.
   Never acknowledgements. The same save deletes every unpinned kept session
   (`flows/kept-sessions/handoff.md`, Keeping at a Session's End). Nothing is shown on success.
-- **[v3.3 new]** Each phrase's reproduction inputs also hold the Seventh chords level, and its chord
+- **[v3.3 new]** **The Seventh chords level kept.** Each phrase's reproduction inputs also hold the Seventh chords level, and its chord
   symbols are kept exactly as displayed, seventh chords included. Sessions kept before v3.3 open as
   before, their phrases' level read as `Off`; nothing in the review or the session list shows the
   level.
-- **[v3.3 new]** In a Jam session, each phrase's inputs hold Jam's own Seventh chords level, the
+- **[v3.3 new]** **A Jam's Seventh chords level.** In a Jam session, each phrase's inputs hold Jam's own Seventh chords level, the
   one the Jam was played with, never session mode's. Jam sessions kept before v3.3 read it as
   `Off`.
 - **Keep line.** `review-keep-line` states how the session showing is kept: "Pinned: kept until
@@ -308,7 +308,7 @@ flowchart TD
   says where the player now is. From the review of the Jam just played, whose
   doodle Jam mode already keeps, it does exactly what `Close review` does, focus included. The Idle that follows is specified in
   `flows/jam/handoff.md`, The Kept Doodle. It does not answer the suggestion.
-  - **[v3.3 new]** The new phrase 1 is written with Jam's own Seventh chords level as it stands
+  - **[v3.3 new]** **Jam's level as it stands.** The new phrase 1 is written with Jam's own Seventh chords level as it stands
     then, like Jam's other settings, not with the level the kept session's phrases were written
     with; those phrases, and their chord symbols, stay as they were.
 - **A Jam played on the kept doodle.** Its review shows the kept doodle as its doodle, with the
@@ -341,7 +341,7 @@ flowchart TD
 
 ## Export
 
-- **[v3 changed]** `Export generated notes`, with its format (`MusicXML` default, or `MIDI`) and, for MIDI only,
+- **[v3 changed]** **The two exports.** `Export generated notes`, with its format (`MusicXML` default, or `MIDI`) and, for MIDI only,
   `Backing track` (off by default), and `Export played notes` (MIDI only), rendered only when the
   session holds a played note in a phrase. Each delivers exactly one file, built from the session,
   as a browser download; the generated-notes file never holds a played note, the played-notes
@@ -390,7 +390,7 @@ flowchart TD
   in its `is-loading` state; when it could not load, both exports of that session are disabled
   with the doodle's failure sentence as their reason, and never reach `review-export-error` for
   that cause (`screens/last-session-review/handoff.md`, Components and Content).
-- **[v3.2 changed]** In a Jam, `Export played notes` and `review-view` are rendered when the
+- **[v3.2 changed]** **A Jam's played notes in the export.** In a Jam, `Export played notes` and `review-view` are rendered when the
   session holds a played note in a phrase or in its doodle. Under `Favorites only`,
   `Export played notes` is disabled only when neither a favorite phrase nor the doodle holds one.
   With `Include very short notes` off, the doodle's raw notes count with the phrases' toward the
@@ -399,15 +399,15 @@ flowchart TD
 
 ## Played Notes
 
-- When the session holds a played note in a phrase, a `Played notes` switch (off at first)
+- **The Played notes switch.** When the session holds a played note in a phrase, a `Played notes` switch (off at first)
   shows or hides a lane under each staff system of every phrase, with a neutral bar for each note
   the player played there, unquantized; nothing is ever coloured or marked, matched or not, and
   the generated staff never changes. Details in `screens/last-session-review/handoff.md`.
-- **[v3 changed]** The `Played notes` switch is saved when changed and returns after a reload. The
+- **[v3 changed]** **The switch saved, very short notes left out.** The `Played notes` switch is saved when changed and returns after a reload. The
   lane always leaves out very short notes, with no switch of its own. A session whose every played
   note is very short keeps the switch, `review-view` and the played-notes export ("holds a played
   note" counts very short ones); its lanes show no bar.
-- **[v3 new]** A kept session holds played notes only if they were kept; one with none (after a
+- **[v3 new]** **A kept session without played notes.** A kept session holds played notes only if they were kept; one with none (after a
   reload, their keeping off) has no lane, no `review-view` and no played-notes export, as a
   session without a controller.
 - **[v3 new]** **Keep my played notes** (`review-view`, beside `Played notes`, whenever that
@@ -422,14 +422,14 @@ flowchart TD
   kept): after a confirmation, this session's played notes are deleted, in memory too; the lane,
   `review-view` and the played-notes export leave the Review at once, focus on `review-title`.
   The session, its favorites and its comment stay. Never shown while saving is off.
-- **[v3.2 changed]** In a Jam, the raw doodle notes are played notes like every other: shown in
+- **[v3.2 changed]** **The raw doodle notes.** In a Jam, the raw doodle notes are played notes like every other: shown in
   the doodle's lane, kept only while `Keep my played notes` is on, deleted by
   `Delete played notes` with the rest. Deleting them keeps the quantized doodle, which belongs to
   the music: the doodle section, the suggestion and `Jam again on this doodle` stay.
 
 ## Privacy
 
-- **[v3 changed]** A session is kept on the device by the rules of kept sessions
+- **[v3 changed]** **What is kept and what leaves.** A session is kept on the device by the rules of kept sessions
   (`flows/kept-sessions/handoff.md`); its played notes only while `Keep my played notes` is on,
   and they can be deleted on their own. Nothing is ever sent. An export the player triggers is
   the only way anything leaves the device, and the comment is never in one.
@@ -443,13 +443,13 @@ flowchart TD
 
 ## At Every Breakpoint
 
-- **[v3 changed]** The phone included: every element of this flow is rendered at every breakpoint.
+- **[v3 changed]** **The phone included.** The phone included: every element of this flow is rendered at every breakpoint.
   Below `bp-tablet-landscape` the Review drops only `review-summary` and `review-keep-line`
   (except the keep line's "Not saved" form, which stays), and
   `favorite-toggle` shows its star without its word
   (`screens/last-session-review/handoff.md`, Responsive Behavior).
-- `Export played notes` and `review-view` are never rendered when the session holds no played
+- **Without a played note.** `Export played notes` and `review-view` are never rendered when the session holds no played
   note in a phrase.
-- **[v3.2 new]** In a Jam's review, `review-doodle` is rendered at every breakpoint with all it
+- **[v3.2 new]** **The doodle section.** In a Jam's review, `review-doodle` is rendered at every breakpoint with all it
   holds; below `bp-tablet-landscape` the doodle takes the split layout like a phrase
   (`screens/last-session-review/handoff.md`, Responsive Behavior).

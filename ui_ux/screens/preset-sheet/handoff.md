@@ -5,7 +5,7 @@
 > **Changes since v3.1**
 >
 > - _v3.3 changed:_ a saved preset also holds the Seventh chords level
->   ([What the Main Action Does](#what-the-main-action-does))
+>   ([What the Main Action Does](#what-the-main-action-does): Seventh chords level)
 
 The one sheet in which a player preset is saved as new, saved with a new restriction, renamed or
 deleted. It opens from `preset-actions` in the preset bar of `screens/phrase-workspace/`, at Idle,
@@ -55,7 +55,7 @@ sheet-backdrop
 
 ## Components and Content
 
-- `sheet-backdrop`, `sheet`, `sheet-header`, `sheet-close`, `sheet-body` and `sheet-actions` are
+- **Shared sheet parts.** `sheet-backdrop`, `sheet`, `sheet-header`, `sheet-close`, `sheet-body` and `sheet-actions` are
   the connection sheet's own (`screens/controller-connection/handoff.md`): `--z-sheet`,
   `--color-scrim`, a centred panel at `--sheet-max-inline-size` that scrolls vertically inside
   itself, `Close` always present and enabled. No `sheet-wide`: every mode is one column.
@@ -118,7 +118,7 @@ sheet-backdrop
   does nothing. If it fails, the confirmation stays open with `inline-alert alert-error`, "That
   couldn't be deleted. Try again.", under the paragraphs; nothing changes, and `Delete preset`
   tries again, the line leaving as it starts.
-- No raw value: every visual value comes from `src/styles/theme.css` and
+- **Visual values.** No raw value: every visual value comes from `src/styles/theme.css` and
   `src/styles/components.css` through the classes above.
 
 ## What the Main Action Does
@@ -127,14 +127,14 @@ sheet-backdrop
   as a new player preset, under the trimmed name, with the restriction chosen ("As now" being the
   restriction in force, or "any" with none), and makes it the selection: the box shows its name,
   in the **Your presets** group of the list. The sheet closes.
-- **[v3.3 changed]** The preset-held settings that **Save** and **Save changes** store include the
+- **[v3.3 changed]** **Seventh chords level.** The preset-held settings that **Save** and **Save changes** store include the
   Seventh chords level, by value; the sheet asks nothing new about it.
 - **Save changes** replaces the base's values with the current preset-held settings and its
   restriction with the one chosen, and makes it the selection. The sheet closes.
 - **Rename** gives the preset the trimmed name. It stays the selection, or Custom's base; the box,
   the list (in its new alphabetical place), the description line and `control-summary` follow. With
   the name unchanged, letter case included, the sheet only closes.
-- None of the three moves a setting, the written key or the collection, and none regenerates the
+- **Unchanged settings and refused saves.** None of the three moves a setting, the written key or the collection, and none regenerates the
   phrase. A save the browser refuses is told by the workspace's notice row once the sheet has
   closed, in its preset wording (or its storage-full wording when storage is full); the result still applies for the visit (`flows/presets/handoff.md`,
   A refused save). While saving is off, the result lasts for the page, with no wording of its own.
@@ -165,17 +165,17 @@ sheet-backdrop
 
 ## Responsive Behavior
 
-- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
+- **Mobile landscape.** At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
   `--sheet-max-inline-size`; `text-input` takes the full width up to `--text-input-max-inline-size`; `choice-list`'s options
   take the full width, their labels wrapping when long; `sheet-actions` stacks its buttons full
   width, the main action on top; the sheet scrolls vertically inside itself, which is why
   `name-alert` is a live region and why the main action also carries the refusal by being
   disabled.
-- At `bp-tablet-landscape` and `bp-desktop`: centred, up to `--sheet-max-inline-size`;
+- **Tablet landscape and desktop.** At `bp-tablet-landscape` and `bp-desktop`: centred, up to `--sheet-max-inline-size`;
   `choice-list` options full width of the sheet body; `sheet-actions` one row aligned to the end,
   the main action first.
-- Every breakpoint gets every mode, field and action: the phone loses nothing.
-- Opening and closing take the sheet's own fade (`motion.md`); `name-alert` appears and leaves with
+- **Every breakpoint.** Every breakpoint gets every mode, field and action: the phone loses nothing.
+- **Animation.** Opening and closing take the sheet's own fade (`motion.md`); `name-alert` appears and leaves with
   no animation.
 
 ## States

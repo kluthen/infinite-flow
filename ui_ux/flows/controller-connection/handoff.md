@@ -6,7 +6,7 @@
 >   directly from Requesting access ([Entry and exit](#entry-and-exit),
 >   [Routing rules](#routing-rules))
 > - _New:_ the remembered controller at load ([At load](#at-load-sheet-closed-never-enters-the-sheet),
->   [Routing rules](#routing-rules))
+>   [Routing rules](#routing-rules): At load)
 > - _Changed:_ the audio-unlock rule: the page's first click, tap or key press, and the starting
 >   note waiting for it after a load; the header forms at load; `Disconnect` also forgets the
 >   remembered controller; the check runs against my instrument when it is selected
@@ -17,7 +17,7 @@
 > - _Removed:_ "There is no other audio-unlock step." (v2 in the
 >   [frozen copy](../../versions/v2/flows/controller-connection/handoff.md#routing-rules))
 > - _v3.2 new:_ Jam mode: a controller never switches the mode; `Start Jam` waits for one; a
->   controller lost before a fresh Jam's phrase 1 ends the Jam at once ([Routing rules](#routing-rules))
+>   controller lost before a fresh Jam's phrase 1 ends the Jam at once ([Routing rules](#routing-rules): Jam mode)
 
 ## Entry and exit
 
@@ -116,10 +116,10 @@ flowchart TD
 
 ## Routing rules
 
-- Screens: `screens/controller-connection/` for every state inside the sheet;
+- **Screens in this flow.** Screens: `screens/controller-connection/` for every state inside the sheet;
   `screens/phrase-workspace/` for the header `controller-status` entry point, the disconnect
   banner, and the mid-session loss state.
-- The sheet opens only at Idle or while the Review is showing, and only from a click on the header
+- **Where the sheet opens.** The sheet opens only at Idle or while the Review is showing, and only from a click on the header
   `controller-status` element. It never opens by itself, and never during a session: in a session
   the header element is disabled (see `screens/phrase-workspace/handoff.md`).
 - **[v3 changed]** **Sound.** The page's first click, tap or key press, wherever it lands, unlocks
@@ -128,7 +128,7 @@ flowchart TD
   load), the starting note starts nothing until that first click, tap or key press;
   `start-note-line` says so (wording in `screens/phrase-workspace/handoff.md`), and
   `Start session` works as always, being a click itself.
-- No MIDI note received while the sheet is open, in any state, can start a session or its
+- **No start from the sheet.** No MIDI note received while the sheet is open, in any state, can start a session or its
   count-in — including the note the transposition check asks for, and including a note equal to the
   one phrase 1 starts on.
 - **Connected** means: MIDI permission granted, one input selected (chosen in the picker, or the
@@ -136,7 +136,7 @@ flowchart TD
   from the moment those three hold — on entering **Transposition check** — not only after the check
   result. Dismissing the sheet during the check leaves the controller connected but unchecked.
 - **Lost** means: the selected input's port reports disconnected.
-- Header element forms and where a click opens the sheet:
+- **Header element forms.** Header element forms and where a click opens the sheet:
 
   | Header form | Shown when | Click opens at |
   | --- | --- | --- |
@@ -146,11 +146,11 @@ flowchart TD
   | MIDI-blocked badge (error tone) | The browser refused MIDI permission on the latest request | Requesting access |
   | Disconnected badge (error tone) | Session only: a controller lost mid-session, while its countdown runs | Not clickable (session) |
 
-- Every form has the same width, the `Connect controller` button included: the button and its
+- **One width for every form.** Every form has the same width, the `Connect controller` button included: the button and its
   label area each have one fixed inline size, and a long device name is cut with an ellipsis
   (see `screens/phrase-workspace/handoff.md`). No change of form ever moves another header
   element, the first connection included.
-- A later successful request replaces the MIDI-blocked badge: the connected badge if it connects a
+- **After a later successful request.** A later successful request replaces the MIDI-blocked badge: the connected badge if it connects a
   device; otherwise the no-controller badge if a controller had connected earlier in this page
   session, or the `Connect controller` button only if none ever had. Once a controller has
   connected in the page session, the header never returns to the `Connect controller` button.
@@ -203,8 +203,8 @@ flowchart TD
   the line "{name} now matches your controller.". The first save of my instrument also asks the
   browser to protect the kept data, invisibly. `Back`, Escape, the backdrop and `Close` return to
   the result with nothing changed.
-- `Unsupported browser` has no retry: nothing about asking again changes which browser is running.
-- `Requesting access` resolves on its own; while the browser's own permission prompt is waiting for
+- **No retry when unsupported.** `Unsupported browser` has no retry: nothing about asking again changes which browser is running.
+- **Requesting access resolves.** `Requesting access` resolves on its own; while the browser's own permission prompt is waiting for
   an answer, it shows its waiting sub-state (see the screen handoff). If the sheet is closed while
   the browser prompt is still waiting, the attempt is abandoned: a later "allow" answer selects
   nothing and opens nothing (the next `Connect controller` click then resolves without a prompt);
@@ -212,12 +212,12 @@ flowchart TD
   sessions: if a session is running (count-in included), the header keeps its current form and
   the switch waits until the session ends, so the header never changes shape while the player is
   reading.
-- `Check again` from **Permission denied** re-requests access. If the player has allowed MIDI in the
+- **Check again.** `Check again` from **Permission denied** re-requests access. If the player has allowed MIDI in the
   browser meanwhile, or the browser is still willing to ask, the request proceeds normally;
   otherwise it lands back on **Permission denied**.
-- `Choose a different device` is present on **Connected** only when more than one input has been
+- **Choose a different device.** `Choose a different device` is present on **Connected** only when more than one input has been
   seen this page session.
-- Every dismiss path returns to the same place: the sheet closes, `phrase-workspace` is exactly as
+- **Every dismiss path.** Every dismiss path returns to the same place: the sheet closes, `phrase-workspace` is exactly as
   it was, and focus moves to the first enabled of, in order: the workspace's session action; the
   phrase action (when `Start session` is disabled: an empty workspace, a generation-failure banner
   showing, a notation error); `controller-status`, the element that opened the sheet (when both
@@ -225,14 +225,14 @@ flowchart TD
   outside a session. The header element reflects
   whatever is current (unchanged if nothing was resolved, the connected badge if a device was
   selected before the dismiss).
-- **[v3 new]** In the **Use for my instrument** confirmation, Escape, the backdrop and `Close` are
+- **[v3 new]** **The confirmation's way back.** In the **Use for my instrument** confirmation, Escape, the backdrop and `Close` are
   the confirmation's way back, as `Back` is: they return to the check result and do not close the
   sheet. A second Escape then closes it from the result, as above.
-- A running session's controller loss is handled only on `screens/phrase-workspace/`: 30 seconds
+- **A running session's controller loss.** A running session's controller loss is handled only on `screens/phrase-workspace/`: 30 seconds
   counted from the unplug, whatever silence came before; silence timer suspended while unplugged
   and restarted from the reattachment; only the same device reattaches, automatically, with no
   check; at zero the session ends exactly like a silence timeout.
-- A session started with no controller (none ever connected, or the selected one away) stays
+- **A session started with no controller.** A session started with no controller (none ever connected, or the selected one away) stays
   controller-less until it ends; only Stop ends it, apart from a hidden tab or a window that can
   no longer show the staff.
 - **[v3.2 new]** **Jam mode** (`flows/jam/handoff.md`, Routing Rules). A controller attaching,
@@ -244,7 +244,7 @@ flowchart TD
   `start-note-line` takes `jam-needs-controller`'s place; nothing else changes. So a Jam is never
   controller-less, and on every dismiss path in Jam mode without a controller focus lands on
   `controller-status`, both header actions being disabled.
-  - A controller lost during a fresh Jam before its phrase 1 sounds (count-in, capture, writing or
+  - **Lost before phrase 1.** A controller lost during a fresh Jam before its phrase 1 sounds (count-in, capture, writing or
     read-in measure) ends the Jam at once as a count-in end, with no banner and no countdown: Jam
     mode's Idle, `Start Jam` disabled, `jam-needs-controller`, focus on `controller-status`. From
     phrase 1 on, and from the start of a Jam on the kept doodle, a loss is handled as in any

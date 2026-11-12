@@ -2,7 +2,9 @@
 
 > **New in v3.**
 
-## Making, Changing and Deleting
+## Flow
+
+### Making, Changing and Deleting
 
 ```mermaid
 flowchart TD
@@ -38,7 +40,7 @@ flowchart TD
   CLOSED["Sheet closed: focus on the instrument-actions button"]
 ```
 
-## Selecting
+### Selecting
 
 ```mermaid
 flowchart TD
@@ -46,7 +48,7 @@ flowchart TD
   SEG -->|"Selected (idle or review showing)"| SWITCH["Instrument switch: phrase replaced as for any profile"]
 ```
 
-## From the Transposition Check
+### From the Transposition Check
 
 ```mermaid
 flowchart TD
@@ -63,7 +65,7 @@ flowchart TD
 
 ## Routing Rules
 
-- Screens: `screens/my-instrument/` for the sheet and its confirmation;
+- **Screens:** `screens/my-instrument/` for the sheet and its confirmation;
   `screens/phrase-workspace/` for the instrument control, its fourth segment and the
   `instrument-actions` button; `screens/controller-connection/` for the check's way in.
 - **Availability.** The `instrument-actions` button and the fourth segment work at idle and while
@@ -132,4 +134,4 @@ flowchart TD
   (`flows/saved-data/`); the instrument still applies for the visit.
 - **After a reload** my instrument is back, and selected if it was the selected instrument when the
   page was left.
-- Focus on close: the `instrument-actions` button (see `screens/my-instrument/handoff.md`).
+- **Focus on close:** the `instrument-actions` button (see `screens/my-instrument/handoff.md`).

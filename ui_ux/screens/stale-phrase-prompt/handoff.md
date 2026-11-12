@@ -5,11 +5,11 @@
 > **Changes since v3.0**
 >
 > - _v3.1 changed:_ the named settings lose Musical profile preset and gain the seven figure
->   levels ([Components and Content](#components-and-content))
+>   levels ([Components and Content](#components-and-content): {changed settings}: Figure levels)
 > - _v3.2 new:_ never in Jam mode; in session mode it compares session mode's settings only
->   ([States](#states))
+>   ([States](#states): Never in Jam mode)
 > - _v3.3 changed:_ the named settings gain Seventh chords
->   ([Components and Content](#components-and-content))
+>   ([Components and Content](#components-and-content): {changed settings}: Seventh chords)
 
 The sheet that opens at Start, or at the starting note, when phrase 1, the phrase on screen in
 **Ready**, was generated under settings that differ from the current ones (master spec §16). It
@@ -37,7 +37,7 @@ sheet-backdrop
 
 ## Components and Content
 
-- `sheet-backdrop`, `sheet`, `sheet-header`, `sheet-title`, `sheet-close`, `sheet-body`,
+- **Shared sheet parts.** `sheet-backdrop`, `sheet`, `sheet-header`, `sheet-title`, `sheet-close`, `sheet-body`,
   `sheet-hint` and `sheet-actions` are the connection sheet's own
   (`screens/controller-connection/handoff.md`): `--z-sheet`, `--color-scrim`, a centred panel at
   `--sheet-max-inline-size` that scrolls vertically inside itself, `Close` always present and
@@ -49,27 +49,27 @@ sheet-backdrop
   appear on the page: Written key, Collection, Instrument profile, Musical profile preset,
   Harmonic motion, Tension, Note density, Rhythmic variety, Syncopation, Silence density, Contour,
   Register, Leapiness, Arpeggio chaos.
-  - One: "Written key". Two: "Written key and Register". Three: "Written key, Register and
+  - **List wording.** One: "Written key". Two: "Written key and Register". Three: "Written key, Register and
     Leapiness". Four or more: the first two and the count of the rest, "Written key, Register
     and {n} other settings" ({n} is 2 or more).
-  - **[v3.1 changed]** From v3.1 the list has no Musical profile preset, the field being gone,
+  - **[v3.1 changed]** **Figure levels.** From v3.1 the list has no Musical profile preset, the field being gone,
     and gains the seven figure levels after Arpeggio chaos, by their labels: Passing tone,
     Accented passing tone, Neighbor tone, Appoggiatura, Diatonic enclosure, Chromatic approach,
     Chromatic enclosure. The preset selection itself is never named: a preset counts through the
     values it set.
-  - **[v3.3 changed]** Seventh chords counts too, named after Harmonic motion.
-  - Musical profile preset counts when Neutral or Jazz differs; its customized mark alone never
+  - **[v3.3 changed]** **Seventh chords.** Seventh chords counts too, named after Harmonic motion.
+  - **What counts.** Musical profile preset counts when Neutral or Jazz differs; its customized mark alone never
     counts. Note density counts by the value the player chose, never the one a narrow window
     gives. The tempo, the session options, the audio mix, the theme, and my instrument's clef and
     name never count and are never named.
-  - Instrument profile is named when the instrument differs (its id, or my instrument's range or
+  - **Instrument profile.** Instrument profile is named when the instrument differs (its id, or my instrument's range or
     transposition); in practice it never does, since those changes replace the phrase.
-  - The list is computed when the prompt opens and does not change while it shows: nothing behind
+  - **Computed on open.** The list is computed when the prompt opens and does not change while it shows: nothing behind
     it can change a setting.
 - **The answers.** `Regenerate phrase` (`btn btn-primary`), then `Start with this phrase`
   (`btn`), in markup, visual and focus order. Neither is error-toned: neither deletes anything.
   `Regenerate phrase` has the header phrase action's label, since it is that action.
-- No raw value: every visual value comes from `src/styles/theme.css` and
+- **Visual values.** No raw value: every visual value comes from `src/styles/theme.css` and
   `src/styles/components.css` through the classes above.
 
 ## What Each Answer Does
@@ -101,17 +101,17 @@ sheet-backdrop
   `start-note-line` is hidden as for any open sheet.
 - **Announcements:** none of its own beyond the dialog's name and description on open;
   `generation-status` announces a regeneration as usual.
-- `:focus-visible` rings on the three buttons are `.btn`'s.
+- **Focus rings.** `:focus-visible` rings on the three buttons are `.btn`'s.
 
 ## Responsive Behavior
 
-- At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
+- **Mobile landscape.** At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
   `--sheet-max-inline-size`; `sheet-actions` stacks both buttons full width, `Regenerate phrase` on top; the paragraphs wrap,
   and the sheet scrolls vertically inside itself on a short screen.
-- At `bp-tablet-landscape` and `bp-desktop`: centred, up to `--sheet-max-inline-size`;
+- **Tablet landscape and desktop.** At `bp-tablet-landscape` and `bp-desktop`: centred, up to `--sheet-max-inline-size`;
   `sheet-actions` one row aligned to the end, `Regenerate phrase` first.
-- Every breakpoint gets the same title, paragraphs and answers.
-- It opens and closes with the sheets' opacity transition (`motion.md`), and with none under
+- **Every breakpoint.** Every breakpoint gets the same title, paragraphs and answers.
+- **Animation.** It opens and closes with the sheets' opacity transition (`motion.md`), and with none under
   `prefers-reduced-motion`.
 
 ## States

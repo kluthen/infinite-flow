@@ -5,9 +5,9 @@
 > **Changes since v3.0**
 >
 > - _v3.1 changed:_ the detail line names the preset the session started with, where it named the
->   musical profile ([Components and Content](#components-and-content))
+>   musical profile ([Components and Content](#components-and-content): Detail line)
 > - _v3.2 new:_ a Jam session's detail line begins with "Jam" and has no preset part
->   ([Components and Content](#components-and-content))
+>   ([Components and Content](#components-and-content): Jam session's detail line)
 
 `sessions-panel` is the second level of the phrase-workspace page's review mode
 (`screens/phrase-workspace/`): while the list shows, it is rendered inside `score-panel`, after
@@ -47,17 +47,17 @@ layout-workspace
 
 ## Components and Content
 
-- `sessions-panel`: `review-panel`'s surface. No state classes of its own; rendered while the
+- **Sessions panel.** `sessions-panel`: `review-panel`'s surface. No state classes of its own; rendered while the
   list shows, and not otherwise. Appears and goes with no animation.
 - **Title.** `h2` with `review-title` (the review's title style, focus ring included) reading
   "All sessions", `tabindex="-1"`: a focus target, never in the tab order.
 - **`Your data`.** A plain `btn` at `sessions-header`'s inline end; opens the Your data sheet
   (`screens/your-data/`). When the sheet closes, focus returns to it.
-- `sessions-intro`: "Your most recent session is kept until your next one is saved. Pin a
+- **Introduction.** `sessions-intro`: "Your most recent session is kept until your next one is saved. Pin a
   session to keep it for good."
 - **Session date.** As defined in `flows/kept-sessions/handoff.md`, Terms: the session's start in
   local time with the browser's locale (short weekday, day, short month, year, hour, minutes).
-- `session-row-open`: the session date; on the most recent session's row followed by
+- **Row's title button.** `session-row-open`: the session date; on the most recent session's row followed by
   " · Last session" (U+00B7 with a space each side), inside the button. Its accessible name is its
   text. Activation opens the session (`flows/kept-sessions/handoff.md`, Opening a Session).
 - **[v3.1 changed]** **Detail line** (`session-row-meta`): "{length} · {n} phrases · {instrument} ·
@@ -69,7 +69,7 @@ layout-workspace
   snapshot, which a later rename or deletion of that preset never changes. A session kept by v3.0
   shows the musical profile it recorded in the same form: "Neutral", "Jazz", "Custom, based on
   Neutral" or "Custom, based on Jazz".
-- **[v3.2 new]** For a Jam session the detail line begins with the word "Jam" and shows no
+- **[v3.2 new]** **Jam session's detail line.** For a Jam session the detail line begins with the word "Jam" and shows no
   {preset} part, since Jam mode has no presets (the session still keeps its preset label): "Jam ·
   12 min · 9 phrases · {instrument}". A word, not an icon; no other row changes. A session kept
   before v3.2 is never a Jam session. Jam sessions and the others share the one list, in one
@@ -78,9 +78,9 @@ layout-workspace
   {favorites} is "No favorites", "1 favorite" or "{k} favorites"; {played notes} is "Played notes
   kept", present only when the session's played notes are kept; {keeping} is "Pinned" or "Not
   pinned: deleted when your next session is saved."
-- `session-row-comment`: the comment, its line breaks shown as spaces, cut to one line with an
+- **Row comment.** `session-row-comment`: the comment, its line breaks shown as spaces, cut to one line with an
   ellipsis by the class.
-- `session-row-note`: "This session was saved by a newer version of the app. Reload the page to
+- **Row note.** `session-row-note`: "This session was saved by a newer version of the app. Reload the page to
   open it." on a row saved by a newer version; "This session couldn't be opened. Try again, or
   delete it." on a row whose opening failed, until it opens ("This session couldn't be opened.
   Try again." in an outdated tab, which offers no deletion). A failed opening means the device
@@ -94,37 +94,37 @@ layout-workspace
   It opens the confirmation; it is never `btn-error` itself (`btn-error` is the confirmation's
   deleting action only). Behaviour: `flows/kept-sessions/handoff.md`, Deleting a Session. Absent
   on every row in an outdated tab (`flows/kept-sessions/handoff.md`, While Saving Is Off).
-- `sessions-empty`: "No sessions are kept. Your next session will be kept here." When saved data
+- **Empty message.** `sessions-empty`: "No sessions are kept. Your next session will be kept here." When saved data
   cannot be used this visit: "Kept sessions can't be read in this visit."
-- No row, line or count shows how the player played.
+- **How the player played.** No row, line or count shows how the player played.
 
 ## Focus and Keyboard
 
-- Tab order while the list shows: the header (`controller-status`, `theme-control`, the disabled
+- **Tab order.** Tab order while the list shows: the header (`controller-status`, `theme-control`, the disabled
   phrase action skipped, `Close review`), `mix-controls`, `Your data`, then each row in order
   (`session-row-open`, `Pin`/`Unpin`, `Delete`, each when shown; a disabled `session-row-open`
   skipped), then
   `control-section`, then the page footer.
-- Focus on arrival, after an opening, a pin, an unpin, a deletion or a closed sheet: as set in
+- **Where focus lands.** Focus on arrival, after an opening, a pin, an unpin, a deletion or a closed sheet: as set in
   `flows/kept-sessions/handoff.md`. In short: the list's title when the list is reached from the
   cue row or after a review's deletion; that session's `session-row-open` when coming back from
   its review; the next row's `session-row-open` (else the previous, else the title) after a row's
   deletion; the pressed button after a pin or unpin; the opener after a sheet's way back.
-- Rows are not focusable themselves; no arrow-key navigation between rows (Tab moves through
+- **Moving between rows.** Rows are not focusable themselves; no arrow-key navigation between rows (Tab moves through
   them).
-- No global shortcut opens or leaves the list.
+- **No global shortcut.** No global shortcut opens or leaves the list.
 
 ## Responsive Behavior
 
-- At `bp-tablet-landscape` and `bp-desktop`: each `session-row` is a two-column grid, the text
+- **Tablet landscape and desktop.** At `bp-tablet-landscape` and `bp-desktop`: each `session-row` is a two-column grid, the text
   column at the inline start and `session-row-actions` at the inline end; `sessions-header` holds
   the title and `Your data` on one row, wrapping when they do not fit.
-- At `bp-mobile-landscape` (below `bp-tablet-landscape`): `session-row-actions` drops under the
+- **Mobile landscape.** At `bp-mobile-landscape` (below `bp-tablet-landscape`): `session-row-actions` drops under the
   text column, aligned to the inline start; `Your data` wraps under the title when needed. Every
   row keeps every line and every button it has.
-- `sessions-panel` takes the full inline size of `layout-workspace` at every breakpoint; no side
+- **Full width.** `sessions-panel` takes the full inline size of `layout-workspace` at every breakpoint; no side
   rail. The list never scrolls inside itself: the page scrolls.
-- Every visual value comes from the token source (`src/styles/theme.css`,
+- **Visual values.** Every visual value comes from the token source (`src/styles/theme.css`,
   `src/styles/components.css`); this handoff declares none.
 
 ## States

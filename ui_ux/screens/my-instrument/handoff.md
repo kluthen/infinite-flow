@@ -74,7 +74,7 @@ sheet-backdrop
 
 ## Components and Content
 
-- `sheet-backdrop`, `sheet`, `sheet-header`, `sheet-close`, `sheet-body` and `sheet-actions` are
+- **Shared sheet parts.** `sheet-backdrop`, `sheet`, `sheet-header`, `sheet-close`, `sheet-body` and `sheet-actions` are
   the connection sheet's own (see `screens/controller-connection/handoff.md`): `--z-sheet`,
   `--color-scrim`, a centered panel that scrolls vertically inside itself, `Close` always present
   and enabled. `sheet-wide` widens it to `--sheet-wide-max-inline-size`, so the two range
@@ -201,7 +201,7 @@ sheet-backdrop
   started from the defaults because the saved data couldn't be read, {N} is always 0 (that visit
   has read no kept session); in a tab that must be reloaded, {N} counts only the kept rows the
   tab read, and those changes are withheld while there is one (States).
-- No raw value: every visual value comes from `src/styles/theme.css` and
+- **Visual values.** No raw value: every visual value comes from `src/styles/theme.css` and
   `src/styles/components.css` through the classes above.
 
 ## What Save Does
@@ -233,11 +233,11 @@ sheet-backdrop
 - **While a phrase is being generated** (a window change can start one behind the open sheet):
   the save happens at once, and its effect on the selection and the phrase is applied when that
   generation ends, as an instrument switch made at that moment would be.
-- Nothing confirms a save. A save the browser refuses is told by the workspace's notice row after
+- **Save feedback.** Nothing confirms a save. A save the browser refuses is told by the workspace's notice row after
   the sheet closes (`flows/saved-data/`); the instrument still applies for the visit. The first
   save of my instrument also asks the browser to protect the app's data; nothing shows that
   request.
-- The sheet closes after `Save`, or after `Save and erase` once it succeeds.
+- **Closing after Save.** The sheet closes after `Save`, or after `Save and erase` once it succeeds.
 
 ## Focus and Keyboard
 
@@ -268,17 +268,17 @@ sheet-backdrop
 
 ## Responsive Behavior
 
-- At `bp-mobile-landscape`: `sheet-wide` behaves as `sheet` does there, filling the inline size
+- **Mobile landscape.** At `bp-mobile-landscape`: `sheet-wide` behaves as `sheet` does there, filling the inline size
   left by the backdrop's padding up to `--sheet-wide-max-inline-size`, so a phone in landscape
   shows it at that cap; `range-row` stacks the two steppers; the template's
   `segmented-control` wraps as the workspace's instrument control does, and the clef's two
   segments stay on one row; `sheet-actions` stacks full-width, `Save` on top; the sheet scrolls
   vertically inside itself, so `range-alert` may sit below the fold, which is why it is a live
   region and why `Save` carries the refusal too.
-- At `bp-tablet-landscape` and `bp-desktop`: centered, up to `--sheet-wide-max-inline-size`;
+- **Tablet landscape and desktop.** At `bp-tablet-landscape` and `bp-desktop`: centered, up to `--sheet-wide-max-inline-size`;
   `range-row` puts the two steppers side by side; `sheet-actions` is one row aligned to the end,
   `Save` first.
-- Every breakpoint gets every field and action: the phone loses nothing.
+- **Every breakpoint.** Every breakpoint gets every field and action: the phone loses nothing.
 
 ## States
 

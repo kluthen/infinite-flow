@@ -4,7 +4,7 @@
 
 > **Changes since v3.0**
 >
-> - _v3.1 new:_ the preset label ([Terms](#terms))
+> - _v3.1 new:_ the preset label ([Terms](#terms): Preset label)
 > - _v3.2 new:_ a Jam session, whose detail line and summary show no preset part ([Terms](#terms)); a Jam ended before
 >   phrase 1 sounds changes nothing ([Terms](#terms),
 >   [Keeping at a Session's End](#keeping-at-a-sessions-end))
@@ -15,7 +15,7 @@
 >   keeps the written-out doodle; every other deletion of a Jam session by the player lets the
 >   kept doodle go too, never the save that replaces an unpinned session
 >   ([Deletions Made Elsewhere](#deletions-made-elsewhere))
-> - _v3.2 new:_ a Jam while saving is off ([While Saving Is Off](#while-saving-is-off))
+> - _v3.2 new:_ a Jam while saving is off ([While Saving Is Off](#while-saving-is-off): A Jam)
 
 ## Flow
 
@@ -53,7 +53,7 @@ flowchart TD
   ID -->|"Start session, or the starting note: both links removed; nothing asked"| PS2["play-session: count-in"]
 ```
 
-- Screens: `screens/phrase-workspace/` (the cue row and its two links, the header's session
+- **Screens in this flow.** Screens: `screens/phrase-workspace/` (the cue row and its two links, the header's session
   action, every idle state), `screens/session-list/` (the list), `screens/last-session-review/`
   (a session's review) and `screens/your-data/` (the sheet). What happens inside a review is
   routed in `flows/review-and-export/handoff.md`; this flow routes the links, the list and the
@@ -76,7 +76,7 @@ flowchart TD
   v3.0 carries its musical profile in the same form ("Neutral", "Jazz", "Custom, based on Jazz").
   A snapshot: renaming or deleting a preset never changes it. Shown in the list's detail line and
   the review's summary.
-- **[v3.2 new]** A Jam session keeps its preset label like any session, but Jam mode has no
+- **[v3.2 new]** **A Jam session's preset label.** A Jam session keeps its preset label like any session, but Jam mode has no
   presets, so its detail line and summary show no preset part.
 - **[v3.2 new]** **Jam session:** a kept session begun in Jam mode, whose phrase 1 sounded. It
   holds, beyond any session, the quantized doodle with the tempo it was played at, whether its
@@ -141,7 +141,7 @@ Drawn in `screens/phrase-workspace/` (`session-cue-row`); routed here.
 
 ## Opening a Session
 
-- Activating `session-row-open` reads the session from the device: the button takes `is-loading`
+- **Reading the session.** Activating `session-row-open` reads the session from the device: the button takes `is-loading`
   and `disabled`; the rest of the list and the page stay usable. Pressing another row's title
   meanwhile replaces the pending opening (the latest press wins). `Close review` cancels it.
 - **Read:** its review replaces the list (`screens/last-session-review/`), focus on
@@ -212,7 +212,7 @@ From a row (`session-row-actions`) or a review (`review-session-tools`), the sam
   is saved." ("its favorite" when one); actions `Unpin` (`btn`) then `Keep pinned` (`btn`). On
   `Unpin`, the session is unpinned and focus returns to the button, now `Pin`; on the way back,
   nothing changes and focus returns to `Unpin`.
-- Marking a favorite pins its session (`flows/review-and-export/handoff.md`); removing a session's
+- **Favorites and pinning.** Marking a favorite pins its session (`flows/review-and-export/handoff.md`); removing a session's
   last favorite never unpins it.
 
 ## Deleting a Session
@@ -271,23 +271,23 @@ sheet tells a refusal: what was to go still shows, with the action that deletes 
 
 ## Keeping at a Session's End
 
-- A session that ends once phrase 1 has sounded is saved once, as its review opens; nothing is
+- **Saved once at the end.** A session that ends once phrase 1 has sounded is saved once, as its review opens; nothing is
   written during a session and nothing is shown on success (`flows/review-and-export/handoff.md`).
-- The same save deletes every kept session that is not pinned, the previous most recent one
+- **Unpinned sessions deleted.** The same save deletes every kept session that is not pinned, the previous most recent one
   included. The new session becomes the most recent one.
-- The same batch deletes every kept session whose summary is damaged, pinned or not, and the
+- **Damaged summaries deleted.** The same batch deletes every kept session whose summary is damaged, pinned or not, and the
   apology shows as the review opens (A Damaged Session). A summary a newer version wrote stays. A
   save that fails deletes none of them.
-- A session ended during its count-in saves and deletes nothing; the most recent session stays,
+- **A count-in end.** A session ended during its count-in saves and deletes nothing; the most recent session stays,
   and the links return by their rules.
-- **[v3.2 new]** A Jam is kept like any session once phrase 1 has sounded: saved once at its end,
+- **[v3.2 new]** **A Jam kept.** A Jam is kept like any session once phrase 1 has sounded: saved once at its end,
   the most recent automatically, pinned for good, a favorite pinning it. A Jam that ends before
   phrase 1 sounds saves and deletes nothing, as a count-in end. The doodle Jam mode keeps after
   a Jam is never saved: it lives in memory for the visit, and the kept session holds it.
-- A save that fails deletes nothing; the session stays in memory as the most recent one, until
+- **A failed save.** A save that fails deletes nothing; the session stays in memory as the most recent one, until
   the next session ends with a review or the page closes. Its review's keep line says it is not
   saved; it has no row.
-- While saving is off (an outdated tab, or a visit started from the defaults because the saved
+- **A session end with saving off.** While saving is off (an outdated tab, or a visit started from the defaults because the saved
   data couldn't be read; `flows/saved-data/handoff.md`), a session's end saves and deletes
   nothing: the session is held in memory as after a failed save, its keep line saying it is not
   saved, and every kept session stays. Unlike after a failed save, no change made in its review
@@ -345,7 +345,7 @@ From `Your data` (`screens/your-data/`), opened from the list's header or the pa
 - **`Delete all played notes`:** every row loses "Played notes kept"; a review showing a session
   whose played notes were kept loses its `Played notes` lane, its view row and its played-notes
   export at once (`screens/last-session-review/handoff.md`).
-- **[v3.2 new]** In a Jam session, `Delete all played notes` deletes the raw doodle notes with the
+- **[v3.2 new]** **A Jam session's two doodle forms.** In a Jam session, `Delete all played notes` deletes the raw doodle notes with the
   rest and keeps the written-out doodle: its review keeps the doodle section, its suggestion and
   `Jam again on this doodle`, and the doodle Jam mode keeps stays. `Delete every session`
   deletes every Jam session with its doodle in both forms, and lets go the doodle Jam mode keeps.
@@ -362,5 +362,5 @@ From my instrument's sheet or the transposition check (`flows/my-instrument/hand
   and returns by that sheet's rule when it closes; each link follows its rule. Sessions played
   with a built-in profile are never touched, nor are my instrument's sessions by a change of its
   name or clef.
-- **[v3.2 new]** When a Jam session erased that way is the one Jam mode keeps a doodle from, that
+- **[v3.2 new]** **The kept doodle let go.** When a Jam session erased that way is the one Jam mode keeps a doodle from, that
   doodle is let go with it, as after `Delete session`.

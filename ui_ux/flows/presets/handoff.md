@@ -6,10 +6,10 @@
 >
 > - _v3.2 new:_ presets are session mode's: Jam mode has no preset bar, and neither Jam's settings,
 >   the rhythm lock, its allowed rhythm changes nor What may vary is held by a preset
->   ([Routing Rules](#routing-rules))
+>   ([Routing Rules](#routing-rules): Presets and Jam mode)
 > - _v3.3 changed:_ every preset also holds the Seventh chords level, every built-in at `Off`;
 >   changing it makes Custom and discards the prepared phrases
->   ([Routing Rules](#routing-rules))
+>   ([Routing Rules](#routing-rules): Choosing a preset; Prepared phrases)
 
 Screens: `screens/phrase-workspace/` for the preset bar (`preset-bar`: the `preset-select` box, its
 description `field-note` and `preset-actions`), the key and mode marks and the Embellishments
@@ -18,7 +18,9 @@ restriction or renamed, and for the confirmation in which one is deleted; `scree
 the list of player presets, each with its own `Delete`, in the Presets section of Your data. The
 reasoning is in [`intent.md`](intent.md).
 
-## Choosing, Custom and the Restriction
+## Flow
+
+### Choosing, Custom and the Restriction
 
 ```mermaid
 flowchart TD
@@ -43,7 +45,7 @@ flowchart TD
   CNB -->|"Choose a preset"| APPLY
 ```
 
-## Saving, Renaming and Deleting
+### Saving, Renaming and Deleting
 
 ```mermaid
 flowchart TD

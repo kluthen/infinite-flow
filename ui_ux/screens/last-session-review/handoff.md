@@ -29,7 +29,7 @@
 >   now in `flows/kept-sessions/` (v2 in
 >   the [frozen copy](../../versions/v2/screens/last-session-review/handoff.md#components-and-content))
 > - _v3.1 changed:_ the summary names the preset the session started with, where it named the
->   musical profile ([Components and Content](#components-and-content))
+>   musical profile ([Components and Content](#components-and-content): Summary)
 > - _v3.2 new:_ `review-doodle`, with `Jam again on this doodle` and `suggestion-row`, between
 >   `review-view` and `review-list` in a Jam's review; _v3.2 changed:_ `room-notice` stands in for
 >   it too ([Layout Tree](#layout-tree))
@@ -48,7 +48,7 @@
 >   loading or unable to load, a Jam on the kept doodle, and the doodle under no room and while
 >   saving is off ([States](#states))
 > - _v3.3 new:_ seventh chord symbols in the phrases, and the files' chords
->   ([Components and Content](#components-and-content))
+>   ([Components and Content](#components-and-content): Seventh chords)
 
 **[v3 changed]** `review-panel` is the phrase-workspace page's review mode
 (`screens/phrase-workspace/`): while a Review shows, it is rendered inside `score-panel`, after
@@ -157,24 +157,26 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
 
 ## Components and Content
 
-- `review-panel` is a surface panel like `control-section` (surface, border, radius, shadow,
+### Panel and Header
+
+- **Review panel.** `review-panel` is a surface panel like `control-section` (surface, border, radius, shadow,
   padding from the token source). It has no state classes of its own; it is rendered while the Review shows, and not otherwise.
-- **[v3 new]** `review-nav`: one plain `btn` reading "All sessions", at the inline start. It shows
+- **[v3 new]** **All sessions button.** `review-nav`: one plain `btn` reading "All sessions", at the inline start. It shows
   the session list in the Review's place (`flows/kept-sessions/handoff.md`).
 - **[v3 new]** **Order of the panel's rows.** `review-nav`, `review-header`, `review-comment`,
   `review-actions` (then `review-export-error` when it shows), `review-view`, then `review-list`
   or `room-notice`. The rows after `review-header` are separated from each other by
   `--spacing-3`.
-- **[v3.2 new]** In a Jam's review, `review-doodle` comes after `review-view` (or after
+- **[v3.2 new]** **Doodle section's place.** In a Jam's review, `review-doodle` comes after `review-view` (or after
   `review-actions` and `review-export-error` when `review-view` is not rendered) and before
   `review-list`, spaced from the first phrase as one `review-phrase` is from the next. A Jam
   session is a session begun in Jam mode whose phrase 1 sounded; a session kept before v3.2 is
   never one.
-- **[v3 changed]** `review-title` reads "Last session" for the most recent session, and the
+- **[v3 changed]** **Title.** `review-title` reads "Last session" for the most recent session, and the
   session date (`flows/kept-sessions/handoff.md`, Terms) for any other. It carries `tabindex="-1"`
   so the links, the list and the deletions can move focus to it; it is never in the tab order and
   takes the `:focus-visible` ring.
-- **[v3.1 changed]** `review-summary` reads "{session date} · {length} · {phrases} · {instrument} ·
+- **[v3.1 changed]** **Summary.** `review-summary` reads "{session date} · {length} · {phrases} · {instrument} ·
   {preset} · {favorites}", the session date left out when it is the title. {length}, {phrases},
   {instrument} and {preset} are written exactly as in the session list's detail line, and
   {favorites} as in its status line (`screens/session-list/handoff.md`): the instrument by the name
@@ -183,23 +185,26 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   later rename or deletion of that preset never changes. The favorites count
   changes in place when a star is pressed. Muted, small. Not rendered below
   `bp-tablet-landscape`. No figure about how the player played.
-- **[v3.2 changed]** For a Jam session, the part of the summary after the session date begins with
+- **[v3.2 changed]** **Jam session's summary.** For a Jam session, the part of the summary after the session date begins with
   the word "Jam", as the session list's detail line does: "Tue 6 Oct 2026, 18:42 · Jam · 12 min ·
   9 phrases · …", or "Jam · 12 min · 9 phrases · …" when the date is the title. A word, not an
   icon. Jam mode has no presets, so a Jam session's summary shows no {preset} part, though
   the session keeps its preset label: "Jam · 12 min · 9 phrases · {instrument} · {favorites}".
-- **[v3 new]** `review-keep-line`: "Pinned: kept until you unpin or delete it.", "Not pinned:
+- **[v3 new]** **Keep line.** `review-keep-line`: "Pinned: kept until you unpin or delete it.", "Not pinned:
   deleted when your next session is saved.", or, for a session whose save failed, "Not saved on
   this device: export it to keep it." Its text changes in place, with no announcement. Below
   `bp-tablet-landscape` it is rendered only in its "Not saved" form, the one thing the pin
   button's label cannot say.
-- **[v3 new]** `review-session-tools`: two plain `btn`s. "Pin" on an unpinned session, "Unpin" on
+- **[v3 new]** **Session tools.** `review-session-tools`: two plain `btn`s. "Pin" on an unpinned session, "Unpin" on
   a pinned one (the label changes in place, focus stays); "Delete session". Neither is
   `btn-primary` or `btn-error`. Rules and confirmations: `flows/kept-sessions/handoff.md`, Pin and
   Unpin, Deleting a Session. While saving is off (an outdated tab, or a visit whose saved data
   couldn't be read), `Delete session` is absent and the pin button stands alone
   (`flows/kept-sessions/handoff.md`, While Saving Is Off).
-- **[v3 new]** `review-comment`:
+
+### Comment
+
+- **[v3 new]** **Comment.** `review-comment`:
   - **Collapsed, empty:** a plain `btn` "Add a comment".
   - **Collapsed, filled:** the comment as a `p` (its line breaks kept, never cut), then a plain
     `btn` "Edit comment".
@@ -207,16 +212,19 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     named by the label, described by `field-count`), `field-count` "{n}/500" updated as the
     player types, and a plain `btn` "Done". Typing stops at 500 characters and a paste is cut at
     500, so there is no error state.
-  - Saved on `Done`, when the field loses focus, and when the Review is left or replaced; an
+  - **When it saves.** Saved on `Done`, when the field loses focus, and when the Review is left or replaced; an
     emptied field removes the comment and the row returns to "Add a comment". Leading and
     trailing spaces and blank lines are trimmed on save. Never written into an export.
-- **[v3 new]** `review-scope`: `field-group` with `field-label` "Export" and a
+
+### Exports
+
+- **[v3 new]** **Scope.** `review-scope`: `field-group` with `field-label` "Export" and a
   `segmented-control` (radiogroup, roving tab stop) with `Whole session` then `Favorites only`.
   `Whole session` is checked at every Review opening; the choice is never saved. With no favorite
   in the session, `Favorites only` is disabled and named by `aria-describedby` to a `field-note`
   "No favorites in this session yet."; if the last favorite is removed while `Favorites only` is
   checked, `Whole session` becomes checked. The scope governs both exports.
-- `review-export`:
+- **Generated-notes export.** `review-export`:
   - **[v3 changed]** **Format**: `field-group` with `field-label` "Format" and a
     `segmented-control` (radiogroup, roving tab stop, as every single-select control in the
     workspace) with `MusicXML` then `MIDI`. `MusicXML` is checked until the player changes it; the
@@ -230,10 +238,10 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     (never `btn-primary`): `Close review`, in the header, is the page's one primary action while
     the Review shows. Activation builds
     exactly one file from the session history and starts a browser download.
-  - While the file is built the button takes `is-loading` and `disabled`; Format and Backing track
+  - **While building.** While the file is built the button takes `is-loading` and `disabled`; Format and Backing track
     stay live and apply to the next export. Focus stays on the button and returns to it enabled.
     The first export of the page also loads the export code, within the same `is-loading` state.
-  - No message on success: the browser's download is the confirmation. `generation-status` and
+  - **On success.** No message on success: the browser's download is the confirmation. `generation-status` and
     `notation-status` say nothing about exports.
 - **[v3 changed]** **File names.** `infinite-flow-{date}-{time}-generated.musicxml` for MusicXML
   and `infinite-flow-{date}-{time}-generated.mid` for MIDI, where `{date}` is `YYYY-MM-DD` and
@@ -311,10 +319,13 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   Reviews; never saved. It changes the played-notes file only, never the lane or the
   generated-notes file. It stays live while `Export played notes` is disabled or building: when
   every played note the scope selects is very short, it is what enables the export.
-- `review-export-error`: `inline-alert alert-error` reading "The file couldn't be made. Try
+- **Export error.** `review-export-error`: `inline-alert alert-error` reading "The file couldn't be made. Try
   again." It appears under `review-actions` after any failure to build or hand over a file, of
   either content (a failed load of the export code included), is not a live region, moves no
   focus, and leaves when the next export of either content starts.
+
+### Played-Notes Controls
+
 - **[v3 changed]** **Played notes**: `review-view`, a row after the export row (and after
   `review-export-error` when that shows), starts with one `btn toggle-button` reading "Played
   notes" with `toggle-button-state` "on"/"off" (`aria-pressed`; the accessible name is "Played
@@ -337,7 +348,10 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   saving is off. It opens its confirmation; on confirmation this session's played notes are
   deleted, from memory too, and
   `review-view`, every `played-notes-lane` and `review-export-played` leave the Review at once.
-- **[v3 new]** `favorite-toggle`: `btn favorite-toggle` with `aria-pressed`, at the trailing end
+
+### Favorites and Confirmations
+
+- **[v3 new]** **Favorite star.** `favorite-toggle`: `btn favorite-toggle` with `aria-pressed`, at the trailing end
   of each `review-phrase-header`: the star (inline SVG, `aria-hidden`) and, from
   `bp-tablet-landscape` up, the word "Favorite". Accessible name "Favorite phrase {n}" at every
   breakpoint. Pressing it marks or unmarks the phrase at once and keeps focus. Marking the first
@@ -366,14 +380,17 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     this Review shows, the body's first paragraph ends with one more sentence, "Doodles stay as
     the app wrote them.", as in `Your data` (`screens/your-data/handoff.md`, Confirmations):
     `Delete them` deletes their raw doodle notes and keeps each written-out doodle.
-  - A deletion that fails keeps its sheet open with `inline-alert alert-error` "That couldn't be
+  - **Failed deletion.** A deletion that fails keeps its sheet open with `inline-alert alert-error` "That couldn't be
     deleted. Try again." under its paragraphs; the confirming action tries again.
-  - While a deletion runs, its confirming action takes `is-loading`; the way back stays live and
+  - **Deletion running.** While a deletion runs, its confirming action takes `is-loading`; the way back stays live and
     closes the sheet without stopping it: the deletion finishes (`flows/kept-sessions/handoff.md`,
     The Confirmation Pattern). Its result then shows as on confirmation, with no message. A
     refusal after the sheet closed shows nothing: the played notes or the session are still
     there, and `Delete played notes` or `Delete session` tries again (the played notes already
     kept, through `Your data`'s `Delete all played notes`).
+
+### Played-Notes Lanes
+
 - **Played-notes lane**: while `Played notes` is on, each system position in `review-staff`
   is followed by one `played-notes-lane`, a block of the full content inline size and the block
   size `--played-notes-lane-block-size`, separated from the system above by `--spacing-2`, holding
@@ -441,16 +458,19 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     view in place (nothing in the Review may disable it), so the list grows or shrinks around it.
     Lanes are drawn and released with their phrase's engraving (see **Lazy engraving**), with no
     fade.
-  - The generated staff is unchanged: no `note-ack`, and nothing of the played notes on it.
-- `review-list` is an `ol`; each `review-phrase` is an `li`, in the order the phrases started
+  - **Generated staff.** The generated staff is unchanged: no `note-ack`, and nothing of the played notes on it.
+
+### Phrase List and Room Notice
+
+- **Phrase list.** `review-list` is an `ol`; each `review-phrase` is an `li`, in the order the phrases started
   sounding, one per phrase in the history. A failure-ladder repeat is an ordinary item with its own
   number: nothing marks it.
-- **[v3 changed]** `review-phrase-header`: `review-phrase-title` "Phrase {n}" (the session phrase
+- **[v3 changed]** **Phrase header.** `review-phrase-header`: `review-phrase-title` "Phrase {n}" (the session phrase
   number, which the export's rehearsal marks and markers also carry) and `review-phrase-tempo`
   "{tempo} BPM" (the tempo the phrase played at), muted, on one line, then `favorite-toggle` at
   the line's trailing end; it wraps below `bp-tablet-landscape` if needed, the star staying at
   the trailing end.
-- **[v3 changed]** `review-staff` holds the phrase's engraving, drawn from the stored timeline
+- **[v3 changed]** **Phrase staff.** `review-staff` holds the phrase's engraving, drawn from the stored timeline
   exactly as it was shown: the session profile's written pitch, its key signature and chord
   symbols, the clef the phrase was played in (treble clef for a built-in profile; for my
   instrument, its clef at the time, whatever its clef is now), the Notation Contract of
@@ -483,22 +503,25 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
     heights away. Engravings run one at a time, the item nearest the visible area first. The
     reserved size never changes, so the scroll position never jumps. No fade: `staff-content` in the review takes no entrance or
     exit animation.
-- `review-phrase-note`, muted, centred in the reserved space, in place of `staff-content`:
-  - "This phrase needs a wider window." when the staff has room but this phrase's notes do not fit
+- **Phrase note.** `review-phrase-note`, muted, centred in the reserved space, in place of `staff-content`:
+  - **Needs a wider window.** "This phrase needs a wider window." when the staff has room but this phrase's notes do not fit
     at the legibility floor in the current layout at `review-staff`'s content width. It is drawn again, with no fade, once a viewport
     change gives it room.
-  - "This phrase couldn't be drawn." when its engraving fails for any other reason. No action; the
+  - **Couldn't be drawn.** "This phrase couldn't be drawn." when its engraving fails for any other reason. No action; the
     export does not depend on the engraving.
-- `room-notice` in the review: while the workspace staff has no room (screens/phrase-workspace,
+- **Room notice.** `room-notice` in the review: while the workspace staff has no room (screens/phrase-workspace,
   Notation Contract, **Room for the staff**, the no-room cause), `review-list` is not rendered and a
   `room-notice` stands in its place holding `room-notice-wide` and `room-notice-narrow`, shown by
   the same width-only query as in `staff-frame`. It carries no `tabindex` and is not announced.
   It follows the workspace staff's no-room state live, since that staff stays laid out and keeps
   checking its room while the Review shows; the too-many-notes cause does not replace the list.
   The list returns on the viewport change that gives the staff room.
-- **[v3.2 changed]** In a Jam's review, `room-notice` stands in for `review-doodle` as well, its
+- **[v3.2 changed]** **Room notice in a Jam.** In a Jam's review, `room-notice` stands in for `review-doodle` as well, its
   suggestion and `Jam again on this doodle` included: one notice in place of the doodle and the
   phrases, both coming back together.
+
+### Jam's Doodle
+
 - **[v3.2 new]** **`review-doodle`**, the doodle section of a Jam's review. In order:
   - **Header.** `review-phrase-header` with `review-phrase-title` (h3) "Your doodle", which names
     the section, and `review-phrase-tempo` "{tempo} BPM", the tempo the doodle was played at,
@@ -573,16 +596,19 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   - **`Jam in {answer}`** sets Jam's key and mode only, saved as Jam's; **`Keep {key} {mode}`**
     changes nothing and declines the suggestion for good, the decline kept with the session. What
     each changes: `flows/review-and-export/handoff.md`, The Doodle and the Suggestion.
-- `Close review` is the header's session action (`btn btn-primary btn-lg session-action`, same
+
+### Close Review and Cue-Row Links
+
+- **Close review.** `Close review` is the header's session action (`btn btn-primary btn-lg session-action`, same
   fixed inline size) with that label while the Review shows; see `screens/phrase-workspace/`,
   Components and Content, and `flows/review-and-export/handoff.md`, Close review.
-- **[v3 changed]** `review-link` and `sessions-link` (in `screens/phrase-workspace/`,
+- **[v3 changed]** **Cue-row links.** `review-link` and `sessions-link` (in `screens/phrase-workspace/`,
   `session-cue-row`): when each shows, what it opens and where focus goes are in
   `flows/kept-sessions/handoff.md`, The Cue-Row Links.
 
 ## Focus and Keyboard
 
-- **[v3 changed]** While the Review shows, the tab order is the header (`controller-status`,
+- **[v3 changed]** **Tab order.** While the Review shows, the tab order is the header (`controller-status`,
   `theme-control`, the disabled phrase action skipped, `Close review`), `score-toolbar`'s
   `mix-controls`, then `review-panel`: `All sessions`; `Pin` or `Unpin`, `Delete session` (when
   shown); the
@@ -592,20 +618,20 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   `Keep my played notes`, `Delete played notes` (when shown); then each phrase's
   `favorite-toggle`, in list order. Then `control-section`, then the page footer. A disabled
   segment or button is skipped.
-- **[v3.2 changed]** The header's `mode-switch`, read-only while the Review shows, keeps its tab
+- **[v3.2 changed]** **Mode switch's tab stop.** The header's `mode-switch`, read-only while the Review shows, keeps its tab
   stop before `controller-status` (its checked segment, which refuses an arrow key).
-- **[v3.2 changed]** In a Jam's review, `review-doodle`'s buttons come between `review-view`'s
+- **[v3.2 changed]** **Doodle section's buttons.** In a Jam's review, `review-doodle`'s buttons come between `review-view`'s
   and the first `favorite-toggle`: `Jam again on this doodle` (skipped while disabled), then
   `Jam in {answer}` and `Keep {key} {mode}` while the suggestion is offered.
-- Switching `Played notes` keeps focus on it.
-- **[v3 new]** Pressing `favorite-toggle`, `Pin` / `Unpin` (when no confirmation opens),
+- **Switching Played notes.** Switching `Played notes` keeps focus on it.
+- **[v3 new]** **Pressing a toggle.** Pressing `favorite-toggle`, `Pin` / `Unpin` (when no confirmation opens),
   `Include very short notes` or `Keep my played notes` (when no confirmation opens) keeps focus
   on it.
-- **[v3 new]** Comment: `Add a comment` and `Edit comment` open the editor and move focus into
+- **[v3 new]** **Comment editor.** Comment: `Add a comment` and `Edit comment` open the editor and move focus into
   the `text-area`, the caret at the end. `Done` closes it and moves focus to `Edit comment` (or
   `Add a comment` when the comment was emptied). Escape in the field does what `Done` does. Tab
   out of the field saves and moves on, the editor staying open until `Done` or the Review is left.
-- **[v3 new]** Confirmations: focus goes to the way back on open and is trapped in the sheet. On
+- **[v3 new]** **Confirmation focus.** Confirmations: focus goes to the way back on open and is trapped in the sheet. On
   the way back, focus returns to the button that opened it. After `Delete played notes` or
   `Delete them` removes `review-view`, focus moves to `review-title`; after `Delete them` with
   `review-view` still shown, to `Keep my played notes`. After `Unpin`, to the button, now `Pin`.
@@ -614,33 +640,33 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   ends, focus still on a button it removed (`Delete played notes`, or `Keep my played notes` with
   `review-view`, or `Delete session` with the Review) moves as after that confirmation, and focus
   anywhere else stays.
-- **[v3 changed]** A session end moves focus to `Close review`. `Close review`, `Review last session`,
+- **[v3 changed]** **After a session end.** A session end moves focus to `Close review`. `Close review`, `Review last session`,
   `All sessions` and a list row move focus as `flows/review-and-export/handoff.md` and
   `flows/kept-sessions/handoff.md` set. Keyboard route from a session end: Space closes the
   Review, focus stays on the session action, now `Start session`; Space starts the next session.
   No global shortcut closes the Review.
-- `Close review` in **Needs more room** moves focus to `room-notice` whichever the notice's cause
+- **Close review with no room.** `Close review` in **Needs more room** moves focus to `room-notice` whichever the notice's cause
   (no room, or this phrase's notes too wide).
-- `generation-status` and `notation-status` are emptied when the Review opens and say nothing
+- **Status messages.** `generation-status` and `notation-status` are emptied when the Review opens and say nothing
   while it shows; a generation that ends after `Close review` is announced as at idle.
-- **[v3 new]** No change made in the Review (a favorite, the keep line, a pin, a saved comment)
+- **[v3 new]** **No announcements.** No change made in the Review (a favorite, the keep line, a pin, a saved comment)
   is announced: each control's own state (`aria-pressed`, its label) carries it.
-- **[v3.2 new]** `Jam in {answer}` and `Keep {key} {mode}` take the suggestion's buttons away.
+- **[v3.2 new]** **After the suggestion's buttons.** `Jam in {answer}` and `Keep {key} {mode}` take the suggestion's buttons away.
   After `Jam in {answer}`, focus moves to the row's set sentence, "Jams now play in {answer}."
   (`tabindex="-1"`, never in the tab order, taking the `:focus-visible` ring), so a screen reader
   reads the confirmation, as at Jam mode's Idle. After `Keep {key} {mode}` the row leaves and
   focus moves to `Jam again on this doodle` when it is enabled, else to `review-title`. Nothing is
   announced.
-- **[v3.2 new]** `Jam again on this doodle` leaves the review mode onto Jam mode, focus moving to
+- **[v3.2 new]** **Jam again on this doodle.** `Jam again on this doodle` leaves the review mode onto Jam mode, focus moving to
   `jam-bar`'s sentence (`tabindex="-1"`) while phrase 1 is written; from the review of the Jam just
   played it acts as `Close review`, focus included (`flows/review-and-export/handoff.md`).
-- **[v3.2 new]** When a control of `review-doodle` that has focus goes away or becomes disabled
+- **[v3.2 new]** **A doodle control going away.** When a control of `review-doodle` that has focus goes away or becomes disabled
   (`room-notice` replacing the section, or the suggestion's buttons leaving after a change of
   Jam's key or mode), focus moves to `review-title`.
 
 ## Responsive Behavior
 
-- **[v3 changed]** At `bp-mobile-landscape` (below `bp-tablet-landscape`): `review-nav` as on
+- **[v3 changed]** **Mobile landscape.** At `bp-mobile-landscape` (below `bp-tablet-landscape`): `review-nav` as on
   larger screens. `review-header` stacks: `review-title`, then `review-session-tools` under it,
   wrapping as needed. `review-summary` is not rendered, and `review-keep-line` only in its "Not saved" form. `review-comment`
   takes the full inline size. `review-actions` wraps onto as many lines as it needs, the scope
@@ -648,31 +674,31 @@ sheet-backdrop                 (v3 new; only while a confirmation is open -- see
   star alone, with the `btn`'s minimum square target. Phrases use the split layout at the
   workspace staff's phone scale, and each of a phrase's two system positions gets its own lane.
   Nothing else is added or removed on the phone: every control of the larger screens is here.
-- **[v3 changed]** `review-actions` separates its groups (`review-scope`, the generated-notes
+- **[v3 changed]** **Spacing of the export groups.** `review-actions` separates its groups (`review-scope`, the generated-notes
   `review-export`, then `review-export-played`) by a wider gap than the items inside a group, at
   every breakpoint.
-- `review-view` takes a row of its own under the heading and the actions at every breakpoint,
+- **Played-notes row.** `review-view` takes a row of its own under the heading and the actions at every breakpoint,
   aligned to the inline start, wrapping its buttons when they do not fit.
-- `played-notes-lane` keeps `--played-notes-lane-block-size` at every breakpoint; only its inline
+- **Lane height.** `played-notes-lane` keeps `--played-notes-lane-block-size` at every breakpoint; only its inline
   size follows the staff above it.
-- **[v3 changed]** At `bp-tablet-landscape` and `bp-desktop`: `review-heading` at the inline start
+- **[v3 changed]** **Tablet landscape and desktop.** At `bp-tablet-landscape` and `bp-desktop`: `review-heading` at the inline start
   and `review-session-tools` at the inline end of one row, wrapping under the heading when they do
   not fit; `review-summary` then `review-keep-line` under the title; `review-actions` on its own
   row after `review-comment`, wrapping when its groups do not fit. `favorite-toggle` shows the
   star and the word. One system per phrase, across the panel's content width.
-- **[v3.2 new]** `review-doodle` at `bp-tablet-landscape` and `bp-desktop`: its header on one
+- **[v3.2 new]** **Doodle, tablet landscape and desktop.** `review-doodle` at `bp-tablet-landscape` and `bp-desktop`: its header on one
   line as a phrase's, `Jam again on this doodle` at the trailing end; the doodle in one system,
   its measures from the system's start; `suggestion-row`'s sentence and buttons on one row that
   wraps.
-- **[v3.2 new]** `review-doodle` at `bp-mobile-landscape`: the header wraps as a phrase's,
+- **[v3.2 new]** **Doodle, mobile landscape.** `review-doodle` at `bp-mobile-landscape`: the header wraps as a phrase's,
   `Jam again on this doodle` staying at the trailing end; the doodle takes the split layout like a
   phrase, bars 1–2 in the top system position and bars 3–4 in the bottom one, each at a phrase's
   measure width from its system's start; a doodle of one or two measures reserves the top system
   position only. Each of its system positions gets its own lane. `suggestion-row` wraps, its
   buttons under the sentence when they do not fit beside it. Nothing of the section is dropped.
-- `review-panel` takes the full inline size of `layout-workspace` at every breakpoint; no side
+- **Full width.** `review-panel` takes the full inline size of `layout-workspace` at every breakpoint; no side
   rail, no second column.
-- Every visual value comes from the token source (`src/styles/theme.css`,
+- **Visual values.** Every visual value comes from the token source (`src/styles/theme.css`,
   `src/styles/components.css`); this handoff declares none.
 
 ## States
