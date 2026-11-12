@@ -9,6 +9,7 @@
 
 import { performance } from 'node:perf_hooks'
 
+import { CHORD_FAMILY_LEVEL_IDS, type ChordFamilyLevel } from '@/domain/chords/chord-families'
 import { MUSICAL_PROFILES, type Collection } from '@/domain/controls/generation-controls'
 import {
   FIGURE_IDS,
@@ -31,22 +32,32 @@ import {
   failuresByCode,
   failuresByTension,
   intentSummaryLine,
+  seventhShares,
   splitTimes,
   tempoSummaryLines,
   type AttemptTime,
+  type SeventhShares,
+  type Share,
   type SplitTimes,
   type TempoFigures,
   type TimedOutcome,
 } from './cost-guard-figures'
 import { measuredSession, runShortfalls } from './deadline-sweep-measured'
+import {
+  MEASURABLE_SEVENTH_LEVELS,
+  SEVENTH_LEVEL_NAMES,
+  requireMeasurableSeventhLevel,
+} from './seventh-levels'
 
 /**
  * One setting the sweep is measured under: a label and the change it makes to each case: a musical
- * profile, figure levels in place of the profile's, or a built-in preset.
+ * profile, figure levels in place of the profile's, or a built-in preset; and, for v3.3's settings,
+ * the Seventh chords level it plays the sessions at (unset: Off, as every v3.2 setting).
  */
 export interface CostSetting {
   readonly label: string
   readonly apply: (sweepCase: SweepCase) => SweepCase
+  readonly seventhLevel?: ChordFamilyLevel
 }
 
 /** The settings of the sweep today: each musical profile, Neutral and Jazz, on every case. */
@@ -194,20 +205,73 @@ export const COST_SETTINGS: readonly CostSetting[] = [
 ]
 
 /**
+ * Intent: a setting at one Seventh chords level: the same change to each case, the case's session
+ * then played at `level`, its label and the cases' labels naming the level.
+ */
+export function atSeventhLevel(setting: CostSetting, level: ChordFamilyLevel): CostSetting {
+  const suffix = `at seventh chords ${SEVENTH_LEVEL_NAMES[level]}`
+  return {
+    label: `${setting.label} ${suffix}`,
+    seventhLevel: level,
+    apply: (sweepCase: SweepCase): SweepCase => {
+      const applied = setting.apply(sweepCase)
+      return { ...applied, label: `${applied.label} ${suffix}`, seventhLevel: level }
+    },
+  }
+}
+
+/** Intent: the setting labelled `label` among `settings`, which must hold it. */
+function settingLabelled(settings: readonly CostSetting[], label: string): CostSetting {
+  const found = settings.find((setting) => setting.label === label)
+  if (found === undefined) throw new Error(`No cost setting is labelled "${label}".`)
+  return found
+}
+
+/**
+ * The settings of v3.3's cost guard (master spec D10), in run order: Strongly favored with Speed
+ * drill first (the most expensive setting v3.1 found), then the baseline (Off with the Neutral and
+ * Jazz defaults, which must equal v3.2's figures), then Sometimes, Favored and Strongly favored
+ * with the Neutral and Jazz defaults, then Strongly favored with Bebop. Each case keeps its own
+ * mode, so every mode is swept, except where a preset restricts the modes (Bebop: Major).
+ */
+export const SEVENTH_SETTINGS: readonly CostSetting[] = [
+  atSeventhLevel(settingLabelled(BUILT_IN_SETTINGS, 'built-in Speed drill'), 'stronglyFavored'),
+  ...CHORD_FAMILY_LEVEL_IDS.flatMap((level) =>
+    PROFILE_SETTINGS.map((setting) => atSeventhLevel(setting, level)),
+  ),
+  atSeventhLevel(settingLabelled(BUILT_IN_SETTINGS, 'built-in Bebop'), 'stronglyFavored'),
+]
+
+/** Intent: whether a setting plays at a Seventh chords level a run can measure today. */
+function measurable(setting: CostSetting): boolean {
+  return MEASURABLE_SEVENTH_LEVELS.includes(setting.seventhLevel ?? 'off')
+}
+
+/** Intent: the labels of v3.3's settings no run can measure yet (seventh-levels.ts). */
+export function unmeasurableSeventhSettings(): readonly string[] {
+  return SEVENTH_SETTINGS.filter((setting) => !measurable(setting)).map((setting) => setting.label)
+}
+
+/**
  * Intent: the settings a run measures, from a comma-separated list of labels (any case); none
- * given, the two profiles, as the runner measured first. An unknown label fails, naming the known
- * ones.
+ * given, the two profiles, as the runner measured first; `all`, v3.1's settings; `sevenths`,
+ * v3.3's settings that can be measured today (the others are listed by
+ * `unmeasurableSeventhSettings`). An unknown label fails, naming the known ones, and so does a
+ * v3.3 setting at a level not measurable today.
  */
 export function selectedSettings(raw: string | undefined): readonly CostSetting[] {
   if (raw === undefined || raw.trim() === '') return PROFILE_SETTINGS
   if (raw.trim().toLowerCase() === 'all') return COST_SETTINGS
+  if (raw.trim().toLowerCase() === 'sevenths') return SEVENTH_SETTINGS.filter(measurable)
+  const known = [...COST_SETTINGS, ...SEVENTH_SETTINGS]
   return raw.split(',').map((name) => {
     const wanted = name.trim().toLowerCase()
-    const found = COST_SETTINGS.find((setting) => setting.label.toLowerCase() === wanted)
+    const found = known.find((setting) => setting.label.toLowerCase() === wanted)
     if (found === undefined)
       throw new Error(
-        `COST_SETTINGS names an unknown setting "${name.trim()}"; known: all, ${COST_SETTINGS.map((setting) => setting.label).join(', ')}.`,
+        `COST_SETTINGS names an unknown setting "${name.trim()}"; known: all, sevenths, ${known.map((setting) => setting.label).join(', ')}.`,
       )
+    requireMeasurableSeventhLevel(found.seventhLevel ?? 'off')
     return found
   })
 }
@@ -319,16 +383,19 @@ async function measureDensity(
 /** The cost runner's figures for one setting. */
 export interface SettingFigures {
   readonly label: string
+  /** The Seventh chords level the setting's sessions played at. */
+  readonly seventhLevel: ChordFamilyLevel
   readonly durationSeconds: number
   /**
    * The distinct intents the setting generated, each timed once, phrase 1 at Idle included: their
-   * failures by code and their `generatePhrase` times.
+   * failures by code, their `generatePhrase` times and the seventh shares of their phrases.
    */
   readonly distinctIntents: {
     readonly failuresByCode: Readonly<Record<string, number>>
     /** Their failures per Tension value the intent asked for, then per code. */
     readonly failuresByTension: Readonly<Record<string, Readonly<Record<string, number>>>>
     readonly seconds: SplitTimes
+    readonly sevenths: SeventhShares
   }
   readonly tempos: readonly TempoFigures[]
   /** The fallback tempo's standalone shares and productions, repeated from its tempo figures. */
@@ -361,11 +428,13 @@ export async function measureSetting(
   if (fallback === undefined) throw new Error(`The sweep tempos lack ${FALLBACK_TEMPO} BPM.`)
   return {
     label: setting.label,
+    seventhLevel: setting.seventhLevel ?? 'off',
     durationSeconds: (performance.now() - startedAt) / 1000,
     distinctIntents: {
       failuresByCode: failuresByCode(distinct),
       failuresByTension: failuresByTension(distinct),
       seconds: splitTimes(distinct),
+      sevenths: seventhShares(distinct),
     },
     tempos: figures,
     fallbackAtFastestTempo: {
@@ -376,12 +445,19 @@ export async function measureSetting(
   }
 }
 
+/** Intent: a share as a percentage with one decimal, its count over its total. */
+function shareText({ count, total, share }: Share): string {
+  return `${share === null ? '-' : (share * 100).toFixed(1)} % (${count}/${total})`
+}
+
 /** Intent: the readable `COST-GUARD` summary of one setting's figures. */
 export function settingSummaryLines(figures: SettingFigures): readonly string[] {
   const failed = Object.values(figures.distinctIntents.failuresByCode).reduce((a, b) => a + b, 0)
+  const sevenths = figures.distinctIntents.sevenths
   return [
     `COST-GUARD [${figures.label}] measured in ${figures.durationSeconds.toFixed(1)} s`,
     intentSummaryLine(figures.label, figures.distinctIntents.seconds, failed),
+    `COST-GUARD [${figures.label}] distinct intents' harmony events in seventh form: ${shareText(sevenths.seventhEvents)}; phrases fallen back to triads: ${shareText(sevenths.fallbacks)}`,
     `COST-GUARD [${figures.label}] distinct intents failed by Tension: ${JSON.stringify(figures.distinctIntents.failuresByTension)}`,
     ...figures.tempos.flatMap((tempoFigures) => tempoSummaryLines(figures.label, tempoFigures)),
   ]

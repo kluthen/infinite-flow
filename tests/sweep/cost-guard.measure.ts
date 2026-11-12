@@ -5,15 +5,18 @@
  * 7 and 13, a six-phrase session at 60, 120 and 240 BPM, each attempt charged its measured
  * `generatePhrase` time plus the round trip and engraving), played once per setting (by default
  * each musical profile, Neutral and Jazz, on every case; or the settings `COST_SETTINGS` names: the
- * figure settings of master spec B5.6 and the built-in presets). Per setting it reports the share of phrases
- * generated, the slowest and 95th-percentile generation times, the 240 BPM fallback share and the
+ * figure settings of master spec B5.6 and the built-in presets; or v3.3's, master spec D10's, each
+ * at its Seventh chords level). Per setting it reports the share of phrases
+ * generated, the slowest and 95th-percentile generation times, the share of harmony events in their
+ * seventh form and of phrases fallen back to triads, the 240 BPM fallback share and the
  * deadline shortfalls, and prints a summary as `COST-GUARD` lines. A missed deadline is reported,
  * never failed on. The result depends on the machine: run it idle.
  *
  * Env: `COST_OUT` writes the full figures JSON (with the machine, the date and the run duration)
  * to that path; `COST_LIMIT` keeps only the first N sweep cases, for a quick run;
- * `COST_SETTINGS` names the settings to measure, comma-separated (`all` for every one, in
- * `COST_SETTINGS`' run order; unset, the two profiles).
+ * `COST_SETTINGS` names the settings to measure, comma-separated (`all` for every v3.1 one, in
+ * `COST_SETTINGS`' run order; `sevenths` for v3.3's that can be measured today, Speed drill first,
+ * the others printed as not measurable yet; unset, the two profiles).
  */
 
 import { writeFileSync } from 'node:fs'
@@ -22,7 +25,12 @@ import { describe, expect, it } from 'vitest'
 
 import { SEEDS } from '../unit/domain/generation/carry-in/carry-in-matrix'
 import { SWEEP_PHRASE_COUNT, SWEEP_TEMPOS, sweepCases } from '../unit/session/deadline-sweep'
-import { measureSetting, selectedSettings, settingSummaryLines } from './cost-guard'
+import {
+  measureSetting,
+  selectedSettings,
+  settingSummaryLines,
+  unmeasurableSeventhSettings,
+} from './cost-guard'
 import { machineBlock } from './figure-census-sweep'
 
 /** Intent: the case limit `COST_LIMIT` sets, or none; anything but a positive integer fails. */
@@ -40,6 +48,12 @@ describe('cost runner (M2)', () => {
     const date = new Date().toISOString()
     const machine = machineBlock()
     const cases = sweepCases().slice(0, caseLimit(process.env.COST_LIMIT))
+    const sevenths = process.env.COST_SETTINGS?.trim().toLowerCase() === 'sevenths'
+    const unmeasured = sevenths ? unmeasurableSeventhSettings() : []
+    if (unmeasured.length > 0)
+      console.log(
+        `COST-GUARD not measurable before v3.3 chunks 12 and 16: ${unmeasured.join('; ')}`,
+      )
     const settings = []
     for (const setting of selectedSettings(process.env.COST_SETTINGS)) {
       const figures = await measureSetting(setting, cases, SWEEP_TEMPOS)
@@ -60,6 +74,7 @@ describe('cost runner (M2)', () => {
         phrasesPerSession: SWEEP_PHRASE_COUNT,
       },
       settings,
+      ...(sevenths ? { notMeasurableYet: unmeasured } : {}),
     }
     const outPath = process.env.COST_OUT
     if (outPath !== undefined) writeFileSync(outPath, JSON.stringify(report, null, 2))
