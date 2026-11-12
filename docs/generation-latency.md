@@ -21,6 +21,9 @@ and what the figures cost the pitch search (M2) in
 [Embellishment figures: the cost guard](#embellishment-figures-the-cost-guard).
 v3.2's Jam sweep, session sweep and lock census (M1, M5, M2) are in
 [Jam and the rhythm lock (v3.2)](#jam-and-the-rhythm-lock-v32).
+How often harmony events take their seventh form (v3.3 M1) is in [Seventh chords](#seventh-chords),
+and what seventh chords cost the generator (v3.3 M2) in
+[Seventh chords: the cost guard](#seventh-chords-the-cost-guard).
 The newest whole-catalog generation figures are in
 [Validator-free fast enumeration on the reference machine (2026-09-30)](#validator-free-fast-enumeration-on-the-reference-machine-2026-09-30),
 after the [cold-generation speed-up](#cold-generation-speed-up-on-the-reference-machine-2026-09-30);
@@ -1223,6 +1226,138 @@ times differ, within the noise between the double's two runs: the slowest phrase
   are the hand checks' (item 31), on the owner's ruling.
 
 The owner rules at gate J240 whether Jam's tempo control widens to 240 BPM.
+
+## Seventh chords
+
+Measurement M1 of the [v3.3 build plan](../specs/versions/v3/build-plan-v3.3.md#m1--the-seventh-share):
+at each Seventh chords level, the share of harmony events in their seventh form and the share of
+phrases that fell back to triads, per mode (Major, Minor and the seven modes). A **harmony event**
+is one span of one chord, a chord held across a barline counting once; a **fallback** is a phrase
+whose winning plan is the triads-only variant of a plan that had at least one seventh drawn (spec
+D281). The share constants of the level's draw carry a comment pointing here.
+
+### Off baseline (v3.3 chunk 4)
+
+**Method.** `npm run measure:sevenths` runs `tests/sweep/seventh-census.measure.ts`: one standalone
+phrase for each of the deadline sweep's 568 cases (every supported rhythm setting with seeds 7 and
+13) in each of the nine modes, at 120 BPM, with the Neutral and then the Jazz defaults, at each
+level measured; 10,224 phrases per level. The census (`tests/sweep/seventh-census.ts`) reads each
+event's form from the winning plan (`HarmonyEvent.seventh`), and the plan's draw to tell a fallback;
+it counts phrases generated, not attempts. Until the generator reads the level (v3.3 chunk 12) and
+the session carries it (chunk 16), only Off can be measured: a level above Off is refused, never
+measured as Off (`tests/sweep/seventh-levels.ts`).
+
+**Machine and date.** Run by Claude on 2026-11-12, 10:29–10:31 CET (107 s), on branch
+`v3.3-c4-measurement-tools` cut from `v3.3-w2` at 9871e5f1 (wave 1 merged: the level is in the
+request and the harmony model, read by nothing yet), on the reference machine: AMD Ryzen 5 PRO
+8640HS (12 threads), 11 GiB RAM, not a VM, Node 22.23.4. The shares do not depend on the load.
+
+**Off: zero, the baseline.** 10,217 phrases generated of 10,224 (7 `search_limit_exceeded`: Neutral
+1, Jazz 6, the [figure census's v3.0 baseline](#embellishment-figures) phrase for phrase), 28,715
+harmony events, **0 in seventh form and 0 fallbacks** in every mode and both profiles:
+
+| Mode       | Phrases | Harmony events | Seventh form | Fallbacks |
+| ---------- | ------- | -------------- | ------------ | --------- |
+| Major      | 1,133   | 3,273          | 0            | 0         |
+| Minor      | 1,136   | 3,288          | 0            | 0         |
+| Ionian     | 1,135   | 3,131          | 0            | 0         |
+| Dorian     | 1,135   | 3,163          | 0            | 0         |
+| Phrygian   | 1,135   | 3,167          | 0            | 0         |
+| Lydian     | 1,136   | 3,142          | 0            | 0         |
+| Mixolydian | 1,136   | 3,194          | 0            | 0         |
+| Aeolian    | 1,136   | 3,188          | 0            | 0         |
+| Locrian    | 1,135   | 3,169          | 0            | 0         |
+| All modes  | 10,217  | 28,715         | 0            | 0         |
+
+Every generated plan was a serialized plan the census accepts (its events tile the phrase, no held
+chord split in two). To re-run: `SEVENTHS_OUT=<file.json> npm run measure:sevenths`;
+`SEVENTHS_LEVELS=off,sometimes,favored,stronglyFavored` once chunks 12 and 16 are in (chunk 18).
+
+## Seventh chords: the cost guard
+
+Measurement M2 of the [v3.3 build plan](../specs/versions/v3/build-plan-v3.3.md#m2--the-cost-guard)
+(master spec D10): whether seventh chords slow the generator or make it fail, the search allowance
+unchanged. Three runners carry the level as a dimension: the cost runner (`npm run measure:cost`,
+`COST_SETTINGS=sevenths`: D10's settings, Strongly favored with Speed drill first, then Off,
+Sometimes, Favored and Strongly favored with the Neutral and Jazz defaults, then Strongly favored
+with Bebop), the Jam sweep (`npm run measure:jam`, `JAM_LEVELS`) for a fresh Jam's phrase 1 at
+180 BPM, and the lock census (`npm run measure:lock`, `LOCK_LEVELS`) for locked bars. Each prints
+the level in its labels; the cost runner also prints, per setting, the share of the distinct
+intents' harmony events in their seventh form and of phrases fallen back to triads. Only Off can be
+measured until v3.3 chunks 12 and 16; the cost runner lists the settings it could not measure yet.
+
+### Off baseline (v3.3 chunk 4)
+
+**Machine and date.** Run by Claude on 2026-11-12 on branch `v3.3-c4-measurement-tools` at the
+same commit and on the same machine as the [census](#off-baseline-v33-chunk-4), one run at a time,
+nothing else of the project running (the desktop stayed open: 1-minute load average named per
+run). These are a baseline for comparison on the same machine; the owner runs the deciding runs.
+
+**The cost runner.** `COST_SETTINGS=sevenths npm run measure:cost`, 10:31–10:34 CET (159 s; load
+average 3.2 at the start, 2.1 at the end): the two settings measurable today, Neutral and Jazz at
+Off, against [v3.1's final run](#final-run-at-the-release-gate-v31-chunk-21) (v3.2 left the cost
+runner's figures there: with no lock and no steering block it generates v3.1's phrases).
+
+| Figure                                   | Neutral at Off               | Jazz at Off                  | v3.1 final run (Neutral / Jazz) |
+| ---------------------------------------- | ---------------------------- | ---------------------------- | ------------------------------- |
+| Phrases 2 to 6 generated, 60 and 120 BPM | 100.0 % (2,840 / 2,840)      | 99.96 % (2,839 / 2,840)      | the same                        |
+| Phrases 2 to 6 generated, 240 BPM        | 100.0 % (2,840 / 2,840)      | 100.0 % (2,840 / 2,840)      | the same                        |
+| Attempts succeeded, 60 and 120 / 240 BPM | 3,408 / 3,448; 3,408 / 3,439 | 3,407 / 3,452; 3,408 / 3,442 | the same                        |
+| Distinct intents (failed)                | 7,440 (69)                   | 7,450 (77)                   | the same                        |
+| Harmony events in seventh form           | 0 of 20,669                  | 0 of 20,684                  | —                               |
+| Phrases fallen back to triads            | 0 of 7,371                   | 0 of 7,373                   | —                               |
+| Slowest generation, distinct intents     | 1.701 s (a failure)          | 1.153 s (a failure)          | 1.702 s / 1.110 s               |
+| 95th percentile, distinct intents        | 0.026 s                      | 0.021 s                      | 0.022 s / 0.021 s               |
+| Slowest success                          | 0.659 s                      | 0.629 s                      | 0.463 s / 0.750 s               |
+| Fallback at 240 BPM, phrases 2 to 6      | 21.2 % (602 / 2,840)         | 21.0 % (596 / 2,840)         | the same                        |
+| Fallback at 240 BPM, phrases 3 to 6      | 1.5 % (34 / 2,272)           | 1.2 % (28 / 2,272)           | the same                        |
+| Missed deadlines (60 / 120 / 240 BPM)    | 0 / 0 / 0                    | 1 / 1 / 0                    | the same                        |
+
+Every count equals v3.1's final run, failures by code and by Tension value included (Jazz's missed
+deadline at 60 and 120 BPM is still case #542's phrase 5); only the wall times differ, within the
+noise of a desktop under some load. No setting at Off holds a seventh chord or a fallback.
+
+**A fresh Jam's phrase 1 at 180 BPM.** `JAM_MODE=jam JAM_LOCK=off JAM_LADDER=real JAM_TEMPOS=180
+npm run measure:jam`, 10:34–10:48 CET (852 s; load average 1.8 at the start, 1.6 at the end): the
+568 cases crossed with the 13 doodles (7,384 Jams per configuration), phrase 1 through the real
+ladder, warm and cold, at Off, against
+[chunk 33's 180 BPM rows](#m1-through-the-real-ladder-and-at-240-bpm-chunk-33-first-half):
+
+| Figure, warm (cold)                         | Off, this run                           | v3.2 chunk 33                     |
+| ------------------------------------------- | --------------------------------------- | --------------------------------- |
+| Phrase 1 ready by its deadline              | 100 % (7,384 / 7,384), no extended wait | the same                          |
+| Phrase 1 by rung: 1 / 2 / 3                 | 84.4 % (6,234) / 15.6 % (1,150) / 0     | the same                          |
+| Phrase 1 attempts: rung 1 / rung 2          | 6,249 / 1,150                           | the same                          |
+| Slowest phrase 1 attempt, rung 1            | 0.853 s (0.853 s)                       | 0.713 s (0.737 s)                 |
+| Phrases 2 to 8 standalone, slowest charged  | 732, 0.121 s                            | 732, 0.118 s                      |
+| Phrase 2 lost its join; repeats; shortfalls | 93; 0; 0                                | the same                          |
+| Attempts: p95 / slowest                     | 0.012 / 2.986 s (0.027 / 2.986 s)       | 0.011 / 2.690 s (0.027 / 2.690 s) |
+| Replays from `ifk4.` keys                   | 30 per configuration, all matched       | the same                          |
+
+Every count equals chunk 33's; only wall times moved (the slowest attempts by up to 0.3 s, a desktop
+under some load), none past the 1.075 s standalone reserve.
+
+**Locked bars.** `npm run measure:lock` (the sweep cases), 10:48–10:56 CET (492 s; the census
+charges every attempt the flat modelled cost, so the load moves no figure): 7,952 eight-phrase
+sessions with the lock on at Off, all completed, 381 distinct locked rhythms, 0 census mismatches,
+and every sampled phrase replayed from its `ifk4.` key matched (kept, changed, bend 5 of 5 each).
+Against [v3.2 chunk 34's sweep-cases table](#m2-the-lock-census-with-the-lock), Tension across
+phrases on (off in brackets):
+
+| Allowed list         | Kept, this run | Changed       | Forced bends | Bends one allowed change away | v3.2 chunk 34 |
+| -------------------- | -------------- | ------------- | ------------ | ----------------------------- | ------------- |
+| None (strict)        | 97.5 % (99.5)  | —             | 2.5 % (0.5)  | —                             | the same      |
+| Move a note start    | 78.9 % (82.2)  | 19.2 % (17.3) | 1.8 % (0.5)  | 24 (0)                        | the same      |
+| Move a rest          | 91.0 % (93.5)  | 6.6 % (6.1)   | 2.4 % (0.4)  | 1 (0)                         | the same      |
+| Split a note         | 87.8 % (90.4)  | 9.9 % (9.2)   | 2.4 % (0.4)  | 3 (1)                         | the same      |
+| Merge two notes      | 94.4 % (96.9)  | 3.1 % (2.6)   | 2.5 % (0.5)  | 0 (0)                         | the same      |
+| Add or remove a rest | 94.8 % (97.0)  | 2.7 % (2.4)   | 2.5 % (0.5)  | 0 (0)                         | the same      |
+| All five             | 64.9 % (69.6)  | 33.5 % (30.2) | 1.6 % (0.3)  | 28 (1)                        | the same      |
+
+The draw shares are v3.2's too (49.3–49.4 % normal, 75.5–75.6 % tenser with Tension across
+phrases on; 50.0–50.1 % off). **At Off the three runners give v3.2's figures**, which is what the
+baseline must show (master spec D10): every count equal, only wall times moving. The levels above
+Off are measured by chunk 18, the deciding runs on the reference machine by the owner.
 
 ## My instrument ranges (2026-10-11)
 

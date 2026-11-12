@@ -7,6 +7,10 @@
  * pitch must be resolved by the first attack. And a phrase generated with carry-in may end owing
  * a large leap's recovery or, when the levels allow a free scale note on its final note, a tense
  * note's resolution, that its own next phrase can settle.
+ *
+ * The join reads each chord as its triad: the tense ending is a scale tone outside the final
+ * chord's triad, a tense carried pitch resolves onto a triad tone, and a recovery owed across the
+ * join is never repaid on a chord tone outside the first chord's triad, its seventh.
  */
 
 import { allowsFreeFigure } from '../../figures/figure-levels'
@@ -18,6 +22,7 @@ import {
   tenseNoteCanSettle,
   type PhraseEndingDebtAllowance,
 } from '../../generation/carry-in/phrase-ending-debt'
+import { chordTones } from '../../harmony/harmony-types'
 import { collectionStep } from './phrase-facts'
 import type { PhraseFacts, PitchValidationFailure, SoundingFact } from './pitch-validation-types'
 
@@ -105,17 +110,19 @@ function levelsAllowFreeScaleNote(facts: PhraseFacts, attack: SoundingFact): boo
 
 /**
  * Intent: true when `attack` is the final note and a tense ending the phrase may owe: a scale
- * tone outside its chord, prepared by a step from the note before, that the next phrase's first
- * note can resolve inside the window, on a note where the levels allow a free scale note.
+ * tone outside its chord's triad (its seventh included), prepared by a step from the note before,
+ * that the next phrase's first note can resolve inside the window, on a note where the levels
+ * allow a free scale note.
  */
 // @spec-link [[rule_join_tense_note_resolution]]
 // @spec-link [[rule_open_phrase_ending]]
+// @spec-link [[rule_join_reads_carried_chord_as_triad]]
 export function isOwedTenseEnding(facts: PhraseFacts, attack: SoundingFact): boolean {
   const before = facts.attacks[attack.index - 1]
   return (
     endingAllowance(facts).tenseNote &&
     attack.index === facts.attacks.length - 1 &&
-    !attack.chordTone &&
+    !attack.triadTone &&
     attack.inCollection &&
     before !== undefined &&
     collectionStep(before, attack) &&
@@ -130,11 +137,12 @@ export function isOwedTenseEnding(facts: PhraseFacts, attack: SoundingFact): boo
 
 /**
  * Intent: a tense carried pitch (outside the carried chord) must be resolved by the first attack:
- * a step onto a tone of the chord sounding there. Reported at attack 0 otherwise. A carry-in whose
- * harmony was dropped carries no tense pitch, so nothing is owed.
+ * a step onto a triad tone of the chord sounding there, never onto its seventh. Reported at attack
+ * 0 otherwise. A carry-in whose harmony was dropped carries no tense pitch, so nothing is owed.
  */
 // @spec-link [[rule_join_tense_note_resolution]]
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
+// @spec-link [[rule_join_reads_carried_chord_as_triad]]
 export function carriedTensionFailures(facts: PhraseFacts): readonly PitchValidationFailure[] {
   const carryIn = facts.context.request.carryIn
   const first = facts.attacks[0]
@@ -147,4 +155,20 @@ export function carriedTensionFailures(facts: PhraseFacts): readonly PitchValida
     facts.collectionPitchClasses,
   )
   return resolved ? [] : [{ code: 'carried_tension_unresolved', attackIndex: 0 }]
+}
+
+/**
+ * Intent: a recovery the carried pitch owes is never repaid on a chord tone outside the first
+ * chord's triad, its seventh: reported at attack 0. The recovery's own interval rule is unchanged,
+ * so any other note 1 to 4 semitones back repays it, a figure's decorating note included, and a
+ * first note that owes nothing may be the seventh.
+ */
+// @spec-link [[rule_join_reads_carried_chord_as_triad]]
+// @spec-link [[rule_join_inherits_leap_recovery]]
+export function carriedRecoveryFailures(facts: PhraseFacts): readonly PitchValidationFailure[] {
+  const first = facts.attacks[0]
+  if (first === undefined || joinLead(facts)?.owedLeapDirection === undefined) return []
+  const onSeventh =
+    !first.triadTone && (chordTones(first.harmony) as readonly number[]).includes(first.pitchClass)
+  return onSeventh ? [{ code: 'carried_recovery_on_seventh', attackIndex: 0 }] : []
 }

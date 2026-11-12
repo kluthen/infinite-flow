@@ -108,7 +108,17 @@ export interface PitchAttack {
   /** Absolute phrase ticks of the sounding span; `end` includes tie continuations. */
   readonly start: number
   readonly end: number
+  /**
+   * The chord tones of the harmony event sounding at `start`: its triad's three, then its seventh
+   * when the event is in seventh form. Everything inside the phrase reads them.
+   */
   readonly chordPitchClasses: readonly number[]
+  /**
+   * The event's triad alone; equal to `chordPitchClasses` in triad form. The phrase's ends read
+   * it: the final attack's open endpoints, tense endings and note facts, and the first attack's
+   * landing after a tense carried pitch.
+   */
+  readonly triadPitchClasses: readonly number[]
   /** Index of the harmony event sounding at `start`, found by absolute beat. */
   readonly harmonyIndex: number
   readonly harmonyIdentity: string

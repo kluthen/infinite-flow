@@ -401,6 +401,7 @@ describe.each(REAL_CASES.map((sweepCase) => [sweepCase.rhythm.noteDensity, sweep
         lock,
         domain: 'warm',
         steering: false,
+        level: 'off',
       })
       tally.add(record, 0)
       const figures = tally.figures().lockCensus!

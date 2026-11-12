@@ -2,7 +2,7 @@ import { deepFreeze } from '../../events/deep-freeze'
 import type { PitchPhrase } from '../pitch-types'
 import { contourFailures, endpointFailures } from './contour-endpoint-rules'
 import { figureFailures } from './figure-rules'
-import { carriedTensionFailures } from './join-rules'
+import { carriedRecoveryFailures, carriedTensionFailures } from './join-rules'
 import { motionFailures } from './motion-rules'
 import { reconstructPhraseFacts, soundingSpans } from './phrase-facts'
 import {
@@ -60,6 +60,7 @@ export function validatePitchMidis(
     ...rangeFailures(facts),
     ...figureFailures(facts),
     ...carriedTensionFailures(facts),
+    ...carriedRecoveryFailures(facts),
     ...motionFailures(facts),
     ...contourFailures(facts),
     ...endpointFailures(facts),

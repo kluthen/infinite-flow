@@ -226,3 +226,216 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
 - The owner, 2026-11-10: "Merge and push"; the four promotions "Promote all four": applied in
   d2519a7d (each REVIEW at 0.1). Next: wave 2 (chunks 4, 5, 6, 7, 9) in a fresh session; wave 1's
   row in the waves table is set to merged by wave 2's start.
+
+## Wave 2
+
+### Wave 2 start (2026-11-12)
+
+- Wave 1 merged into `main` 24e509fb and pushed. Branch `v3.3-w2` cut from it, worktree
+  `/home/bastien/work/infinite_flow-v3.3-w2`. Chunks 4, 5, 6, 7, 9; κ = 1; order 4, 5, 6, 7, 9
+  (7 after 5 and 6). Wordings wave 2's sync applies: A1, A2 (CONTRACT 16.0.0), with chunks 5, 6
+  and 9.
+
+### Wave 2 preflight (2026-11-12)
+
+- `documentalist`'s wave preflight (c359201d): every chunk **PROCEED** (4, 5, 7 and 9 with notes).
+  Captures: `module_pitch_search_context` 0.4 (chunk 5: each attack's `chordPitchClasses` is
+  `chordTones(event)`, beside a new `triadPitchClasses`; the open endpoints, the tense endings and
+  the landing after a tense carried pitch read the triad) and `module_pitch_domain_validation` 1.2
+  (chunk 6: a chord-tone fact and a triad-tone fact per note). Both stay at REVIEW.
+- Wordings wave 2's sync applies: A1 (`req_session_backing_track`, with chunk 9) and A2
+  (`rule_open_phrase_ending`, first option, with chunks 5 **and** 6), CONTRACT 16.0.0. If chunk 5 or
+  6 leaves the wave, A2 moves with it; if chunk 9 leaves, A1 moves alone. Drift expected at the
+  sync: `module_pitch_search_transition`'s "onto a chord tone" becomes "a triad tone".
+- Plan corrections sent to `spec-writer` before the first chunk: plan v12 (b858f28c), spec D529.
+  Chunk 5's Files gain the hand-built `PitchAttack` fixtures, its split rule's files corrected (about
+  four source files), the tense ending reads "outside the triad" and handles the seventh as both a
+  chord-tone and a tense candidate; chunk 5's Revisions gain `rule_figure_level_orders_search` and
+  `rule_jam_melody_follows_doodle_moves`, and **`rule_doodle_only_orders_candidates` moves to chunk
+  23 (D529)**, the owner told, not asked; chunk 7's only source change is `finalMotionState` in
+  `carry-in-derivation.ts`; chunk 9's export test is `generated-notes-file.spec.ts`; chunk 4 names
+  the census's four files. For `documentalist` at the sync: part E's
+  `rule_doodle_only_orders_candidates` row reads chunk 23.
+
+### Chunk 4 merged (2026-11-12)
+
+- fe934cc9 (ad063119): the seventh census (`measure:sevenths`), the level as a dimension of the
+  cost runner (`COST_SETTINGS=sevenths`, §D10's settings in order, those not yet measurable printed
+  as such), the Jam sweep (`JAM_LEVELS`) and the lock census (`LOCK_LEVELS`), and the ending renders
+  (`render:seventh-endings`, refusing what D280 forbids). No deviation; plumbing beyond the Files
+  line: `tests/sweep/seventh-levels.ts`, `SweepCase.seventhLevel`, the ATD exemption list.
+- Off baselines, reference machine, one run at a time (load up to 4.7; wall times only moved):
+  census 10,217 of 10,224 phrases (7 `search_limit_exceeded`, as v3.0's figure census), 28,715
+  events, 0 in seventh form, 0 fallbacks; the cost runner equal to v3.1's final run count for count
+  (v3.2 never re-ran it); Jam at 180 BPM equal to v3.2 chunk 33's rows (7,384 Jams, phrase 1 by its
+  deadline 100 %); the lock census equal to v3.2 chunk 34's sweep-cases table (7,952 sessions).
+  Logs: the session scratchpad (`m1-sevenths-off`, `m2-cost-off`, `m2-jam-off`, `m2-lock-off`).
+- The renders were checked by the repo's MIDI reader, not heard (no player here; heard at H1). Until
+  chunk 9 they play the backing's triads under the hand-set seventh chords.
+- For `spec-writer` (chunks 12, 16, 18): `drawnSeventhsOf` in `seventh-census.ts` gives way to chunk
+  12's draw; `caseSettings`' refusal above Off gives way to the session level (chunk 16), and Jam's
+  `jamPhraseOneIntent` takes the level (16, 23); chunk 18 opens `MEASURABLE_SEVENTH_LEVELS` to all
+  four. §D10's "Strongly favored with Bebop in every mode" can only run Bebop in Major (Bebop is
+  restricted to Major).
+
+### Chunk 5 merged (2026-11-12)
+
+- eae28948 (7b89fa89; C1: spec D526): each attack's chord tones (`chordTones`) and triad; under a
+  seventh chord the seventh is tried with the chord tones, the decorating notes are three, figures
+  may resolve onto it, Arpeggio chaos orders four, Tension's scheduled figure may land on it, a
+  doodle's move never lifts a decorating note above it. The open endpoints, the tense ending and the
+  landing after a tense carried pitch read the triad. The seventh, offered twice on a joined
+  phrase's final attack (chord tone and tense ending), ends it only as a tense note: the final check
+  reads the candidate (`mayEndPhrase`), and the final note's chord-tone fact reads the triad (so it
+  is prepared and owed). `pitch-ranking.ts` and `pitch-figures.ts` unchanged. Corpus guard green
+  (36 files, 709 tests). `chromatic-figure-selection.spec.ts`'s plan hash leaves out the new field
+  (pins unchanged, notes unchanged).
+- **Open point, sent to `spec-writer`:** §D6.3 says "a leap recovery or a tense note owed across
+  the join still settles on a note of the tonic triad"; the capture names only the tense note, and
+  the search has never required a recovery landing to be a chord tone (1 to 4 semitones back). A
+  recovery owed across a join may now land on the first chord's seventh. Chunk 6 waits for the
+  ruling (it mirrors the search); chunk 9 goes ahead of it.
+- For chunk 6: mirror the final attack's seventh as a tense note judged against the triad, and the
+  final candidate as a tense ending or an open endpoint.
+- For the sync: links placed on `noteFacts`, `leavesCarriedTensionUnresolved`, `mayEndPhrase`,
+  `endsPhrase` and the two new specs; `pitch-candidates.ts` is at the ten-atom limit. Drift:
+  `module_pitch_search_transition` (the final check is per candidate; "onto a chord tone" becomes
+  "a triad tone"; the final note's fact reads the triad); `module_pitch_search_context` 0.4 does not
+  yet name the final note's triad fact or `mayEndPhrase`.
+
+### Spec D530 (2026-11-12)
+
+- `spec-writer` (fb4e4192): plan v13, Part D v1.4, spec D530, O310. §D6.3's "a leap recovery …
+  owed across the join still settles on a note of the tonic triad" overstated the code (v3.2 lets a
+  recovery land on any note 1 to 4 semitones back, decorating notes included; the tonic triad
+  holds only on the ending side, `owedRecoveryCanSettle`). Ruling: a recovery owed across a join is
+  never repaid on the first chord's seventh; any other landing as in v3.2; a first note owing
+  nothing may be the seventh. Nothing changes at Off. No STABLE wording touched
+  (`rule_join_reads_carried_chord_as_triad`, at REVIEW, is revised at the sync); the owner told,
+  not asked.
+- What it adds: a **chunk 5 addendum**, a fix on the wave branch in its own commit before chunk 6
+  (`pitch-advance.ts`, one test); chunk 6's validator mirror (`join-rules.ts`); chunk 21 lifts both
+  landings if L1 approves. O310 (the ending side keeps reading the triad) is needed only before
+  chunk 21.
+- `documentalist` peek over the addendum's files, extending the captures
+  `module_pitch_search_context` and `module_pitch_domain_validation`: running.
+
+### Chunk 9 merged (2026-11-12)
+
+- 75274107 (660ef0af; C1: spec D526): each attack carries `chordTones`; the chord is voiced in the
+  highest close position with its top at or below E4, four arrangements for a seventh chord, three
+  for a triad (unchanged); a seventh that is not stacked on its triad (interval, quality) throws.
+  The bass reads the triad. 48 chords checked against a separate expectation (top ≤ E4, lowest ≥
+  D3); a backing-included MIDI export of a seventh-form session holds the renderer's four notes;
+  the Rhythm guide's roots unchanged. Corpus guard green (19 files, 517 tests), the MIDI golden
+  unchanged. Debug run: the ending renders now play G7 as 53 55 59 62 over a bass of 43. No
+  deviation.
+- For the sync: A1 (`req_session_backing_track` 0.2 → 0.3), revise
+  `rule_generated_notes_midi_export`; new test links to `req_session_backing_track`,
+  `rule_generated_notes_midi_export`, `rule_rhythm_guide_notes`. `docs/audio-transport.md` near
+  line 478 records v3.0 chunk 11's choices ("top note between F3 and E4"), history left as is.
+
+### Chunk 5 addendum merged (2026-11-12)
+
+- `documentalist`'s peek (b77db3be): PROCEED; captures extended, `module_pitch_search_context`
+  0.5 (the recovery's landing, the final note's triad fact, `mayEndPhrase`) and
+  `module_pitch_domain_validation` 1.3 (chunk 6's mirror). For the sync: revise
+  `rule_join_reads_carried_chord_as_triad`'s recovery sentence (the addendum's Revisions) and give
+  `rule_join_inherits_leap_recovery` §D12's D530 clause (chunk 7's revision; if chunk 7 leaves the
+  wave, the addendum's line must carry it); `module_pitch_search_transition` drift as listed.
+- f77acbc7 (1a2a68b2; spec D530): `repaysCarriedRecoveryOnSeventh` in `pitch-advance.ts` refuses
+  the first chord's seventh as the first note when the carry-in owes a recovery, reason
+  `carried_recovery_on_seventh`; any other note 1 to 4 semitones back still repays it (a
+  chromatic approach included), and a first note owing nothing may be the seventh. Corpus guard
+  green (68 files, 1,221 tests). Nothing changes at Off.
+- Consequence for chunk 18 and `spec-writer` (no action now): above Off, some joins have no first
+  note left. At Neutral levels the first attack offers chord tones only, so when the seventh is the
+  only one 1 to 4 semitones back (D Dorian, A3 owing a move up under Dm7; C major, C4 owing a move
+  down under Cmaj7), the join fails and the ladder gives a standalone phrase. The carry-in loss
+  above Off may rise a little; the joins section's "Known limit" note may want the case.
+- `main` gained 0dae7070 (ux D484, not from this wave) while the wave ran; `doc-ids compare`
+  checks it before the merge.
+
+### Chunk 6 merged (2026-11-12)
+
+- aa114496 (52ea7ede; C1: spec D526; D530): each note's chord-tone fact from `chordTones` (the
+  final note's from the triad, as the search's `noteFacts`) and a triad-tone fact beside it; the
+  endpoint and the tense ending read the triad; `carriedRecoveryFailures` refuses an owed recovery
+  repaid on the first chord's seventh (`carried_recovery_on_seventh`); `figure-rules.ts`' false
+  premise rewritten in its comment (the logic already bit). Named tests accept and refuse exactly
+  the Done-when list; corpus guard green (18 files, 505 tests). Debug run (temporary spec): 1,056
+  phrases the search wrote over seventh plans, 976 holding a seventh, none refused by the new
+  validator (944 by the old); none ended on the seventh, so that path rests on the hand-written
+  tests until chunk 12's property test. No deviation.
+- For the sync: `module_pitch_domain_validation` 1.3's text and interface add "except the final
+  note's, which reads the triad"; new links on `reconstructPhraseFacts`, `isOwedTenseEnding`,
+  `carriedTensionFailures`, `carriedRecoveryFailures` and the two specs; revisions of
+  `rule_figures_resolve_onto_chord_tones` and `rule_levels_govern_free_figures_only`.
+
+### Chunk 7 merged (2026-11-12)
+
+- 24b7bf6e (d3ef2aa7): `finalMotionState` (`carry-in-derivation.ts`) reads each note's chord-tone
+  fact from `chordTones` inside the phrase and from the triad on the final note, as the search's
+  `noteFacts` and the validator's `reconstructPhraseFacts`; E–G–B over Cmaj7 and B–D–F over G7 are
+  runs in the search and the validator, C–E–G–B and E–G–B–D one way never pass; deferral at
+  Leaping and Angular only (exhaustive property over the seventh chords of C major, A minor, D
+  Dorian); a run through the seventh with a deferred recovery derives its carry-in as the search
+  wrote it (red before: `CarryInError`). Corpus guard green (18 files, 495 tests). No deviation.
+- For the sync: revisions of `rule_leapiness_arpeggio_run_limits` and
+  `rule_join_inherits_leap_recovery` (with D530's clause); links on `finalMotionState` and the new
+  specs; no drift seen in `rule_leap_recovery`, `module_pitch_search_transition`,
+  `module_pitch_domain_validation`.
+
+### Wave 2 gate (2026-11-12, on 47b2656d)
+
+Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
+
+- Run 1, 12:12–12:13 (load 1.5): red at `lint:health`, 2 errors: nesting depth in
+  `pitch-motion.spec.ts:449` (chunk 7's property) and 11 atoms in `figure-rules.spec.ts` (chunk 6).
+  Fix 47b2656d (tests only, cases and assertions unchanged): the loops into two helpers; chunk 6's
+  two describe blocks, with their links, moved to `validation/seventh-chord-tones.spec.ts`.
+- Run 2, 12:15–12:26 (load 1.0 → 12.9): all green. Format, lint, links, `lint:health` (0 errors),
+  unit 9,865 tests in 631 files, typecheck and build, boundaries, e2e 726 + 1 skipped twice
+  (pre-generation off, on), a11y 76, notation 107 + 4 skipped, `atd:lint`, `atd:check`. No flake.
+- Sweep, 12:28–12:30 (load 2.3 → 1.5): 122 tests in 11 files (wave 1's 114 plus chunk 4's census
+  spec, 8). Every `SWEEP-` line identical to wave 1's: at Off, v3.2's figures (240 BPM 568 cases,
+  phrase 2 by carry-in 100.0 %, 0 refused, 0 shortfalls, 0 repeats, 0 undecided; carry-in lost to
+  the time rule at 240 BPM in every case, none at 60 and 120 BPM).
+- **Entry chunk 313,896 B** (+783 B on wave 1's 313,113 B; budget 327,680 B), likely the backing
+  renderer; Jam's chunk 61,209 B (−2 B); no `src/jam/` module in the first load; 526 source files,
+  66 chunks.
+- Deferred, not checked here: H4's DAW half (chunk 13), the balance by ear (H2), the renders by ear
+  (H1); the final-note-on-the-seventh path rests on hand-written tests until chunk 12.
+
+### Wave 2 sync and report (2026-11-12)
+
+- `documentalist`'s wave sync (4e56f43a): **CONTRACT 16.0.0**; C1 A1 (`req_session_backing_track`
+  0.3) and A2 (`rule_open_phrase_ending` 0.5, first option), applied with `--force` on the owner's
+  confirmation (spec D526); every merged chunk's Revisions applied, the addendum's
+  (`rule_join_reads_carried_chord_as_triad` 0.2) and D530's clause in
+  `rule_join_inherits_leap_recovery` 0.4 included; part E's rows for D529 and D530 updated. Drift
+  fixed as named: `module_pitch_search_transition` 0.4, `module_pitch_domain_validation` 1.4. No
+  status changed; every link the chunks placed sits above its function or test.
+- Promotion candidates put to the owner (DRAFT → REVIEW): `rule_seventh_is_chord_tone`,
+  `rule_extensions_never_chord_tones` (built in the search, the validator and the runs; no
+  generated seventh before chunk 12).
+- `spec-writer`, plan v14 (7c8cc72e), spec D531: chunk 4's hand-offs placed on chunks 12, 16, 18
+  and 23 (chunk 18 now depends on 16); chunk 12's census-at-Strongly-favored dropped (not
+  measurable before 18) and its property test now searches with a carry-in and must hold phrases
+  ending on the seventh as a tense note; chunk 18 records join loss by cause per level and tempo
+  and counts joins lost because the seventh was the only first note; above Off, Jam's phrase 1 is
+  measured through the ladder's double until chunk 23 (D531); M2's Bebop row runs in the modes
+  its preset allows (Major); chunk 21 moves the three fact readers (`noteFacts`,
+  `reconstructPhraseFacts`, `finalMotionState`) together and depends on 7. The addendum's warning
+  about joins lost to D530 looks unfounded on the code (a phrase may end owing a recovery only when
+  a tonic-triad note lies 1 to 4 semitones back, and every template opens on the tonic chord);
+  chunk 18's count settles it. §D10's "every mode" left as is (a spec edit would need a decision).
+- `doc-ids compare main v3.3-w2`: 0 collisions (`main` holds 0dae7070, ux D484).
+- Report to the owner: chunks 4, 5 (with the D530 addendum), 6, 7 and 9 merged, none moved; the
+  gate green on 47b2656d with no flake; sweep at v3.2's figures; entry 313,896 B (+783 B); CONTRACT
+  16.0.0; D529, D530, D531 told. Merge into `main` on the owner's word.
+- The owner, 2026-11-12: "Merge and push"; the two promotions "Promote both": applied in acfff0bf
+  (each REVIEW at 0.1). Branch `v3.3-plan-refs` (609fdf32, the plan's design citations named
+  exactly for `doc-get`, cut from this branch at 50b41aa5) merged into the wave first, as plan v15;
+  `doc-get lint plan`: 0 unresolved references. Next: wave 3 (chunks 12, 15, 16) in a fresh
+  session; its sync applies A3, A4 and A8's Idle-state sentences (CONTRACT 17.0.0).

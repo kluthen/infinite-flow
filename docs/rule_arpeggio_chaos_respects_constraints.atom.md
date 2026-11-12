@@ -1,7 +1,7 @@
 ---
 id: rule_arpeggio_chaos_respects_constraints
 status: REVIEW
-version: 0.1
+version: 0.2
 priority: 2
 tags: [arpeggio, control, constraints, changes-in-v3.3]
 parents:
@@ -18,7 +18,7 @@ type: RULE
 Constrain arpeggio chaos to variations that preserve phrase safety and musical direction.
 
 ## THE RULE / LOGIC
-Arpeggio chaos ranges from predictable nearby chord-tone order to reordered chord tones with stronger interval contrast. It cannot select pitches outside the selected profile or bypass contour, range, or resolution constraints.
+Arpeggio chaos ranges from predictable nearby chord-tone order to reordered chord tones with stronger interval contrast. Under a chord played as a seventh chord it orders the four chord tones, the seventh included. It cannot select pitches outside the selected profile or bypass contour, range, or resolution constraints.
 
 ## TECHNICAL INTERFACE
 The arpeggio-chaos control influences chord-tone ordering and interval contrast during generation.

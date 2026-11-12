@@ -145,6 +145,7 @@ export function handAttack(overrides: Partial<PitchAttack> = {}): PitchAttack {
     start: 4,
     end: 8,
     chordPitchClasses: [0, 4, 7],
+    triadPitchClasses: [0, 4, 7],
     harmonyIndex: 0,
     harmonyIdentity: 'fixture/0/0',
     isCheckpoint: false,

@@ -69,6 +69,32 @@ A level above As today changes only the order in which the search tries candidat
 - **The order.** Where a named figure is drawn, its candidates go first, before the chord tones even on beat 1: a free diatonic tone held to that figure's resolution (a drawn passing tone must go on by step in the same direction, a drawn neighbor tone must step back), then tried again unheld in its usual place; a chromatic figure's first note simply moves ahead. Several drawn figures go higher level first, then by a tie key seeded over the candidate and the figure. While a figure path is in progress no draw is made. Where nothing is drawn the order is v3.0's.
 - **Never a quota.** A favored entry that dead-ends is backed out of like any other. Since the dead-state key holds the held resolution, a held entry's dead end never prunes the unheld tone, so wherever the search found a phrase before it still finds one, fuel allowing, though not always the same one; nothing rejects or retries a phrase for lacking a figure.
 
+### Seventh chords in the pitch search (v3.3)
+
+A harmony event may take its seventh form (`HarmonyEvent.seventh`; [master spec §D6](../../specs/versions/v3/master-spec.md#d6-what-a-seventh-chord-means-for-the-melody)). Each attack
+then holds two chord facts (`PitchAttack` in `src/domain/pitch/pitch-types.ts`): its **chord
+tones** (`chordPitchClasses`, the event's `chordTones`: root, third, fifth, then the seventh) and
+its **triad tones** (`triadPitchClasses`). Over a triad event the two are equal, so a phrase with no
+seventh-form event is searched exactly as before ([§D6.1](../../specs/versions/v3/master-spec.md#d61-the-seventh-is-a-chord-tone),
+[§D6.3](../../specs/versions/v3/master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check)).
+
+- **Inside the phrase the seventh is a chord tone.** It is tried with the chord tones, before every
+  decorating note; the decorating notes are the collection outside the chord tones, so a seventh
+  chord leaves three (over Cmaj7: D, F and A). Every figure, free or scheduled by Tension, may
+  resolve onto it, Arpeggio chaos orders it with the three others, a run may hold it, and a Jam's
+  doodle orders it within the first rank. Between the seventh and the root, one scale step apart,
+  no passing tone, neighbor tone or diatonic enclosure fits. The ninth, eleventh and thirteenth
+  stay decorating notes; they are never chord tones.
+- **The phrase's ends read the triad** (the first option of [§D12](../../specs/versions/v3/master-spec.md#d12-contract-changes-needing-owner-confirmation)). The final note's open endpoints
+  are triad tones (`isOpenEndpointMidi`), so a phrase generated without a join never ends on its
+  final chord's seventh. With carry-in, a tense ending is a scale tone outside the final chord's
+  triad, so the seventh may end a joined phrase, as a tense note the next phrase resolves. The
+  seventh is then offered on the final attack both as a chord tone and as that tense ending; the
+  final check reads the candidate, not only its MIDI value (`mayEndPhrase`), and the final note's
+  chord-tone fact reads the triad, so the seventh ends a phrase only as the tense note, prepared by
+  a step and owing its resolution. The first note after a tense carried note resolves it by a
+  step onto a triad tone of the tonic chord, never onto its seventh.
+
 ## Contour checkpoints
 
 Choose each bar's checkpoint as its first fresh attack on beat 1 or beat 3; if both qualify, use beat 1. A bar whose metrical anchor is only a tie continuation has no such attack; its checkpoint is then the bar's first fresh attack. Every generated bar has at least one attack, and the phrase's first attack is on bar 1, beat 1, so every bar has exactly one checkpoint. Compare checkpoint MIDI values, not every decorative note.
@@ -89,6 +115,8 @@ Measure adjacent sounding-note intervals in semitones; rests do not interrupt ad
 **Arpeggio run.** A recognized run is exactly three consecutive sounding notes that are all chord tones of one unchanged harmony, connected by two same-direction intervals of `3` or more semitones. A single interval between two chord tones is ordinary motion governed only by the cap and leap budget: it is never counted as a run and never consumes run budget. Two consecutive same-direction intervals of `3` or more semitones are legal only as a recognized run; otherwise that second interval is invalid. A third consecutive same-direction interval of `3` or more semitones is always invalid, because runs have at most three notes. Chromatic ornaments and non-chord tones cannot join a run.
 
 **Deferral.** Where the level permits deferral, a large leap inside a recognized run makes its debt due on the note after the run's final note instead of on the next note. Several large leaps in one run make one debt. Where deferral is not permitted, a large leap must recover on the next note, so a run cannot contain one.
+
+**Runs over a seventh chord (v3.3).** Inside the phrase a note's chord-tone fact holds the seventh of a seventh-form event ([seventh chords in the pitch search](#seventh-chords-in-the-pitch-search-v33)), so a recognized run may pass through it: E–G–B over Cmaj7 and B–D–F over G7 are runs, and a large leap inside one defers its recovery at Leaping and Angular as over a triad. A run still has exactly three notes: C–E–G–B over Cmaj7 or E–G–B–D over Em7 in one direction is refused (`wide_chain_too_long`), as C–E–G–C is. The final note's chord-tone fact reads the triad, so no run is recognized through the final chord's seventh. The carry-in derivation replays a phrase's motion with the same facts (`finalMotionState` in `src/domain/generation/carry-in/carry-in-derivation.ts`: chord tones inside the phrase, the triad on the final note), so a phrase ending on a run through the seventh with a deferred recovery hands forward the recovery the search left owing.
 
 | Level   | Recognized runs                                                                                | Large-leap recovery                               |
 | ------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------- |
@@ -170,6 +198,7 @@ The pitch-phrase validator applies these readings, and the planner must match th
 - Appoggiaturas and two-note approaches are legal only as the bound tension figure. An appoggiatura is entered by a jump of three or more semitones.
 - The leap count includes large leaps. Recovery debt applies only as described under [leap, recovery, and arpeggio state](#leap-recovery-and-arpeggio-state).
 - Harmony is located by absolute beat. A sounding attack that no harmony event covers is a planner defect, not a validation failure.
+- Over a seventh chord (v3.3) the validator reads the two chord facts the search reads (`reconstructPhraseFacts` in `src/domain/pitch/validation/phrase-facts.ts`; see [seventh chords in the pitch search](#seventh-chords-in-the-pitch-search-v33)). Each note's chord-tone fact holds the seventh, except the final note's, which reads the triad; its triad-tone fact reads the triad alone. So figures resolve onto the seventh, runs hold it and it is never an unexplained note inside the phrase, while the open endpoint, the tense ending and the first note's landing after a tense carried note read the triad. A bound figure's last decorating note must lie outside the chord tones, so none fits between the seventh and the root. When the carried pitch owes a leap recovery, a first note on the first chord's seventh fails as `carried_recovery_on_seventh` at attack 0; any other note 1 to 4 semitones back repays it. The ninth, eleventh and thirteenth are never chord tones.
 
 Tests should include boundary MIDI values for all adopted windows, every collection/profile/contour/leapiness combination in representative seed matrices, and regression seeds for every discovered failure. Include Varying fixtures for every successful-window subset, no-success, and search-limit indeterminacy. Statistical musical quality is not an invariant: evaluate template weights, candidate variety, and control perceptibility in listening tests.
 
@@ -197,8 +226,8 @@ request and seed, and owes nothing at its end.
   triad does, and the carried final note is read against that triad, so a final note on the
   seventh is a tense note the next phrase resolves (`rule_join_reads_carried_chord_as_triad`).
 - **A phrase generated with carry-in may end owing** (owner's decision): the recovery of a large
-  leap into its final note, or a tense final note (a scale tone outside the final chord, reached
-  by a collection step). It may end owing only what the next phrase can settle inside the carried
+  leap into its final note, or a tense final note (a scale tone outside the final chord's triad,
+  reached by a collection step). It may end owing only what the next phrase can settle inside the carried
   window: a tone of the tonic triad 1-4 semitones back against the leap, or a tonic-triad tone one
   collection step from the tense note. When it ends on a tense note, that note replaces the open
   endpoint chord tone; the phrase still never closes on the tonic. Since v3.1 (D368) the tense
@@ -216,8 +245,10 @@ request and seed, and owes nothing at its end.
   phrase, not a joined one. It is rare at the default settings and common in the High and Low
   registers. The fixes are deferred past v3.2; the floor case is accepted as designed.
 - **The next phrase settles the debt on its first note, never later.** An owed recovery is repaid
-  by the first interval (opposite direction, 1-4 semitones). A tense carried note is resolved by
-  the first note: a collection step onto a tone of the first chord.
+  by the first interval (opposite direction, 1-4 semitones), onto any note the first attack offers
+  except the tonic chord's seventh (v3.3); a first note that owes nothing may be the seventh. A
+  tense carried note is resolved by the first note: a collection step onto a tone of the first
+  chord's triad (v3.3: never onto the tonic chord's seventh).
 - **A join made without carry-in settles nothing.** The standalone phrase and a repeated phrase
   are not held to any of these rules, and a debt the phrase before left owing is simply dropped.
 

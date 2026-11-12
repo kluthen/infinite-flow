@@ -32,10 +32,11 @@ export const ATD_ERROR_DISTINCT = 10
  *   tooling (`tests/unit/code-health/`) and the perf measurement harness run by `measure:latency`
  *   (`tests/perf/`).
  * - `files`: the measurement harnesses run by the other `measure:*` npm scripts and by
- *   `sweep:my-instrument` (see package.json), the figure census's own test run by
- *   `measure:figures` (measurement tooling), and the design-system accessibility conformance checks (focus visibility,
- *   reduced motion, target size), which no business atom governs, and the test of the build
- *   commit id the header shows (build tooling).
+ *   `sweep:my-instrument` (see package.json), the figure and seventh censuses' own tests run by
+ *   `measure:figures` and `measure:sevenths` (measurement tooling), and the design-system accessibility conformance checks (focus visibility,
+ *   reduced motion, target size), which no business atom governs, the test of the build
+ *   commit id the header shows (build tooling), and the tests of the rhythm and seventh-ending
+ *   renders (hand-check tooling).
  * - `plumbingUnder`: test plumbing, i.e. every file under these directories that is not a spec
  *   (its name holds neither `.spec.` nor `.test.`): fixtures, fakes, shared helpers, goldens,
  *   harness entry points and seams, `.d.ts` window typings. The specs there test business
@@ -52,6 +53,7 @@ export const ATD_EXEMPT_PATHS = {
     'tests/e2e/session/rolling-display-timing.spec.ts',
     'tests/sweep-my-instrument/my-instrument-range-sweep.spec.ts',
     'tests/sweep/figure-census.spec.ts',
+    'tests/sweep/seventh-census.spec.ts',
     'tests/sweep/lock-census.spec.ts',
     'tests/sweep/lock-census-seeds.spec.ts',
     'tests/sweep/lock-census-runner.spec.ts',
@@ -62,6 +64,7 @@ export const ATD_EXEMPT_PATHS = {
     'tests/e2e/workspace/target-size.spec.ts',
     'tests/unit/scripts/build-commit.spec.ts',
     'tests/unit/scripts/render-rhythm-examples.spec.ts',
+    'tests/unit/scripts/render-seventh-endings.spec.ts',
   ],
   plumbingUnder: ['tests/'],
 }

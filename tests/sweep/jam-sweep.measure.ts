@@ -19,7 +19,7 @@
  *
  * Env: `JAM_OUT` writes the full figures JSON (with the machine, the date and the run duration)
  * to that path; the other choices are read by jam-sweep-population.ts (`JAM_LIMIT`, `JAM_MODE`,
- * `JAM_TEMPOS`, `JAM_DOMAIN`, `JAM_LOCK`, `JAM_LADDER`, `JAM_DOODLES`).
+ * `JAM_TEMPOS`, `JAM_DOMAIN`, `JAM_LOCK`, `JAM_LADDER`, `JAM_DOODLES`, `JAM_LEVELS`).
  */
 
 import { writeFileSync } from 'node:fs'
@@ -91,6 +91,7 @@ describe('Jam sweep runner (M1, M5)', () => {
         phraseCount: { jam: JAM_PHRASE_COUNT, session: SESSION_PHRASE_COUNT },
         doodles: doodleNames,
         ladder: choices.ladder,
+        seventhLevels: choices.levels,
         note: populationNote(choices.ladder),
       },
       configurations: figures.map((configuration, index) => ({

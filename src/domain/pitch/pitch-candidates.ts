@@ -125,12 +125,20 @@ function tight(group: readonly PitchAttack[]): boolean {
   )
 }
 
-/** Diatonic non-chord MIDI values at an attack. */
+/** Playable collection MIDI values outside the given pitch classes. */
+function diatonicOutside(facts: DomainFacts, pitchClasses: readonly number[]): readonly number[] {
+  return facts.playable.filter(
+    (midi) => facts.collection.includes(pc(midi)) && !pitchClasses.includes(pc(midi)),
+  )
+}
+
+/**
+ * Diatonic non-chord MIDI values at an attack: the decorating notes, the collection outside the
+ * chord tones, so a seventh chord leaves three of the seven scale notes.
+ */
 // @spec-link [[rule_neutral_profile_diatonic_pitches]]
 function diatonicNonChord(facts: DomainFacts, attack: PitchAttack): readonly number[] {
-  return facts.playable.filter(
-    (midi) => facts.collection.includes(pc(midi)) && !attack.chordPitchClasses.includes(pc(midi)),
-  )
+  return diatonicOutside(facts, attack.chordPitchClasses)
 }
 
 /**
@@ -522,11 +530,12 @@ function pathCandidates(paths: readonly FigurePath[]): Map<number, RawCandidate[
 }
 
 /**
- * Tense endings of a phrase generated with carry-in: free diatonic tones on the final attack that
- * the next phrase's first note can resolve by step onto its tonic triad inside the window. Offered
- * only when the figure levels allow a free scale note on that attack (the passing figure for its
- * beat, or the neighbor tone). Empty for a phrase that may not end owing a resolution, and on a
- * first attack, which nothing prepares.
+ * Tense endings of a phrase generated with carry-in: scale tones outside the final chord's triad
+ * (its seventh included, since the ending reads the triad) that the next phrase's first note can
+ * resolve by step onto its tonic triad inside the window. Offered only when the figure levels
+ * allow a free scale note on that attack (the passing figure for its beat, or the neighbor tone).
+ * Empty for a phrase that may not end owing a resolution, and on a first attack, which nothing
+ * prepares.
  */
 // @spec-link [[rule_join_tense_note_resolution]]
 // @spec-link [[rule_levels_govern_free_figures_only]]
@@ -537,7 +546,7 @@ function tenseEndingCandidates(facts: DomainFacts, attack: PitchAttack): readonl
   if (allowedFreeToneFigures(facts.input.policy.figureLevels, attack).length === 0) return []
   // The levels gate these tones, but they name no figure and carry no resolution: a named figure
   // would let a Favored draw try the tense ending before the chord tones.
-  return diatonicNonChord(facts, attack)
+  return diatonicOutside(facts, attack.triadPitchClasses)
     .filter((midi) => tenseNoteCanSettle(midi, facts.collection, request.registerWindow))
     .map((midi): RawCandidate => ({
       role: 'passing_or_neighbor',
@@ -715,7 +724,10 @@ function domainMemoKey(facts: DomainFacts, attackIndex: number): number {
  */
 function freeDomainKey(facts: DomainFacts, attack: PitchAttack): string {
   const index = attack.attackIndex
-  /** The chord pitch classes of the attack at `at`, as key text. */
+  /**
+   * The chord tones of the attack at `at`, as key text. They list the triad first, so they also
+   * determine its triad tones.
+   */
   const chord = (at: number) => facts.attacks[at]!.chordPitchClasses.join(',')
   const levels = facts.input.policy.figureLevels
   const approachAllowed = allowsFreeFigure(levels, 'chromaticApproach')

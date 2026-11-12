@@ -116,10 +116,11 @@ Status: this file holds four parts.
   (C13, C14, C16 item 49, C17; spec D522). Built and released as version 3.2.0 on 2026-11-09
   (spec D523), the contract for the running code with Parts A and B; its hand and listening checks
   follow the tag (spec D521). Its sections are numbered C1 to C19; what v1.1 to v1.26 change is listed at the top of Part C and marked in each section they touch.
-- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.3
-  (2026-11-10), consolidated from the v3.3 direction and the chord research, refreshed against
+- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.4
+  (2026-11-12), consolidated from the v3.3 direction and the chord research, refreshed against
   v3.2 as built (spec D511–D519); **approved by the owner on 2026-11-09** (spec D520); v1.3
-  corrects it after the intent ingestion (spec D526). The contract wording it changes (§D12) was
+  corrects it after the intent ingestion (spec D526); v1.4 says what a recovery owed across the join
+  may land on (spec D530). The contract wording it changes (§D12) was
   confirmed by the owner separately, on 2026-11-10 (spec D526). Chrome is the one supported
   browser (D15, item 18; spec D399). Its sections are numbered D1 to D17.
 
@@ -4986,7 +4987,7 @@ Five layers, so that v4 keeps them (D491; the owner does not want it rewritten i
 
 ## Part D — v3.3
 
-Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.3 (2026-11-10; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D518; §D8.3's phrase 1 after `Start with this phrase`, D519; v1.3 corrects it after the intent ingestion and the contract sign-off, spec D526: the contract at 14.1.0, the wordings confirmed and two more STABLE atoms reworded, §D12; the four-note backing stated as settled, §D7.3; the spoken words left to the design, §D7.1; the finer fallback's exception, §D5.2), consolidated from the
+Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.4 (2026-11-12; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D518; §D8.3's phrase 1 after `Start with this phrase`, D519; v1.3 corrects it after the intent ingestion and the contract sign-off, spec D526: the contract at 14.1.0, the wordings confirmed and two more STABLE atoms reworded, §D12; the four-note backing stated as settled, §D7.3; the spoken words left to the design, §D7.1; the finer fallback's exception, §D5.2; v1.4 says what a leap recovery owed across the join may land on, §D6.3, spec D530), consolidated from the
 v3.3 direction in the [v3 notes](README.md#v33--richer-chords-optional) and the chord research
 [docs/music/chord-research.md](../../../docs/music/chord-research.md), which keeps the sources, the
 construction tables and the code and atom references line by line. **Approved by the owner on
@@ -5264,12 +5265,18 @@ can sound open, or like a mistake.
   an ending note on its own. A phrase generated with a join may still end on a **tense note**, a
   scale note outside the final chord's triad, resolved by the next phrase's first note, as today: so
   the seventh (F over G7) can end such a phrase, and the next phrase resolves it, which is what
-  classical practice asks of a seventh. A leap recovery or a tense note owed across the join still
-  settles on a note of the tonic triad. The next phrase reads the carried final note against the
-  carried chord's triad too: a final note on the seventh is a tense note the next phrase resolves,
-  and no run is recognized across the join through that seventh. **Net effect: the same final and
-  landing notes as in v3.2,**
-  while the chord symbols and the backing show and play the seventh.
+  classical practice asks of a seventh. The next phrase's first note, when it settles something
+  owed across the join, reads its chord, the tonic chord, as the triad: a tense carried note still
+  resolves by step onto a note of the tonic triad, and a leap recovery owed across the join is
+  repaid as any recovery is, by a move back of 1 to 4 semitones, onto any note the first attack
+  offers except the tonic chord's seventh. A recovery was never required to land on a chord tone (in
+  v3.2 it could land on a figure's decorating note); what the triad guarantees is that the phrase
+  before only ends owing a recovery or a tense note that a tonic-triad note could settle (spec
+  D530). A phrase whose first note settles nothing may start on the seventh, a chord tone inside the
+  phrase (§D6.1). The next phrase reads the carried final note against the carried chord's triad
+  too: a final note on the seventh is a tense note the next phrase resolves, and no run is
+  recognized across the join through that seventh. **Net effect: the same final and landing notes
+  as in v3.2,** while the chord symbols and the backing show and play the seventh.
 - **The listening check, before the gate.** The build prepares examples of phrases that end on the
   seventh with no next phrase (F over G7 in C major; the home chord's seventh in Dorian and
   Mixolydian) and of next phrases landing on the tonic chord's seventh, and the owner listens. If
@@ -5645,8 +5652,8 @@ record or key written before v3.3 reads at Off):
   `service_generation_window_search` (both walks, §D5.3), `service_generation_result_validation`,
   `module_named_stream_pseudorandomness` (the seventh draw), `rule_no_carry_in_output_matches_v1`.
 - `rule_leapiness_arpeggio_run_limits`: the run may include the seventh; still three notes.
-  `rule_join_inherits_leap_recovery`: a recovery owed across the join settles on a tonic-triad
-  note, and no run across the join through a carried seventh defers it.
+  `rule_join_inherits_leap_recovery`: a recovery owed across the join is never repaid on the tonic
+  chord's seventh, and no run across the join through a carried seventh defers it.
 - `rule_figures_resolve_onto_chord_tones`, `rule_embellishment_figures_defined`,
   `rule_figure_level_orders_search`, `rule_levels_govern_free_figures_only`,
   `rule_tension_arc_settled`, `rule_tension_arc_build`, `rule_arpeggio_chaos_respects_constraints`,
@@ -5654,8 +5661,8 @@ record or key written before v3.3 reads at Off):
   `module_pitch_steering`, `module_pitch_search_context`, `module_pitch_search_transition`: what a
   chord tone is (§D6.1).
 - `entity_phrase_carry_in`, `rule_join_tense_note_resolution`, `module_session_carry_in_after_change`:
-  a carried chord may have four notes; the landing stays a tonic-triad note unless the listening
-  check approves the seventh; the carried note is read against the triad.
+  a carried chord may have four notes; a tense note's resolution stays a tonic-triad note unless the
+  listening check approves the seventh; the carried note is read against the triad.
 - `rule_generated_notes_musicxml_export`, `rule_generated_notes_midi_export`,
   `module_notation_layout_preflight` (longer symbols), `module_notation_note_identity_overlays`:
   §D7.
@@ -5827,8 +5834,9 @@ v3.3 ships when every item holds, each verified by a named test or a recorded ha
 8. **Runs.** No recognized run is longer than three notes; a three-note run may include the seventh;
    no four-note one-way arpeggio is written.
 9. **Endings and the join.** The listening check of §D6.3 is done and its result recorded. With the
-   triad reading, a phrase generated without a join never ends on its final chord's seventh, and a
-   join's landing is a tonic-triad note; with the seventh approved, the second option's rules hold
+   triad reading, a phrase generated without a join never ends on its final chord's seventh, a
+   tense carried note resolves onto a tonic-triad note, and a recovery owed across a join is never
+   repaid on the tonic chord's seventh; with the seventh approved, the second option's rules hold
    and the owner's confirmation of that wording is recorded.
 10. **The backing** plays a seventh chord as its four notes in the highest close position with the
     top note at or below E4, and triads as before; the bass is unchanged; the same harmony renders

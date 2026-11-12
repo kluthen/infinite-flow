@@ -568,3 +568,25 @@ archived range D407–D509 that its archive notice lists.
   (§D8.3), so no check is added. Rejected: a refusal in each writer, removed again within two
   waves. Now in: [build plan v3.3](versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5),
   chunks 13, 15, 17 and 19, and the [waves](versions/v3/build-plan-v3.3.md#waves).
+
+- **D529 (2026-11-12): `rule_doodle_only_orders_candidates` is revised with Jam's own level
+  (chunk 23), not with the chord tones (chunk 5).** Its change ("the chords' forms come from Jam's
+  level, never from the doodle") is built by chunk 23; the atom says nothing about chord tones, so
+  chunk 5 leaves its wording as it is. Found by wave 2's preflight; the change set's part E row
+  and §D12's grouping of it under §D6.1 read accordingly. Now in:
+  [build plan v3.3, chunk 23](versions/v3/build-plan-v3.3.md#chunk-23--jams-own-seventh-chords-level).
+
+- **D530 (2026-11-12): a leap recovery owed across the join is never repaid on the tonic chord's
+  seventh; it need not land on a chord tone.** Found by chunk 5: §D6.3's "settles on a note of the
+  tonic triad" overstated v3.2, whose recovery could land on a figure's decorating note; requiring a
+  triad tone would change phrases at Off. Excluding only the seventh keeps D267's v3.2 landings and
+  leaves Off untouched. Built as chunk 5's addendum, mirrored by chunk 6. Now in:
+  [Part D §D6.3](versions/v3/master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check),
+  [build plan v3.3, chunk 5](versions/v3/build-plan-v3.3.md#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search).
+
+- **D531 (2026-11-12): chunk 18 reports join loss by cause; Jam above Off is measured first
+  through the ladder's double.** Chunk 5's addendum feared D530 leaves some joins without a first
+  note; the ending side already requires a tonic-triad tone 1 to 4 semitones back, so it should be
+  rare, and the cause count shows it. The real ladder reads Jam's level only from chunk 23, so the
+  release gate's final M2 runs it. Now in: [build plan v3.3, M2](versions/v3/build-plan-v3.3.md#m2--the-cost-guard)
+  and [chunk 18](versions/v3/build-plan-v3.3.md#chunk-18--measurements-first-run-shares-cost-guard-and-ending-examples).

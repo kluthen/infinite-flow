@@ -11,7 +11,15 @@ import {
   PHRASE_MEASURE_COUNT,
   type Meter,
 } from '../generation/generation-request-envelope'
-import type { DiatonicTriad, HarmonyEvent, TriadQuality } from '../harmony/harmony-types'
+import {
+  chordTones,
+  type ChordSeventh,
+  type DiatonicTriad,
+  type HarmonyEvent,
+  type PitchClassNumber,
+  type SeventhQuality,
+  type TriadQuality,
+} from '../harmony/harmony-types'
 import { makeRational, type Rational } from '../time/rational'
 
 /**
@@ -61,11 +69,23 @@ const QUALITY_INTERVALS: Readonly<Record<TriadQuality, readonly [number, number]
   diminished: [3, 6],
 }
 
-/** One attack of the backing: a stretch of one chord that never crosses a bar line. */
+/** The triad each seventh quality stacks on, and the semitones from its root to the seventh. */
+const SEVENTH_SHAPES: Readonly<Record<SeventhQuality, readonly [TriadQuality, number]>> = {
+  'major-seventh': ['major', 11],
+  'minor-seventh': ['minor', 10],
+  'dominant-seventh': ['major', 10],
+  'half-diminished-seventh': ['diminished', 10],
+}
+
+/**
+ * One attack of the backing: a stretch of one chord that never crosses a bar line. `triad` gives
+ * the bass its root and fifth; `tones` are every note of the chord, the seventh's too.
+ */
 interface AttackSegment {
   readonly startBeat: number
   readonly lengthBeats: number
   readonly triad: DiatonicTriad
+  readonly tones: readonly PitchClassNumber[]
 }
 
 /** Intent: the non-negative remainder of `value` modulo an octave, i.e. its pitch class. */
@@ -113,6 +133,27 @@ function assertStackedTriad(triad: DiatonicTriad, index: number): void {
 }
 
 /**
+ * Intent: reject a seventh whose pitch class is not an integer 0-11, or that does not sit at its
+ * quality's interval above a triad of its quality's triad quality, so a seventh-form event always
+ * stacks root, third, fifth and seventh as its quality states.
+ */
+function assertStackedSeventh(triad: DiatonicTriad, seventh: ChordSeventh, index: number): void {
+  const { pitchClass, quality } = seventh
+  if (!Number.isInteger(pitchClass) || pitchClass < 0 || pitchClass >= OCTAVE) {
+    throw new BackingRenderError(`backing: event ${index} has seventh pitch class ${pitchClass}`)
+  }
+  const [triadQuality, seventhInterval] = SEVENTH_SHAPES[quality]
+  if (
+    triad.quality !== triadQuality ||
+    pitchClassDistance(pitchClass - triad.pitchClasses[0]) !== seventhInterval
+  ) {
+    throw new BackingRenderError(
+      `backing: event ${index} seventh ${pitchClass} over a ${triad.quality} triad is not a ${quality} chord`,
+    )
+  }
+}
+
+/**
  * Intent: reject harmony that does not tile the phrase exactly: events must be in order, each
  * starting where the previous one ended (the first on beat 1 of bar 1), with positive whole-beat
  * durations adding up to the phrase's 16 beats. Gaps, overlaps and a short or long phrase throw.
@@ -133,6 +174,7 @@ function assertTilesPhrase(harmony: readonly HarmonyEvent[]): void {
       )
     }
     assertStackedTriad(event.triad, index)
+    if (event.seventh !== undefined) assertStackedSeventh(event.triad, event.seventh, index)
     cursor += event.durationBeats
   })
   if (cursor !== PHRASE_BEATS) {
@@ -153,7 +195,12 @@ function attackSegments(harmony: readonly HarmonyEvent[]): AttackSegment[] {
     while (startBeat < endBeat) {
       const nextBarLine = (Math.floor(startBeat / BEATS_PER_MEASURE) + 1) * BEATS_PER_MEASURE
       const segmentEnd = Math.min(endBeat, nextBarLine)
-      segments.push({ startBeat, lengthBeats: segmentEnd - startBeat, triad: event.triad })
+      segments.push({
+        startBeat,
+        lengthBeats: segmentEnd - startBeat,
+        triad: event.triad,
+        tones: chordTones(event),
+      })
       startBeat = segmentEnd
     }
   }
@@ -188,32 +235,36 @@ function bassNotes(segment: AttackSegment): BackingNote[] {
 }
 
 /**
- * Intent: the close-position voicing of a triad, ascending: of its three inversions, each stacked
- * as tightly as possible, the one whose top note is highest at or below the chord ceiling (E4).
+ * Intent: the close-position voicing of a chord's tones (root first, stacked in thirds),
+ * ascending: of its arrangements with each tone at the bottom in turn (three for a triad, four for
+ * a seventh chord), each stacked as tightly as possible, the one whose top note is highest at or
+ * below the chord ceiling (E4).
  */
 // @spec-link [[req_session_backing_track]]
-function closePositionTriad(triad: DiatonicTriad): readonly [number, number, number] {
-  const [root, third, fifth] = triad.pitchClasses
+function closePositionChord(tones: readonly PitchClassNumber[]): readonly number[] {
   const ceiling = BACKING_REGISTER.chordTopHighest
-  const inversions = [
-    [root, third, fifth],
-    [third, fifth, root],
-    [fifth, root, third],
-  ] as const
-  const voicings = inversions.map(([bottomClass, middleClass, topClass]) => {
-    const top = ceiling - pitchClassDistance(ceiling - topClass)
-    const middle = top - pitchClassDistance(topClass - middleClass)
-    const bottom = middle - pitchClassDistance(middleClass - bottomClass)
-    return [bottom, middle, top] as const
+  const arrangements = tones.map((_, bottom) => [...tones.slice(bottom), ...tones.slice(0, bottom)])
+  const voicings = arrangements.map((arrangement) => {
+    let pitch = ceiling
+    let previousClass = pitchClassDistance(ceiling)
+    const descending = [...arrangement].reverse().map((pitchClass) => {
+      pitch -= pitchClassDistance(previousClass - pitchClass)
+      previousClass = pitchClass
+      return pitch
+    })
+    return descending.reverse()
   })
-  return voicings.reduce((best, voicing) => (voicing[2] > best[2] ? voicing : best))
+  return voicings.reduce((best, voicing) =>
+    Math.max(...voicing) > Math.max(...best) ? voicing : best,
+  )
 }
 
 /**
  * Intent: render one phrase's backing from its harmony events: a bass line and close-position
- * block chords, both attacked at every chord change and every downbeat, the bass adding the fifth
- * on beat 3 of a measure held under one chord. Deterministic and pure; the result is frozen.
- * Throws a BackingRenderError on a meter other than 4/4 or harmony that does not tile the phrase.
+ * block chords holding every note of each chord (four for a seventh chord), both attacked at every
+ * chord change and every downbeat, the bass adding the fifth on beat 3 of a measure held under one
+ * chord. Deterministic and pure; the result is frozen. Throws a BackingRenderError on a meter other
+ * than 4/4, harmony that does not tile the phrase, or a chord not stacked as its quality states.
  */
 // @spec-link [[req_session_backing_track]]
 export function renderBacking(harmony: readonly HarmonyEvent[], meter: Meter): RenderedBacking {
@@ -222,7 +273,7 @@ export function renderBacking(harmony: readonly HarmonyEvent[], meter: Meter): R
   const segments = attackSegments(harmony)
   const bass = segments.flatMap(bassNotes)
   const chords = segments.flatMap((segment) =>
-    closePositionTriad(segment.triad).map((pitch) =>
+    closePositionChord(segment.tones).map((pitch) =>
       backingNote(pitch, segment.startBeat, segment.lengthBeats),
     ),
   )

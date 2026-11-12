@@ -140,6 +140,16 @@ amended is revised, and no question comes back unless the owner reopens it.
   [chunk 15](versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5) must not repeat it for
   `ifk5.`. It blocks no chunk.
 
+- **O310 - What a phrase may end owing once the seventh is a landing note** _(D530;
+  [build plan chunk 21](versions/v3/build-plan-v3.3.md#chunk-21--endings-on-the-seventh-second-option-conditional),
+  only if L1 approves the seventh)_: the phrase before checks that what it ends owing (a recovery,
+  a tense note) can be settled on a tonic-triad note (`phrase-ending-debt.ts`). It cannot know
+  whether the next phrase's first chord takes its seventh form, so counting the seventh there would
+  let it owe a debt only a seventh can settle, under a next chord that may be a triad. Proposed:
+  that check keeps reading the triad; only the landing itself (`pitch-advance.ts`, `join-rules.ts`)
+  admits the seventh when the first chord has it. Needed before chunk 21 starts; blocks nothing
+  now.
+
 ## v3.0 wave 2 (O180+)
 
 Opened 2026-10-12 by `spec-writer` during the v3.0 build (wave 2). O180 and O183 are still open;

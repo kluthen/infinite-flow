@@ -10,6 +10,13 @@ import {
   type MotionResult,
   type MotionState,
 } from '@/domain/pitch/pitch-motion'
+import type { Collection, PitchClass } from '@/domain/controls/generation-controls'
+import { makeHarmonyCollection } from '@/domain/harmony/collection'
+import { chordTones, type CollectionDegree } from '@/domain/harmony/harmony-types'
+import { noteFacts } from '@/domain/pitch/pitch-advance'
+import { compilePitchSearchContext } from '@/domain/pitch/pitch-context'
+import { seventhChordEvent } from '../harmony/seventh-chord-fixtures'
+import { boundSeventhInput, PLAN_KINDS, type SeventhInputOptions } from './seventh-chord-inputs'
 
 /** Build a motion note with sensible chord-tone/harmony/bar defaults. */
 function note(midi: number, overrides: Partial<MotionNote> = {}): MotionNote {
@@ -29,6 +36,116 @@ function advanceAll(
     state = last.state
   }
   return last
+}
+
+/** A hand-built seventh-chord plan and the degree of the event whose inner attacks a test reads. */
+interface SeventhChordAt {
+  readonly options: SeventhInputOptions
+  readonly degree: CollectionDegree
+}
+
+/** Static Cmaj7 in C major, static Em7 in E minor, and the G7 of a C-major active plan. */
+const CMAJ7: SeventhChordAt = {
+  options: { kind: PLAN_KINDS.find(({ name }) => name === 'tonal static')! },
+  degree: 1,
+}
+const EM7: SeventhChordAt = {
+  options: {
+    kind: { name: 'E static', tonalCenter: 'E', collection: 'Minor', harmonicMotion: 'Static' },
+  },
+  degree: 1,
+}
+const G7: SeventhChordAt = {
+  options: { kind: PLAN_KINDS.find(({ name }) => name === 'tonal active')!, harmonyIndex: 4 },
+  degree: 5,
+}
+
+/**
+ * The motion notes the pitch search builds for MIDI values on consecutive inner attacks of the
+ * plan's last event on the chosen degree, in seventh form unless `triad` is set.
+ */
+function searchNotes(
+  { options, degree }: SeventhChordAt,
+  midis: readonly number[],
+  triad = false,
+): MotionNote[] {
+  const input = boundSeventhInput({ ...options, ...(triad ? { sevenths: () => false } : {}) })
+  const context = compilePitchSearchContext(input)
+  const harmonyIndex = input.harmony.events.map(({ triad }) => triad.degree).lastIndexOf(degree)
+  const attacks = context.attacks.filter(
+    (attack) => attack.harmonyIndex === harmonyIndex && attack.attackIndex > 0 && !attack.isFinal,
+  )
+  if (attacks.length < midis.length) throw new Error('fixture event has too few inner attacks')
+  return midis.map((midi, index) => {
+    const attack = attacks[index]!
+    const { chordTone } = noteFacts(context, attack, midi)
+    return { midi, chordTone, harmonyIndex: attack.harmonyIndex, barIndex: attack.barIndex }
+  })
+}
+
+/** Every collection the property reads seventh chords from: each one gives seven of them. */
+const SEVENTH_COLLECTIONS: readonly (readonly [PitchClass, Collection])[] = [
+  ['C', 'Major'],
+  ['A', 'Minor'],
+  ['D', 'Dorian'],
+]
+
+/** The MIDI values from 48 to 84 that are chord tones of a degree's seventh chord, rising. */
+function chordToneMidis(tonalCenter: PitchClass, collection: Collection, degree: CollectionDegree) {
+  const harmonyCollection = makeHarmonyCollection(tonalCenter, collection)
+  const tones = chordTones(seventhChordEvent(degree, 0, 16, harmonyCollection)) as readonly number[]
+  return Array.from({ length: 37 }, (_, index) => 48 + index).filter((midi) =>
+    tones.includes(midi % 12),
+  )
+}
+
+/**
+ * Every chain of three and of four chord tones moving one way, each interval wide (3 semitones or
+ * more) and within the level's cap.
+ */
+function oneWayWideChains(tones: readonly number[], cap: number, direction: 1 | -1) {
+  const chains: number[][] = []
+  const extend = (chain: number[]) => {
+    if (chain.length >= 3) chains.push(chain)
+    if (chain.length === 4) return
+    for (const next of tones) {
+      const step = (next - chain.at(-1)!) * direction
+      if (step >= 3 && step <= cap) extend([...chain, next])
+    }
+  }
+  for (const start of tones) extend([start])
+  return chains
+}
+
+/** A one-way wide chain over a seventh chord, with the level whose cap bounds it. */
+interface SeventhChordChain {
+  readonly level: string
+  readonly limits: (typeof LEAPINESS_LIMITS)['Smooth']
+  readonly direction: 1 | -1
+  readonly chain: readonly number[]
+}
+
+/** Every degree's seventh-chord tones in each collection the property reads. */
+function seventhChordToneSets(): (readonly number[])[] {
+  return SEVENTH_COLLECTIONS.flatMap(([tonalCenter, collection]) =>
+    ([1, 2, 3, 4, 5, 6, 7] as const).map((degree) =>
+      chordToneMidis(tonalCenter, collection, degree),
+    ),
+  )
+}
+
+/**
+ * Every one-way wide chain over every degree's seventh chord in each collection the property
+ * reads, at each level and in both directions.
+ */
+function seventhChordChains(): SeventhChordChain[] {
+  const cases: SeventhChordChain[] = []
+  for (const tones of seventhChordToneSets())
+    for (const [level, limits] of Object.entries(LEAPINESS_LIMITS))
+      for (const direction of [1, -1] as const)
+        for (const chain of oneWayWideChains(tones, limits.maxInterval, direction))
+          cases.push({ level, limits, direction, chain })
+  return cases
 }
 
 // @test-link [[module_pitch_search_transition]]
@@ -292,6 +409,94 @@ describe('pitch-motion', () => {
       ])
       expect(stillOwed.kind).toBe('accepted')
       if (stillOwed.kind === 'accepted') expect(motionSettled(stillOwed.state)).toBe(false)
+    })
+  })
+
+  // @test-link [[rule_seventh_is_chord_tone]]
+  // @test-link [[rule_leapiness_arpeggio_run_limits]]
+  describe('runs through the seventh, read through the search note facts', () => {
+    it('recognizes E G B over Cmaj7 and B D F over G7 as runs, and neither over the triad', () => {
+      for (const [chord, midis] of [
+        [CMAJ7, [64, 67, 71]],
+        [G7, [59, 62, 65]],
+      ] as const) {
+        const result = advanceAll(LEAPINESS_LIMITS.Smooth, searchNotes(chord, midis))
+        expect(result.kind).toBe('accepted')
+        if (result.kind === 'accepted') expect(result.state.runs).toBe(1)
+        const overTriad = searchNotes(chord, midis, true)
+        expect(advanceAll(LEAPINESS_LIMITS.Smooth, overTriad)).toEqual({
+          kind: 'rejected',
+          reason: 'unrecognized_wide_chain',
+        })
+      }
+    })
+
+    it('never passes C E G B over Cmaj7 nor E G B D over Em7 in one direction, at any level', () => {
+      for (const [chord, midis] of [
+        [CMAJ7, [60, 64, 67, 71]],
+        [EM7, [64, 67, 71, 74]],
+      ] as const)
+        for (const limits of Object.values(LEAPINESS_LIMITS))
+          expect(advanceAll(limits, searchNotes(chord, midis))).toEqual({
+            kind: 'rejected',
+            reason: 'wide_chain_too_long',
+          })
+    })
+
+    // @test-link [[rule_leap_recovery]]
+    it('defers a large leap inside a run through the seventh at Leaping and Angular only', () => {
+      for (const [chord, run, recovery] of [
+        [CMAJ7, [60, 67, 71], 69],
+        [G7, [55, 62, 65], 64],
+      ] as const) {
+        for (const level of ['Leaping', 'Angular'] as const) {
+          const owed = advanceAll(LEAPINESS_LIMITS[level], searchNotes(chord, run))
+          expect(owed.kind === 'accepted' && owed.state.debt).toEqual({
+            direction: 1,
+            mode: 'due_next',
+          })
+          const repaid = advanceAll(LEAPINESS_LIMITS[level], searchNotes(chord, [...run, recovery]))
+          expect(repaid.kind === 'accepted' && motionSettled(repaid.state)).toBe(true)
+        }
+        expect(advanceAll(LEAPINESS_LIMITS.Shaped, searchNotes(chord, run))).toEqual({
+          kind: 'rejected',
+          reason: 'unrecovered_large_leap',
+        })
+        expect(advanceAll(LEAPINESS_LIMITS.Smooth, searchNotes(chord, run))).toEqual({
+          kind: 'rejected',
+          reason: 'interval_cap_exceeded',
+        })
+      }
+    })
+
+    it('keeps every run three notes and defers only at Leaping and Angular, over every seventh chord (property)', () => {
+      let runs = 0
+      let deferred = 0
+      for (const { level, limits, direction, chain } of seventhChordChains()) {
+        const result = advanceAll(
+          limits,
+          chain.map((midi) => note(midi)),
+        )
+        if (chain.length === 4) {
+          expect(result.kind).toBe('rejected')
+          continue
+        }
+        if (result.kind === 'accepted') {
+          runs += 1
+          expect(result.state.runs).toBe(1)
+          expect(result.state.chainNotes).toHaveLength(3)
+        }
+        const firstLeap = Math.abs(chain[1]! - chain[0]!)
+        const secondLeap = Math.abs(chain[2]! - chain[1]!)
+        if (firstLeap < 7 || secondLeap >= 7) continue
+        const defers = level === 'Leaping' || level === 'Angular'
+        expect(result.kind === 'accepted' && result.state.debt).toEqual(
+          defers ? { direction, mode: 'due_next' } : false,
+        )
+        if (defers) deferred += 1
+      }
+      expect(runs).toBeGreaterThan(0)
+      expect(deferred).toBeGreaterThan(0)
     })
   })
 

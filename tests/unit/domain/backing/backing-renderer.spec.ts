@@ -27,9 +27,18 @@ import {
   makeHarmonyCandidateDomain,
   type HarmonyCandidateDomain,
 } from '@/domain/harmony/harmony-planner'
-import type { DiatonicTriad, HarmonyEvent, PitchClassNumber } from '@/domain/harmony/harmony-types'
+import {
+  chordTones,
+  type ChordSeventh,
+  type DiatonicTriad,
+  type HarmonyEvent,
+  type PitchClassNumber,
+  type SeventhQuality,
+  type TriadQuality,
+} from '@/domain/harmony/harmony-types'
 import { makeRational, type Rational } from '@/domain/time/rational'
 import type { MidiBackingNote } from '@/export/midi/midi-export-input'
+import { chordPlan } from '../harmony/seventh-chord-fixtures'
 
 const PHRASE_BEATS = 16
 
@@ -108,7 +117,8 @@ function expectedAttacks(harmony: readonly HarmonyEvent[]): number[] {
 
 /**
  * Intent: check a rendered backing against every rendering rule for its harmony: attacks, pitch
- * classes, registers, chord shape, bass fifths, and gap-free coverage of the 16 beats.
+ * classes (every chord tone, the seventh's too), registers, chord shape, bass fifths, and gap-free
+ * coverage of the 16 beats.
  */
 function expectBackingFollowsHarmony(
   harmony: readonly HarmonyEvent[],
@@ -125,12 +135,12 @@ function expectBackingFollowsHarmony(
   attacks.forEach((attack, index) => {
     const group = rendered.chords.filter((chordNote) => beatOf(chordNote.start) === attack)
     const pitches = group.map((chordNote) => Number(chordNote.pitch))
-    const triad = eventAt(harmony, attack).triad.pitchClasses
-    expect(pitches).toHaveLength(3)
+    const tones = chordTones(eventAt(harmony, attack))
+    expect(pitches).toHaveLength(tones.length)
     expect(pitches).toEqual([...pitches].sort((a, b) => a - b))
-    expect(new Set(pitches).size).toBe(3)
+    expect(new Set(pitches).size).toBe(tones.length)
     expect(pitches.map(pitchClassOf).sort((a, b) => a - b)).toEqual(
-      [...triad].sort((a, b) => a - b),
+      [...tones].sort((a, b) => a - b),
     )
     expect(Math.max(...pitches) - Math.min(...pitches)).toBeLessThan(12)
     expect(Math.max(...pitches)).toBeLessThanOrEqual(BACKING_REGISTER.chordTopHighest)
@@ -302,6 +312,125 @@ describe('renderBacking: hand-built harmony', () => {
     for (const harmony of [ONE_CHORD_MEASURES, SPLIT_AND_HELD, OFFBEAT_CHANGE_AND_DIMINISHED]) {
       expectBackingFollowsHarmony(harmony, renderBacking(harmony, FOUR_FOUR_METER), cMajorScale)
     }
+  })
+})
+
+/** The triad quality and the semitones from the root to the seventh of each seventh quality. */
+const SEVENTH_SHAPES: Readonly<Record<SeventhQuality, readonly [TriadQuality, number]>> = {
+  'major-seventh': ['major', 11],
+  'minor-seventh': ['minor', 10],
+  'dominant-seventh': ['major', 10],
+  'half-diminished-seventh': ['diminished', 10],
+}
+
+/** The semitones from the root to the third and the fifth of each triad quality. */
+const TRIAD_SHAPES: Readonly<Record<TriadQuality, readonly [number, number]>> = {
+  major: [4, 7],
+  minor: [3, 7],
+  diminished: [3, 6],
+}
+
+/** Intent: a seventh-form event on `root` of `quality` lasting the whole phrase. */
+function wholePhraseSeventh(root: number, quality: SeventhQuality): HarmonyEvent {
+  const [triadQuality, seventh] = SEVENTH_SHAPES[quality]
+  const [third, fifth] = TRIAD_SHAPES[triadQuality]
+  const [rootClass, thirdClass, fifthClass, seventhClass] = [0, third, fifth, seventh].map(
+    (interval) => pitchClassOf(root + interval) as PitchClassNumber,
+  ) as [PitchClassNumber, PitchClassNumber, PitchClassNumber, PitchClassNumber]
+  const triad: DiatonicTriad = {
+    degree: 1,
+    pitchClasses: [rootClass, thirdClass, fifthClass],
+    quality: triadQuality,
+  }
+  return { ...event(0, 0, 16, triad), seventh: { pitchClass: seventhClass, quality } }
+}
+
+/**
+ * Intent: the expected chord, worked out independently of the renderer: its top is the highest
+ * pitch at or below E4 whose pitch class is a chord tone, and close position puts every chord
+ * tone in the octave ending on that top, ascending.
+ */
+function highestClosePosition(tones: readonly number[]): number[] {
+  const ceiling = BACKING_REGISTER.chordTopHighest
+  let top = ceiling
+  while (!tones.includes(pitchClassOf(top))) top -= 1
+  const pitches: number[] = []
+  for (let pitch = top - 11; pitch <= top; pitch += 1) {
+    if (tones.includes(pitchClassOf(pitch))) pitches.push(pitch)
+  }
+  return pitches
+}
+
+/** Cmaj7, then Dm7 and G7 sharing measure 2, Bø7, and a C triad: the seventh beside the triad. */
+const SEVENTHS_BESIDE_A_TRIAD = chordPlan([
+  { degree: 1, beat: 0, beats: 4, seventh: true },
+  { degree: 2, beat: 4, beats: 2, seventh: true },
+  { degree: 5, beat: 6, beats: 2, seventh: true },
+  { degree: 7, beat: 8, beats: 4, seventh: true },
+  { degree: 1, beat: 12, beats: 4 },
+])
+
+// @test-link [[req_session_backing_track]]
+describe('renderBacking: seventh chords', () => {
+  // @test-link [[req_session_backing_track]]
+  it('plays a seventh chord as its four notes in the highest close position at or below E4, the bass unchanged', () => {
+    expect(renderBacking(SEVENTHS_BESIDE_A_TRIAD, FOUR_FOUR_METER)).toEqual({
+      bass: [
+        note(36, 0, 2),
+        note(43, 2, 2),
+        note(38, 4, 2),
+        note(43, 6, 2),
+        note(47, 8, 2),
+        note(41, 10, 2),
+        note(36, 12, 2),
+        note(43, 14, 2),
+      ],
+      chords: [
+        ...chord([55, 59, 60, 64], 0, 4),
+        ...chord([53, 57, 60, 62], 4, 2),
+        ...chord([53, 55, 59, 62], 6, 2),
+        ...chord([53, 57, 59, 62], 8, 4),
+        ...chord([55, 60, 64], 12, 4),
+      ],
+    })
+    expectBackingFollowsHarmony(
+      SEVENTHS_BESIDE_A_TRIAD,
+      renderBacking(SEVENTHS_BESIDE_A_TRIAD, FOUR_FOUR_METER),
+      [0, 2, 4, 5, 7, 9, 11],
+    )
+  })
+
+  // @test-link [[req_session_backing_track]]
+  it.each(Object.keys(SEVENTH_SHAPES) as SeventhQuality[])(
+    'voices every %s chord, on each of the 12 roots, in its highest close position with the bass of its triad',
+    (quality) => {
+      for (let root = 0; root < 12; root += 1) {
+        const seventhForm = wholePhraseSeventh(root, quality)
+        const triadForm = event(0, 0, 16, seventhForm.triad)
+        const rendered = renderBacking([seventhForm], FOUR_FOUR_METER)
+        const tones = chordTones(seventhForm)
+        const expected = highestClosePosition(tones)
+        const label = `${quality} on ${root}`
+        expect(expected, label).toHaveLength(4)
+        expect(Math.max(...expected), label).toBeLessThanOrEqual(64)
+        expect(Math.min(...expected), label).toBeGreaterThanOrEqual(50)
+        expect(rendered.chords, label).toEqual(
+          [0, 4, 8, 12].flatMap((start) => chord(expected, start, 4)),
+        )
+        expect(rendered.bass, label).toEqual(renderBacking([triadForm], FOUR_FOUR_METER).bass)
+        expect(renderBacking([seventhForm], FOUR_FOUR_METER), label).toEqual(rendered)
+      }
+    },
+  )
+
+  // @test-link [[req_session_backing_track]]
+  it.each([
+    ['a seventh at the wrong interval', { pitchClass: 10, quality: 'major-seventh' }],
+    ['a seventh quality that does not fit the triad', { pitchClass: 10, quality: 'minor-seventh' }],
+    ['a seventh pitch class outside 0-11', { pitchClass: 23, quality: 'dominant-seventh' }],
+  ] as const)('rejects %s', (_label, seventh) => {
+    const harmony = [{ ...event(0, 0, 16, C_MAJOR), seventh: seventh as unknown as ChordSeventh }]
+    expect(() => renderBacking(harmony, FOUR_FOUR_METER)).toThrow(BackingRenderError)
   })
 })
 

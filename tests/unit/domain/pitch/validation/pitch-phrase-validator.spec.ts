@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest'
+import { makeConcertPitch } from '@/domain/events/concert-pitch'
+import { JAZZ_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
+import { makeCarryIn, type LeapDirection } from '@/domain/generation/carry-in/carry-in'
+import { makeHarmonyCollection } from '@/domain/harmony/collection'
 import type { PitchPhrase } from '@/domain/pitch/pitch-types'
 import {
   validatePitchMidis,
   validatePitchPhrase,
 } from '@/domain/pitch/validation/pitch-phrase-validator'
+import { makeRegisterWindow } from '@/domain/profile/register-window'
+import { chordPlan, seventhChordEvent } from '../../harmony/seventh-chord-fixtures'
 import { BASELINE, QUARTERS, bar, chord, context, withMidis } from './validation-fixtures'
 
 type Overrides = Parameters<typeof context>[0]
@@ -198,5 +204,196 @@ describe('independent pitch phrase validation: contour and open endpoint', () =>
   it('ignores a trailing rest when finding the final sounding attack', () => {
     const bars = [...QUARTERS.slice(0, 3), bar(3, 'q q q r:q')]
     expect(failures(BASELINE.slice(0, 15), { bars })).toEqual([])
+  })
+})
+
+/** C major's tonic over the whole phrase, in its seventh form: Cmaj7, C E G B. */
+const CMAJ7_THROUGHOUT = [seventhChordEvent(1, 0, 16)]
+
+// @test-link [[rule_seventh_is_chord_tone]]
+// @test-link [[rule_extensions_never_chord_tones]]
+describe('independent pitch phrase validation: runs through a seventh chord', () => {
+  it('recognizes a run through the seventh: E G B over Cmaj7', () => {
+    const run = [60, 62, 64, 67, 71, 69, 67, 65, 64, 62, 60, 62, 64, 65, 67, 67]
+    expect(failures(run, { events: CMAJ7_THROUGHOUT })).toEqual([])
+    expect(failures(run, { events: [chord(1, 0, 16)] })).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 4 },
+      { code: 'unrecognized_wide_chain', attackIndex: 4 },
+    ])
+  })
+
+  it('never recognizes a run through the ninth: G B D over Cmaj7', () => {
+    const run = [60, 62, 64, 65, 67, 71, 74, 72, 71, 69, 67, 65, 64, 65, 67, 67]
+    expect(failures(run, { events: CMAJ7_THROUGHOUT })).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 6 },
+      { code: 'unrecognized_wide_chain', attackIndex: 6 },
+    ])
+  })
+
+  /** C major's tonic, with bar 1 on the dominant: G7 (G B D F) or the G triad. */
+  const G7_IN_BAR_1 = [chord(1, 0, 4), seventhChordEvent(5, 4, 4), chord(1, 8, 8)]
+  const G_IN_BAR_1 = [chord(1, 0, 4), chord(5, 4, 4), chord(1, 8, 8)]
+
+  it('recognizes a run through the seventh: B D F over G7', () => {
+    const run = [64, 62, 60, 60, 62, 59, 62, 65, 64, 62, 60, 62, 64, 65, 67, 67]
+    expect(failures(run, { events: G7_IN_BAR_1 })).toEqual([])
+    expect(failures(run, { events: G_IN_BAR_1 })).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 7 },
+      { code: 'unrecognized_wide_chain', attackIndex: 7 },
+    ])
+  })
+
+  it('never passes four chord tones in one direction: C E G B over Cmaj7, E G B D over Em7', () => {
+    expect(failures(withMidis({ 1: 64, 2: 67, 3: 71 }), { events: CMAJ7_THROUGHOUT })).toEqual([
+      { code: 'wide_chain_too_long', attackIndex: 3 },
+    ])
+    const em7 = [chord(1, 0, 4), seventhChordEvent(3, 4, 4), chord(1, 8, 8)]
+    const egbd = [60, 62, 64, 62, 64, 67, 71, 74, 72, 67, 64, 62, 64, 65, 67, 67]
+    expect(failures(egbd, { events: em7 })).toEqual([
+      { code: 'wide_chain_too_long', attackIndex: 7 },
+    ])
+  })
+
+  // @test-link [[rule_leap_recovery]]
+  it('defers a large leap inside a run through the seventh at Leaping and Angular only', () => {
+    const run = [64, 62, 60, 60, 59, 55, 62, 65, 64, 62, 60, 62, 64, 65, 67, 67]
+    for (const leapiness of ['Leaping', 'Angular'] as const)
+      expect(failures(run, { events: G7_IN_BAR_1, leapiness })).toEqual([])
+    expect(failures(run, { events: G7_IN_BAR_1, leapiness: 'Shaped' })).toEqual([
+      { code: 'unrecovered_large_leap', attackIndex: 6 },
+    ])
+    expect(failures(run, { events: G7_IN_BAR_1, leapiness: 'Smooth' })).toContainEqual({
+      code: 'interval_cap_exceeded',
+      attackIndex: 6,
+    })
+  })
+})
+
+/** C major's tonic for three bars, then G7 (G B D F), whose seventh is F. */
+const ENDS_ON_G7 = [chord(1, 0, 12), seventhChordEvent(5, 12, 4)]
+const DEGREE_FIVE = { endpoint: 'tonal_degree_five_chord_tone', events: ENDS_ON_G7 } as const
+
+/** A carry-in after a phrase ending on a settled middle C, with no carried chord: it owes nothing. */
+const SETTLED_C = makeCarryIn({
+  lastPitch: { midi: makeConcertPitch(60), arrivingInterval: null, recovery: { kind: 'settled' } },
+  registerWindow: makeRegisterWindow(55, 79),
+  finalHarmony: null,
+  phraseNumber: 1,
+})
+
+// @test-link [[rule_open_phrase_ending]]
+// @test-link [[rule_seventh_is_chord_tone]]
+describe('independent pitch phrase validation: the ending reads the final chord as its triad', () => {
+  /** G A G, then the final F stepped into from G. */
+  const STEPPED_INTO_F = withMidis({ 11: 65, 12: 67, 13: 69, 14: 67, 15: 65 })
+
+  it('still ends on a triad tone of the final seventh chord', () => {
+    expect(failures(withMidis({ 11: 65, 12: 67, 13: 69, 14: 71, 15: 67 }), DEGREE_FIVE)).toEqual([])
+  })
+
+  it("refuses a phrase with no join ending on the final chord's seventh", () => {
+    expect(failures(STEPPED_INTO_F, DEGREE_FIVE)).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 15 },
+      { code: 'open_endpoint_violation', attackIndex: 15 },
+    ])
+  })
+
+  it('accepts a joined phrase ending on the seventh as a tense note stepped into', () => {
+    expect(failures(STEPPED_INTO_F, { ...DEGREE_FIVE, carryIn: SETTLED_C })).toEqual([])
+  })
+
+  it('refuses a joined phrase ending on the seventh leapt into', () => {
+    const leaptInto = withMidis({ 11: 65, 12: 67, 13: 69, 14: 71, 15: 65 })
+    expect(failures(leaptInto, { ...DEGREE_FIVE, carryIn: SETTLED_C })).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 15 },
+      { code: 'open_endpoint_violation', attackIndex: 15 },
+    ])
+  })
+
+  it('refuses a passing tone onto the final seventh, which is a tense note, not a chord tone', () => {
+    const passingOnto = withMidis({ 11: 65, 12: 67, 13: 62, 14: 64, 15: 65 })
+    expect(failures(passingOnto, { ...DEGREE_FIVE, carryIn: SETTLED_C })).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 14 },
+    ])
+  })
+})
+
+/** C major's tonic each bar, bar 0's in its seventh form: Cmaj7, C E G B. */
+const CMAJ7_FIRST = chordPlan([
+  { degree: 1, beat: 0, beats: 4, seventh: true },
+  { degree: 1, beat: 4, beats: 4 },
+  { degree: 1, beat: 8, beats: 4 },
+  { degree: 1, beat: 12, beats: 4 },
+])
+
+/** A carry-in with no carried chord whose last pitch `midi` was reached by `arrivingInterval`. */
+function carriedPitch(midi: number, arrivingInterval: number, owesRecovery: boolean) {
+  return makeCarryIn({
+    lastPitch: {
+      midi: makeConcertPitch(midi),
+      arrivingInterval,
+      recovery: owesRecovery
+        ? { kind: 'owed', leapDirection: Math.sign(arrivingInterval) as LeapDirection }
+        : { kind: 'settled' },
+    },
+    registerWindow: makeRegisterWindow(55, 79),
+    finalHarmony: null,
+    phraseNumber: 1,
+  })
+}
+
+/** A carry-in over a carried G triad whose last pitch, A, reached by a step, is a tense note. */
+const TENSE_A_OVER_G = makeCarryIn({
+  lastPitch: { midi: makeConcertPitch(69), arrivingInterval: -2, recovery: { kind: 'settled' } },
+  registerWindow: makeRegisterWindow(55, 79),
+  finalHarmony: {
+    triad: makeHarmonyCollection('C', 'Major').triads[4]!,
+    role: 'open_arrival',
+    endpoint: { kind: 'tonal_degree_five_chord_tone', degree: 5 },
+  },
+  phraseNumber: 1,
+})
+
+// @test-link [[rule_join_reads_carried_chord_as_triad]]
+// @test-link [[rule_seventh_is_chord_tone]]
+describe('independent pitch phrase validation: the join reads the tonic chord as its triad', () => {
+  /** B, the seventh of Cmaj7, then down by passing tones to the C of bar 1. */
+  const STARTS_ON_SEVENTH = [71, 69, 67, 65, 64, 62, 60, 62, 60, 62, 64, 65, 67, 69, 67, 67]
+  /** D leapt up into from G, still owing its recovery: a move down of 1 to 4 semitones. */
+  const OWED_D = carriedPitch(74, 7, true)
+
+  it('accepts a phrase owing nothing across the join that starts on the seventh', () => {
+    expect(failures(STARTS_ON_SEVENTH, { events: CMAJ7_FIRST })).toEqual([])
+    const settled = carriedPitch(72, -2, false)
+    expect(failures(STARTS_ON_SEVENTH, { events: CMAJ7_FIRST, carryIn: settled })).toEqual([])
+  })
+
+  it("refuses a recovery owed across the join repaid on the tonic chord's seventh", () => {
+    expect(failures(STARTS_ON_SEVENTH, { events: CMAJ7_FIRST, carryIn: OWED_D })).toEqual([
+      { code: 'carried_recovery_on_seventh', attackIndex: 0 },
+    ])
+  })
+
+  it('still repays a recovery owed across the join on any other note 1 to 4 semitones back', () => {
+    const ontoTheRoot = [72, 71, 69, 67, 64, 62, 60, 62, 60, 62, 64, 65, 67, 69, 67, 67]
+    expect(failures(ontoTheRoot, { events: CMAJ7_FIRST, carryIn: OWED_D })).toEqual([])
+    // B flat, a chromatic approach's decorating note, then the seventh it leads to.
+    const ontoAnApproach = withMidis({ 0: 70 }, ontoTheRoot)
+    const jazz = { events: CMAJ7_FIRST, carryIn: OWED_D, figureLevels: JAZZ_FIGURE_LEVELS }
+    expect(failures(ontoAnApproach, jazz)).toEqual([])
+  })
+
+  it('reads no seventh under a triad first chord, where B is only a note outside it', () => {
+    expect(failures(STARTS_ON_SEVENTH, { carryIn: OWED_D })).toEqual([
+      { code: 'unexplained_non_chord_tone', attackIndex: 0 },
+    ])
+  })
+
+  it("refuses a tense carried note resolved onto the tonic chord's seventh", () => {
+    expect(failures(STARTS_ON_SEVENTH, { events: CMAJ7_FIRST, carryIn: TENSE_A_OVER_G })).toEqual([
+      { code: 'carried_tension_unresolved', attackIndex: 0 },
+    ])
+    const ontoG = [67, 69, 71, 69, 67, 65, 64, 62, 60, 62, 64, 65, 67, 69, 67, 67]
+    expect(failures(ontoG, { events: CMAJ7_FIRST, carryIn: TENSE_A_OVER_G })).toEqual([])
   })
 })

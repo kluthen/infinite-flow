@@ -1,5 +1,5 @@
 import { makeHarmonyCollection } from '../../harmony/collection'
-import type { HarmonyEvent } from '../../harmony/harmony-types'
+import { chordTones, type HarmonyEvent } from '../../harmony/harmony-types'
 import type { PhraseFacts, PitchValidationContext, SoundingFact } from './pitch-validation-types'
 
 const TICKS_PER_BAR = 16
@@ -61,8 +61,15 @@ export function harmonyAtTick(context: PitchValidationContext, tick: number): Ha
 /**
  * Reconstruct every fact the rules consume from the rhythm, harmony, collection, and the submitted
  * MIDI values. Callers must first check that one MIDI value exists per sounding attack.
+ *
+ * Each note carries two chord facts, as the pitch search reads them. Its chord-tone fact reads the
+ * chord tones of its event, the seventh included when the event takes its seventh form; the final
+ * note's reads its chord's triad, as the ending does, so a final seventh is the tense note it may
+ * only end as. Its triad-tone fact reads the triad alone. Over a triad-form event the two agree.
  */
 // @spec-link [[module_pitch_domain_validation]]
+// @spec-link [[rule_seventh_is_chord_tone]]
+// @spec-link [[rule_extensions_never_chord_tones]]
 export function reconstructPhraseFacts(
   context: PitchValidationContext,
   midis: readonly number[],
@@ -71,10 +78,13 @@ export function reconstructPhraseFacts(
     context.policy.tonalCenter,
     context.policy.collection,
   ).pitchClasses
-  const attacks = soundingSpans(context).map((span, index): SoundingFact => {
+  const spans = soundingSpans(context)
+  const attacks = spans.map((span, index): SoundingFact => {
     const midi = midis[index]!
     const pitchClass = ((midi % 12) + 12) % 12
     const harmony = harmonyAtTick(context, span.start)
+    const triadTone = (harmony.triad.pitchClasses as readonly number[]).includes(pitchClass)
+    const isFinal = index === spans.length - 1
     return {
       index,
       barIndex: span.barIndex,
@@ -85,7 +95,10 @@ export function reconstructPhraseFacts(
       midi,
       pitchClass,
       harmony,
-      chordTone: (harmony.triad.pitchClasses as readonly number[]).includes(pitchClass),
+      chordTone: isFinal
+        ? triadTone
+        : (chordTones(harmony) as readonly number[]).includes(pitchClass),
+      triadTone,
       inCollection: (collectionPitchClasses as readonly number[]).includes(pitchClass),
       strongOnset: span.startTick === 0 || span.startTick === 8,
     }

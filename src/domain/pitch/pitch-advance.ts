@@ -8,6 +8,7 @@ import {
 } from './pitch-contour'
 import { owedRecoveryCanSettle, resolvesOnto } from '../generation/carry-in/phrase-ending-debt'
 import { carriedMotionState } from './pitch-carry-in'
+import { mayEndPhrase } from './pitch-context'
 import {
   advanceFigure,
   figureOwesOnlyFinalResolution,
@@ -41,17 +42,24 @@ export function initialPitchSearchState(context: PitchSearchContext): PitchSearc
   })
 }
 
-/** Chord-tone and collection membership of a MIDI value at an attack. */
+/**
+ * Chord-tone and collection membership of a MIDI value at an attack. Inside the phrase a chord
+ * tone is one of the attack's chord tones, the seventh included; the final note is read against
+ * the final chord's triad, as the ending is, so a seventh there is the tense note it may only end
+ * as, and owes its resolution.
+ */
 // @spec-link [[module_pitch_search_transition]]
+// @spec-link [[rule_seventh_is_chord_tone]]
 export function noteFacts(
   context: PitchSearchContext,
   attack: PitchAttack,
   midi: number,
 ): PitchNoteFacts {
   const pitchClass = ((midi % 12) + 12) % 12
+  const chord = attack.isFinal ? attack.triadPitchClasses : attack.chordPitchClasses
   return {
     midi,
-    chordTone: attack.chordPitchClasses.includes(pitchClass),
+    chordTone: chord.includes(pitchClass),
     inCollection: context.collectionPitchClasses.includes(pitchClass),
   }
 }
@@ -109,8 +117,12 @@ export function priorSoundingMidi(state: PitchSearchState): number | undefined {
   return state.motion.prior?.midi
 }
 
-/** True when the first attack fails to resolve a tense carried note by step onto a chord tone. */
+/**
+ * True when the first attack fails to resolve a tense carried note by step onto a triad tone of
+ * its chord (the tonic triad): the landing reads the triad, so never the tonic chord's seventh.
+ */
 // @spec-link [[rule_join_tense_note_resolution]]
+// @spec-link [[rule_join_reads_carried_chord_as_triad]]
 function leavesCarriedTensionUnresolved(
   context: PitchSearchContext,
   attack: PitchAttack,
@@ -120,7 +132,44 @@ function leavesCarriedTensionUnresolved(
   return (
     tense !== undefined &&
     attack.attackIndex === 0 &&
-    !resolvesOnto(tense, midi, attack.chordPitchClasses, context.collectionPitchClasses)
+    !resolvesOnto(tense, midi, attack.triadPitchClasses, context.collectionPitchClasses)
+  )
+}
+
+/**
+ * True when the first attack would repay a recovery the carried pitch owes on its chord's seventh
+ * (a chord tone outside its triad): the join reads the tonic chord as its triad, so the recovery
+ * lands on any other note 1 to 4 semitones back, and a first note that owes nothing may be the
+ * seventh.
+ */
+// @spec-link [[rule_join_reads_carried_chord_as_triad]]
+function repaysCarriedRecoveryOnSeventh(
+  context: PitchSearchContext,
+  attack: PitchAttack,
+  midi: number,
+): boolean {
+  if (attack.attackIndex !== 0) return false
+  if (context.input.request.carryIn?.lastPitch.recovery.kind !== 'owed') return false
+  const pitchClass = ((midi % 12) + 12) % 12
+  return (
+    attack.chordPitchClasses.includes(pitchClass) && !attack.triadPitchClasses.includes(pitchClass)
+  )
+}
+
+/**
+ * True when a candidate on the final attack may end the phrase: its MIDI value is one of the
+ * context's final values and the candidate itself is a tense ending or an open endpoint, so the
+ * final chord's seventh never passes as a chord tone on its tense ending's MIDI value.
+ */
+// @spec-link [[rule_open_phrase_ending]]
+function endsPhrase(
+  context: PitchSearchContext,
+  attack: PitchAttack,
+  candidate: PitchCandidate,
+): boolean {
+  return (
+    context.finalMidis.includes(candidate.midi) &&
+    mayEndPhrase(context.input, attack, candidate, context.collectionPitchClasses)
   )
 }
 
@@ -206,10 +255,12 @@ function transition(
   const favoredReason = favored === undefined ? undefined : favoredError(candidate, favored)
   if (favoredReason) return finish({ kind: 'rejected', reason: favoredReason })
   const note = noteFacts(context, attack, candidate.midi)
-  if (attack.isFinal && !context.finalMidis.includes(candidate.midi))
+  if (attack.isFinal && !endsPhrase(context, attack, candidate))
     return finish({ kind: 'rejected', reason: 'open_endpoint_violation' })
   if (leavesCarriedTensionUnresolved(context, attack, candidate.midi))
     return finish({ kind: 'rejected', reason: 'carried_tension_unresolved' })
+  if (repaysCarriedRecoveryOnSeventh(context, attack, candidate.midi))
+    return finish({ kind: 'rejected', reason: 'carried_recovery_on_seventh' })
   const figure = advanceFigure(state.figure, {
     attackIndex: attack.attackIndex,
     isFinal: attack.isFinal,
