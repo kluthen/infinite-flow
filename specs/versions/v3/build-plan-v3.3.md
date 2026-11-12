@@ -882,7 +882,7 @@ Record: aa114496 (52ea7ede; C1: spec D526; D530). No deviation; as the search's 
 
 ### Chunk 7 — Runs may include the seventh
 
-Status: planned
+Status: merged (w2, 24b7bf6e)
 Wave: 2
 Depends on: 2, 5, 6 (the chord-tone facts its run rule reads), 8 (wave 1, the derivation it
 extends); `rule_leap_recovery` keeps its wording (D517), so no sign-off of its own
@@ -924,6 +924,8 @@ Architecture capture: none (it builds on chunks 5's and 6's)
   - Over triad events, runs and recoveries are unchanged (the existing motion suites, the corpus).
 - **Verification:** chunk checks; the sweep at the wave gate.
 - **Split rule:** none needed (one source file).
+
+Record: 24b7bf6e (d3ef2aa7). No deviation; `finalMotionState` reads the chord tones inside the phrase and the triad on the final note, as the search and the validator do.
 
 ### Chunk 8 — The join carries a seventh chord
 

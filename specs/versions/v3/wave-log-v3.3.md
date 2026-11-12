@@ -371,3 +371,17 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   note's, which reads the triad"; new links on `reconstructPhraseFacts`, `isOwedTenseEnding`,
   `carriedTensionFailures`, `carriedRecoveryFailures` and the two specs; revisions of
   `rule_figures_resolve_onto_chord_tones` and `rule_levels_govern_free_figures_only`.
+
+### Chunk 7 merged (2026-11-12)
+
+- 24b7bf6e (d3ef2aa7): `finalMotionState` (`carry-in-derivation.ts`) reads each note's chord-tone
+  fact from `chordTones` inside the phrase and from the triad on the final note, as the search's
+  `noteFacts` and the validator's `reconstructPhraseFacts`; E–G–B over Cmaj7 and B–D–F over G7 are
+  runs in the search and the validator, C–E–G–B and E–G–B–D one way never pass; deferral at
+  Leaping and Angular only (exhaustive property over the seventh chords of C major, A minor, D
+  Dorian); a run through the seventh with a deferred recovery derives its carry-in as the search
+  wrote it (red before: `CarryInError`). Corpus guard green (18 files, 495 tests). No deviation.
+- For the sync: revisions of `rule_leapiness_arpeggio_run_limits` and
+  `rule_join_inherits_leap_recovery` (with D530's clause); links on `finalMotionState` and the new
+  specs; no drift seen in `rule_leap_recovery`, `module_pitch_search_transition`,
+  `module_pitch_domain_validation`.
