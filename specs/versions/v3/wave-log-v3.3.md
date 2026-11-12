@@ -385,3 +385,24 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   `rule_join_inherits_leap_recovery` (with D530's clause); links on `finalMotionState` and the new
   specs; no drift seen in `rule_leap_recovery`, `module_pitch_search_transition`,
   `module_pitch_domain_validation`.
+
+### Wave 2 gate (2026-11-12, on 47b2656d)
+
+Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
+
+- Run 1, 12:12–12:13 (load 1.5): red at `lint:health`, 2 errors: nesting depth in
+  `pitch-motion.spec.ts:449` (chunk 7's property) and 11 atoms in `figure-rules.spec.ts` (chunk 6).
+  Fix 47b2656d (tests only, cases and assertions unchanged): the loops into two helpers; chunk 6's
+  two describe blocks, with their links, moved to `validation/seventh-chord-tones.spec.ts`.
+- Run 2, 12:15–12:26 (load 1.0 → 12.9): all green. Format, lint, links, `lint:health` (0 errors),
+  unit 9,865 tests in 631 files, typecheck and build, boundaries, e2e 726 + 1 skipped twice
+  (pre-generation off, on), a11y 76, notation 107 + 4 skipped, `atd:lint`, `atd:check`. No flake.
+- Sweep, 12:28–12:30 (load 2.3 → 1.5): 122 tests in 11 files (wave 1's 114 plus chunk 4's census
+  spec, 8). Every `SWEEP-` line identical to wave 1's: at Off, v3.2's figures (240 BPM 568 cases,
+  phrase 2 by carry-in 100.0 %, 0 refused, 0 shortfalls, 0 repeats, 0 undecided; carry-in lost to
+  the time rule at 240 BPM in every case, none at 60 and 120 BPM).
+- **Entry chunk 313,896 B** (+783 B on wave 1's 313,113 B; budget 327,680 B), likely the backing
+  renderer; Jam's chunk 61,209 B (−2 B); no `src/jam/` module in the first load; 526 source files,
+  66 chunks.
+- Deferred, not checked here: H4's DAW half (chunk 13), the balance by ear (H2), the renders by ear
+  (H1); the final-note-on-the-seventh path rests on hand-written tests until chunk 12.
