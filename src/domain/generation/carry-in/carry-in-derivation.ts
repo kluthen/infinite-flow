@@ -7,6 +7,7 @@
  */
 
 import { makeConcertPitch } from '../../events/concert-pitch'
+import { chordTones } from '../../harmony/harmony-types'
 import { LEAPINESS_LIMITS, advanceMotion, type MotionState } from '../../pitch/pitch-motion'
 import { harmonyEventIndexAt, soundingSpans } from '../../pitch/pitch-harmony'
 import { carriedMotionState } from '../../pitch/pitch-carry-in'
@@ -33,8 +34,12 @@ function attackMidis(source: CarryInSource): readonly number[] {
 /**
  * Intent: replay the phrase's sounding notes through the leap-state reducer, starting from the
  * state its own carry-in gave it (or the empty state), and return the state after its last note.
- * A rejection means the outcome was never a valid phrase, which is a caller bug.
+ * Each note's chord-tone fact is read as the pitch search reads it: inside the phrase against its
+ * event's chord tones, the seventh included in seventh form, so a run may pass through the
+ * seventh; the final note's against its chord's triad. A rejection means the outcome was never a
+ * valid phrase, which is a caller bug.
  */
+// @spec-link [[rule_seventh_is_chord_tone]]
 function finalMotionState(source: CarryInSource, midis: readonly number[]): MotionState {
   const { intent, outcome } = source
   const { harmony, rhythm } = outcome.provenance
@@ -46,7 +51,9 @@ function finalMotionState(source: CarryInSource, midis: readonly number[]): Moti
   spans.forEach((span, index) => {
     const harmonyIndex = harmonyEventIndexAt(harmony, span.start)
     const midi = midis[index]!
-    const chord = harmony.events[harmonyIndex]!.triad.pitchClasses as readonly number[]
+    const event = harmony.events[harmonyIndex]!
+    const isFinal = index === spans.length - 1
+    const chord = (isFinal ? event.triad.pitchClasses : chordTones(event)) as readonly number[]
     const result = advanceMotion(limits, state, {
       midi,
       chordTone: chord.includes(((midi % 12) + 12) % 12),
