@@ -7,10 +7,13 @@
  *
  * The in-browser replay (v3.1 hand check H3): a deterministic slice of each recorded replay-key
  * corpus (v2.0's, v3.0's and v3.1's) replays through the real browser generation worker to the
- * stored timelines, byte for byte, both as recorded and re-encoded as `ifk4.` keys. Hand-written
- * `ifk4.` keys (v3.2 chunk 12) for a locked phrase, a changed phrase, a forced bend, a phrase with a
- * steering block and a Jam's phrase 1 joining from no phrase replay in the browser to the same
- * phrase as the headless replay, which names the lock's outcome. With `INFINITE_FLOW_REPLAY_KEY`
+ * stored timelines, byte for byte, both as recorded and re-encoded as `ifk5.` keys, the key every
+ * phrase is written with from v3.3. Hand-written `ifk4.` keys (v3.2 chunk 12) for a locked phrase,
+ * a changed phrase, a forced bend, a phrase with a steering block and a Jam's phrase 1 joining from
+ * no phrase replay in the browser to the same phrase as the headless replay, which names the
+ * lock's outcome. Hand-written `ifk5.` keys (v3.3 chunk 15, hand check H3) for a Mostly phrase, a
+ * Sometimes phrase, a phrase above Off whose plan stays triads and a phrase joined after a carried
+ * seventh chord do the same. With `INFINITE_FLOW_REPLAY_KEY`
  * holding a key (or a whole copied console line), one more test replays it in the browser and
  * checks the phrase equals the headless replay of the same key. `INFINITE_FLOW_BROWSER_CHANNEL` runs the
  * whole spec on another browser channel (`msedge` for Microsoft Edge).
@@ -130,7 +133,7 @@ function coverageOf(key: string): readonly string[] {
 }
 
 /**
- * Intent: replay each case in the browser, as recorded and as its `ifk4.` re-encoding, and expect
+ * Intent: replay each case in the browser, as recorded and as its `ifk5.` re-encoding, and expect
  * both to give the stored timeline's JSON text exactly.
  */
 async function expectSliceReplays(
@@ -145,8 +148,8 @@ async function expectSliceReplays(
       timeline: stored,
     })
     const reEncoded = await reEncodeKeyInBrowser(page, corpusCase.key)
-    expect(reEncoded.startsWith('ifk4.'), corpusCase.label).toBe(true)
-    expect(await replayKeyInBrowser(page, reEncoded), `${corpusCase.label} as ifk4`).toEqual({
+    expect(reEncoded.startsWith('ifk5.'), corpusCase.label).toBe(true)
+    expect(await replayKeyInBrowser(page, reEncoded), `${corpusCase.label} as ifk5`).toEqual({
       kind: 'timeline',
       timeline: stored,
     })
@@ -165,7 +168,7 @@ const SLICE_TIMEOUT_MS = 120_000
 
 // @test-link [[rule_seeded_phrase_reproduction]]
 // @test-link [[module_phrase_replay_key]]
-test('a slice of the v3.0 replay-key corpus replays in the browser worker to its stored timelines, also as ifk4', async ({
+test('a slice of the v3.0 replay-key corpus replays in the browser worker to its stored timelines, also as ifk5', async ({
   page,
 }) => {
   test.setTimeout(SLICE_TIMEOUT_MS)
@@ -179,7 +182,7 @@ test('a slice of the v3.0 replay-key corpus replays in the browser worker to its
 
 // @test-link [[rule_seeded_phrase_reproduction]]
 // @test-link [[module_phrase_replay_key]]
-test('a slice of the v2.0 replay-key corpus replays in the browser worker to its stored timelines, also as ifk4', async ({
+test('a slice of the v2.0 replay-key corpus replays in the browser worker to its stored timelines, also as ifk5', async ({
   page,
 }) => {
   test.setTimeout(SLICE_TIMEOUT_MS)
@@ -192,7 +195,7 @@ test('a slice of the v2.0 replay-key corpus replays in the browser worker to its
 
 // @test-link [[rule_seeded_phrase_reproduction]]
 // @test-link [[module_phrase_replay_key]]
-test('a slice of the v3.1 replay-key corpus replays in the browser worker to its stored timelines, also as ifk4', async ({
+test('a slice of the v3.1 replay-key corpus replays in the browser worker to its stored timelines, also as ifk5', async ({
   page,
 }) => {
   test.setTimeout(SLICE_TIMEOUT_MS)
@@ -226,15 +229,25 @@ type HeadlessReplayOutput =
         | {
             readonly kind: 'generation_success'
             readonly result: { readonly timeline: unknown }
-            readonly provenance: { readonly rhythmLockOutcome?: string }
+            readonly provenance: {
+              readonly rhythmLockOutcome?: string
+              readonly harmony: { readonly events: readonly { readonly seventh?: unknown }[] }
+            }
           }
         | { readonly kind: 'generation_failure'; readonly code: string }
     }
 
+/** The carry-out of a headless replay, when the phrase hands one forward. */
+type HeadlessReplayCarryOut = {
+  readonly carryIn: { readonly finalHarmony: { readonly seventh?: unknown } | null }
+} | null
+
 /** The headless replay surface the hand check calls, narrowed from the loaded module. */
 interface HeadlessReplayModule {
   readonly extractPhraseReplayKey: (text: string) => string
-  readonly replayPhraseKey: (key: string) => { readonly output: HeadlessReplayOutput }
+  readonly replayPhraseKey: (key: string) => {
+    readonly output: HeadlessReplayOutput & { readonly carryOut?: HeadlessReplayCarryOut }
+  }
 }
 
 /** Intent: load the headless replay module, failing loudly if a function it needs is missing. */
@@ -464,6 +477,81 @@ test('hand-written ifk4 keys replay in the browser to the same phrase as the hea
     expect(await replayKeyInBrowser(page, key), label).toEqual({
       kind: 'timeline',
       timeline: JSON.stringify(output.raw.result.timeline),
+    })
+  }
+})
+
+/** Intent: an `ifk5.` key written by hand from its ten entries: C major, Settled, a level. */
+function handKeyV5(
+  requestId: string,
+  seed: number,
+  level: string,
+  phraseNumber = 1,
+  carryIn: unknown = null,
+): string {
+  const tuple = [
+    requestId,
+    seed,
+    handControls('Settled'),
+    NEUTRAL_LEVELS,
+    phraseNumber,
+    carryIn,
+    null,
+    null,
+    null,
+    { 'seventh-chords': level },
+  ]
+  return `ifk5.${Buffer.from(JSON.stringify(tuple), 'utf8').toString('base64url')}`
+}
+
+/** Intent: the headless replay's phrase for a key: its timeline, its form per event, its carry-out. */
+function headlessPhrase(replay: HeadlessReplayModule, key: string, label: string) {
+  const { output } = replay.replayPhraseKey(key)
+  if (output.kind === 'crash' || output.raw.kind !== 'generation_success')
+    throw new Error(`${label}: the headless replay made no phrase`)
+  return {
+    timeline: JSON.stringify(output.raw.result.timeline),
+    sevenths: output.raw.provenance.harmony.events.map((each) => each.seventh !== undefined),
+    carryOut: output.carryOut ?? null,
+  }
+}
+
+// @test-link [[rule_seventh_chord_draws_reproducible]]
+// @test-link [[module_phrase_replay_key]]
+test('hand-written ifk5 keys replay in the browser to the same phrase as the headless replay', async ({
+  page,
+}) => {
+  test.setTimeout(SLICE_TIMEOUT_MS)
+  const replay = await loadHeadlessReplay()
+  const mostlyKey = handKeyV5('sevenths-4242', 4242, 'stronglyFavored')
+  const mostly = headlessPhrase(replay, mostlyKey, 'the Mostly phrase')
+  const carried = mostly.carryOut?.carryIn
+  expect(carried?.finalHarmony?.seventh, 'the Mostly phrase carries a seventh').toBeDefined()
+  const cases = [
+    { label: 'a Mostly phrase', key: mostlyKey, sevenths: [true, true, true, true] },
+    {
+      label: 'a Sometimes phrase',
+      key: handKeyV5('sevenths-4243', 4243, 'sometimes'),
+      sevenths: [true, false, true, false],
+    },
+    {
+      label: 'a Sometimes phrase whose plan stays triads',
+      key: handKeyV5('sevenths-4246', 4246, 'sometimes'),
+      sevenths: [false, false, false, false],
+    },
+    {
+      label: 'a phrase joined after a carried seventh',
+      key: handKeyV5('sevenths-joined-4243', 4243, 'stronglyFavored', 2, carried),
+      sevenths: undefined,
+    },
+  ]
+  await gotoWorkspaceHarness(page)
+  for (const { label, key, sevenths } of cases) {
+    const phrase = headlessPhrase(replay, key, label)
+    if (sevenths !== undefined) expect(phrase.sevenths, label).toEqual(sevenths)
+    expect(await replayKeyInBrowser(page, key), label).toEqual({
+      kind: 'timeline',
+      timeline: phrase.timeline,
     })
   }
 })

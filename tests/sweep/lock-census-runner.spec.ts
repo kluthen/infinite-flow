@@ -6,7 +6,7 @@
  * effect), the draws' buckets and a setting group's tally per Tension across phrases and allowed
  * list. Then one real sweep case, Tension across phrases on and off, with the strict lock and all
  * five kinds allowed: every session completes with no mismatch between record and bars, the strict
- * ones never draw, and sampled phrases replay from their `ifk4.` keys to the very result and
+ * ones never draw, and sampled phrases replay from their `ifk5.` keys to the very result and
  * provenance the session sounded. The preset groups' seeds and the case labels:
  * lock-census-seeds.spec.ts.
  */
@@ -230,7 +230,7 @@ describe('lock census runner: one real case, the strict lock and all five kinds'
     expect(group.availabilityFigures()[0]!.draws).toBe(drawsOfAllFive)
   })
 
-  it('replays sampled phrases from their ifk4. keys to the result and provenance they sounded with', () => {
+  it('replays sampled phrases from their ifk5. keys to the result and provenance they sounded with', () => {
     const replay = group.replaySamples()
     const counts = REPLAY_CLASSES.map((lockClass) => replay.byClass[lockClass])
     expect(replay.byClass.kept.replayed).toBeGreaterThan(0)
@@ -238,7 +238,7 @@ describe('lock census runner: one real case, the strict lock and all five kinds'
     for (const { replayed, matched, sampleKey } of counts) {
       expect(replayed).toBeLessThanOrEqual(2)
       expect(matched).toBe(replayed)
-      if (replayed > 0) expect(sampleKey).toMatch(/^ifk4\./)
+      if (replayed > 0) expect(sampleKey).toMatch(/^ifk5\./)
     }
     expect(replay.mismatchedKeys).toEqual([])
     expect(group.lines().some((line) => line.startsWith('LOCK-CENSUS [smoke] replay: '))).toBe(true)

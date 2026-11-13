@@ -267,17 +267,18 @@ function parseWireRequestGroups(record: Record<string, unknown>): {
  * the rebuilt intent by `makeCarryInGenerationIntent` itself; its `finalHarmony` is a carried
  * chord or an explicit null (dropped by a key or collection change), never missing. Shared by the
  * worker request parser and the phrase replay key decoder so neither keeps a parallel schema; each
- * names the carry-in parser it reads with (the worker reads both origins through `parseCarryIn`
- * taking a carried seventh, an `ifk4.` replay key both origins through `parseCarryIn` reading the
- * carried chord as a triad only, an older replay key only v3.1's form through
- * `parsePhraseCarryIn`, also triad-only). A built-in's profile is resolved from its id; my
+ * names the carry-in parser it reads with (the worker and an `ifk5.` replay key read both origins
+ * through `parseCarryIn` taking a carried seventh, an `ifk4.` replay key both origins through
+ * `parseCarryIn` reading the carried chord as a triad only, an older replay key only v3.1's form
+ * through `parsePhraseCarryIn`, also triad-only). A built-in's profile is resolved from its id; my
  * instrument's, which its id alone cannot give, is read from the record's `instrumentProfile`
  * through `parseMyInstrumentProfile`. The
  * `figureLevels` are required and read through the domain's figure-levels parser, then handed to
  * the factory as the intent's levels; a record holds no musical profile, so none is read. The
  * Seventh chords level is read by the reader its caller passes, since the forms differ and nothing
- * is defaulted here: the worker requires it (`parseWireChordFamilies`); a replay key up to
- * `ifk4.`, which holds none, reads Off. The rhythm lock group and the steering block, each when
+ * is defaulted here: the worker requires it (`parseWireChordFamilies`); an `ifk5.` replay key
+ * gives the level its slot holds, read through the chord families' parser; a replay key up to
+ * `ifk4.`, which holds none, gives Off. The rhythm lock group and the steering block, each when
  * its key is present, are parsed by `parseWireRequestGroups` and handed to the builders.
  */
 // @spec-link [[module_generation_worker_protocol]]

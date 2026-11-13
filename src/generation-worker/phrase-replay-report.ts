@@ -1,13 +1,15 @@
 /**
  * The headless phrase replay report: the readable JSON account of one replayed phrase key. Its
- * input holds every generation-intent field verbatim plus readable names, the rhythm lock group
- * and the steering block among them (null when the request has none); its output holds, for a
+ * input holds every generation-intent field verbatim, by name, plus readable names, the Seventh
+ * chords level (the chord families) among them, and the rhythm lock group and the steering block
+ * (null when the request has none); its output holds, for a
  * successful phrase, the resolved request, the four bars, the harmony, the ending, the carry-out,
  * the provenance, the diagnostics and the raw outcome verbatim; a generation failure keeps its
  * code and diagnostics; a worker crash keeps its error name and message. Readable additions always
  * sit beside the raw values, never in place of them.
  */
 
+import type { ChordFamilies } from '../domain/chords/chord-families'
 import type { GenerationControls, PitchClass } from '../domain/controls/generation-controls'
 import type { FigureLevels } from '../domain/figures/figure-levels'
 import { deriveCarryIn } from '../domain/generation/carry-in/carry-in-derivation'
@@ -81,6 +83,8 @@ export interface PhraseReplayInput {
   readonly tonalCenters: ReplayTonalCenters
   /** The seven figure levels by figure id; the intent holds no musical profile. */
   readonly figureLevels: FigureLevels
+  /** The chord families by capability name: the Seventh chords level, Off for every key before ifk5. */
+  readonly chordFamilies: ChordFamilies
   readonly instrumentProfile: InstrumentProfile
   readonly instrumentConcertRange: NamedMidiRange
   readonly registerIntent: RegisterIntent
@@ -198,7 +202,12 @@ function concertKeyOf(intent: GenerationIntent): WrittenKey {
   return keyFor(intent.controls.tonalCenter, intent.controls.collection)
 }
 
-/** Intent: the input section: every intent field verbatim, readable names and the envelope. */
+/**
+ * Intent: the input section: every intent field verbatim, copied by name, the chord families among
+ * them, readable names and the envelope.
+ */
+// @spec-link [[service_headless_phrase_replay]]
+// @spec-link [[rule_seventh_chord_draws_reproducible]]
 function replayInput(
   intent: GenerationIntent,
   workerRequest: GenerationWorkerRequest,
@@ -218,6 +227,7 @@ function replayInput(
       concert: { pitchClass: intent.controls.tonalCenter, key: concertKey.label },
     },
     figureLevels: intent.figureLevels,
+    chordFamilies: intent.chordFamilies,
     instrumentProfile: intent.instrumentProfile,
     instrumentConcertRange: namedRange(intent.instrumentProfile.concertRange, concertKey),
     registerIntent: intent.registerIntent,

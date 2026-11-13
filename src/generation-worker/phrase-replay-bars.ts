@@ -1,6 +1,7 @@
 /**
  * The bar-by-bar part of the headless phrase replay report: for each of the four bars, its chords
- * (1-based beat timing, roles, concert and written symbols) and every note and rest in order
+ * (1-based beat timing, roles, concert and written symbols, and the quality and notes of the chord
+ * the symbol names: a seventh-form event's seventh chord, a triad event's triad) and every note and rest in order
  * (1-based onset beat, duration, concert and written pitch, ties). Written pitches and chord
  * symbols are read from the notation path (notationInputFromOutcome then
  * transformToWrittenPhrase), never transposed here.
@@ -10,7 +11,13 @@ import type { GenerationIntent } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
 import type { EventAnnotations, MeasureEvent } from '../domain/events/measure-event'
 import type { ConcertEventTimeline } from '../domain/events/timeline'
-import type { BarRole, HarmonyEvent } from '../domain/harmony/harmony-types'
+import {
+  chordTones,
+  type BarRole,
+  type HarmonyEvent,
+  type SeventhQuality,
+  type TriadQuality,
+} from '../domain/harmony/harmony-types'
 import { notationInputFromOutcome } from '../domain/notation/notation-input'
 import { transformToWrittenPhrase } from '../domain/notation/written-phrase'
 import { BUILT_IN_INSTRUMENT_CLEF } from '../domain/profile/instrument-clef'
@@ -58,7 +65,9 @@ export interface ReplayChord {
   /** The chord symbol the written staff shows, from the notation path. */
   readonly writtenSymbol: string
   readonly degree: number
-  readonly quality: HarmonyEvent['triad']['quality']
+  /** The quality of the chord the symbol names: the seventh chord's in seventh form, else the triad's. */
+  readonly quality: TriadQuality | SeventhQuality
+  /** The chord's notes as pitch classes: four in seventh form (`chordTones`), three for a triad. */
   readonly pitchClasses: readonly number[]
   readonly pitchClassNames: readonly string[]
   readonly role: HarmonyEvent['role']
@@ -218,7 +227,13 @@ function symbolAt<T>(symbols: readonly T[], matches: (symbol: T) => boolean, whe
   return found
 }
 
-/** Intent: one harmony event restated as a chord of its starting bar. */
+/**
+ * Intent: one harmony event restated as a chord of its starting bar, its quality and notes those of
+ * the chord its symbol names: a seventh-form event's seventh quality and four notes, a triad
+ * event's triad.
+ */
+// @spec-link [[service_headless_phrase_replay]]
+// @spec-link [[rule_seventh_chord_symbols]]
 function replayChord(
   event: HarmonyEvent,
   harmonyEventIndex: number,
@@ -237,6 +252,7 @@ function replayChord(
     (chord) => chord.startTick === tick,
     where,
   )
+  const tones = chordTones(event)
   return {
     harmonyEventIndex,
     startBeat: event.startBeat + 1,
@@ -244,9 +260,9 @@ function replayChord(
     symbol: `${pitchClassNameInKey(concert.root, concertKey)}${concert.suffix}`,
     writtenSymbol: written.text,
     degree: event.triad.degree,
-    quality: event.triad.quality,
-    pitchClasses: event.triad.pitchClasses,
-    pitchClassNames: event.triad.pitchClasses.map((pc) => pitchClassNameInKey(pc, concertKey)),
+    quality: event.seventh?.quality ?? event.triad.quality,
+    pitchClasses: tones,
+    pitchClassNames: tones.map((pc) => pitchClassNameInKey(pc, concertKey)),
     role: event.role,
     barRoles: event.barRoles.map((barRole) => ({ ...barRole, bar: barRole.barIndex + 1 })),
     templateId: event.templateId,
