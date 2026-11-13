@@ -6,8 +6,8 @@
 **Severity:** Low
 **Status:** Open
 **Component:** `tests/e2e/workspace-harness/main.ts`
-**Affects:** `tests/e2e/session/session-start-conditions.spec.ts`,
-`tests/e2e/session/session-midi-start.spec.ts` (fixed 2026-11-13), the other specs that arm
+**Affects:** `tests/e2e/session/session-start-conditions.spec.ts` and
+`tests/e2e/session/session-midi-start.spec.ts` (both fixed 2026-11-13), the other specs that arm
 `failNextGeneration` (listed below), `npm run quality` (the pregeneration pass of `test:e2e`), the
 wave gates
 
@@ -60,7 +60,8 @@ generation then succeeds with no banner (shown on `main` b8e291e8 and on `v3.3-w
 
 ### Where This Pattern Exists Today
 
-- `tests/e2e/session/session-start-conditions.spec.ts:114` (open).
+- `tests/e2e/session/session-start-conditions.spec.ts:114`: fixed 2026-11-13 the same way, after it
+  failed in the next full run (v3.3 wave 3, `w3-gate-4`).
 - `tests/e2e/session/session-midi-start.spec.ts:392` (item 22, the generation-failure banner):
   fixed 2026-11-13 by holding background attempts (`holdBackground`) before arming.
 - Other specs that arm `failNextGeneration` without holding background attempts, to check
@@ -96,7 +97,7 @@ generation then succeeds with no banner (shown on `main` b8e291e8 and on `v3.3-w
 may run, call `holdBackground(page)` (`tests/e2e/workspace/pregeneration-helpers.ts`) right before
 arming: every background attempt launched afterwards waits at the background gate, before the armed
 check, and every attempt launched earlier has already passed it. Done for
-`session-midi-start.spec.ts:392`; apply it to `session-start-conditions.spec.ts:114`. When a wave
+`session-midi-start.spec.ts:392` and `session-start-conditions.spec.ts:114`. When a wave
 gate fails on such a test, re-run it alone (pregeneration off and on) and re-run `npm run quality`;
 record it in the wave log as this issue.
 
@@ -121,7 +122,10 @@ pregeneration pass of 2 of 2 full `npm run quality` runs (load ~12 at the second
 passed. Not a wave 3 regression: the flow makes the same calls on `main` b8e291e8 and on d84bed91
 (1 click generation, 4 background attempts, no discard or restart, idle and under 16 or 24 CPU
 hogs, 6 + 60 + 100 runs each), with the same timing, and the unchanged test failed on b8e291e8
-too (1 of 40 at 16 CPU hogs, pregeneration on). With the fix: 80 of 80 at 16 CPU hogs.
+too (1 of 40 at 16 CPU hogs, pregeneration on). With the fix: 80 of 80 at 16 CPU hogs. The next
+full run (`a5b0991f`, started at load 2.65) passed it and failed instead on
+`session-start-conditions.spec.ts:114`, the same race; with the same fix that test passed 60 of 60
+at 16 CPU hogs.
 
 ---
 
@@ -143,3 +147,5 @@ too (1 of 40 at 16 CPU hogs, pregeneration on). With the fix: 80 of 80 at 16 CPU
   failure on `main` b8e291e8, so not a wave 3 regression. Fixed that test by holding background
   attempts before arming; `session-start-conditions.spec.ts:114` and the other specs listed stay
   open.
+- **2026-11-13**: `session-start-conditions.spec.ts:114` failed the same way in the next full run;
+  fixed the same way. The other specs listed and the medium-term harness fix stay open.
