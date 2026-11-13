@@ -1536,6 +1536,72 @@ row. Locked rhythms kept, Tension across phrases on (off in brackets):
 No share was tuned: the shares stay `SOMETIMES_SEVENTH_SHARE` 64 and `FAVORED_SEVENTH_SHARE` 128.
 One finding outside the acceptance: ISS-019 (Bebop's refused joins, above).
 
+### ISS-019 fixed: a figure's goal on the final attack (v3.3 chunk 5, second addendum)
+
+**The change** (spec D535): a figure aimed at the phrase's final attack takes its goal from the
+final chord's triad, as the validator reads it (spec D6.3), instead of its chord tones; inside the
+phrase a figure may still resolve onto the seventh. Over a triad final event the two lists are
+equal, so nothing moves at Off.
+
+**Machine and date.** Run by Claude on 2026-11-13 on branch `v3.3-c5y-final-figure-goal` (cut from
+`v3.3-w4` at 69f1e129), on the reference machine (AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB RAM,
+Node 22.23.4), one run at a time, nothing else of the project running; the desktop and a database
+job outside the project were running.
+
+**The cost runner.** `COST_SETTINGS=sevenths COST_OUT=<file.json> npm run measure:cost`,
+21:13–21:28 CET (881 s; 1-minute load average 3.2 at the start, 2.0 at the end). Failed distinct
+intents by code, beside [chunk 18's run](#first-run-at-every-level-v33-chunk-18):
+
+| Setting                  | `no_legal_pitch_plan` | `search_limit_exceeded` | `result_validation_failed` | Chunk 18 (the same order) |
+| ------------------------ | --------------------- | ----------------------- | -------------------------- | ------------------------- |
+| Speed drill at Strongly  | 0                     | 0                       | 0                          | 0 / 0 / 0                 |
+| Neutral at Off           | 51                    | 18                      | 0                          | 51 / 18 / 0               |
+| Jazz at Off              | 40                    | 37                      | 0                          | 40 / 37 / 0               |
+| Neutral at Sometimes     | 46                    | 29                      | 0                          | 46 / 29 / 0               |
+| Jazz at Sometimes        | 41                    | 35                      | 0                          | 41 / 35 / 0               |
+| Neutral at Favored       | 41                    | 34                      | 0                          | 40 / 34 / 0               |
+| Jazz at Favored          | 28                    | 57                      | 0                          | 28 / 57 / 0               |
+| Neutral at Strongly      | 20                    | 45                      | 0                          | 20 / 45 / 0               |
+| Jazz at Strongly         | 17                    | 41                      | 0                          | 17 / 41 / 0               |
+| Bebop at Strongly, Major | 0                     | 0                       | **0**                      | 0 / 0 / **105**           |
+
+Bebop at Strongly favored generates every phrase 2 to 6 at 60, 120 and 240 BPM (2,840 of 2,840
+each), with no failed join left (56, 56 and 49 before) and 583 (15) standalone at 240 BPM, as
+before; its distinct intents now hold 26,870 harmony events in seventh form (26,861 before: the
+joins that were refused are generated, and the next rung's phrases no longer replace them). Every
+other setting's phrases generated, standalone counts, seventh shares and fallbacks (0) equal chunk
+18's. **One count moved outside Bebop, by timing, not by the change:** Neutral at Favored, one more
+`no_legal_pitch_plan` intent (40 to 41), from one more join attempted at 240 BPM (failed joins 31 to
+32, attempts 3,439 to 3,440). Neutral's levels offer no figure path a final attack could be the
+target of (no chromatic figure, appoggiatura or diatonic enclosure, and Tension's scheduled figure
+always resolves before the final attack), so its search is unchanged; the runner charges each
+attempt its measured time plus 100 ms, so a higher load can move which intents a session tries at
+240 BPM. Neutral at Off, which the change cannot reach (the corpus guard and the goldens pass
+unchanged), moved the same way: at 240 BPM one standalone phrase after a cutover cancel instead of
+after no legal pitch plan (1 to 2, 10 to 9), and Neutral at Strongly favored one after three
+retries instead of after a cutover cancel.
+
+**Bebop at every level** (ISS-019's table, the flat attempt cost: the 568 cases at 60, 120 and 240
+BPM, every attempt generated whatever its time, so the counts do not depend on the machine),
+21:28–21:31 CET (load 1.3 at the start, 1.6 at the end):
+
+| Level            | Distinct intents | Standalone / joined | `result_validation_failed` | ISS-019 (before) |
+| ---------------- | ---------------- | ------------------- | -------------------------- | ---------------- |
+| Off              | 6,888            | 678 / 6,210         | 0                          | 0                |
+| Sometimes        | 6,888            | 678 / 6,210         | 0                          | 30               |
+| Favored          | 6,888            | 672 / 6,216         | 0                          | 68               |
+| Strongly favored | 6,888            | 676 / 6,212         | 0                          | 102              |
+
+No intent failed at any level, with any code: every phrase is generated. Off's row is ISS-019's
+count for count. Above Off the distinct intents are now the same count as at Off (6,834 to 6,877
+before): a refused join had sent the session to a further rung, with intents of its own.
+
+**Replays.** ISS-019's key now replays to a phrase (`generation_success`, test
+`phrase-replay-key-final-figure.spec.ts`); chunk 15's `ifk5.` tests pass, and the 15 `ifk5.` keys
+of the L1 listening examples (HARDWARE-CHECKLIST.md, v3.3 H1) replay byte for byte as before: none
+of their searches had aimed a figure at a final seventh (their chromatic figures, appoggiatura and
+diatonic enclosure are off).
+
 ## My instrument ranges (2026-10-11)
 
 Measurement M3's generator half: whether a player-made instrument whose range is exactly two

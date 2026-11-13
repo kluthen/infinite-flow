@@ -11,14 +11,15 @@ import {
   phraseEndingDebtAllowance,
   tenseNoteCanSettle,
 } from '../generation/carry-in/phrase-ending-debt'
-import type {
-  BoundPitchPlannerInput,
-  FreeToneResolution,
-  PitchAttack,
-  PitchCandidate,
-  PitchFigureKind,
-  PitchReservation,
-  PitchRole,
+import {
+  figureGoalPitchClasses,
+  type BoundPitchPlannerInput,
+  type FreeToneResolution,
+  type PitchAttack,
+  type PitchCandidate,
+  type PitchFigureKind,
+  type PitchReservation,
+  type PitchRole,
 } from './pitch-types'
 
 /** One candidate before octave identity and enumeration index are assigned. */
@@ -105,6 +106,16 @@ function chordMidis(facts: DomainFacts, attack: PitchAttack): readonly number[] 
   return facts.playable.filter((midi) => attack.chordPitchClasses.includes(pc(midi)))
 }
 
+/**
+ * Playable MIDI values a figure aimed at `target` may resolve onto, ascending: on the final
+ * attack its triad tones, elsewhere its chord tones (`figureGoalPitchClasses`). Every figure path
+ * takes its goal from here.
+ */
+function figureGoalMidis(facts: DomainFacts, target: PitchAttack): readonly number[] {
+  const goals = figureGoalPitchClasses(target)
+  return facts.playable.filter((midi) => goals.includes(pc(midi)))
+}
+
 /** True when collection members `a` and `b` are 1-2 semitones apart. */
 function isCollectionStep(facts: DomainFacts, a: number, b: number): boolean {
   const distance = Math.abs(a - b)
@@ -171,7 +182,7 @@ function boundPaths(facts: DomainFacts): readonly FigurePath[] {
     targetAttackIndex: target.attackIndex,
   }
   const paths: FigurePath[] = []
-  for (const goal of chordMidis(facts, target))
+  for (const goal of figureGoalMidis(facts, target))
     for (const tone of diatonicNonChord(facts, last)) {
       if (!isCollectionStep(facts, tone, goal)) continue
       if (binding.figureKind === 'appoggiatura')
@@ -192,7 +203,7 @@ function boundPaths(facts: DomainFacts): readonly FigurePath[] {
 /** Chromatic approach paths: one out-of-collection semitone neighbor of the next chord tone. */
 function approachPaths(facts: DomainFacts, member: PitchAttack, target: PitchAttack) {
   const paths: FigurePath[] = []
-  for (const goal of chordMidis(facts, target))
+  for (const goal of figureGoalMidis(facts, target))
     for (const tone of [goal - 1, goal + 1])
       if (facts.playable.includes(tone) && !facts.collection.includes(pc(tone)))
         paths.push({
@@ -209,7 +220,7 @@ function approachPaths(facts: DomainFacts, member: PitchAttack, target: PitchAtt
 function enclosurePaths(facts: DomainFacts, group: readonly PitchAttack[]) {
   const paths: FigurePath[] = []
   const target = group[2]!
-  for (const goal of chordMidis(facts, target))
+  for (const goal of figureGoalMidis(facts, target))
     for (const first of [goal + 1, goal - 1]) {
       const second = 2 * goal - first
       if (!facts.playable.includes(first) || !facts.playable.includes(second)) continue
@@ -322,7 +333,7 @@ function appoggiaturaPaths(
   target: PitchAttack,
 ): readonly FigurePath[] {
   const paths: FigurePath[] = []
-  for (const goal of chordMidis(facts, target))
+  for (const goal of figureGoalMidis(facts, target))
     for (const tone of diatonicNonChord(facts, member))
       if (isCollectionStep(facts, tone, goal))
         paths.push({
@@ -364,7 +375,7 @@ function diatonicEnclosurePaths(
 ): readonly FigurePath[] {
   const paths: FigurePath[] = []
   const [first, second, target] = [group[0]!, group[1]!, group[2]!]
-  for (const goal of chordMidis(facts, target)) {
+  for (const goal of figureGoalMidis(facts, target)) {
     const upper = enclosingStep(facts, first, goal, 1)
     const lower = enclosingStep(facts, first, goal, -1)
     if (upper === undefined || lower === undefined) continue
@@ -720,7 +731,7 @@ function domainMemoKey(facts: DomainFacts, attackIndex: number): number {
  * its onset, so whether it falls on beat 1 or 3, and so which passing figure a free tone names),
  * finality and chord; which allowed free figure paths land on it (a chromatic or diatonic
  * enclosure from the attack before; a free appoggiatura, a chromatic approach, or a chromatic or
- * diatonic enclosure from itself); and the chords of the targets those paths resolve to.
+ * diatonic enclosure from itself); and the goal tones of the targets those paths resolve to.
  */
 function freeDomainKey(facts: DomainFacts, attack: PitchAttack): string {
   const index = attack.attackIndex
@@ -729,6 +740,8 @@ function freeDomainKey(facts: DomainFacts, attack: PitchAttack): string {
    * determine its triad tones.
    */
   const chord = (at: number) => facts.attacks[at]!.chordPitchClasses.join(',')
+  /** The tones a figure aimed at the attack at `at` may resolve onto, as key text. */
+  const goal = (at: number) => figureGoalPitchClasses(facts.attacks[at]!).join(',')
   const levels = facts.input.policy.figureLevels
   const approachAllowed = allowsFreeFigure(levels, 'chromaticApproach')
   const enclosureAllowed = allowsFreeFigure(levels, 'chromaticEnclosure')
@@ -755,8 +768,8 @@ function freeDomainKey(facts: DomainFacts, attack: PitchAttack): string {
     Number(attack.isFinal),
     chord(index),
     offered.map(Number).join(''),
-    nextTarget ? chord(index + 1) : '',
-    enclosure || diatonic ? chord(index + 2) : '',
+    nextTarget ? goal(index + 1) : '',
+    enclosure || diatonic ? goal(index + 2) : '',
   ].join('|')
 }
 
