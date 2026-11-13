@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { CHORD_FAMILY_LEVEL_IDS } from '@/domain/chords/chord-families'
 import { resolveGeneratedControls } from '@/domain/controls/generated-note-density'
 import {
   ARPEGGIO_CHAOS_VALUES,
@@ -76,6 +77,7 @@ const EXPECTED_KEYS: readonly SettingKey[] = [
   'figureLevels.diatonicEnclosure',
   'figureLevels.chromaticApproach',
   'figureLevels.chromaticEnclosure',
+  'chordFamilies.seventh-chords',
   'presetSelection',
   'theme',
   'mix.clickOn',
@@ -111,16 +113,17 @@ function afterOneFallback(key: SettingKey, other: SettingKey): unknown {
 
 /**
  * Intent: the selection a load gives for `selection` over the loaded settings, the values winning:
- * a built-in whose controls, levels or restriction the loaded values do not match loads as
- * Custom based on it.
+ * a built-in whose controls, levels, Seventh chords level or restriction the loaded values do not
+ * match loads as Custom based on it.
  */
 function loadedSelection(selection: PresetSelection, loaded: SavedSettings): PresetSelection {
   if (selection.kind === 'custom') return selection
   const preset = findPreset(BUILT_IN_PRESETS, selection.presetId)!
-  const { controls, figureLevels } = loaded
+  const { controls, figureLevels, chordFamilies } = loaded
   const own =
     PRESET_HELD_CONTROL_KEYS.every((key) => controls[key] === preset.controls[key]) &&
     FIGURE_IDS.every((figure) => figureLevels[figure] === preset.levels[figure]) &&
+    chordFamilies['seventh-chords'] === preset.chordFamilies['seventh-chords'] &&
     allowsKeyAndMode(preset.restriction, controls.tonalCenter, controls.collection)
   return own ? selection : { kind: 'custom', baseId: preset.id }
 }
@@ -129,6 +132,9 @@ function loadedSelection(selection: PresetSelection, loaded: SavedSettings): Pre
 function isLevelKey(key: SettingKey): boolean {
   return key.startsWith('figureLevels.')
 }
+
+/** The Seventh chords level's record key. */
+const SEVENTH_CHORDS_KEY: SettingKey = 'chordFamilies.seventh-chords'
 
 const BOOLEAN_KEYS = new Set<SettingKey>([
   'mix.clickOn',
@@ -238,6 +244,9 @@ function invalidValues(key: SettingKey): readonly unknown[] {
   if (isLevelKey(key)) {
     return ['Off', 'favoured', 'asToday ', 'none', ...WRONG_TYPES.filter((v) => v !== 'text')]
   }
+  if (key === SEVENTH_CHORDS_KEY) {
+    return ['Off', 'Mostly', 'often', 'asToday', 'off ', ...WRONG_TYPES.filter((v) => v !== 'text')]
+  }
   const unknown = ['Unknown', '', 'quarter', 'Sixteenth ', 'C♯']
   const extra = key === 'controls.instrumentProfileId' ? [MY_INSTRUMENT_ID] : []
   return [...unknown, ...extra, ...WRONG_TYPES.filter((value) => typeof value !== 'string')]
@@ -275,6 +284,7 @@ function randomValue(key: SettingKey, next: () => number): unknown {
     return Math.round(next() * 100) / 100
   }
   if (isLevelKey(key)) return pick(FIGURE_LEVEL_IDS)
+  if (key === SEVENTH_CHORDS_KEY) return pick(CHORD_FAMILY_LEVEL_IDS)
   if (key === 'sessionOptions.allowedRhythmChanges') {
     return RHYTHM_CHANGE_KINDS.filter(() => next() < 0.5)
   }
@@ -294,8 +304,8 @@ function randomValue(key: SettingKey, next: () => number): unknown {
 
 /**
  * Intent: a random full set of valid settings, built through the codec's own key table. A preset
- * selected holds its own ten controls and seven levels, and a written key and mode it allows, as
- * the app saves it.
+ * selected holds its own ten controls, seven levels and Seventh chords level, and a written key and
+ * mode it allows, as the app saves it.
  */
 function randomSettings(next: () => number): SavedSettings {
   const grouped: Record<string, unknown> = {}
@@ -320,6 +330,7 @@ function randomSettings(next: () => number): SavedSettings {
       collection: modes === 'any' || modes.includes(collection) ? collection : modes[0],
     },
     figureLevels: preset.levels,
+    chordFamilies: preset.chordFamilies,
   }
 }
 

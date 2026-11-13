@@ -70,6 +70,7 @@ export const NON_DEFAULT: SavedSettings = {
     chromaticApproach: 'stronglyFavored',
     chromaticEnclosure: 'asToday',
   },
+  chordFamilies: { 'seventh-chords': 'favored' },
   presetSelection: { kind: 'custom', baseId: 'jazz' },
   theme: 'Dark',
   mix: {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
@@ -303,6 +304,7 @@ describe('chosenControlChanges', () => {
   const before = {
     controls: DEFAULT_GENERATION_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: DEFAULT_PRESET_SELECTION,
   }
 
@@ -339,7 +341,12 @@ describe('chosenControlChanges', () => {
   })
 
   it('holds the controls and levels a Jazz choice changed, and Jazz selected', () => {
-    const jazz = { controls: controlsOf('jazz'), figureLevels: JAZZ_FIGURE_LEVELS, selection: JAZZ }
+    const jazz = {
+      ...before,
+      controls: controlsOf('jazz'),
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      selection: JAZZ,
+    }
 
     expect(chosenControlChanges(before, jazz)).toEqual({
       'controls.noteDensity': 'Eighth',
@@ -354,7 +361,12 @@ describe('chosenControlChanges', () => {
   })
 
   it('writes Custom based on Jazz once, when the selection becomes it', () => {
-    const jazz = { controls: controlsOf('jazz'), figureLevels: JAZZ_FIGURE_LEVELS, selection: JAZZ }
+    const jazz = {
+      ...before,
+      controls: controlsOf('jazz'),
+      figureLevels: JAZZ_FIGURE_LEVELS,
+      selection: JAZZ,
+    }
     const custom = { ...jazz, selection: { kind: 'custom', baseId: 'jazz' } as PresetSelection }
 
     expect(chosenControlChanges(jazz, custom)).toEqual({
@@ -386,5 +398,39 @@ describe('chosenControlChanges', () => {
     expect(chosenControlChanges(before, sameAgain)).toEqual({})
     expect(chosenControlChanges(custom, before)).toEqual({ presetSelection: before.selection })
     expect(chosenControlChanges(before, custom)).toEqual({ presetSelection: custom.selection })
+  })
+
+  it('holds the Seventh chords level a level edit changed, and the Custom selection it made', () => {
+    const chordFamilies = { 'seventh-chords': 'sometimes' } as const
+    const selection: PresetSelection = { kind: 'custom', baseId: 'neutral' }
+
+    expect(chosenControlChanges(before, { ...before, chordFamilies, selection })).toEqual({
+      'chordFamilies.seventh-chords': 'sometimes',
+      presetSelection: { kind: 'custom', baseId: 'neutral' },
+    })
+  })
+
+  it('saves the level with the selection of a preset differing from the settings only in its level', () => {
+    const mostly = { ...before, chordFamilies: { 'seventh-chords': 'stronglyFavored' } as const }
+    const chosen = { ...mostly, selection: { kind: 'preset', presetId: 'player-1' } as const }
+
+    expect(chosenControlChanges(before, chosen)).toEqual({
+      'chordFamilies.seventh-chords': 'stronglyFavored',
+      presetSelection: { kind: 'preset', presetId: 'player-1' },
+    })
+    expect(chosenControlChanges(chosen, before)).toEqual({
+      'chordFamilies.seventh-chords': 'off',
+      presetSelection: DEFAULT_PRESET_SELECTION,
+    })
+  })
+
+  it('holds no level when the level did not change', () => {
+    const mostly = { ...before, chordFamilies: { 'seventh-chords': 'stronglyFavored' } as const }
+    const controls = makeGenerationControls({ ...before.controls, tempo: 120 })
+
+    expect(chosenControlChanges(mostly, { ...mostly, controls })).toEqual({
+      'controls.tempo': 120,
+    })
+    expect(chosenControlChanges(mostly, { ...mostly })).toEqual({})
   })
 })

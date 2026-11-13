@@ -405,16 +405,14 @@ export function createHarnessStorage(
 
   /**
    * Intent: write one player preset record per preset through the preset codec, under its id,
-   * each preset first built by the preset model, which refuses an invalid one.
+   * each preset first built by the preset model, which refuses an invalid one; a preset given no
+   * Seventh chords level is seeded at Off.
    */
   async function seedPresets(presets: readonly WorkspaceHarnessPresetInput[]): Promise<void> {
     const changes = presets.map((input): StorageChange => {
-      // Plain JSON from the spec, checked field by field by the preset model. A stored player
-      // preset record holds no Seventh chords level, so the seam seeds every preset at Off.
-      const preset = makePreset({
-        ...(input as unknown as Preset),
-        chordFamilies: OFF_CHORD_FAMILIES,
-      })
+      // Plain JSON from the spec, checked field by field by the preset model, its level included.
+      const { chordFamilies = OFF_CHORD_FAMILIES, ...fields } = input
+      const preset = makePreset({ ...(fields as unknown as Preset), chordFamilies } as Preset)
       const record = encodePresetRecord(preset, APP_VERSION)
       return { kind: 'write', store: 'presets', key: preset.id, record }
     })

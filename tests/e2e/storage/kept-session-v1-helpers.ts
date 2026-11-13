@@ -1,13 +1,15 @@
 /**
  * Shared helpers for the browser checks of the kept-session upgrades (v3.1 chunk 9, v3.2 chunk
- * 22), on the workspace harness (port 4175) over the browser's real IndexedDB: a Jazz session
- * played and kept by this version, its records read back and turned, in Node, into the shapes an
+ * 22, v3.3 chunk 17), on the workspace harness (port 4175) over the browser's real IndexedDB: a
+ * session (a Jazz session; from v3.2, a Jam session too) played and kept by this version, its
+ * records read back and turned, in Node, into the shapes an
  * earlier version kept them in, and a held load seeded with copies of it through the harness's
  * seam for that version before the upgrading load runs. v3.1's shapes are data version 2: no Jam
  * mark, no doodle, no played-notes clock, and no rhythm lock group, steering block or carry-in
  * from no phrase in a phrase's request or intent. v3.0's are data version 1: v3.1's, with the
  * musical profile selection in the session-wide record and in each phrase's intent, no preset
- * label and no figure levels.
+ * label and no figure levels. v3.2's are data version 4: this version's, with no Seventh chords
+ * level in a phrase's intent, and no seventh chord anywhere.
  */
 import type { Page } from '@playwright/test'
 
@@ -218,4 +220,79 @@ export async function releaseHeldLoad(page: Page): Promise<void> {
     if (held === undefined) throw new Error('the load is not held')
     held.release()
   })
+}
+
+/** The app version of the v3.2 tab the v3.2 records are written as. */
+const V32_APP_VERSION = '3.2.0'
+
+/**
+ * Intent: a stored intent as v3.2 kept it: the same fields in the same order without the Seventh
+ * chords level. Throws for a level above Off, which v3.2 never kept.
+ */
+function v32Intent(intent: StoredIntent): StoredIntent {
+  const { chordFamilies, ...rest } = intent
+  const level = (chordFamilies as Record<string, unknown> | undefined)?.['seventh-chords']
+  if (level !== undefined && level !== 'off') {
+    throw new Error('v3.2 never kept a Seventh chords level above Off')
+  }
+  return rest
+}
+
+/**
+ * Intent: the stored values a session this version kept had when v3.2 kept them: its session-wide
+ * record as stored (data version 4 since v3.2), its body at data version 4, written by v3.2
+ * (`3.2.0`), every field in the same order, each phrase's intent without the Seventh chords level;
+ * its played notes as stored. Throws for a body holding a seventh chord or a level above Off,
+ * which no v3.2 body held; the harness's v3.2 seam checks the same.
+ */
+export function v32Session(stored: StoredSession): StoredSession {
+  if (JSON.stringify(stored.body).includes('"seventh"')) {
+    throw new Error('v3.2 never kept a seventh chord')
+  }
+  const body = structuredClone(stored.body)
+  for (const phrase of storedPhrases(body)) phrase.intent = v32Intent(phrase.intent)
+  const entries = Object.entries(body).map(([key, value]): [string, unknown] => {
+    if (key === 'dataVersion') return [key, 4]
+    return key === 'appVersion' ? [key, V32_APP_VERSION] : [key, value]
+  })
+  return {
+    summary: structuredClone(stored.summary),
+    body: Object.fromEntries(entries),
+    ...(stored.playedNotes === undefined ? {} : { playedNotes: stored.playedNotes }),
+  }
+}
+
+/**
+ * Intent: while the load is held, seed `count` copies of the v3.2 session `template` through the
+ * harness's v3.2 port, at data version 4 (copies keyed and started as `seedVersionOne`'s).
+ */
+export function seedVersionFour(page: Page, template: StoredSession, count: number): Promise<void> {
+  return page.evaluate(
+    ([seeded, copies]) => {
+      const held = window.__workspaceHarnessHeldLoad
+      if (held === undefined) throw new Error('the load is not held')
+      return held.seedVersionFourSessions(seeded, copies)
+    },
+    [template, count] as const,
+  )
+}
+
+/**
+ * Intent: while the load is held, seed v3.2's settings (`values`, by record key) and player
+ * presets through the harness's v3.2 port, as v3.2 wrote them.
+ */
+export async function seedVersionFourSettingsAndPresets(
+  page: Page,
+  values: Readonly<Record<string, unknown>>,
+  presets: readonly WorkspaceHarnessPresetInput[],
+): Promise<void> {
+  await page.evaluate(
+    async ([settings, players]) => {
+      const held = window.__workspaceHarnessHeldLoad
+      if (held === undefined) throw new Error('the load is not held')
+      await held.seedVersionFourSettings(settings)
+      await held.seedVersionFourPresets(players)
+    },
+    [values, presets] as const,
+  )
 }

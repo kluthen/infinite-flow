@@ -6,8 +6,8 @@
  * and, where the preset rules say, the selection, and the unsupported-rhythm block that judges the
  * current controls. This module owns no session state of its own: it reads and writes the shared
  * session state object the root composable constructs and passes in. Each action that applies
- * saves the settings it changed (the Seventh chords level apart, which no record holds yet): the
- * actions are the player's change handlers' way in, so what they change is the player's choice.
+ * saves the settings it changed, the Seventh chords level included: the actions are the player's
+ * change handlers' way in, so what they change is the player's choice.
  */
 
 import {
@@ -148,18 +148,17 @@ export function createControlActions<TResult>(
 
   /**
    * Intent: the routing point's one apply: set the player's new controls, figure levels, Seventh
-   * chords level and selection together, and, when `saved`, save what changed. The phrase on
-   * screen stays. No record holds the level yet, so a change of it is never saved.
+   * chords level and selection together, and save what changed. The phrase on screen stays.
    */
   // @spec-link [[module_profile_control_customization]]
   // @spec-link [[rule_settings_saved_on_change]]
-  function applyChosen(chosen: ChosenSettings, saved: 'saved' | 'unsaved' = 'saved'): void {
+  function applyChosen(chosen: ChosenSettings): void {
     const before = chosenNow()
     state.controls = chosen.controls
     state.figureLevels = chosen.figureLevels
     state.chordFamilies = chosen.chordFamilies
     state.selection = chosen.selection
-    if (saved === 'saved') deps.saveSettings(chosenControlChanges(before, chosen))
+    deps.saveSettings(chosenControlChanges(before, chosen))
   }
 
   /**
@@ -246,14 +245,13 @@ export function createControlActions<TResult>(
   /**
    * An edit of a chord family's level (the Seventh chords level): with a preset selected, the
    * selection becomes Custom based on it. A family or a level that is not one is a defect.
-   * Applied, it reacts as a figure level's edit does (the rhythm setting is unchanged, so no
-   * prewarm is posted) and saves nothing, the selection it makes included: no record holds the
-   * level yet, and a saved Custom with no level saved would come back as Custom over its base's
-   * own values.
+   * Applied, it saves the level and the selection it makes, and reacts as a figure level's edit
+   * does (the rhythm setting is unchanged, so no prewarm is posted).
    */
   // @spec-link [[module_profile_control_customization]]
   // @spec-link [[rule_custom_selection]]
   // @spec-link [[service_idle_generation_session]]
+  // @spec-link [[rule_settings_saved_on_change]]
   function setChordFamilyLevel(family: ChordFamilyId, level: ChordFamilyLevel): boolean {
     if (!CHORD_FAMILY_SET.has(family)) {
       throw new SessionUsageError(
@@ -270,7 +268,7 @@ export function createControlActions<TResult>(
       { kind: 'chordFamilyLevel', family },
       deps.presets(),
     )
-    applyChosen({ ...chosenNow(), chordFamilies, selection }, 'unsaved')
+    applyChosen({ ...chosenNow(), chordFamilies, selection })
     reactToEdit(true)
     return true
   }

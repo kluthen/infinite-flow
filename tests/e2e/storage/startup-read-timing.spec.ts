@@ -17,8 +17,15 @@
  * summary holding the Jam mark and its body a four-measure doodle of 64 notes and a played-notes
  * clock.
  *
+ * v3.3 chunk 17 times it once more on the same databases with the Seventh chords level loaded
+ * with them: its settings record saved (Often), and each player preset holding a level, cycled
+ * through the four; every other kept session a Jam session. Each load is checked to have read
+ * every settings record back as stored, the level's included.
+ *
  * Not part of `npm run test:e2e`: run it with `npm run measure:startup-read` on an idle machine,
- * and record the figures, with the machine and the date, in `docs/storage.md`.
+ * and record the figures, with the machine and the date, in `docs/storage.md`. To check it runs
+ * without taking the figures, narrow the counts (`MEASURE_PRESET_COUNTS=50
+ * MEASURE_SESSION_COUNTS=10`) and pick one test with `--grep`.
  */
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -27,12 +34,13 @@ import path from 'node:path'
 import { chromium, expect, test, type Page } from '@playwright/test'
 
 import { WORKSPACE_HARNESS_URL } from '../release/harness-helpers'
+import { measuredCounts, timingPlayerPreset } from './timing-player-presets'
 
 /** The player-preset counts measured: none, the limit, and above it (two tabs saving at once). */
-const PRESET_COUNTS = [0, 50, 60] as const
+const PRESET_COUNTS = measuredCounts('MEASURE_PRESET_COUNTS', [0, 50, 60])
 
 /** The kept-session counts measured. */
-const SESSION_COUNTS = [0, 10, 100, 500] as const
+const SESSION_COUNTS = measuredCounts('MEASURE_SESSION_COUNTS', [0, 10, 100, 500])
 
 /** How many built-in presets the session lists before the player presets. */
 const BUILT_IN_COUNT = 8
@@ -59,85 +67,19 @@ const SETTINGS = {
   'review.format': 'midi',
 } as const
 
-/** Two sets of the ten preset-held controls a player preset is cycled through. */
-const PRESET_CONTROLS = [
-  {
-    harmonicMotion: 'Gentle diatonic',
-    tension: 'Build',
-    noteDensity: 'Eighth',
-    rhythmicVariety: 'Slightly varied',
-    syncopation: 'Occasional offbeats',
-    silenceDensity: 'Conversational',
-    contour: 'Wandering',
-    register: 'Varying',
-    leapiness: 'Shaped',
-    arpeggioChaos: 'Varied',
-  },
-  {
-    harmonicMotion: 'Gentle diatonic',
-    tension: 'Lift',
-    noteDensity: 'Quarter',
-    rhythmicVariety: 'Slightly varied',
-    syncopation: 'Straight',
-    silenceDensity: 'Sparse',
-    contour: 'Arch',
-    register: 'Middle',
-    leapiness: 'Shaped',
-    arpeggioChaos: 'Varied',
-  },
-] as const
-
-/** Three sets of the seven figure levels a player preset is cycled through. */
-const PRESET_LEVELS = [
-  {
-    passingTone: 'asToday',
-    accentedPassingTone: 'asToday',
-    neighborTone: 'asToday',
-    appoggiatura: 'off',
-    diatonicEnclosure: 'off',
-    chromaticApproach: 'asToday',
-    chromaticEnclosure: 'asToday',
-  },
-  {
-    passingTone: 'favored',
-    accentedPassingTone: 'stronglyFavored',
-    neighborTone: 'off',
-    appoggiatura: 'asToday',
-    diatonicEnclosure: 'favored',
-    chromaticApproach: 'stronglyFavored',
-    chromaticEnclosure: 'asToday',
-  },
-  {
-    passingTone: 'asToday',
-    accentedPassingTone: 'asToday',
-    neighborTone: 'asToday',
-    appoggiatura: 'off',
-    diatonicEnclosure: 'off',
-    chromaticApproach: 'off',
-    chromaticEnclosure: 'off',
-  },
-] as const
-
-/** The restrictions a player preset is cycled through: none, modes only, keys and modes. */
-const PRESET_RESTRICTIONS: readonly WorkspaceHarnessPresetInput['restriction'][] = [
-  { keys: 'any', modes: 'any' },
-  { keys: 'any', modes: ['Ionian', 'Dorian'] },
-  { keys: ['F', 'A#', 'D#', 'C'], modes: ['Mixolydian', 'Dorian', 'Aeolian'] },
-]
-
-/** The name stems a player preset is cycled through; numbered 10 to 60, the longest has 40 characters. */
-const PRESET_NAME_STEMS = [
-  'Late night',
-  'Early morning long tones, slow scales',
-  'Dorian warm-up before the gig',
-  'Bebop lines over a medium swing',
-] as const
+/** v3.3's settings: the same, with the Seventh chords level saved at Often. */
+const SETTINGS_WITH_LEVEL = { ...SETTINGS, 'chordFamilies.seventh-chords': 'favored' } as const
 
 /** How many player presets one tab lets the player save. */
 const PLAYER_PRESET_LIMIT = 50
 
-/** The longest name a preset may have. */
-const PRESET_NAME_MAX_LENGTH = 40
+/** What one measured read is seeded with. */
+interface ReadData {
+  /** Every other kept session a Jam session. */
+  readonly halfJam: boolean
+  /** The Seventh chords level saved, and held by each player preset. */
+  readonly withLevels: boolean
+}
 
 /** One pair of counts' figures, in milliseconds. */
 interface TimingRow {
@@ -154,33 +96,21 @@ async function openHarness(page: Page): Promise<void> {
 }
 
 /**
- * Intent: player preset `index` (from 0): `player-{index + 1}`, a numbered name of at most 40
- * characters, its controls, levels and restriction cycled, so some carry a restriction.
+ * Intent: the last load's duration, after checking it read the saved data, listed it all and read
+ * every settings record back as stored.
  */
-function playerPreset(index: number): WorkspaceHarnessPresetInput {
-  const name = `${PRESET_NAME_STEMS[index % PRESET_NAME_STEMS.length]!} ${index + 1}`
-  if (name.length > PRESET_NAME_MAX_LENGTH) throw new Error(`the preset name "${name}" is too long`)
-  return {
-    id: `player-${index + 1}`,
-    name,
-    controls: PRESET_CONTROLS[index % PRESET_CONTROLS.length]!,
-    levels: PRESET_LEVELS[index % PRESET_LEVELS.length]!,
-    restriction: PRESET_RESTRICTIONS[index % PRESET_RESTRICTIONS.length]!,
-    kind: 'player',
-  }
-}
-
-/** Intent: the last load's duration, after checking it read the saved data and listed it all. */
 async function lastLoadMs(page: Page, presets: number, sessions: number): Promise<number> {
   const report = await page.evaluate(async () => ({
     outcome: window.__workspaceHarness.storage.loadOutcome(),
     listed: window.__workspaceHarness.snapshot().presetNames.length,
     summaries: (await window.__workspaceHarness.storage.records('sessionSummaries')).length,
+    notReadBack: await window.__workspaceHarness.storage.settingsNotReadBack(),
     loadMs: window.__workspaceHarness.storage.loadMs(),
   }))
   expect(report.outcome).toBe('saved-data-read')
   expect(report.listed).toBe(BUILT_IN_COUNT + presets)
   expect(report.summaries).toBe(sessions)
+  expect(report.notReadBack).toEqual([])
   return report.loadMs
 }
 
@@ -202,18 +132,21 @@ async function seedProfile(
   profile: string,
   presets: number,
   sessions: number,
-  halfJam: boolean,
+  data: ReadData,
 ): Promise<void> {
   const context = await chromium.launchPersistentContext(profile)
   const page = await context.newPage()
   await openHarness(page)
-  const seeded = Array.from({ length: presets }, (_, index) => playerPreset(index))
+  const seeded = Array.from({ length: presets }, (_, index) =>
+    timingPlayerPreset(index, data.withLevels),
+  )
+  const settings = data.withLevels ? SETTINGS_WITH_LEVEL : SETTINGS
   await page.evaluate(
-    async ([settings, count, bytes, jam]) => {
-      await window.__workspaceHarness.storage.seedSettings(settings)
+    async ([values, count, bytes, jam]) => {
+      await window.__workspaceHarness.storage.seedSettings(values)
       await window.__workspaceHarness.storage.seedTimingSessions(count, bytes, jam)
     },
-    [SETTINGS, sessions, BODY_BYTES, halfJam] as const,
+    [settings, sessions, BODY_BYTES, data.halfJam] as const,
   )
   await seedPlayerPresets(page, seeded.slice(0, PLAYER_PRESET_LIMIT))
   const secondTab = await context.newPage()
@@ -243,17 +176,22 @@ function ms(value: number): string {
   return value.toFixed(1)
 }
 
-/**
- * Intent: time every pair of counts on a fresh profile each, every other kept session a Jam
- * session when `halfJam`, and print the table.
- */
-async function timeEveryPair(halfJam: boolean): Promise<void> {
+/** Intent: the title of the table of a read seeded with `data`. */
+function tableTitle(data: ReadData): string {
+  if (data.withLevels) {
+    return 'Half of the kept sessions Jam sessions, the Seventh chords level saved and held by each player preset:'
+  }
+  return data.halfJam ? 'Half of the kept sessions Jam sessions:' : 'No Jam session:'
+}
+
+/** Intent: time every pair of counts on a fresh profile each, seeded with `data`; print the table. */
+async function timeEveryPair(data: ReadData): Promise<void> {
   const rows: TimingRow[] = []
   for (const presets of PRESET_COUNTS) {
     for (const sessions of SESSION_COUNTS) {
       const profile = await mkdtemp(path.join(tmpdir(), 'infinite-flow-m2-'))
       try {
-        await seedProfile(profile, presets, sessions, halfJam)
+        await seedProfile(profile, presets, sessions, data)
         rows.push(await timeProfile(profile, presets, sessions))
       } finally {
         await rm(profile, { recursive: true, force: true })
@@ -266,7 +204,7 @@ async function timeEveryPair(halfJam: boolean): Promise<void> {
   )
   console.log(
     [
-      halfJam ? 'Half of the kept sessions Jam sessions:' : 'No Jam session:',
+      tableTitle(data),
       '| Player presets | Kept sessions | Cold | Warm, fastest | Warm, slowest |',
       '| --- | --- | --- | --- | --- |',
       ...lines,
@@ -277,7 +215,7 @@ async function timeEveryPair(halfJam: boolean): Promise<void> {
 // @test-link [[rule_first_phrase_waits_for_saved_settings]]
 test('M2 and M3: the start-up read of the saved data, cold and warm, by player-preset and kept-session count', async () => {
   test.setTimeout(1_800_000)
-  await timeEveryPair(false)
+  await timeEveryPair({ halfJam: false, withLevels: false })
 })
 
 // v3.2 chunk 30: the same read with every other kept session a Jam session, its body holding a
@@ -285,5 +223,14 @@ test('M2 and M3: the start-up read of the saved data, cold and warm, by player-p
 // @test-link [[rule_first_phrase_waits_for_saved_settings]]
 test('M3 (v3.2): the start-up read with half of the kept sessions Jam sessions with four-measure doodles', async () => {
   test.setTimeout(1_800_000)
-  await timeEveryPair(true)
+  await timeEveryPair({ halfJam: true, withLevels: false })
+})
+
+// v3.3 chunk 17: the same read with the Seventh chords level loaded with the settings and the
+// player presets.
+// @test-link [[rule_first_phrase_waits_for_saved_settings]]
+// @test-link [[req_seventh_chords_level]]
+test('M3 (v3.3): the start-up read with the Seventh chords level saved and held by the player presets, half of the kept sessions Jam sessions', async () => {
+  test.setTimeout(1_800_000)
+  await timeEveryPair({ halfJam: true, withLevels: true })
 })

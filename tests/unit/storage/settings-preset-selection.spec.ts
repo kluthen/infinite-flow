@@ -27,11 +27,12 @@ import {
 const JAZZ = builtInPreset('jazz')
 const REEL = builtInPreset('reel')
 
-/** A full set saved with Jazz selected: Jazz's ten controls and seven levels with it. */
+/** A full set saved with Jazz selected: Jazz's ten controls, seven levels and level with it. */
 const SAVED_JAZZ: SavedSettings = {
   ...NON_DEFAULT,
   controls: { ...NON_DEFAULT.controls, ...JAZZ.controls },
   figureLevels: JAZZ_FIGURE_LEVELS,
+  chordFamilies: JAZZ.chordFamilies,
   presetSelection: { kind: 'preset', presetId: 'jazz' },
 }
 

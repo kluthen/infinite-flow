@@ -115,7 +115,8 @@ One numbering covers the whole database:
   v3.2); the kept session-wide record is at 4 from v3.2 (at 2 in v3.1; see
   [Kept sessions](#kept-sessions)); in `settings`, the `presetSelection` record and the seven
   `figureLevels.*` records (`PRESET_SETTINGS_DATA_VERSION`, by `settingDataVersion(key)`) are at
-  3; every other shape, the kept played notes and every other setting included, still at 1.
+  3; every other shape, the kept played notes and every other setting included (v3.3's
+  `chordFamilies.seventh-chords` too, added with no step), still at 1.
 - **A migration to data version N rewrites only the stores whose shape changes at N**, giving
   their records data version N. The records of every other store keep their number, so an older
   tab still reads them.
@@ -814,15 +815,15 @@ session's `savedData` (`composeWorkspaceSession` passes it on unchanged).
 Each place gains its initial value; the saves come from the player's change handlers (see
 [Saving the player's settings](#saving-the-players-settings)).
 
-| Setting                                                             | Enters at                                                                                                                                                                      |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| The 14 controls, the figure levels, the preset selection, the theme | The Idle generation session's first state (`initialSettings`); `App.vue` applies the theme from that state before the first draw.                                              |
-| The player presets                                                  | The Idle generation session's `presets` (the built-ins, then `initialSettings.playerPresets`), which the selection, its label and the restriction in force are judged against. |
-| My instrument                                                       | The Idle generation session's first state (`initialSettings.myInstrument`), from which `App.vue` sizes the staff and the screen reads its profile.                             |
-| The audio mix                                                       | The audio transport's `loadedMix`, read on its first use, its volumes checked against the design's range.                                                                      |
-| The "During a session" options                                      | The session controller's creation (`savedSessionOptions`), never through its actions; until its chunk has loaded, the controls show the loaded values.                         |
-| The review's preferences                                            | The review host's first values (`WorkspaceShell` and `ScorePanel`'s `savedReviewPreferences`).                                                                                 |
-| `Keep my played notes`                                              | Decoded, not used yet.                                                                                                                                                         |
+| Setting                                                                                       | Enters at                                                                                                                                                                          |
+| --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The 14 controls, the figure levels, the Seventh chords level, the preset selection, the theme | The Idle generation session's first state (`initialSettings`); `App.vue` applies the theme from that state before the first draw. A visit started from the defaults starts at Off. |
+| The player presets                                                                            | The Idle generation session's `presets` (the built-ins, then `initialSettings.playerPresets`), which the selection, its label and the restriction in force are judged against.     |
+| My instrument                                                                                 | The Idle generation session's first state (`initialSettings.myInstrument`), from which `App.vue` sizes the staff and the screen reads its profile.                                 |
+| The audio mix                                                                                 | The audio transport's `loadedMix`, read on its first use, its volumes checked against the design's range.                                                                          |
+| The "During a session" options                                                                | The session controller's creation (`savedSessionOptions`), never through its actions; until its chunk has loaded, the controls show the loaded values.                             |
+| The review's preferences                                                                      | The review host's first values (`WorkspaceShell` and `ScorePanel`'s `savedReviewPreferences`).                                                                                     |
+| `Keep my played notes`                                                                        | Decoded, not used yet.                                                                                                                                                             |
 
 The "During a session" options are six records in the `sessionOptions` group: `varySettings`,
 `tensionAcrossPhrases` and `risingTempo`, then, from v3.2, session mode's `rhythmLockOn`,
@@ -832,16 +833,27 @@ same shape at data version 1, with no upgrade step: a store written by v3.0 or v
 each loads its default (the lock off, no change allowed, all six groups on); an older tab skips
 them as keys it does not know. A stored Rhythm group loads as stored while the lock disables it.
 
+The Seventh chords level of session mode is one record, `chordFamilies.seventh-chords`, of a
+`chordFamilies` group (one record per chord family, in `CHORD_FAMILY_IDS` order), holding the
+level's internal id (`off`, `sometimes`, `favored` or `stronglyFavored`, never the interface's
+label). v3.3 adds it at the settings' data version 1, with no upgrade step and no change of the
+database's data version, as v3.2 added its records: a store written before v3.3 has none, and the
+level loads Off; an absent, damaged, newer or unknown record loads Off too, every other setting
+still loading; an older tab skips it as a key it does not know. Jam's own level is not this
+record.
+
 A saved `Rising tempo` `On` loads even with no MIDI controller attached, which is the usual state
 at load: the controller's flag holds the stored `On`, the option shows `Off` and disabled while it
 is unavailable, and `On` again as soon as a controller attaches.
 
 ### The loaded preset selection
 
-The settings codec decodes the preset selection, the 14 controls and the seven figure levels each
-on its own, so one of them can fall back to its default alone. Then the values win (B7): a
-selected preset whose ten controls or seven levels differ from the loaded ones, or whose
-restriction leaves out the loaded written key and collection, loads as Custom based on it; a
+The settings codec decodes the preset selection, the 14 controls, the seven figure levels and the
+Seventh chords level each on its own, so one of them can fall back to its default alone. Then the
+values win (B7): a selected preset whose ten controls, seven levels or Seventh chords level differ
+from the loaded ones, or whose restriction leaves out the loaded written key and collection, loads
+as Custom based on it (a saved level of Often with Jazz selected loads as "Custom, based on
+Jazz"); a
 selected preset, or Custom's base, that no longer exists loads as Custom with no base. Loading
 never moves a control, the key and the mode included. An unreadable selection falls back to
 Neutral, judged by the same rule, so with Jazz's values it loads as Custom based on Neutral.
@@ -863,14 +875,18 @@ reach the policy at once, so the hold takes effect inside the Start click.
 `composeWorkspaceSession` builds it once; `App.vue` provides `saveSettings` to the components
 (`SAVE_SETTINGS`, `src/components/workspace/save-settings-injection.ts`).
 
-| Setting                                                  | Saved from                                                                                                                                                |
-| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The 14 controls, the figure levels, the preset selection | The generation session's `setControl`, `setFigureLevel`, `selectPreset` and `selectInstrumentProfile`: what each change changed (`chosenControlChanges`). |
-| The theme                                                | The generation session's `setTheme`, when the theme changed.                                                                                              |
-| The audio mix                                            | `MixControls` (each on/off) and `MixVolumePanel` (each volume, on the slider's release: its `change` event, not each `input`).                            |
-| The "During a session" options                           | `useSessionOptions`, once the session controller accepted the change.                                                                                     |
-| The review's preferences                                 | The review host's `setFormat`, `setBackingTrack` and `setPlayedNotesShown`.                                                                               |
-| Jam's own settings                                       | Jam's settings change handlers at Jam's Idle (`createJamSettings`, `src/jam/jam-settings.ts`): one `jam.*` record per setting a change changed.           |
+| Setting                                                                            | Saved from                                                                                                                                                                                                                                              |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The 14 controls, the figure levels, the Seventh chords level, the preset selection | The generation session's `setControl`, `setFigureLevel`, `setChordFamilyLevel`, `selectPreset` and `selectInstrumentProfile`: what each change changed (`chosenControlChanges`), so a preset choice that changes the level saves it with the selection. |
+| The theme                                                                          | The generation session's `setTheme`, when the theme changed.                                                                                                                                                                                            |
+| The audio mix                                                                      | `MixControls` (each on/off) and `MixVolumePanel` (each volume, on the slider's release: its `change` event, not each `input`).                                                                                                                          |
+| The "During a session" options                                                     | `useSessionOptions`, once the session controller accepted the change.                                                                                                                                                                                   |
+| The review's preferences                                                           | The review host's `setFormat`, `setBackingTrack` and `setPlayedNotesShown`.                                                                                                                                                                             |
+| Jam's own settings                                                                 | Jam's settings change handlers at Jam's Idle (`createJamSettings`, `src/jam/jam-settings.ts`): one `jam.*` record per setting a change changed.                                                                                                         |
+
+A visit that saves nothing (an outdated tab, a visit whose read failed) writes no level, as it
+writes no other setting, and Delete everything removes the record with the database, so the next
+visit starts at Off.
 
 The values saved are the player's choices: a chosen `Sixteenth` below `bp-tablet-landscape` is
 saved as `Sixteenth`, though phrases are generated with `Eighth` there. The tempo a Rising-tempo
@@ -1596,6 +1612,91 @@ wait, as without Jam sessions (at most 36 ms in the same runs, 37 ms in chunk 22
 adds two fields to a session-wide record, and the doodle is in the body, which the load never
 reads. The owner repeats the deciding runs on the reference machine.
 
+## The upgrade to data version 5 (M3)
+
+v3.3's build plan (chunk 17) runs M3 again for step 5, with the two tests below; its figures follow
+the list.
+
+- `npm run measure:kept-session-upgrade` has a first test, titled "M3 (v3.3), from v3.2's data
+  (data version 4; step 5)", that times v3.3's first open of v3.2's data: a database at data
+  version 4, seeded through the harness's v3.2 seams (`seedVersionFourSessions`,
+  `seedVersionFourSettings`, `seedVersionFourPresets`, as a v3.2 tab writes them), holding v3.2's
+  settings, 50 player presets at data version 3 with no Seventh chords level, and 10, 100 or 500
+  kept sessions, half copies of a Jazz session and half copies of a Jam session (a one-measure
+  doodle, run into phrase 2), each played on the harness, turned in Node into v3.2's bytes
+  (`v32Session`: the body at data version 4, no level in an intent) and cycled to a body of about
+  100 kB, pinned, with a 500-character comment and no played notes. The timed open runs step 5
+  only; the cold load is checked to have rewritten every body and player preset at data version
+  5 at Off, left the session-wide records and the settings as v3.2 wrote them, and kept the Jam
+  copies' marks and doodles; the three warm reloads time the start-up read of the same database.
+  The two earlier paths stay for comparison, their opens now running step 5 as well (from v3.1,
+  steps 4 and 5; from v3.0, steps 2 to 5).
+- `npm run measure:startup-read` has a third test, titled "Half of the kept sessions Jam sessions,
+  the Seventh chords level saved and held by each player preset", on M2's counts: the settings
+  include the level's record (Often), each player preset holds a level (cycled through the four),
+  and every other kept session is a Jam session; each load is checked to read every settings
+  record back as stored (`settingsNotReadBack`), the level's included.
+
+To check a measurement runs without taking its figures, narrow its counts with
+`MEASURE_SESSION_COUNTS` (and, for the start-up read, `MEASURE_PRESET_COUNTS`), comma-separated
+whole numbers, and pick one test with `--grep`, for example
+`MEASURE_SESSION_COUNTS=10 npx playwright test tests/e2e/storage/kept-session-upgrade-timing.spec.ts --grep "v3.3" --workers=1`.
+
+Measured on 2026-11-13 on the same machine as chunk 22's runs: Linux 6.12.113+deb13-amd64
+(Debian), AMD Ryzen 5 PRO 8640HS w/ Radeon 760M Graphics (12 threads), 11 GiB of RAM, no virtual
+machine, headless Chromium through Playwright 1.63.0, no other test running (other sessions on
+the machine; the 5-minute load average about 2.5, so the figures may run a little high). In
+milliseconds.
+
+The upgrade to data version 5 from v3.2's data, step 5 alone, half the kept sessions Jam
+sessions, 50 player presets; two runs, first / second (the first started just after an e2e run,
+its 1-minute load average not checked; the second at 1.41 → 1.70):
+
+| Kept sessions | Upgrade load (cold) | Warm, slowest of three |
+| ------------- | ------------------- | ---------------------- |
+| 10            | 60.0 / 59.6         | 3.8 / 3.9              |
+| 100           | 209.6 / 203.0       | 4.6 / 5.7              |
+| 500           | 778.2 / 825.5       | 14.6 / 20.3            |
+
+For comparison, the first run's two earlier paths, whose opens now also run step 5:
+
+| Kept sessions | From v3.1's data, steps 4 and 5 | From v3.0's data, steps 2 to 5 |
+| ------------- | ------------------------------- | ------------------------------ |
+| 10            | 65.8                            | 86.6                           |
+| 100           | 326.7                           | 481.2                          |
+| 500           | 1477.8                          | 2001.6 (the wait ended first)  |
+
+Each body is 15 phrases, 107,013 bytes (104,808 from v3.0).
+
+The start-up read, half the kept sessions Jam sessions, the Seventh chords level saved and held by
+each player preset (one run; 1-minute load average 1.46 → 3.60):
+
+| Player presets | Kept sessions | Cold | Warm, fastest of five | Warm, slowest of five |
+| -------------- | ------------- | ---- | --------------------- | --------------------- |
+| 0              | 0             | 10.0 | 1.2                   | 1.6                   |
+| 0              | 10            | 15.4 | 1.4                   | 2.4                   |
+| 0              | 100           | 15.4 | 3.0                   | 3.4                   |
+| 0              | 500           | 28.2 | 8.5                   | 14.6                  |
+| 50             | 0             | 13.3 | 2.8                   | 4.0                   |
+| 50             | 10            | 9.9  | 2.6                   | 4.1                   |
+| 50             | 100           | 21.0 | 3.5                   | 5.4                   |
+| 50             | 500           | 37.1 | 10.3                  | 15.9                  |
+| 60             | 0             | 16.8 | 3.1                   | 4.5                   |
+| 60             | 10            | 12.6 | 2.8                   | 4.4                   |
+| 60             | 100           | 22.7 | 4.0                   | 5.0                   |
+| 60             | 500           | 28.0 | 9.4                   | 16.7                  |
+
+Verdict: v3.3's first open of v3.2's data upgrades it well inside the 2 s start-up wait: step 5
+takes at most 826 ms with 500 kept sessions and 50 player presets, about 41 % of the wait, about
+what step 4 took (at most 948 ms in chunk 22's runs), since it rewrites every body as step 4 did
+and the presets are few and small. The start-up read with the level saved and held by each player
+preset takes at most 37 ms cold, under 2 % of the wait, as in v3.2. Data of earlier versions now
+goes through more steps in one open: from v3.1's data, up to 1,478 ms with 500 sessions (about
+74 % of the wait); from v3.0's data, which had no live users (v3.1's H5 was waived for that
+reason), 500 sessions pass the wait on this machine, so that visit starts from the defaults while
+the upgrade completes and the next visit reads normally (spec D376). The owner repeats the
+deciding runs on the reference machine.
+
 ## The app version
 
 `src/storage/app-version.ts` exports `APP_VERSION`, the compile-time constant `__APP_VERSION__`
@@ -1638,6 +1739,7 @@ kept-session codec's need no database (see
 | `app-version.spec.ts`                   | `APP_VERSION` is `package.json`'s version.                                                                                                                                                             |
 | `settings-record.spec.ts`               | The settings codec, whose version check is the envelope's, and the loaded preset selection (with `settings-preset-selection.spec.ts`).                                                                 |
 | `settings-saver.spec.ts`                | The saves of the player's settings: one batch per change, the order kept before and after the policy loads, the hold, and `chosenControlChanges`.                                                      |
+| `settings-seventh-chords-level.spec.ts` | The Seventh chords level's record: its key and data version, its round trip at each level, Off when absent, damaged, newer or unknown (a seeded property), and the preset selection judged with it.    |
 | `storage-bootstrap.spec.ts`             | The load before the first draw: the saved settings, an invalid value's default, each failing, late and outdated case with its settings, saving state and load outcome, and the defects that reject.    |
 | `kept-phrase-parsers.spec.ts`           | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                                     |
 | `kept-session-record.spec.ts`           | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session.               |

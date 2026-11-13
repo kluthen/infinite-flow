@@ -47,6 +47,7 @@ const SAVED: SavedSettings = {
     instrumentProfileId: 'eb-alto',
   },
   figureLevels: { ...DEFAULTS.figureLevels, appoggiatura: 'favored', chromaticApproach: 'asToday' },
+  chordFamilies: { 'seventh-chords': 'sometimes' },
   presetSelection: { kind: 'custom', baseId: 'jazz' },
   theme: 'Dark',
   mix: {
@@ -78,13 +79,13 @@ async function seedSettings(port: StoragePort, settings: SavedSettings): Promise
   }
 }
 
-/** A player preset: Jazz's controls with Tension at Build, Dorian only. */
+/** A player preset: Jazz's controls with Tension at Build, Dorian only, Seventh chords at Mostly. */
 const LATE_NIGHT: Preset = makePreset({
   id: 'player-1',
   name: 'Late night',
   controls: { ...builtInPreset('jazz').controls, tension: 'Build' },
   levels: { ...DEFAULTS.figureLevels, chromaticApproach: 'favored' },
-  chordFamilies: OFF_CHORD_FAMILIES,
+  chordFamilies: { 'seventh-chords': 'stronglyFavored' },
   restriction: { keys: 'any', modes: ['Dorian'] },
   kind: 'player',
 })
@@ -94,6 +95,7 @@ const SAVED_LATE_NIGHT: SavedSettings = {
   ...SAVED,
   controls: { ...SAVED.controls, ...LATE_NIGHT.controls },
   figureLevels: LATE_NIGHT.levels,
+  chordFamilies: LATE_NIGHT.chordFamilies,
   presetSelection: { kind: 'preset', presetId: 'player-1' },
 }
 
@@ -259,6 +261,7 @@ describe('loadSavedData: a read within the start-up wait', () => {
       ...SAVED,
       controls: { ...SAVED.controls, ...reel.controls, collection: 'Mixolydian' },
       figureLevels: reel.levels,
+      chordFamilies: reel.chordFamilies,
       presetSelection: { kind: 'preset', presetId: 'reel' },
     }
     const factory = freshFactory()
@@ -425,6 +428,7 @@ describe('loadSavedData: a read that fails or outlasts the start-up wait', () =>
     )
 
     expect(load.settings).toEqual(DEFAULTS)
+    expect(load.settings.chordFamilies).toEqual(OFF_CHORD_FAMILIES)
     expect(load.outcome).toBe('started-from-defaults')
     expect(await savingState(load)).toBe('off-unreadable')
     expect(load.playerPresets).toEqual([])

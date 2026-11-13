@@ -983,6 +983,67 @@ the key (no sharps or flats) for the change of collection.
 
 **Result:** not run yet (needs the owner).
 
+## v3.3 H5. v3.2 data carried over (chunk 17; run at the release gate)
+
+The reference machine, from the repo, in plain Chrome, then the installed app if one is
+installed. Data that v3.2 saved on the device must come back after the update to v3.3: the
+settings with the Seventh chords level at Off, Jam's settings with Jam's own level at Off, a player
+preset unchanged, and a pinned session and a kept Jam session that open and play back as before,
+with their chords all triads (the update rewrites the player presets and kept sessions once, when
+the database opens, with the level at Off and nothing else changed: spec D515). v3.2 and v3.3 must
+be served at the same address (`http://localhost:4173`), so they share one IndexedDB. Use a Chrome
+profile whose data at that address you can lose: the first step may clear it.
+
+- [ ] Get v3.2 (tag v3.2.0, commit f93e552d), from the repo:
+
+      ```sh
+      git worktree add ../infinite_flow-v3.2.0 v3.2.0
+      cd ../infinite_flow-v3.2.0
+      npm ci && npm run build && npm run preview -- --port 4173 --strictPort
+      ```
+
+      Open `http://localhost:4173` in Chrome; the header shows v3.2.0. If this address already
+      holds data from another build, clear it first (F12, Application tab, Storage, `Clear site
+      data`), then reload.
+
+- [ ] In v3.2, at Idle: choose Jazz, set Tension to Build and save it as a player preset with
+      `Save as new preset`, named "H5 Jazz". Then change a few settings and note each: Tempo 150,
+      Written key F, Collection Dorian, and the theme. Reload: v3.2 shows them all back.
+- [ ] Still in v3.2: press Start and play a short session (a few phrases), then Stop. In its
+      review, press `Pin`. Take a screenshot of its first two phrases (notes and chord symbols).
+- [ ] Still in v3.2: switch the header's **Mode** to `Jam`, set Jam's tempo to 100 BPM and
+      **Drift** `Near`, press **Start Jam**, play a short doodle and let two or three phrases
+      play, then **Stop**. Take a screenshot of its review's first phrase. Switch back to session
+      mode. Close the tab and stop the preview (Ctrl+C).
+- [ ] Get v3.3 at the same address, from the v3.3 checkout:
+
+      ```sh
+      npm run build && npm run preview -- --port 4173 --strictPort
+      ```
+
+      Open `http://localhost:4173` in the same Chrome. The header shows v3.3's version; if it
+      still shows v3.2.0, reload once more (the service worker updates).
+
+- [ ] Every setting you changed in v3.2 is back: Tempo 150, Written key F, Collection Dorian, the
+      theme; the **Seventh chords** control shows `Off`. The preset box shows the selection you
+      left, and choosing "H5 Jazz" gives Tension Build and every other value as you saved it, with
+      Seventh chords `Off`; the preset is not shown as changed.
+- [ ] Switch to Jam mode: Jam's tempo 100 BPM and Drift `Near` are back, and Jam's own **Seventh
+      chords** control shows `Off`. Switch back to session mode.
+- [ ] The session list lists both sessions, the pinned one pinned. Open each: its phrases show the
+      same notes and chord symbols as your v3.2 screenshots, every symbol a triad (no `7` in any),
+      and playing them back sounds the same notes; the Jam session's review offers its doodle
+      again.
+- [ ] If the v3.2 app is installed (PWA) on this machine: open it before updating, check it holds
+      a pinned session, a kept Jam session and a player preset, then update it to v3.3 (open it
+      while the v3.3 preview runs at its address, and reopen it once the update is offered or
+      applied). Repeat the three checks above in the installed app.
+- [ ] Afterwards: `git worktree remove ../infinite_flow-v3.2.0`.
+- [ ] Pass: every check above holds, in Chrome and, if installed, in the app.
+
+**Result:** not run yet (the release gate, after chunks 19 and 23: the two Seventh chords
+controls).
+
 ## v3.3 H6. Symbols at the narrowest widths (chunk 14; run after chunk 19)
 
 The reference machine, Chrome, in the app built from the branch holding chunk 19 (the Seventh
