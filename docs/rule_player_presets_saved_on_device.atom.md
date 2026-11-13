@@ -13,6 +13,7 @@ parents:
 dependents:
   - [[entity_player_preset_record]]
   - [[module_player_presets]]
+  - [[module_presets_and_kept_sessions_upgrade_step]]
   - [[module_settings_upgrade_step]]
   - [[rule_preset_load_values_win]]
   - [[rule_presets_in_visits_that_save_nothing]]

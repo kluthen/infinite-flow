@@ -14,6 +14,7 @@ layer: ARCHITECTURE
 tags: [v3, release-v3.1, storage, presets]
 dependents:
   - [[module_player_presets]]
+  - [[module_presets_and_kept_sessions_upgrade_step]]
 ---
 
 # Player Preset Record

@@ -19,6 +19,7 @@ dependents:
   - [[module_kept_session_codec]]
   - [[module_kept_session_jam_upgrade_step]]
   - [[module_kept_session_save]]
+  - [[module_presets_and_kept_sessions_upgrade_step]]
 ---
 
 # Kept-Session Record

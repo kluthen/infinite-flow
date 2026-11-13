@@ -6,6 +6,7 @@ parents:
   - [[req_kept_sessions]]
 dependents:
   - [[module_kept_session_upgrade_step]]
+  - [[module_presets_and_kept_sessions_upgrade_step]]
   - [[module_stored_profile_to_levels]]
 version: 0.4
 type: RULE
