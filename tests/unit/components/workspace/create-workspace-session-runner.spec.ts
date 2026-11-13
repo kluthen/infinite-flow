@@ -63,6 +63,7 @@ describe('composeWorkspaceSession session runner', () => {
         settings: {
           controls: workspace.session.state.controls,
           figureLevels: workspace.session.state.figureLevels,
+          chordFamilies: workspace.session.state.chordFamilies,
           selection: workspace.session.state.selection,
           allowedGroups: ALL_GROUPS_ALLOWED,
           rhythmLockOn: false,
@@ -112,6 +113,7 @@ describe('composeWorkspaceSession session runner', () => {
         settings: {
           controls: workspace.session.state.controls,
           figureLevels: workspace.session.state.figureLevels,
+          chordFamilies: workspace.session.state.chordFamilies,
           selection: workspace.session.state.selection,
           allowedGroups: ALL_GROUPS_ALLOWED,
           rhythmLockOn: false,
@@ -196,6 +198,7 @@ describe('composeWorkspaceSession phrase replay key', () => {
         settings: {
           controls: workspace.session.state.controls,
           figureLevels: workspace.session.state.figureLevels,
+          chordFamilies: workspace.session.state.chordFamilies,
           selection: workspace.session.state.selection,
           allowedGroups: ALL_GROUPS_ALLOWED,
           rhythmLockOn: false,

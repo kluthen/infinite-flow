@@ -13,6 +13,7 @@ import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
@@ -82,6 +83,7 @@ function checked(wrapper: ReturnType<typeof mountShell>, name: string): string |
 const VARIED_TENSION: SessionSettings = {
   controls: { ...DEFAULT_GENERATION_CONTROLS, tension: 'Build' },
   figureLevels: NEUTRAL_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   selection: { kind: 'custom', baseId: 'neutral' },
   allowedGroups: ALL_GROUPS_ALLOWED,
   rhythmLockOn: false,
@@ -155,6 +157,7 @@ describe('WorkspaceShell: the Tension across phrases control', () => {
     fake.state.shownSettings = {
       controls: DEFAULT_GENERATION_CONTROLS,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: DEFAULT_PRESET_SELECTION,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,

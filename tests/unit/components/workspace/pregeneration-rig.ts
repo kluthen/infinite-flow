@@ -23,7 +23,6 @@ import {
 } from '@/composables/generation-session-pregeneration'
 import type { MutableGenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
-import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
@@ -120,7 +119,12 @@ export function idlePhraseFor(
   const settings = { ...sessionSettings(), controls }
   return {
     ...phraseOneFor(settings, { seed }),
-    settings: { controls, figureLevels: settings.figureLevels, selection: settings.selection },
+    settings: {
+      controls,
+      figureLevels: settings.figureLevels,
+      chordFamilies: settings.chordFamilies,
+      selection: settings.selection,
+    },
     sessionSeed,
   }
 }
@@ -168,7 +172,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
     controls: settings.controls,
     figureLevels: settings.figureLevels,
-    chordFamilies: OFF_CHORD_FAMILIES,
+    chordFamilies: settings.chordFamilies,
     selection: settings.selection,
     presets: BUILT_IN_PRESETS,
     presentation: { theme: 'System' },

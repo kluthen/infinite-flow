@@ -18,7 +18,7 @@ import {
   type GenerationControls,
   type MusicalProfile,
 } from '@/domain/controls/generation-controls'
-import type { ChordFamilyLevel } from '@/domain/chords/chord-families'
+import { OFF_CHORD_FAMILIES, type ChordFamilyLevel } from '@/domain/chords/chord-families'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
 import { levelsForProfile, type FigureLevels } from '@/domain/figures/figure-levels'
 import type { KeyAndModeRestriction } from '@/domain/presets/key-and-mode-restriction'
@@ -156,6 +156,7 @@ export function caseSettings(sweepCase: SweepCase, tempo: number): SessionSettin
   return {
     controls: makeGenerationControls({ ...sweepCase.controls, tempo }),
     figureLevels: sweepCase.figureLevels ?? levelsForProfile(sweepCase.musicalProfile),
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: sweepCase.selection ?? {
       kind: 'custom',
       baseId: sweepCase.musicalProfile === 'Jazz' ? 'jazz' : 'neutral',

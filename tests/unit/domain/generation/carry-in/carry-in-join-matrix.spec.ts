@@ -300,6 +300,7 @@ function settings(controls: Partial<GenerationControls> = {}): SessionSettings {
   return {
     controls: makeGenerationControls({ ...BASE_CONTROLS, ...controls }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

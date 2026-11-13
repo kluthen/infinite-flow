@@ -15,7 +15,7 @@
 
 import { createHash } from 'node:crypto'
 
-import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
+import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import {
@@ -153,9 +153,14 @@ export function mutationSeedOf(sessionSeed: number): Seed {
  * Intent: the session's start settings after choosing `presetId` at Idle from C Ionian with
  * Neutral's controls, levels and selection, with the restriction in force frozen in as Start
  * freezes it against the built-in presets, every allowed group on and the rhythm lock off, which
- * is Vary settings as v3.1.0 ran it.
+ * is Vary settings as v3.1.0 ran it. A Seventh chords level, when given, replaces the preset's
+ * (Off for every built-in) and leaves the selection as it is: the session the same preset's values
+ * start at that level, so the draws can be compared at every level.
  */
-export function startSettings(presetId: BuiltInPresetId): SessionSettings {
+export function startSettings(
+  presetId: BuiltInPresetId,
+  chordFamilies?: ChordFamilies,
+): SessionSettings {
   const chosen = choosePreset(
     {
       controls: DEFAULT_GENERATION_CONTROLS,
@@ -169,6 +174,7 @@ export function startSettings(presetId: BuiltInPresetId): SessionSettings {
     {
       controls: chosen.settings.controls,
       figureLevels: chosen.settings.levels,
+      chordFamilies: chordFamilies ?? chosen.settings.chordFamilies,
       selection: chosen.selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
@@ -311,16 +317,18 @@ function selectionText(selection: PresetSelection): string {
  * after phrase from 2 to the last, the session's mutation step lands the scheduled mutation under
  * the context on that phrase, and its settings are the next phrase's settings. Each landing's
  * draws are counted by drawing the same mutation again with an observer; crashes when that draw
- * does not give the landing's settings.
+ * does not give the landing's settings. A Seventh chords level, when given, is the session's
+ * (`startSettings`).
  */
 export function sessionDrawRows(
   presetId: BuiltInPresetId,
   context: DrawsContext,
   sessionSeed: number,
+  chordFamilies?: ChordFamilies,
 ): DrawsRow[] {
   const seed = mutationSeedOf(sessionSeed)
   const rows: DrawsRow[] = []
-  let settings = startSettings(presetId)
+  let settings = startSettings(presetId, chordFamilies)
   for (let phrase = 2; phrase <= VARY_SETTINGS_DRAWS_V31_LAST_PHRASE; phrase += 1) {
     const mutationContext = contextOnPhrase(context, phrase)
     const landing = landingMutation({ kind: 'on', seed }, phrase, settings, () => mutationContext)

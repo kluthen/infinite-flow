@@ -8,7 +8,11 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { parseChordFamilies, type ChordFamilyLevel } from '@/domain/chords/chord-families'
+import {
+  OFF_CHORD_FAMILIES,
+  parseChordFamilies,
+  type ChordFamilyLevel,
+} from '@/domain/chords/chord-families'
 import {
   COLLECTIONS,
   HARMONIC_MOTIONS,
@@ -117,6 +121,7 @@ function sessionSettings(settings: HarmonySettings): SessionSettings {
   return {
     controls: controlsOf(settings),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

@@ -8,6 +8,7 @@
 
 import { expect } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -137,6 +138,7 @@ export function sessionSettings(overrides: Partial<GenerationControls> = {}): Se
   return {
     controls: makeGenerationControls({ ...BASE_CONTROLS, ...overrides }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

@@ -8,6 +8,7 @@
 
 import { expect } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { levelsForProfile } from '@/domain/figures/figure-levels'
 import { PHRASE_MEASURE_COUNT } from '@/domain/generation/generation-request'
@@ -50,6 +51,7 @@ export function settingsForCell(cell: MatrixCell): SessionSettings {
       instrumentProfileId: cell.instrumentProfileId,
     }),
     figureLevels: levelsForProfile(cell.set.musicalProfile),
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: cell.set.musicalProfile === 'Jazz' ? 'jazz' : 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

@@ -22,8 +22,10 @@ import { ALL_GROUPS_ALLOWED } from './settings-mutation-scales'
 /**
  * Intent: the session settings phrase 1 was generated under, as a session takes them: the
  * recorded controls at the session's `tempo` (the tempo never affects generation), the recorded
- * figure levels and selection, my instrument's profile taken from phrase 1's intent, which embeds
- * it. The Idle record holds no allowed groups or lock state; phrase 1's settings carry every group
+ * figure levels, Seventh chords level and selection, my instrument's profile taken from phrase 1's
+ * intent, which embeds it: after `Start with this phrase`, phrase 1 keeps its own level, and the
+ * session's holds from the first phrase generated under the session's settings. The Idle record
+ * holds no allowed groups or lock state; phrase 1's settings carry every group
  * on and the lock off, which nothing reads: they are only compared with the session's over what
  * the generation reads, and Vary settings never draws from them.
  */
@@ -38,6 +40,7 @@ export function phraseOneSettings(
     {
       controls: { ...recorded.controls, tempo },
       figureLevels: recorded.figureLevels,
+      chordFamilies: recorded.chordFamilies,
       selection: recorded.selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,

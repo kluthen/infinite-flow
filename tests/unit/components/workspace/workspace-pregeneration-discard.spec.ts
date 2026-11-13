@@ -447,6 +447,7 @@ function reelSettings(): SessionSettings {
   return {
     controls: chosen.settings.controls,
     figureLevels: chosen.settings.levels,
+    chordFamilies: chosen.settings.chordFamilies,
     selection: chosen.selection,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

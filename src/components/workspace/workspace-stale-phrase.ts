@@ -63,8 +63,9 @@ export interface StalePhraseStart {
 }
 
 /**
- * Intent: the current settings as the generation reads them: the controls, the figure levels,
- * the preset selection and, while the controls name my instrument, its profile as saved now, whose range and
+ * Intent: the current settings as the generation reads them: the controls, the figure levels, the
+ * Seventh chords level, the preset selection and, while the controls name my instrument, its
+ * profile as saved now, whose range and
  * transposition phrase 1's are compared with. The comparison never reads Vary settings' allowed
  * groups or the lock state, so they are every group on and the lock off.
  */
@@ -75,6 +76,7 @@ function currentSettings(
   const settings: SessionSettings = {
     controls: idle.controls,
     figureLevels: idle.figureLevels,
+    chordFamilies: idle.chordFamilies,
     selection: idle.selection,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

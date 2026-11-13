@@ -8,7 +8,7 @@
  * seed plan; only its request id is drawn.
  */
 
-import { OFF_CHORD_FAMILIES } from '../domain/chords/chord-families'
+import { parseChordFamilies } from '../domain/chords/chord-families'
 import { makeGenerationControls } from '../domain/controls/generation-controls'
 import { resolveGeneratedNoteDensity } from '../domain/controls/generated-note-density'
 import { deepFreeze } from '../domain/events/deep-freeze'
@@ -220,7 +220,9 @@ function allowedRhythmChangesCopy(settings: SessionSettings): RhythmChangeKind[]
 /**
  * Intent: an independent, deep-frozen copy of the chosen settings, so nothing the caller does to
  * its own objects after the start can reach the session. The controls and the figure levels are
- * validated on the way, the selection is copied as a plain value, and my instrument's profile,
+ * validated on the way, and so is the Seventh chords level (settings without exactly one known
+ * level per chord family are refused), the selection is copied as a plain value, and my
+ * instrument's profile,
  * when the settings carry it, is kept: settings whose profile does not match their instrument are
  * refused. The restriction frozen at the session's start, when they carry one, is kept, validated.
  * Vary settings' allowed groups, whether the rhythm lock is on and its allowed changes are kept,
@@ -236,6 +238,7 @@ export function freezeSessionSettings(settings: SessionSettings): SessionSetting
   return deepFreeze({
     controls,
     figureLevels: parseFigureLevels(settings.figureLevels),
+    chordFamilies: parseChordFamilies(settings.chordFamilies),
     selection: selectionCopy(settings.selection),
     ...suppliedProfileOf(settings),
     ...restrictionOf(settings),
@@ -246,8 +249,9 @@ export function freezeSessionSettings(settings: SessionSettings): SessionSetting
 }
 
 /**
- * Intent: the settings a session starts with: the chosen controls, figure levels and selection,
- * Vary settings' allowed groups, whether the rhythm lock is on and its allowed changes, and, when
+ * Intent: the settings a session starts with: the chosen controls, figure levels, Seventh chords
+ * level and selection, Vary settings' allowed groups, whether the rhythm lock is on and its
+ * allowed changes, and, when
  * the controls name my instrument, its profile as phrase 1's intent embeds it, so the session
  * generates with the very profile phrase 1 was generated with.
  */
@@ -258,6 +262,7 @@ export function sessionSettingsAtStart(
     SessionSettings,
     | 'controls'
     | 'figureLevels'
+    | 'chordFamilies'
     | 'selection'
     | 'allowedGroups'
     | 'rhythmLockOn'
@@ -269,6 +274,7 @@ export function sessionSettingsAtStart(
   return {
     controls: chosen.controls,
     figureLevels: chosen.figureLevels,
+    chordFamilies: chosen.chordFamilies,
     selection: chosen.selection,
     ...(mine ? { instrumentProfile: phraseOne.instrumentProfile } : {}),
     allowedGroups: chosen.allowedGroups,
@@ -308,10 +314,11 @@ export function resolvedRegister(
  * on, the attempt carries its phrase's rhythm lock group: the re-lock group when one is pending
  * and this attempt is built with Eighth by the step-down, the phrase's group otherwise. In a
  * steered session every attempt, the standalone one included, carries the session's steering
- * block: it only orders candidates. Every attempt carries the Seventh chords level at Off, since no
- * session state holds a level yet.
+ * block: it only orders candidates. Every attempt, of every rung, carries the settings' Seventh
+ * chords level, the one the session started with.
  */
 // @spec-link [[rule_session_settings_locked]]
+// @spec-link [[rule_seventh_chord_draws_reproducible]]
 // @spec-link [[rule_session_density_only_steps_down]]
 // @spec-link [[rule_varying_register_once_per_session]]
 // @spec-link [[module_session_density_step_down]]
@@ -339,7 +346,7 @@ export function buildAttemptIntent(
     seed: phraseAttemptSeed(seams.sessionSeed, slot.phraseNumber, slot.rung),
     controls: { ...chosen, noteDensity, register },
     figureLevels: sessionFigureLevels(settings),
-    chordFamilies: OFF_CHORD_FAMILIES,
+    chordFamilies: settings.chordFamilies,
     ...suppliedProfileOf(settings),
     ...(group === undefined ? {} : { rhythmLock: group }),
     ...(seams.steering === undefined ? {} : { steering: seams.steering }),

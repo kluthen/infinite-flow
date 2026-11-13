@@ -55,6 +55,7 @@ export function settingsOf(
     controls: sessionSettings({ tempo: 60, ...preset.controls, tonalCenter: 'C', collection })
       .controls,
     figureLevels: preset.levels,
+    chordFamilies: preset.chordFamilies,
     selection,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

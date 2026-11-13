@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   NOTE_DENSITIES,
   RHYTHMIC_VARIETIES,
@@ -58,6 +59,7 @@ function settingsWith(
   return {
     controls: { ...DEFAULT_GENERATION_CONTROLS, ...controls },
     figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

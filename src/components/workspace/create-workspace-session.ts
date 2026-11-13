@@ -154,8 +154,8 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     withSessionSeed,
     viewport: deps.viewport,
     generate: createWorkspaceGenerate(yieldingToPlayer(slot, deps.generate), () => {
-      const { controls, figureLevels, selection } = requireSession().state
-      return { controls, figureLevels, selection }
+      const { controls, figureLevels, chordFamilies, selection } = requireSession().state
+      return { controls, figureLevels, chordFamilies, selection }
     }),
     notate: coordinator.notate,
     checkFit: coordinator.checkFit,
