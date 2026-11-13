@@ -55,14 +55,14 @@ any relative path into a `storage` directory.
 | `record-envelope.ts`                | `RecordVersions`, the two version fields every record carries, the envelope reader `readEnvelope` and the write check `assertWritableVersions`.                                                                              |
 | `app-version.ts`                    | `APP_VERSION`, the running app's package version.                                                                                                                                                                            |
 | `records/settings-record.ts`        | The settings codec, which reads its records through the envelope.                                                                                                                                                            |
-| `records/preset-record.ts`          | The player preset codec: `encodePresetRecord` and `decodePlayerPresets`, which reads the `presets` store tolerantly, record by record.                                                                                       |
+| `records/preset-record.ts`          | The player preset codec: `encodePresetRecord`, `decodePlayerPresets`, which reads the `presets` store tolerantly, record by record, and `carriedOverPresetRecord`, which only the upgrade to data version 5 uses.            |
 | `records/kept-session-record.ts`    | The kept-session codec: `encodeKeptSession`, `decodeKeptSession`, the decoded `KeptSession` and `KeptPhrase`, and the facts and records they take and give.                                                                  |
 | `records/kept-session-summary.ts`   | The session-wide record, its allowlist of keys, and `decodeKeptSessionSummary`, which reads it alone.                                                                                                                        |
-| `records/kept-session-body.ts`      | The body record, the allowlist of a kept phrase's keys, its writers and the earlier-version readers the upgrade steps use.                                                                                                   |
-| `records/kept-session-body-read.ts` | `parseKeptSessionBody`, the reader of a current body with its doodle and played-notes clock, loaded with the codec only: the upgrade steps never import it.                                                                  |
+| `records/kept-session-body.ts`      | The body record, the allowlist of a kept phrase's keys, its writers (the data version 2 and 4 writers only for the upgrade steps) and the data version 1 and 2 readers the upgrade steps use.                                |
+| `records/kept-session-body-read.ts` | `parseKeptSessionBody`, the reader of a current body with its doodle and played-notes clock, and `parseKeptSessionBodyV4`, the reader of v3.2's body, which only the upgrade to data version 5 uses.                         |
 | `records/kept-played-notes.ts`      | The played-notes record and the allowlist of a kept note's keys.                                                                                                                                                             |
-| `records/kept-phrase-parsers.ts`    | `parseKeptHarmony`, `parseKeptProfileSelection`, and `isKeptPhraseRefusal`, the test of what counts as a refusal.                                                                                                            |
-| `records/kept-intent-parsers.ts`    | `parseKeptIntent`, the reader of a data version 4 intent, and `parseKeptIntentV2` and `parseKeptIntentV1`, the readers the upgrade steps read earlier intents with.                                                          |
+| `records/kept-phrase-parsers.ts`    | `parseKeptHarmony`, its events' sevenths read or refused by the data version, `parseKeptProfileSelection`, and `isKeptPhraseRefusal`, the test of what counts as a refusal.                                                  |
+| `records/kept-intent-parsers.ts`    | `parseKeptIntent`, the reader of a data version 5 intent, and `parseKeptIntentV4`, `parseKeptIntentV2` and `parseKeptIntentV1`, the readers the upgrade steps read earlier intents with.                                     |
 | `records/kept-record-shape.ts`      | `KeptRecordError` and the shape readers the kept-session validators share.                                                                                                                                                   |
 | `records/kept-reading.ts`           | The data version of each kept-session shape, the `KeptReading` a decode gives, and `readKept`, which reads the envelopes first.                                                                                              |
 
@@ -103,17 +103,19 @@ caller defect.
 One numbering covers the whole database:
 
 - **The database's data version** is one integer, `DATABASE_DATA_VERSION`: 1 in v3.0, 3 in
-  v3.1 (step 2 for the kept sessions, step 3 for the presets and the levels), 4 from v3.2 (step 4
-  for the kept sessions). It is the IndexedDB version the database is opened with, the
-  `dataVersion` held in `meta`, and the number of migration steps.
+  v3.1 (step 2 for the kept sessions, step 3 for the presets and the levels), 4 in v3.2 (step 4
+  for the kept sessions), 5 from v3.3 (step 5 for the player presets and the kept bodies). It is
+  the IndexedDB version the database is opened with, the `dataVersion` held in `meta`, and the
+  number of migration steps.
 - **A record's data version** is the data version at which its store's current record shape was
   introduced, so it is never above the database's. Each codec owns that number for its store
-  (`SETTINGS_DATA_VERSION` for the settings); in v3.0 every one is 1. The kept session-wide
-  record and the body are at 4 from v3.2 (at 2 in v3.1; see [Kept sessions](#kept-sessions));
-  the player preset record (`PRESET_RECORD_DATA_VERSION`) and, in `settings`, the
-  `presetSelection` record and the seven `figureLevels.*` records
-  (`PRESET_SETTINGS_DATA_VERSION`, by `settingDataVersion(key)`) are at 3; every other shape, the
-  kept played notes and every other setting included, still at 1.
+  (`SETTINGS_DATA_VERSION` for the settings); in v3.0 every one is 1. The kept body and the player
+  preset record (`PRESET_RECORD_DATA_VERSION`) are at 5 from v3.3, the shapes that hold the
+  Seventh chords level (the body at 4 in v3.2 and 2 in v3.1, the preset record at 3 in v3.1 and
+  v3.2); the kept session-wide record is at 4 from v3.2 (at 2 in v3.1; see
+  [Kept sessions](#kept-sessions)); in `settings`, the `presetSelection` record and the seven
+  `figureLevels.*` records (`PRESET_SETTINGS_DATA_VERSION`, by `settingDataVersion(key)`) are at
+  3; every other shape, the kept played notes and every other setting included, still at 1.
 - **A migration to data version N rewrites only the stores whose shape changes at N**, giving
   their records data version N. The records of every other store keep their number, so an older
   tab still reads them.
@@ -187,7 +189,8 @@ the code's data version and the running app's version.
 A step whose work goes on in request callbacks, a cursor walk, calls `hold()` and calls the
 release it gets back when the walk ends. The runner starts the next step only once the step has
 returned and every hold it took is released, so each step sees every record the one before wrote:
-a v3.0 database reaches data version 4 through data version 2, step 4 reading what step 2 wrote.
+a v3.0 database reaches data version 5 through data versions 2 and 4, step 4 reading what step 2
+wrote and step 5 what step 4 wrote.
 Releasing twice counts once. The steps that rewrite records share one guarded cursor walk,
 `src/storage/migrations/rewrite-each.ts`.
 
@@ -202,6 +205,10 @@ Releasing twice counts once. The steps that rewrite records share one guarded cu
 - **Step 4** (v3.2, `KEPT_SESSIONS_V4`, `src/storage/migrations/kept-sessions-v4.ts`) carries the
   kept sessions over to their data version 4 shapes, with no Jam part (see
   [The upgrade to data version 4](#the-upgrade-to-data-version-4)).
+- **Step 5** (v3.3, `PRESETS_AND_KEPT_SESSIONS_V5`,
+  `src/storage/migrations/presets-and-kept-sessions-v5.ts`) carries the player presets and the
+  kept bodies over to their data version 5 shapes, with the Seventh chords level at Off (see
+  [The upgrade to data version 5](#the-upgrade-to-data-version-5)).
 - **Every step runs at the open only**, inside the upgrade transaction, once per database: a
   record is never mapped to a newer shape when it is read.
 - **The steps must run 1, 2, … N without a gap.** `migrationsDataVersion` checks the list when the
@@ -308,9 +315,9 @@ session's save (`keptSessionKey`). It is in no record, and no code reads a fact 
 clock or draws a seed.
 
 Each shape holds its own data version (`kept-reading.ts`): the session-wide record
-(`KEPT_SESSION_SUMMARY_DATA_VERSION`) and the body (`KEPT_SESSION_BODY_DATA_VERSION`) are at 4
-from v3.2, the played notes (`KEPT_PLAYED_NOTES_DATA_VERSION`), whose shape has not changed since
-v3.0, at 1. Every time in them is in seconds, never on the audio clock: from phrase 1's scheduled
+(`KEPT_SESSION_SUMMARY_DATA_VERSION`) is at 4 from v3.2, the body
+(`KEPT_SESSION_BODY_DATA_VERSION`) at 5 from v3.3, and the played notes
+(`KEPT_PLAYED_NOTES_DATA_VERSION`), whose shape has not changed since v3.0, at 1. Every time in them is in seconds, never on the audio clock: from phrase 1's scheduled
 start, except a fresh Jam's played-notes clock and played notes, which count from its count-in's
 first beat (a fresh Jam is one whose doodle was played in the session, not a kept doodle).
 
@@ -346,16 +353,19 @@ The session-wide record holds what a list row shows:
   whether the player declined its key and mode suggestion.
 
 A body phrase holds the generation request and the concert timeline as shown, the harmony its
-chord symbols come from, and its generation intent, with the instrument profile as data. Its
+chord symbols come from, and its generation intent, with the instrument profile as data and the
+Seventh chords level (`chordFamilies`, at any level, Off included, right after `figureLevels`).
+A harmony event in seventh form holds its `seventh` (`pitchClass` and `quality`), and the request's
+and the intent's carry-in may carry a seventh chord, as the outcome and the intent hold them. Its
 `clef` is the clef the session history recorded the phrase in: the clef of the written phrase Idle
 showed at Start, treble for a built-in instrument, treble or bass for my instrument. It is copied
 from the history, never looked up from my instrument as it is now, so a later change of my
 instrument's clef leaves a kept session as it was. When the phrase had them, its request and its
 intent hold v3.2's request inputs: the rhythm lock group (`rhythmLock`), the steering block
 (`steering`), and a carry-in from the phrase before or, on a Jam's phrase 1 only, from no phrase
-(the doodle's join into phrase 1). The intent is written with exactly data version 4's intent keys,
-so an intent's Seventh chords level (`chordFamilies`) is never stored: at Off it is left out, and an
-intent above Off is refused rather than stored as Off.
+(the doodle's join into phrase 1). Only the writers of data versions 2 and 4, which the upgrade
+steps alone run, leave the Seventh chords level out, and refuse an intent above Off rather than
+store it as Off.
 
 A Jam session's body holds its `doodle`: the quantized doodle (`quantized`), which holds no tempo,
 and `captureTempo`, the tempo it was captured at. A fresh Jam's body also holds its
@@ -401,14 +411,20 @@ Current records are then validated, and anything invalid or inconsistent makes t
 own parser where one exists: `parseGenerationRequest`, `parseConcertEventTimeline`,
 `parseQuantizedDoodle` and `parseConcertPitch`, with `isInstrumentClef` for the clef.
 `kept-phrase-parsers.ts` adds `parseKeptHarmony`, and `kept-intent-parsers.ts` `parseKeptIntent`,
-for what no domain parser covers. A data version 4 intent holds the seven figure levels
-(`figureLevels`) and no musical profile; one holding a `musicalProfile` is refused. No stored
-intent holds the Seventh chords level (`chordFamilies`): `parseKeptIntent`, `parseKeptIntentV2`
-and `parseKeptIntentV1` give the intent they read at Off, and a stored intent holding the key is
-refused as an unknown field. When the
-phrase had them, it also holds its carry-in, its rhythm lock group and its steering block, each
-read through the generation request's own parsers; a carry-in from no phrase is read only beside a
-steering block. An intent's instrument profile is read from the data it holds, through the
+for what no domain parser covers. A data version 5 intent holds the seven figure levels
+(`figureLevels`) and no musical profile; one holding a `musicalProfile` is refused. It holds its
+Seventh chords level, read by `parseChordFamilies`: an absent one reads Off, and an invalid one
+(an unknown family or level, or a value that is no object) makes the session unreadable. The
+stored request is read by `parseGenerationRequestTakingSeventh` and the intent's carry-in by
+`parseCarryIn` taking a seventh, so a phrase joined after a carried seventh chord reads back with
+it; a harmony event's `seventh` is read only as exactly a pitch class and a quality, the seventh
+stacked on that event's triad into a seventh chord of that quality, and refused otherwise. The
+earlier readers (`parseKeptIntentV4`, `parseKeptIntentV2`, `parseKeptIntentV1`, and the triad
+reading of `parseKeptHarmony`), which only the upgrade steps use, give the intent they read at Off,
+refuse a stored intent holding the level as an unknown field and read every chord as a triad,
+refusing a seventh. When the phrase had them, the intent also holds its carry-in, its rhythm lock
+group and its steering block, each read through the generation request's own parsers; a carry-in
+from no phrase is read only beside a steering block. An intent's instrument profile is read from the data it holds, through the
 domain's profile parser, and never rebuilt from its id, so a phrase reads back as it was played.
 A played-notes clock holds exactly its two moments, each finite and at least 0.
 
@@ -534,12 +550,49 @@ A failing request (a quota error, say) is not caught: it aborts the whole upgrad
 keeps its old data version for that visit, and the next open runs the steps again. An older tab
 open meanwhile is closed by the version change and turns outdated.
 
+Step 4 writes v3.2's body, at data version 4, through its own writer
+(`rewrittenKeptBodyRecordV4`), its intents without the Seventh chords level; step 5 then carries
+it on.
+
+### The upgrade to data version 5
+
+Step 5, `PRESETS_AND_KEPT_SESSIONS_V5` (`src/storage/migrations/presets-and-kept-sessions-v5.ts`),
+runs once, inside the upgrade transaction, when v3.3 first opens a database below data version 5:
+alone on v3.2's data at data version 4, after every earlier step on older data, then reading what
+they wrote. It walks `presets`, then `sessionBodies`, holding the upgrade until both walks end, and
+rewrites each record it can read:
+
+- a player preset record at data version 3 that the preset codec can read at all (a record under
+  its own id, not a built-in's, with a valid envelope) is written back at 5 by
+  `carriedOverPresetRecord`, with `chordFamilies` at Off and every other stored field kept as it
+  is, never read and written again, so nothing a tolerant read would change is changed: each
+  player preset loads with the same values;
+- a body at data version 4, read by `parseKeptSessionBodyV4` (exactly v3.2's keys, every intent at
+  Off, every chord a triad), is written back at 5 by the codec's writer: each phrase's intent with
+  `chordFamilies` at Off, every phrase, favorite mark and field (the harmonies, the timelines, the
+  carry-ins and the requests), the doodle and the played-notes clock as read, so a carried-over
+  session reviews and exports byte for byte as before.
+
+Each rewritten envelope's `appVersion` is the upgrading app's. The session-wide records (at 4),
+the played notes (at 1), the settings records and every other store are left alone. A v3.2 tab
+reads each carried-over record as newer and leaves it unread.
+
+A record the step cannot read is left as it is and the codecs then read it as unreadable: a
+damaged value, a v3.2 body whose intent holds a `chordFamilies` key or whose harmony or carry-in
+holds a seventh, which v3.2 never wrote, or a record at any other data version. A player preset
+record left at data version 3 is not listed. Like the earlier steps, the step never throws for a
+stored value: reading a value and writing its rewrite back are each guarded (`rewrite-each.ts`,
+whose walk hands each rewrite the record's key, for the preset's id check). A failing request
+aborts the whole upgrade, the database stays at data version 4 for that visit, and the next open
+runs the step again.
+
 ### Size
 
-A 30-minute session at 240 BPM in Jazz with Sixteenth density measures 4.07 MB (UTF-8 JSON) for
-its session-wide record and body, about 9 KB a phrase: each phrase keeps its timeline, harmony and
-intent in their domain form. The v3.0 spec estimated about 3.5 MB. Its played notes, at one note per
-shown note, add about 1.47 MB.
+A 30-minute session at 240 BPM in Jazz with Sixteenth density measured 4.07 MB (UTF-8 JSON) for
+its session-wide record and body at data version 1, about 9 KB a phrase: each phrase keeps its
+timeline, harmony and intent in their domain form; at data version 5, each intent holding its
+Seventh chords level, it measures 4.150 MB. The v3.0 spec estimated about 3.5 MB. Its played
+notes, at one note per shown note, add about 1.47 MB.
 
 ## The save policy
 
@@ -695,9 +748,9 @@ in parallel, every record of `settings`, `instrument` and `controller`, and ever
 `presets` and of `sessionSummaries` with its key (the keyed read). The player presets go through
 the player preset codec (`decodePlayerPresets`, `records/preset-record.ts`), each record and each
 field on its own: a record it cannot read at all is left in the store and not listed. The player
-preset record holds no Seventh chords level, so every player preset loads with the level at Off;
-`encodePresetRecord` writes the same shape as v3.2 and refuses a preset above Off rather than
-storing it as Off. A refused or late read of `presets` is a failed read of the whole visit, like
+preset record holds its Seventh chords level (`chordFamilies`, by family id), which
+`encodePresetRecord` writes at any level; a missing, unknown or invalid one loads Off, every other
+field still loading. A refused or late read of `presets` is a failed read of the whole visit, like
 one of the settings: the visit starts from the defaults and lists the built-in presets only. The settings go
 through the settings codec (`decodeSettings`), each checked on its own: an unknown or no longer
 valid value takes its setting's default, silently, and every other value is kept. My instrument's

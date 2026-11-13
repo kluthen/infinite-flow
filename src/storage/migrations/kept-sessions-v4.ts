@@ -5,12 +5,13 @@
  * 4 saying the session is no Jam, with no declined suggestion, every other field (the app version
  * that recorded the session included) as stored; each data version 2 body the codec's data version
  * 2 reader can read is written back at data version 4 with no doodle and no played-notes clock,
- * every phrase, favorite mark and field (the generated timelines included) as stored, so the
- * session reviews and exports exactly as before. Every other record is left as it is: a record it
- * cannot read, a v3.1 body whose stored request holds a rhythm lock group or a steering block
- * among them, stays at data version 2, which the codec then reports as unreadable; the played
- * notes, whose shape does not change, and every other store are not touched. Sessions are carried
- * over here, when the database opens, never when a session is read.
+ * every phrase, favorite mark and field (the generated timelines included) as stored, its intents
+ * without the Seventh chords level, which data version 4 cannot hold, so the session reviews and
+ * exports exactly as before; the step to data version 5 then carries it on. Every other record is
+ * left as it is: a record it cannot read, a v3.1 body whose stored request holds a rhythm lock
+ * group or a steering block among them, stays at data version 2, which the codec then reports as
+ * unreadable; the played notes, whose shape does not change, and every other store are not
+ * touched. Sessions are carried over here, when the database opens, never when a session is read.
  *
  * The step never throws for anything stored: reading a stored value and writing its rewrite back
  * are each guarded (`rewrite-each.ts`). A failing request (a quota error, say) is not prevented:
@@ -22,8 +23,8 @@ import type { MigrationStep } from '../database'
 import { readEnvelope } from '../record-envelope'
 import {
   parseKeptSessionBodyV2,
-  rewrittenKeptBodyRecord,
-  type KeptSessionBodyRecord,
+  rewrittenKeptBodyRecordV4,
+  type KeptSessionBodyRecordV4,
 } from '../records/kept-session-body'
 import {
   parseKeptSessionSummaryV2,
@@ -74,14 +75,14 @@ export function upgradedKeptSummaryV4(
 export function upgradedKeptBodyV4(
   stored: unknown,
   appVersion: string,
-): KeptSessionBodyRecord | null {
+): KeptSessionBodyRecordV4 | null {
   try {
     if (readEnvelope(stored, FROM_VERSION) !== 'current') return null
     const phrases = parseKeptSessionBodyV2(stored)
     const favorites = new Set(
       phrases.filter((phrase) => phrase.favorite).map((phrase) => phrase.phraseNumber),
     )
-    return rewrittenKeptBodyRecord(
+    return rewrittenKeptBodyRecordV4(
       { phrases, doodle: null, playedNotesClock: null },
       (number) => favorites.has(number),
       appVersion,

@@ -3,17 +3,29 @@
  * rhythm change and a forced bend round-trips with every reproduction input, and each phrase
  * replays from its kept intent to its kept timeline; a Jam-style session whose phrase 1 joins from
  * no phrase beside its steering block round-trips with its body's doodle, which a favorite change
- * keeps; the body's data version is 4, a body below it unreadable and one above it newer.
+ * keeps; the body's data version is 5, a body below it unreadable and one above it newer. Each
+ * phrase's intent is stored with its Seventh chords level at any level, while the writers of data
+ * versions 2 and 4, which only the upgrade steps run, store none and refuse one above Off.
  */
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
+import {
+  CHORD_FAMILY_LEVEL_IDS,
+  ChordFamiliesError,
+  OFF_CHORD_FAMILIES,
+  type ChordFamilies,
+} from '@/domain/chords/chord-families'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { SessionHistoryRecord } from '@/session/session-history'
 import { upgradedKeptBodyV4, upgradedKeptSummaryV4 } from '@/storage/migrations/kept-sessions-v4'
-import { parseKeptSessionBody } from '@/storage/records/kept-session-body-read'
+import { upgradedKeptBodyV5 } from '@/storage/migrations/presets-and-kept-sessions-v5'
+import { isKeptPhraseRefusal } from '@/storage/records/kept-phrase-parsers'
+import {
+  parseKeptSessionBody,
+  parseKeptSessionBodyV4,
+} from '@/storage/records/kept-session-body-read'
 import {
   decodeKeptSession,
   encodeKeptSession,
@@ -27,7 +39,9 @@ import {
   keptSessionBodyRecord,
   rewrittenKeptBodyRecord,
   rewrittenKeptBodyRecordV2,
+  rewrittenKeptBodyRecordV4,
   type KeptSessionBodyRecord,
+  type KeptSessionBodyRecordV4,
   type ParsedKeptPhrase,
 } from '@/storage/records/kept-session-body'
 import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
@@ -41,6 +55,7 @@ import {
   storedRecords,
 } from './kept-session-fixtures'
 import { jamSessionRecords, KEPT_DOODLE, lockedSessionRecords } from './kept-session-v32-fixtures'
+import { v4Body } from './kept-sessions-v4-fixtures'
 
 /** The facts of a kept session with phrase 2 a favorite, no comment, played notes not kept. */
 const FACTS: KeptSessionFacts = {
@@ -153,9 +168,9 @@ describe('a kept session with locked, changed and forced-bend phrases', () => {
   })
 
   // @test-link [[entity_kept_session_record]]
-  it('writes the body at data version 4 with no doodle', () => {
-    expect(KEPT_SESSION_BODY_DATA_VERSION).toBe(4)
-    expect(stored.body).toMatchObject({ dataVersion: 4, appVersion: APP_VERSION })
+  it('writes the body at data version 5 with no doodle', () => {
+    expect(KEPT_SESSION_BODY_DATA_VERSION).toBe(5)
+    expect(stored.body).toMatchObject({ dataVersion: 5, appVersion: APP_VERSION })
     expect(Object.keys(stored.body as object).sort()).toEqual([
       'appVersion',
       'dataVersion',
@@ -248,24 +263,30 @@ describe("a body of another data version than the body's shape", () => {
   }, 60_000)
 
   // @test-link [[module_kept_session_codec]]
-  // @test-link [[module_kept_session_jam_upgrade_step]]
-  it("reads a body at data version 2, v3.1's, as unreadable after the upgrade", () => {
-    const older = edited(stored.body, ['dataVersion'], 2)
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it("reads a body at data version 2, v3.1's, or 4, v3.2's, as unreadable after the upgrade", () => {
+    for (const version of [2, 4]) {
+      const older = edited(stored.body, ['dataVersion'], version)
 
-    expect(decodeKeptSession({ ...stored, body: older })).toEqual({ reading: 'unreadable' })
+      expect(decodeKeptSession({ ...stored, body: older }), `${version}`).toEqual({
+        reading: 'unreadable',
+      })
+    }
   })
 
   // @test-link [[rule_outdated_tab_reads_what_it_can]]
-  it('leaves a body at data version 5 unread as newer', () => {
-    const newer = edited(stored.body, ['dataVersion'], 5)
+  it('leaves a body at data version 6 unread as newer', () => {
+    const newer = edited(stored.body, ['dataVersion'], 6)
 
     expect(decodeKeptSession({ ...stored, body: newer })).toEqual({ reading: 'newer' })
   })
 
   // @test-link [[module_kept_session_jam_upgrade_step]]
-  it('gives no rewrite to step 4 of a session-wide record or a body already at data version 4', () => {
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it('gives no rewrite to step 4 or 5 of a session-wide record or a body already at its data version', () => {
     expect(upgradedKeptBodyV4(stored.body, APP_VERSION)).toBeNull()
     expect(upgradedKeptSummaryV4(stored.summary, APP_VERSION)).toBeNull()
+    expect(upgradedKeptBodyV5(stored.body, APP_VERSION)).toBeNull()
   })
 })
 
@@ -287,23 +308,25 @@ function withoutChordFamilies(intent: GenerationIntent): Omit<GenerationIntent, 
 }
 
 /**
- * Intent: a body as the writer wrote it before the Seventh chords level existed: each phrase's
- * intent the very intent it was written from, without the level it did not have yet, stored whole.
+ * Intent: a body as a writer wrote it when it stored each phrase's intent whole: the very intent it
+ * was written from, its Seventh chords level kept (data version 5) or dropped (data versions 2
+ * and 4).
  */
 function writtenWhole(
-  body: KeptSessionBodyRecord,
+  body: KeptSessionBodyRecordV4,
   intents: readonly GenerationIntent[],
-): KeptSessionBodyRecord {
+  level: 'kept' | 'dropped',
+): KeptSessionBodyRecordV4 {
   return {
     ...body,
     phrases: body.phrases.map((phrase, index) => ({
       ...phrase,
-      intent: withoutChordFamilies(intents[index]!),
+      intent: level === 'kept' ? intents[index]! : withoutChordFamilies(intents[index]!),
     })),
   }
 }
 
-/** Intent: a recorded phrase whose intent also carries a Seventh chords level. */
+/** Intent: a recorded phrase whose intent carries the given Seventh chords level. */
 function withChordFamilies(
   record: SessionHistoryRecord,
   chordFamilies: ChordFamilies,
@@ -312,7 +335,7 @@ function withChordFamilies(
   return { ...record, intent }
 }
 
-/** Intent: a read-back phrase whose intent also carries a Seventh chords level. */
+/** Intent: a read-back phrase whose intent carries the given Seventh chords level. */
 function parsedWithChordFamilies(
   phrase: ParsedKeptPhrase,
   chordFamilies: ChordFamilies,
@@ -322,16 +345,18 @@ function parsedWithChordFamilies(
 }
 
 /** Intent: whether a stored body's phrases hold a `chordFamilies` key in their intent. */
-function storesChordFamilies(body: KeptSessionBodyRecord): boolean {
-  return body.phrases.some((phrase) => Object.hasOwn(phrase.intent, 'chordFamilies'))
+function storesChordFamilies(body: unknown): boolean {
+  return (body as KeptSessionBodyRecordV4).phrases.some((phrase) =>
+    Object.hasOwn(phrase.intent, 'chordFamilies'),
+  )
 }
 
-/** The Seventh chords level above Off, which data version 4 cannot store. */
+/** The Seventh chords level above Off, which data versions 2 and 4 cannot store. */
 const FAVORED_SEVENTHS: ChordFamilies = { 'seventh-chords': 'favored' }
 
 // @test-link [[module_kept_session_codec]]
 // @test-link [[entity_kept_session_record]]
-describe("a body written with data version 4's intent keys", () => {
+describe("a body's intents and the Seventh chords level, by the data version written", () => {
   let sessions: readonly (readonly SessionHistoryRecord[])[]
 
   beforeAll(() => {
@@ -353,70 +378,82 @@ describe("a body written with data version 4's intent keys", () => {
   }
 
   // @test-link [[module_kept_session_codec]]
-  it("writes today's intents byte for byte as before, carry-in, lock group and steering included", () => {
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it('writes each intent whole, its level after its figure levels, and data versions 2 and 4 byte for byte as before, without it', () => {
     for (const records of sessions) {
       const body = bodyOf(records)
       const intents = records.map((record) => record.intent)
-      expect(storedBytes(body)).toBe(storedBytes(writtenWhole(body, intents)))
+      expect(storedBytes(body)).toBe(storedBytes(writtenWhole(body, intents, 'kept')))
+      for (const { intent } of body.phrases) {
+        const keys = Object.keys(intent)
+        expect(keys.indexOf('chordFamilies')).toBe(keys.indexOf('figureLevels') + 1)
+      }
 
       const read = parseKeptSessionBody(structuredClone(body))
       const rewritten = rewrittenKeptBodyRecord(read, () => true, APP_VERSION)
-      expect(storedBytes(rewritten)).toBe(storedBytes(writtenWhole(rewritten, intents)))
+      expect(storedBytes(rewritten)).toBe(storedBytes(writtenWhole(rewritten, intents, 'kept')))
+      const rewrittenV4 = rewrittenKeptBodyRecordV4(read, () => false, APP_VERSION)
+      expect(rewrittenV4.dataVersion).toBe(4)
+      expect(storedBytes(rewrittenV4)).toBe(
+        storedBytes(writtenWhole(rewrittenV4, intents, 'dropped')),
+      )
       const rewrittenV2 = rewrittenKeptBodyRecordV2(read.phrases, () => false, APP_VERSION)
-      expect(storedBytes(rewrittenV2)).toBe(storedBytes(writtenWhole(rewrittenV2, intents)))
+      expect(storedBytes(rewrittenV2)).toBe(
+        storedBytes(writtenWhole(rewrittenV2, intents, 'dropped')),
+      )
     }
   })
 
   // @test-link [[module_kept_session_codec]]
   // @test-link [[entity_kept_session_record]]
-  it('stores an intent whose Seventh chords level is Off without the level, and reopens it', () => {
+  it('stores each level, Off included, and reopens it, where data versions 2 and 4 store none at Off', () => {
     for (const records of sessions) {
-      const atOff = records.map((record) => withChordFamilies(record, OFF_CHORD_FAMILIES))
-      const body = bodyOf(atOff)
+      for (const level of CHORD_FAMILY_LEVEL_IDS) {
+        const families: ChordFamilies = { 'seventh-chords': level }
+        const leveled = records.map((record) => withChordFamilies(record, families))
+        const body = bodyOf(leveled)
 
-      expect(storesChordFamilies(body)).toBe(false)
-      expect(storedBytes(body)).toBe(storedBytes(bodyOf(records)))
-      const read = parseKeptSessionBody(structuredClone(body))
-      read.phrases.forEach((phrase, index) => {
-        expect(phrase.intent).toEqual(records[index]!.intent)
-        expect(phrase.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
-      })
-
+        for (const phrase of body.phrases) expect(phrase.intent.chordFamilies).toEqual(families)
+        const read = parseKeptSessionBody(structuredClone(body))
+        read.phrases.forEach((phrase, index) =>
+          expect(phrase.intent, level).toEqual(leveled[index]!.intent),
+        )
+      }
+      const read = parseKeptSessionBody(structuredClone(bodyOf(records)))
       const readAtOff = read.phrases.map((phrase) =>
         parsedWithChordFamilies(phrase, OFF_CHORD_FAMILIES),
       )
-      const rewritten = rewrittenKeptBodyRecord(
-        { ...read, phrases: readAtOff },
-        () => true,
-        APP_VERSION,
+      const atOff = { ...read, phrases: readAtOff }
+      expect(storesChordFamilies(rewrittenKeptBodyRecordV4(atOff, () => true, APP_VERSION))).toBe(
+        false,
       )
-      expect(storesChordFamilies(rewritten)).toBe(false)
       expect(
         storesChordFamilies(rewrittenKeptBodyRecordV2(readAtOff, () => true, APP_VERSION)),
       ).toBe(false)
     }
-    const kept = keptRecords(
-      lockedSessionRecords().map((record) => withChordFamilies(record, OFF_CHORD_FAMILIES)),
-    )
-    expect(decoded(kept).phrases).toHaveLength(4)
   })
 
   // @test-link [[module_kept_session_codec]]
-  it('refuses an intent whose Seventh chords level is above Off rather than storing it as Off', () => {
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it('refuses an intent above Off in the data version 2 and 4 writers only, rather than storing it as Off', () => {
     const records = sessions[1]!
     const favored = records.map((record, index) =>
       index === 1 ? withChordFamilies(record, FAVORED_SEVENTHS) : record,
     )
-    expect(() => bodyOf(favored)).toThrow(/Seventh chords level .* above Off/u)
-    expect(() => keptRecords(favored)).toThrow(/Seventh chords level .* above Off/u)
+    expect(bodyOf(favored).phrases[1]!.intent.chordFamilies).toEqual(FAVORED_SEVENTHS)
+    expect(decoded(keptRecords(favored)).phrases[1]!.intent.chordFamilies).toEqual(FAVORED_SEVENTHS)
 
     const read = parseKeptSessionBody(structuredClone(bodyOf(records)))
     const readFavored = read.phrases.map((phrase, index) =>
       index === 1 ? parsedWithChordFamilies(phrase, FAVORED_SEVENTHS) : phrase,
     )
-    expect(() =>
-      rewrittenKeptBodyRecord({ ...read, phrases: readFavored }, () => true, APP_VERSION),
-    ).toThrow(/Seventh chords level .* above Off/u)
+    const body = { ...read, phrases: readFavored }
+    expect(
+      rewrittenKeptBodyRecord(body, () => true, APP_VERSION).phrases[1]!.intent.chordFamilies,
+    ).toEqual(FAVORED_SEVENTHS)
+    expect(() => rewrittenKeptBodyRecordV4(body, () => true, APP_VERSION)).toThrow(
+      /Seventh chords level .* above Off/u,
+    )
     expect(() => rewrittenKeptBodyRecordV2(readFavored, () => true, APP_VERSION)).toThrow(
       /Seventh chords level .* above Off/u,
     )
@@ -437,28 +474,23 @@ describe('a kept session and the Seventh chords level', () => {
     ]
   }, 60_000)
 
-  /** Intent: the stored records of a session as v3.2 saved it, each intent without the level. */
+  /** Intent: the stored records of a session as v3.2 saved it: its body at data version 4. */
   function savedOnV32(records: readonly SessionHistoryRecord[]): StoredKeptSession {
     const stored = keptRecords(records)
-    const body = stored.body as KeptSessionBodyRecord
-    return {
-      ...stored,
-      body: structuredClone(
-        writtenWhole(
-          body,
-          records.map((record) => record.intent),
-        ),
-      ),
-    }
+    return { ...stored, body: v4Body(stored.body) }
   }
 
   // @test-link [[module_kept_session_codec]]
-  it('reopens a session saved on v3.2 with every phrase at Off', () => {
+  // @test-link [[rule_earlier_kept_sessions_read_at_off]]
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it('reopens a session saved on v3.2, once carried over to data version 5, with every phrase at Off', () => {
     for (const records of sessions) {
       const stored = savedOnV32(records)
-      expect(storesChordFamilies(stored.body as KeptSessionBodyRecord)).toBe(false)
+      expect(storesChordFamilies(stored.body)).toBe(false)
+      expect(decodeKeptSession(stored)).toEqual({ reading: 'unreadable' })
 
-      const phrases = decoded(stored).phrases
+      const carried = { ...stored, body: upgradedKeptBodyV5(stored.body, APP_VERSION) }
+      const phrases = decoded(carried).phrases
       expect(phrases).toHaveLength(records.length)
       phrases.forEach((phrase, index) => {
         expect(phrase.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
@@ -468,15 +500,26 @@ describe('a kept session and the Seventh chords level', () => {
   })
 
   // @test-link [[module_kept_session_codec]]
+  it('reads a data version 5 body whose intents hold no level with every phrase at Off', () => {
+    const stored = keptRecords(sessions[1]!)
+    let body = stored.body
+    for (const index of [0, 1, 2, 3])
+      body = edited(body, ['phrases', index, 'intent', 'chordFamilies'], REMOVE)
+
+    expect(storesChordFamilies(body)).toBe(false)
+    for (const phrase of decoded({ ...stored, body }).phrases)
+      expect(phrase.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+  })
+
+  // @test-link [[module_kept_session_codec]]
   // @test-link [[entity_kept_session_record]]
-  it('saves a session played now, its intents at Off, without the level, and reopens it at Off', () => {
+  it('saves a session played now, its intents at Off, with the level, and reopens it at Off', () => {
     for (const records of sessions) {
       for (const record of records)
         expect(record.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
       const stored = keptRecords(records)
 
-      expect(storesChordFamilies(stored.body as KeptSessionBodyRecord)).toBe(false)
-      expect(storedBytes(stored.body)).toBe(storedBytes(savedOnV32(records).body))
+      expect(storesChordFamilies(stored.body)).toBe(true)
       decoded(stored).phrases.forEach((phrase, index) => {
         expect(phrase.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
         expect(Object.keys(phrase.intent)).toEqual(Object.keys(records[index]!.intent))
@@ -486,13 +529,40 @@ describe('a kept session and the Seventh chords level', () => {
 
   // @test-link [[module_kept_session_codec]]
   // @test-link [[entity_kept_session_record]]
-  it('reads a stored intent holding the level as unreadable, at Off or above', () => {
+  it.each([
+    ['an unknown level', { 'seventh-chords': 'often' }],
+    ['an unknown family', { 'seventh-chords': 'off', 'ninth-chords': 'off' }],
+    ['no family', {}],
+    ['a level that is no object', 'off'],
+    ['null', null],
+  ] as const)('reads a stored level with %s as unreadable, never as Off', (_, level) => {
     const stored = keptRecords(sessions[1]!)
-    for (const chordFamilies of [OFF_CHORD_FAMILIES, FAVORED_SEVENTHS]) {
-      const body = edited(stored.body, ['phrases', 1, 'intent', 'chordFamilies'], chordFamilies)
+    const body = edited(stored.body, ['phrases', 1, 'intent', 'chordFamilies'], level)
 
-      expect(() => parseKeptSessionBody(body)).toThrow(/chordFamilies/u)
-      expect(decodeKeptSession({ ...stored, body })).toEqual({ reading: 'unreadable' })
+    expect(() => parseKeptSessionBody(body)).toThrow(ChordFamiliesError)
+    expect(isKeptPhraseRefusal(catchError(() => parseKeptSessionBody(body)))).toBe(true)
+    expect(decodeKeptSession({ ...stored, body })).toEqual({ reading: 'unreadable' })
+  })
+
+  // @test-link [[module_kept_session_codec]]
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it('refuses the level in a data version 4 body as an unknown field, at Off or above', () => {
+    const body = savedOnV32(sessions[1]!).body
+    for (const chordFamilies of [OFF_CHORD_FAMILIES, FAVORED_SEVENTHS]) {
+      const holding = edited(body, ['phrases', 1, 'intent', 'chordFamilies'], chordFamilies)
+
+      expect(() => parseKeptSessionBodyV4(holding)).toThrow(/chordFamilies/u)
+      expect(upgradedKeptBodyV5(holding, APP_VERSION)).toBeNull()
     }
   })
 })
+
+/** Intent: the error a call throws, or null when it throws none. */
+function catchError(call: () => unknown): unknown {
+  try {
+    call()
+  } catch (error) {
+    return error
+  }
+  return null
+}

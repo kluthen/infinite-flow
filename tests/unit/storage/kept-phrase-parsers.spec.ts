@@ -30,6 +30,7 @@ import {
   parseKeptIntent,
   parseKeptIntentV1,
   parseKeptIntentV2,
+  parseKeptIntentV4,
 } from '@/storage/records/kept-intent-parsers'
 import {
   isKeptPhraseRefusal,
@@ -48,7 +49,8 @@ type Step = string | number
 
 /**
  * Intent: a stored copy of a value, as a kept session's JSON-shaped record holds it: an intent
- * without its Seventh chords level, which no stored data version holds.
+ * without its Seventh chords level, as every data version before 5 holds it, and as data version
+ * 5 reads at Off.
  */
 function stored(value: unknown): Record<string, unknown> {
   return JSON.parse(
@@ -587,9 +589,10 @@ describe('parseKeptIntentV1, the data version 1 reader: figure levels, in each o
   })
 })
 
-/** The readers of an intent that holds its figure levels only: data version 4's and 2's. */
+/** The readers of an intent that holds its figure levels only: data version 5's, 4's and 2's. */
 const LEVELS_ONLY_READERS = [
   ['parseKeptIntent', parseKeptIntent],
+  ['parseKeptIntentV4', parseKeptIntentV4],
   ['parseKeptIntentV2', parseKeptIntentV2],
 ] as const
 
@@ -643,16 +646,20 @@ describe.each(LEVELS_ONLY_READERS)('%s: figure levels only', (_, read) => {
   })
 })
 
-/** Every reader of a stored intent: data version 4's, 2's and 1's. */
-const EVERY_INTENT_READER = [
-  ['parseKeptIntent', parseKeptIntent],
+/**
+ * Every reader of a stored intent of a data version before the Seventh chords level: data version
+ * 4's, 2's and 1's. Data version 5's reading of the level is in `kept-seventh-chords-codec.spec.ts`.
+ */
+const EARLIER_INTENT_READERS = [
+  ['parseKeptIntentV4', parseKeptIntentV4],
   ['parseKeptIntentV2', parseKeptIntentV2],
   ['parseKeptIntentV1', parseKeptIntentV1],
 ] as const
 
 // @test-link [[module_kept_session_codec]]
 // @test-link [[rule_seventh_chord_draws_reproducible]]
-describe.each(EVERY_INTENT_READER)('%s and the Seventh chords level', (_, read) => {
+// @test-link [[rule_earlier_kept_sessions_read_at_off]]
+describe.each(EARLIER_INTENT_READERS)('%s and the Seventh chords level', (_, read) => {
   // @test-link [[module_kept_session_codec]]
   it('reads every stored intent, carry-ins included, with the level at Off after its figure levels', () => {
     for (const record of records) {

@@ -256,13 +256,13 @@ describe('a data version 1 database of v3.0 kept sessions, opened by v3.1', () =
   // @test-link [[module_kept_session_upgrade_step]]
   // @test-link [[module_on_device_database]]
   // @test-link [[module_kept_session_jam_upgrade_step]]
-  it("opens the database at the code's data version, 4, the port ready", async () => {
+  it("opens the database at the code's data version, 5, the port ready", async () => {
     expect(upgraded.status()).toBe('ready')
     expect(await databaseState(factory)).toEqual({
       version: DATABASE_DATA_VERSION,
       meta: { dataVersion: DATABASE_DATA_VERSION, appVersion: UPGRADING_APP_VERSION },
     })
-    expect(DATABASE_DATA_VERSION).toBe(4)
+    expect(DATABASE_DATA_VERSION).toBe(5)
   })
 
   // @test-link [[module_kept_session_upgrade_step]]

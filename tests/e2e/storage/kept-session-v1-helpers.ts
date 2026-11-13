@@ -66,11 +66,15 @@ export function storedPhrases(body: Record<string, unknown>): StoredPhrase[] {
 /** The app version of the v3.1 tab the v3.1 records are written as. */
 const V31_APP_VERSION = '3.1.0'
 
-/** Intent: a stored request or intent without the inputs v3.1 never held, as a fresh record. */
+/**
+ * Intent: a stored request or intent without the inputs v3.1 never held (v3.2's and v3.3's Seventh
+ * chords level), as a fresh record.
+ */
 function withoutV32Inputs(stored: Record<string, unknown>): Record<string, unknown> {
-  const { rhythmLock, steering, carryIn, ...rest } = stored
+  const { rhythmLock, steering, carryIn, chordFamilies, ...rest } = stored
   void rhythmLock
   void steering
+  void chordFamilies
   const fromPhrase = typeof carryIn === 'object' && carryIn !== null && !('origin' in carryIn)
   return fromPhrase ? { ...rest, carryIn } : rest
 }
@@ -78,8 +82,9 @@ function withoutV32Inputs(stored: Record<string, unknown>): Record<string, unkno
 /**
  * Intent: a stored session this version kept, as a fresh copy without what only v3.2 keeps: no
  * Jam mark or declined suggestion in its session-wide record; no doodle or played-notes clock in
- * its body; in each phrase's request and intent, no rhythm lock group, no steering block and no
- * carry-in from no phrase (a carry-in from a phrase, v3.1's, stays); its played notes as stored.
+ * its body; in each phrase's request and intent, no rhythm lock group, no steering block, no
+ * Seventh chords level and no carry-in from no phrase (a carry-in from a phrase, v3.1's, stays);
+ * its played notes as stored.
  * Its data versions are left as stored. Throws for a Jam session, which v3.1 never kept.
  */
 function withoutV32Parts(stored: StoredSession): StoredSession {

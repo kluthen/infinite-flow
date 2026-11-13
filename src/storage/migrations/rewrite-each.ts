@@ -10,12 +10,12 @@
 import type { StoreName } from '../database'
 
 /**
- * How one store's records are rewritten: the store, and the rewrite of a stored value, null to
- * leave it as it is. The rewrite must never throw.
+ * How one store's records are rewritten: the store, and the rewrite of a stored value given the
+ * key it is stored under, null to leave it as it is. The rewrite must never throw.
  */
 export interface StoreRewrite {
   readonly store: StoreName
-  readonly upgraded: (stored: unknown) => unknown
+  readonly upgraded: (stored: unknown, key: IDBValidKey) => unknown
 }
 
 /**
@@ -35,15 +35,17 @@ function updateOrLeave(cursor: IDBCursorWithValue, next: unknown): boolean {
 }
 
 /**
- * Intent: walk every record of `store`, writing back the rewrite `upgraded` gives of each one that
- * has one and leaving the others as they are, then call `done` when given. `upgraded` never
- * throws, and neither does the write; a failing request is left to abort the upgrade.
+ * Intent: walk every record of `store`, writing back the rewrite `upgraded` gives of each one,
+ * from its value and its key, that has one and leaving the others as they are, then call `done`
+ * when given. `upgraded` never throws, and neither does the write; a failing request is left to
+ * abort the upgrade.
  */
 // @spec-link [[module_kept_session_upgrade_step]]
 // @spec-link [[module_kept_session_jam_upgrade_step]]
+// @spec-link [[module_presets_and_kept_sessions_upgrade_step]]
 export function rewriteEach(
   store: IDBObjectStore,
-  upgraded: (stored: unknown) => unknown,
+  upgraded: (stored: unknown, key: IDBValidKey) => unknown,
   done?: () => void,
 ): void {
   const walk = store.openCursor()
@@ -53,7 +55,7 @@ export function rewriteEach(
       done?.()
       return
     }
-    const next = upgraded(cursor.value)
+    const next = upgraded(cursor.value, cursor.primaryKey)
     if (next !== null) updateOrLeave(cursor, next)
     cursor.continue()
   }

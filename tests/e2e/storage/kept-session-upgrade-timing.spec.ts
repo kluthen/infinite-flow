@@ -66,8 +66,8 @@ const TEMPLATE_STARTED_AT = Date.UTC(2026, 9, 2, 10, 5)
 /** The key the seeds give the first copy of the template. */
 const FIRST_COPY_KEY = `session-${TEMPLATE_STARTED_AT}-0`
 
-/** The data version the open upgrades the kept sessions to. */
-const UPGRADED_DATA_VERSION = 4
+/** The data versions the open upgrades the kept sessions' session-wide records and bodies to. */
+const UPGRADED_DATA_VERSIONS = { sessionSummaries: 4, sessionBodies: 5 } as const
 
 /** The seven figures whose level records step 3 writes. */
 const FIGURES = [
@@ -190,13 +190,13 @@ async function lastLoad(page: Page, sessions: number): Promise<LoadTiming> {
   await expect
     .poll(
       () =>
-        page.evaluate(async (version) => {
-          /** Intent: how many records of a store are at `version`; -1 before the port opens. */
+        page.evaluate(async (versions) => {
+          /** Intent: how many records of a store are at its upgraded version; -1 before the port opens. */
           const current = async (store: 'sessionSummaries' | 'sessionBodies') => {
             try {
               const records = await window.__workspaceHarness.storage.records(store)
               return records.filter(
-                (record) => (record as { dataVersion?: unknown }).dataVersion === version,
+                (record) => (record as { dataVersion?: unknown }).dataVersion === versions[store],
               ).length
             } catch {
               // The app's port opens late when the start-up wait ended first: none read yet.
@@ -204,7 +204,7 @@ async function lastLoad(page: Page, sessions: number): Promise<LoadTiming> {
             }
           }
           return [await current('sessionSummaries'), await current('sessionBodies')]
-        }, UPGRADED_DATA_VERSION),
+        }, UPGRADED_DATA_VERSIONS),
       { timeout: 120_000 },
     )
     .toEqual([sessions, sessions])
@@ -212,21 +212,21 @@ async function lastLoad(page: Page, sessions: number): Promise<LoadTiming> {
 }
 
 /**
- * Intent: after the cold load, check step 4 carried the first copy of `template` over: its
+ * Intent: after the cold load, check steps 4 and 5 carried the first copy of `template` over: its
  * session-wide record at data version 4, no Jam, with no declined suggestion, its preset label and
- * phrase count as seeded; its body at data version 4 with no doodle and no played-notes clock,
+ * phrase count as seeded; its body at data version 5 with no doodle and no played-notes clock,
  * its phrases as seeded.
  */
 async function expectFirstSessionCarriedOver(page: Page, template: StoredSession): Promise<void> {
   const upgraded = await storedSession(page, FIRST_COPY_KEY)
   expect(upgraded.summary).toMatchObject({
-    dataVersion: UPGRADED_DATA_VERSION,
+    dataVersion: UPGRADED_DATA_VERSIONS.sessionSummaries,
     isJam: false,
     phraseCount: template.summary.phraseCount,
   })
   expect(upgraded.summary).not.toHaveProperty('suggestionDeclined')
   expect(typeof upgraded.summary.presetLabel).toBe('string')
-  expect(upgraded.body.dataVersion).toBe(UPGRADED_DATA_VERSION)
+  expect(upgraded.body.dataVersion).toBe(UPGRADED_DATA_VERSIONS.sessionBodies)
   expect(upgraded.body).not.toHaveProperty('doodle')
   expect(upgraded.body).not.toHaveProperty('playedNotesClock')
   expect(storedPhrases(upgraded.body)).toHaveLength(storedPhrases(template.body).length)

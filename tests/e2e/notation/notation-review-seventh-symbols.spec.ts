@@ -3,10 +3,10 @@
  * (as `notation-visual.spec.ts`), on the workspace harness's fake audio clock (port 4175): a
  * one-phrase session played with the Seventh chords level at Mostly, set through the harness's
  * routing-point seam (`setChordFamilyLevel`) until its control ships, ends on the Review, whose
- * staff draws phrase 1 with its seventh symbols in the one-system layout of a desktop window. The
- * visit starts from the defaults (`?storageRead=fail`), so saving is off: data version 4 cannot
- * store a Seventh chords level above Off, and the end saves nothing. The baseline is generated with
- * `--update-snapshots` and must then re-run stable.
+ * staff draws phrase 1 with its seventh symbols in the one-system layout of a desktop window.
+ * Saving is on: the session's end keeps it at data version 5, which stores the level and its
+ * seventh chords, with no page error. The baseline is generated with `--update-snapshots` and must
+ * then re-run stable.
  */
 import { expect, test } from '@playwright/test'
 
@@ -34,8 +34,8 @@ test("seventh chord symbols: the Review's staff matches its baseline for a phras
   page,
 }) => {
   test.setTimeout(90_000)
-  await gotoSessionHarness(page, DESKTOP, '?storageRead=fail')
-  expect(await page.evaluate(() => window.__workspaceHarness.storage.savingState())).not.toBe('on')
+  await gotoSessionHarness(page, DESKTOP)
+  expect(await page.evaluate(() => window.__workspaceHarness.storage.savingState())).toBe('on')
   await fixWallClock(page)
   // The level change discards the ready phrases, and is refused while a generation is in flight.
   await expect

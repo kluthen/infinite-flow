@@ -3,8 +3,9 @@
  * workspace harness (port 4175) with its fake audio clock, over the browser's real IndexedDB: a
  * Jazz session played and kept by this version, turned in Node into the shapes v3.0 kept it in
  * (data version 1) and seeded in a fresh browser context through the harness's v3.0 seam while
- * the load is held, is upgraded by the load's open: its records are rewritten at data version 4
- * (steps 2 to 4; v3.2 chunk 22), no Jam, the session list and its Review's summary show its
+ * the load is held, is upgraded by the load's open: its session-wide record is rewritten at data
+ * version 4 and its body at data version 5 (steps 2 to 5; v3.2 chunk 22, v3.3 chunk 17), no Jam,
+ * each phrase's Seventh chords level Off, the session list and its Review's summary show its
  * preset label, and its Review exports the same files.
  */
 import { expect, test, type Page } from '@playwright/test'
@@ -101,7 +102,7 @@ test('a session kept by v3.0 is carried over at the open: the list and the Revie
     expect(upgraded.summary.presetLabel).toBe(V30_PRESET_LABEL)
     expect(upgraded.summary.isJam).toBe(false)
     expect(upgraded.summary).not.toHaveProperty('musicalProfile')
-    expect(upgraded.body.dataVersion).toBe(4)
+    expect(upgraded.body.dataVersion).toBe(5)
     expect(upgraded.body).not.toHaveProperty('doodle')
     const phrases = storedPhrases(upgraded.body)
     expect(phrases).toHaveLength(2)

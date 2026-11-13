@@ -108,12 +108,13 @@ test('Save as new writes one whole record at data version 3 and saves the select
   await expect.poll(() => presetRecords(page)).toHaveProperty(id)
   const record = (await presetRecords(page))[id]
   expect(record).toEqual({
-    dataVersion: 3,
+    dataVersion: 5,
     appVersion: expect.any(String) as unknown as string,
     id,
     name: 'Night drive',
     controls: { ...NEUTRAL_CONTROLS, tension: 'Build' },
     levels: NEUTRAL_LEVELS,
+    chordFamilies: { 'seventh-chords': 'off' },
     restriction: { keys: 'any', modes: 'any' },
   })
   await untilStored(page, { presetSelection: { kind: 'preset', presetId: id } })

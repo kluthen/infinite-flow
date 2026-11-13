@@ -15,6 +15,7 @@ import {
 import type { SessionSettings } from '@/session/session-types'
 import { upgradedKeptBody, upgradedKeptSummary } from '@/storage/migrations/kept-sessions-v2'
 import { upgradedKeptBodyV4, upgradedKeptSummaryV4 } from '@/storage/migrations/kept-sessions-v4'
+import { upgradedKeptBodyV5 } from '@/storage/migrations/presets-and-kept-sessions-v5'
 import type { RecordVersions } from '@/storage/record-envelope'
 import {
   decodeKeptSession,
@@ -85,7 +86,10 @@ function exportable(session: KeptSession) {
   return { phrases: () => session.phrases, startedAt: session.summary.startedAt }
 }
 
-/** The keys a kept phrase's intent holds: the request's, levels and no profile. */
+/**
+ * The keys a kept phrase's intent holds: the request's, levels, the Seventh chords level and no
+ * profile.
+ */
 const INTENT_KEYS = [
   'requestId',
   'seed',
@@ -94,6 +98,7 @@ const INTENT_KEYS = [
   'controls',
   'writtenTonalCenter',
   'figureLevels',
+  'chordFamilies',
   'instrumentProfile',
   'registerIntent',
 ]
@@ -182,10 +187,11 @@ describe('encodeKeptSession on a five-phrase session with played notes and ackno
 
   // @test-link [[entity_kept_session_record]]
   // @test-link [[module_kept_session_jam_upgrade_step]]
-  it('writes the summary at data version 4 as no Jam, the body at 4 with no doodle, the played notes at 1, by the app version given, the clef treble', () => {
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it('writes the summary at data version 4 as no Jam, the body at 5 with no doodle, the played notes at 1, by the app version given, the clef treble', () => {
     expect(records.summary.dataVersion).toBe(4)
     expect(records.summary.isJam).toBe(false)
-    expect(records.body.dataVersion).toBe(4)
+    expect(records.body.dataVersion).toBe(5)
     expect(Object.hasOwn(records.body, 'doodle')).toBe(false)
     expect(records.playedNotes!.dataVersion).toBe(1)
     for (const record of [records.summary, records.body, records.playedNotes!])
@@ -338,15 +344,16 @@ describe('what a kept phrase holds in place of the musical profile', () => {
 
 /**
  * Intent: a stored session's data version 1 records carried over by the upgrade steps' rewrites,
- * in order: step 2's, then step 4's for the body.
+ * in order: step 2's, then step 4's, then, for the body, step 5's.
  */
 function upgraded(stored: StoredKeptSession, summary: unknown, body: unknown): StoredKeptSession {
   const bodyV2 = upgradedKeptBody(body, APP_VERSION) ?? body
   const summaryV2 = upgradedKeptSummary(summary, APP_VERSION) ?? summary
+  const bodyV4 = upgradedKeptBodyV4(bodyV2, APP_VERSION) ?? bodyV2
   return {
     ...stored,
     summary: upgradedKeptSummaryV4(summaryV2, APP_VERSION) ?? summaryV2,
-    body: upgradedKeptBodyV4(bodyV2, APP_VERSION) ?? bodyV2,
+    body: upgradedKeptBodyV5(bodyV4, APP_VERSION) ?? bodyV4,
   }
 }
 
@@ -692,7 +699,8 @@ const MEGABYTE = 1_000_000
  * The bound on a 30-minute 240 BPM Jazz Sixteenth session's session-wide record and body. The spec
  * estimates about 3.5 MB (3 to 8 KB a phrase); data version 1 keeps each phrase's timeline, harmony
  * and intent in their domain form, about 9 KB a phrase at this tempo and density, and measures
- * 4.07 MB. The bound keeps that figure from growing unnoticed.
+ * 4.07 MB; the data version 5 body, each intent holding its Seventh chords level, measures
+ * 4.150 MB. The bound keeps that figure from growing unnoticed.
  */
 const LONG_SESSION_BOUND_MB = 4.25
 
@@ -705,6 +713,10 @@ describe('the size of a 30-minute 240 BPM Jazz Sixteenth session', () => {
     const kept = encodeKeptSession(historyOf(records, 'eb-alto', jazz), KEPT_FACTS, APP_VERSION)
     const sessionBytes = utf8Bytes(kept.summary) + utf8Bytes(kept.body)
 
+    expect(kept.body.dataVersion).toBe(5)
+    expect(kept.body.phrases.every((phrase) => phrase.intent.chordFamilies !== undefined)).toBe(
+      true,
+    )
     expect(kept.summary.lengthSeconds).toBe(1800)
     expect(sessionBytes).toBeLessThanOrEqual(LONG_SESSION_BOUND_MB * MEGABYTE)
   })

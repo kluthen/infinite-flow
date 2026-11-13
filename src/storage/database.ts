@@ -13,6 +13,7 @@
 
 import { KEPT_SESSIONS_V2 } from './migrations/kept-sessions-v2'
 import { KEPT_SESSIONS_V4 } from './migrations/kept-sessions-v4'
+import { PRESETS_AND_KEPT_SESSIONS_V5 } from './migrations/presets-and-kept-sessions-v5'
 import { SETTINGS_V3 } from './migrations/settings-v3'
 import { readEnvelope } from './record-envelope'
 
@@ -100,6 +101,7 @@ export const PRODUCTION_MIGRATIONS: readonly MigrationStep[] = Object.freeze([
   KEPT_SESSIONS_V2,
   SETTINGS_V3,
   KEPT_SESSIONS_V4,
+  PRESETS_AND_KEPT_SESSIONS_V5,
 ])
 
 /**
@@ -116,9 +118,11 @@ export function migrationsDataVersion(steps: readonly MigrationStep[]): number {
 }
 
 /**
- * The code's data version: 1 in v3.0, 3 in v3.1, 4 in v3.2, reached by the step to version 2 (the
- * kept sessions), the step to version 3 (the settings and the `presets` store) and the step to
- * version 4, which carries the kept sessions over to v3.2's shapes with no Jam part.
+ * The code's data version: 1 in v3.0, 3 in v3.1, 4 in v3.2, 5 in v3.3, reached by the step to
+ * version 2 (the kept sessions), the step to version 3 (the settings and the `presets` store), the
+ * step to version 4, which carries the kept sessions over to v3.2's shapes with no Jam part, and
+ * the step to version 5, which carries the player presets and the kept bodies over to the shapes
+ * that hold the Seventh chords level, at Off.
  */
 // @spec-link [[module_on_device_database]]
 export const DATABASE_DATA_VERSION: number = migrationsDataVersion(PRODUCTION_MIGRATIONS)

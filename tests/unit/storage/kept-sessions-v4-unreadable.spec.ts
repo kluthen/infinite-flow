@@ -7,18 +7,18 @@
  * every other left as stored, its session read as unreadable; so do v3.1 session-wide records the
  * data version 2 reader refuses (a damaged field, a Jam mark, a record still at data version 1);
  * malformed stored values of every kind never make the step throw or the open fail; a v3.1 tab
- * open meanwhile becomes outdated.
+ * open meanwhile becomes outdated. Each database is opened by v3.2, at data version 4, so what
+ * step 4 alone writes can be read; v3.3 then reads the carried-over session once step 5 has run.
  */
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
-import { DATABASE_DATA_VERSION } from '@/storage/database'
 import { upgradedKeptBodyV4, upgradedKeptSummaryV4 } from '@/storage/migrations/kept-sessions-v4'
 import { isKeptPhraseRefusal } from '@/storage/records/kept-phrase-parsers'
 import {
   parseKeptSessionBodyV2,
-  rewrittenKeptBodyRecord,
+  rewrittenKeptBodyRecordV4,
 } from '@/storage/records/kept-session-body'
 import {
   decodeKeptSession,
@@ -36,11 +36,12 @@ import {
   v2Session,
   withRequestGroup,
 } from './kept-sessions-v2-fixtures'
+import { openV32Port, V32_APP_VERSION } from './kept-sessions-v4-fixtures'
 import { freshFactory, rawGet, rawPut, withRawDatabase } from './storage-test-doubles'
 import { openStoragePort } from '@/storage/storage-port'
 
-/** The app version of the v3.2 tab that upgrades the database. */
-const V32_APP_VERSION = '3.2.0-test'
+/** The data version a v3.2 tab opens the database at. */
+const V32_DATA_VERSION = 4
 
 /** The facts of a kept session with one favorite and its played notes kept. */
 const FACTS: KeptSessionFacts = {
@@ -57,9 +58,9 @@ function v31Session(): StoredKeptSession {
   return v2Session(encodeKeptSession(historyOf(phrases, 'bb-tenor'), FACTS, V31_APP_VERSION))
 }
 
-/** Intent: the port of the v3.2 tab over the factory's database, every production step run. */
-function openV32(factory: IDBFactory) {
-  return openStoragePort({ factory, appVersion: V32_APP_VERSION })
+/** Intent: the port of a v3.3 tab over the factory's database, every production step run. */
+function openV33(factory: IDBFactory) {
+  return openStoragePort({ factory, appVersion: '3.3.0-test' })
 }
 
 // @test-link [[module_kept_session_jam_upgrade_step]]
@@ -87,22 +88,26 @@ describe('a data version 3 database holding v3.1 bodies step 4 cannot read', () 
       factory,
       [...seeded].flatMap(([key, stored]) => sessionWrites({ key, stored })),
     )
-    status = (await openV32(factory)).status()
+    status = (await openV32Port(factory)).status()
   }, 30_000)
 
   // @test-link [[module_kept_session_jam_upgrade_step]]
   // @test-link [[module_on_device_database]]
   it('opens at data version 4, never rejected', async () => {
     expect(status).toBe('ready')
-    expect((await databaseState(factory)).version).toBe(DATABASE_DATA_VERSION)
+    expect((await databaseState(factory)).version).toBe(V32_DATA_VERSION)
   })
 
   // @test-link [[module_kept_session_jam_upgrade_step]]
-  it('carries the readable session over, its body at data version 4', async () => {
+  it('carries the readable session over, its body at data version 4, which v3.3 then reads', async () => {
     const after = await rawSession(factory, 'readable')
 
     expect(after.body).toMatchObject({ dataVersion: 4, appVersion: V32_APP_VERSION })
-    expect(decodeKeptSession(after).reading).toBe('current')
+    expect(upgradedKeptBodyV4(seeded.get('readable')!.body, V32_APP_VERSION)).toStrictEqual(
+      after.body,
+    )
+    await openV33(factory)
+    expect(decodeKeptSession(await rawSession(factory, 'readable')).reading).toBe('current')
   })
 
   // @test-link [[module_kept_session_jam_upgrade_step]]
@@ -145,7 +150,7 @@ describe('a data version 3 database holding v3.1 session-wide records step 4 can
       factory,
       [...seeded].flatMap(([key, stored]) => sessionWrites({ key, stored })),
     )
-    expect((await openV32(factory)).status()).toBe('ready')
+    expect((await openV32Port(factory)).status()).toBe('ready')
   }, 30_000)
 
   // @test-link [[module_kept_session_jam_upgrade_step]]
@@ -234,7 +239,7 @@ describe('the upgrade step to data version 4 over malformed stored bodies', () =
   it('gives no rewrite when the rewrite fails with an error that is no refusal', () => {
     let failure: unknown = null
     try {
-      rewrittenKeptBodyRecord(
+      rewrittenKeptBodyRecordV4(
         { phrases: parseKeptSessionBodyV2(valid.body), doodle: null, playedNotesClock: null },
         () => false,
         '',
@@ -257,10 +262,10 @@ describe('the upgrade step to data version 4 over malformed stored bodies', () =
       for (const [name, value] of bodies) await rawPut(database, 'sessionBodies', name, value)
     })
 
-    const port = await openV32(factory)
+    const port = await openV32Port(factory)
 
     expect(port.status()).toBe('ready')
-    expect((await databaseState(factory)).version).toBe(DATABASE_DATA_VERSION)
+    expect((await databaseState(factory)).version).toBe(V32_DATA_VERSION)
     await withRawDatabase(factory, async (database) => {
       for (const [name, value] of bodies)
         expect(await rawGet(database, 'sessionBodies', name), name).toStrictEqual(value)
@@ -281,12 +286,12 @@ describe('a v3.1 tab open while v3.2 upgrades the database to data version 4', (
       notices += 1
     })
 
-    const newer = await openV32(factory)
+    const newer = await openV32Port(factory)
 
     expect(newer.status()).toBe('ready')
     expect(older.status()).toBe('outdated')
     expect(notices).toBe(1)
     expect((await databaseState(factory)).version).toBe(4)
-    expect(decodeKeptSession(await rawSession(factory, 'kept')).reading).toBe('current')
+    expect((await rawSession(factory, 'kept')).body).toMatchObject({ dataVersion: 4 })
   })
 })

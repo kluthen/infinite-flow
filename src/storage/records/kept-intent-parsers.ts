@@ -8,24 +8,30 @@
  * parser covers (an intent's outer shape, its register intent) is checked here against the domain
  * types. An intent's instrument profile is read from the data it holds, never looked up or rebuilt
  * from its id, so a kept My instrument phrase reads back as it was played. A current (data version
- * 4) intent holds its figure levels only, never a musical profile, and, when the phrase had them,
- * the rhythm lock group, the steering block and a carry-in from the phrase before or, beside a
- * steering block only, from no phrase. The data version 2 reader, which the upgrade step to data
- * version 4 reads v3.1's bodies with, takes v3.1's shape: neither group, and a carry-in only from a
- * phrase. The data version 1 reader, which the upgrade step to data version 2 reads earlier bodies
- * with, takes any of that version's three shapes (levels only, a v3.0 musical profile only, or
- * both), a stored profile mapped through `profile-to-levels.ts`; a read intent never holds a
- * musical profile.
+ * 5) intent holds its figure levels only, never a musical profile, its Seventh chords level (an
+ * absent one read as Off), and, when the phrase had them, the rhythm lock group, the steering
+ * block and a carry-in from the phrase before, whose carried chord may hold its seventh, or,
+ * beside a steering block only, from no phrase. The data version 4 reader, which the upgrade step
+ * to data version 5 reads v3.2's bodies with, takes v3.2's shape: the same but for the level and a
+ * carried seventh. The data version 2 reader, which the upgrade step to data version 4 reads
+ * v3.1's bodies with, takes v3.1's shape: neither group, and a carry-in only from a phrase. The
+ * data version 1 reader, which the upgrade step to data version 2 reads earlier bodies with, takes
+ * any of that version's three shapes (levels only, a v3.0 musical profile only, or both), a stored
+ * profile mapped through `profile-to-levels.ts`; a read intent never holds a musical profile.
  *
  * No stored intent of data versions 1, 2 or 4 holds the Seventh chords level, which came after
- * them: each reader gives the intent it reads the level at Off, and a stored intent holding a
- * `chordFamilies` key is refused as an unknown field (the writer never writes one).
+ * them: each of their readers gives the intent it reads the level at Off, refuses a stored intent
+ * holding a `chordFamilies` key as an unknown field and reads its carried chord as a triad only.
  *
  * Pure: no storage access. The kept-session codec calls these and reports any refusal as an
  * unreadable record.
  */
 
-import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
+import {
+  OFF_CHORD_FAMILIES,
+  parseChordFamilies,
+  type ChordFamilies,
+} from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   PITCH_CLASSES,
@@ -261,13 +267,20 @@ const INTENT_FIELDS = [
 
 /**
  * How one data version's intent is read: the keys it always holds, the ones it may hold, how its
- * figure levels are read from the stored record, and how its carry-in is.
+ * figure levels and its Seventh chords level are read from the stored record, and how its
+ * carry-in is.
  */
 interface IntentShape {
   readonly keys: readonly string[]
   readonly optional: readonly string[]
   readonly figureLevels: (record: Record<string, unknown>) => FigureLevels
+  readonly chordFamilies: (record: Record<string, unknown>) => ChordFamilies
   readonly carryIn: (value: unknown) => CarryIn
+}
+
+/** Intent: the Seventh chords level of an intent shape that holds none: Off. */
+function offChordFamilies(): ChordFamilies {
+  return OFF_CHORD_FAMILIES
 }
 
 /** Data version 1's intent: its levels, a v3.0 musical profile, or both, and `carryIn` maybe. */
@@ -275,6 +288,7 @@ const INTENT_V1: IntentShape = {
   keys: INTENT_FIELDS,
   optional: ['figureLevels', 'musicalProfile', 'carryIn'],
   figureLevels: parseStoredFigureLevels,
+  chordFamilies: offChordFamilies,
   carryIn: parsePhraseCarryIn,
 }
 
@@ -288,21 +302,40 @@ const INTENT_V2: IntentShape = {
   keys: [...INTENT_FIELDS, 'figureLevels'],
   optional: ['carryIn'],
   figureLevels: (record) => parseFigureLevels(record.figureLevels),
+  chordFamilies: offChordFamilies,
   carryIn: parsePhraseCarryIn,
 }
 
 /**
- * Data version 4's intent, v3.2's: its figure levels always, never a musical profile; and, when
- * the phrase had them, its carry-in, from a phrase or from no phrase, its rhythm lock group and
- * its steering block.
+ * Data version 4's intent, v3.2's: its figure levels always, never a musical profile nor a
+ * Seventh chords level; and, when the phrase had them, its carry-in, from a phrase or from no
+ * phrase, its carried chord a triad only, its rhythm lock group and its steering block.
  */
 // @spec-link [[entity_kept_session_record]]
-// @spec-link [[rule_kept_session_content]]
+// @spec-link [[module_presets_and_kept_sessions_upgrade_step]]
 const INTENT_V4: IntentShape = {
   keys: [...INTENT_FIELDS, 'figureLevels'],
   optional: ['carryIn', 'rhythmLock', 'steering'],
   figureLevels: (record) => parseFigureLevels(record.figureLevels),
-  carryIn: parseCarryIn,
+  chordFamilies: offChordFamilies,
+  carryIn: (value) => parseCarryIn(value, 'triad'),
+}
+
+/**
+ * Data version 5's intent, v3.3's: data version 4's, plus its Seventh chords level, an absent one
+ * read as Off, and a carried chord that may hold its own degree's seventh.
+ */
+// @spec-link [[entity_kept_session_record]]
+// @spec-link [[rule_kept_session_content]]
+const INTENT_V5: IntentShape = {
+  keys: [...INTENT_FIELDS, 'figureLevels'],
+  optional: ['chordFamilies', 'carryIn', 'rhythmLock', 'steering'],
+  figureLevels: (record) => parseFigureLevels(record.figureLevels),
+  chordFamilies: (record) =>
+    Object.hasOwn(record, 'chordFamilies')
+      ? parseChordFamilies(record.chordFamilies)
+      : OFF_CHORD_FAMILIES,
+  carryIn: (value) => parseCarryIn(value, 'triad-or-seventh'),
 }
 
 /**
@@ -335,9 +368,9 @@ function parseRequestInputs(
  * without rebuilding it: each field through the domain's own parser (request id, seed, meter,
  * controls, written tonal center, figure levels, instrument profile from its stored data,
  * carry-in, rhythm lock group, steering block), the rest against the intent's shape, with exactly
- * the shape's keys, then its parts checked against each other. No stored shape holds the Seventh
- * chords level, so the intent read holds it at Off, after its figure levels as the factory places
- * it.
+ * the shape's keys, then its parts checked against each other. The intent read holds the Seventh
+ * chords level the shape reads (Off for every shape before data version 5), after its figure
+ * levels as the factory places it.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[module_generation_request_construction]]
@@ -366,7 +399,7 @@ function parseIntentOfShape(input: unknown, shape: IntentShape): GenerationInten
     controls,
     writtenTonalCenter,
     figureLevels,
-    chordFamilies: OFF_CHORD_FAMILIES,
+    chordFamilies: shape.chordFamilies(record),
     instrumentProfile,
     registerIntent,
     ...parseRequestInputs(record, shape),
@@ -405,19 +438,34 @@ export function parseKeptIntentV2(input: unknown): GenerationIntent {
 }
 
 /**
- * Intent: read a kept phrase's stored generation intent (data version 4) back into the intent it
+ * Intent: read a data version 4 kept phrase's stored generation intent, v3.2's, as the upgrade
+ * step to data version 5 reads it: every field as `parseKeptIntent` reads it, but with exactly
+ * v3.2's keys (a `chordFamilies` key refused as an unknown field) and the carried chord read as a
+ * triad only, a carried seventh refused; the intent read holds the Seventh chords level at Off.
+ * Returns a fresh deep-frozen intent; throws a KeptRecordError or the domain parser's own error
+ * for anything invalid, never repairing it.
+ */
+// @spec-link [[module_kept_session_codec]]
+// @spec-link [[module_presets_and_kept_sessions_upgrade_step]]
+export function parseKeptIntentV4(input: unknown): GenerationIntent {
+  return parseIntentOfShape(input, INTENT_V4)
+}
+
+/**
+ * Intent: read a kept phrase's stored generation intent (data version 5) back into the intent it
  * was generated from, without rebuilding it: each field through the domain's own parser (request
  * id, seed, meter, controls, written tonal center, figure levels, instrument profile from its
- * stored data, and, each when its key is present, the carry-in through `parseCarryIn`, the rhythm
- * lock group and the steering block through the generation request's parsers), the rest against
- * the intent's shape, with exactly its keys (a musical profile refused as an unknown field), then
- * its parts checked against each other. A carry-in from no phrase is read only beside a steering
- * block. Data version 4 holds no Seventh chords level (a `chordFamilies` key is refused as an
- * unknown field), so the intent read holds it at Off. Returns a fresh deep-frozen intent; throws
- * a KeptRecordError or the domain parser's own error for anything invalid, never repairing it.
+ * stored data, and, each when its key is present, the Seventh chords level through
+ * `parseChordFamilies`, the carry-in through `parseCarryIn`, its carried chord holding its seventh
+ * or not, the rhythm lock group and the steering block through the generation request's parsers),
+ * the rest against the intent's shape, with exactly its keys (a musical profile refused as an
+ * unknown field), then its parts checked against each other. An absent Seventh chords level reads
+ * as Off. A carry-in from no phrase is read only beside a steering block. Returns a fresh
+ * deep-frozen intent; throws a KeptRecordError or the domain parser's own error for anything
+ * invalid, never repairing it.
  */
 // @spec-link [[module_kept_session_codec]]
 // @spec-link [[rule_kept_session_content]]
 export function parseKeptIntent(input: unknown): GenerationIntent {
-  return parseIntentOfShape(input, INTENT_V4)
+  return parseIntentOfShape(input, INTENT_V5)
 }

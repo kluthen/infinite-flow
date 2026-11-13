@@ -360,8 +360,8 @@ test('a preset record that cannot be read is not listed, and is still stored aft
 }) => {
   await gotoStorageHarness(page)
   const readable = {
-    dataVersion: 3,
-    appVersion: '3.1.0',
+    dataVersion: 5,
+    appVersion: '3.3.0',
     ...EARLY_MORNING,
   }
   const { kind, ...record } = readable
@@ -369,7 +369,7 @@ test('a preset record that cannot be read is not listed, and is still stored aft
   const unreadable: WorkspaceHarnessRawRecord[] = [
     { key: 'player-3', record: 'not a record' },
     { key: 'player-4', record: { ...record, id: 'player-9', name: 'Under another id' } },
-    { key: 'player-5', record: { ...record, id: 'player-5', name: 'Newer', dataVersion: 4 } },
+    { key: 'player-5', record: { ...record, id: 'player-5', name: 'Newer', dataVersion: 6 } },
   ]
   await seedRawPresets(page, [{ key: 'player-2', record }, ...unreadable])
   await reloadHarness(page)

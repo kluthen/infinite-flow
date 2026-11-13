@@ -1,7 +1,8 @@
 /**
  * Builders for the specs of the kept sessions kept at data version 2 (v3.1) and the upgrade step
  * to data version 4: a session's records as the current encoder writes them, turned into the
- * shapes v3.1 wrote (the body at data version 2, which never held a doodle; the session-wide
+ * shapes v3.1 wrote (the body at data version 2, which never held a doodle, a Seventh chords
+ * level or a seventh chord; the session-wide
  * record at data version 2, which never held the Jam mark; the played notes as encoded); a stored
  * request given a v3.2 group no v3.1 request
  * held; and a database at data version 3, as a v3.1 tab opens it, seeded through its port.
@@ -12,6 +13,7 @@ import type { KeptSessionRecords, StoredKeptSession } from '@/storage/records/ke
 import { openStoragePort, type StorageChange, type StoragePort } from '@/storage/storage-port'
 import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
 import { edited, storedRecords } from './kept-session-fixtures'
+import { v4Body } from './kept-sessions-v4-fixtures'
 
 /** The app version of the v3.1 tab that kept the sessions. */
 export const V31_APP_VERSION = '3.1.0'
@@ -20,11 +22,12 @@ export const V31_APP_VERSION = '3.1.0'
 const V3_1_MIGRATIONS = PRODUCTION_MIGRATIONS.slice(0, 3)
 
 /**
- * Intent: a stored body as v3.1 wrote it: the same keys in the same order, at data version 2.
- * Throws for a body holding a doodle, which no v3.1 body held.
+ * Intent: a stored body as v3.1 wrote it: the same keys in the same order, at data version 2, its
+ * intents without the Seventh chords level. Throws for a body holding a doodle, a seventh chord or
+ * a level above Off, which no v3.1 body held.
  */
 export function v2Body(body: unknown): unknown {
-  const copy = structuredClone(body) as Record<string, unknown>
+  const copy = v4Body(body) as Record<string, unknown>
   if (Object.hasOwn(copy, 'doodle')) throw new Error('Fixture setup: a v3.1 body holds no doodle.')
   return Object.fromEntries(
     Object.entries(copy).map(([key, value]) => [key, key === 'dataVersion' ? 2 : value]),
