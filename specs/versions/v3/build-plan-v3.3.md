@@ -1486,7 +1486,7 @@ Record: e0d5b7c2 (3b6522cf 15a the key, ed656b70 15b the report and the tool). T
 
 ### Chunk 16 — The level in a session and in pre-generation
 
-Status: planned
+Status: merged (w3, 38295847)
 Wave: 3
 Depends on: 3, 11, 12 (and v3.0 chunk 24, v3.2 chunks 15 and 26); C1, done (A8's sentences on the
 Idle state, the request, the current settings and the routing point's level change, applied at
@@ -1634,6 +1634,8 @@ settings and the Idle result's recorded settings is in its Revisions)
   reading 16a's state; 16c the out-of-date comparison and pre-generation (`stale-phrase-one.ts`'s
   `isPhraseOneStale` and `staleSettingsOf`, `StalePhrasePrompt.vue`,
   `workspace-pregeneration.ts`, and the sweep's plumbing), reading both.
+
+Record: 38295847 (f95a0f03 16a the Idle state and the routing point, 333ec35f 16b the session settings everywhere, 5eadbffa 16c the out-of-date comparison and pre-generation). No deviation; `IdlePhraseSettings` moved from 16a to 16b (it is `SessionSettings`-shaped and both gained the level together). The first owner stopped on an API error after 16a; a fresh owner resumed from the driver's WIP commit.
 
 ### Chunk 17 — The level on the device: data version 5
 

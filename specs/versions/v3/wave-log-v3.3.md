@@ -528,3 +528,28 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   (`deterministic-replay.spec.ts` 409 lines); `phrase-replay-key-decode.ts` at the 10-atom limit.
 - Figures: 3 agents, 177 tool calls, 27.6M tokens in / 125k out, max context 287k, $10.32 at API
   prices.
+
+### Chunk 16 merged (2026-11-13)
+
+- 38295847 (f95a0f03 16a the Idle state and the routing point; 333ec35f 16b the session settings
+  everywhere; 5eadbffa 16c the out-of-date comparison and pre-generation). The first owner stopped
+  on an API authentication error after 16a (the owner logged in again); the driver WIP-committed
+  the tree (5a834e80, 16b in progress plus a coding-executor's fixture sweep over 38 test files) and
+  a fresh owner resumed, re-split into one commit per part. Every Done-when item evidenced, 16c's
+  tests seen red first; corpus guard 19 files / 505 tests green; `pregeneration.spec.ts` e2e 14
+  green; debug run: the prompt reads "Since it was made, you changed Seventh chords and Contour."
+- Test plumbing: the workspace harness gains `setChordFamilyLevel` (the routing point until chunk
+  19's control) and each request record holds `chordFamilies` (`docs/testing.md`).
+- For the sync: stale lines in `module_settings_mutation` (owner question O1),
+  `module_idle_pregeneration_queue`, `rule_pregeneration_discarded_on_change`,
+  `rule_stale_phrase_prompt_at_start`, `service_idle_generation_session`,
+  `module_generation_request_construction`, `service_session_engine`; A8's Idle half built.
+- For `spec-writer` (chunk 18): `tests/sweep/seventh-levels.ts` and `docs/generation-latency.md`
+  §Seventh chords still say the level can't be measured until chunk 16; `MEASURABLE_SEVENTH_LEVELS`
+  stays at Off.
+- Gate: the sweep (the Jam ladder and sweep cases changed; equal intents at Off by value).
+  `lint:health` warning: `session-pregeneration-identity.spec.ts` 423 lines, 9 atoms.
+- Risk until chunk 17: choosing a preset that differs only in the level saves the selection but
+  not the level, so a reload restores it at Off; unreachable before chunk 19.
+- Figures: 3 agents, 284 tool calls, 46.7M tokens in / 162k out, max context 271k, $15.46 at API
+  prices.
