@@ -553,3 +553,34 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   not the level, so a reload restores it at Off; unreachable before chunk 19.
 - Figures: 3 agents, 284 tool calls, 46.7M tokens in / 162k out, max context 271k, $15.46 at API
   prices.
+
+### Wave 3 gate (2026-11-13, green on d0bd0187)
+
+- Machine armenelos (12 cores, 11 GiB, Linux 6.12), 2026-11-13. Run 1 red at `lint:health`:
+  `session-intents.ts` linked 11 atoms after chunk 16b's link; fixed in d84bed91
+  (`sessionFigureLevels`, `figuresWithChangedLevels` moved unchanged to `session-figure-levels.ts`).
+- Runs 2 and 3: the pre-generation-on e2e lane failed 2 of 2 on
+  `session-midi-start.spec.ts:392` (item 22's failure banner). Traced, not waved through: the same
+  generate calls on b8e291e8 and d84bed91 (1 click, 4 background attempts, no discard), the key
+  compared by value; the cause is the harness's armed `failNextGeneration` taken by whichever call
+  reaches it first, and the unchanged test fails on `main` too (1 in 40 under load). A pre-existing
+  race, not a wave 3 regression. Fixed in the tests, assertions unchanged: e06bfeac (item 22) and
+  11155994 (`session-start-conditions.spec.ts:114`, ISS-016's own test, which failed the same way
+  in run 4); ISS-016 extended (a5b0991f, d0bd0187), eight more specs that arm a failure without
+  holding background attempts listed there.
+- Final: `npm run quality` green on d0bd0187 (`w3-gate-5.log`): unit 10,027 in 645 files, e2e
+  728 + 1 skipped in each lane, a11y 76, notation 107 + 4 skipped, `atd:lint` and `atd:check`.
+  One unrelated flake in a lane rerun: `review-suggestion.spec.ts:158` (the decline lost across a
+  reload; 24/24 alone; untouched since v3.2 wave 6; no issue filed yet).
+- Sweep: 125 in 11 files (wave 2's 122 plus 3 new census tests from chunks 12 and 16); every
+  `SWEEP-` line equals wave 2's, so v3.2's figures at Off; the lock census replays `ifk5.` keys.
+- Bundle: entry chunk 314,692 B, +796 B on wave 2's 313,896 B (budget 327,680 B); Jam's chunk
+  61,225 B.
+- `spec-writer`, plan v17 (7f30949b), spec D533: chunk 12's Scope names `searchedHarmonyOrder`;
+  the generator contract (`specs/generator-contract.md`) says what each level offers; chunk 18's M1
+  census gives each phrase its own seed (D533) and fixes the stale "until chunk 16" text; chunk
+  15's in-browser phrase wording; H3 is now "Same phrase in Chrome", after chunk 19 (D399); chunk
+  17 saves the level with the selection. For wave 4's preflight: M2's `cost-guard` and `jam-sweep`
+  also read seeds 7 and 13 only above Off.
+- The owner, 2026-11-13, on O1: "yes, update module_settings_mutation at the sync" (the interface
+  line's settings shape gains the level under 17.0.0; no guarantee changes).
