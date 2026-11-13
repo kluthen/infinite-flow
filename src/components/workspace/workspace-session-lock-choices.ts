@@ -117,8 +117,9 @@ export function createSessionLockAndGroups(
 }
 
 /**
- * Intent: the settings a session started now would take: the Idle controls, figure levels and
- * preset selection with the three choices, my instrument's profile taken from phrase 1's intent,
+ * Intent: the settings a session started now would take: the Idle controls, figure levels,
+ * Seventh chords level and preset selection with the three choices, my instrument's profile taken
+ * from phrase 1's intent,
  * which embeds it, and the restriction in force frozen in from the presets Idle knows. Start and
  * the Idle pre-generation's start both build theirs here, so they are equal; with the default
  * choices they are the settings a session had before v3.2.
@@ -128,7 +129,7 @@ export function createSessionLockAndGroups(
 export function chosenSessionSettings(
   idle: Pick<
     Readonly<GenerationSessionState<WorkspaceSessionResult>>,
-    'controls' | 'figureLevels' | 'selection' | 'presets'
+    'controls' | 'figureLevels' | 'chordFamilies' | 'selection' | 'presets'
   >,
   choices: LockAndGroupsChoices,
   phraseOne: GenerationIntent,
@@ -138,6 +139,7 @@ export function chosenSessionSettings(
       {
         controls: idle.controls,
         figureLevels: idle.figureLevels,
+        chordFamilies: idle.chordFamilies,
         selection: idle.selection,
         allowedGroups: choices.allowedGroups,
         rhythmLockOn: choices.rhythmLockOn,

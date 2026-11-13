@@ -78,6 +78,7 @@ describe('settings locked at start', () => {
     const settings: SessionSettings = {
       controls,
       figureLevels,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,

@@ -37,12 +37,12 @@ import type { GenerationOutcome } from '@/domain/generation/orchestration/orches
 import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { allowsKeyAndMode } from '@/domain/presets/key-and-mode-restriction'
 import { PRESET_HELD_CONTROL_KEYS, type Preset } from '@/domain/presets/preset-selection'
-import { encodePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
 import {
   decodePhraseReplayKey,
   type DecodedPhraseReplayKey,
 } from '@/generation-worker/phrase-replay-key-decode'
 import { replayDecodedPhraseKey } from '@/generation-worker/phrase-replay'
+import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
 /** One recorded case: its label, its replay key and the timeline the key replayed to. */
 interface CorpusCase {
@@ -277,9 +277,10 @@ describe('v3.2 replay-key corpus (ifk4) recorded on v3.2.0', () => {
     for (const corpusCase of CORPUS.cases) {
       const decoded = decodePhraseReplayKey(corpusCase.key)
       expect(decoded.keyVersion, corpusCase.label).toBe('ifk4')
-      expect(encodePhraseReplayKey(decoded.intent, decoded.phraseNumber), corpusCase.label).toBe(
-        corpusCase.key,
-      )
+      expect(
+        encodeIfk4PhraseReplayKey(decoded.intent, decoded.phraseNumber),
+        corpusCase.label,
+      ).toBe(corpusCase.key)
     }
   })
 

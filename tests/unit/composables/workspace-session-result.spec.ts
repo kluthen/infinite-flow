@@ -48,6 +48,7 @@ function cheapIntent(
 const CHOSEN: IdlePhraseSettings = {
   controls: { ...DEFAULT_GENERATION_CONTROLS, noteDensity: 'Sixteenth' },
   figureLevels: NEUTRAL_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   selection: { kind: 'custom', baseId: 'neutral' },
 }
 

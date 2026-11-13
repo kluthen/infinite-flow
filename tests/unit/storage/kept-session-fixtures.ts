@@ -6,6 +6,7 @@
  * `structuredClone`, as IndexedDB stores them), and helpers to edit and walk stored values.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { PROFILE_BUNDLES } from '@/domain/controls/profile-selection'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
@@ -154,6 +155,7 @@ function jazzSixteenthSettings(): SessionSettings {
       instrumentProfileId: 'eb-alto',
     }),
     figureLevels: JAZZ_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'preset', presetId: 'jazz' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

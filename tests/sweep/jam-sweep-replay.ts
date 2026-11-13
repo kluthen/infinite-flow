@@ -3,7 +3,7 @@
  * is played, a few phrases of each kind are kept with the intent they were asked with and the
  * outcome they sounded with: phrase 1 from each rung of Jam's ladder, a later phrase of a Jam with
  * the lock on (locked), and a later phrase of a Jam with the lock off under each drift (drifted).
- * Each is then encoded as its `ifk4.` replay key and replayed through the generation worker
+ * Each is then encoded as its `ifk5.` replay key and replayed through the generation worker
  * runtime the replay tool uses (lock-census-replay.ts), and its result and provenance compared
  * with the session's. One sample key per kind is kept, so a phrase can be replayed by hand. A rung
  * that never made phrase 1 in the configuration is probed instead: that rung's own attempt for a

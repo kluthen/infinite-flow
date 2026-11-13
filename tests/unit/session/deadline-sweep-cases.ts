@@ -18,7 +18,11 @@ import {
   type GenerationControls,
   type MusicalProfile,
 } from '@/domain/controls/generation-controls'
-import type { ChordFamilyLevel } from '@/domain/chords/chord-families'
+import {
+  OFF_CHORD_FAMILIES,
+  parseChordFamilies,
+  type ChordFamilyLevel,
+} from '@/domain/chords/chord-families'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
 import { levelsForProfile, type FigureLevels } from '@/domain/figures/figure-levels'
 import type { KeyAndModeRestriction } from '@/domain/presets/key-and-mode-restriction'
@@ -59,9 +63,8 @@ export interface SweepCase {
   readonly selection?: PresetSelection
   readonly restriction?: KeyAndModeRestriction
   /**
-   * The Seventh chords level a measured setting plays the session at (v3.3 M2). Unset or Off, the
-   * session's attempts are built at Off, as every session builds them until v3.3 chunk 16 carries
-   * a level into the session; any other level is refused by `caseSettings` until then.
+   * The Seventh chords level a measured setting plays the session at (v3.3 M2), put into its
+   * session settings by `caseSettings`, so every attempt is built at it. Unset, Off.
    */
   readonly seventhLevel?: ChordFamilyLevel
 }
@@ -145,17 +148,16 @@ export function sweepCases(): readonly SweepCase[] {
 /**
  * Intent: the chosen settings of a case at one tempo: the case's profile's figure levels, the
  * selection Custom based on the preset of that name, unless the case sets its own levels,
- * selection and restriction in force. A case at a Seventh chords level above Off fails: the
- * session settings hold no level until v3.3 chunk 16, so its attempts would be generated at Off.
+ * selection and restriction in force, and the case's Seventh chords level (Off when unset).
  */
 export function caseSettings(sweepCase: SweepCase, tempo: number): SessionSettings {
-  if (sweepCase.seventhLevel !== undefined && sweepCase.seventhLevel !== 'off')
-    throw new Error(
-      `${sweepCase.label}: a session holds no Seventh chords level until v3.3 chunk 16 (every attempt is built at Off), so it cannot play at ${sweepCase.seventhLevel}.`,
-    )
   return {
     controls: makeGenerationControls({ ...sweepCase.controls, tempo }),
     figureLevels: sweepCase.figureLevels ?? levelsForProfile(sweepCase.musicalProfile),
+    chordFamilies:
+      sweepCase.seventhLevel === undefined
+        ? OFF_CHORD_FAMILIES
+        : parseChordFamilies({ 'seventh-chords': sweepCase.seventhLevel }),
     selection: sweepCase.selection ?? {
       kind: 'custom',
       baseId: sweepCase.musicalProfile === 'Jazz' ? 'jazz' : 'neutral',

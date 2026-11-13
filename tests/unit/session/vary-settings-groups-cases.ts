@@ -5,7 +5,7 @@
  * mutation may make, worked out from the steps the draw lists with every group allowed.
  */
 
-import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
+import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import {
@@ -84,9 +84,13 @@ export function withGroups(
 /**
  * Intent: the session's start settings after choosing `presetId` at Idle from C Ionian with
  * Neutral's controls, levels and selection, the restriction in force frozen in, with every group
- * on and the lock off.
+ * on and the lock off. A Seventh chords level, when given, replaces the preset's (Off for every
+ * built-in) and leaves the selection as it is.
  */
-export function presetStart(presetId: BuiltInPresetId): SessionSettings {
+export function presetStart(
+  presetId: BuiltInPresetId,
+  chordFamilies?: ChordFamilies,
+): SessionSettings {
   const chosen = choosePreset(
     {
       controls: DEFAULT_GENERATION_CONTROLS,
@@ -100,6 +104,7 @@ export function presetStart(presetId: BuiltInPresetId): SessionSettings {
     {
       controls: chosen.settings.controls,
       figureLevels: chosen.settings.levels,
+      chordFamilies: chordFamilies ?? chosen.settings.chordFamilies,
       selection: chosen.selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,

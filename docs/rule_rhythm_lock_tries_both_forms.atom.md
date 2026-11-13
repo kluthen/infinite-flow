@@ -1,7 +1,8 @@
 ---
 id: rule_rhythm_lock_tries_both_forms
-status: DRAFT
-dependents: []
+status: REVIEW
+dependents:
+  - [[service_generation_orchestration]]
 layer: BUSINESS
 tags: [v3, release-v3.3, rhythm-lock, generation, chords]
 parents:

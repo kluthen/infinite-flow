@@ -295,6 +295,7 @@ export function controllerRig(
     settings: {
       controls: settings.controls,
       figureLevels: settings.figureLevels,
+      chordFamilies: settings.chordFamilies,
       selection: settings.selection,
     },
     sessionSeed: RIG_SESSION_SEED,
@@ -308,6 +309,7 @@ export function controllerRig(
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
     controls: settings.controls,
     figureLevels: settings.figureLevels,
+    chordFamilies: settings.chordFamilies,
     selection: settings.selection,
     presets: BUILT_IN_PRESETS,
     presentation: { theme: 'System' },

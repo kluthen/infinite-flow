@@ -1,12 +1,13 @@
 // @vitest-environment node
 /**
- * The `ifk4.` phrase replay key, the only one written since v3.2: a fixed 9-tuple whose first
+ * The `ifk4.` phrase replay key, the one v3.2 wrote (since v3.3 only `ifk5.` is written, so these
+ * keys come from the test writer ifk4-key-writer.ts): a fixed 9-tuple whose first
  * seven entries keep the `ifk3.` order and meaning, then the request's rhythm lock group and its
  * steering block, each `null` when the request has none. Its carry-in may come from a phrase or,
  * for a Jam's phrase 1, from no phrase (the doodle's join), accepted only beside a steering block
  * and only as phrase 1. Encoding then decoding gives an equal intent and replays to the same
  * phrase, with and without each group, for a built-in and for my instrument. A malformed group is
- * refused naming its slot and the reason; an `ifk5.` key as an unsupported version. No key holds
+ * refused naming its slot and the reason; an `ifk6.` key as an unsupported version. No key holds
  * the doodle, its raw notes, the drift or the capture tempo.
  */
 
@@ -38,7 +39,6 @@ import { makeSeed } from '@/domain/random/seed'
 import { replayPhraseKey } from '@/generation-worker/phrase-replay'
 import {
   announcePhraseReplayKey,
-  encodePhraseReplayKey,
   PhraseReplayKeyError,
 } from '@/generation-worker/phrase-replay-key'
 import { decodePhraseReplayKey } from '@/generation-worker/phrase-replay-key-decode'
@@ -48,6 +48,7 @@ import {
   generateSuccess,
 } from '../domain/generation/carry-in/carry-in-fixture'
 import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
+import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
 /** Generous per-test timeout: the replay cases generate each phrase twice. */
 const TIMEOUT_MS = 120_000
@@ -135,13 +136,13 @@ function payloadOf(key: string): unknown[] {
 /** Intent: the valid `ifk4.` 9-tuple of a Jam's phrase 1, as a mutable array to corrupt. */
 function validNoPhraseTuple(): unknown[] {
   const intent = intentWith(14, { carryIn: NO_PHRASE_CARRY_IN, steering: SAMPLE_STEERING })
-  return payloadOf(encodePhraseReplayKey(intent, 1))
+  return payloadOf(encodeIfk4PhraseReplayKey(intent, 1))
 }
 
 /** Intent: a valid `ifk4.` tuple of a locked phrase 1 with one slot replaced. */
 function lockedTupleWith(index: number, value: unknown): unknown[] {
   const tuple = payloadOf(
-    encodePhraseReplayKey(intentWith(5, { rhythmLock: SAMPLE_RHYTHM_LOCK }), 1),
+    encodeIfk4PhraseReplayKey(intentWith(5, { rhythmLock: SAMPLE_RHYTHM_LOCK }), 1),
   )
   tuple[index] = value
   return tuple
@@ -195,9 +196,9 @@ function groupCases(mine: boolean): readonly (readonly [string, Groups, number])
 
 // @test-link [[module_phrase_replay_key]]
 describe('the ifk4 key', () => {
-  it('is written for every phrase: nine entries, the first seven an ifk3 key would hold', () => {
+  it('was written for every phrase by v3.2: nine entries, the first seven an ifk3 key would hold', () => {
     const intent = intentWith(5, {})
-    const key = encodePhraseReplayKey(intent, 1)
+    const key = encodeIfk4PhraseReplayKey(intent, 1)
     expect(key).toMatch(/^ifk4\.[A-Za-z0-9_-]+$/u)
     const tuple = payloadOf(key)
     expect(tuple).toHaveLength(9)
@@ -209,7 +210,7 @@ describe('the ifk4 key', () => {
 
   it('holds the rhythm lock group at index 7 and the steering block at index 8', () => {
     const intent = intentWith(5, { rhythmLock: SAMPLE_RHYTHM_LOCK, steering: SAMPLE_STEERING })
-    const tuple = payloadOf(encodePhraseReplayKey(intent, 1))
+    const tuple = payloadOf(encodeIfk4PhraseReplayKey(intent, 1))
     expect(tuple[7]).toEqual(JSON.parse(JSON.stringify(SAMPLE_RHYTHM_LOCK)))
     expect(tuple[8]).toEqual(JSON.parse(JSON.stringify(SAMPLE_STEERING)))
   })
@@ -224,17 +225,20 @@ describe('the ifk4 key', () => {
   // @test-link [[rule_jam_and_lock_off_reproduce_earlier_phrases]]
   it('holds no doodle, raw notes, drift or capture tempo', () => {
     const intent = intentWith(14, { carryIn: NO_PHRASE_CARRY_IN, steering: SAMPLE_STEERING })
-    const text = JSON.stringify(payloadOf(encodePhraseReplayKey(intent, 1)))
+    const text = JSON.stringify(payloadOf(encodeIfk4PhraseReplayKey(intent, 1)))
     expect(text).not.toMatch(/doodle|drift|captureTempo|rawNotes|"notes"|velocity/u)
   })
 
-  it('announces a phrase with its ifk4 key on one console line', () => {
+  it('announces a phrase with its ifk5 key on one console line', () => {
     const log = vi.fn<(line: string) => void>()
     const intent = intentWith(14, { carryIn: NO_PHRASE_CARRY_IN, steering: SAMPLE_STEERING })
     announcePhraseReplayKey(intent, { source: 'session', phraseNumber: 1, origin: 'carry-in' }, log)
     expect(log).toHaveBeenCalledTimes(1)
     const key = log.mock.calls[0]![0].split(' · ')[3]!
-    expect(key.startsWith('ifk4.')).toBe(true)
+    expect(key.startsWith('ifk5.')).toBe(true)
+    const tuple = payloadOf(key)
+    expect(tuple).toHaveLength(10)
+    expect(tuple[9]).toEqual({ 'seventh-chords': 'off' })
     expect(decodePhraseReplayKey(key).intent).toEqual(intent)
   })
 })
@@ -249,7 +253,7 @@ describe('an ifk4 key round-trips and replays to the same phrase', () => {
       () => {
         for (const [label, groups, phraseNumber] of groupCases(mine)) {
           const intent = intentWith(21, groups, mine)
-          const key = encodePhraseReplayKey(intent, phraseNumber)
+          const key = encodeIfk4PhraseReplayKey(intent, phraseNumber)
           expect(key.startsWith('ifk4.'), label).toBe(true)
           const decoded = decodePhraseReplayKey(key)
           expect(decoded.keyVersion, label).toBe('ifk4')
@@ -321,7 +325,10 @@ describe('ifk4 decoding refuses a malformed key with the reason', () => {
     expect(() => decodePhraseReplayKey(rawKey('ifk4', phraseTwo))).toThrow(PhraseReplayKeyError)
     expect(() => decodePhraseReplayKey(rawKey('ifk4', phraseTwo))).toThrow(/must be 1/u)
     expect(() =>
-      encodePhraseReplayKey(decodePhraseReplayKey(rawKey('ifk4', validNoPhraseTuple())).intent, 2),
+      encodeIfk4PhraseReplayKey(
+        decodePhraseReplayKey(rawKey('ifk4', validNoPhraseTuple())).intent,
+        2,
+      ),
     ).toThrow(/must be 1/u)
   })
 
@@ -340,10 +347,10 @@ describe('ifk4 decoding refuses a malformed key with the reason', () => {
     )
   })
 
-  it('refuses an ifk5 key as an unsupported version', () => {
-    const key = rawKey('ifk5', validNoPhraseTuple())
+  it('refuses an ifk6 key as an unsupported version', () => {
+    const key = rawKey('ifk6', validNoPhraseTuple())
     expect(() => decodePhraseReplayKey(key)).toThrow(PhraseReplayKeyError)
-    expect(() => decodePhraseReplayKey(key)).toThrow(/unsupported key version "ifk5"/u)
+    expect(() => decodePhraseReplayKey(key)).toThrow(/unsupported key version "ifk6"/u)
   })
 })
 
@@ -382,7 +389,7 @@ describe('every recorded key and the Seventh chords level', () => {
           versions.add(decoded.keyVersion)
           expect(decoded.intent.chordFamilies, key).toStrictEqual(OFF_CHORD_FAMILIES)
           if (decoded.keyVersion === 'ifk4')
-            expect(encodePhraseReplayKey(decoded.intent, decoded.phraseNumber)).toBe(key)
+            expect(encodeIfk4PhraseReplayKey(decoded.intent, decoded.phraseNumber)).toBe(key)
         }
       expect([...versions].sort()).toEqual(['ifk1', 'ifk2', 'ifk3', 'ifk4'])
     },
@@ -394,7 +401,7 @@ describe('every recorded key and the Seventh chords level', () => {
     (mine) => {
       for (const [, groups, phraseNumber] of groupCases(mine)) {
         const intent = intentWith(41, groups, mine)
-        const decoded = decodePhraseReplayKey(encodePhraseReplayKey(intent, phraseNumber))
+        const decoded = decodePhraseReplayKey(encodeIfk4PhraseReplayKey(intent, phraseNumber))
         expect(decoded.intent).toStrictEqual(intent)
         expect(decoded.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
       }

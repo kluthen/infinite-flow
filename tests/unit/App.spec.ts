@@ -5,6 +5,7 @@ import { reactive, ref, shallowRef } from 'vue'
 import type { GenerationSession } from '../../src/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '../../src/composables/workspace-session-result'
 import type { HeldModeNoteRoute } from '../../src/components/workspace/workspace-session-midi'
+import { OFF_CHORD_FAMILIES } from '../../src/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '../../src/domain/controls/profile-selection'
 import { makeRequestId } from '../../src/domain/generation/generation-request'
 import { makeSeed } from '../../src/domain/random/seed'
@@ -52,6 +53,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
   const state = reactive({
     controls,
     figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: presetSelection,
     presets: [...BUILT_IN_PRESETS, ...savedData.playerPresets],
     presentation: { theme: savedData.settings.theme } as {
@@ -75,6 +77,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
       setControl: () => false,
       selectPreset: () => false,
       setFigureLevel: () => false,
+      setChordFamilyLevel: () => false,
       selectInstrumentProfile: async () => 'rejected',
       holdInstrumentSwitches: async () => 'unchanged',
       saveMyInstrument: async () => 'rejected',

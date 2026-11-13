@@ -1,13 +1,16 @@
 ---
 id: rule_seventh_chords_keep_the_chord_plan
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 tags: [v3, release-v3.3, generation, chords]
 human_name: Seventh Chords Leave the Chord Plans as They Were
 parents:
   - [[req_seventh_chords_level]]
-dependents: []
+dependents:
+  - [[module_harmony_candidate_domain]]
+  - [[module_ranked_candidate_ordering]]
+  - [[service_generation_orchestration]]
 type: RULE
 layer: BUSINESS
 ---

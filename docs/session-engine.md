@@ -761,8 +761,8 @@ that differ from the current ones (master spec §16). `createStalePhraseStart`
 controller's `start()` (the Start click) and the starting note both go through its
 `request(opener)`. Once every start condition holds, it compares phrase 1's own settings with the
 current ones (`staleSettingsOf` in `src/session/stale-phrase-one.ts`: every control but the tempo,
-each figure's level, never the preset selection alone, my instrument's range and transposition as
-saved now). With a difference it starts nothing, no sound, no lock, no count-in, and publishes
+each figure's level, (v3.3) the Seventh chords level, never the preset selection alone, my
+instrument's range and transposition as saved now). With a difference it starts nothing, no sound, no lock, no count-in, and publishes
 `state.stalePhrasePrompt`, `{ opener: 'start' | 'note', changed }`, the changed settings fixed as it
 opens; `start()` then returns `'asked'` instead of `'started'`, and returns it again, changing
 nothing, while the prompt shows (a second press before its sheet has loaded). (A starting note
@@ -1412,10 +1412,12 @@ for its initial course, so its phrases stay the session's.
 
 `stale-phrase-one.ts` also holds the pure pieces the workspace uses around it:
 `phraseOneSettings(recorded, phraseOneIntent, tempo)` builds phrase 1's settings from what the Idle
-result recorded (the chosen controls, figure levels and preset selection) at the session's tempo, my
-instrument's profile taken from phrase 1's intent; `isPhraseOneStale(phraseOne, current)` compares
-them by value with the current settings over what the generation reads: every control but the tempo,
-each figure's level (a change of the preset selection alone counts for nothing), and the
+result recorded (the chosen controls, figure levels, Seventh chords level and preset selection) at
+the session's tempo, my instrument's profile taken from phrase 1's intent, so phrase 1 keeps its own
+level after `Start with this phrase`; `isPhraseOneStale(phraseOne, current)` compares them by value
+with the current settings over what the generation reads: every control but the tempo, each
+figure's level, the Seventh chords level (a change of the preset selection alone counts for
+nothing), and the
 instrument's concert range and transposition (never its display name or clef).
 
 ### Replay from the inputs

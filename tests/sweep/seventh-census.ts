@@ -17,6 +17,7 @@ import type { Collection } from '@/domain/controls/generation-controls'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import type { CollectionDegree, HarmonyEvent, SeventhQuality } from '@/domain/harmony/harmony-types'
+import { isSeventhDrawn } from '@/domain/harmony/seventh-draw'
 
 /** The beats of a four-measure phrase in 4/4. */
 const PHRASE_BEATS = 16
@@ -135,20 +136,18 @@ export function classifyPlan(
 
 /**
  * Intent: how many events of a generated phrase's winning plan its draw gave their seventh form
- * first. At Off, none: Off makes no draw. Above Off the census needs the generator's own draw
- * (v3.3 chunk 12's `seventh-draw.ts`, from the level, the seed and each event's position), which
- * does not exist yet, so it refuses rather than guess.
+ * first, read from the generator's own draw (`isSeventhDrawn`, from the level, the seed and each
+ * event's start), so a fallback is classified as the generator made it. At Off, none: Off makes no
+ * draw.
  */
 export function drawnSeventhsOf(
   intent: GenerationIntent,
   outcome: Extract<GenerationOutcome, { kind: 'generation_success' }>,
 ): number {
   const level = intent.chordFamilies['seventh-chords']
-  if (level !== 'off')
-    throw new Error(
-      `The seventh census cannot read the draw of a phrase at ${level} before v3.3 chunk 12 (seventh-draw.ts); ${outcome.provenance.harmony.events.length} events unread.`,
-    )
-  return 0
+  return outcome.provenance.harmony.events.filter((event) =>
+    isSeventhDrawn(level, intent.seed, event),
+  ).length
 }
 
 /** Intent: the census of one generation outcome, or its failure code, with its level and mode. */

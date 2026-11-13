@@ -3,7 +3,7 @@
  * My instrument in the phrase replay key. The `ifk2.` keys v3.0 wrote (the seven `ifk1.` entries
  * followed by my instrument's display name, concert range and transposition), recorded here as
  * fixed strings, still decode to an equal intent holding the profile's levels and replay to the
- * same timeline, as v3.0's built-in `ifk1.` keys do. Every phrase now encodes as `ifk4.`, whose
+ * same timeline, as v3.0's built-in `ifk1.` keys do. v3.2 encoded every phrase as `ifk4.`, whose
  * first seven entries are v3.1's `ifk3.` ones: my instrument's entry at index 6, `null` there for
  * a built-in, then `null` at 7 and 8 without a rhythm lock group or steering block, and the key
  * decodes back to an equal intent that replays to the same timeline. The key holds no clef, so two
@@ -45,6 +45,7 @@ import {
   carryInAfter,
   generateSuccess,
 } from '../domain/generation/carry-in/carry-in-fixture'
+import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
 /** Generous per-test timeout: the replay cases generate each phrase twice. */
 const TIMEOUT_MS = 120_000
@@ -272,10 +273,13 @@ function tupleWithProfile(profile: unknown): unknown[] {
 
 /**
  * Intent: the valid `ifk3.` 7-tuple of the horn in A's phrase 1 (the first seven entries of the
- * `ifk4.` key the encoder writes), its slot 6 replaced.
+ * `ifk4.` key v3.2 wrote), its slot 6 replaced.
  */
 function ifk3TupleWithProfile(profile: unknown): unknown[] {
-  const tuple = payloadOf(encodePhraseReplayKey(myInstrumentIntent(hornInA(), 3), 1)).slice(0, 7)
+  const tuple = payloadOf(encodeIfk4PhraseReplayKey(myInstrumentIntent(hornInA(), 3), 1)).slice(
+    0,
+    7,
+  )
   tuple[6] = profile
   return tuple
 }
@@ -302,7 +306,7 @@ function expectDecodedEqual(
 
 /** Intent: assert encode→decode yields an `ifk4` key and the original intent and number exactly. */
 function expectIfk4RoundTrip(intent: GenerationIntent, phraseNumber: number): void {
-  const key = encodePhraseReplayKey(intent, phraseNumber)
+  const key = encodeIfk4PhraseReplayKey(intent, phraseNumber)
   expect(key.startsWith('ifk4.')).toBe(true)
   expectDecodedEqual(key, 'ifk4', intent, phraseNumber)
 }
@@ -348,7 +352,7 @@ describe('a v3.0 ifk2 or ifk1 key still decodes to the same phrase', () => {
       const intent = buildIntent({ seed: 4, controls: { instrumentProfileId } })
       expect(payloadOf(key)).toHaveLength(7)
       expectDecodedEqual(key, 'ifk1', intent, 1)
-      const ifk4 = encodePhraseReplayKey(intent, 1)
+      const ifk4 = encodeIfk4PhraseReplayKey(intent, 1)
       expect(payloadOf(ifk4)).toHaveLength(9)
       expect(payloadOf(ifk4).slice(6)).toEqual([null, null, null])
       expectDecodedEqual(ifk4, 'ifk4', intent, 1)
@@ -389,7 +393,7 @@ describe('an ifk4 key carries my instrument', () => {
   // @test-link [[module_phrase_replay_key]]
   it("holds nine entries, my instrument's name, concert range and transposition at index 6", () => {
     const intent = myInstrumentIntent(BARITONE, 9)
-    const tuple = payloadOf(encodePhraseReplayKey(intent, 1))
+    const tuple = payloadOf(encodeIfk4PhraseReplayKey(intent, 1))
     expect(tuple).toHaveLength(9)
     expect(tuple.slice(0, 3)).toEqual(ifk1EntriesOf(intent, 1).slice(0, 3))
     expect(tuple[3]).toEqual(intent.figureLevels)
@@ -402,8 +406,8 @@ describe('an ifk4 key carries my instrument', () => {
   // @test-link [[module_phrase_replay_key]]
   // @test-link [[req_my_instrument]]
   it("encodes two phrases that differ only by my instrument's clef to the same key", () => {
-    const treble = encodePhraseReplayKey(myInstrumentIntent(hornInA('treble'), 3), 1)
-    const bass = encodePhraseReplayKey(myInstrumentIntent(hornInA('bass'), 3), 1)
+    const treble = encodeIfk4PhraseReplayKey(myInstrumentIntent(hornInA('treble'), 3), 1)
+    const bass = encodeIfk4PhraseReplayKey(myInstrumentIntent(hornInA('bass'), 3), 1)
     expect(treble.startsWith('ifk4.')).toBe(true)
     expect(bass).toBe(treble)
     expect(JSON.stringify(payloadOf(treble))).not.toMatch(/clef|treble|bass|template|c-keyboard/u)
@@ -412,7 +416,7 @@ describe('an ifk4 key carries my instrument', () => {
   // @test-link [[module_phrase_replay_key]]
   it('encodes a built-in phrase as an ifk4 key of nine entries, null at indexes 6 to 8', () => {
     for (const instrumentProfileId of ['c-keyboard', 'bb-tenor', 'eb-alto'] as const) {
-      const key = encodePhraseReplayKey(
+      const key = encodeIfk4PhraseReplayKey(
         buildIntent({ seed: 4, controls: { instrumentProfileId } }),
         1,
       )
@@ -423,12 +427,14 @@ describe('an ifk4 key carries my instrument', () => {
   })
 
   // @test-link [[module_phrase_replay_key]]
-  it('announces a my-instrument phrase with its ifk4 key', () => {
+  it('announces a my-instrument phrase with its ifk5 key', () => {
     const intent = myInstrumentIntent(hornInA(), 42)
     const lines: string[] = []
     announcePhraseReplayKey(intent, { source: 'workspace' }, (line) => lines.push(line))
     const key = encodePhraseReplayKey(intent, 1)
-    expect(key.startsWith('ifk4.')).toBe(true)
+    expect(key.startsWith('ifk5.')).toBe(true)
+    expect(payloadOf(key)).toHaveLength(10)
+    expect(payloadOf(key)[9]).toEqual({ 'seventh-chords': 'off' })
     expect(lines).toEqual([
       `[Infinite Flow] phrase replay key · workspace phrase · seed1-0000002a · ${key}`,
     ])
@@ -443,7 +449,7 @@ describe('an ifk4 key carries my instrument', () => {
       for (const instrument of [hornInA(), BARITONE])
         for (const seed of [1, 2, 3]) {
           const intent = myInstrumentIntent(instrument, seed)
-          const key = encodePhraseReplayKey(intent, 1)
+          const key = encodeIfk4PhraseReplayKey(intent, 1)
           expect(replayPhraseKey(key).keyVersion).toBe('ifk4')
           expect(JSON.stringify(replayedRaw(key))).toBe(JSON.stringify(generatePhrase(intent)))
         }
@@ -487,7 +493,7 @@ describe('a key is rejected when it cannot be my instrument', () => {
 
   // @test-link [[module_phrase_replay_key]]
   it('rejects an ifk3 key naming a built-in with a profile, or my instrument with null', () => {
-    const builtIn = payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5 }), 1)).slice(0, 7)
+    const builtIn = payloadOf(encodeIfk4PhraseReplayKey(buildIntent({ seed: 5 }), 1)).slice(0, 7)
     builtIn[6] = entryOf(hornInA())
     expect(() => decodePhraseReplayKey(rawKey('ifk3', builtIn))).toThrow(PhraseReplayKeyError)
     expect(() => decodePhraseReplayKey(rawKey('ifk3', builtIn))).toThrow(

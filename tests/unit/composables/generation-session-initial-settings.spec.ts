@@ -10,6 +10,7 @@ import {
   type InitialGenerationSettings,
 } from '@/composables/use-generation-session'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
@@ -66,6 +67,7 @@ describe('createGenerationSession: the settings it starts from', () => {
     const created = session(prewarm, {
       controls: LOADED_CONTROLS,
       figureLevels: JAZZ_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: LOADED_SELECTION,
       playerPresets: [],
       theme: 'Dark',

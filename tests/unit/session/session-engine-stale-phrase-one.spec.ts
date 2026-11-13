@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   COLLECTIONS,
   HARMONIC_MOTIONS,
@@ -39,6 +40,7 @@ function defaultsWith(overrides: Partial<GenerationControls> = {}): SessionSetti
   return {
     controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, ...overrides }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: DEFAULT_PRESET_SELECTION,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

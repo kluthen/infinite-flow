@@ -608,6 +608,8 @@ interface WorkspaceHarnessGenerationRequest {
   readonly controls: Readonly<Record<string, string | number>>
   /** The intent's figure levels: each figure id to its level id. */
   readonly figureLevels: Readonly<Record<string, string>>
+  /** The intent's chord families: each family id (`seventh-chords`) to its level id. */
+  readonly chordFamilies: Readonly<Record<string, string>>
   /** The instrument profile the intent carries: a built-in's from its id, or my instrument's own. */
   readonly instrumentProfile: WorkspaceHarnessInstrumentProfile
   /** Whether the request carried a carry-in (a session look-ahead joining the phrase before). */
@@ -679,7 +681,7 @@ interface WorkspaceHarnessReplayApi {
    * real browser worker. A malformed key, or a worker crash, rejects with its error's message.
    */
   replayKey: (key: string) => Promise<WorkspaceHarnessReplayAnswer>
-  /** The key's `ifk4.` re-encoding: its decoded intent and phrase number, encoded again. */
+  /** The key's `ifk5.` re-encoding: its decoded intent and phrase number, encoded again. */
   reEncodeKey: (key: string) => string
 }
 
@@ -835,6 +837,13 @@ interface WorkspaceHarnessApi {
    * session's answer (false when not at Idle); an id no preset has throws.
    */
   selectPreset: (id: string) => boolean
+  /**
+   * Set a chord family's level (`seventh-chords` to `off`, `sometimes`, `favored` or
+   * `stronglyFavored`) through the session's routing point, until the Seventh chords control
+   * reaches it. Returns the session's answer (false while a generation or drawing is in flight);
+   * a family or level that is not one throws.
+   */
+  setChordFamilyLevel: (family: string, level: string) => boolean
   /**
    * How many rhythm-domain prewarms the workspace has posted to the real worker since the page
    * loaded; always 0 with `?prewarm=off`.

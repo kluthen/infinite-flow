@@ -24,11 +24,8 @@ import type { RegisterId } from '../domain/profile/register-id'
 import type { RegisterChoice } from '../domain/profile/register-intent'
 import type { RegisterWindowCandidate } from '../domain/profile/register-window-derivation'
 import { registerWindowContainsPitch, type RegisterWindow } from '../domain/profile/register-window'
-import {
-  figuresWithChangedLevels,
-  resolvedRegister,
-  sessionInstrumentProfile,
-} from './session-intents'
+import { figuresWithChangedLevels } from './session-figure-levels'
+import { resolvedRegister, sessionInstrumentProfile } from './session-intents'
 import { SessionEngineError, type SessionSettings } from './session-types'
 
 /**

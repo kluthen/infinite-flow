@@ -6,6 +6,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import { primaryButton, radio } from '../workspace/helpers'
+import { holdBackground } from '../workspace/pregeneration-helpers'
 import {
   awaitIdle,
   failNextGeneration,
@@ -115,6 +116,10 @@ test.describe('Start session is enabled only when every start condition holds', 
     await gotoSessionHarness(page)
     await readyToStart(page)
 
+    // With pre-generation on, a background attempt launched after the arming would take the
+    // armed failure and the click's generation would succeed (ISS-016): hold every later
+    // background attempt first, so only the click's generation can meet it.
+    await holdBackground(page)
     await failNextGeneration(page, 'search_limit_exceeded')
     await primaryButton(page).click()
     await expect(page.locator('.score-panel > .inline-alert.alert-error')).toBeVisible()

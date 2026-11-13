@@ -1,12 +1,13 @@
 ---
 id: rule_seventh_chords_level_never_a_quota
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1
 priority: 1
 human_name: The Seventh Chords Level Is Never a Quota
-dependents: []
+dependents:
+  - [[service_generation_orchestration]]
 tags: [v3, release-v3.3, generation, chords]
 parents:
   - [[req_seventh_chords_level]]

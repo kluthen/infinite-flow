@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
+import { parseChordFamilies, type ChordFamilyLevel } from '@/domain/chords/chord-families'
+import {
+  buildHarmonyDomain,
+  searchedHarmonyOrder,
+} from '@/domain/generation/orchestration/generation-orchestrator'
+import { SEVENTHS_IDENTITY_MARK } from '@/domain/generation/orchestration/harmony-variants'
 import { makeGenerationSearchPolicy } from '@/domain/generation/orchestration/search-ledger'
 import { makeRequestRhythmLock, RHYTHM_CHANGE_KINDS } from '@/domain/generation/request-rhythm-lock'
 import {
@@ -245,5 +251,73 @@ describe('the search under a drawn rhythm change', () => {
     if (report.outcome.kind !== 'window_success') return
     expect(report.outcome.provenance.rhythmLockOutcome).toBe('locked_bars')
     expect(report.outcome.provenance.rhythmChange).toBe('no_change_available')
+  })
+})
+
+/** Intent: the window input at a Seventh chords level: the orchestrator's searched plan list. */
+function atLevel(input: WindowSearchInput, level: ChordFamilyLevel): WindowSearchInput {
+  const intent = { ...input.intent, chordFamilies: parseChordFamilies({ 'seventh-chords': level }) }
+  const domain = buildHarmonyDomain(intent)
+  if (domain.kind !== 'harmony_candidate_domain') throw new Error('Fixture: no harmony plan.')
+  return { ...input, intent, rankedHarmony: searchedHarmonyOrder(intent, domain) }
+}
+
+/** Intent: the chord plans of some calls in the order first tried, each plan once in a row. */
+function plansInTurn(calls: readonly Call[]): readonly string[] {
+  return calls
+    .map((call) => call.harmony)
+    .filter((harmony, index, all) => index === 0 || all[index - 1] !== harmony)
+}
+
+/** Intent: true when every seventh variant in a row of plans is directly followed by its plan. */
+function formsSideBySide(plans: readonly string[]): boolean {
+  return plans.every((plan, index) => {
+    const mark = plan.indexOf(SEVENTHS_IDENTITY_MARK)
+    return mark < 0 || plans[index + 1] === plan.slice(0, mark)
+  })
+}
+
+// @test-link [[rule_rhythm_lock_tries_both_forms]]
+// @test-link [[service_generation_window_search]]
+describe('the search over each plan in both forms', () => {
+  it("is fed Off's plan list at Off, so the lock's walk is unchanged", () => {
+    const input = lockedInput()
+    expect(atLevel(input, 'off').rankedHarmony).toEqual(input.rankedHarmony)
+  })
+
+  it('tries each plan as sevenths then as triads with the locked rhythm before it gives way', () => {
+    const input = atLevel(lockedInput(), 'stronglyFavored')
+    expect(input.rankedHarmony).toHaveLength(2 * lockedInput().rankedHarmony.length)
+    const { deps, calls } = recordingDeps((rhythm) => rhythmBarKey(rhythm.bars) !== LOCKED_KEY)
+    const report = searchWindow(input, deps)
+    expect(report.outcome.kind).toBe('window_success')
+    if (report.outcome.kind !== 'window_success') return
+    expect(report.outcome.provenance.rhythmLockOutcome).toBe('forced_bend')
+    const expected = rhythmMajorCalls(input)
+    expect(calls).toEqual(expected.slice(0, calls.length))
+    const firstBend = calls.findIndex((call) => call.rhythm !== calls[0]!.rhythm)
+    const lockedPlans = plansInTurn(calls.slice(0, firstBend))
+    const carried = input.rankedHarmony
+      .filter((harmony) => pairCalls(harmony, LOCKED).length > 0)
+      .map((harmony) => harmony.identity)
+    expect(lockedPlans).toEqual(carried)
+    expect(lockedPlans.filter((plan) => plan.includes(SEVENTHS_IDENTITY_MARK)).length).toBe(
+      lockedPlans.length / 2,
+    )
+    expect(formsSideBySide(lockedPlans)).toBe(true)
+  })
+
+  it('walks each plan in both forms, side by side, harmony-major without locked bars', () => {
+    const input = atLevel(
+      lockTestWindowInput(lockTestIntent({ tension: 'Lift', seed: 5 })),
+      'favored',
+    )
+    expect(input.rankedHarmony.some((plan) => plan.identity.includes(SEVENTHS_IDENTITY_MARK))).toBe(
+      true,
+    )
+    const { deps, calls } = recordingDeps(() => false)
+    searchWindow(input, deps)
+    expect(calls).toEqual(harmonyMajorCalls(input))
+    expect(formsSideBySide(plansInTurn(calls))).toBe(true)
   })
 })

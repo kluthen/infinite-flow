@@ -1,7 +1,7 @@
 // @vitest-environment node
 /**
- * No phrase replay key version has a form for a carried seventh chord: every version, `ifk1.` to
- * `ifk4.`, reads its carry-in's carried chord as a triad only, so a key whose carry-in holds the
+ * No phrase replay key version before `ifk5.` has a form for a carried seventh chord: every
+ * version, `ifk1.` to `ifk4.`, reads its carry-in's carried chord as a triad only, so a key whose carry-in holds the
  * seventh of its own degree is refused on decode with the reason, while the same key without it
  * decodes. The keys are hand-built from the payload a real phrase 2 encodes to, for a built-in
  * instrument (`ifk1.`, `ifk3.`, `ifk4.`) and for my instrument (`ifk2.`).
@@ -23,7 +23,6 @@ import { makeHarmonyCollection } from '@/domain/harmony/collection'
 import type { ChordSeventh } from '@/domain/harmony/harmony-types'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { makeSeed } from '@/domain/random/seed'
-import { encodePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
 import { decodePhraseReplayKey } from '@/generation-worker/phrase-replay-key-decode'
 import {
   BASE_CONTROLS,
@@ -31,6 +30,7 @@ import {
   generateSuccess,
 } from '../domain/generation/carry-in/carry-in-fixture'
 import { seventhOf } from '../domain/harmony/seventh-chord-fixtures'
+import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
 /** The reason a triad-only reader refuses a carried seventh with. */
 const REASON = 'CarryIn.finalHarmony holds a seventh, which this form cannot carry.'
@@ -128,7 +128,7 @@ describe('a phrase replay key whose carry-in holds a carried seventh chord', () 
     'is refused on decode as an %s key, with the reason',
     (version, mine, tupleOf, slot) => {
       const intent = phraseTwoIntent(mine)
-      const tuple = tupleOf(payloadOf(encodePhraseReplayKey(intent, 2)))
+      const tuple = tupleOf(payloadOf(encodeIfk4PhraseReplayKey(intent, 2)))
       const decoded = decodePhraseReplayKey(rawKey(version, tuple))
       expect(decoded.keyVersion).toBe(version)
       expect(decoded.intent.carryIn).toStrictEqual(intent.carryIn)

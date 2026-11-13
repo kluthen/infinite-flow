@@ -63,6 +63,7 @@ describe('composeWorkspaceSession session runner', () => {
         settings: {
           controls: workspace.session.state.controls,
           figureLevels: workspace.session.state.figureLevels,
+          chordFamilies: workspace.session.state.chordFamilies,
           selection: workspace.session.state.selection,
           allowedGroups: ALL_GROUPS_ALLOWED,
           rhythmLockOn: false,
@@ -112,6 +113,7 @@ describe('composeWorkspaceSession session runner', () => {
         settings: {
           controls: workspace.session.state.controls,
           figureLevels: workspace.session.state.figureLevels,
+          chordFamilies: workspace.session.state.chordFamilies,
           selection: workspace.session.state.selection,
           allowedGroups: ALL_GROUPS_ALLOWED,
           rhythmLockOn: false,
@@ -143,7 +145,7 @@ describe('composeWorkspaceSession session runner', () => {
 
 /** The single console line one accepted phrase announces, its context, seed and key captured. */
 const REPLAY_KEY_LINE =
-  /^\[Infinite Flow\] phrase replay key · (workspace phrase|session phrase \d+ \((?:carry-in|standalone)\)) · (seed1-[0-9a-f]{8}) · (ifk4\.[A-Za-z0-9_-]+)$/u
+  /^\[Infinite Flow\] phrase replay key · (workspace phrase|session phrase \d+ \((?:carry-in|standalone)\)) · (seed1-[0-9a-f]{8}) · (ifk5\.[A-Za-z0-9_-]+)$/u
 
 /** Intent: split one replay-key line into its context, seed code and key, failing on any other line. */
 function parseReplayKeyLine(line: string) {
@@ -196,6 +198,7 @@ describe('composeWorkspaceSession phrase replay key', () => {
         settings: {
           controls: workspace.session.state.controls,
           figureLevels: workspace.session.state.figureLevels,
+          chordFamilies: workspace.session.state.chordFamilies,
           selection: workspace.session.state.selection,
           allowedGroups: ALL_GROUPS_ALLOWED,
           rhythmLockOn: false,

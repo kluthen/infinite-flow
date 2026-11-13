@@ -34,12 +34,12 @@ import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import { allowsKeyAndMode } from '@/domain/presets/key-and-mode-restriction'
 import { PRESET_HELD_CONTROL_KEYS, type Preset } from '@/domain/presets/preset-selection'
-import { encodePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
 import {
   decodePhraseReplayKey,
   type DecodedPhraseReplayKey,
 } from '@/generation-worker/phrase-replay-key-decode'
 import { replayDecodedPhraseKey } from '@/generation-worker/phrase-replay'
+import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
 /** One recorded case: its label, its replay key and the timeline the key replayed to. */
 interface CorpusCase {
@@ -225,7 +225,7 @@ describe('v3.1 replay-key corpus (ifk3) recorded on v3.1.0', () => {
     for (const corpusCase of CORPUS.cases) {
       const decoded = decodePhraseReplayKey(corpusCase.key)
       expect(decoded.keyVersion, corpusCase.label).toBe('ifk3')
-      const reEncoded = encodePhraseReplayKey(decoded.intent, decoded.phraseNumber)
+      const reEncoded = encodeIfk4PhraseReplayKey(decoded.intent, decoded.phraseNumber)
       expect(reEncoded.startsWith('ifk4.'), corpusCase.label).toBe(true)
       expect(JSON.stringify(payloadOf(reEncoded)), corpusCase.label).toBe(
         JSON.stringify([...payloadOf(corpusCase.key), null, null]),

@@ -87,7 +87,7 @@
  *   `storage.seedDamagedKeptBody` damages a saved session's body.
  * - the in-browser phrase replay (replay-seams.ts): `replay.replayKey` decodes a phrase replay key
  *   in the page and replays it through the real browser worker, on a worker client of its own that
- *   never prewarms, and `replay.reEncodeKey` gives the key's `ifk4.` re-encoding.
+ *   never prewarms, and `replay.reEncodeKey` gives the key's `ifk5.` re-encoding.
  * - the in-browser key and mode suggestion (key-suggestion-seams.ts): `keySuggestion.describe`
  *   computes the suggestion's golden cases in the page with the app's own functions.
  *
@@ -107,6 +107,7 @@ import {
   type WorkspaceSession,
 } from '../../../src/components/workspace/create-workspace-session'
 import type { WorkspaceSessionResult } from '../../../src/composables/workspace-session-result'
+import { CHORD_FAMILY_IDS, CHORD_FAMILY_LEVEL_IDS } from '../../../src/domain/chords/chord-families'
 import type { GenerationIntent } from '../../../src/domain/generation/generation-intent'
 import { makeRequestId, type RequestId } from '../../../src/domain/generation/generation-request'
 import type {
@@ -373,6 +374,7 @@ async function harnessGenerate(
     writtenTonalCenter: intent.writtenTonalCenter,
     controls: { ...intent.controls },
     figureLevels: { ...intent.figureLevels },
+    chordFamilies: { ...intent.chordFamilies },
     instrumentProfile: instrumentProfileOf(intent),
     carryIn: intent.carryIn !== undefined,
     seed: intent.seed,
@@ -544,6 +546,25 @@ function selectPreset(id: string): boolean {
 }
 
 /**
+ * Intent: set a chord family's level (the Seventh chords level) through the session's own routing
+ * point, the way a spec reaches the level until its control does (v3.3 chunk 19). Throws before
+ * the session mounts, and as the session does on a family or level that is not one.
+ */
+function setChordFamilyLevel(family: string, level: string): boolean {
+  if (workspace === null) {
+    throw new Error(
+      'Workspace harness: setChordFamilyLevel() was called before the session mounted.',
+    )
+  }
+  const knownFamily = CHORD_FAMILY_IDS.find((id) => id === family)
+  const knownLevel = CHORD_FAMILY_LEVEL_IDS.find((id) => id === level)
+  if (knownFamily === undefined || knownLevel === undefined) {
+    throw new Error(`Workspace harness: setChordFamilyLevel(${family}, ${level}) names no level.`)
+  }
+  return workspace.session.actions.setChordFamilyLevel(knownFamily, knownLevel)
+}
+
+/**
  * Intent: the harmony (its outcome's provenance) and the concert timeline of the phrase the
  * workspace shows, for the audio seams' `queueBacking`. Throws before the session mounts or while
  * no phrase is shown.
@@ -592,6 +613,7 @@ const harnessApi: WorkspaceHarnessApi = {
   exportsBuilt,
   snapshot,
   selectPreset,
+  setChordFamilyLevel,
   prewarmCount: () => prewarmsPosted,
   prewarmInstrumentProfiles: () => prewarmInstrumentProfiles.map((profile) => ({ ...profile })),
   prewarmRhythmSettings: () => prewarmRhythmSettings.map((setting) => ({ ...setting })),

@@ -155,7 +155,12 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
   rig.idle.result = {
     intent,
     outcome: generateSuccess(intent),
-    settings: { controls, figureLevels: rig.idle.figureLevels, selection: rig.idle.selection },
+    settings: {
+      controls,
+      figureLevels: rig.idle.figureLevels,
+      chordFamilies: rig.idle.chordFamilies,
+      selection: rig.idle.selection,
+    },
     sessionSeed: RIG_SESSION_SEED,
   }
   rig.controller.start()
@@ -327,6 +332,7 @@ async function generationSession() {
         instrumentProfileId: 'my-instrument',
       }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: DEFAULT_PRESET_SELECTION,
       playerPresets: [],
       theme: 'System',

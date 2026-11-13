@@ -12,6 +12,7 @@ import {
   createGenerationSession,
   type MyInstrumentSessions,
 } from '@/composables/use-generation-session'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
@@ -114,6 +115,7 @@ async function withPhrase(
     initialSettings: {
       controls,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: DEFAULT_PRESET_SELECTION,
       playerPresets: [],
       theme: 'System',

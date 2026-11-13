@@ -11,7 +11,7 @@
  * allowed) records what it drew and which kinds had a candidate one change from the locked rhythm
  * in effect in the phrase's own rhythm domain, pooled over the 'all five' sessions per rhythm
  * control value and per rhythm setting. A few phrases of each class are replayed from their
- * `ifk4.` keys through the worker runtime and compared with what the session sounded. Groups: the
+ * `ifk5.` keys through the worker runtime and compared with what the session sounded. Groups: the
  * sweep's own cases, and each built-in preset applied to every case, each case then with its own
  * phrase-1 and session seeds (a preset replaces every case's rhythm setting, so the sweep's two
  * seeds would lock only about two rhythms per preset). A summary prints as `LOCK-CENSUS` lines.

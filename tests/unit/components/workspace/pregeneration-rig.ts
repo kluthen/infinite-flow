@@ -119,7 +119,12 @@ export function idlePhraseFor(
   const settings = { ...sessionSettings(), controls }
   return {
     ...phraseOneFor(settings, { seed }),
-    settings: { controls, figureLevels: settings.figureLevels, selection: settings.selection },
+    settings: {
+      controls,
+      figureLevels: settings.figureLevels,
+      chordFamilies: settings.chordFamilies,
+      selection: settings.selection,
+    },
     sessionSeed,
   }
 }
@@ -167,6 +172,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
     controls: settings.controls,
     figureLevels: settings.figureLevels,
+    chordFamilies: settings.chordFamilies,
     selection: settings.selection,
     presets: BUILT_IN_PRESETS,
     presentation: { theme: 'System' },

@@ -72,6 +72,22 @@ describe('session controller: a stale phrase 1 at Start', () => {
     expect(undone.controller.state.phase).toBe('count-in')
   })
 
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it('asks once the Seventh chords level differs, naming it, and asks nothing once changed back', () => {
+    const changed = controllerRig()
+    changed.idle.chordFamilies = { 'seventh-chords': 'favored' }
+    const back = controllerRig()
+    back.idle.chordFamilies = { 'seventh-chords': 'favored' }
+    back.idle.chordFamilies = back.settings.chordFamilies
+
+    expect(changed.controller.start()).toBe('asked')
+    expect(changed.controller.state.stalePhrasePrompt).toEqual({
+      opener: 'start',
+      changed: ['seventh-chords'],
+    })
+    expect(back.controller.start()).toBe('started')
+  })
+
   // @test-link [[rule_session_start_conditions]]
   it('refuses a blocked start as before, opening no prompt', () => {
     const rig = staleRig()

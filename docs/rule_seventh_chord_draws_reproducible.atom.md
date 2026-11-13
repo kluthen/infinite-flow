@@ -5,6 +5,8 @@ human_name: Seventh Chord Draws Reproduce Everywhere
 dependents:
   - [[module_generation_request_construction]]
   - [[module_generation_worker_protocol]]
+  - [[module_named_stream_pseudorandomness]]
+  - [[service_generation_result_validation]]
 type: RULE
 layer: BUSINESS
 priority: 1

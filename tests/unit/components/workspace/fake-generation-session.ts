@@ -12,6 +12,7 @@ import type {
   GenerationSessionState,
 } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
@@ -38,6 +39,7 @@ export function fakeGenerationSession(overrides: Partial<FakeIdleState> = {}): {
   const state = shallowReactive<FakeIdleState>({
     controls: DEFAULT_GENERATION_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: DEFAULT_PRESET_SELECTION,
     presets: BUILT_IN_PRESETS,
     presentation: { theme: 'System' },
@@ -60,6 +62,7 @@ export function fakeGenerationSession(overrides: Partial<FakeIdleState> = {}): {
       setControl: vi.fn(() => true),
       selectPreset: vi.fn(() => true),
       setFigureLevel: vi.fn(() => true),
+      setChordFamilyLevel: vi.fn(() => true),
       replacePlayerPresets: vi.fn((playerPresets, selection) => {
         state.presets = [...BUILT_IN_PRESETS, ...playerPresets]
         if (selection !== undefined) state.selection = selection

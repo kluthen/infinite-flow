@@ -1,11 +1,13 @@
 ---
 id: rule_triad_fallback_per_phrase
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: A Phrase Falls Back to Triads as a Whole
 parents:
   - [[req_seventh_chords_level]]
-dependents: []
+dependents:
+  - [[service_generation_orchestration]]
+  - [[service_generation_result_validation]]
 type: RULE
 version: 0.1
 tags: [v3, release-v3.3, generation, chords]

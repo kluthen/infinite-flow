@@ -15,6 +15,7 @@
  */
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import { CHORD_FAMILY_IDS } from '@/domain/chords/chord-families'
 import { FIGURE_IDS } from '@/domain/figures/figure-levels'
 import { ANY_KEY_AND_MODE } from '@/domain/presets/key-and-mode-restriction'
 import { restrictionInForce } from '@/domain/presets/preset-selection'
@@ -72,7 +73,8 @@ export type WorkspacePregenerationFactory = (
 
 /**
  * Intent: the queue's key besides phrase 1: the generation controls except tempo (the instrument
- * is a control), the seven figure levels in FIGURE_IDS order, Vary settings, Tension across
+ * is a control), the seven figure levels in FIGURE_IDS order, session mode's Seventh chords level
+ * (a change of it discards, as a figure level's does), Vary settings, Tension across
  * phrases, the restriction in force, whose change discards whether Vary settings is on or not
  * (opting out, or coming back inside), and the rhythm lock, its allowed changes and Vary settings'
  * allowed groups, whose change discards whether or not it acts on phrases then (the allowed
@@ -87,10 +89,11 @@ export type WorkspacePregenerationFactory = (
 function settingsKeyOf(deps: PregenerationControllerSeams): string {
   const { tempo, ...controls } = deps.idle.controls
   void tempo
-  const { figureLevels, selection, presets } = deps.idle
+  const { figureLevels, chordFamilies, selection, presets } = deps.idle
   return JSON.stringify([
     controls,
     FIGURE_IDS.map((figure) => figureLevels[figure]),
+    CHORD_FAMILY_IDS.map((family) => chordFamilies[family]),
     deps.varySettings(),
     deps.tensionAcrossPhrases(),
     restrictionInForce(selection, controls.tonalCenter, controls.collection, presets) ??

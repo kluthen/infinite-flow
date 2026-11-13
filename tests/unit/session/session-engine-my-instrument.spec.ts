@@ -26,7 +26,7 @@ import { makeSeed } from '@/domain/random/seed'
 import { adaptCarryIn } from '@/session/carry-in-adaptation'
 import { ALL_GROUPS_ALLOWED, mutationCandidates } from '@/session/settings-mutation'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
-import { sessionFigureLevels } from '@/session/session-intents'
+import { sessionFigureLevels } from '@/session/session-figure-levels'
 import {
   BASE_CONTROLS,
   carryInAfter,
@@ -64,6 +64,7 @@ function mySettings(
       ...controls,
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
@@ -193,6 +194,7 @@ describe('the carry-in receiver converts the tonal center with my instrument’s
         ...controls,
       }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: { kind: 'custom', baseId: 'neutral' },
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
@@ -269,6 +271,7 @@ function altoBuiltIn(): SessionSettings {
       instrumentProfileId: 'eb-alto',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

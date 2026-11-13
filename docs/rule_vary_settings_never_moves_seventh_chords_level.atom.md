@@ -1,6 +1,6 @@
 ---
 id: rule_vary_settings_never_moves_seventh_chords_level
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

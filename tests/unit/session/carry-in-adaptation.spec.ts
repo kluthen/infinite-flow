@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -54,6 +55,7 @@ function settings(
   return {
     controls: makeGenerationControls({ ...BASE_CONTROLS, ...controls }),
     figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

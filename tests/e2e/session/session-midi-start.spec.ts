@@ -30,6 +30,7 @@ import {
   releaseGeneration,
   roomNotice,
 } from '../release/harness-helpers'
+import { holdBackground } from '../workspace/pregeneration-helpers'
 import {
   expectCountInWithClicks,
   gotoSessionHarness,
@@ -358,6 +359,10 @@ const ITEM_22_STATES: readonly BlockedState[] = [
   {
     name: 'the generation-failure banner over the retained phrase',
     reach: async (page) => {
+      // With pre-generation on, a background attempt launched after the arming would take the
+      // armed failure and the click's generation would succeed (ISS-016): hold every later
+      // background attempt first, so only the click's generation can meet it.
+      await holdBackground(page)
       await failNextGeneration(page, 'search_limit_exceeded')
       await phraseAction(page).click()
       await expect(page.locator('.score-panel > .inline-alert.alert-error')).toBeVisible()

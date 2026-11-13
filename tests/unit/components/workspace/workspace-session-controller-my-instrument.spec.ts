@@ -63,7 +63,12 @@ describe('session controller: Start with my instrument', () => {
     rig.idle.result = {
       intent,
       outcome: generateSuccess(intent),
-      settings: { controls, figureLevels: rig.idle.figureLevels, selection: rig.idle.selection },
+      settings: {
+        controls,
+        figureLevels: rig.idle.figureLevels,
+        chordFamilies: rig.idle.chordFamilies,
+        selection: rig.idle.selection,
+      },
       sessionSeed: RIG_SESSION_SEED,
     }
 
@@ -103,7 +108,12 @@ describe('session controller: Start with my instrument', () => {
     rig.idle.result = {
       intent,
       outcome,
-      settings: { controls, figureLevels: rig.idle.figureLevels, selection: rig.idle.selection },
+      settings: {
+        controls,
+        figureLevels: rig.idle.figureLevels,
+        chordFamilies: rig.idle.chordFamilies,
+        selection: rig.idle.selection,
+      },
       sessionSeed: RIG_SESSION_SEED,
     }
     rig.showIdleWritten(transformToWrittenPhrase(notationInputFromOutcome(outcome, intent, 'bass')))

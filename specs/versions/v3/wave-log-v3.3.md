@@ -439,3 +439,248 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   exactly for `doc-get`, cut from this branch at 50b41aa5) merged into the wave first, as plan v15;
   `doc-get lint plan`: 0 unresolved references. Next: wave 3 (chunks 12, 15, 16) in a fresh
   session; its sync applies A3, A4 and A8's Idle-state sentences (CONTRACT 17.0.0).
+
+## Wave 3
+
+### Wave 3 start (2026-11-13)
+
+- Wave 2 merged into `main` b8e291e8 and pushed. Branch `v3.3-w3` cut from it, worktree
+  `/home/bastien/work/infinite_flow-v3.3-w3`. Chunks 12, 15, 16; κ = 1; order 12, 15, 16 (15 and
+  16 after 12, whose capture fixes the draw and the plan variants). Wordings wave 3's sync applies:
+  A3, A4 and A8's sentences on the Idle state, the request and the current settings (with chunk
+  16; D527), CONTRACT 17.0.0.
+
+### Wave 3 preflight (2026-11-13)
+
+- `documentalist`'s wave preflight (43cd9728): every chunk **PROCEED with notes**, no halt.
+  Captures (chunk 12), all at REVIEW, none on the contract: `module_named_stream_pseudorandomness`
+  0.7 (the per-event draw, `seventh-draw.ts`), `service_generation_orchestration` 0.7 (each plan
+  with a drawn seventh becomes its seventh variant then its triads-only variant, after the ranking
+  and the carry-in filter; `harmony-variants.ts`), `service_generation_result_validation` 0.5,
+  `module_harmony_candidate_domain` 0.5, `module_ranked_candidate_ordering` 0.8. Chunk 15's `ifk5.`
+  capture is held as C1's A3 text in the change set: `module_phrase_replay_key` is STABLE and on
+  the contract, so it changes only at the 17.0.0 sync (as wave 1 did with `module_preset_model`).
+- Wordings wave 3's sync applies, CONTRACT 17.0.0: A3 (`module_phrase_replay_key` 0.8, chunk 15),
+  A4 (`rule_seeded_phrase_reproduction` 0.4, now with chunk 12, D532), A8's Idle half
+  (`rule_choosing_preset_sets_its_settings` 0.3, `module_generative_profile_selection` 1.5,
+  `module_profile_control_customization` 1.3; chunk 16).
+- Plan corrections sent to `spec-writer` before the first chunk: plan v16 (16fdc83b), spec D532.
+  Chunk 12 has two rebuild sites (`buildHarmonyDomain`, `harmonyProvenanceFailures`):
+  `carriedHarmonyFits` takes no level and is tested to give the same answer at every level (STABLE
+  `rule_harmony_change_drops_unfit_harmonic_carry_in`); `rule_seventh_chords_diatonic_only` added to
+  its Atoms; A4 rides with chunk 12. Chunk 15 gains Revisions `entity_phrase_carry_in`,
+  `module_generation_worker_protocol` and drift checks `entity_request_rhythm_lock`,
+  `entity_steering_block`. Chunk 16: builds the routing point's level action (D532, option a: makes
+  Custom, refused in flight, saves nothing until chunk 17, called only by tests until chunk 19),
+  builds the `Start with this phrase` case (§D8.3, D519, ux D481; the stale-phrase prompt names
+  "Seventh chords"), gains seven files (Jam's `SessionSettings` is `fresh-jam-settings.ts`, not
+  `jam-settings.ts`), Revisions `module_generation_request_construction`,
+  `module_idle_pregeneration_queue`, `service_session_engine`, drift checks
+  `service_idle_generation_session`, `module_session_pregeneration_plan`, and splits 16a–16c.
+- Put to the owner: O1, may the 17.0.0 sync update STABLE `module_settings_mutation`'s interface
+  line (the settings shape gains the level; no guarantee changes)? Open: O2,
+  `module_tension_arc_cycle`'s stale "`ifk1.`" (O230), unchanged. If chunk 15 ever leaves the wave,
+  the confirmed 17.0 contract paragraph (A3 and A4 in one sentence) would need splitting with the
+  owner's confirmation.
+
+### Chunk 12 merged (2026-11-13)
+
+- 2a0317b9 (733af8ee 12a: `seventh-draw.ts`, `harmony-variants.ts`, the census's
+  `drawnSeventhsOf`; b3b4af6a 12b: both rebuild sites, the walks, the fit check's tests,
+  `docs/music/harmony-planner-policy.md`). Every Done-when item evidenced; corpus guard 18 files /
+  500 tests green; reduced census shares 0 / 0.32 / 0.54 / 1.0; the joined-phrase property: 144
+  phrases (108 joined), 0 invalid, 2 ending on the final chord's seventh.
+- Deviation in naming only: the orchestrator's rebuild site is `searchedHarmonyOrder`, since
+  `buildHarmonyDomain` stays level-free (capture `module_harmony_candidate_domain` 0.5).
+- For `spec-writer` at the gate: the Scope line's rebuild-site name; the generator contract from the
+  chunk's report (per level: Off the triads; above Off each event its triad or its degree's
+  root-position seventh chord, maj7/m7/7/m7♭5, drawn about 1 in 4, 1 in 2, every event; plans
+  Off's at every level; all or none per phrase); **chunk 18**: M1's census population takes its
+  seeds from `carry-in-matrix` `SEEDS` (7 and 13 only), so Sometimes and Favored draw nearly the
+  same events and their shares come out nearly equal; the census property gives each phrase its own
+  seed. Chunk 17 already owns `kept-phrase-parsers.ts` reading a seventh.
+- Gate notes: `lint:health` warnings (`planner-validator-property.spec.ts` at 459 effective lines;
+  `generation-orchestrator.ts` links 9 atoms). Sync: links placed on the eight v3.3 rules and the
+  five captures; `buildIntent` in the carry-in fixture takes an optional `chordFamilies`.
+- Figures: 1 agents, 105 tool calls, 18.9M tokens in / 104k out, max context 286k, $7.15 at API
+  prices.
+
+### Chunk 15 merged (2026-11-13)
+
+- e0d5b7c2 (3b6522cf 15a the key; ed656b70 15b the report and the tool). Every key is `ifk5.`
+  (`ifk4.`'s tuple plus the level at slot 9; a carried seventh); `ifk1.`–`ifk4.` decode at Off,
+  triad-only; `ifk6.` unsupported; the `ifk4.` writer is test-only (`ifk4-key-writer.ts`). Replay
+  tool by hand on each version: seventh qualities and four notes printed (Cmaj7, Em7, Dm7, G7,
+  Bm7♭5). Corpus guard 16 files / 465 tests green; related 41 files / 414 tests; e2e replay specs
+  green in Chromium. `reviewer` OKAY (the key is on the contract).
+- H3 left for the owner: no `msedge` on this machine; written into `HARDWARE-CHECKLIST.md`'s new
+  v3.3 part with a ready Mostly key (built from the format, since the app sends Off until 19).
+- For `spec-writer` at the gate: (1) no request above Off falls back to triads through a key and
+  the worker (about 2,700 Mostly phrases; only with injected deps), so the in-browser test's
+  "triads fallback" phrase is a Sometimes phrase whose plan stays triads (seed 4246); (2) H3's Edge
+  half and the plan's "Chrome and Edge" for item 18 disagree with the spec (item 18 says Chrome;
+  Edge waived by D399).
+- For the sync: stale key-version wording in the contract atom (line 56, "`ifk4.`"),
+  `entity_phrase_carry_in`, `module_generation_worker_protocol`, `service_headless_phrase_replay`
+  (report holds `chordFamilies` and the seventh); `rule_jam_and_lock_off_reproduce_earlier_phrases`
+  unchecked; drift checks `entity_request_rhythm_lock`, `entity_steering_block`: none.
+- Gate notes: the sweep's lock census now replays `ifk5.` keys; `lint:health` warning
+  (`deterministic-replay.spec.ts` 409 lines); `phrase-replay-key-decode.ts` at the 10-atom limit.
+- Figures: 3 agents, 177 tool calls, 27.6M tokens in / 125k out, max context 287k, $10.32 at API
+  prices.
+
+### Chunk 16 merged (2026-11-13)
+
+- 38295847 (f95a0f03 16a the Idle state and the routing point; 333ec35f 16b the session settings
+  everywhere; 5eadbffa 16c the out-of-date comparison and pre-generation). The first owner stopped
+  on an API authentication error after 16a (the owner logged in again); the driver WIP-committed
+  the tree (5a834e80, 16b in progress plus a coding-executor's fixture sweep over 38 test files) and
+  a fresh owner resumed, re-split into one commit per part. Every Done-when item evidenced, 16c's
+  tests seen red first; corpus guard 19 files / 505 tests green; `pregeneration.spec.ts` e2e 14
+  green; debug run: the prompt reads "Since it was made, you changed Seventh chords and Contour."
+- Test plumbing: the workspace harness gains `setChordFamilyLevel` (the routing point until chunk
+  19's control) and each request record holds `chordFamilies` (`docs/testing.md`).
+- For the sync: stale lines in `module_settings_mutation` (owner question O1),
+  `module_idle_pregeneration_queue`, `rule_pregeneration_discarded_on_change`,
+  `rule_stale_phrase_prompt_at_start`, `service_idle_generation_session`,
+  `module_generation_request_construction`, `service_session_engine`; A8's Idle half built.
+- For `spec-writer` (chunk 18): `tests/sweep/seventh-levels.ts` and `docs/generation-latency.md`
+  §Seventh chords still say the level can't be measured until chunk 16; `MEASURABLE_SEVENTH_LEVELS`
+  stays at Off.
+- Gate: the sweep (the Jam ladder and sweep cases changed; equal intents at Off by value).
+  `lint:health` warning: `session-pregeneration-identity.spec.ts` 423 lines, 9 atoms.
+- Risk until chunk 17: choosing a preset that differs only in the level saves the selection but
+  not the level, so a reload restores it at Off; unreachable before chunk 19.
+- Figures: 3 agents, 284 tool calls, 46.7M tokens in / 162k out, max context 271k, $15.46 at API
+  prices.
+
+### Wave 3 gate (2026-11-13, green on d0bd0187)
+
+- Machine armenelos (12 cores, 11 GiB, Linux 6.12), 2026-11-13. Run 1 red at `lint:health`:
+  `session-intents.ts` linked 11 atoms after chunk 16b's link; fixed in d84bed91
+  (`sessionFigureLevels`, `figuresWithChangedLevels` moved unchanged to `session-figure-levels.ts`).
+- Runs 2 and 3: the pre-generation-on e2e lane failed 2 of 2 on
+  `session-midi-start.spec.ts:392` (item 22's failure banner). Traced, not waved through: the same
+  generate calls on b8e291e8 and d84bed91 (1 click, 4 background attempts, no discard), the key
+  compared by value; the cause is the harness's armed `failNextGeneration` taken by whichever call
+  reaches it first, and the unchanged test fails on `main` too (1 in 40 under load). A pre-existing
+  race, not a wave 3 regression. Fixed in the tests, assertions unchanged: e06bfeac (item 22) and
+  11155994 (`session-start-conditions.spec.ts:114`, ISS-016's own test, which failed the same way
+  in run 4); ISS-016 extended (a5b0991f, d0bd0187), eight more specs that arm a failure without
+  holding background attempts listed there.
+- Final: `npm run quality` green on d0bd0187 (`w3-gate-5.log`): unit 10,027 in 645 files, e2e
+  728 + 1 skipped in each lane, a11y 76, notation 107 + 4 skipped, `atd:lint` and `atd:check`.
+  One unrelated flake in a lane rerun: `review-suggestion.spec.ts:158` (the decline lost across a
+  reload; 24/24 alone; untouched since v3.2 wave 6; no issue filed yet).
+- Sweep: 125 in 11 files (wave 2's 122 plus 3 new census tests from chunks 12 and 16); every
+  `SWEEP-` line equals wave 2's, so v3.2's figures at Off; the lock census replays `ifk5.` keys.
+- Bundle: entry chunk 314,692 B, +796 B on wave 2's 313,896 B (budget 327,680 B); Jam's chunk
+  61,225 B.
+- `spec-writer`, plan v17 (7f30949b), spec D533: chunk 12's Scope names `searchedHarmonyOrder`;
+  the generator contract (`specs/generator-contract.md`) says what each level offers; chunk 18's M1
+  census gives each phrase its own seed (D533) and fixes the stale "until chunk 16" text; chunk
+  15's in-browser phrase wording; H3 is now "Same phrase in Chrome", after chunk 19 (D399); chunk
+  17 saves the level with the selection. For wave 4's preflight: M2's `cost-guard` and `jam-sweep`
+  also read seeds 7 and 13 only above Off.
+- The owner, 2026-11-13, on O1: "yes, update module_settings_mutation at the sync" (the interface
+  line's settings shape gains the level under 17.0.0; no guarantee changes).
+
+### Wave 3 sync and report (2026-11-13)
+
+- `documentalist`'s wave sync (f09422b3, 77fdbc38): **CONTRACT 17.0.0**; C1 A3
+  (`module_phrase_replay_key` 0.8), A4 (`rule_seeded_phrase_reproduction` 0.4) and A8's Idle half
+  (`rule_choosing_preset_sets_its_settings` 0.3, `module_generative_profile_selection` 1.5,
+  `module_profile_control_customization` 1.3), with `--force` on the owner's confirmation (D526);
+  O1 on the owner's ruling: `module_settings_mutation` 0.7 (the settings shape gains
+  `chordFamilies`). Every merged chunk's Revisions applied (chunk 12's captures to their built
+  names, `searchedHarmonyOrder`; chunk 15's `entity_phrase_carry_in` 0.10 with the false "`ifk3.`
+  encoder" clause removed on the driver's decision, `module_generation_worker_protocol`,
+  `service_headless_phrase_replay`, `rule_jam_and_lock_off_reproduce_earlier_phrases`; chunk 16's
+  eight). Drift fixed: `module_session_pregeneration_plan` 0.5, `module_session_carry_in_after_change`
+  0.4 (the gate's file move). 164 links placed across the wave, every one above its target. No
+  status changed. Contract line 56 ("`ifk4.`") left: it records the 10.0 bump; the 17.0 paragraph
+  says `ifk5.`. O2 (O230) still open.
+- Driver decision: the level's change at the routing point is saved by nobody until chunk 17
+  (D532); STABLE `module_profile_control_customization`'s EXPECTATION ("every edit … hands what it
+  changed to the settings saver") keeps its wording, since no control reaches the action before
+  chunk 19; the atom's interface states the built fact. Chunk 17's sync rewrites that sentence.
+- Promotion candidates put to the owner (DRAFT → REVIEW): `rule_seventh_chords_level_never_a_quota`,
+  `rule_triad_fallback_per_phrase`, `rule_seventh_chords_keep_the_chord_plan`,
+  `rule_seventh_chance_same_at_every_degree`, `rule_rhythm_lock_tries_both_forms`,
+  `rule_vary_settings_never_moves_seventh_chords_level`; optional
+  `rule_seventh_chords_off_changes_nothing` (true now; Jam's level comes with chunk 23).
+- `doc-ids compare main v3.3-w3`: 0 collisions.
+- Report to the owner: chunks 12, 15 and 16 merged, none moved; the gate green on d0bd0187 after
+  the `lint:health` fix and two test-race fixes (ISS-016, a pre-existing race, not a regression);
+  sweep at v3.2's figures; entry 314,692 B (+796 B); CONTRACT 17.0.0; D532, D533 told. Merge into
+  `main` on the owner's word.
+
+#### Wave 3 figures
+
+##### v3.3 wave 3
+
+- Time: 2026-11-13 09:28 → 2026-11-13 14:05 (4h36)
+- Agents: 14 · tool calls: 1,100 · model turns: 1,084
+- Tokens in: 152.0M (fresh 2k, cache write 2.7M, cache read 149.3M) · out: 706k
+- Max context: 287k (coding-leader: Chunk 15: replay key ifk5)
+- Cost: $58.29 at API list prices (checked 2026-11-12)
+- Ends: at its last tagged agent (not merged yet)
+- Not counted: other top-level sessions active in the window, with no agent of this wave: 30c07e13
+
+##### By role
+
+| role               | agents | calls | tokens in |  out |   cost | share | max ctx |
+| ------------------ | -----: | ----: | --------: | ---: | -----: | ----: | ------: |
+| coding-leader      |      4 |   490 |     88.2M | 347k | $29.65 |   51% |    287k |
+| coding-executor    |      4 |   222 |     18.5M | 112k |  $8.61 |   15% |    150k |
+| documentalist      |      2 |   167 |     21.6M | 103k |  $8.36 |   14% |    231k |
+| driver (top level) |      1 |    67 |     10.1M |  56k |  $5.48 |    9% |    203k |
+| spec-writer        |      2 |   133 |     12.5M |  79k |  $5.42 |    9% |    146k |
+| reviewer           |      1 |    21 |      1.0M |   8k |  $0.77 |    1% |     83k |
+
+##### By chunk
+
+| chunk          | agents | calls | tokens in |  out |   cost | share | max ctx |
+| -------------- | -----: | ----: | --------: | ---: | -----: | ----: | ------: |
+| 12             |      1 |   105 |     18.9M | 104k |  $7.15 |   12% |    286k |
+| 15             |      3 |   177 |     27.6M | 125k | $10.32 |   18% |    287k |
+| 16             |      3 |   284 |     46.7M | 162k | $15.46 |   27% |    271k |
+| outside chunks |        |       |           |      | $25.35 |   43% |         |
+
+##### By activity (tool calls)
+
+| activity    | calls | share | writes | results |
+| ----------- | ----: | ----: | -----: | ------: |
+| dispatch    |    14 |    1% |        |     14k |
+| doc-get     |    47 |    4% |        |    177k |
+| plan        |    93 |    8% |     26 |    218k |
+| spec        |    13 |    1% |      1 |     41k |
+| design      |     1 |    0% |        |      3k |
+| intent      |    77 |    7% |      7 |    246k |
+| other docs  |    80 |    7% |     17 |    359k |
+| source      |   385 |   35% |     57 |    1.4M |
+| checks      |   190 |   17% |        |    221k |
+| git         |    81 |    7% |        |    184k |
+| shell other |    97 |    9% |      9 |    281k |
+| skills      |     7 |    1% |        |     244 |
+| other files |     2 |    0% |        |     38k |
+| other tools |    13 |    1% |        |     793 |
+
+##### Largest contexts
+
+| agent         |                         task | calls | max ctx |  cost |
+| ------------- | ---------------------------: | ----: | ------: | ----: |
+| coding-leader |    Chunk 15: replay key ifk5 |   126 |    287k | $8.04 |
+| coding-leader | Chunk 12: level orders plans |   105 |    286k | $7.15 |
+| coding-leader |    Chunk 16: resume from WIP |   161 |    271k | $8.75 |
+| coding-leader |   Chunk 16: level in session |    98 |    256k | $5.70 |
+| documentalist |           Wave 3 intent sync |    99 |    231k | $4.99 |
+
+- The owner, 2026-11-13: "ok, merge and promote. we will wait for the optional rule, as it will
+  be handled later and file the issue." The six rules went to REVIEW in 8ca211b6 (all six with
+  spec- and test-links; `atd lint` clean). `rule_seventh_chords_off_changes_nothing` stays DRAFT
+  until Jam's own level (chunk 23). The review-suggestion flake is filed as ISS-018 (b3e04a96).
+  Not pushed (the owner didn't ask). Next: wave 4 (chunks 13, 14, 17, 18) in a fresh session. Its
+  preflight raises M2's seeds (`cost-guard`, `jam-sweep` use only seeds 7 and 13 above Off), and
+  its sync applies A5–A7 and A9's presets (CONTRACT 18.0.0). O2 (`module_tension_arc_cycle`'s
+  "`ifk1.`", O230) stays open.

@@ -1,6 +1,6 @@
 ---
 id: rule_seventh_chance_same_at_every_degree
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.3, generation, chords]
 parents:
   - [[req_seventh_chords_level]]
@@ -8,7 +8,8 @@ layer: BUSINESS
 version: 0.1
 priority: 1
 human_name: Every Chord Has the Same Chance of Its Seventh
-dependents: []
+dependents:
+  - [[module_named_stream_pseudorandomness]]
 type: RULE
 ---
 
