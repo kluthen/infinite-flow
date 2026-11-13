@@ -599,3 +599,8 @@ archived range D407–D509 that its archive notice lists.
   chunk 19 and 19.0.0. Now in: [build plan v3.3, C1](versions/v3/build-plan-v3.3.md#gates), chunks
   [12](versions/v3/build-plan-v3.3.md#chunk-12--the-level-orders-the-plans) and
   [16](versions/v3/build-plan-v3.3.md#chunk-16--the-level-in-a-session-and-in-pre-generation).
+- **D533 (2026-11-13): M1 gives each phrase a seed of its own**, the same at the four levels; D281's
+  count is unchanged, M2 and the other sweeps keep seeds 7 and 13. The draw reads only the seed and
+  the event's start, so those two give M1 16 draw bytes and Sometimes and Favored nearly equal
+  shares (chunk 12's report). Now in: [build plan v3.3, M1](versions/v3/build-plan-v3.3.md#m1--the-seventh-share) and
+  [chunk 18](versions/v3/build-plan-v3.3.md#chunk-18--measurements-first-run-shares-cost-guard-and-ending-examples).
