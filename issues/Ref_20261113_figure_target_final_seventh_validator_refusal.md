@@ -4,7 +4,7 @@
 **Ref:** `ISS-019`
 **Date:** 2026-11-13
 **Severity:** Medium
-**Status:** Open
+**Status:** Resolved
 **Component:** `src/domain/pitch/pitch-candidates.ts`
 **Affects:** `src/domain/pitch/validation/phrase-facts.ts`, `src/domain/pitch/validation/figure-rules.ts`, `src/session/failure-ladder.ts` (joined attempts at a Seventh chords level above Off with chromatic figures on, e.g. the built-in Bebop preset)
 
@@ -121,3 +121,23 @@ lower) onto a final note on its chord's seventh.
 - `tests/sweep/cost-guard.measure.ts` (`npm run measure:cost`, `COST_SETTINGS=sevenths`)
 - [Seventh chords: the cost guard](../docs/generation-latency.md#seventh-chords-the-cost-guard)
 - Master spec D6.3 (endings read the triad), D10 (the cost guard)
+
+---
+
+## Change Log
+
+- **2026-11-13**: Resolved in v3.3 chunk 5's second addendum (spec D535), on `v3.3-w4`, the
+  medium-term fix above. In `src/domain/pitch/pitch-candidates.ts` the five figure paths
+  (`boundPaths`, Tension's scheduled figure; `approachPaths` and `enclosurePaths`, through
+  `chromaticApproachPaths`; `appoggiaturaPaths`; `diatonicEnclosurePaths`) take their goal from
+  `figureGoalMidis(facts, target)`, which reads `figureGoalPitchClasses(target)`
+  (`src/domain/pitch/pitch-types.ts`): the target's `triadPitchClasses` on the final attack, its
+  `chordPitchClasses` elsewhere. The free domains' cache key reads the targets' goal tones. The
+  final note's own candidates and the validator are unchanged; inside the phrase a figure still
+  resolves onto the seventh. Guarded by named tests in
+  `tests/unit/domain/pitch/pitch-candidates.spec.ts` (each figure kind over the final attack of a
+  hand-built Cmaj7 plan) and `tests/unit/generation-worker/phrase-replay-key-final-figure.spec.ts`
+  (the key above now replays to a phrase). The corpus guard and the goldens pass unchanged. Re-run
+  ([the record](../docs/generation-latency.md#iss-019-fixed-a-figures-goal-on-the-final-attack-v33-chunk-5-second-addendum)):
+  Bebop's `result_validation_failed` is 0 at every level (30, 68 and 102 before; 105 in the cost
+  runner at Strongly favored), every phrase generated.
