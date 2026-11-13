@@ -584,3 +584,94 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   also read seeds 7 and 13 only above Off.
 - The owner, 2026-11-13, on O1: "yes, update module_settings_mutation at the sync" (the interface
   line's settings shape gains the level under 17.0.0; no guarantee changes).
+
+### Wave 3 sync and report (2026-11-13)
+
+- `documentalist`'s wave sync (f09422b3, 77fdbc38): **CONTRACT 17.0.0**; C1 A3
+  (`module_phrase_replay_key` 0.8), A4 (`rule_seeded_phrase_reproduction` 0.4) and A8's Idle half
+  (`rule_choosing_preset_sets_its_settings` 0.3, `module_generative_profile_selection` 1.5,
+  `module_profile_control_customization` 1.3), with `--force` on the owner's confirmation (D526);
+  O1 on the owner's ruling: `module_settings_mutation` 0.7 (the settings shape gains
+  `chordFamilies`). Every merged chunk's Revisions applied (chunk 12's captures to their built
+  names, `searchedHarmonyOrder`; chunk 15's `entity_phrase_carry_in` 0.10 with the false "`ifk3.`
+  encoder" clause removed on the driver's decision, `module_generation_worker_protocol`,
+  `service_headless_phrase_replay`, `rule_jam_and_lock_off_reproduce_earlier_phrases`; chunk 16's
+  eight). Drift fixed: `module_session_pregeneration_plan` 0.5, `module_session_carry_in_after_change`
+  0.4 (the gate's file move). 164 links placed across the wave, every one above its target. No
+  status changed. Contract line 56 ("`ifk4.`") left: it records the 10.0 bump; the 17.0 paragraph
+  says `ifk5.`. O2 (O230) still open.
+- Driver decision: the level's change at the routing point is saved by nobody until chunk 17
+  (D532); STABLE `module_profile_control_customization`'s EXPECTATION ("every edit … hands what it
+  changed to the settings saver") keeps its wording, since no control reaches the action before
+  chunk 19; the atom's interface states the built fact. Chunk 17's sync rewrites that sentence.
+- Promotion candidates put to the owner (DRAFT → REVIEW): `rule_seventh_chords_level_never_a_quota`,
+  `rule_triad_fallback_per_phrase`, `rule_seventh_chords_keep_the_chord_plan`,
+  `rule_seventh_chance_same_at_every_degree`, `rule_rhythm_lock_tries_both_forms`,
+  `rule_vary_settings_never_moves_seventh_chords_level`; optional
+  `rule_seventh_chords_off_changes_nothing` (true now; Jam's level comes with chunk 23).
+- `doc-ids compare main v3.3-w3`: 0 collisions.
+- Report to the owner: chunks 12, 15 and 16 merged, none moved; the gate green on d0bd0187 after
+  the `lint:health` fix and two test-race fixes (ISS-016, a pre-existing race, not a regression);
+  sweep at v3.2's figures; entry 314,692 B (+796 B); CONTRACT 17.0.0; D532, D533 told. Merge into
+  `main` on the owner's word.
+
+#### Wave 3 figures
+
+##### v3.3 wave 3
+
+- Time: 2026-11-13 09:28 → 2026-11-13 14:05 (4h36)
+- Agents: 14 · tool calls: 1,100 · model turns: 1,084
+- Tokens in: 152.0M (fresh 2k, cache write 2.7M, cache read 149.3M) · out: 706k
+- Max context: 287k (coding-leader: Chunk 15: replay key ifk5)
+- Cost: $58.29 at API list prices (checked 2026-11-12)
+- Ends: at its last tagged agent (not merged yet)
+- Not counted: other top-level sessions active in the window, with no agent of this wave: 30c07e13
+
+##### By role
+
+| role               | agents | calls | tokens in |  out |   cost | share | max ctx |
+| ------------------ | -----: | ----: | --------: | ---: | -----: | ----: | ------: |
+| coding-leader      |      4 |   490 |     88.2M | 347k | $29.65 |   51% |    287k |
+| coding-executor    |      4 |   222 |     18.5M | 112k |  $8.61 |   15% |    150k |
+| documentalist      |      2 |   167 |     21.6M | 103k |  $8.36 |   14% |    231k |
+| driver (top level) |      1 |    67 |     10.1M |  56k |  $5.48 |    9% |    203k |
+| spec-writer        |      2 |   133 |     12.5M |  79k |  $5.42 |    9% |    146k |
+| reviewer           |      1 |    21 |      1.0M |   8k |  $0.77 |    1% |     83k |
+
+##### By chunk
+
+| chunk          | agents | calls | tokens in |  out |   cost | share | max ctx |
+| -------------- | -----: | ----: | --------: | ---: | -----: | ----: | ------: |
+| 12             |      1 |   105 |     18.9M | 104k |  $7.15 |   12% |    286k |
+| 15             |      3 |   177 |     27.6M | 125k | $10.32 |   18% |    287k |
+| 16             |      3 |   284 |     46.7M | 162k | $15.46 |   27% |    271k |
+| outside chunks |        |       |           |      | $25.35 |   43% |         |
+
+##### By activity (tool calls)
+
+| activity    | calls | share | writes | results |
+| ----------- | ----: | ----: | -----: | ------: |
+| dispatch    |    14 |    1% |        |     14k |
+| doc-get     |    47 |    4% |        |    177k |
+| plan        |    93 |    8% |     26 |    218k |
+| spec        |    13 |    1% |      1 |     41k |
+| design      |     1 |    0% |        |      3k |
+| intent      |    77 |    7% |      7 |    246k |
+| other docs  |    80 |    7% |     17 |    359k |
+| source      |   385 |   35% |     57 |    1.4M |
+| checks      |   190 |   17% |        |    221k |
+| git         |    81 |    7% |        |    184k |
+| shell other |    97 |    9% |      9 |    281k |
+| skills      |     7 |    1% |        |     244 |
+| other files |     2 |    0% |        |     38k |
+| other tools |    13 |    1% |        |     793 |
+
+##### Largest contexts
+
+| agent         |                         task | calls | max ctx |  cost |
+| ------------- | ---------------------------: | ----: | ------: | ----: |
+| coding-leader |    Chunk 15: replay key ifk5 |   126 |    287k | $8.04 |
+| coding-leader | Chunk 12: level orders plans |   105 |    286k | $7.15 |
+| coding-leader |    Chunk 16: resume from WIP |   161 |    271k | $8.75 |
+| coding-leader |   Chunk 16: level in session |    98 |    256k | $5.70 |
+| documentalist |           Wave 3 intent sync |    99 |    231k | $4.99 |
