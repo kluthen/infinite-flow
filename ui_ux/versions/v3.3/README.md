@@ -44,9 +44,10 @@ the new chords in words.
   symbol would look for its cause, not among the figures that decorate the melody.
   ([strategy, Trade-offs](strategy.md#trade-offs),
   [phrase-workspace intent](screens/phrase-workspace/intent.md#seventh-chords))
-- **Labels for what the player hears: Off, Sometimes, Often, Mostly.** The figure levels' look,
-  with "Often" meaning the same rank in both; "Mostly" says honestly that a plain chord still
-  comes where no seventh fits. What is saved and sent names the spec's level, never the label.
+- **Labels for what the player hears: Off, Sometimes, Often, Always.** The figure levels' look,
+  with "Often" meaning the same rank in both; "Always" says what the top step plays, every chord a
+  seventh chord, as the build's first measurements showed (approved as "Mostly", corrected before
+  the control was built). What is saved and sent names the spec's level, never the label.
   ([phrase-workspace intent](screens/phrase-workspace/intent.md#seventh-chords),
   [phrase-workspace handoff](screens/phrase-workspace/handoff.md#components-and-content))
 - **A preference, never a promise.** A phrase with fewer seventh chords than the level suggests is

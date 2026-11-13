@@ -241,3 +241,21 @@ applies (D119, D135, archived; spec D414).
   routing kept in stage sections (kept-sessions, review-and-export, saved-data), and
   controller-connection's and phrase-workspace's focus rules outside a Focus and Keyboard section.
   Now in: the dev team's `references/ui-ux-docs.md`, checked by `doc-get lint ui`.
+
+## v3.3's build: the first measured shares, 2026-11-13
+
+- **D485 (2026-11-13): gate U1a: the top label becomes `Always`; Off, Sometimes and Often stay
+  (corrects D254's top label; build plan v3.3's U1a).** Chunk 18's first run
+  (`docs/generation-latency.md`): 25.3 % sevenths at Sometimes, 50.3 % at Often, 100 % at Strongly
+  favored, no fallback; §D5.2 tries a seventh at every event, so the top step is every chord.
+  "Mostly" promised triads the player never hears; a rare whole-phrase fallback stays covered by
+  the note's "never a promise". Wording only (saved data names the spec's level), so applied at
+  the root and in `versions/v3.3/` alike, before chunk 19. Now in:
+  `screens/phrase-workspace/handoff.md` (Seventh chords), its `intent.md`, `strategy.md`,
+  `versions/v3.3/README.md`. U1b rechecks on the final shares.
+- **D486 (2026-11-13): the space VexFlow draws between a chord's root and its suffix is tolerated
+  in v3.3 and left as a follow-up.** The Notation Contract writes a symbol as one word (`Cmaj7`,
+  `G7`, `Bm7♭5`), as in print; "C maj7" is not that, but breaks no rule a player relies on: the
+  symbol is whole, on one baseline, and its full width counts toward fit, so nothing overlaps.
+  Shipped since v3.2 ("A m"); chunk 14 left it. A later chunk sets the suffix against the root
+  (narrower symbols only ease fit), and the contract then says so. Now in: `todo.md` (Remaining).

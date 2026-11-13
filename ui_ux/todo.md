@@ -82,7 +82,8 @@ D252-D264, D477-D479; Q77 closed by spec D275 as recommended (ux D264). No `src/
 token (ux D261). Approved by the owner at the build plan's gate D0 on 2026-11-09 (ux D482).
 
 - **Unit S — the whole of v3.3, in one pass** (ux D262): the Seventh chords level (foundation
-  group, after Harmonic motion; Off, Sometimes, Often, Mostly; its note), presets holding it and
+  group, after Harmonic motion; Off, Sometimes, Often, Mostly, the top label now Always, ux D485;
+  its note), presets holding it and
   three descriptions suggesting it, Vary settings' note, saved settings and loading, the seventh
   chord symbols' look, fit and spoken words, and the review's and files' chords. Files:
   `strategy.md`, `README.md`, `screens/phrase-workspace/`, `flows/presets/`,
@@ -137,6 +138,12 @@ Carried forward from v3.2:
   finding that changes the design corrects the root and `versions/v3.2/` alike, recorded in
   `decisions.md` (ux D480).
 
+Carried forward from v3.3's build:
+
+- **The space between a chord's root and its suffix** (ux D486): VexFlow draws "C maj7", "A m";
+  a later chunk sets the suffix against the root, and the Notation Contract
+  (`screens/phrase-workspace/handoff.md`, Seventh chord symbols) then says so.
+
 Carried forward from v3.0:
 
 - **A stricter range check for my instrument** (master spec §14, spec O180, still open): if one
@@ -149,10 +156,10 @@ Not scheduled:
 
 ## Next Unit
 
-v3.3: approved at gate D0 (ux D482), frozen in `versions/v3.3/`; next is its build. At the build, the
-recorded seventh-chord shares come back here twice to confirm the labels, "Mostly" above all (ux
-D254, D264): after the first measurement, before the control is built, and on the final shares at
-the release gate. A symbol calibration failure, or a triad layout that counting the symbols' widths
+v3.3: approved at gate D0 (ux D482), frozen in `versions/v3.3/`; in its build. U1a done on chunk
+18's first shares: Off, Sometimes, Often kept, the top label now Always (ux D485). Next here is
+U1b: the labels confirmed again on the final shares, after chunk 20 if built and L2's tuning, at
+the release gate (ux D254, D264, D485). A symbol calibration failure, or a triad layout that counting the symbols' widths
 would move, also comes back here (ux D258, D264). A build correction to the design is applied at
 the root and to `versions/v3.3/` alike, and recorded.
 
