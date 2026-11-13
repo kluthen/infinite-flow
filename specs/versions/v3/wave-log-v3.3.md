@@ -855,3 +855,22 @@ render:seventh-endings` command.
   sync.
 - Next: `documentalist` peek over the addendum's files (an inserted piece of work after the
   preflight), then the addendum, then the wave gate.
+
+### Chunk 5's second addendum merged (2026-11-13)
+
+- `documentalist`'s peek (69f1e129): PROCEED; `module_pitch_search_context` 0.6 names the final
+  attack's figure goal. No atom made untrue. Optional, for the owner: three BUSINESS rules say a
+  figure "may land on its seventh" without "short of the final note"
+  (`rule_figures_resolve_onto_chord_tones`, `rule_embellishment_figures_defined`,
+  `rule_levels_govern_free_figures_only`), and `rule_open_phrase_ending` (STABLE, pre-v3.3) says
+  figures "resolve before the final sounding event" where "by" may be meant.
+- b3015566 (e8441a11), by a `coding-executor`: `figureGoalPitchClasses(target)` (`pitch-types.ts`,
+  linked; `pitch-candidates.ts` is at the 10-atom limit) gives the triad on the final attack, chord
+  tones elsewhere; the five figure paths read it through `figureGoalMidis`; `freeDomainKey` keys on
+  the goal tones (a cache fix). Named tests red before (6), green after; ISS-019's key replays to
+  `generation_success`. Bebop over 568 cases at 60, 120, 240 BPM: `result_validation_failed`
+  0 / 30 / 68 / 102 → 0 at every level, every phrase generated; the cost runner's Bebop at
+  Strongly favored 105 → 0, failed joins 56 / 56 / 49 → 0. Other settings: only Neutral at
+  Favored `no_legal_pitch_plan` 40 → 41 (timing; Neutral has no figure path onto the final
+  attack). Corpus guard 26 files, 678 tests unchanged; no above-Off replay key moved (L1's 15 byte
+  for byte). ISS-019 resolved.

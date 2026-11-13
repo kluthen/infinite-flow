@@ -840,7 +840,7 @@ Chunk 7 in this wave builds on it.
   `pitch-figures.ts`, the decorating notes and Tension's scheduled figure in
   `pitch-candidates.ts`).
 
-Record: eae28948 (7b89fa89; C1: spec D526). The final check reads the candidate, not only its MIDI (`mayEndPhrase`), and the final note's chord-tone fact reads the triad, so the seventh ends a phrase only as a tense note. Open point reported to `spec-writer` (wave log, chunk 5): §D6.3's leap recovery owed across the join "settles on a note of the tonic triad", which the capture does not name and the search never enforced. Addendum (D530): f77acbc7 (1a2a68b2), refusal `carried_recovery_on_seventh`.
+Record: eae28948 (7b89fa89; C1: spec D526). The final check reads the candidate, not only its MIDI (`mayEndPhrase`), and the final note's chord-tone fact reads the triad, so the seventh ends a phrase only as a tense note. Open point reported to `spec-writer` (wave log, chunk 5): §D6.3's leap recovery owed across the join "settles on a note of the tonic triad", which the capture does not name and the search never enforced. Addendum (D530): f77acbc7 (1a2a68b2), refusal `carried_recovery_on_seventh`. Second addendum (D535, ISS-019, wave 4): b3015566 (e8441a11); the rule is `figureGoalPitchClasses(target)` in `pitch-types.ts` (the link's home: `pitch-candidates.ts` sits at the 10-atom limit), which `figureGoalMidis` reads; `freeDomainKey` now keys on the goal tones, so rhythms differing only in the final attack share no cached domain. Bebop `result_validation_failed` 30 / 68 / 102 → 0, no replay key moved.
 
 ### Chunk 6 — The validator reads the seventh as a chord tone
 
