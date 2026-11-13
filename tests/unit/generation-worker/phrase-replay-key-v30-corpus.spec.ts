@@ -23,12 +23,12 @@ import {
   TENSION_ARCS,
 } from '@/domain/controls/generation-controls'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
-import { encodePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
 import {
   decodePhraseReplayKey,
   type DecodedPhraseReplayKey,
 } from '@/generation-worker/phrase-replay-key-decode'
 import { replayDecodedPhraseKey } from '@/generation-worker/phrase-replay'
+import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
 /** One recorded case: its label, its replay key and the timeline the key replayed to. */
 interface CorpusCase {
@@ -187,7 +187,7 @@ describe('v3.0 replay-key corpus (ifk1 and ifk2) recorded on v3.0.0', () => {
   it('decodes every key and its ifk4 re-encoding decodes to an equal intent', () => {
     for (const corpusCase of CORPUS.cases) {
       const decoded = decodePhraseReplayKey(corpusCase.key)
-      const reEncoded = encodePhraseReplayKey(decoded.intent, decoded.phraseNumber)
+      const reEncoded = encodeIfk4PhraseReplayKey(decoded.intent, decoded.phraseNumber)
       expect(reEncoded.startsWith('ifk4.'), corpusCase.label).toBe(true)
       const again = decodePhraseReplayKey(reEncoded)
       expect(again.keyVersion, corpusCase.label).toBe('ifk4')

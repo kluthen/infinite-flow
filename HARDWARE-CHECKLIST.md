@@ -917,3 +917,39 @@ change made before the release gate. Run it after wave 7.
       Stop mid-phrase: everything fades at once, the guides' ringing notes included.
 - [ ] Reload the page: both guides' switches and volumes come back as you left them.
 - [ ] Report, with any voice to tune. Pass on your word.
+
+# v3.3 hand checks
+
+Build plan [Hand checks](specs/versions/v3/build-plan-v3.3.md#hand-checks): each check is written
+here by the chunk that needs it. This part opens with H3; the others are added by their chunks.
+
+## v3.3 H3. Same phrase in Edge (chunk 15; about 10 min)
+
+The reference machine, from the repo, in a worktree holding chunk 15. Edge must make the same
+phrase as Chrome from the same `ifk5.` replay key. The spec run below replays hand-written
+`ifk5.` keys (a Mostly phrase, a Sometimes phrase, a Sometimes phrase whose chords all stay
+triads, and a phrase joined after a carried seventh chord) and a slice of the recorded older keys
+in Edge's own generation worker, and replays your key in Edge, checking each against the headless
+replay of the same key. Until the Seventh chords control ships (chunk 19) the app always sends
+Off, so the Mostly key is not copied from a Chrome session: the one below was made with the
+replay tool's key format (seed 4242, C major, Settled, Mostly) and replays in Chrome
+(Chromium) to the same phrase as the headless replay, checked by chunk 15.
+
+- [ ] Once: install Microsoft Edge, from its website or with `npx playwright install msedge`
+      (it may ask for your password).
+- [ ] `npm run build`, then run:
+
+      ```sh
+      INFINITE_FLOW_BROWSER_CHANNEL=msedge INFINITE_FLOW_REPLAY_KEY='ifk5.WyJzZXZlbnRocy00MjQyIiw0MjQyLFs5MCwiQyIsIk1ham9yIiwiR2VudGxlIGRpYXRvbmljIiwiU2V0dGxlZCIsIlF1YXJ0ZXIiLCJTbGlnaHRseSB2YXJpZWQiLCJPY2Nhc2lvbmFsIG9mZmJlYXRzIiwiU3BhcnNlIiwiQXJjaCIsIk1pZGRsZSIsIlNoYXBlZCIsIlByZWRpY3RhYmxlIiwiYy1rZXlib2FyZCJdLHsicGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwiYWNjZW50ZWRQYXNzaW5nVG9uZSI6ImFzVG9kYXkiLCJuZWlnaGJvclRvbmUiOiJhc1RvZGF5IiwiYXBwb2dnaWF0dXJhIjoib2ZmIiwiZGlhdG9uaWNFbmNsb3N1cmUiOiJvZmYiLCJjaHJvbWF0aWNBcHByb2FjaCI6Im9mZiIsImNocm9tYXRpY0VuY2xvc3VyZSI6Im9mZiJ9LDEsbnVsbCxudWxsLG51bGwsbnVsbCx7InNldmVudGgtY2hvcmRzIjoic3Ryb25nbHlGYXZvcmVkIn1d' npx playwright test tests/e2e/release/deterministic-replay.spec.ts
+      ```
+
+      After chunk 19, a key copied from a Chrome session at Mostly works too: generate a phrase,
+      open the console (F12, Console tab), copy the whole line
+      `[Infinite Flow] phrase replay key · workspace phrase · seed1-… · ifk5.…` and paste it between
+      the single quotes instead.
+
+- [ ] Pass: every test passed, none skipped and none failed. A skipped test means the key was not
+      given; "msedge is not found" means Edge is not installed.
+
+**Result:** not run yet in Edge: Microsoft Edge is not installed on the build machine. Chunk 15
+ran the spec in Chromium (2026-11-13): with the key above, 8 passed, none skipped.

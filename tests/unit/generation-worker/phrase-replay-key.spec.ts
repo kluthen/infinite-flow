@@ -36,6 +36,7 @@ import {
   keyChangeIntent,
 } from '../domain/generation/carry-in/carry-in-fixture'
 import { SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
+import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
 /** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
 function carryInIntent(): GenerationIntent {
@@ -113,18 +114,18 @@ function tupleWithControl(key: string, value: unknown): unknown[] {
 
 /**
  * Intent: the valid `ifk3.` 7-tuple of a plain built-in intent: the first seven entries of the
- * `ifk4.` 9-tuple the encoder writes, which keep the `ifk3.` order and meaning.
+ * `ifk5.` 10-tuple the encoder writes, which keep the `ifk3.` order and meaning.
  */
 function validIfk3Tuple(): unknown[] {
   return payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1)).slice(0, 7)
 }
 
-/** Intent: assert encode→decode yields an `ifk4` key and the original intent and number exactly. */
+/** Intent: assert encode→decode yields an `ifk5` key and the original intent and number exactly. */
 function expectRoundTrip(intent: GenerationIntent, phraseNumber: number): void {
   const key = encodePhraseReplayKey(intent, phraseNumber)
-  expect(key.startsWith('ifk4.')).toBe(true)
+  expect(key.startsWith('ifk5.')).toBe(true)
   const decoded = decodePhraseReplayKey(key)
-  expect(decoded.keyVersion).toBe('ifk4')
+  expect(decoded.keyVersion).toBe('ifk5')
   expect(decoded.phraseNumber).toBe(phraseNumber)
   expect(decoded.intent).toEqual(intent)
   expect(JSON.stringify(decoded.intent)).toBe(JSON.stringify(intent))
@@ -241,7 +242,7 @@ describe('phrase replay key with a carry-in whose harmony was dropped', () => {
     expect(JSON.stringify(decoded.intent)).toBe(JSON.stringify(intent))
     expect(decoded.intent.carryIn?.finalHarmony?.triad.degree).toBe(5)
     const reEncoded = decodePhraseReplayKey(encodePhraseReplayKey(decoded.intent, 2))
-    expect(reEncoded.keyVersion).toBe('ifk4')
+    expect(reEncoded.keyVersion).toBe('ifk5')
     expect(reEncoded.intent).toEqual(intent)
   })
 
@@ -258,10 +259,10 @@ describe('phrase replay key with a carry-in whose harmony was dropped', () => {
 
 // @test-link [[module_phrase_replay_key]]
 describe('phrase replay key format', () => {
-  it('is one line of the ifk4 prefix and unpadded base64url', () => {
+  it('is one line of the ifk5 prefix and unpadded base64url', () => {
     const key = encodePhraseReplayKey(carryInIntent(), 2)
-    expect(key.startsWith('ifk4.')).toBe(true)
-    expect(key).toMatch(/^ifk4\.[A-Za-z0-9_-]+$/u)
+    expect(key.startsWith('ifk5.')).toBe(true)
+    expect(key).toMatch(/^ifk5\.[A-Za-z0-9_-]+$/u)
     expect(key.split('\n')).toHaveLength(1)
   })
 
@@ -300,10 +301,10 @@ describe('phrase replay key decoding rejects malformed keys', () => {
   })
 
   it('rejects an unsupported key version by name', () => {
-    for (const version of ['ifk0', 'ifk5', 'ifk9', 'ifk12']) {
+    for (const version of ['ifk0', 'ifk6', 'ifk9', 'ifk12']) {
       const key = rawIfk3Key(validIfk3Tuple()).replace(/^ifk3\./u, `${version}.`)
       expect(() => decodePhraseReplayKey(key)).toThrow(
-        `Phrase replay key has unsupported key version "${version}"; only "ifk1", "ifk2", "ifk3" and "ifk4" are supported.`,
+        `Phrase replay key has unsupported key version "${version}"; only "ifk1", "ifk2", "ifk3", "ifk4" and "ifk5" are supported.`,
       )
       expect(() => decodePhraseReplayKey(key)).toThrow(PhraseReplayKeyError)
     }
@@ -441,19 +442,20 @@ describe('phrase replay key console line', () => {
     )
   })
 
-  it('accepts an ifk3 or ifk4 key and refuses a key that is not one well-formed ifk1-ifk4 key', () => {
+  it('accepts an ifk3, ifk4 or ifk5 key and refuses a key that is not one well-formed ifk1-ifk5 key', () => {
     const ifk3 = rawIfk3Key(validIfk3Tuple())
-    const ifk4 = encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1)
-    for (const accepted of [ifk3, ifk4])
+    const ifk4 = encodeIfk4PhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1)
+    const ifk5 = encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1)
+    for (const accepted of [ifk3, ifk4, ifk5])
       expect(phraseReplayKeyLine(accepted, { source: 'workspace' }, seed)).toBe(
         `[Infinite Flow] phrase replay key · workspace phrase · seed1-0000002a · ${accepted}`,
       )
-    for (const bad of [`${key}\nmore`, ifk4.replace(/^ifk4\./u, 'ifk5.')]) {
+    for (const bad of [`${key}\nmore`, ifk5.replace(/^ifk5\./u, 'ifk6.')]) {
       expect(() => phraseReplayKeyLine(bad, { source: 'workspace' }, seed)).toThrow(
         PhraseReplayKeyError,
       )
       expect(() => phraseReplayKeyLine(bad, { source: 'workspace' }, seed)).toThrow(
-        'Phrase replay key line needs a well-formed "ifk1.", "ifk2.", "ifk3." or "ifk4." key.',
+        'Phrase replay key line needs a well-formed "ifk1.", "ifk2.", "ifk3.", "ifk4." or "ifk5." key.',
       )
     }
   })
@@ -492,7 +494,7 @@ describe('phrase replay key console line', () => {
     )
     expect(log).toHaveBeenCalledTimes(1)
     expect(log.mock.calls[0]![0]).toContain(
-      '· session phrase 6 (standalone) · seed1-0000000d · ifk4.',
+      '· session phrase 6 (standalone) · seed1-0000000d · ifk5.',
     )
   })
 
@@ -581,7 +583,7 @@ function intentAtLevel(seed: number, chordFamilies: ChordFamilies): GenerationIn
 describe('phrase replay key and the Seventh chords level', () => {
   it('round-trips an intent at Off through an ifk4 key to an equal intent, the level at Off', () => {
     const intent = intentAtLevel(31, OFF_CHORD_FAMILIES)
-    const key = encodePhraseReplayKey(intent, 1)
+    const key = encodeIfk4PhraseReplayKey(intent, 1)
     const decoded = decodePhraseReplayKey(key)
 
     expect(key.startsWith('ifk4.')).toBe(true)
@@ -595,7 +597,7 @@ describe('phrase replay key and the Seventh chords level', () => {
     for (const key of [
       rawKey(validTuple()),
       rawIfk3Key(validIfk3Tuple()),
-      encodePhraseReplayKey(carryInIntent(), 2),
+      encodeIfk4PhraseReplayKey(carryInIntent(), 2),
     ])
       expect(decodePhraseReplayKey(key).intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
   })
@@ -604,15 +606,10 @@ describe('phrase replay key and the Seventh chords level', () => {
     'refuses to encode an intent at %s rather than write a key decoding to Off',
     (level) => {
       const intent = intentAtLevel(32, { 'seventh-chords': level })
-      expect(() => encodePhraseReplayKey(intent, 1)).toThrow(PhraseReplayKeyError)
-      expect(() => encodePhraseReplayKey(intent, 1)).toThrow(
+      expect(() => encodeIfk4PhraseReplayKey(intent, 1)).toThrow(PhraseReplayKeyError)
+      expect(() => encodeIfk4PhraseReplayKey(intent, 1)).toThrow(
         /Seventh chords level .* above Off.*"ifk4"/u,
       )
-      const log = vi.fn()
-      expect(() => announcePhraseReplayKey(intent, { source: 'workspace' }, log)).toThrow(
-        PhraseReplayKeyError,
-      )
-      expect(log).not.toHaveBeenCalled()
     },
   )
 })

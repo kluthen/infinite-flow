@@ -12,7 +12,7 @@
  * Jam's phrase 1 by rung and its attempts by rung, the attempt times and the orderings' cost, the
  * repeats, the standalone attempts against the standalone reserve, the deadline shortfalls,
  * phrase 2's lost joins by doodle and instrument (ISS-015) and, with the lock on, the lock census,
- * replays a sample of the steered Jams' phrases from their `ifk4.` keys, and prints a summary as
+ * replays a sample of the steered Jams' phrases from their `ifk5.` keys, and prints a summary as
  * `JAM-SWEEP` lines. A figure is reported, never failed on: only the runs' completion, the lock
  * census's record and bars agreeing, and every replay matching, are checked.
  * The result depends on the machine: run it idle.

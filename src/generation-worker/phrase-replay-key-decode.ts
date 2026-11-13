@@ -1,23 +1,29 @@
 /**
- * The phrase replay key decoder: turns a phrase replay key of any of the four versions (`ifk1.`
- * to `ifk4.`) back into the exact GenerationIntent through the generation worker protocol's own
+ * The phrase replay key decoder: turns a phrase replay key of any of the five versions (`ifk1.`
+ * to `ifk5.`) back into the exact GenerationIntent through the generation worker protocol's own
  * intent validation, a my-instrument profile rebuilt through the protocol's own my-instrument
- * derivation. An `ifk4.` key's 9-tuple (the order phrase-replay-key.ts states) holds the figure
+ * derivation. An `ifk5.` key's 10-tuple (the order phrase-replay-key.ts states) holds the figure
  * levels by figure id in slot 3, read through the figure-levels parser, my instrument's owning
  * profile fields in slot 6 (`null` marking a built-in), the rhythm lock group in slot 7 and the
- * steering block in slot 8 (each `null` when the request had none), and a carry-in of either
- * origin in slot 5. An `ifk3.` key is that tuple's first seven entries, its carry-in only from a
+ * steering block in slot 8 (each `null` when the request had none), a carry-in of either origin
+ * in slot 5, its carried chord read as a triad or a triad holding its seventh, as the worker reads
+ * it, and the chord families in slot 9, read through the chord families' parser. An `ifk4.` key
+ * is that tuple's first nine entries, an `ifk3.` key its first seven, its carry-in only from a
  * phrase. An `ifk1.` (7-tuple, built-in) or `ifk2.` (8-tuple, my instrument) key holds a musical
  * profile name and its customized flag in slots 3 and 4 instead; the name becomes that profile's
  * levels through `levelsForProfile`, whatever the flag. A key of versions 1 to 3 decodes with no
- * rhythm lock group and no steering block. No key version holds the Seventh chords level, so every
- * key decodes with it at Off, and an `ifk4.` key still decodes to the intent it was encoded from
- * (the encoder refuses an intent above Off). A decoded intent never holds a profile. Kept apart
- * from the encoder in phrase-replay-key.ts so the app bundle, which only encodes, never pulls in
- * the protocol.
+ * rhythm lock group and no steering block. A key of versions 1 to 4 holds no Seventh chords level
+ * and decodes with it at Off, its carried chord read as a triad only. A decoded intent never holds
+ * a profile. Kept apart from the encoder in phrase-replay-key.ts so the app bundle, which only
+ * encodes, never pulls in the protocol.
  */
 
-import { OFF_CHORD_FAMILIES, type ChordFamilies } from '../domain/chords/chord-families'
+import {
+  ChordFamiliesError,
+  OFF_CHORD_FAMILIES,
+  parseChordFamilies,
+  type ChordFamilies,
+} from '../domain/chords/chord-families'
 import { MUSICAL_PROFILES, type MusicalProfile } from '../domain/controls/generation-controls'
 import {
   FigureLevelsError,
@@ -53,6 +59,7 @@ import {
   PHRASE_REPLAY_KEY_V2_PREFIX,
   PHRASE_REPLAY_KEY_V3_PREFIX,
   PHRASE_REPLAY_KEY_V4_PREFIX,
+  PHRASE_REPLAY_KEY_V5_PREFIX,
   PhraseReplayKeyError,
   requireConsistentPhraseNumber,
   type PhraseReplayKeyMyInstrumentEntry,
@@ -60,7 +67,7 @@ import {
 
 /** The key versions the decoder reads. */
 // @spec-link [[module_phrase_replay_key]]
-export type PhraseReplayKeyVersion = 'ifk1' | 'ifk2' | 'ifk3' | 'ifk4'
+export type PhraseReplayKeyVersion = 'ifk1' | 'ifk2' | 'ifk3' | 'ifk4' | 'ifk5'
 
 /** A phrase replay key decoded into its version, validated generation intent and phrase number. */
 // @spec-link [[module_phrase_replay_key]]
@@ -77,6 +84,7 @@ const PREFIX_BY_VERSION: Readonly<Record<PhraseReplayKeyVersion, string>> = {
   ifk2: PHRASE_REPLAY_KEY_V2_PREFIX,
   ifk3: PHRASE_REPLAY_KEY_V3_PREFIX,
   ifk4: PHRASE_REPLAY_KEY_V4_PREFIX,
+  ifk5: PHRASE_REPLAY_KEY_V5_PREFIX,
 }
 const MY_INSTRUMENT_ENTRY_LENGTH = 5
 
@@ -97,6 +105,7 @@ interface ReplayKeyFields {
   readonly myInstrument: PhraseReplayKeyMyInstrumentEntry | null
   readonly rhythmLock: RequestRhythmLock | null
   readonly steering: SteeringBlock | null
+  readonly chordFamilies: ChordFamilies
 }
 
 /**
@@ -173,12 +182,12 @@ function isCarryInOrNull(value: unknown): boolean {
   return value === null || isPlainObject(value)
 }
 
-/** Intent: whether a value is an `ifk3.` or `ifk4.` my-instrument slot's: an entry, or null. */
+/** Intent: whether a value is an `ifk3.` to `ifk5.` my-instrument slot's: an entry, or null. */
 function isMyInstrumentEntryOrNull(value: unknown): boolean {
   return value === null || isMyInstrumentEntry(value)
 }
 
-/** Intent: whether a value is an `ifk4.` group slot's: a plain object, or null for none. */
+/** Intent: whether a value is an `ifk4.` or `ifk5.` group slot's: a plain object, or null. */
 function isGroupOrNull(value: unknown): boolean {
   return value === null || isPlainObject(value)
 }
@@ -207,25 +216,30 @@ const PROFILE_TUPLE_SLOTS: readonly TupleSlot[] = [
   CARRY_IN_SLOT,
 ]
 
+const GROUPS_TUPLE_SLOTS: readonly TupleSlot[] = [
+  ...LEVELS_TUPLE_SLOTS,
+  { name: 'rhythmLock', hasExpectedType: isGroupOrNull },
+  { name: 'steering', hasExpectedType: isGroupOrNull },
+]
+
 /**
  * Every version's tuple, slot by slot: `ifk1` the seven profile-era entries, `ifk2` those seven
  * then my instrument's entry, `ifk3` the levels-era 7-tuple, `ifk4` those seven then the rhythm
- * lock group and the steering block, the 9-tuple of phrase-replay-key.ts.
+ * lock group and the steering block, `ifk5` those nine then the chord families, the 10-tuple of
+ * phrase-replay-key.ts.
  */
 const TUPLE_SLOTS_BY_VERSION: Readonly<Record<PhraseReplayKeyVersion, readonly TupleSlot[]>> = {
   ifk1: PROFILE_TUPLE_SLOTS,
   ifk2: [...PROFILE_TUPLE_SLOTS, { name: 'myInstrument', hasExpectedType: isMyInstrumentEntry }],
   ifk3: LEVELS_TUPLE_SLOTS,
-  ifk4: [
-    ...LEVELS_TUPLE_SLOTS,
-    { name: 'rhythmLock', hasExpectedType: isGroupOrNull },
-    { name: 'steering', hasExpectedType: isGroupOrNull },
-  ],
+  ifk4: GROUPS_TUPLE_SLOTS,
+  ifk5: [...GROUPS_TUPLE_SLOTS, { name: 'chordFamilies', hasExpectedType: isPlainObject }],
 }
 
 /**
  * Intent: check the decoded JSON is its version's tuple (seven entries for `ifk1` and `ifk3`,
- * eight for `ifk2`, nine for `ifk4`) with the right slot types, naming any faulty slot.
+ * eight for `ifk2`, nine for `ifk4`, ten for `ifk5`) with the right slot types, naming any faulty
+ * slot.
  */
 function requireTuple(value: unknown, version: PhraseReplayKeyVersion): readonly unknown[] {
   const slots = TUPLE_SLOTS_BY_VERSION[version]
@@ -282,7 +296,26 @@ function levelsSlotLevels(value: unknown): FigureLevels {
 }
 
 /**
- * Intent: an `ifk4` key's rhythm lock group (slot 7) or steering block (slot 8), read through the
+ * Intent: an `ifk5` key's chord families (slot 9), read through the chord families' parser; an
+ * unknown capability, a missing one, or an unknown level of a known one is refused naming slot 9
+ * and the reason, rather than replayed without it.
+ */
+// @spec-link [[module_phrase_replay_key]]
+function chordFamiliesSlot(value: unknown): ChordFamilies {
+  try {
+    return parseChordFamilies(value)
+  } catch (error) {
+    if (error instanceof ChordFamiliesError) {
+      throw new PhraseReplayKeyError(
+        `Phrase replay key slot 9 (chordFamilies) is invalid: ${error.message}`,
+      )
+    }
+    throw error
+  }
+}
+
+/**
+ * Intent: an `ifk4` or `ifk5` key's rhythm lock group (slot 7) or steering block (slot 8), read through the
  * domain's own parser when not null; a malformed group is refused naming its slot and the reason.
  */
 // @spec-link [[module_phrase_replay_key]]
@@ -308,11 +341,12 @@ function groupSlot<Group>(
 }
 
 /**
- * Intent: read a checked tuple's owning fields by its version's slot order: an `ifk3` or `ifk4`
- * key's levels from slot 3 and its my-instrument entry or null from slot 6, an `ifk4` key's rhythm
- * lock group and steering block from slots 7 and 8; an `ifk1` or `ifk2` key's levels from its
- * profile name, its my-instrument entry from an `ifk2` key's slot 7 (null for `ifk1`). A key of
- * versions 1 to 3 holds no rhythm lock group and no steering block.
+ * Intent: read a checked tuple's owning fields by its version's slot order: an `ifk3`, `ifk4` or
+ * `ifk5` key's levels from slot 3 and its my-instrument entry or null from slot 6, an `ifk4` or
+ * `ifk5` key's rhythm lock group and steering block from slots 7 and 8, an `ifk5` key's chord
+ * families from slot 9; an `ifk1` or `ifk2` key's levels from its profile name, its my-instrument
+ * entry from an `ifk2` key's slot 7 (null for `ifk1`). A key of versions 1 to 3 holds no rhythm
+ * lock group and no steering block; a key of versions 1 to 4 gives the Seventh chords level Off.
  */
 function fieldsOf(tuple: readonly unknown[], version: PhraseReplayKeyVersion): ReplayKeyFields {
   const common = {
@@ -320,16 +354,17 @@ function fieldsOf(tuple: readonly unknown[], version: PhraseReplayKeyVersion): R
     seed: tuple[1] as number,
     controlValues: tuple[2] as readonly unknown[],
   }
-  if (version === 'ifk3' || version === 'ifk4') {
+  if (version === 'ifk3' || version === 'ifk4' || version === 'ifk5') {
+    const holdsGroups = version !== 'ifk3'
     return {
       ...common,
       figureLevels: levelsSlotLevels(tuple[3]),
       phraseNumber: tuple[4] as number,
       carryIn: tuple[5] as Record<string, unknown> | null,
       myInstrument: tuple[6] as PhraseReplayKeyMyInstrumentEntry | null,
-      rhythmLock:
-        version === 'ifk4' ? groupSlot(tuple[7], 7, 'rhythmLock', parseRequestRhythmLock) : null,
-      steering: version === 'ifk4' ? groupSlot(tuple[8], 8, 'steering', parseSteeringBlock) : null,
+      rhythmLock: holdsGroups ? groupSlot(tuple[7], 7, 'rhythmLock', parseRequestRhythmLock) : null,
+      steering: holdsGroups ? groupSlot(tuple[8], 8, 'steering', parseSteeringBlock) : null,
+      chordFamilies: version === 'ifk5' ? chordFamiliesSlot(tuple[9]) : OFF_CHORD_FAMILIES,
     }
   }
   return {
@@ -340,12 +375,13 @@ function fieldsOf(tuple: readonly unknown[], version: PhraseReplayKeyVersion): R
     myInstrument: version === 'ifk2' ? (tuple[7] as PhraseReplayKeyMyInstrumentEntry) : null,
     rhythmLock: null,
     steering: null,
+    chordFamilies: OFF_CHORD_FAMILIES,
   }
 }
 
 /**
  * Intent: split a trimmed key into its version and payload, rejecting a missing prefix or a
- * version other than `ifk1` to `ifk4`.
+ * version other than `ifk1` to `ifk5`.
  */
 function keyParts(key: string): {
   readonly version: PhraseReplayKeyVersion
@@ -354,7 +390,7 @@ function keyParts(key: string): {
   const match = KEY_VERSION_PATTERN.exec(key)
   if (match === null) {
     throw new PhraseReplayKeyError(
-      `Phrase replay key must start with "${PHRASE_REPLAY_KEY_PREFIX}", "${PHRASE_REPLAY_KEY_V2_PREFIX}", "${PHRASE_REPLAY_KEY_V3_PREFIX}" or "${PHRASE_REPLAY_KEY_V4_PREFIX}".`,
+      `Phrase replay key must start with "${PHRASE_REPLAY_KEY_PREFIX}", "${PHRASE_REPLAY_KEY_V2_PREFIX}", "${PHRASE_REPLAY_KEY_V3_PREFIX}", "${PHRASE_REPLAY_KEY_V4_PREFIX}" or "${PHRASE_REPLAY_KEY_V5_PREFIX}".`,
     )
   }
   const version = (Object.keys(PREFIX_BY_VERSION) as PhraseReplayKeyVersion[]).find(
@@ -362,7 +398,7 @@ function keyParts(key: string): {
   )
   if (version === undefined) {
     throw new PhraseReplayKeyError(
-      `Phrase replay key has unsupported key version "ifk${match[1]}"; only "ifk1", "ifk2", "ifk3" and "ifk4" are supported.`,
+      `Phrase replay key has unsupported key version "ifk${match[1]}"; only "ifk1", "ifk2", "ifk3", "ifk4" and "ifk5" are supported.`,
     )
   }
   return { version, payload: key.slice(match[0].length) }
@@ -370,8 +406,8 @@ function keyParts(key: string): {
 
 /**
  * Intent: why a key's my-instrument entry disagrees with the instrument its controls name: an
- * `ifk1` key cannot name my instrument, an `ifk2` key must, and an `ifk3` or `ifk4` key holds my
- * instrument's entry exactly when its controls name it, `null` otherwise.
+ * `ifk1` key cannot name my instrument, an `ifk2` key must, and an `ifk3`, `ifk4` or `ifk5` key
+ * holds my instrument's entry exactly when its controls name it, `null` otherwise.
  */
 function instrumentMismatchMessage(
   version: PhraseReplayKeyVersion,
@@ -384,6 +420,7 @@ function instrumentMismatchMessage(
       return `An "ifk2" phrase replay key must name "${MY_INSTRUMENT_ID}", got ${JSON.stringify(instrumentProfileId)}.`
     case 'ifk3':
     case 'ifk4':
+    case 'ifk5':
       return instrumentProfileId === MY_INSTRUMENT_ID
         ? `An "${version}" phrase replay key naming "${MY_INSTRUMENT_ID}" must hold its profile in slot 6 (myInstrument), not null.`
         : `An "${version}" phrase replay key naming the built-in ${JSON.stringify(instrumentProfileId)} must hold null in slot 6 (myInstrument).`
@@ -418,39 +455,47 @@ function suppliedInstrumentProfile(
 }
 
 /**
- * Intent: the carry-in parser a key's version reads with: an `ifk4` key's carry-in may come from a
- * phrase or from no phrase; an older key's only from a phrase, in v3.1's exact form.
+ * Intent: read an `ifk5` key's carry-in as the worker reads it: either origin, its carried chord a
+ * triad or a triad holding its same-degree seventh, the seventh's stack and quality checked and its
+ * fit judged by the triad, as the triad's is.
  */
+// @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[module_phrase_replay_key]]
+function parseCarryInTakingSeventh(input: unknown): CarryIn {
+  return parseCarryIn(input, 'triad-or-seventh')
+}
+
+/**
+ * Intent: the carry-in parser a key's version reads with: an `ifk5` key's carry-in may come from a
+ * phrase or from no phrase, its carried chord may hold its seventh; an `ifk4` key's either origin,
+ * its carried chord a triad only; an older key's only from a phrase, in v3.1's exact form.
+ */
+// @spec-link [[entity_phrase_carry_in]]
+// @spec-link [[module_phrase_replay_key]]
 function carryInReaderFor(version: PhraseReplayKeyVersion): (input: unknown) => CarryIn {
+  if (version === 'ifk5') return parseCarryInTakingSeventh
   return version === 'ifk4' ? parseCarryIn : parsePhraseCarryIn
 }
 
 /**
- * Intent: the Seventh chords level a key of any of the four versions gives: Off, since none holds
- * one. The decoder hands this reader to the intent rebuild, which defaults nothing itself.
- */
-// @spec-link [[module_phrase_replay_key]]
-// @spec-link [[module_generation_worker_protocol]]
-function chordFamiliesOfKey(): ChordFamilies {
-  return OFF_CHORD_FAMILIES
-}
-
-/**
- * Intent: decode a phrase replay key of any of the four versions back into the exact generation
+ * Intent: decode a phrase replay key of any of the five versions back into the exact generation
  * intent and phrase number. The prefix and version are checked first, then the base64url, UTF-8,
- * JSON and the version's tuple shape (each a PhraseReplayKeyError), then the levels (an `ifk3` or
- * `ifk4` key's through the figure-levels parser, an older key's profile name through
- * `levelsForProfile`), an `ifk4` key's rhythm lock group and steering block through their own
- * parsers, then whether the my-instrument entry agrees with the instrument the controls name; my
+ * JSON and the version's tuple shape (each a PhraseReplayKeyError), then the levels (an `ifk3` to
+ * `ifk5` key's through the figure-levels parser, an older key's profile name through
+ * `levelsForProfile`), an `ifk4` or `ifk5` key's rhythm lock group and steering block through
+ * their own parsers, an `ifk5` key's chord families through theirs (an unknown capability or level
+ * refused with the reason), then whether the my-instrument entry agrees with the instrument the
+ * controls name; my
  * instrument's profile is rebuilt from its stored fields; the owning fields are then validated and
  * the intent rebuilt, with the levels and no profile, by the generation worker protocol's own
  * intent validation, whose domain errors propagate unchanged (a carry-in from no phrase without a
- * steering block among them). An `ifk4` key's carry-in is read through `parseCarryIn`, either
- * origin; an older key's through `parsePhraseCarryIn`, v3.1's exact form, so a carry-in from no
- * phrase (an `origin` key), which those versions have no form for, is refused as v3.1 refuses it.
- * A key of versions 1 to 3 decodes with no rhythm lock group and no steering block. Every key
- * decodes with the Seventh chords level at Off, which no key version holds. Nothing missing or
- * invalid is ever defaulted or repaired.
+ * steering block among them). An `ifk5` key's carry-in is read through `parseCarryIn` taking a
+ * carried seventh, as the worker's, either origin; an `ifk4` key's through `parseCarryIn`, either
+ * origin, triad only; an older key's through `parsePhraseCarryIn`, v3.1's exact form, so a
+ * carry-in from no phrase (an `origin` key), which those versions have no form for, is refused as
+ * v3.1 refuses it. A key of versions 1 to 3 decodes with no rhythm lock group and no steering
+ * block; a key of versions 1 to 4 with the Seventh chords level at Off, which none holds. Nothing
+ * missing or invalid is ever defaulted or repaired.
  */
 // @spec-link [[module_phrase_replay_key]]
 // @spec-link [[module_generation_worker_protocol]]
@@ -479,7 +524,7 @@ export function decodePhraseReplayKey(key: string): DecodedPhraseReplayKey {
       ...(fields.steering === null ? {} : { steering: fields.steering }),
     },
     carryInReaderFor(version),
-    chordFamiliesOfKey,
+    () => fields.chordFamilies,
   )
   requireConsistentPhraseNumber(intent, fields.phraseNumber)
   return { keyVersion: version, intent, phraseNumber: fields.phraseNumber }

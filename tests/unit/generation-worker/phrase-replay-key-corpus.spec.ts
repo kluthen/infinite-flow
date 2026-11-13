@@ -13,9 +13,9 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
-import { encodePhraseReplayKey } from '@/generation-worker/phrase-replay-key'
 import { decodePhraseReplayKey } from '@/generation-worker/phrase-replay-key-decode'
 import { replayDecodedPhraseKey } from '@/generation-worker/phrase-replay'
+import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
 /** One recorded case: its label, its replay key and the timeline the key replayed to. */
 interface CorpusCase {
@@ -72,7 +72,7 @@ describe('ifk1 replay-key corpus recorded on v2.0', () => {
     for (const corpusCase of CORPUS.cases) {
       const decoded = decodePhraseReplayKey(corpusCase.key)
       expect(decoded.keyVersion, corpusCase.label).toBe('ifk1')
-      const reEncoded = encodePhraseReplayKey(decoded.intent, decoded.phraseNumber)
+      const reEncoded = encodeIfk4PhraseReplayKey(decoded.intent, decoded.phraseNumber)
       expect(reEncoded.startsWith('ifk4.'), corpusCase.label).toBe(true)
       const again = decodePhraseReplayKey(reEncoded)
       expect(again.keyVersion, corpusCase.label).toBe('ifk4')

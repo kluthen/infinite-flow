@@ -679,7 +679,7 @@ interface WorkspaceHarnessReplayApi {
    * real browser worker. A malformed key, or a worker crash, rejects with its error's message.
    */
   replayKey: (key: string) => Promise<WorkspaceHarnessReplayAnswer>
-  /** The key's `ifk4.` re-encoding: its decoded intent and phrase number, encoded again. */
+  /** The key's `ifk5.` re-encoding: its decoded intent and phrase number, encoded again. */
   reEncodeKey: (key: string) => string
 }
 

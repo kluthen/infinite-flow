@@ -12,7 +12,7 @@ import { isDeepStrictEqual } from 'node:util'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { replayPhraseKey } from '@/generation-worker/phrase-replay'
 import {
-  PHRASE_REPLAY_KEY_V4_PREFIX,
+  PHRASE_REPLAY_KEY_V5_PREFIX,
   encodePhraseReplayKey,
 } from '@/generation-worker/phrase-replay-key'
 import type { SuccessfulOutcome } from '@/session/session-types'
@@ -69,7 +69,7 @@ function asJson(value: unknown): unknown {
 }
 
 /**
- * Intent: replay one sample from its key: encode it, require an `ifk4.` key, replay it through
+ * Intent: replay one sample from its key: encode it, require an `ifk5.` key, replay it through
  * the generation worker runtime, and compare the replayed result and provenance with the
  * session's, as JSON data. A key of another version, or a replay that did not succeed, does not
  * match.
@@ -79,7 +79,7 @@ export function replaySample(sample: Pick<ReplaySample, 'phraseNumber' | 'intent
   readonly matched: boolean
 } {
   const key = encodePhraseReplayKey(sample.intent, sample.phraseNumber)
-  if (!key.startsWith(PHRASE_REPLAY_KEY_V4_PREFIX)) return { key, matched: false }
+  if (!key.startsWith(PHRASE_REPLAY_KEY_V5_PREFIX)) return { key, matched: false }
   const { output } = replayPhraseKey(key)
   if (output.kind !== 'generation_success' || output.raw.kind !== 'generation_success')
     return { key, matched: false }

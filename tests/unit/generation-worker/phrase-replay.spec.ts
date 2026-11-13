@@ -131,7 +131,7 @@ function payloadOf(key: string): unknown[] {
 
 /**
  * Intent: the `ifk3.` key v3.1 would have written for an intent without the v3.2 groups: the first
- * seven entries of the `ifk4.` key the encoder writes, under the `ifk3.` prefix.
+ * seven entries of the `ifk5.` key the encoder writes, under the `ifk3.` prefix.
  */
 function ifk3KeyOf(intent: GenerationIntent, phraseNumber: number): string {
   const tuple = payloadOf(encodePhraseReplayKey(intent, phraseNumber)).slice(0, 7)
@@ -222,7 +222,7 @@ describe('replayPhraseKey reproduces generation', () => {
         for (const seed of SEEDS) {
           const intent = settingIntent(setting, seed)
           const report = replayPhraseKey(encodePhraseReplayKey(intent, 1))
-          expect(report.keyVersion).toBe('ifk4')
+          expect(report.keyVersion).toBe('ifk5')
           expectReplayEqualsGeneration(report, intent)
           expectCompleteInput(report, intent)
           const output = successOf(report)
@@ -313,7 +313,7 @@ describe('the replay report', () => {
 
   // @test-link [[service_headless_phrase_replay]]
   it(
-    'holds the rhythm lock group and steering block verbatim for an ifk4 key, null for an ifk3 key',
+    'holds the rhythm lock group and steering block verbatim for an ifk5 key, null for an ifk3 key',
     () => {
       const plain = buildIntent({ seed: 5, label: 'replay-groups' })
       const withGroups = createGenerationIntent({
@@ -325,11 +325,11 @@ describe('the replay report', () => {
         rhythmLock: SAMPLE_RHYTHM_LOCK,
         steering: SAMPLE_STEERING,
       })
-      const ifk4 = replayPhraseKey(encodePhraseReplayKey(withGroups, 1))
-      expect(ifk4.keyVersion).toBe('ifk4')
-      expect(JSON.stringify(ifk4.input.rhythmLock)).toBe(JSON.stringify(SAMPLE_RHYTHM_LOCK))
-      expect(JSON.stringify(ifk4.input.steering)).toBe(JSON.stringify(SAMPLE_STEERING))
-      expectCompleteInput(ifk4, withGroups)
+      const ifk5 = replayPhraseKey(encodePhraseReplayKey(withGroups, 1))
+      expect(ifk5.keyVersion).toBe('ifk5')
+      expect(JSON.stringify(ifk5.input.rhythmLock)).toBe(JSON.stringify(SAMPLE_RHYTHM_LOCK))
+      expect(JSON.stringify(ifk5.input.steering)).toBe(JSON.stringify(SAMPLE_STEERING))
+      expectCompleteInput(ifk5, withGroups)
       const ifk3 = replayPhraseKey(ifk3KeyOf(plain, 1))
       expect(ifk3.keyVersion).toBe('ifk3')
       expect(ifk3.input.rhythmLock).toBeNull()
@@ -378,7 +378,7 @@ describe('reading a key', () => {
   it('rejects a malformed or unsupported key with a typed error before generating', () => {
     expect(() => replayPhraseKey('ifk1.!!')).toThrow(PhraseReplayKeyError)
     expect(() => replayPhraseKey('ifk1.AAAA')).toThrow(PhraseReplayKeyError)
-    expect(() => replayPhraseKey('ifk5.AAAA')).toThrow(/unsupported key version "ifk5"/u)
+    expect(() => replayPhraseKey('ifk6.AAAA')).toThrow(/unsupported key version "ifk6"/u)
     expect(() => replayDecodedPhraseKey(key, decodePhraseReplayKey(key))).not.toThrow()
   })
 })

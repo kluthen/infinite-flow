@@ -3,7 +3,7 @@
  * The `ifk3.` phrase replay key's own format: a fixed 7-tuple, always seven entries in the order
  * phrase-replay-key.ts states, the figure levels by figure id in slot 3 and `null` at index 6 for a
  * built-in instrument; no musical profile's or preset's name and no customized flag. The `ifk4.`
- * key the encoder now writes keeps these seven entries first, then `null` at 7 and 8 for an intent
+ * key v3.2 wrote keeps these seven entries first, then `null` at 7 and 8 for an intent
  * without a rhythm lock group or steering block. A malformed
  * `ifk3.` key, and one naming a figure or level the app does not know, are refused naming the slot
  * and the reason. An `ifk1.` key's profile name decodes to that profile's levels whatever its
@@ -20,7 +20,6 @@ import {
 } from '@/domain/figures/figure-levels'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import {
-  encodePhraseReplayKey,
   PHRASE_REPLAY_KEY_CONTROL_ORDER,
   PhraseReplayKeyError,
 } from '@/generation-worker/phrase-replay-key'
@@ -30,6 +29,7 @@ import {
   carryInAfter,
   generateSuccess,
 } from '../domain/generation/carry-in/carry-in-fixture'
+import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
 /** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
 function carryInIntent(): GenerationIntent {
@@ -91,10 +91,13 @@ function tupleOf(
 
 /**
  * Intent: the valid `ifk3.` 7-tuple of a plain built-in intent: the first seven entries of the
- * `ifk4.` 9-tuple the encoder writes, which keep the `ifk3.` order and meaning.
+ * `ifk4.` 9-tuple v3.2 wrote, which keep the `ifk3.` order and meaning.
  */
 function validIfk3Tuple(): unknown[] {
-  return payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1)).slice(0, 7)
+  return payloadOf(encodeIfk4PhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1)).slice(
+    0,
+    7,
+  )
 }
 
 /** Intent: a valid `ifk3.` tuple with one slot replaced. */
@@ -139,7 +142,7 @@ describe("an ifk1 key decodes to its profile's levels and no profile", () => {
 describe('the ifk3 key', () => {
   it('leads the ifk4 key with its seven entries in the stated order, null at 6 to 8 for a built-in', () => {
     const intent = carryInIntent()
-    const tuple = payloadOf(encodePhraseReplayKey(intent, 2))
+    const tuple = payloadOf(encodeIfk4PhraseReplayKey(intent, 2))
     expect(tuple).toHaveLength(9)
     expect(tuple[0]).toBe(intent.requestId)
     expect(tuple[1]).toBe(intent.seed)
@@ -153,12 +156,12 @@ describe('the ifk3 key', () => {
     expect(tuple[4]).toBe(2)
     expect(tuple[5]).toEqual(JSON.parse(JSON.stringify(intent.carryIn)))
     expect(tuple.slice(6)).toEqual([null, null, null])
-    expect(payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5 }), 1))[5]).toBeNull()
+    expect(payloadOf(encodeIfk4PhraseReplayKey(buildIntent({ seed: 5 }), 1))[5]).toBeNull()
   })
 
   it('holds no musical profile or preset name and no customized flag', () => {
     for (const intent of [buildIntent({ seed: 9, musicalProfile: 'Jazz' }), carryInIntent()]) {
-      const key = encodePhraseReplayKey(intent, intent.carryIn === undefined ? 1 : 2)
+      const key = encodeIfk4PhraseReplayKey(intent, intent.carryIn === undefined ? 1 : 2)
       const tuple = payloadOf(key)
       expect(JSON.stringify(tuple)).not.toMatch(/Neutral|Jazz|isCustom|musicalProfile/u)
       expect(tuple.some((entry) => typeof entry === 'boolean')).toBe(false)
