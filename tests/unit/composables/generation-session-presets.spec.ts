@@ -49,6 +49,7 @@ function sessionFrom(
     initialSettings: {
       controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, ...controls }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection,
       playerPresets,
       theme: 'System',

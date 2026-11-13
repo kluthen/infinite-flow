@@ -84,6 +84,7 @@ function jazzSettings(): SessionSettings {
       instrumentProfileId: 'eb-alto',
     }),
     figureLevels: JAZZ_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'preset', presetId: 'jazz' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

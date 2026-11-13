@@ -77,6 +77,13 @@ const KEY_CHANGES: readonly KeyChange[] = [
     },
   },
   {
+    name: 'the Seventh chords level',
+    apply: (rig) => {
+      rig.idle.chordFamilies = { 'seventh-chords': 'favored' }
+      rig.idle.selection = { kind: 'custom', baseId: 'neutral' }
+    },
+  },
+  {
     name: 'the instrument (whose switch regenerates phrase 1)',
     apply: (rig) => {
       rig.idle.controls = { ...rig.idle.controls, instrumentProfileId: 'bb-tenor' }
@@ -447,6 +454,7 @@ function reelSettings(): SessionSettings {
   return {
     controls: chosen.settings.controls,
     figureLevels: chosen.settings.levels,
+    chordFamilies: chosen.settings.chordFamilies,
     selection: chosen.selection,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

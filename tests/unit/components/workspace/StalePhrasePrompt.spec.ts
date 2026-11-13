@@ -135,6 +135,21 @@ describe('stale-phrase prompt: words', () => {
     )
   })
 
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it.each([
+    [['seventh-chords'], 'Seventh chords'],
+    [
+      ['tension', 'seventh-chords', 'harmonicMotion'],
+      'Harmonic motion, Seventh chords and Tension',
+    ],
+  ] as const)(
+    'names the Seventh chords level in %j after Harmonic motion, as "%s"',
+    (changed, text) => {
+      const { wrapper } = mountPrompt(changed)
+      expect(paragraphs(wrapper)[0]).toBe(`Since it was made, you changed ${text}.`)
+    },
+  )
+
   // @test-link [[rule_midi_starting_note]]
   it('opened by the starting note, says so first and ends with the hint', () => {
     const { wrapper } = mountPrompt(['tonalCenter'], 'note')

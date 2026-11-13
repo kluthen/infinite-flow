@@ -229,6 +229,7 @@ describe('presetDescription', () => {
     const settings: SessionSettings = {
       controls: DEFAULT_GENERATION_CONTROLS,
       figureLevels: builtInPreset('neutral').levels,
+      chordFamilies: builtInPreset('neutral').chordFamilies,
       selection: { kind: 'preset', presetId: 'neutral' },
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,

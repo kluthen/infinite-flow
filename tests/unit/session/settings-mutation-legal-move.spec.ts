@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { isRhythmSettingBlocked } from '@/domain/controls/unsupported-rhythm-settings'
@@ -62,6 +63,7 @@ function cIonian(
   return {
     controls: { ...DEFAULT_GENERATION_CONTROLS, ...controls },
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'preset', presetId: 'neutral' },
     allowedGroups,
     rhythmLockOn,

@@ -40,6 +40,7 @@ function settingsWith(overrides: Partial<GenerationControls> = {}): SessionSetti
   return {
     controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, ...overrides }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: DEFAULT_PRESET_SELECTION,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
@@ -167,6 +168,7 @@ describe('the stale check', () => {
     const recorded = {
       controls: settingsWith({ noteDensity: 'Sixteenth' }).controls,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: DEFAULT_PRESET_SELECTION,
     }
     const narrowIntent = createGenerationIntent({
@@ -206,7 +208,11 @@ describe("phrase 1's settings", () => {
 
     const figureLevels = { ...NEUTRAL_FIGURE_LEVELS, neighborTone: 'favored' as const }
     const selection = { kind: 'custom' as const, baseId: 'neutral' }
-    const settings = phraseOneSettings({ controls, figureLevels, selection }, intent, 150)
+    const settings = phraseOneSettings(
+      { controls, figureLevels, chordFamilies: OFF_CHORD_FAMILIES, selection },
+      intent,
+      150,
+    )
 
     expect(settings.controls).toEqual({ ...controls, tempo: 150 })
     expect(settings.figureLevels).toEqual(figureLevels)

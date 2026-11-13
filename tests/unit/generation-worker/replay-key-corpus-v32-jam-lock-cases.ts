@@ -244,6 +244,7 @@ function jamSettings(jam: CorpusJam): JamPhraseOneSettings {
       instrumentProfileId: instrument.instrumentProfileId,
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: null },
     ...(instrument.instrumentProfile === undefined
       ? {}

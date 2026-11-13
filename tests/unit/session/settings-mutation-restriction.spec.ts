@@ -86,6 +86,7 @@ function cIonian(
   return {
     controls: { ...DEFAULT_GENERATION_CONTROLS, ...controls },
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection,
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,
@@ -105,6 +106,7 @@ function startUnder(preset: Preset, controls: Partial<GenerationControls> = {}):
     {
       controls: chosen.settings.controls,
       figureLevels: chosen.settings.levels,
+      chordFamilies: chosen.settings.chordFamilies,
       selection: chosen.selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,

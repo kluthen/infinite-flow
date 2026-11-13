@@ -654,7 +654,7 @@ player's request and the restarted pre-generation both use.
 
 **Discards and re-checks.** The queue belongs to one key: phrase 1 (the Idle result, and so its
 session seed), the generation controls except tempo, the instrument included, the seven figure
-levels, `Vary settings`, `Tension across phrases`, the
+levels, (v3.3) session mode's Seventh chords level, `Vary settings`, `Tension across phrases`, the
 [restriction in force](music/lexicon.md#key-and-mode-restriction), none in force and one allowing
 every key and mode counting as one, as Start takes them, and (v3.2) the
 [rhythm lock](music/lexicon.md#rhythm-lock), its allowed rhythm changes and Vary settings' allowed
@@ -1030,12 +1030,13 @@ When Start, or the starting note, meets a stale phrase 1 (master spec §16; the 
 sheet: an `alertdialog` titled "This phrase is from before your changes", named by its title and
 described by its body, with the starting note's paragraph first and its hint last when the note
 opened it. It names the changed settings by their controls' labels in page order (Written key,
-Collection, Instrument profile, Harmonic motion, Tension, Note density, Rhythmic variety,
-Syncopation, Silence density, Contour, Register, Leapiness, Arpeggio chaos, then the Embellishments
-group's figures: Passing tone, Accented passing tone, Neighbor tone, Appoggiatura, Diatonic
-enclosure, Chromatic approach, Chromatic enclosure): one, "A and B", "A, B and C", or the first two
-and "{n} other settings". A figure is named when its level differs; the preset selection is never
-named, since a change of selection alone changes no setting the generation reads.
+Collection, Instrument profile, Harmonic motion, (v3.3) Seventh chords, Tension, Note density,
+Rhythmic variety, Syncopation, Silence density, Contour, Register, Leapiness, Arpeggio chaos, then
+the Embellishments group's figures: Passing tone, Accented passing tone, Neighbor tone,
+Appoggiatura, Diatonic enclosure, Chromatic approach, Chromatic enclosure): one, "A and B", "A, B
+and C", or the first two and "{n} other settings". A figure is named when its level differs, and
+Seventh chords when the Seventh chords level differs; the preset selection is never named, since
+a change of selection alone changes no setting the generation reads.
 
 - **On open** it closes the volume popover (the shell's start preparation) and puts focus on
   `Regenerate phrase`; Tab and Shift+Tab stay in the sheet.

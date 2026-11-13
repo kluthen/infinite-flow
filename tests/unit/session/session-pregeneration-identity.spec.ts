@@ -10,7 +10,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
+import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
 import {
   mutationFlagFor,
   startWorkspaceSessionRunner,
@@ -86,6 +86,13 @@ interface SessionCase {
   readonly allowedRhythmChanges?: readonly RhythmChangeKind[]
   /** Whether the window is below tablet landscape for the plan and the session. */
   readonly narrow?: boolean
+  /** The Seventh chords level phrase 1 was generated at and the session runs at; Off if absent. */
+  readonly chordFamilies?: ChordFamilies
+  /**
+   * The Seventh chords level chosen at Idle after phrase 1 was generated: the session runs at it,
+   * phrase 1 used as it is (Use it), at its own level.
+   */
+  readonly levelAtIdle?: ChordFamilies
 }
 
 /** Intent: the base settings at 60 BPM after choosing `preset`, as Start takes them. */
@@ -100,6 +107,7 @@ function settingsUnder(preset: BuiltInPresetId): SessionSettings {
     {
       controls: chosen.settings.controls,
       figureLevels: chosen.settings.levels,
+      chordFamilies: chosen.settings.chordFamilies,
       selection: chosen.selection,
       allowedGroups: ALL_GROUPS_ALLOWED,
       rhythmLockOn: false,
@@ -126,13 +134,29 @@ function caseSettings(options: SessionCase): {
   readonly session: SessionSettings
 } {
   const base = { tempo: TEMPO, ...options.controls }
+  const chordFamilies = options.chordFamilies ?? OFF_CHORD_FAMILIES
   const phraseOne = withCaseLock(
-    options.preset === undefined ? sessionSettings(base) : settingsUnder(options.preset),
+    {
+      ...(options.preset === undefined ? sessionSettings(base) : settingsUnder(options.preset)),
+      chordFamilies,
+    },
     options,
   )
-  if (options.changedAtIdle === undefined) return { phraseOne, session: phraseOne }
-  const session = withCaseLock(sessionSettings({ ...base, ...options.changedAtIdle }), options)
+  if (options.changedAtIdle === undefined && options.levelAtIdle === undefined)
+    return { phraseOne, session: phraseOne }
+  const session = withCaseLock(
+    {
+      ...sessionSettings({ ...base, ...options.changedAtIdle }),
+      chordFamilies: options.levelAtIdle ?? chordFamilies,
+    },
+    options,
+  )
   return { phraseOne, session }
+}
+
+/** Intent: whether a case starts on a stale phrase 1, its own settings beside the session's. */
+function startsStale(options: SessionCase): boolean {
+  return options.changedAtIdle !== undefined || options.levelAtIdle !== undefined
 }
 
 /** What one session gave: every output, in order. */
@@ -152,7 +176,7 @@ async function runSession(
   const clock = { at: 0 }
   const log: SessionOutput[] = []
   const errors: unknown[] = []
-  const { changedAtIdle, varySettings, multiPhraseTensionArc, sessionSeed } = options
+  const { varySettings, multiPhraseTensionArc, sessionSeed } = options
   const settings = caseSettings(options)
   const runner = startWorkspaceSessionRunner(
     {
@@ -169,7 +193,7 @@ async function runSession(
       at: 0,
       settings: settings.session,
       phraseOne: phraseOneFor(settings.phraseOne),
-      ...(changedAtIdle === undefined ? {} : { phraseOneSettings: settings.phraseOne }),
+      ...(startsStale(options) ? { phraseOneSettings: settings.phraseOne } : {}),
       adaptiveTempo: false,
       varySettings,
       multiPhraseTensionArc,
@@ -198,7 +222,7 @@ function planFor(options: SessionCase): PlanRun {
       planStart({
         settings: settings.session,
         phraseOne: phraseOneFor(settings.phraseOne),
-        ...(options.changedAtIdle === undefined ? {} : { phraseOneSettings: settings.phraseOne }),
+        ...(startsStale(options) ? { phraseOneSettings: settings.phraseOne } : {}),
         sessionSeed: options.sessionSeed,
         mutation: mutationFlagFor(
           options.varySettings,
@@ -271,6 +295,75 @@ describe('a session with and without pre-generation', () => {
       )
       expect(requested.length).toBeGreaterThan(0)
       expect(requested.every((phraseNumber) => phraseNumber >= 6)).toBe(true)
+    },
+    SESSIONS_TIMEOUT_MS,
+  )
+})
+
+/** Each Seventh chords level above Off, with Vary settings off and on. */
+const LEVEL_CASES: readonly SessionCase[] = (['sometimes', 'favored', 'stronglyFavored'] as const)
+  .map((level): ChordFamilies => ({ 'seventh-chords': level }))
+  .flatMap((chordFamilies) =>
+    [false, true].map((varySettings) => ({
+      chordFamilies,
+      varySettings,
+      multiPhraseTensionArc: false,
+      sessionSeed: DEFAULT_SESSION_SEED,
+    })),
+  )
+
+// @test-link [[rule_pregenerated_phrase_matches_session]]
+// @test-link [[rule_seventh_chord_draws_reproducible]]
+describe('a session at a Seventh chords level, with and without pre-generation', () => {
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  // @test-link [[rule_seventh_chord_draws_reproducible]]
+  it.each(LEVEL_CASES)(
+    'decides identical phrases at the level, every ready phrase made at it (level $chordFamilies.seventh-chords, Vary $varySettings)',
+    async (options) => {
+      const ready = readyFor(options)
+      expect(ready.map((entry) => entry.phraseNumber)).toEqual([2, 3, 4, 5])
+      expect(ready.map((entry) => entry.intent.chordFamilies)).toEqual(
+        Array(4).fill(options.chordFamilies),
+      )
+      const without = await runSession(options, undefined)
+      const withReady = await runSession(options, ready)
+      expect(decidedPhrases(withReady)).toEqual(decidedPhrases(without))
+      expect(
+        outputsOf(without, 'phrase-ready').map((output) => output.phrase.intent.chordFamilies),
+      ).toEqual(Array(7).fill(options.chordFamilies))
+      expect(outputsOf(withReady, 'settings-changed')).toEqual(
+        outputsOf(without, 'settings-changed'),
+      )
+    },
+    SESSIONS_TIMEOUT_MS,
+  )
+
+  // @test-link [[rule_pregenerated_phrase_matches_session]]
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it.each([false, true])(
+    'decides the phrases the plan made after the level changed at Idle, phrase 1 at its own (Vary %s)',
+    async (varySettings) => {
+      const options: SessionCase = {
+        varySettings,
+        multiPhraseTensionArc: false,
+        sessionSeed: DEFAULT_SESSION_SEED,
+        levelAtIdle: { 'seventh-chords': 'favored' },
+      }
+      const ready = readyFor(options)
+      expect(ready.map((entry) => entry.phraseNumber)).toEqual([2, 3, 4, 5])
+      const without = await runSession(options, undefined)
+      const withReady = await runSession(options, ready)
+      expect(decidedPhrases(withReady)).toEqual(decidedPhrases(without))
+      expect(withoutRequestIds(ready.map((entry) => entry.intent))).toEqual(
+        withoutRequestIds(
+          outputsOf(without, 'phrase-ready')
+            .slice(0, 4)
+            .map((output) => output.phrase.intent),
+        ),
+      )
+      expect(ready.map((entry) => entry.intent.chordFamilies['seventh-chords'])).toEqual(
+        Array(4).fill('favored'),
+      )
     },
     SESSIONS_TIMEOUT_MS,
   )

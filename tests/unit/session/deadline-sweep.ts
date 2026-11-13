@@ -298,13 +298,15 @@ export function writtenPhraseFits(candidate: {
 }
 
 /**
- * Intent: the intent of phrase 1 generated with one seed under some settings, exactly as the sweep
- * builds it at Idle, so another way of producing phrase 1 (a Jam's) can ask for the same phrase.
+ * Intent: the intent of phrase 1 generated with one seed under some settings, their Seventh chords
+ * level included, exactly as the sweep builds it at Idle, so another way of producing phrase 1 (a
+ * Jam's) can ask for the same phrase.
  */
 export function phraseOneIntent(settings: SessionSettings, seed: number): GenerationIntent {
   return buildIntent({
     controls: settings.controls,
     figureLevels: settings.figureLevels,
+    chordFamilies: settings.chordFamilies,
     seed,
     label: 'sweep-phrase-1',
   })

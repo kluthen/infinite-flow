@@ -111,7 +111,9 @@ export function rhythmSettingKeyOf(intent: GenerationIntent): string {
  * from the last one it posted (the first call always posts), so a non-rhythm edit (tonal center,
  * tempo, contour...) and a width crossing that leaves the generated density unchanged post nothing.
  * My instrument's profile goes into the intent as data, never looked up by its id. The intent's
- * Seventh chords level is Off, as every intent the app builds carries it for now.
+ * Seventh chords level is Off whatever the player's level: a prewarm only warms the rhythm-domain
+ * memo, keyed by the five rhythm controls `rhythmSettingKeyOf` reads, which the level does not
+ * shape, so a level change posts no prewarm and the level an intent carries here warms nothing.
  */
 // @spec-link [[module_generation_prewarm]]
 // @spec-link [[entity_my_instrument]]

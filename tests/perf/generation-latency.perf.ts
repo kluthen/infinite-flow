@@ -361,6 +361,7 @@ function allStartSettings(): SessionSettings[] {
       instrumentProfileId: 'bb-tenor',
     }),
     figureLevels: levelsForProfile(profiles[index]!),
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: profiles[index] === 'Jazz' ? 'jazz' : 'neutral' },
     allowedGroups: ALL_GROUPS_ALLOWED,
     rhythmLockOn: false,

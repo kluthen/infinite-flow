@@ -218,3 +218,26 @@ describe('a visit that saves nothing', () => {
     expect(fake.calls).toEqual([])
   })
 })
+
+// @test-link [[rule_choosing_preset_sets_its_settings]]
+// @test-link [[module_player_presets]]
+describe('a saved preset takes the Seventh chords level', () => {
+  // @test-link [[module_player_presets]]
+  it('Save as new and Save changes store the level the session holds', () => {
+    const built = rig()
+    expect(built.session.actions.setChordFamilyLevel('seventh-chords', 'favored')).toBe(true)
+
+    const asked = built.presets.saveChangesChoices.value
+    const changes =
+      asked === null ? built.presets.saveChanges() : built.presets.saveChanges(asked[0]!.kind)
+    expect(changes.status).toBe('applied')
+    expect(built.presets.saveAsNew('Sevenths', 'anyKeyAndMode').status).toBe('applied')
+
+    const stored = built.fake.calls.flatMap((call) => ('preset' in call ? [call.preset] : []))
+    expect(stored).toHaveLength(2)
+    expect(stored.map((preset) => preset.chordFamilies['seventh-chords'])).toEqual([
+      'favored',
+      'favored',
+    ])
+  })
+})

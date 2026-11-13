@@ -40,6 +40,7 @@ const LABELS: readonly (readonly [StaleSetting, string])[] = [
   ['collection', 'Collection'],
   ['instrumentProfileId', 'Instrument profile'],
   ['harmonicMotion', 'Harmonic motion'],
+  ['seventh-chords', 'Seventh chords'],
   ['tension', 'Tension'],
   ['noteDensity', 'Note density'],
   ['rhythmicVariety', 'Rhythmic variety'],

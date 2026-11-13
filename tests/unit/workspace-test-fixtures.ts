@@ -48,6 +48,7 @@ export function buildWorkspaceSessionResult(
   const settings = {
     controls: CHEAP_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: SELECTION,
   }
   return { outcome, intent, settings, sessionSeed: makeSeed(sessionSeed) }

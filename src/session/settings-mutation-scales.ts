@@ -354,8 +354,11 @@ export const MUTATION_SCALES: MutationScaleTable = deepFreeze({
 
 /**
  * Intent: the mutable settings in the order a draw lists them: catalog order, then the figure
- * levels, in the musical profile's former place, so the draw keeps its 13 places.
+ * levels, in the musical profile's former place, so the draw keeps its 13 places. The Seventh
+ * chords level is none of them and belongs to no group: it is a choice of sound, never a practice
+ * variation, so no draw moves it and the recorded draws keep their places.
  */
+// @spec-link [[rule_vary_settings_never_moves_seventh_chords_level]]
 // @spec-link [[module_settings_mutation]]
 // @spec-link [[req_settings_mutation_flag]]
 export const MUTABLE_SETTINGS: readonly MutableSetting[] = deepFreeze([

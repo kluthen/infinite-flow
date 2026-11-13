@@ -23,7 +23,8 @@ import { chordTones } from '@/domain/harmony/harmony-types'
 import { isSeventhDrawn } from '@/domain/harmony/seventh-draw'
 import { chordPlan } from '../unit/domain/harmony/seventh-chord-fixtures'
 import { buildIntent } from '../unit/domain/generation/carry-in/carry-in-fixture'
-import { caseSettings, sweepCases } from '../unit/session/deadline-sweep'
+import { caseSettings, phraseOneIntent, sweepCases } from '../unit/session/deadline-sweep'
+import { jamPhraseOneIntent, phraseOneLockGroup } from './jam-sweep-ladder'
 import {
   SEVENTH_QUALITIES,
   classifyPlan,
@@ -272,9 +273,26 @@ describe('the Seventh chords level as a measurement dimension', () => {
     ])
   })
 
-  it('refuses a session case above Off, which a session cannot carry before chunk 16', () => {
+  it("gives a session case above Off session settings at its level, the sweep's phrase 1 and the Jam double's carrying it; at Off both are unchanged", () => {
     const [first] = sweepCases()
-    expect(caseSettings({ ...first!, seventhLevel: 'off' }, 120)).toEqual(caseSettings(first!, 120))
-    expect(() => caseSettings({ ...first!, seventhLevel: 'favored' }, 120)).toThrow(/chunk 16/)
+    const atOff = caseSettings(first!, 120)
+    expect(caseSettings({ ...first!, seventhLevel: 'off' }, 120)).toEqual(atOff)
+    expect(atOff.chordFamilies).toEqual(chordFamiliesAt('off'))
+    expect(phraseOneIntent(atOff, first!.seed).chordFamilies).toEqual(chordFamiliesAt('off'))
+    const lock = phraseOneLockGroup({ on: true, allowedChanges: [] })
+    expect(jamPhraseOneIntent(atOff, first!.seed, { rhythmLock: lock }).chordFamilies).toEqual(
+      chordFamiliesAt('off'),
+    )
+    for (const level of ['sometimes', 'favored', 'stronglyFavored'] as const) {
+      const settings = caseSettings({ ...first!, seventhLevel: level }, 120)
+      expect(settings).toEqual({ ...atOff, chordFamilies: chordFamiliesAt(level) })
+      expect(phraseOneIntent(settings, first!.seed).chordFamilies).toEqual(chordFamiliesAt(level))
+      expect(jamPhraseOneIntent(settings, first!.seed, {}).chordFamilies).toEqual(
+        chordFamiliesAt(level),
+      )
+      expect(jamPhraseOneIntent(settings, first!.seed, { rhythmLock: lock }).chordFamilies).toEqual(
+        chordFamiliesAt(level),
+      )
+    }
   })
 })

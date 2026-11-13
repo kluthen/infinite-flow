@@ -6,6 +6,7 @@
  */
 
 import type { ViewportWidthProvider } from '../composables/viewport-width'
+import type { ChordFamilies } from '../domain/chords/chord-families'
 import type { GenerationControls } from '../domain/controls/generation-controls'
 import type { FigureId, FigureLevels } from '../domain/figures/figure-levels'
 import type {
@@ -72,7 +73,9 @@ export type SuccessfulOutcome = Extract<GenerationOutcome, { kind: 'generation_s
  * Session settings: those the player chose when the session started, which the player cannot edit
  * during it, or those an automatic source put in effect at a phrase boundary since. The controls
  * hold the written tonal center and the chosen note density; the figure levels are the seven
- * figures' levels every phrase is generated with; the selection is the preset selected, or Custom
+ * figures' levels every phrase is generated with; the Seventh chords level is the one every phrase
+ * of the session is generated with, frozen at Start and moved by nothing during the session (no
+ * Vary settings draw, no settings change); the selection is the preset selected, or Custom
  * naming its base, which a Vary settings step of a preset-held setting marks Custom for the
  * session. No musical profile is held. `instrumentProfile` is my instrument's profile, carried as
  * data exactly when the controls name `my-instrument` (taken at Start from phrase 1's intent); a
@@ -88,6 +91,7 @@ export type SuccessfulOutcome = Extract<GenerationOutcome, { kind: 'generation_s
 export interface SessionSettings {
   readonly controls: GenerationControls
   readonly figureLevels: FigureLevels
+  readonly chordFamilies: ChordFamilies
   readonly selection: PresetSelection
   readonly instrumentProfile?: InstrumentProfile
   readonly restriction?: KeyAndModeRestriction

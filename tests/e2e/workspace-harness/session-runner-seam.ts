@@ -66,6 +66,7 @@ export function changeSettings(controls: Readonly<Record<string, string>>): void
   const settings: SessionSettings = Object.freeze({
     controls: makeGenerationControls(Object.assign({}, latest.settings.controls, controls)),
     figureLevels: latest.settings.figureLevels,
+    chordFamilies: latest.settings.chordFamilies,
     selection: latest.settings.selection,
     allowedGroups: latest.settings.allowedGroups,
     rhythmLockOn: latest.settings.rhythmLockOn,

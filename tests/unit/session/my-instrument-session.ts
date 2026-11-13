@@ -41,6 +41,7 @@ export function myInstrumentSettings(instrument: MyInstrument): SessionSettings 
       instrumentProfileId: 'my-instrument',
     }),
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: 'neutral' },
     instrumentProfile: instrument.profile,
     allowedGroups: ALL_GROUPS_ALLOWED,

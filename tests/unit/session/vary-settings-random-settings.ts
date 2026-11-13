@@ -4,6 +4,7 @@
  * none), any subset of the six groups and the rhythm lock on or off.
  */
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import {
   ARPEGGIO_CHAOS_VALUES,
   COLLECTIONS,
@@ -93,6 +94,7 @@ export function randomSettings(random: Mulberry32Generator): SessionSettings {
   return {
     controls,
     figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: { kind: 'custom', baseId: draw(BUILT_IN_PRESET_IDS) },
     ...(restriction === undefined ? {} : { restriction }),
     allowedGroups: draw(EVERY_GROUP_SUBSET),

@@ -14,6 +14,7 @@ import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { SessionController } from '@/components/workspace/workspace-session-controller-types'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import type { SessionSettings } from '@/session/session-types'
@@ -45,6 +46,7 @@ afterEach(() => {
 const VARIED: SessionSettings = {
   controls: { ...DEFAULT_GENERATION_CONTROLS, tension: 'Build' },
   figureLevels: { ...NEUTRAL_FIGURE_LEVELS, appoggiatura: 'asToday' },
+  chordFamilies: OFF_CHORD_FAMILIES,
   selection: { kind: 'custom', baseId: 'neutral' },
   allowedGroups: ALL_GROUPS_ALLOWED,
   rhythmLockOn: false,
@@ -108,6 +110,7 @@ const NEUTRAL_DESCRIPTION = "Plain lines in the key, in quarter notes: the app's
 const START: SessionSettings = {
   controls: DEFAULT_GENERATION_CONTROLS,
   figureLevels: NEUTRAL_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   selection: { kind: 'preset', presetId: 'neutral' },
   allowedGroups: ALL_GROUPS_ALLOWED,
   rhythmLockOn: false,
