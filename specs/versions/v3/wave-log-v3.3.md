@@ -675,3 +675,12 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
 | coding-leader |    Chunk 16: resume from WIP |   161 |    271k | $8.75 |
 | coding-leader |   Chunk 16: level in session |    98 |    256k | $5.70 |
 | documentalist |           Wave 3 intent sync |    99 |    231k | $4.99 |
+
+- The owner, 2026-11-13: "ok, merge and promote. we will wait for the optional rule, as it will
+  be handled later and file the issue." The six rules went to REVIEW in 8ca211b6 (all six with
+  spec- and test-links; `atd lint` clean). `rule_seventh_chords_off_changes_nothing` stays DRAFT
+  until Jam's own level (chunk 23). The review-suggestion flake is filed as ISS-018 (b3e04a96).
+  Not pushed (the owner didn't ask). Next: wave 4 (chunks 13, 14, 17, 18) in a fresh session. Its
+  preflight raises M2's seeds (`cost-guard`, `jam-sweep` use only seeds 7 and 13 above Off), and
+  its sync applies A5–A7 and A9's presets (CONTRACT 18.0.0). O2 (`module_tension_arc_cycle`'s
+  "`ifk1.`", O230) stays open.
