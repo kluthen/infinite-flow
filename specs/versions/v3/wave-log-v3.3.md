@@ -874,3 +874,26 @@ render:seventh-endings` command.
   Favored `no_legal_pitch_plan` 40 → 41 (timing; Neutral has no figure path onto the final
   attack). Corpus guard 26 files, 678 tests unchanged; no above-Off replay key moved (L1's 15 byte
   for byte). ISS-019 resolved.
+
+### Wave 4 gate (2026-11-13, red on the entry budget only)
+
+- Leftovers (1940c0bc): the share constants' pointer comment (`seventh-draw.ts`), `docs/testing.md`'s
+  `seventh-chord-inputs.ts` row.
+- `npm run quality` on 1940c0bc (armenelos, 12 cores, 11 GiB; 21:37–22:00 CET; load 4.7 at start,
+  CPU about 92 % idle; Steam's helper at half a core): format, lint, links, health pass; unit
+  10,131 in 651 files; build passes; e2e 737 + 1 skipped with pre-generation off and on; a11y 76;
+  notation 121 + 4 skipped; ATD lint and check pass. No flake, no rerun.
+- **`verify:boundaries` fails: entry chunk 330,428 B against the 327,680 B budget** (spec D504,
+  O235), +15,736 B on wave 3. Bisected: chunks 13 ±0, 14 −2,843, **17a +18,224**, 17b +355, the
+  rest ±0. Chunk 17a's step 5 (`presets-and-kept-sessions-v5.ts`, static from `database.ts`)
+  reaches `kept-session-body-read.ts`, and the bundler then merges three shared chunks already
+  loaded at start-up (`kept-session-summary-*`, `deep-equal-*`, `generation-intent-*`) into
+  `index-*.js`. All JavaScript loaded at start-up: 380,072 B at wave 3, 385,440 B now (+5,368 B,
+  of which 17a +4,468 B). Not fixed: the budget is the owner's (O235: "stays until the owner
+  rules"). Options put to the owner: (a) raise the budget, (b) count all start-up JavaScript as
+  O235 asks, (c) load the migration steps lazily before the database opens, (d) force the old
+  chunking (games the measure; not recommended).
+- Sweep: 145 tests in 13 files (wave 3 125 in 11; chunk 18's two new specs); all 94 `SWEEP-` lines
+  equal wave 3's, so v3.2's figures at Off hold.
+- Engraver chunk 735,085 B (+920 B, chunk 14's suffix table; budget 800 KiB). Jam's chunk 61.18 kB.
+- Wave sync started with the tests done; the budget ruling follows it.
