@@ -34,11 +34,14 @@ import {
   intentSummaryLine,
   seventhShares,
   splitTimes,
+  standaloneAttempts,
+  standaloneAttemptsLine,
   tempoSummaryLines,
   type AttemptTime,
   type SeventhShares,
   type Share,
   type SplitTimes,
+  type StandaloneAttempts,
   type TempoFigures,
   type TimedOutcome,
 } from './cost-guard-figures'
@@ -242,12 +245,15 @@ export const SEVENTH_SETTINGS: readonly CostSetting[] = [
   atSeventhLevel(settingLabelled(BUILT_IN_SETTINGS, 'built-in Bebop'), 'stronglyFavored'),
 ]
 
-/** Intent: whether a setting plays at a Seventh chords level a run can measure today. */
+/** Intent: whether a setting plays at a Seventh chords level a run can measure. */
 function measurable(setting: CostSetting): boolean {
   return MEASURABLE_SEVENTH_LEVELS.includes(setting.seventhLevel ?? 'off')
 }
 
-/** Intent: the labels of v3.3's settings no run can measure yet (seventh-levels.ts). */
+/**
+ * Intent: the labels of v3.3's settings no run can measure (seventh-levels.ts): none, every level
+ * being measurable.
+ */
 export function unmeasurableSeventhSettings(): readonly string[] {
   return SEVENTH_SETTINGS.filter((setting) => !measurable(setting)).map((setting) => setting.label)
 }
@@ -255,9 +261,9 @@ export function unmeasurableSeventhSettings(): readonly string[] {
 /**
  * Intent: the settings a run measures, from a comma-separated list of labels (any case); none
  * given, the two profiles, as the runner measured first; `all`, v3.1's settings; `sevenths`,
- * v3.3's settings that can be measured today (the others are listed by
+ * v3.3's settings that can be measured (every one of them; any other is listed by
  * `unmeasurableSeventhSettings`). An unknown label fails, naming the known ones, and so does a
- * v3.3 setting at a level not measurable today.
+ * v3.3 setting at a level not measurable.
  */
 export function selectedSettings(raw: string | undefined): readonly CostSetting[] {
   if (raw === undefined || raw.trim() === '') return PROFILE_SETTINGS
@@ -396,6 +402,8 @@ export interface SettingFigures {
     readonly failuresByTension: Readonly<Record<string, Readonly<Record<string, number>>>>
     readonly seconds: SplitTimes
     readonly sevenths: SeventhShares
+    /** Those with no carry-in, timed against the standalone reserve (M2). */
+    readonly standaloneAttempts: StandaloneAttempts
   }
   readonly tempos: readonly TempoFigures[]
   /** The fallback tempo's standalone shares and productions, repeated from its tempo figures. */
@@ -435,6 +443,7 @@ export async function measureSetting(
       failuresByTension: failuresByTension(distinct),
       seconds: splitTimes(distinct),
       sevenths: seventhShares(distinct),
+      standaloneAttempts: standaloneAttempts(distinct),
     },
     tempos: figures,
     fallbackAtFastestTempo: {
@@ -459,6 +468,10 @@ export function settingSummaryLines(figures: SettingFigures): readonly string[] 
     intentSummaryLine(figures.label, figures.distinctIntents.seconds, failed),
     `COST-GUARD [${figures.label}] distinct intents' harmony events in seventh form: ${shareText(sevenths.seventhEvents)}; phrases fallen back to triads: ${shareText(sevenths.fallbacks)}`,
     `COST-GUARD [${figures.label}] distinct intents failed by Tension: ${JSON.stringify(figures.distinctIntents.failuresByTension)}`,
+    standaloneAttemptsLine(
+      `COST-GUARD [${figures.label}] distinct intents`,
+      figures.distinctIntents.standaloneAttempts,
+    ),
     ...figures.tempos.flatMap((tempoFigures) => tempoSummaryLines(figures.label, tempoFigures)),
   ]
 }

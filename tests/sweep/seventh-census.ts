@@ -48,6 +48,8 @@ export interface PhraseSeventhCensus {
   readonly mode: Collection
   readonly events: readonly EventCensus[]
   readonly seventhEvents: number
+  /** The events the phrase's draw gave their seventh form first, whatever the winning plan holds. */
+  readonly drawnSevenths: number
   /** True when the winning plan is the triads-only variant of a plan with a seventh drawn. */
   readonly fallback: boolean
 }
@@ -130,6 +132,7 @@ export function classifyPlan(
     mode,
     events: census,
     seventhEvents,
+    drawnSevenths,
     fallback: drawnSevenths > 0 && seventhEvents === 0,
   }
 }
