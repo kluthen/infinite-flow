@@ -1,6 +1,6 @@
 ---
 id: rule_seventh_chance_same_at_every_degree
-status: DRAFT
+status: REVIEW
 tags: [v3, release-v3.3, generation, chords]
 parents:
   - [[req_seventh_chords_level]]

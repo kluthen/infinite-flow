@@ -1,6 +1,6 @@
 ---
 id: rule_seventh_chords_level_never_a_quota
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

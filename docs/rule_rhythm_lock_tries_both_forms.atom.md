@@ -1,6 +1,6 @@
 ---
 id: rule_rhythm_lock_tries_both_forms
-status: DRAFT
+status: REVIEW
 dependents:
   - [[service_generation_orchestration]]
 layer: BUSINESS

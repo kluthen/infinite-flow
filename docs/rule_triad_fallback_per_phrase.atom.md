@@ -1,6 +1,6 @@
 ---
 id: rule_triad_fallback_per_phrase
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: A Phrase Falls Back to Triads as a Whole
 parents:
