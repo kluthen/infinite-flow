@@ -1,15 +1,22 @@
 /**
  * The workspace session's control actions, split out of use-generation-session.ts: the routing
- * point every edit of a generation setting at Idle goes through (a control, a figure level, a
- * preset choice), the presentation theme, the preset-list action that replaces the player presets
+ * point every edit of a generation setting at Idle goes through (a control, a figure level, the
+ * Seventh chords level, a preset choice), the presentation theme, the preset-list action that
+ * replaces the player presets
  * and, where the preset rules say, the selection, and the unsupported-rhythm block that judges the
  * current controls. This module owns no session state of its own: it reads and writes the shared
  * session state object the root composable constructs and passes in. Each action that applies
- * saves the settings it changed: the actions are the player's change handlers' way in, so what
- * they change is the player's choice.
+ * saves the settings it changed (the Seventh chords level apart, which no record holds yet): the
+ * actions are the player's change handlers' way in, so what they change is the player's choice.
  */
 
-import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
+import {
+  CHORD_FAMILY_IDS,
+  CHORD_FAMILY_LEVEL_IDS,
+  type ChordFamilies,
+  type ChordFamilyId,
+  type ChordFamilyLevel,
+} from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -46,6 +53,8 @@ import {
 const PRESET_HELD_KEYS: ReadonlySet<string> = new Set(PRESET_HELD_CONTROL_KEYS)
 const FIGURE_ID_SET: ReadonlySet<string> = new Set(FIGURE_IDS)
 const FIGURE_LEVEL_SET: ReadonlySet<string> = new Set(FIGURE_LEVEL_IDS)
+const CHORD_FAMILY_SET: ReadonlySet<string> = new Set(CHORD_FAMILY_IDS)
+const CHORD_FAMILY_LEVEL_SET: ReadonlySet<string> = new Set(CHORD_FAMILY_LEVEL_IDS)
 
 /** The dependency surface the control actions need from the root session composable. */
 export interface ControlActionDependencies<TResult> {
@@ -68,7 +77,12 @@ export interface ControlActionDependencies<TResult> {
 /** The control actions, plus the rhythm block the rest of the session judges generation by. */
 export type ControlActions = Pick<
   GenerationSessionActions,
-  'setControl' | 'setFigureLevel' | 'selectPreset' | 'setTheme' | 'replacePlayerPresets'
+  | 'setControl'
+  | 'setFigureLevel'
+  | 'setChordFamilyLevel'
+  | 'selectPreset'
+  | 'setTheme'
+  | 'replacePlayerPresets'
 > & {
   /** Whether the current controls' rhythm combination blocks generation at the width now. */
   readonly isBlockedByUnsupportedRhythm: () => boolean
@@ -78,6 +92,12 @@ export type ControlActions = Pick<
 interface GeneratedFrom {
   readonly controls: GenerationControls
   readonly figureLevels: FigureLevels
+  readonly chordFamilies: ChordFamilies
+}
+
+/** The player's settings the routing point applies together: those above and the selection. */
+interface ChosenSettings extends GeneratedFrom {
+  readonly selection: PresetSelection
 }
 
 /** Intent: what an edit of one control is, as the selection needs to know it. */
@@ -96,7 +116,8 @@ function generationSettingsDiffer(before: GeneratedFrom, after: GeneratedFrom): 
   const controlKeys = Object.keys(after.controls) as (keyof GenerationControls)[]
   return (
     controlKeys.some((key) => key !== 'tempo' && before.controls[key] !== after.controls[key]) ||
-    FIGURE_IDS.some((figure) => before.figureLevels[figure] !== after.figureLevels[figure])
+    FIGURE_IDS.some((figure) => before.figureLevels[figure] !== after.figureLevels[figure]) ||
+    CHORD_FAMILY_IDS.some((family) => before.chordFamilies[family] !== after.chordFamilies[family])
   )
 }
 
@@ -115,26 +136,30 @@ export function createControlActions<TResult>(
     return state.operation === 'idle'
   }
 
+  /** Intent: the player's settings as they stand, before an edit. */
+  function chosenNow(): ChosenSettings {
+    return {
+      controls: state.controls,
+      figureLevels: state.figureLevels,
+      chordFamilies: state.chordFamilies,
+      selection: state.selection,
+    }
+  }
+
   /**
-   * Intent: the routing point's one apply: set the player's new controls, figure levels and
-   * selection together, and save what changed. The phrase on screen stays.
+   * Intent: the routing point's one apply: set the player's new controls, figure levels, Seventh
+   * chords level and selection together, and, when `saved`, save what changed. The phrase on
+   * screen stays. No record holds the level yet, so a change of it is never saved.
    */
   // @spec-link [[module_profile_control_customization]]
   // @spec-link [[rule_settings_saved_on_change]]
-  function applyChosen(
-    controls: GenerationControls,
-    figureLevels: FigureLevels,
-    selection: PresetSelection,
-  ): void {
-    const before = {
-      controls: state.controls,
-      figureLevels: state.figureLevels,
-      selection: state.selection,
-    }
-    state.controls = controls
-    state.figureLevels = figureLevels
-    state.selection = selection
-    deps.saveSettings(chosenControlChanges(before, { controls, figureLevels, selection }))
+  function applyChosen(chosen: ChosenSettings, saved: 'saved' | 'unsaved' = 'saved'): void {
+    const before = chosenNow()
+    state.controls = chosen.controls
+    state.figureLevels = chosen.figureLevels
+    state.chordFamilies = chosen.chordFamilies
+    state.selection = chosen.selection
+    if (saved === 'saved') deps.saveSettings(chosenControlChanges(before, chosen))
   }
 
   /**
@@ -186,7 +211,7 @@ export function createControlActions<TResult>(
       controlChange(key, controls),
       deps.presets(),
     )
-    applyChosen(controls, state.figureLevels, selection)
+    applyChosen({ ...chosenNow(), controls, selection })
     reactToEdit(key !== 'tempo')
     return true
   }
@@ -213,14 +238,47 @@ export function createControlActions<TResult>(
       { kind: 'figureLevel', figure },
       deps.presets(),
     )
-    applyChosen(state.controls, figureLevels, selection)
+    applyChosen({ ...chosenNow(), figureLevels, selection })
     reactToEdit(true)
     return true
   }
 
   /**
-   * Choose a known preset: its ten controls and seven levels replace the current ones, the key and
-   * mode kept when its restriction allows them, and the selection becomes it; the tempo, the
+   * An edit of a chord family's level (the Seventh chords level): with a preset selected, the
+   * selection becomes Custom based on it. A family or a level that is not one is a defect.
+   * Applied, it reacts as a figure level's edit does (the rhythm setting is unchanged, so no
+   * prewarm is posted) and saves nothing, the selection it makes included: no record holds the
+   * level yet, and a saved Custom with no level saved would come back as Custom over its base's
+   * own values.
+   */
+  // @spec-link [[module_profile_control_customization]]
+  // @spec-link [[rule_custom_selection]]
+  // @spec-link [[service_idle_generation_session]]
+  function setChordFamilyLevel(family: ChordFamilyId, level: ChordFamilyLevel): boolean {
+    if (!CHORD_FAMILY_SET.has(family)) {
+      throw new SessionUsageError(
+        `setChordFamilyLevel: ${JSON.stringify(family)} is not a chord family.`,
+      )
+    }
+    if (!CHORD_FAMILY_LEVEL_SET.has(level)) {
+      throw new SessionUsageError(`setChordFamilyLevel: ${JSON.stringify(level)} is not a level.`)
+    }
+    if (!canChangeConfiguration()) return false
+    const chordFamilies: ChordFamilies = deepFreeze({ ...state.chordFamilies, [family]: level })
+    const selection = selectionAfterChange(
+      state.selection,
+      { kind: 'chordFamilyLevel', family },
+      deps.presets(),
+    )
+    applyChosen({ ...chosenNow(), chordFamilies, selection }, 'unsaved')
+    reactToEdit(true)
+    return true
+  }
+
+  /**
+   * Choose a known preset: its ten controls, seven figure levels and Seventh chords level replace
+   * the current ones, the key and mode kept when its restriction allows them, and the selection
+   * becomes it; the tempo, the
    * instrument and the session options never change. Choosing the preset already selected changes,
    * saves, warms and reacts to nothing. An applied choice saves what changed and posts a prewarm;
    * one that changed a setting the phrase is generated from reacts under the room notice. An id no
@@ -237,21 +295,21 @@ export function createControlActions<TResult>(
       throw new SessionUsageError(`selectPreset: no known preset has the id ${JSON.stringify(id)}.`)
     }
     if (!canChangeConfiguration()) return false
-    // The Idle session holds no Seventh chords level yet (spec D527): the choice starts from Off
-    // and the chosen level is kept nowhere.
     const current = {
       controls: state.controls,
       levels: state.figureLevels,
-      chordFamilies: OFF_CHORD_FAMILIES,
+      chordFamilies: state.chordFamilies,
     }
     const chosen = choosePreset(current, state.selection, preset)
     if (chosen.settings === current) return true
-    const before: GeneratedFrom = { controls: state.controls, figureLevels: state.figureLevels }
-    const after: GeneratedFrom = {
+    const before = chosenNow()
+    const after: ChosenSettings = {
       controls: makeGenerationControls(chosen.settings.controls),
       figureLevels: chosen.settings.levels,
+      chordFamilies: chosen.settings.chordFamilies,
+      selection: chosen.selection,
     }
-    applyChosen(after.controls, after.figureLevels, chosen.selection)
+    applyChosen(after)
     reactToEdit(generationSettingsDiffer(before, after))
     return true
   }
@@ -317,6 +375,7 @@ export function createControlActions<TResult>(
     isBlockedByUnsupportedRhythm,
     setControl,
     setFigureLevel,
+    setChordFamilyLevel,
     selectPreset,
     setTheme,
     replacePlayerPresets,

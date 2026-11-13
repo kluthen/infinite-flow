@@ -81,6 +81,7 @@ const NO_MY_INSTRUMENT_SAVES: MyInstrumentSaves = {
 const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
   controls: DEFAULT_GENERATION_CONTROLS,
   figureLevels: NEUTRAL_FIGURE_LEVELS,
+  chordFamilies: OFF_CHORD_FAMILIES,
   selection: DEFAULT_PRESET_SELECTION,
   playerPresets: [],
   theme: 'System',
@@ -93,8 +94,9 @@ const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
  * Each phrase 1 a fit run publishes is the generated phrase joined with the session seed drawn
  * for it. Its state starts from the given initial settings (the saved ones the app loaded before
  * its first draw), or from the first-load values when none are given. The player's changes to the
- * controls, the figure levels, the preset selection and the theme go through the one routing
- * point, which saves what they changed through `saveSettings`; the presets it knows, chosen from,
+ * controls, the figure levels, the Seventh chords level, the preset selection and the theme go
+ * through the one routing point, which saves what they changed through `saveSettings` (the level
+ * excepted, which no record holds yet); the presets it knows, chosen from,
  * judged against and named from, are the built-ins, then the player presets it was given.
  * While the controls name my instrument, every intent it builds carries my instrument's profile as
  * data; starting with them naming it and no my instrument given is a caller defect and throws.
@@ -115,6 +117,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
   const state = shallowReactive<MutableGenerationSessionState<TResult>>({
     controls: initial.controls,
     figureLevels: initial.figureLevels,
+    chordFamilies: initial.chordFamilies,
     selection: initial.selection,
     presets: [...BUILT_IN_PRESETS, ...initial.playerPresets],
     presentation: { theme: initial.theme },
@@ -197,6 +200,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     isBlockedByUnsupportedRhythm,
     setControl,
     setFigureLevel,
+    setChordFamilyLevel,
     selectPreset,
     setTheme,
     replacePlayerPresets,
@@ -223,14 +227,14 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
   })
 
   /**
-   * Build a fresh, freshly identified/seeded intent from the current controls and figure levels,
-   * with the note density the window's width gives now: the intent carries that plain
-   * density, never the width itself, while `state.controls` keeps the chosen value. My instrument's
-   * profile goes in as data while the controls name it. The Seventh chords level is Off: no Idle
-   * state holds one yet.
+   * Build a fresh, freshly identified/seeded intent from the current controls, figure levels and
+   * Seventh chords level, with the note density the window's width gives now: the intent carries
+   * that plain density, never the width itself, while `state.controls` keeps the chosen value. My
+   * instrument's profile goes in as data while the controls name it.
    */
   // @spec-link [[rule_generated_density_follows_window_width]]
   // @spec-link [[service_idle_generation_session]]
+  // @spec-link [[module_generation_request_construction]]
   // @spec-link [[entity_my_instrument]]
   function freshIntentFromControls(): GenerationIntent {
     const instrumentProfile = suppliedInstrumentProfile()
@@ -239,7 +243,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
       seed: options.providers.nextSeed(),
       controls: resolveGeneratedControls(state.controls, readNoteDensityContext()),
       figureLevels: state.figureLevels,
-      chordFamilies: OFF_CHORD_FAMILIES,
+      chordFamilies: state.chordFamilies,
       ...(instrumentProfile === undefined ? {} : { instrumentProfile }),
     })
   }
@@ -405,6 +409,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     actions: {
       setControl,
       setFigureLevel,
+      setChordFamilyLevel,
       selectPreset,
       replacePlayerPresets,
       selectInstrumentProfile,

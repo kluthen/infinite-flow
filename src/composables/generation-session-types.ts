@@ -4,6 +4,7 @@
  * no behaviour: the root composable and its sibling modules share these shapes from here.
  */
 
+import type { ChordFamilies, ChordFamilyId, ChordFamilyLevel } from '@/domain/chords/chord-families'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { NoteDensityContext } from '@/domain/controls/generated-note-density'
 import type { FigureId, FigureLevel, FigureLevels } from '@/domain/figures/figure-levels'
@@ -40,13 +41,16 @@ export interface PresentationSettings {
 
 /**
  * The Idle session's state. The player's generation settings are held in three parts: the
- * controls, the seven figure levels and the preset selection (a preset, or Custom naming its
- * base); no musical profile and no customized mark is held.
+ * controls, the levels (the seven figure levels and the Seventh chords level) and the preset
+ * selection (a preset, or Custom naming its base); no musical profile and no customized mark is
+ * held.
  */
 export interface GenerationSessionState<TResult> {
   readonly controls: GenerationControls
   /** The seven figure levels every phrase built at Idle is generated with. */
   readonly figureLevels: FigureLevels
+  /** The Seventh chords level every phrase built at Idle, and every session, is generated with. */
+  readonly chordFamilies: ChordFamilies
   /** The preset selected, or Custom based on the preset it came from (or on none). */
   readonly selection: PresetSelection
   /**
@@ -100,10 +104,10 @@ export interface GenerationSessionActions {
     value: GenerationControls[K],
   ) => boolean
   /**
-   * Choose a preset, at Idle only (false otherwise): its ten preset-held controls and seven levels
-   * replace the current ones, the key and mode kept when its restriction allows them, and the
-   * selection becomes it. Choosing the preset already selected changes nothing. An id no known
-   * preset has is a defect: SessionUsageError.
+   * Choose a preset, at Idle only (false otherwise): its ten preset-held controls, seven figure
+   * levels and Seventh chords level replace the current ones, the key and mode kept when its
+   * restriction allows them, and the selection becomes it. Choosing the preset already selected
+   * changes nothing. An id no known preset has is a defect: SessionUsageError.
    */
   readonly selectPreset: (id: PresetId) => boolean
   /**
@@ -111,6 +115,12 @@ export interface GenerationSessionActions {
    * becomes Custom based on it. A figure or level that is not one is a defect: SessionUsageError.
    */
   readonly setFigureLevel: (figure: FigureId, level: FigureLevel) => boolean
+  /**
+   * Set a chord family's level (the Seventh chords level), at Idle only (false otherwise); with a
+   * preset selected the selection becomes Custom based on it. It saves nothing: no record holds
+   * the level yet. A family or level that is not one is a defect: SessionUsageError.
+   */
+  readonly setChordFamilyLevel: (family: ChordFamilyId, level: ChordFamilyLevel) => boolean
   /**
    * The preset-list action: replace the player presets the session lists after the built-ins
    * and, when one is given, the preset selection. It checks no operation, so it applies while a
@@ -192,9 +202,9 @@ export interface GenerationSession<TResult> {
 
 /**
  * The settings the Idle session starts from: the player's saved controls, figure levels, preset
- * selection and theme, the player presets the load read, and my instrument when it loaded, loaded
- * before the workspace is first drawn. Controls naming `my-instrument` come only with my
- * instrument.
+ * selection and theme, the Seventh chords level (Off until the level is saved), the player
+ * presets the load read, and my instrument when it loaded, loaded before the workspace is first
+ * drawn. Controls naming `my-instrument` come only with my instrument.
  */
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[rule_settings_saved_on_change]]
@@ -202,6 +212,7 @@ export interface GenerationSession<TResult> {
 export interface InitialGenerationSettings {
   readonly controls: GenerationControls
   readonly figureLevels: FigureLevels
+  readonly chordFamilies: ChordFamilies
   readonly selection: PresetSelection
   /** The player presets the load read, listed after the built-ins (none from the defaults). */
   readonly playerPresets: readonly Preset[]
@@ -259,8 +270,8 @@ export interface CreateGenerationSessionOptions<TResult, TGenerated = TResult> {
   /**
    * The settings the session starts from, so the workspace is first drawn with them and its
    * creation prewarm warms them. Absent means the first-load values (the default controls, the
-   * Neutral levels and the Neutral selection, no player preset, theme `System`): the app always
-   * supplies the loaded ones.
+   * Neutral levels, the Seventh chords level at Off and the Neutral selection, no player preset,
+   * theme `System`): the app always supplies the loaded ones.
    */
   // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
   readonly initialSettings?: InitialGenerationSettings

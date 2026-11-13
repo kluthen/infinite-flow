@@ -6,6 +6,7 @@ import WorkspaceShell from '@/components/workspace/WorkspaceShell.vue'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
@@ -41,6 +42,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     setControl: vi.fn(() => true),
     selectPreset: vi.fn(() => true),
     setFigureLevel: vi.fn(() => true),
+    setChordFamilyLevel: vi.fn(() => true),
     selectInstrumentProfile: vi.fn(async () => 'applied' as const),
     holdInstrumentSwitches: vi.fn(async () => 'unchanged' as const),
     saveMyInstrument: vi.fn(async () => 'saved' as const),
@@ -60,6 +62,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
     state: {
       controls: DEFAULT_GENERATION_CONTROLS,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: DEFAULT_PRESET_SELECTION,
       presets: BUILT_IN_PRESETS,
       presentation: { theme: 'System' },

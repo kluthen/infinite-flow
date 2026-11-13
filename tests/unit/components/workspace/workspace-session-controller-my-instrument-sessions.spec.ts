@@ -327,6 +327,7 @@ async function generationSession() {
         instrumentProfileId: 'my-instrument',
       }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: DEFAULT_PRESET_SELECTION,
       playerPresets: [],
       theme: 'System',

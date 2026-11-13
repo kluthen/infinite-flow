@@ -119,6 +119,7 @@ async function visit() {
     initialSettings: {
       controls: loaded.settings.controls,
       figureLevels: loaded.settings.figureLevels,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: loaded.settings.presetSelection,
       playerPresets: loaded.playerPresets,
       theme: loaded.settings.theme,

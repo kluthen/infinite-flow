@@ -120,6 +120,7 @@ export function rig(start: RigStart = {}) {
     initialSettings: {
       controls: start.controls ?? controlsOf(LATE_NIGHT),
       figureLevels: LATE_NIGHT.levels,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: start.selection ?? { kind: 'preset', presetId: 'player-1' },
       playerPresets: start.playerPresets ?? [LATE_NIGHT, WARM_UP],
       theme: 'System',

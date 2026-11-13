@@ -11,6 +11,7 @@
  */
 import { instrumentClefOf } from '@/domain/profile/instrument-clef'
 import { shallowRef, type InjectionKey } from 'vue'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 
 import {
   createGenerationSession,
@@ -166,6 +167,8 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     initialSettings: {
       controls,
       figureLevels,
+      // No record holds the Seventh chords level until data version 5: every visit starts at Off.
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection,
       playerPresets: deps.savedData.playerPresets,
       theme,

@@ -37,6 +37,7 @@ import {
   type WorkspacePregenerationFactory,
 } from '@/components/workspace/workspace-pregeneration'
 import { createPregenerationSlot } from '@/composables/generation-session-pregeneration'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { BUILT_IN_PRESETS } from '@/domain/presets/built-in-presets'
 import type { NotationError } from '@/notation/notation-error'
 import type { StaffFixedParts, StaffLayoutInputs } from '@/notation/staff-fit-types'
@@ -308,6 +309,7 @@ export function controllerRig(
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
     controls: settings.controls,
     figureLevels: settings.figureLevels,
+    chordFamilies: OFF_CHORD_FAMILIES,
     selection: settings.selection,
     presets: BUILT_IN_PRESETS,
     presentation: { theme: 'System' },
