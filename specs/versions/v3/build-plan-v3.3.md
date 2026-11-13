@@ -1180,7 +1180,7 @@ Architecture capture: none (it builds on chunk 3's)
 
 ### Chunk 12 — The level orders the plans
 
-Status: planned
+Status: merged (w3, 2a0317b9)
 Wave: 3
 Depends on: 3, 5, 6, 7, 8 (a phrase with a seventh is never searched, validated or carried by code
 that does not know one); C1, done (`rule_seeded_phrase_reproduction`, A4, applied at wave 3's sync)
@@ -1303,6 +1303,8 @@ triad, role and endpoint, which no variant changes. Chunks 15 and 16 in this wav
   `drawnSeventhsOf`), 12b the two
   rebuild sites taking the level together, the walks and the fit check's tests
   (`generation-orchestrator.ts`, `generation-result-validator-checks.ts`, `window-search.ts`).
+
+Record: 2a0317b9 (733af8ee 12a, b3b4af6a 12b). One deviation in naming only, reported to the driver: the orchestrator's rebuild site is a new `searchedHarmonyOrder(intent, domain)` (carry-in filter, ranking, then the variants), not `buildHarmonyDomain`, which stays level-free (capture `module_harmony_candidate_domain` 0.5; the rhythm prewarm shares it); behaviour as planned and captured. Sent to `spec-writer` at the wave gate.
 
 ### Chunk 13 — MusicXML writes the seventh chords
 

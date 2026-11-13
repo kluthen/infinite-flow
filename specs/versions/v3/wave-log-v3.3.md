@@ -482,3 +482,25 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   `module_tension_arc_cycle`'s stale "`ifk1.`" (O230), unchanged. If chunk 15 ever leaves the wave,
   the confirmed 17.0 contract paragraph (A3 and A4 in one sentence) would need splitting with the
   owner's confirmation.
+
+### Chunk 12 merged (2026-11-13)
+
+- 2a0317b9 (733af8ee 12a: `seventh-draw.ts`, `harmony-variants.ts`, the census's
+  `drawnSeventhsOf`; b3b4af6a 12b: both rebuild sites, the walks, the fit check's tests,
+  `docs/music/harmony-planner-policy.md`). Every Done-when item evidenced; corpus guard 18 files /
+  500 tests green; reduced census shares 0 / 0.32 / 0.54 / 1.0; the joined-phrase property: 144
+  phrases (108 joined), 0 invalid, 2 ending on the final chord's seventh.
+- Deviation in naming only: the orchestrator's rebuild site is `searchedHarmonyOrder`, since
+  `buildHarmonyDomain` stays level-free (capture `module_harmony_candidate_domain` 0.5).
+- For `spec-writer` at the gate: the Scope line's rebuild-site name; the generator contract from the
+  chunk's report (per level: Off the triads; above Off each event its triad or its degree's
+  root-position seventh chord, maj7/m7/7/m7♭5, drawn about 1 in 4, 1 in 2, every event; plans
+  Off's at every level; all or none per phrase); **chunk 18**: M1's census population takes its
+  seeds from `carry-in-matrix` `SEEDS` (7 and 13 only), so Sometimes and Favored draw nearly the
+  same events and their shares come out nearly equal; the census property gives each phrase its own
+  seed. Chunk 17 already owns `kept-phrase-parsers.ts` reading a seventh.
+- Gate notes: `lint:health` warnings (`planner-validator-property.spec.ts` at 459 effective lines;
+  `generation-orchestrator.ts` links 9 atoms). Sync: links placed on the eight v3.3 rules and the
+  five captures; `buildIntent` in the carry-in fixture takes an optional `chordFamilies`.
+- Figures: 1 agents, 105 tool calls, 18.9M tokens in / 104k out, max context 286k, $7.15 at API
+  prices.
