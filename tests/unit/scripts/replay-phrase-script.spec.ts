@@ -35,6 +35,7 @@ const INTENT_FIELDS = [
   'controls',
   'writtenTonalCenter',
   'figureLevels',
+  'chordFamilies',
   'instrumentProfile',
   'registerIntent',
   'carryIn',

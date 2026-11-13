@@ -56,6 +56,7 @@ const INTENT_FIELDS = [
   'controls',
   'writtenTonalCenter',
   'figureLevels',
+  'chordFamilies',
   'instrumentProfile',
   'registerIntent',
   'carryIn',
@@ -381,4 +382,90 @@ describe('reading a key', () => {
     expect(() => replayPhraseKey('ifk6.AAAA')).toThrow(/unsupported key version "ifk6"/u)
     expect(() => replayDecodedPhraseKey(key, decodePhraseReplayKey(key))).not.toThrow()
   })
+})
+
+// @test-link [[service_headless_phrase_replay]]
+// @test-link [[rule_seventh_chord_symbols]]
+describe('the replay report and seventh chords', () => {
+  it(
+    'gives a seventh-form bar and a carried seventh chord the seventh quality and four notes',
+    () => {
+      const first = buildIntent({
+        seed: 5,
+        label: 'seventh-report',
+        chordFamilies: { 'seventh-chords': 'stronglyFavored' },
+      })
+      const report = replayPhraseKey(encodePhraseReplayKey(first, 1))
+      const output = successOf(report)
+      const events = output.harmony.degreeSequence.length
+      const chords = output.bars.flatMap((bar) => bar.chords)
+
+      expect(report.keyVersion).toBe('ifk5')
+      expect(report.input.chordFamilies).toStrictEqual({ 'seventh-chords': 'stronglyFavored' })
+      expect(events).toBeGreaterThan(0)
+      for (const [index, chord] of chords.entries()) {
+        const event =
+          output.raw.kind === 'generation_success'
+            ? output.raw.provenance.harmony.events[chord.harmonyEventIndex]!
+            : undefined
+        expect(event?.seventh, `chord ${index}`).toBeDefined()
+        expect(chord.quality, `chord ${index}`).toBe(event!.seventh!.quality)
+        expect(chord.pitchClasses, `chord ${index}`).toEqual([
+          ...event!.triad.pitchClasses,
+          event!.seventh!.pitchClass,
+        ])
+        expect(chord.pitchClassNames, `chord ${index}`).toHaveLength(4)
+      }
+      expect(output.ending.finalChord).toMatchObject({
+        symbol: 'G7',
+        quality: 'dominant-seventh',
+        pitchClasses: [7, 11, 2, 5],
+        pitchClassNames: ['G', 'B', 'D', 'F'],
+      })
+      expect(output.carryOut?.names).toMatchObject({
+        finalChord: {
+          symbol: 'G7',
+          quality: 'dominant-seventh',
+          pitchClasses: [7, 11, 2, 5],
+          pitchClassNames: ['G', 'B', 'D', 'F'],
+        },
+      })
+
+      const second = buildIntent({
+        seed: 12,
+        label: 'seventh-report',
+        chordFamilies: { 'seventh-chords': 'favored' },
+        carryIn: carryInAfter(first, generateSuccess(first), 1),
+      })
+      const joined = replayPhraseKey(encodePhraseReplayKey(second, 2))
+      expect(joined.input.carryInNames?.finalChord).toMatchObject({
+        symbol: 'G7',
+        quality: 'dominant-seventh',
+        pitchClasses: [7, 11, 2, 5],
+      })
+    },
+    TIMEOUT_MS,
+  )
+
+  it(
+    "gives a triad-only phrase's bars and carried chord the triad's quality and three notes",
+    () => {
+      const intent = buildIntent({ seed: 5, label: 'seventh-report' })
+      const output = successOf(replayPhraseKey(encodePhraseReplayKey(intent, 1)))
+      const raw = output.raw.kind === 'generation_success' ? output.raw : undefined
+      for (const chord of output.bars.flatMap((bar) => bar.chords)) {
+        const event = raw!.provenance.harmony.events[chord.harmonyEventIndex]!
+        expect(event.seventh).toBeUndefined()
+        expect(chord.quality).toBe(event.triad.quality)
+        expect(chord.pitchClasses).toEqual(event.triad.pitchClasses)
+        expect(chord.pitchClassNames).toHaveLength(3)
+      }
+      expect(output.carryOut?.names.finalChord).toMatchObject({
+        symbol: 'G',
+        quality: 'major',
+        pitchClasses: [7, 11, 2],
+      })
+    },
+    TIMEOUT_MS,
+  )
 })

@@ -13,7 +13,12 @@ import {
 } from '../domain/controls/generation-controls'
 import { isPhraseCarryIn, type CarryIn } from '../domain/generation/carry-in/carry-in'
 import type { CarriedHarmony } from '../domain/harmony/harmony-join'
-import type { DiatonicTriad, PitchClassNumber } from '../domain/harmony/harmony-types'
+import {
+  chordTones,
+  type PitchClassNumber,
+  type SeventhQuality,
+  type TriadQuality,
+} from '../domain/harmony/harmony-types'
 import { chordSuffixOf } from '../domain/notation/notation-input'
 import {
   naturalPitchClassOf,
@@ -40,12 +45,15 @@ export interface NamedMidiRange {
   readonly maxName: string
 }
 
-/** A carried chord restated readably: its concert symbol and named pitch classes. */
+/**
+ * A carried chord restated readably: its concert symbol, and the quality and named pitch classes of
+ * the chord the symbol names (a carried seventh chord's four notes, a triad's three).
+ */
 // @spec-link [[service_headless_phrase_replay]]
 export interface NamedCarriedChord {
   readonly symbol: string
   readonly degree: number
-  readonly quality: DiatonicTriad['quality']
+  readonly quality: TriadQuality | SeventhQuality
   readonly pitchClasses: readonly number[]
   readonly pitchClassNames: readonly string[]
   readonly role: CarriedHarmony['role']
@@ -151,15 +159,22 @@ export function chordSymbolInKey(
   return `${pitchClassNameInKey(chord.triad.pitchClasses[0], key)}${chordSuffixOf(chord)}`
 }
 
-/** Intent: restate a carried chord readably: its symbol and pitch classes spelled in the key. */
+/**
+ * Intent: restate a carried chord readably: its symbol, and the quality and pitch classes, spelled
+ * in the key, of the chord the symbol names: a carried seventh chord's seventh quality and four
+ * notes, a triad's quality and three.
+ */
+// @spec-link [[service_headless_phrase_replay]]
+// @spec-link [[rule_seventh_chord_symbols]]
 function namedCarriedChord(harmony: CarriedHarmony, concertKey: WrittenKey): NamedCarriedChord {
   const { triad, role, endpoint } = harmony
+  const tones = chordTones(harmony)
   return {
     symbol: chordSymbolInKey(harmony, concertKey),
     degree: triad.degree,
-    quality: triad.quality,
-    pitchClasses: triad.pitchClasses,
-    pitchClassNames: triad.pitchClasses.map((pc) => pitchClassNameInKey(pc, concertKey)),
+    quality: harmony.seventh?.quality ?? triad.quality,
+    pitchClasses: tones,
+    pitchClassNames: tones.map((pc) => pitchClassNameInKey(pc, concertKey)),
     role,
     endpointClass: endpoint.kind,
   }

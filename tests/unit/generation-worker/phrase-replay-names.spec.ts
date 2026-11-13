@@ -103,6 +103,31 @@ describe('carried chord symbol', () => {
     },
   )
 
+  // @test-link [[service_headless_phrase_replay]]
+  it.each([
+    [1, 'Cmaj7', 'major-seventh', [0, 4, 7, 11], ['C', 'E', 'G', 'B']],
+    [2, 'Dm7', 'minor-seventh', [2, 5, 9, 0], ['D', 'F', 'A', 'C']],
+    [5, 'G7', 'dominant-seventh', [7, 11, 2, 5], ['G', 'B', 'D', 'F']],
+    [7, 'Bm7♭5', 'half-diminished-seventh', [11, 2, 5, 9], ['B', 'D', 'F', 'A']],
+  ] as const)(
+    'gives a carried seventh chord on degree %i (%s) its seventh quality and four notes',
+    (degree, symbol, quality, pitchClasses, pitchClassNames) => {
+      const wire = carryInWithSeventhOn(degree) as { lastPitch: { midi: number } }
+      wire.lastPitch.midi = 54 + ((pitchClasses[0] - 6 + 12) % 12)
+      const chord = carryInNames(parseCarryIn(wire, 'triad-or-seventh'), C_MAJOR).finalChord
+
+      expect(chord).toStrictEqual({
+        symbol,
+        degree,
+        quality,
+        pitchClasses,
+        pitchClassNames,
+        role: 'open_arrival',
+        endpointClass: 'tonal_degree_five_chord_tone',
+      })
+    },
+  )
+
   // @test-link [[rule_seventh_chord_symbols]]
   it('keeps the triad symbol and the triad-only names for a carried triad', () => {
     const names = carryInNames(parseCarryIn(JSON.parse(V31_PHRASE_CARRY_IN)), C_MAJOR)
