@@ -2,13 +2,18 @@
  * The cost runner's figures (measurement tooling, run by `npm run measure:cost`): what one tempo's
  * measured runs of one setting add up to (the share of phrases generated, the attempts and their
  * `generatePhrase` times, how the look-ahead phrases were produced, the deadline shortfalls), the
- * time statistics of a set of measured attempts, and the readable `COST-GUARD` summary lines. The
+ * time statistics of a set of measured attempts, the joins that failed by cause (spec D530, D531),
+ * and the readable `COST-GUARD` summary lines. The
  * figures keep counts, times and failure codes only, never a session or a generation outcome, so a
  * sweep of thousands of phrases holds no phrase once its runs are added up.
  */
 
+import type { LeapDirection } from '@/domain/generation/carry-in/carry-in'
+import { recoveryLandsOn, type PitchBounds } from '@/domain/generation/carry-in/phrase-ending-debt'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import type { GenerationFailureCode } from '@/domain/generation/orchestration/orchestration-types'
+import { makeHarmonyCollection } from '@/domain/harmony/collection'
+import { STANDALONE_RESERVE_SECONDS } from '@/session/session-timing'
 import {
   SWEEP_PHRASE_COUNT,
   type OutcomeCache,
@@ -30,7 +35,9 @@ export type TimedOutcome = ReturnType<OutcomeCache['of']>
  * What the figures keep of one measured outcome: the wall time `generatePhrase` took, its failure
  * code, or null for a generated phrase, the Tension value its intent asked for, and, for a
  * generated phrase, its seventh census (v3.3 M2): its harmony events, how many are in their
- * seventh form, and whether its plan fell back to triads (all zero and false for a failure).
+ * seventh form, and whether its plan fell back to triads (all zero and false for a failure); and
+ * its join facts (spec D530, D531): whether its intent joins (has a carry-in), whether that
+ * carry-in owes a leap recovery, and whether only the tonic chord's seventh could repay it.
  */
 export interface AttemptTime {
   readonly seconds: number
@@ -39,11 +46,63 @@ export interface AttemptTime {
   readonly harmonyEvents: number
   readonly seventhEvents: number
   readonly fallback: boolean
+  readonly join: boolean
+  readonly joinOwesRecovery: boolean
+  readonly recoveryOnlyOnSeventh: boolean
+}
+
+/** Intent: the pitch class of a MIDI value. */
+function pitchClassOf(midi: number): number {
+  return ((midi % 12) + 12) % 12
 }
 
 /**
- * Intent: what the figures keep of a measured outcome: its time, failure code, Tension value and
- * seventh census, not the phrase.
+ * Intent: true when a recovery owed at `midi` for a large leap in `leapDirection` could land, inside
+ * `window`, on the seventh of the tonic seventh chord `seventhChord` (root, third, fifth, seventh)
+ * and on none of its triad tones: among the landings (`recoveryLandsOn`) on a tone of the seventh
+ * chord, at least one is its seventh and none is a triad tone.
+ */
+export function recoveryOnlyOnSeventhAt(
+  midi: number,
+  leapDirection: LeapDirection,
+  seventhChord: readonly number[],
+  window: PitchBounds,
+): boolean {
+  const triad = seventhChord.slice(0, 3)
+  const seventh = seventhChord[3]
+  const landings: number[] = []
+  for (let to = window.minMidi; to <= window.maxMidi; to += 1)
+    if (seventhChord.includes(pitchClassOf(to)) && recoveryLandsOn(midi, to, leapDirection))
+      landings.push(pitchClassOf(to))
+  return (
+    landings.some((pitchClass) => pitchClass === seventh) &&
+    !landings.some((pitchClass) => triad.includes(pitchClass))
+  )
+}
+
+/**
+ * Intent: true when the intent's carry-in owes a leap recovery that, inside the carried window,
+ * only the tonic chord's seventh could repay (`recoveryOnlyOnSeventhAt`): the first chord after a
+ * join is the tonic chord, of the intent's key and collection. False with no carry-in or a settled
+ * recovery. The intent's constructor refuses a carry-in whose recovery no tonic-triad tone inside
+ * the window could repay, so this is false for every intent built through it; the figures count it
+ * so a change to that constructor would show (spec D531).
+ */
+export function owedRecoveryOnlyOnSeventh(intent: GenerationIntent): boolean {
+  const carryIn = intent.carryIn
+  if (carryIn === undefined) return false
+  const { midi, recovery } = carryIn.lastPitch
+  if (recovery.kind !== 'owed') return false
+  const tonicSeventh = makeHarmonyCollection(
+    intent.controls.tonalCenter,
+    intent.controls.collection,
+  ).seventhChords[0]!.pitchClasses
+  return recoveryOnlyOnSeventhAt(midi, recovery.leapDirection, tonicSeventh, carryIn.registerWindow)
+}
+
+/**
+ * Intent: what the figures keep of a measured outcome: its time, failure code, Tension value,
+ * seventh census and join facts, not the phrase.
  */
 export function attemptTime(
   { outcome, seconds }: TimedOutcome,
@@ -58,6 +117,29 @@ export function attemptTime(
     harmonyEvents: generated?.events.length ?? 0,
     seventhEvents: generated?.seventhEvents ?? 0,
     fallback: generated?.fallback ?? false,
+    join: intent.carryIn !== undefined,
+    joinOwesRecovery: intent.carryIn?.lastPitch.recovery.kind === 'owed',
+    recoveryOnlyOnSeventh: owedRecoveryOnlyOnSeventh(intent),
+  }
+}
+
+/** The joins that failed among some attempts, by cause (spec D530, D531). */
+export interface FailedJoins {
+  /** Attempts with a carry-in that generated no phrase. */
+  readonly attempts: number
+  /** Of those, the ones whose carry-in owed a leap recovery. */
+  readonly owingRecovery: number
+  /** Of those, the ones whose recovery only the tonic chord's seventh could repay. */
+  readonly recoveryOnlyOnSeventh: number
+}
+
+/** Intent: the joins that failed among some attempts, counted by cause. */
+export function failedJoinCounts(attempts: readonly AttemptTime[]): FailedJoins {
+  const failed = attempts.filter((attempt) => attempt.join && attempt.failureCode !== null)
+  return {
+    attempts: failed.length,
+    owingRecovery: failed.filter((attempt) => attempt.joinOwesRecovery).length,
+    recoveryOnlyOnSeventh: failed.filter((attempt) => attempt.recoveryOnlyOnSeventh).length,
   }
 }
 
@@ -152,6 +234,29 @@ export function splitTimes(attempts: readonly AttemptTime[]): SplitTimes {
   }
 }
 
+/**
+ * The attempts generated on their own (standalone: no carry-in) among some attempts, timed (v3.3
+ * M2): none may be slower than the standalone reserve the failure ladder keeps for them.
+ */
+export interface StandaloneAttempts {
+  readonly seconds: SplitTimes
+  /** Of those, the ones slower than the standalone reserve (`STANDALONE_RESERVE_SECONDS`). */
+  readonly overReserve: number
+}
+
+/**
+ * Intent: the time statistics of the attempts with no carry-in among some attempts, and how many
+ * of them took longer than the standalone reserve.
+ */
+export function standaloneAttempts(attempts: readonly AttemptTime[]): StandaloneAttempts {
+  const standalone = attempts.filter((attempt) => !attempt.join)
+  return {
+    seconds: splitTimes(standalone),
+    overReserve: standalone.filter((attempt) => attempt.seconds > STANDALONE_RESERVE_SECONDS)
+      .length,
+  }
+}
+
 /** Intent: the failures among some attempts, counted by failure code. */
 export function failuresByCode(attempts: readonly AttemptTime[]): Record<string, number> {
   const counts: Record<string, number> = {}
@@ -214,12 +319,16 @@ export interface TempoFigures {
   readonly standalone: { readonly phrases2to6: Share; readonly phrases3to6: Share }
   /** Per phrase production, its count for phrases 2 to 6. */
   readonly productions: Readonly<Record<PhraseProduction, readonly number[]>>
+  /** The run attempts with a carry-in that generated no phrase, by cause (spec D530, D531). */
+  readonly failedJoins: FailedJoins
   /** Every attempt the runs requested, each with the outcome and time of its intent. */
   readonly attempts: {
     readonly successes: Share
     readonly failuresByCode: Readonly<Record<string, number>>
     readonly seconds: SplitTimes
   }
+  /** The run attempts with no carry-in, timed against the standalone reserve (M2). */
+  readonly standaloneAttempts: StandaloneAttempts
   readonly shortfalls: { readonly count: number; readonly first: readonly string[] }
 }
 
@@ -384,11 +493,13 @@ export class TempoTally {
         phrases3to6: shareOf(this.standalone.phrases3to6, phrases - this.cases),
       },
       productions: structuredClone(this.productions),
+      failedJoins: failedJoinCounts(this.attempts),
       attempts: {
         successes: shareOf(successes.length, this.attempts.length),
         failuresByCode: failuresByCode(this.attempts),
         seconds: splitTimes(this.attempts),
       },
+      standaloneAttempts: standaloneAttempts(this.attempts),
       shortfalls: {
         count: this.shortfalls.length,
         first: this.shortfalls.slice(0, MAX_SHORTFALL_LINES),
@@ -406,6 +517,15 @@ function percent(share: Share): string {
 /** Intent: a time in seconds with three decimals, or a dash when there is none. */
 function seconds(value: number | null): string {
   return value === null ? '-' : `${value.toFixed(3)} s`
+}
+
+/**
+ * Intent: the readable figures of some standalone attempts after `prefix`: how many, the slowest
+ * and 95th-percentile time, and how many took longer than the standalone reserve.
+ */
+export function standaloneAttemptsLine(prefix: string, standalone: StandaloneAttempts): string {
+  const times = standalone.seconds.all
+  return `${prefix} standalone attempts ${times.count}: slowest ${seconds(times.slowestSeconds)} p95 ${seconds(times.p95Seconds)}, over the ${seconds(STANDALONE_RESERVE_SECONDS)} reserve ${standalone.overReserve}`
 }
 
 /**
@@ -433,6 +553,16 @@ export function tempoSummaryLines(label: string, figures: TempoFigures): readonl
   for (const [tension, reasons] of Object.entries(figures.ungeneratedByTension))
     for (const [reason, count] of Object.entries(reasons))
       lines.push(`${prefix} ungenerated ${tension} x${count}: ${reason}`)
+  const productions = PHRASE_PRODUCTIONS.map(
+    (production) =>
+      `${production} ${figures.productions[production].reduce((sum, count) => sum + count, 0)}`,
+  ).join(', ')
+  lines.push(`${prefix} productions phrases 2-6: ${productions}`)
+  const joins = figures.failedJoins
+  lines.push(
+    `${prefix} failed joins: ${joins.attempts}, owing a recovery ${joins.owingRecovery}, only the tonic chord's seventh to recover onto ${joins.recoveryOnlyOnSeventh} (D530)`,
+  )
+  lines.push(standaloneAttemptsLine(prefix, figures.standaloneAttempts))
   return lines
 }
 

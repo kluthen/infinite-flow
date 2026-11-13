@@ -1034,26 +1034,26 @@ extended wait (every phrase 1 was ready inside the generation measure), and no a
 the cutover. **No phrase repeated, no deadline was missed** (0 shortfalls), and **no standalone
 attempt went past the reserve**. Rung 1 made 6,249 attempts for 6,234 phrases: 15 retries.
 
-| Configuration                | Attempts: p95 / slowest | Orderings: share, per attempt p95 / slowest | Rung 1: attempts, p95 / slowest, orderings | Rung 2: attempts, p95 / slowest, orderings | Phrases 2–8 standalone: count, slowest charged | Phrase 2 lost its join |
-| ---------------------------- | ----------------------- | ------------------------------------------- | ------------------------------------------ | ------------------------------------------ | ---------------------------------------------- | ---------------------- |
-| 60 BPM, lock off, warm       | 0.012 / 2.979 s         | 3.6 %, 0.001 / 0.005 s                      | 6,249: 0.011 / 0.858 s, 7.3 %              | 1,150: 0.014 / 0.582 s, 5.4 %              | 732, 0.116 s                                   | 93                     |
-| 60 BPM, lock off, cold       | 0.027 / 2.979 s         | 3.2 %, 0.001 / 0.010 s                      | 6,249: 0.086 / 0.888 s, 2.8 %              | 1,150: 0.082 / 0.650 s, 1.9 %              | 732, 0.116 s                                   | 93                     |
-| 120 BPM, lock off, warm      | 0.012 / 2.979 s         | 3.9 %, 0.001 / 0.005 s                      | 6,249: 0.011 / 0.812 s, 7.2 %              | 1,150: 0.014 / 0.582 s, 5.4 %              | 732, 0.116 s                                   | 93                     |
-| 120 BPM, lock off, cold      | 0.027 / 2.979 s         | 3.4 %, 0.001 / 0.008 s                      | 6,249: 0.088 / 0.878 s, 2.6 %              | 1,150: 0.081 / 0.652 s, 2.0 %              | 732, 0.116 s                                   | 93                     |
-| 180 BPM, lock off, warm      | 0.012 / 2.979 s         | 4.2 %, 0.001 / 0.006 s                      | 6,249: 0.012 / 0.877 s, 7.2 %              | 1,150: 0.014 / 0.582 s, 5.4 %              | 732, 0.116 s                                   | 93                     |
-| 180 BPM, lock off, cold      | 0.027 / 2.979 s         | 3.5 %, 0.001 / 0.016 s                      | 6,249: 0.085 / 0.899 s, 2.7 %              | 1,150: 0.081 / 0.658 s, 2.0 %              | 732, 0.116 s                                   | 93                     |
-| 60 BPM, all changes, warm    | 0.011 / 2.943 s         | 1.1 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.719 s, 10.5 %             | 1,150: 0.014 / 0.434 s, 7.7 %              | 742, 0.114 s                                   | 89                     |
-| 60 BPM, all changes, cold    | 0.028 / 2.943 s         | 1.5 %, 0.000 / 0.007 s                      | 6,249: 0.082 / 0.747 s, 4.0 %              | 1,150: 0.080 / 0.504 s, 2.9 %              | 742, 0.114 s                                   | 89                     |
-| 60 BPM, strict, warm         | 0.011 / 2.699 s         | 0.8 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.770 s, 10.5 %             | 1,150: 0.014 / 0.441 s, 7.8 %              | 753, 0.113 s                                   | 89                     |
-| 60 BPM, strict, cold         | 0.028 / 2.699 s         | 1.2 %, 0.000 / 0.048 s                      | 6,249: 0.083 / 0.752 s, 4.0 %              | 1,150: 0.080 / 0.500 s, 3.0 %              | 753, 0.113 s                                   | 89                     |
-| 120 BPM, all changes, warm   | 0.011 / 2.943 s         | 1.2 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.718 s, 10.6 %             | 1,150: 0.014 / 0.444 s, 7.9 %              | 742, 0.114 s                                   | 89                     |
-| 120 BPM, all changes, cold   | 0.028 / 2.943 s         | 1.5 %, 0.000 / 0.008 s                      | 6,249: 0.085 / 0.743 s, 3.8 %              | 1,150: 0.079 / 0.534 s, 3.1 %              | 742, 0.114 s                                   | 89                     |
-| 120 BPM, strict, warm        | 0.011 / 2.699 s         | 0.9 %, 0.000 / 0.007 s                      | 6,249: 0.011 / 0.713 s, 10.5 %             | 1,150: 0.014 / 0.442 s, 7.9 %              | 753, 0.113 s                                   | 89                     |
-| 120 BPM, strict, cold        | 0.028 / 2.699 s         | 1.3 %, 0.000 / 0.194 s                      | 6,249: 0.085 / 0.741 s, 3.9 %              | 1,150: 0.079 / 0.506 s, 2.9 %              | 753, 0.113 s                                   | 89                     |
-| 180 BPM, all changes, warm   | 0.011 / 2.943 s         | 1.3 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.786 s, 10.5 %             | 1,150: 0.014 / 0.436 s, 7.9 %              | 742, 0.114 s                                   | 89                     |
-| 180 BPM, all changes, cold   | 0.028 / 2.943 s         | 1.6 %, 0.000 / 0.033 s                      | 6,249: 0.085 / 0.756 s, 3.7 %              | 1,150: 0.079 / 0.506 s, 3.1 %              | 742, 0.114 s                                   | 89                     |
-| 180 BPM, strict, warm        | 0.011 / 2.699 s         | 0.9 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.717 s, 10.5 %             | 1,150: 0.014 / 0.440 s, 7.9 %              | 753, 0.113 s                                   | 89                     |
-| 180 BPM, strict, cold        | 0.028 / 2.699 s         | 1.3 %, 0.000 / 0.083 s                      | 6,249: 0.084 / 0.735 s, 3.9 %              | 1,150: 0.079 / 0.504 s, 3.0 %              | 753, 0.113 s                                   | 89                     |
+| Configuration              | Attempts: p95 / slowest | Orderings: share, per attempt p95 / slowest | Rung 1: attempts, p95 / slowest, orderings | Rung 2: attempts, p95 / slowest, orderings | Phrases 2–8 standalone: count, slowest charged | Phrase 2 lost its join |
+| -------------------------- | ----------------------- | ------------------------------------------- | ------------------------------------------ | ------------------------------------------ | ---------------------------------------------- | ---------------------- |
+| 60 BPM, lock off, warm     | 0.012 / 2.979 s         | 3.6 %, 0.001 / 0.005 s                      | 6,249: 0.011 / 0.858 s, 7.3 %              | 1,150: 0.014 / 0.582 s, 5.4 %              | 732, 0.116 s                                   | 93                     |
+| 60 BPM, lock off, cold     | 0.027 / 2.979 s         | 3.2 %, 0.001 / 0.010 s                      | 6,249: 0.086 / 0.888 s, 2.8 %              | 1,150: 0.082 / 0.650 s, 1.9 %              | 732, 0.116 s                                   | 93                     |
+| 120 BPM, lock off, warm    | 0.012 / 2.979 s         | 3.9 %, 0.001 / 0.005 s                      | 6,249: 0.011 / 0.812 s, 7.2 %              | 1,150: 0.014 / 0.582 s, 5.4 %              | 732, 0.116 s                                   | 93                     |
+| 120 BPM, lock off, cold    | 0.027 / 2.979 s         | 3.4 %, 0.001 / 0.008 s                      | 6,249: 0.088 / 0.878 s, 2.6 %              | 1,150: 0.081 / 0.652 s, 2.0 %              | 732, 0.116 s                                   | 93                     |
+| 180 BPM, lock off, warm    | 0.012 / 2.979 s         | 4.2 %, 0.001 / 0.006 s                      | 6,249: 0.012 / 0.877 s, 7.2 %              | 1,150: 0.014 / 0.582 s, 5.4 %              | 732, 0.116 s                                   | 93                     |
+| 180 BPM, lock off, cold    | 0.027 / 2.979 s         | 3.5 %, 0.001 / 0.016 s                      | 6,249: 0.085 / 0.899 s, 2.7 %              | 1,150: 0.081 / 0.658 s, 2.0 %              | 732, 0.116 s                                   | 93                     |
+| 60 BPM, all changes, warm  | 0.011 / 2.943 s         | 1.1 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.719 s, 10.5 %             | 1,150: 0.014 / 0.434 s, 7.7 %              | 742, 0.114 s                                   | 89                     |
+| 60 BPM, all changes, cold  | 0.028 / 2.943 s         | 1.5 %, 0.000 / 0.007 s                      | 6,249: 0.082 / 0.747 s, 4.0 %              | 1,150: 0.080 / 0.504 s, 2.9 %              | 742, 0.114 s                                   | 89                     |
+| 60 BPM, strict, warm       | 0.011 / 2.699 s         | 0.8 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.770 s, 10.5 %             | 1,150: 0.014 / 0.441 s, 7.8 %              | 753, 0.113 s                                   | 89                     |
+| 60 BPM, strict, cold       | 0.028 / 2.699 s         | 1.2 %, 0.000 / 0.048 s                      | 6,249: 0.083 / 0.752 s, 4.0 %              | 1,150: 0.080 / 0.500 s, 3.0 %              | 753, 0.113 s                                   | 89                     |
+| 120 BPM, all changes, warm | 0.011 / 2.943 s         | 1.2 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.718 s, 10.6 %             | 1,150: 0.014 / 0.444 s, 7.9 %              | 742, 0.114 s                                   | 89                     |
+| 120 BPM, all changes, cold | 0.028 / 2.943 s         | 1.5 %, 0.000 / 0.008 s                      | 6,249: 0.085 / 0.743 s, 3.8 %              | 1,150: 0.079 / 0.534 s, 3.1 %              | 742, 0.114 s                                   | 89                     |
+| 120 BPM, strict, warm      | 0.011 / 2.699 s         | 0.9 %, 0.000 / 0.007 s                      | 6,249: 0.011 / 0.713 s, 10.5 %             | 1,150: 0.014 / 0.442 s, 7.9 %              | 753, 0.113 s                                   | 89                     |
+| 120 BPM, strict, cold      | 0.028 / 2.699 s         | 1.3 %, 0.000 / 0.194 s                      | 6,249: 0.085 / 0.741 s, 3.9 %              | 1,150: 0.079 / 0.506 s, 2.9 %              | 753, 0.113 s                                   | 89                     |
+| 180 BPM, all changes, warm | 0.011 / 2.943 s         | 1.3 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.786 s, 10.5 %             | 1,150: 0.014 / 0.436 s, 7.9 %              | 742, 0.114 s                                   | 89                     |
+| 180 BPM, all changes, cold | 0.028 / 2.943 s         | 1.6 %, 0.000 / 0.033 s                      | 6,249: 0.085 / 0.756 s, 3.7 %              | 1,150: 0.079 / 0.506 s, 3.1 %              | 742, 0.114 s                                   | 89                     |
+| 180 BPM, strict, warm      | 0.011 / 2.699 s         | 0.9 %, 0.000 / 0.007 s                      | 6,249: 0.012 / 0.717 s, 10.5 %             | 1,150: 0.014 / 0.440 s, 7.9 %              | 753, 0.113 s                                   | 89                     |
+| 180 BPM, strict, cold      | 0.028 / 2.699 s         | 1.3 %, 0.000 / 0.083 s                      | 6,249: 0.084 / 0.735 s, 3.9 %              | 1,150: 0.079 / 0.504 s, 3.0 %              | 753, 0.113 s                                   | 89                     |
 
 - **The cold domain at 180 BPM** meets every deadline: the slowest cold phrase 1 attempt took
   0.899 s (rung 1, lock off), against 2.93 s from the generation measure's start to the cutover.
@@ -1239,13 +1239,12 @@ D281). The share constants of the level's draw carry a comment pointing here.
 ### Off baseline (v3.3 chunk 4)
 
 **Method.** `npm run measure:sevenths` runs `tests/sweep/seventh-census.measure.ts`: one standalone
-phrase for each of the deadline sweep's 568 cases (every supported rhythm setting with seeds 7 and
-13) in each of the nine modes, at 120 BPM, with the Neutral and then the Jazz defaults, at each
+phrase for each of the deadline sweep's 568 cases (every supported rhythm setting with seeds 7 and 13) in each of the nine modes, at 120 BPM, with the Neutral and then the Jazz defaults, at each
 level measured; 10,224 phrases per level. The census (`tests/sweep/seventh-census.ts`) reads each
 event's form from the winning plan (`HarmonyEvent.seventh`), and the plan's draw to tell a fallback;
-it counts phrases generated, not attempts. Until the generator reads the level (v3.3 chunk 12) and
-the session carries it (chunk 16), only Off can be measured: a level above Off is refused, never
-measured as Off (`tests/sweep/seventh-levels.ts`).
+it counts phrases generated, not attempts. Chunk 4 measured Off only, before the generator read the
+level and the session carried it; every level is measurable since
+[chunk 18](#first-run-at-every-level-v33-chunk-18).
 
 **Machine and date.** Run by Claude on 2026-11-12, 10:29–10:31 CET (107 s), on branch
 `v3.3-c4-measurement-tools` cut from `v3.3-w2` at 9871e5f1 (wave 1 merged: the level is in the
@@ -1270,8 +1269,64 @@ harmony events, **0 in seventh form and 0 fallbacks** in every mode and both pro
 | All modes  | 10,217  | 28,715         | 0            | 0         |
 
 Every generated plan was a serialized plan the census accepts (its events tile the phrase, no held
-chord split in two). To re-run: `SEVENTHS_OUT=<file.json> npm run measure:sevenths`;
-`SEVENTHS_LEVELS=off,sometimes,favored,stronglyFavored` once chunks 12 and 16 are in (chunk 18).
+chord split in two). These Off figures are over the case's seeds (7 and 13); chunk 18 gives each
+phrase a seed of its own, so its Off row counts other phrases (the same zero).
+
+### First run at every level (v3.3 chunk 18)
+
+**Method.** As the Off baseline, at the four levels, with one change (spec D533): each phrase takes
+a seed of its own instead of its case's seed, `censusSeed` in `tests/sweep/seventh-census-sweep.ts`
+(1 + (case index × 9 + mode index) × 2 + profile index, so seeds 1 to 10,224), the same seed for
+the same case, mode and profile at the four levels, and no two phrases of one level sharing one.
+The draw reads only the seed and each event's start, so the cases' two seeds (7 and 13) gave it
+16 draw bytes to read; a seed per phrase gives it a representative sample. The census now also
+counts the events whose draw gave them their seventh form first (the **drawn share**), and replays
+a sample of its phrases from their `ifk5.` keys. Command:
+`SEVENTHS_LEVELS=all SEVENTHS_OUT=<file.json> npm run measure:sevenths`.
+
+**Machine and date.** Run by Claude on 2026-11-13, 18:45–18:50 CET (306 s), on branch
+`v3.3-c18-first-measurements` cut from `v3.3-w4` at fcce0134 (chunks 12, 15 and 16 merged; wave 4's
+chunks 13, 14 and 17 in), on the reference machine: AMD Ryzen 5 PRO 8640HS (12 threads), 11 GiB
+RAM, not a VM, Node 22.23.4, 1-minute load average 1.1 at the start (the desktop open). The shares
+do not depend on the machine or the load.
+
+**Over the sweep** (10,224 phrases per level, Neutral and Jazz):
+
+| Level            | Phrases generated | Harmony events | Seventh form     | Drawn  | Fallbacks |
+| ---------------- | ----------------- | -------------- | ---------------- | ------ | --------- |
+| Off              | 10,216            | 28,685         | 0 (0 %)          | 0 %    | 0         |
+| Sometimes        | 10,218            | 28,690         | 7,245 (25.3 %)   | 25.3 % | 0         |
+| Favored          | 10,218            | 28,691         | 14,418 (50.3 %)  | 50.3 % | 0         |
+| Strongly favored | 10,215            | 28,682         | 28,682 (100.0 %) | 100 %  | 0         |
+
+The phrases not generated are all `search_limit_exceeded` (Off 8, Sometimes 6, Favored 6, Strongly
+favored 9). By profile the shares are within 0.3 points of each other (Sometimes: Neutral 25.2 %,
+Jazz 25.3 %; Favored: 50.1 %, 50.4 %). Seventh-form events by quality at Strongly favored: minor
+seventh 12,060, major seventh 8,285, half-diminished 4,860, dominant 3,477.
+
+**Per mode**, the share of harmony events in their seventh form (the drawn share is the same figure
+in every row, and the fallback share is 0 in every row):
+
+| Mode       | Off | Sometimes | Favored | Strongly favored |
+| ---------- | --- | --------- | ------- | ---------------- |
+| Major      | 0   | 24.3 %    | 49.5 %  | 100 %            |
+| Minor      | 0   | 24.9 %    | 50.1 %  | 100 %            |
+| Ionian     | 0   | 26.2 %    | 50.9 %  | 100 %            |
+| Dorian     | 0   | 25.0 %    | 49.8 %  | 100 %            |
+| Phrygian   | 0   | 25.2 %    | 50.2 %  | 100 %            |
+| Lydian     | 0   | 25.3 %    | 50.0 %  | 100 %            |
+| Mixolydian | 0   | 25.8 %    | 50.5 %  | 100 %            |
+| Aeolian    | 0   | 25.8 %    | 51.3 %  | 100 %            |
+| Locrian    | 0   | 24.6 %    | 50.1 %  | 100 %            |
+
+**Reading.** No phrase fell back to triads at any level, in any mode (the fallback share is a
+measured zero): every phrase kept every seventh its draw gave it, so the seventh share equals the
+drawn share. The drawn share is 64/256 and 128/256 within 0.4 points (the runner's check: within
+0.02). The share never falls a step up, in every mode. **Strongly favored gives 100 % of harmony
+events in their seventh form, above the 3 in 4 of spec D281**, with the shares as they stand
+(`SOMETIMES_SEVENTH_SHARE` 64, `FAVORED_SEVENTH_SHARE` 128). Replays: 5 phrases at each level and
+5 phrases above Off whose plan stayed triads with no seventh drawn, replayed from their `ifk5.`
+keys, all 25 matched; no fallback to replay.
 
 ## Seventh chords: the cost guard
 
@@ -1283,8 +1338,10 @@ Sometimes, Favored and Strongly favored with the Neutral and Jazz defaults, then
 with Bebop), the Jam sweep (`npm run measure:jam`, `JAM_LEVELS`) for a fresh Jam's phrase 1 at
 180 BPM, and the lock census (`npm run measure:lock`, `LOCK_LEVELS`) for locked bars. Each prints
 the level in its labels; the cost runner also prints, per setting, the share of the distinct
-intents' harmony events in their seventh form and of phrases fallen back to triads. Only Off can be
-measured until v3.3 chunks 12 and 16; the cost runner lists the settings it could not measure yet.
+intents' harmony events in their seventh form and of phrases fallen back to triads, and per tempo
+the phrases 2 to 6 by production and the failed joins by cause (spec D531). Every level is
+measurable; above Off, a fresh Jam's phrase 1 goes through the Jam sweep's double of the ladder
+(the real ladder builds it at Off until chunk 23 carries Jam's level).
 
 ### Off baseline (v3.3 chunk 4)
 
@@ -1358,6 +1415,126 @@ The draw shares are v3.2's too (49.3–49.4 % normal, 75.5–75.6 % tenser with 
 phrases on; 50.0–50.1 % off). **At Off the three runners give v3.2's figures**, which is what the
 baseline must show (master spec D10): every count equal, only wall times moving. The levels above
 Off are measured by chunk 18, the deciding runs on the reference machine by the owner.
+
+### First run at every level (v3.3 chunk 18)
+
+**Machine and date.** Run by Claude on 2026-11-13 on branch `v3.3-c18-first-measurements` (cut from
+`v3.3-w4` at fcce0134, with chunk 18's tooling), on the reference machine (AMD Ryzen 5 PRO 8640HS,
+12 threads, 11 GiB RAM, not a VM, Node 22.23.4), one run at a time, nothing else of the project
+running; the desktop stayed open (a browser and a game client idle), so the 1-minute load average
+is named per run. Counts and shares do not depend on the machine; the wall times do, and are for
+the owner to confirm with the same commands (below). The cost runner was run twice (18:51–19:05
+and 20:29–20:44, the second with the standalone-attempt times): every count was the same in both;
+the times below are the second run's.
+
+**The cost runner.** `COST_SETTINGS=sevenths COST_OUT=<file.json> npm run measure:cost`, 20:29–20:44
+CET (875 s; load average 0.9 at the start, 2.5 at the end): D10's ten settings on the 568 cases at
+60, 120 and 240 BPM, the cases' seeds 7 and 13 (spec D533). Phrases 2 to 6 generated are per tempo
+of 2,840; "standalone at 240" is the fallback without the join, phrases 2 to 6 (3 to 6).
+
+| Setting                  | Generated, 60 / 120 / 240 | Standalone at 240 BPM | Distinct intents (failed) | Seventh form | Slowest standalone attempt | Slowest attempt (a failed join) / p95 |
+| ------------------------ | ------------------------- | --------------------- | ------------------------- | ------------ | -------------------------- | ------------------------------------- |
+| Speed drill at Strongly  | 2,840 / 2,840 / 2,840     | 582 (14)              | 7,220 (0)                 | 100 %        | 0.316 s                    | 0.316 s (a success) / 0.030 s         |
+| Neutral at Off           | 2,840 / 2,840 / 2,840     | 602 (34)              | 7,440 (69)                | 0            | 0.640 s                    | 2.047 s / 0.022 s                     |
+| Jazz at Off              | 2,839 / 2,839 / 2,840     | 596 (28)              | 7,450 (77)                | 0            | 0.662 s                    | 1.127 s / 0.021 s                     |
+| Neutral at Sometimes     | 2,840 / 2,840 / 2,840     | 600 (32)              | 7,445 (75)                | 24.5 %       | 0.617 s                    | 3.588 s / 0.019 s                     |
+| Jazz at Sometimes        | 2,840 / 2,840 / 2,840     | 596 (28)              | 7,450 (76)                | 24.6 %       | 0.630 s                    | 1.781 s / 0.021 s                     |
+| Neutral at Favored       | 2,840 / 2,840 / 2,840     | 602 (34)              | 7,445 (74)                | 47.0 %       | 0.655 s                    | 3.230 s / 0.019 s                     |
+| Jazz at Favored          | 2,839 / 2,839 / 2,839     | 593 (25)              | 7,451 (85)                | 47.1 %       | 0.667 s                    | 1.363 s / 0.022 s                     |
+| Neutral at Strongly      | 2,840 / 2,840 / 2,840     | 590 (22)              | 7,431 (65)                | 100 %        | 0.414 s                    | 3.436 s / 0.020 s                     |
+| Jazz at Strongly         | 2,840 / 2,840 / 2,840     | 588 (20)              | 7,431 (58)                | 100 %        | 0.624 s                    | 0.999 s / 0.023 s                     |
+| Bebop at Strongly, Major | 2,840 / 2,840 / 2,840     | 583 (15)              | 6,993 (105)               | 100 %        | 0.028 s                    | 0.218 s (a success) / 0.008 s         |
+
+"Strongly" is Strongly favored. Off's rows equal [chunk 4's baseline](#off-baseline-v33-chunk-4-1)
+count for count. No setting fell back to triads (0 fallbacks in every row). The only missed
+deadlines are Jazz's: one at 60 and one at 120 BPM at Off (chunk 4's case #542 phrase 5), and at
+Favored one at each tempo (one phrase in 2,840, 0.04 points). Speed drill and Bebop at Strongly favored match v3.1's figures for the same
+presets at Off ([final run](#final-run-at-the-release-gate-v31-chunk-21): 20.5 % at 240 BPM, every
+phrase generated). The failed intents are `no_legal_pitch_plan` and `search_limit_exceeded`, as at
+Off, except **Bebop at Strongly favored: 105 `result_validation_failed`**, all joined attempts: the
+search ends a joined phrase with a chromatic enclosure onto the final chord's seventh, which the
+validator reads as a tense note, not a chord tone, and refuses the phrase
+([ISS-019](../issues/Ref_20261113_figure_target_final_seventh_validator_refusal.md); Sometimes 30
+and Favored 68 with Bebop, 0 at Off). The ladder's next rung generates the phrase: none is lost.
+The slowest attempts are failed joins searching their whole allowance (Neutral 3.6 s above Off
+against 2.0 s at Off); no attempt generated on its own came near the 1.075 s reserve.
+
+**Join loss by cause** (spec D531), phrases 2 to 6 by production at 60 BPM (240 BPM in brackets;
+120 BPM as 60 but for one or two attempts), with the failed joins:
+
+| Setting               | By the join   | After no legal pitch plan | Carry-in unusable | After three retries | After a cutover cancel | Failed joins (owing a recovery; D530) |
+| --------------------- | ------------- | ------------------------- | ----------------- | ------------------- | ---------------------- | ------------------------------------- |
+| Neutral at Off        | 2,804 (2,238) | 21 (21)                   | 13 (12)           | 2 (0)               | 0 (1)                  | 40 (31); 0; 0                         |
+| Neutral at Sometimes  | 2,805 (2,240) | 19 (17)                   | 14 (14)           | 1 (0)               | 1 (1)                  | 45 (30); 0; 0                         |
+| Neutral at Favored    | 2,807 (2,238) | 17 (17)                   | 13 (15)           | 2 (0)               | 1 (2)                  | 43 (31); 0; 0                         |
+| Neutral at Strongly   | 2,812 (2,250) | 11 (6)                    | 14 (13)           | 2 (0)               | 1 (3)                  | 41 (26); 0; 0                         |
+| Jazz at Off           | 2,808 (2,244) | 19 (17)                   | 11 (10)           | 1 (0)               | 0 (1)                  | 44 (34); 0; 0                         |
+| Jazz at Sometimes     | 2,810 (2,244) | 17 (13)                   | 12 (12)           | 1 (0)               | 0 (3)                  | 36 (41); 0; 0                         |
+| Jazz at Favored       | 2,813 (2,246) | 12 (9)                    | 12 (14)           | 2 (0)               | 0 (2)                  | 50 (44); 0; 0                         |
+| Jazz at Strongly      | 2,816 (2,252) | 9 (6)                     | 14 (13)           | 1 (0)               | 0 (1)                  | 31 (27); 0; 0                         |
+| Speed drill, Strongly | 2,826 (2,258) | 0 (0)                     | 14 (14)           | 0 (0)               | 0 (0)                  | 0 (0); 0; 0                           |
+| Bebop, Strongly       | 2,825 (2,257) | 0 (0)                     | 15 (15)           | 0 (0)               | 0 (0)                  | 56 (49); 1 (0); 0                     |
+
+At 240 BPM 568 more phrases are standalone by request (phrase 2, inside the reserve), as at Off; no
+phrase was produced after a failure past the cutover. Seventh chords lose no joins: each step up
+keeps as many phrases on the join or more (the joins lost after no legal pitch plan fall from 21
+to 11 with Neutral). **The D530 count is 0** at every level and tempo: no failed join owed a
+recovery that only the tonic chord's seventh could repay. It is 0 by construction: a carry-in may
+owe a recovery only when a tonic-triad tone lies 1 to 4 semitones back inside the window
+(`owedRecoveryCanSettle`), and the first chord is the tonic chord; only one failed join in the
+whole run owed a recovery at all (Bebop, 60 and 120 BPM). The joins section's "Known limit" note in
+`docs/music/pitch-planner-validation.md` needs no addition.
+
+**A fresh Jam's phrase 1 at 180 BPM.** `JAM_MODE=jam JAM_LOCK=off JAM_LADDER=double JAM_TEMPOS=180
+JAM_LEVELS=all JAM_OUT=<file.json> npm run measure:jam`, 19:05–20:01 CET (3,377 s; load average 1.8
+at the start, 1.6 at the end): the 568 cases crossed with the 13 doodles (7,384 Jams per
+configuration), phrase 1 through the double of Jam's ladder at every level (the real ladder builds
+phrase 1 at Off until chunk 23; D531), warm and cold (the same counts):
+
+| Figure                                  | Off               | Sometimes         | Favored           | Strongly favored  |
+| --------------------------------------- | ----------------- | ----------------- | ----------------- | ----------------- |
+| Phrase 1 ready by its deadline          | 100 % (7,384)     | 99.96 % (7,381)   | 99.96 % (7,381)   | 100 % (7,384)     |
+| Phrase 1 by rung: 1 / 2 / 3             | 6,234 / 1,150 / 0 | 6,237 / 1,147 / 0 | 6,239 / 1,145 / 0 | 6,245 / 1,139 / 0 |
+| Slowest phrase 1 attempt, rung 1 (warm) | 0.755 s           | 1.562 s           | 1.469 s           | 0.066 s           |
+| Phrases 2 to 8 standalone; over reserve | 732; 0            | 718; 0            | 598; 0            | 275; 0            |
+| Phrase 2 lost its join                  | 93                | 72                | 54                | 29                |
+| Repeats; shortfalls                     | 0; 0              | 0; 0              | 0; 0              | 0; 0              |
+| Replays from `ifk5.` keys               | 30 of 30 matched  | 30 of 30 matched  | 30 of 30 matched  | 30 of 30 matched  |
+
+At Sometimes and Favored three Jams of 7,384 waited past phrase 1's deadline (an extended wait,
+0.04 points, inside the 2-point acceptance); none at Off or Strongly favored. No standalone attempt
+went past the 1.075 s reserve at any level (slowest charged 0.117 s).
+
+**Locked bars.** `LOCK_LEVELS=off,stronglyFavored LOCK_OUT=<file.json> npm run measure:lock`,
+20:01–20:18 CET (1,014 s; the census charges the flat modelled cost, so the load moves no figure):
+7,952 sessions per level, all completed, 0 census mismatches; replays (kept, changed, bend 5 of 5
+each, at both levels) all matched. Off equals [chunk 4's table](#off-baseline-v33-chunk-4-1) row for
+row. Locked rhythms kept, Tension across phrases on (off in brackets):
+
+| Allowed list         | Off           | Strongly favored |
+| -------------------- | ------------- | ---------------- |
+| None (strict)        | 97.5 % (99.5) | 97.5 % (99.6)    |
+| Move a note start    | 78.9 % (82.2) | 78.8 % (82.2)    |
+| Move a rest          | 91.0 % (93.5) | 90.9 % (93.5)    |
+| Split a note         | 87.8 % (90.4) | 87.7 % (90.5)    |
+| Merge two notes      | 94.4 % (96.9) | 94.4 % (97.0)    |
+| Add or remove a rest | 94.8 % (97.0) | 94.8 % (97.1)    |
+| All five             | 64.9 % (69.6) | 64.7 % (69.5)    |
+
+**Verdict (spec D10, M2's acceptance), every setting:**
+
+- Fallbacks without the join at 240 BPM: at most Off's at every level (Neutral 602 at Off, 600,
+  602, 590; Jazz 596, 596, 593, 588); Speed drill and Bebop at Strongly favored 20.5 %, v3.1's
+  figure. **Met.**
+- Phrases generated: none fewer than at Off by more than one phrase in 2,840 (Jazz at Favored at
+  240 BPM, 0.04 points). **Met.**
+- A fresh Jam's phrase 1 ready by its deadline: 99.96 % at worst against 100 %. **Met.**
+- Locked rhythms kept: at most 0.2 points fewer (All five, 64.9 to 64.7 %). **Met.**
+- No attempt generated on its own slower than the 1.075 s reserve: slowest 0.667 s (Jazz at
+  Favored). **Met.**
+
+No share was tuned: the shares stay `SOMETIMES_SEVENTH_SHARE` 64 and `FAVORED_SEVENTH_SHARE` 128.
+One finding outside the acceptance: ISS-019 (Bebop's refused joins, above).
 
 ## My instrument ranges (2026-10-11)
 

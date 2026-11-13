@@ -3,37 +3,51 @@
  * The seventh census sweep (v3.3 measurement M1), manual only, never in `npm run quality`: run via
  * `npm run measure:sevenths`. Every case of the look-ahead deadline sweep (each supported rhythm
  * setting with seeds 7 and 13) under each of the nine modes gives one standalone phrase per
- * setting, at 120 BPM with the case's controls and seed. The settings are each musical profile's
- * defaults (Neutral and Jazz) at each Seventh chords level measured. Each phrase's winning chord
- * plan is classified by the seventh census; per level, the sweep prints, per mode, per profile and
- * over the whole sweep, the share of harmony events in their seventh form and the share of phrases
- * that fell back to triads, as `SEVENTH-CENSUS` lines. It counts phrases generated, not attempts.
+ * setting, at 120 BPM with the case's controls and a seed of its own (spec D533: numbered by case,
+ * mode and profile, the same at the four levels; the cases' seeds 7 and 13 would give the draw too
+ * few bytes to read). The settings are each musical profile's defaults (Neutral and Jazz) at each
+ * Seventh chords level measured. Each phrase's winning chord plan is classified by the seventh
+ * census; per level, the sweep prints, per mode, per profile and over the whole sweep, the share of
+ * harmony events in their seventh form, the share the draw gave their seventh form first (the
+ * drawn share) and the share of phrases that fell back to triads, as `SEVENTH-CENSUS` lines, then
+ * each level's drawn share against its target. It counts phrases generated, not attempts. A few
+ * phrases (per level, of the fallbacks, and of the phrases above Off with no seventh drawn) are
+ * replayed from their `ifk5.` keys through the worker runtime and compared with what the census
+ * got.
  *
  * It asserts that every case was taken, that no generation failed its result validation (only
  * search outcomes may fail a generation), that Off holds no seventh-form event and no fallback,
- * and that, in every mode, the seventh share never falls from one measured level to the next. The
+ * that, in every mode, the seventh share never falls from one measured level to the next, that
+ * every replayed phrase matched, and, over the whole sweep only (no `SEVENTHS_LIMIT`), that the
+ * drawn share at Sometimes and at Favored lies within 0.02 of the level's share of the draw. The
  * 3 in 4 acceptance at Strongly favored (spec D281) is printed, not asserted: it is gate DP's.
  *
  * Env: `SEVENTHS_OUT` writes the full figures JSON (with the machine, the date and the run
  * duration) to that path; `SEVENTHS_LIMIT` keeps only the first N sweep cases, for a quick run;
- * `SEVENTHS_LEVELS` names the levels, comma-separated level ids (unset: every level measurable
- * today, Off only until v3.3 chunks 12 and 16 are in).
+ * `SEVENTHS_LEVELS` names the levels, comma-separated level ids (unset or `all`: the four).
  */
 
 import { writeFileSync } from 'node:fs'
 import { performance } from 'node:perf_hooks'
 import { describe, expect, it } from 'vitest'
 
+import type { ChordFamilyLevel } from '@/domain/chords/chord-families'
 import { COLLECTIONS, MUSICAL_PROFILES } from '@/domain/controls/generation-controls'
+import {
+  FAVORED_SEVENTH_SHARE,
+  SEVENTH_DRAW_SHARE_BITS,
+  SOMETIMES_SEVENTH_SHARE,
+} from '@/domain/harmony/seventh-draw'
 import { sweepCases } from '../unit/session/deadline-sweep'
 import { machineBlock } from './figure-census-sweep'
+import { SeventhReplaySampler, seventhReplayLines } from './seventh-census-replay'
 import {
   LevelTally,
   censusPopulation,
   censusSettings,
+  generateSeventhCensusCase,
   levelTableLines,
   percent,
-  runSeventhCensusCase,
   type LevelFigures,
 } from './seventh-census-sweep'
 import { SEVENTH_LEVEL_NAMES, seventhLevelsFrom } from './seventh-levels'
@@ -46,6 +60,20 @@ const SEARCH_OUTCOME_CODES: readonly string[] = [
   'no_eligible_register_window',
   'search_limit_exceeded',
 ]
+
+/** How far the drawn share over the whole sweep may lie from its level's share of the draw. */
+const DRAWN_SHARE_TOLERANCE = 0.02
+
+/**
+ * Intent: the share of harmony events a level's draw gives their seventh form first: none at Off,
+ * every one at Strongly favored, and the level's numerator over 2^SEVENTH_DRAW_SHARE_BITS between.
+ */
+function drawTarget(level: ChordFamilyLevel): number {
+  if (level === 'off') return 0
+  if (level === 'stronglyFavored') return 1
+  const numerator = level === 'sometimes' ? SOMETIMES_SEVENTH_SHARE : FAVORED_SEVENTH_SHARE
+  return numerator / 2 ** SEVENTH_DRAW_SHARE_BITS
+}
 
 /** Intent: the case limit `SEVENTHS_LIMIT` sets, or none; anything but a positive integer fails. */
 function caseLimit(raw: string | undefined): number | undefined {
@@ -70,17 +98,32 @@ describe('seventh census sweep (M1)', () => {
     const date = new Date().toISOString()
     const machine = machineBlock()
     const levels = seventhLevelsFrom('SEVENTHS_LEVELS', process.env.SEVENTHS_LEVELS)
-    const cases = sweepCases().slice(0, caseLimit(process.env.SEVENTHS_LIMIT))
+    const limit = caseLimit(process.env.SEVENTHS_LIMIT)
+    const cases = sweepCases().slice(0, limit)
     const settings = censusSettings(levels)
     const tallies = new Map(levels.map((level) => [level, new LevelTally(level)]))
+    const sampler = new SeventhReplaySampler(levels)
     let censusCases = 0
     for (const setting of settings)
       for (const censusCase of censusPopulation(cases, setting)) {
-        tallies.get(setting.level)!.add(censusCase, runSeventhCensusCase(censusCase))
+        const generated = generateSeventhCensusCase(censusCase)
+        tallies.get(setting.level)!.add(censusCase, generated.census)
+        sampler.offer(censusCase.caseIndex, generated)
         censusCases += 1
       }
     const figures = [...tallies.values()].map((tally) => tally.figures())
     for (const level of figures) console.log(levelTableLines(level).join('\n'))
+    const drawn = figures.map((level) => ({
+      level: level.level,
+      share: level.overall.drawnEvents.share,
+      target: drawTarget(level.level),
+    }))
+    for (const { level, share, target } of drawn)
+      console.log(
+        `SEVENTH-CENSUS [${SEVENTH_LEVEL_NAMES[level]}] drawn share over the sweep: ${percent(share)} % (target ${percent(target)} %)`,
+      )
+    const replay = sampler.replay()
+    console.log(seventhReplayLines(replay).join('\n'))
     const stronglyFavored = figures.find((level) => level.level === 'stronglyFavored')
     if (stronglyFavored !== undefined)
       console.log(
@@ -97,8 +140,11 @@ describe('seventh census sweep (M1)', () => {
         sweepCases: cases.length,
         censusCases,
         settings: settings.map((setting) => setting.label),
+        seeds: `a seed of its own per phrase (spec D533): 1 + (case index x ${COLLECTIONS.length} + mode index) x ${MUSICAL_PROFILES.length} + profile index, the same at the four levels`,
       },
       levels: figures,
+      drawnShares: drawn,
+      replay,
     }
     const outPath = process.env.SEVENTHS_OUT
     if (outPath !== undefined) writeFileSync(outPath, JSON.stringify(report, null, 2))
@@ -129,5 +175,16 @@ describe('seventh census sweep (M1)', () => {
           `${label}: ${SEVENTH_LEVEL_NAMES[higher.level]} never below ${SEVENTH_LEVEL_NAMES[lower.level]}`,
         ).toBeGreaterThanOrEqual(modeShare(lower, label))
     }
+    expect(replay.mismatchedKeys).toEqual([])
+    expect(replay.classes.map(({ replayClass, matched }) => [replayClass, matched])).toEqual(
+      replay.classes.map(({ replayClass, replayed }) => [replayClass, replayed]),
+    )
+    if (limit === undefined)
+      for (const { level, share, target } of drawn)
+        if (level === 'sometimes' || level === 'favored')
+          expect(
+            Math.abs((share ?? Number.NaN) - target),
+            `${SEVENTH_LEVEL_NAMES[level]}: drawn share ${share} against ${target}`,
+          ).toBeLessThanOrEqual(DRAWN_SHARE_TOLERANCE)
   })
 })

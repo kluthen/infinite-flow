@@ -3,24 +3,26 @@
  * The seventh census's own tests (measurement tooling, run by `npm run measure:sevenths`): a
  * hand-built sweep fixture (a plan with seventh-form events and a chord held across a barline, its
  * triads-only fallback, a plan with no seventh drawn, a failed generation) is classified and
- * tallied exactly; a plan that is not serialized, or a draw it could not hold, is refused; a real
- * phrase generated at Off holds triads only, and one above Off has the sevenths its draw gave it
- * counted from the generator's own draw; over a reduced sweep at every level, the seventh share
- * never falls a step up, each phrase holds all its drawn sevenths or none, and every chord is a
- * triad or the seventh chord on its degree; and the level dimension refuses what cannot be
- * measured until the measurements open the levels (chunk 18).
+ * tallied exactly, the drawn share with it; a plan that is not serialized, or a draw it could not
+ * hold, is refused; the census population gives each phrase a seed of its own, the same at the
+ * four levels (spec D533); a real phrase generated at Off holds triads only, and one above Off has
+ * the sevenths its draw gave it counted from the generator's own draw; over a reduced sweep at
+ * every level, the seventh share never falls a step up, each phrase holds all its drawn sevenths or
+ * none, and every chord is a triad or the seventh chord on its degree; and the level dimension
+ * measures the four levels by default, or the ones named.
  */
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import type { ChordFamilyLevel } from '@/domain/chords/chord-families'
-import { MUSICAL_PROFILES } from '@/domain/controls/generation-controls'
+import { CHORD_FAMILY_LEVEL_IDS, type ChordFamilyLevel } from '@/domain/chords/chord-families'
+import { COLLECTIONS, MUSICAL_PROFILES } from '@/domain/controls/generation-controls'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import { makeHarmonyCollection } from '@/domain/harmony/collection'
 import { chordTones } from '@/domain/harmony/harmony-types'
 import { isSeventhDrawn } from '@/domain/harmony/seventh-draw'
+import { makeSeed } from '@/domain/random/seed'
 import { chordPlan } from '../unit/domain/harmony/seventh-chord-fixtures'
 import { buildIntent } from '../unit/domain/generation/carry-in/carry-in-fixture'
 import { caseSettings, phraseOneIntent, sweepCases } from '../unit/session/deadline-sweep'
@@ -33,7 +35,24 @@ import {
   type FailedSeventhCensus,
   type PhraseSeventhCensus,
 } from './seventh-census'
-import { SeventhTally, censusPopulation, censusSettings } from './seventh-census-sweep'
+import {
+  LevelTally,
+  SeventhTally,
+  censusPopulation,
+  censusSeed,
+  censusSettings,
+  generateSeventhCensusCase,
+  levelTableLines,
+  runSeventhCensusCase,
+  type SeventhCensusCase,
+} from './seventh-census-sweep'
+import {
+  FALLBACK_CLASS,
+  SeventhReplaySampler,
+  UNDRAWN_CLASS,
+  generatedClass,
+  seventhReplayLines,
+} from './seventh-census-replay'
 import { chordFamiliesAt, seventhLevelsFrom } from './seventh-levels'
 
 /**
@@ -74,6 +93,7 @@ describe('seventh census on hand-built plans', () => {
         { barIndex: 2, startBeat: 2, durationBeats: 6, degree: 5, form: 'dominant-seventh' },
       ],
       seventhEvents: 3,
+      drawnSevenths: 3,
       fallback: false,
     })
   })
@@ -96,6 +116,7 @@ describe('seventh census on hand-built plans', () => {
       phrases: 2,
       failedGenerations: { search_limit_exceeded: 1 },
       seventhEvents: { count: 3, total: 8, share: 0.375 },
+      drawnEvents: { count: 5, total: 8, share: 0.625 },
       byQuality: {
         'major-seventh': 1,
         'minor-seventh': 1,
@@ -104,6 +125,22 @@ describe('seventh census on hand-built plans', () => {
       },
       fallbacks: { count: 1, total: 2, share: 0.5 },
     })
+  })
+
+  it("prints each level's drawn share in its own column, beside the seventh share", () => {
+    const tally = new LevelTally('favored')
+    const [sweepCase] = sweepCases()
+    const [neutral] = censusSettings(['favored'])
+    const [censusCase] = censusPopulation([sweepCase!], neutral!)
+    tally.add(
+      censusCase!,
+      classifyPlan(WITH_SEVENTHS, 3, 'favored', censusCase!.controls.collection),
+    )
+    tally.add(censusCase!, classifyPlan(TRIADS_ONLY, 2, 'favored', censusCase!.controls.collection))
+    const lines = levelTableLines(tally.figures())
+    expect(lines[0]).toMatch(/^SEVENTH-CENSUS \[Favored\] group .* share % +drawn % +fallbacks/)
+    const overall = lines.find((line) => line.includes('all modes'))!
+    expect(overall).toMatch(/ 37\.5 +62\.5 +1 +50\.0$/)
   })
 
   it('refuses a held chord split in two, a plan that does not fill the phrase, and an impossible draw', () => {
@@ -117,6 +154,107 @@ describe('seventh census on hand-built plans', () => {
     expect(() => classifyPlan(short, 0, 'off', 'Major')).toThrow(/lasts 8 beats/)
     expect(() => classifyPlan(TRIADS_ONLY, 1, 'off', 'Major')).toThrow(/Off draws no seventh/)
     expect(() => classifyPlan(WITH_SEVENTHS, 2, 'favored', 'Major')).toThrow(/only 2 were drawn/)
+  })
+})
+
+describe('the census population: a seed of its own per phrase (D533)', () => {
+  const cases = sweepCases()
+  /** Intent: the census population of every sweep case at one level, under both profiles' defaults. */
+  const population = (level: ChordFamilyLevel) =>
+    censusSettings([level]).flatMap((setting) => censusPopulation(cases, setting))
+
+  it('numbers the seeds from 1 by case, then mode, then profile, and names the seed in the label', () => {
+    expect(censusSeed(0, 0, 0)).toBe(1)
+    expect(censusSeed(0, 0, 1)).toBe(2)
+    expect(censusSeed(0, 1, 0)).toBe(1 + MUSICAL_PROFILES.length)
+    expect(censusSeed(1, 0, 0)).toBe(1 + COLLECTIONS.length * MUSICAL_PROFILES.length)
+    const [jazz] = censusSettings(['off']).filter((setting) => setting.musicalProfile === 'Jazz')
+    const firstCase = censusPopulation(cases.slice(0, 1), jazz!)
+    expect(firstCase.map((censusCase) => censusCase.seed)).toEqual(
+      COLLECTIONS.map((_, collectionIndex) => censusSeed(0, collectionIndex, 1)),
+    )
+    expect(firstCase[2]!.label).toBe(`#0 seed ${censusSeed(0, 2, 1)} ${COLLECTIONS[2]} Jazz at Off`)
+  })
+
+  it('gives no two phrases of one level the same seed, over the whole sweep and both profiles', () => {
+    const seeds = population('favored').map((censusCase) => censusCase.seed)
+    expect(seeds).toHaveLength(cases.length * COLLECTIONS.length * MUSICAL_PROFILES.length)
+    expect(new Set(seeds).size).toBe(seeds.length)
+    expect(() => seeds.forEach((seed) => makeSeed(seed))).not.toThrow()
+  })
+
+  it('gives each phrase the same seed at the four levels, and the same under a case limit', () => {
+    const [off, ...above] = CHORD_FAMILY_LEVEL_IDS.map(population)
+    /** Intent: a census case without its level and label: the phrase it asks for, and its seed. */
+    const phrase = ({ caseIndex, controls, musicalProfile, seed }: SeventhCensusCase) => ({
+      caseIndex,
+      controls,
+      musicalProfile,
+      seed,
+    })
+    for (const levelPopulation of above)
+      expect(levelPopulation.map(phrase)).toEqual(off!.map(phrase))
+    const limited = censusSettings(['sometimes']).flatMap((setting) =>
+      censusPopulation(cases.slice(0, 3), setting),
+    )
+    const full = population('sometimes')
+    for (const censusCase of limited)
+      expect(full.find((each) => each.label === censusCase.label)?.seed).toBe(censusCase.seed)
+  })
+
+  it('keeps each case of the census as its intent, its outcome and its census', () => {
+    const [setting] = censusSettings(['sometimes'])
+    const censusCase = censusPopulation(cases.slice(0, 1), setting!)[0]!
+    const { intent, outcome, census } = generateSeventhCensusCase(censusCase)
+    expect(intent.seed).toBe(censusCase.seed)
+    expect(intent.chordFamilies).toEqual(chordFamiliesAt('sometimes'))
+    expect(census).toEqual(seventhCensusOf(intent, outcome))
+    expect(runSeventhCensusCase(censusCase)).toEqual(census)
+  })
+})
+
+describe('the census replay sample', () => {
+  it('keeps a bounded sample per class, one phrase of a case at most, and replays each to what it got', () => {
+    const levels = ['off', 'sometimes'] as const
+    const sampler = new SeventhReplaySampler(levels, 2)
+    const offered = new Map<string, number>()
+    for (const setting of censusSettings(levels))
+      for (const censusCase of censusPopulation(sweepCases().slice(0, 3), setting)) {
+        const generated = generateSeventhCensusCase(censusCase)
+        sampler.offer(censusCase.caseIndex, generated)
+        if ('kind' in generated.census) continue
+        const census = generated.census
+        const replayClasses = [generatedClass(census.level)]
+        if (census.level !== 'off' && census.fallback) replayClasses.push(FALLBACK_CLASS)
+        if (census.level !== 'off' && census.drawnSevenths === 0) replayClasses.push(UNDRAWN_CLASS)
+        for (const replayClass of replayClasses)
+          offered.set(replayClass, (offered.get(replayClass) ?? 0) + 1)
+      }
+    const replay = sampler.replay()
+    expect(replay.classes.map((each) => each.replayClass)).toEqual([
+      'generated at Off',
+      'generated at Sometimes',
+      FALLBACK_CLASS,
+      UNDRAWN_CLASS,
+    ])
+    for (const { replayClass, replayed, matched, sampleKey } of replay.classes) {
+      expect(replayed, replayClass).toBe(Math.min(2, offered.get(replayClass) ?? 0))
+      expect(matched, replayClass).toBe(replayed)
+      if (replayed > 0) expect(sampleKey).toMatch(/^ifk5\./)
+      else expect(sampleKey).toBeNull()
+    }
+    expect(replay.classes[0]!.replayed).toBe(2)
+    expect(replay.mismatchedKeys).toEqual([])
+    expect(sampler.replay()).toBe(replay)
+    expect(seventhReplayLines(replay)[0]).toMatch(
+      /^SEVENTH-CENSUS replay generated at Off: matched 2 of 2, sample key ifk5\./,
+    )
+  })
+
+  it('samples no fallback and no undrawn class for a census at Off only', () => {
+    expect(new SeventhReplaySampler(['off']).replay().classes).toEqual([
+      { replayClass: 'generated at Off', replayed: 0, matched: 0, sampleKey: null },
+    ])
   })
 })
 
@@ -261,15 +399,20 @@ describe('the census over a reduced sweep, at every level', () => {
 })
 
 describe('the Seventh chords level as a measurement dimension', () => {
-  it('measures Off by default, names each profile at it, and refuses a level not generated yet', () => {
-    expect(seventhLevelsFrom('X', undefined)).toEqual(['off'])
+  it('measures the four levels by default or with all, one level when named, and refuses an unknown id', () => {
+    const four = ['off', 'sometimes', 'favored', 'stronglyFavored']
+    expect(seventhLevelsFrom('X', undefined)).toEqual(four)
+    expect(seventhLevelsFrom('X', ' ')).toEqual(four)
+    expect(seventhLevelsFrom('X', 'all')).toEqual(four)
     expect(seventhLevelsFrom('X', ' off ')).toEqual(['off'])
-    expect(() => seventhLevelsFrom('X', 'stronglyFavored')).toThrow(/cannot be measured yet/)
-    expect(() => seventhLevelsFrom('X', 'all')).toThrow(/cannot be measured yet/)
+    expect(seventhLevelsFrom('X', 'stronglyFavored')).toEqual(['stronglyFavored'])
+    expect(seventhLevelsFrom('X', 'stronglyFavored,off')).toEqual(['off', 'stronglyFavored'])
     expect(() => seventhLevelsFrom('X', 'often')).toThrow(/X names an unknown level "often"/)
-    expect(censusSettings(['off']).map((setting) => setting.label)).toEqual([
+    expect(censusSettings(['off', 'stronglyFavored']).map((setting) => setting.label)).toEqual([
       'Neutral at Off',
       'Jazz at Off',
+      'Neutral at Strongly favored',
+      'Jazz at Strongly favored',
     ])
   })
 
