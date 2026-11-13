@@ -1275,7 +1275,7 @@ Record: 2a0317b9 (733af8ee 12a, b3b4af6a 12b). One deviation in naming only, rep
 
 ### Chunk 13 — MusicXML writes the seventh chords
 
-Status: planned
+Status: merged (w4, c0094ce3)
 Wave: 4
 Depends on: 10, 12 (its byte scan exports phrases generated at each level)
 Architecture capture: none
@@ -1304,6 +1304,13 @@ Architecture capture: none
   level). Then **H4** with the owner.
 - **Verification:** chunk checks; H4.
 - **Split rule:** none needed (one source file).
+
+Record: c0094ce3 (4c9c19ed). No deviation from the spec or the design. H4's MusicXML file is one
+real generated session of two phrases in two collections (C Major seed 1 gives G7, C Ionian seed 2
+gives Bm7♭5): no Major plan uses vii and no Ionian plan uses V, existing planner behaviour, so
+measure 5 carries a key element from major to ionian; the checklist entry says so. The byte scan
+and H4's files live in `tests/unit/export/seventh-chords-files.spec.ts`, which the Files line
+doesn't name. H4 is open for the owner in `HARDWARE-CHECKLIST.md`.
 
 ### Chunk 14 — Seventh chord symbols on the staff
 
