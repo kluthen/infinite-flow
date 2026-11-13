@@ -36,13 +36,19 @@ const ACCIDENTAL: Readonly<Record<DisplayedAccidental, string>> = {
 }
 
 /**
- * The MusicXML chord kind for every chord-symbol suffix the written phrase can carry. The kind's
- * `text` attribute repeats the suffix, so a notation program prints the symbol as the staff does.
+ * The MusicXML chord kind for every chord-symbol suffix the written phrase can carry: the triads'
+ * '' (major), 'm' (minor) and 'dim' (diminished), and the seventh chords' 'maj7' (major-seventh),
+ * 'm7' (minor-seventh), '7' (dominant) and 'm7♭5' (half-diminished). The kind's `text` attribute
+ * repeats the suffix, so a notation program prints the symbol as the staff does.
  */
 const CHORD_KIND_BY_SUFFIX: Readonly<Record<string, string>> = {
   '': 'major',
   m: 'minor',
   dim: 'diminished',
+  maj7: 'major-seventh',
+  m7: 'minor-seventh',
+  '7': 'dominant',
+  'm7♭5': 'half-diminished',
 }
 
 /** Intent: a pitch step element pair (step, then alter when the letter is altered). */
