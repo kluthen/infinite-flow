@@ -1750,7 +1750,7 @@ its version 2 writer, so a database at versions 0–3 passes every step in order
 
 ### Chunk 18 — Measurements, first run: shares, cost guard and ending examples
 
-Status: planned
+Status: merged (w4, f72fc2d3)
 Wave: 4
 Depends on: 4, 9, 12, 15, 16 (the sweep's sessions carry the level)
 Architecture capture: none
@@ -1835,6 +1835,16 @@ Architecture capture: none
 - **Verification:** the runs themselves (M1, M2); chunk checks (the tooling changes, and a constant
   if one is tuned).
 - **Split rule:** none needed (measurement).
+
+Record: f72fc2d3 (f77f23c7). No share tuned (64 and 128 stay; no Revision applies). M1 over a seed
+per phrase: drawn share 25.3 % at Sometimes, 50.3 % at Favored, 100 % at Strongly favored, the
+fallback share 0 at every level and mode; M2 within the acceptance at every setting; D530 count 0.
+Figures in `docs/generation-latency.md` (reference machine, 2026-11-13). Found: ISS-019 (Bebop
+above Off: a joined phrase's figure targets count its final seventh as a chord tone, the validator
+reads the final note against the triad; no phrase lost). Added a guard: `JAM_LADDER=real` above
+Off is refused until chunk 23. Left: `seventh-draw.ts` lacks the pointer comment M1's Recorded
+line names; `docs/testing.md`'s `seventh-chord-inputs.ts` row still says "before v3.3 chunk 12".
+H1 written with L1's ten examples, open for the owner.
 
 ### Chunk 19 — The Seventh chords control
 
