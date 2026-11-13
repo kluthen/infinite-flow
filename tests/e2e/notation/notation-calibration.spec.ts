@@ -37,13 +37,15 @@
 import { expect, test, type Page } from '@playwright/test'
 
 import { findIdentity, NONE, setOverlays } from './overlay-harness'
+import {
+  measureInk,
+  NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE,
+  type SystemExtent,
+} from './staff-ink'
 
 test.use({ baseURL: 'http://127.0.0.1:4174' })
 
 test.skip(!process.env.CALIBRATE, 'Calibration only runs with CALIBRATE=1 (see report in stdout).')
-
-/** VexFlow engraving units per staff space (NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE in the layout policy). */
-const NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE = 10
 
 /** A container width wide enough that no combination in the sweep can hit the legibility floor. */
 const WIDE_CONTAINER_PX = 6000
@@ -74,18 +76,6 @@ const INK_FRAME_WIDTH_PX = 2500
  */
 const MIN_POSITION_MARGIN_UNITS = 7.5
 
-/** The engraved extent of one system's drawn content, in engraving units from its position's top. */
-interface SystemExtent {
-  readonly top: number
-  readonly bottom: number
-  /** The SVG's own height, in engraving units: the system position's height. */
-  readonly positionUnits: number
-  /** The staff's top line, in engraving units from the position's top. */
-  readonly topLine: number
-  /** The drawn start marker's top edge, for the system holding phrase 1's first attack. */
-  readonly markerTop: number | null
-}
-
 type ComboResult =
   | {
       readonly ok: true
@@ -115,66 +105,6 @@ function comboUrl(controls: Readonly<Record<string, string>>, frameWidthPx: numb
     ...controls,
   })
   return `/?${params.toString()}`
-}
-
-/**
- * Intent: find each system's inked rows, start marker included, in engraving units from its SVG's
- * top edge (the system position's top), by screenshotting the SVG over a transparent page and
- * scanning the alpha channel of the decoded PNG in the page's own canvas; and the drawn start
- * marker's own top edge, in the system that holds it.
- */
-async function measureInk(
-  page: Page,
-  staffSpacePx: number,
-  staffTopLineUnits: number,
-): Promise<readonly SystemExtent[]> {
-  await page.addStyleTag({
-    content: 'html, body, .staff-frame { background: transparent !important; }',
-  })
-  const scale = staffSpacePx / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
-  const systems = page.locator('svg.staff-svg')
-  const extents: SystemExtent[] = []
-  for (let index = 0; index < (await systems.count()); index += 1) {
-    const svg = systems.nth(index)
-    const markerTopPx = await svg.evaluate((element) => {
-      const marker = element.querySelector('.start-note-marker')
-      if (marker === null) return null
-      return marker.getBoundingClientRect().top - element.getBoundingClientRect().top
-    })
-    const png = await svg.screenshot({ omitBackground: true })
-    const rows = await page.evaluate(async (base64) => {
-      const image = new Image()
-      image.src = `data:image/png;base64,${base64}`
-      await image.decode()
-      const canvas = document.createElement('canvas')
-      canvas.width = image.width
-      canvas.height = image.height
-      const context = canvas.getContext('2d')!
-      context.drawImage(image, 0, 0)
-      const alpha = context.getImageData(0, 0, canvas.width, canvas.height).data
-      const inked = (x: number, y: number): boolean => alpha[(y * canvas.width + x) * 4 + 3]! > 32
-      let top = -1
-      let bottom = -1
-      for (let y = 0; y < canvas.height; y += 1) {
-        for (let x = 0; x < canvas.width; x += 1) {
-          if (inked(x, y)) {
-            if (top < 0) top = y
-            bottom = y + 1
-            break
-          }
-        }
-      }
-      return { top, bottom, height: canvas.height }
-    }, png.toString('base64'))
-    extents.push({
-      top: rows.top / scale,
-      bottom: rows.bottom / scale,
-      positionUnits: rows.height / scale,
-      topLine: staffTopLineUnits,
-      markerTop: markerTopPx === null ? null : markerTopPx / scale,
-    })
-  }
-  return extents
 }
 
 /**

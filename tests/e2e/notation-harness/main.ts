@@ -24,7 +24,9 @@
  * overlay state in one tick, as a session moving to its next phrase does, resolving once the new
  * phrase is engraved with the overlays drawn on it. Every `layout-inputs` event PhraseScore emits
  * is appended to `window.__notationLayoutInputs`, and `window.__notationChecks` runs the engraver's
- * two pure pre-draw checks (a fixture's fit, a key signature's room) on the real engraver module.
+ * two pure pre-draw checks (a fixture's fit, a key signature's room) on the real engraver module,
+ * and the fit check on any written phrase handed over as plain data, with the raw width its
+ * engraving requires when it fits.
  * `window.__notationSystems` (./phrase-systems.ts) draws a fixture phrase whole or one system part
  * at a time on the real engraver module, into scratch hosts, and snapshots what was drawn.
  * `window.__notationCheckNote` (./check-note.ts) draws the controller check's one written note on
@@ -98,7 +100,7 @@ import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import '@/styles/index.css'
 import { resolveFixture } from './fixtures'
 import { notationCheckNoteHook } from './check-note'
-import { notationSystemsHook } from './phrase-systems'
+import { notationSystemsHook, scratchHost } from './phrase-systems'
 
 /** Extra fields the generated source publishes alongside every state transition; empty for a fixture. */
 type GeneratedExtras = Pick<NotationHarnessState, 'sourceSnapshot' | 'currentSnapshot'>
@@ -503,12 +505,52 @@ async function readyEngraver(): Promise<VexflowEngraverModule> {
   return engraver
 }
 
+/**
+ * Intent: check a written phrase handed over as plain data (a serialised WrittenPhrase) with
+ * `planWrittenPhraseFit` at these layout inputs and, when it fits, engrave it as phrase 1 into
+ * scratch hosts for the raw engraving units its layout requires; null when it does not fit. A
+ * value without four measures is not a written phrase and crashes.
+ */
+async function planPhrase(
+  phrase: WrittenPhrase,
+  containerWidthPx: number,
+  viewport: NotationHarnessLayoutInputs['viewport'],
+  systemPositionUnits: number,
+): Promise<NotationHarnessPhrasePlan> {
+  if (!Array.isArray(phrase.measures) || phrase.measures.length !== 4) {
+    throw new Error('Notation harness planPhrase takes a written phrase of four measures.')
+  }
+  const engraver = await readyEngraver()
+  const verdict = engraver.planWrittenPhraseFit(
+    phrase,
+    containerWidthPx,
+    viewport,
+    systemPositionUnits,
+  )
+  if (verdict.kind !== 'fits') return { verdict, requiredUnits: null }
+  const hosts = [scratchHost(), scratchHost()] as const
+  try {
+    const score = engraver.engraveWrittenPhrase(
+      hosts,
+      phrase,
+      1,
+      containerWidthPx,
+      viewport,
+      systemPositionUnits,
+    )
+    return { verdict, requiredUnits: score.requiredUnits }
+  } finally {
+    for (const host of hosts) host.remove()
+  }
+}
+
 /** The engraver's two pure pre-draw checks, published for the fit-check spec. */
 const notationChecks: NotationHarnessChecks = {
   async planFit(fixtureName, containerWidthPx, viewport) {
     const engraver = await readyEngraver()
     return engraver.planWrittenPhraseFit(resolveFixture(fixtureName), containerWidthPx, viewport)
   },
+  planPhrase,
   async planRoom(signature, containerWidthPx, viewport) {
     const engraver = await readyEngraver()
     // The notation harness checks the built-in profiles' staff, in treble clef.

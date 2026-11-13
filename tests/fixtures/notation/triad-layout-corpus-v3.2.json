@@ -1,0 +1,5397 @@
+{
+  "frames": {
+    "oneSystem984": {
+      "containerWidthPx": 950,
+      "viewport": {
+        "layout": "one-system",
+        "heightBudgetPx": null
+      }
+    },
+    "oneSystem1400": {
+      "containerWidthPx": 1366,
+      "viewport": {
+        "layout": "one-system",
+        "heightBudgetPx": null
+      }
+    },
+    "split700": {
+      "containerWidthPx": 666,
+      "viewport": {
+        "layout": "split",
+        "heightBudgetPx": 234
+      }
+    },
+    "split728": {
+      "containerWidthPx": 694,
+      "viewport": {
+        "layout": "split",
+        "heightBudgetPx": 234
+      }
+    }
+  },
+  "wide": [
+    {
+      "containerWidthPx": 6000,
+      "viewport": {
+        "layout": "one-system",
+        "heightBudgetPx": null
+      }
+    },
+    {
+      "containerWidthPx": 6000,
+      "viewport": {
+        "layout": "split",
+        "heightBudgetPx": 234
+      }
+    }
+  ],
+  "skipped": {},
+  "cases": {
+    "c-keyboard-preset-neutral-Minor-s19": {
+      "oneSystemRequiredUnits": 617.6726032131467,
+      "splitRequiredUnits": 381.33630160657333,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-preset-neutral-Dorian-s64": {
+      "oneSystemRequiredUnits": 533.5366876244842,
+      "splitRequiredUnits": 339.2683438122421,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-preset-neutral-Lydian-s3": {
+      "oneSystemRequiredUnits": 410.8618970037021,
+      "splitRequiredUnits": 278.43094850185105,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-preset-neutral-Aeolian-s19": {
+      "oneSystemRequiredUnits": 653.7468046613981,
+      "splitRequiredUnits": 414.37340233069904,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-preset-neutral-Major-s64": {
+      "oneSystemRequiredUnits": 543.5366876244842,
+      "splitRequiredUnits": 349.2683438122421,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-preset-jazz-Ionian-s64": {
+      "oneSystemRequiredUnits": 1057.9445448285685,
+      "splitRequiredUnits": 611.4722724142842,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-preset-jazz-Phrygian-s3": {
+      "oneSystemRequiredUnits": 929.4497904326613,
+      "splitRequiredUnits": 554.2248952163307,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-preset-jazz-Mixolydian-s19": {
+      "oneSystemRequiredUnits": 1068.0479478642037,
+      "splitRequiredUnits": 634.5239739321019,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-preset-jazz-Locrian-s64": {
+      "oneSystemRequiredUnits": 1159.9031891898308,
+      "splitRequiredUnits": 652.9515945949154,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-preset-jazz-Minor-s3": {
+      "oneSystemRequiredUnits": 991.1452321098186,
+      "splitRequiredUnits": 574.0726160549093,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-preset-gentle-Dorian-s3": {
+      "oneSystemRequiredUnits": 538.5840287135601,
+      "splitRequiredUnits": 347.79201435678004,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-preset-gentle-Lydian-s19": {
+      "oneSystemRequiredUnits": 436.0386932583822,
+      "splitRequiredUnits": 307.5193466291911,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-preset-gentle-Aeolian-s64": {
+      "oneSystemRequiredUnits": 540.4095449432211,
+      "splitRequiredUnits": 342.70477247161057,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-preset-gentle-Major-s3": {
+      "oneSystemRequiredUnits": 403.0386932583822,
+      "splitRequiredUnits": 274.5193466291911,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-preset-gentle-Ionian-s19": {
+      "oneSystemRequiredUnits": 383.0386932583822,
+      "splitRequiredUnits": 254.5193466291911,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-preset-speed-drill-Phrygian-s19": {
+      "oneSystemRequiredUnits": 1501.2291937298967,
+      "splitRequiredUnits": 843.1145968649483,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-preset-speed-drill-Mixolydian-s64": {
+      "oneSystemRequiredUnits": 1608.5716165623703,
+      "splitRequiredUnits": 886.7858082811852,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-preset-speed-drill-Locrian-s3": {
+      "oneSystemRequiredUnits": 1484.090284974648,
+      "splitRequiredUnits": 831.545142487324,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-preset-speed-drill-Minor-s19": {
+      "oneSystemRequiredUnits": 1519.3968876138406,
+      "splitRequiredUnits": 854.6984438069203,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-preset-speed-drill-Dorian-s64": {
+      "oneSystemRequiredUnits": 1852.75939445816,
+      "splitRequiredUnits": 1021.37969722908,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-preset-reel-Mixolydian-s64": {
+      "oneSystemRequiredUnits": 856.2315967433357,
+      "splitRequiredUnits": 523.1157983716678,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-preset-reel-Mixolydian-s3": {
+      "oneSystemRequiredUnits": 927.2424418476695,
+      "splitRequiredUnits": 553.1212209238347,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-preset-reel-Mixolydian-s19": {
+      "oneSystemRequiredUnits": 809.1411677239861,
+      "splitRequiredUnits": 488.57058386199304,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-preset-reel-Mixolydian-s64": {
+      "oneSystemRequiredUnits": 798.9329438265164,
+      "splitRequiredUnits": 477.9664719132582,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-preset-reel-Mixolydian-s3": {
+      "oneSystemRequiredUnits": 837.5727684665998,
+      "splitRequiredUnits": 491.7863842332999,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-preset-bebop-Major-s3": {
+      "oneSystemRequiredUnits": 1004.9008158878069,
+      "splitRequiredUnits": 575.4504079439034,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-preset-bebop-Major-s19": {
+      "oneSystemRequiredUnits": 1019.3298157725994,
+      "splitRequiredUnits": 572.6649078862997,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-preset-bebop-Major-s64": {
+      "oneSystemRequiredUnits": 998.0172969577312,
+      "splitRequiredUnits": 571.5086484788656,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-preset-bebop-Major-s3": {
+      "oneSystemRequiredUnits": 1108.4532420458088,
+      "splitRequiredUnits": 631.7266210229044,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-preset-bebop-Major-s19": {
+      "oneSystemRequiredUnits": 1080.7629966783052,
+      "splitRequiredUnits": 622.8814983391526,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-preset-pop-song-Major-s19": {
+      "oneSystemRequiredUnits": 969.4470698599907,
+      "splitRequiredUnits": 572.2235349299954,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-preset-pop-song-Major-s64": {
+      "oneSystemRequiredUnits": 780.9299518496966,
+      "splitRequiredUnits": 482.9649759248483,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-preset-pop-song-Major-s3": {
+      "oneSystemRequiredUnits": 796.9299518496966,
+      "splitRequiredUnits": 498.9649759248483,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-preset-pop-song-Major-s19": {
+      "oneSystemRequiredUnits": 977.4480791660166,
+      "splitRequiredUnits": 583.7240395830083,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-preset-pop-song-Major-s64": {
+      "oneSystemRequiredUnits": 728.6026322661141,
+      "splitRequiredUnits": 453.80131613305707,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-preset-modal-dorian-Dorian-s64": {
+      "oneSystemRequiredUnits": 929.5786083721089,
+      "splitRequiredUnits": 537.7893041860544,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-preset-modal-dorian-Dorian-s3": {
+      "oneSystemRequiredUnits": 895.0964745420624,
+      "splitRequiredUnits": 510.5482372710312,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-preset-modal-dorian-Dorian-s19": {
+      "oneSystemRequiredUnits": 832.9876463519638,
+      "splitRequiredUnits": 488.9938231759819,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-preset-modal-dorian-Dorian-s64": {
+      "oneSystemRequiredUnits": 938.5786083721089,
+      "splitRequiredUnits": 546.7893041860544,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-preset-modal-dorian-Dorian-s3": {
+      "oneSystemRequiredUnits": 991.1389454954033,
+      "splitRequiredUnits": 578.0694727477016,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-Major-s3": {
+      "oneSystemRequiredUnits": 1198.0856531928503,
+      "splitRequiredUnits": 677.5428265964251,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-Minor-s19": {
+      "oneSystemRequiredUnits": 1868.5498998652174,
+      "splitRequiredUnits": 1011.7749499326087,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-Ionian-s64": {
+      "oneSystemRequiredUnits": 383.0386932583822,
+      "splitRequiredUnits": 254.5193466291911,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-Dorian-s3": {
+      "oneSystemRequiredUnits": 1093.423663878681,
+      "splitRequiredUnits": 629.2118319393405,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-Phrygian-s19": {
+      "oneSystemRequiredUnits": 1961.7306771246888,
+      "splitRequiredUnits": 1081.3653385623443,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "notes_too_wide"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-Lydian-s64": {
+      "oneSystemRequiredUnits": 460.08993182009027,
+      "splitRequiredUnits": 307.5449659100451,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-Mixolydian-s3": {
+      "oneSystemRequiredUnits": 980.270024562058,
+      "splitRequiredUnits": 582.635012281029,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-Aeolian-s19": {
+      "oneSystemRequiredUnits": 1727.8661705451598,
+      "splitRequiredUnits": 953.4330852725799,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-Locrian-s64": {
+      "oneSystemRequiredUnits": 658.493646113365,
+      "splitRequiredUnits": 402.2468230566825,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-Major-s19": {
+      "oneSystemRequiredUnits": 1120.8208743514012,
+      "splitRequiredUnits": 655.4104371757006,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-Minor-s64": {
+      "oneSystemRequiredUnits": 1897.9740365635555,
+      "splitRequiredUnits": 1021.9870182817778,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-Ionian-s3": {
+      "oneSystemRequiredUnits": 584.1195405671162,
+      "splitRequiredUnits": 376.0597702835581,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-Dorian-s19": {
+      "oneSystemRequiredUnits": 1034.711364939802,
+      "splitRequiredUnits": 580.355682469901,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-Phrygian-s64": {
+      "oneSystemRequiredUnits": 1602.772824603505,
+      "splitRequiredUnits": 883.8864123017524,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-Lydian-s3": {
+      "oneSystemRequiredUnits": 512.8887370935809,
+      "splitRequiredUnits": 329.44436854679043,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-Mixolydian-s19": {
+      "oneSystemRequiredUnits": 1042.6399755087712,
+      "splitRequiredUnits": 598.8199877543856,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-Aeolian-s64": {
+      "oneSystemRequiredUnits": 1877.2950360305795,
+      "splitRequiredUnits": 1031.1475180152897,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-Locrian-s3": {
+      "oneSystemRequiredUnits": 765.2493285483104,
+      "splitRequiredUnits": 472.1246642741552,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-Major-s64": {
+      "oneSystemRequiredUnits": 1191.3901432738555,
+      "splitRequiredUnits": 683.1950716369278,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-Minor-s3": {
+      "oneSystemRequiredUnits": 1400.4438717061496,
+      "splitRequiredUnits": 789.7219358530748,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-Ionian-s19": {
+      "oneSystemRequiredUnits": 1055.8854381999831,
+      "splitRequiredUnits": 628.4427190999916,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-Dorian-s64": {
+      "oneSystemRequiredUnits": 1152.458554796428,
+      "splitRequiredUnits": 660.229277398214,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-Phrygian-s3": {
+      "oneSystemRequiredUnits": 1451.1784190925212,
+      "splitRequiredUnits": 788.5892095462606,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-Lydian-s19": {
+      "oneSystemRequiredUnits": 726.6931687685299,
+      "splitRequiredUnits": 452.84658438426493,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-Mixolydian-s64": {
+      "oneSystemRequiredUnits": 920.8512516844081,
+      "splitRequiredUnits": 533.425625842204,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-Aeolian-s3": {
+      "oneSystemRequiredUnits": 1465.161517845777,
+      "splitRequiredUnits": 810.0807589228885,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-Locrian-s19": {
+      "oneSystemRequiredUnits": 783.1444903959523,
+      "splitRequiredUnits": 484.07224519797614,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-Major-s3": {
+      "oneSystemRequiredUnits": 1057.6769109371385,
+      "splitRequiredUnits": 601.3384554685692,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-Minor-s19": {
+      "oneSystemRequiredUnits": 1936.8116966486618,
+      "splitRequiredUnits": 1060.905848324331,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "notes_too_wide"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-Ionian-s64": {
+      "oneSystemRequiredUnits": 470.08993182009027,
+      "splitRequiredUnits": 317.5449659100451,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-Dorian-s3": {
+      "oneSystemRequiredUnits": 1108.4035701950281,
+      "splitRequiredUnits": 654.7017850975141,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-Phrygian-s19": {
+      "oneSystemRequiredUnits": 1845.943893267507,
+      "splitRequiredUnits": 1006.9719466337535,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-Lydian-s64": {
+      "oneSystemRequiredUnits": 633.4365278060703,
+      "splitRequiredUnits": 409.21826390303517,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-Mixolydian-s3": {
+      "oneSystemRequiredUnits": 864.4019759619355,
+      "splitRequiredUnits": 521.7009879809677,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-Aeolian-s19": {
+      "oneSystemRequiredUnits": 1679.0296199825973,
+      "splitRequiredUnits": 912.5148099912986,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-Locrian-s64": {
+      "oneSystemRequiredUnits": 632.0148611013822,
+      "splitRequiredUnits": 393.5074305506911,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-Major-s19": {
+      "oneSystemRequiredUnits": 1049.1440116717654,
+      "splitRequiredUnits": 603.0720058358827,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-Minor-s64": {
+      "oneSystemRequiredUnits": 1884.605945946564,
+      "splitRequiredUnits": 1019.802972973282,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-Ionian-s3": {
+      "oneSystemRequiredUnits": 542.4169065162964,
+      "splitRequiredUnits": 334.2084532581482,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-Dorian-s19": {
+      "oneSystemRequiredUnits": 986.0444701027847,
+      "splitRequiredUnits": 575.5222350513923,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-Phrygian-s64": {
+      "oneSystemRequiredUnits": 1721.6958179480403,
+      "splitRequiredUnits": 961.3479089740201,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-Lydian-s3": {
+      "oneSystemRequiredUnits": 803,
+      "splitRequiredUnits": 479,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-Mixolydian-s19": {
+      "oneSystemRequiredUnits": 1223.6756523660802,
+      "splitRequiredUnits": 704.3378261830401,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-Aeolian-s64": {
+      "oneSystemRequiredUnits": 1978.6890419398692,
+      "splitRequiredUnits": 1078.8445209699346,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "notes_too_wide"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-Locrian-s3": {
+      "oneSystemRequiredUnits": 830.5685424949238,
+      "splitRequiredUnits": 488.2842712474619,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-Major-s19": {
+      "oneSystemRequiredUnits": 1079.4856066922448,
+      "splitRequiredUnits": 634.7428033461224,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-Minor-s64": {
+      "oneSystemRequiredUnits": 1405.0600457946998,
+      "splitRequiredUnits": 775.5300228973499,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-Ionian-s3": {
+      "oneSystemRequiredUnits": 684.5087598222207,
+      "splitRequiredUnits": 426.25437991111033,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-Dorian-s19": {
+      "oneSystemRequiredUnits": 1014.7343633499688,
+      "splitRequiredUnits": 570.3671816749844,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-Phrygian-s64": {
+      "oneSystemRequiredUnits": 1437.6057600296133,
+      "splitRequiredUnits": 801.3028800148066,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-Lydian-s3": {
+      "oneSystemRequiredUnits": 955.8134480287471,
+      "splitRequiredUnits": 550.9067240143736,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-Mixolydian-s19": {
+      "oneSystemRequiredUnits": 989.1452321098186,
+      "splitRequiredUnits": 572.0726160549093,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-Aeolian-s64": {
+      "oneSystemRequiredUnits": 1547.455052205627,
+      "splitRequiredUnits": 866.2275261028135,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-Locrian-s3": {
+      "oneSystemRequiredUnits": 849.3906765321292,
+      "splitRequiredUnits": 514.1953382660646,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-Major-s64": {
+      "oneSystemRequiredUnits": 1012.8656042454521,
+      "splitRequiredUnits": 593.9328021227261,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-Minor-s3": {
+      "oneSystemRequiredUnits": 1549.0920608874242,
+      "splitRequiredUnits": 864.0460304437121,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-Ionian-s19": {
+      "oneSystemRequiredUnits": 804.0474922325226,
+      "splitRequiredUnits": 502.5237461162613,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-Dorian-s64": {
+      "oneSystemRequiredUnits": 1033.9758395928773,
+      "splitRequiredUnits": 600.9879197964386,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-Phrygian-s3": {
+      "oneSystemRequiredUnits": 1302.977012633026,
+      "splitRequiredUnits": 714.488506316513,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-Lydian-s19": {
+      "oneSystemRequiredUnits": 704.7683898866294,
+      "splitRequiredUnits": 441.8841949433147,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-Mixolydian-s64": {
+      "oneSystemRequiredUnits": 1060.2950308495188,
+      "splitRequiredUnits": 603.1475154247594,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-Aeolian-s3": {
+      "oneSystemRequiredUnits": 1286.4642819948224,
+      "splitRequiredUnits": 720.7321409974112,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-Locrian-s19": {
+      "oneSystemRequiredUnits": 663.7468046613981,
+      "splitRequiredUnits": 424.37340233069904,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-Major-s3": {
+      "oneSystemRequiredUnits": 1074.83123951777,
+      "splitRequiredUnits": 609.915619758885,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-Minor-s19": {
+      "oneSystemRequiredUnits": 1313.9783359624391,
+      "splitRequiredUnits": 749.4891679812196,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-Ionian-s64": {
+      "oneSystemRequiredUnits": 478.04838316094373,
+      "splitRequiredUnits": 321.5241915804719,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-Dorian-s3": {
+      "oneSystemRequiredUnits": 1111.9019326020007,
+      "splitRequiredUnits": 656.4509663010003,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-Phrygian-s19": {
+      "oneSystemRequiredUnits": 1349.9765995121575,
+      "splitRequiredUnits": 758.9882997560787,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-Lydian-s64": {
+      "oneSystemRequiredUnits": 598.8662821427661,
+      "splitRequiredUnits": 391.93314107138303,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-Mixolydian-s3": {
+      "oneSystemRequiredUnits": 1151.6734353420395,
+      "splitRequiredUnits": 665.3367176710198,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-Aeolian-s19": {
+      "oneSystemRequiredUnits": 1084.6060555964673,
+      "splitRequiredUnits": 615.3030277982336,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-Locrian-s64": {
+      "oneSystemRequiredUnits": 945.1640786499875,
+      "splitRequiredUnits": 550.0820393249937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-Major-s19": {
+      "oneSystemRequiredUnits": 1038.66596446218,
+      "splitRequiredUnits": 597.83298223109,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-Minor-s64": {
+      "oneSystemRequiredUnits": 1427.6057600296133,
+      "splitRequiredUnits": 791.3028800148066,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-Ionian-s3": {
+      "oneSystemRequiredUnits": 552.969224271412,
+      "splitRequiredUnits": 339.484612135706,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-Dorian-s19": {
+      "oneSystemRequiredUnits": 1057.9445448285685,
+      "splitRequiredUnits": 611.4722724142842,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-Phrygian-s64": {
+      "oneSystemRequiredUnits": 1364.6042479076357,
+      "splitRequiredUnits": 782.8021239538178,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-Lydian-s3": {
+      "oneSystemRequiredUnits": 867.9639948145065,
+      "splitRequiredUnits": 511.48199740725323,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-Mixolydian-s19": {
+      "oneSystemRequiredUnits": 974.1695142637788,
+      "splitRequiredUnits": 579.5847571318893,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-Aeolian-s64": {
+      "oneSystemRequiredUnits": 1544.0178457416234,
+      "splitRequiredUnits": 861.5089228708117,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-Locrian-s3": {
+      "oneSystemRequiredUnits": 618.233914119088,
+      "splitRequiredUnits": 382.116957059544,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-Major-s64": {
+      "oneSystemRequiredUnits": 945.1145566911921,
+      "splitRequiredUnits": 567.557278345596,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-Minor-s3": {
+      "oneSystemRequiredUnits": 1326.5186473837198,
+      "splitRequiredUnits": 736.2593236918599,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-Ionian-s19": {
+      "oneSystemRequiredUnits": 593.6789925767744,
+      "splitRequiredUnits": 380.8394962883872,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-Dorian-s64": {
+      "oneSystemRequiredUnits": 1188.9382410950311,
+      "splitRequiredUnits": 657.4691205475156,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-Phrygian-s3": {
+      "oneSystemRequiredUnits": 1352.2792480762437,
+      "splitRequiredUnits": 758.6396240381218,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-Lydian-s19": {
+      "oneSystemRequiredUnits": 410.8618970037021,
+      "splitRequiredUnits": 278.43094850185105,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-Mixolydian-s64": {
+      "oneSystemRequiredUnits": 1091.9635053333218,
+      "splitRequiredUnits": 623.4817526666609,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-Aeolian-s3": {
+      "oneSystemRequiredUnits": 1321.5894625692413,
+      "splitRequiredUnits": 753.2947312846206,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-Locrian-s19": {
+      "oneSystemRequiredUnits": 704.7683898866294,
+      "splitRequiredUnits": 441.8841949433147,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-Major-s64": {
+      "oneSystemRequiredUnits": 1157.4086663881023,
+      "splitRequiredUnits": 666.2043331940512,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-Minor-s3": {
+      "oneSystemRequiredUnits": 1246.7612250212205,
+      "splitRequiredUnits": 712.8806125106103,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-Ionian-s19": {
+      "oneSystemRequiredUnits": 711.7446406963322,
+      "splitRequiredUnits": 456.3723203481661,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-Dorian-s64": {
+      "oneSystemRequiredUnits": 1198.673448977586,
+      "splitRequiredUnits": 683.336724488793,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-Phrygian-s3": {
+      "oneSystemRequiredUnits": 1579.9910326563731,
+      "splitRequiredUnits": 852.9955163281866,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-Lydian-s19": {
+      "oneSystemRequiredUnits": 702.9947236588991,
+      "splitRequiredUnits": 440.9973618294496,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-Mixolydian-s64": {
+      "oneSystemRequiredUnits": 921.6997075365001,
+      "splitRequiredUnits": 533.8498537682501,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-Aeolian-s3": {
+      "oneSystemRequiredUnits": 1701.9180381595866,
+      "splitRequiredUnits": 928.4590190797933,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-Locrian-s19": {
+      "oneSystemRequiredUnits": 662.0148611013822,
+      "splitRequiredUnits": 423.5074305506911,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-Major-s3": {
+      "oneSystemRequiredUnits": 768.5147394351175,
+      "splitRequiredUnits": 456.75736971755873,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-Minor-s19": {
+      "oneSystemRequiredUnits": 1473.5213984039365,
+      "splitRequiredUnits": 829.2606992019682,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-Ionian-s64": {
+      "oneSystemRequiredUnits": 649.7738651676437,
+      "splitRequiredUnits": 407.3869325838219,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-Dorian-s3": {
+      "oneSystemRequiredUnits": 1087.2488136091854,
+      "splitRequiredUnits": 644.1244068045927,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-Phrygian-s19": {
+      "oneSystemRequiredUnits": 1461.813702490914,
+      "splitRequiredUnits": 814.906851245457,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-Lydian-s64": {
+      "oneSystemRequiredUnits": 709.1017356697708,
+      "splitRequiredUnits": 447.0508678348854,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-Mixolydian-s3": {
+      "oneSystemRequiredUnits": 883.430959054376,
+      "splitRequiredUnits": 531.215479527188,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-Aeolian-s19": {
+      "oneSystemRequiredUnits": 1515.4478064763885,
+      "splitRequiredUnits": 830.7239032381942,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-Locrian-s64": {
+      "oneSystemRequiredUnits": 971.0833163195855,
+      "splitRequiredUnits": 563.0416581597927,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-Major-s19": {
+      "oneSystemRequiredUnits": 694.7321409974112,
+      "splitRequiredUnits": 425.8660704987056,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-Minor-s64": {
+      "oneSystemRequiredUnits": 1280.9009684422056,
+      "splitRequiredUnits": 717.9504842211028,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-Ionian-s3": {
+      "oneSystemRequiredUnits": 532.0887795875792,
+      "splitRequiredUnits": 329.0443897937896,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-Dorian-s19": {
+      "oneSystemRequiredUnits": 821.7508316557451,
+      "splitRequiredUnits": 493.37541582787253,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-Phrygian-s64": {
+      "oneSystemRequiredUnits": 1171.6060555964673,
+      "splitRequiredUnits": 686.3030277982336,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-Lydian-s3": {
+      "oneSystemRequiredUnits": 801.1820236627639,
+      "splitRequiredUnits": 478.09101183138193,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-Mixolydian-s19": {
+      "oneSystemRequiredUnits": 853.9917078556383,
+      "splitRequiredUnits": 519.4958539278191,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-Aeolian-s64": {
+      "oneSystemRequiredUnits": 1389.9305631695295,
+      "splitRequiredUnits": 784.4652815847647,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-Locrian-s3": {
+      "oneSystemRequiredUnits": 660.2552772129866,
+      "splitRequiredUnits": 403.1276386064933,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-Major-s64": {
+      "oneSystemRequiredUnits": 897.6207075289808,
+      "splitRequiredUnits": 543.8103537644904,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-Minor-s3": {
+      "oneSystemRequiredUnits": 1159.7056274847714,
+      "splitRequiredUnits": 652.8528137423857,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-Ionian-s19": {
+      "oneSystemRequiredUnits": 554.8146505705463,
+      "splitRequiredUnits": 361.40732528527315,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-Dorian-s64": {
+      "oneSystemRequiredUnits": 1294.4476352266838,
+      "splitRequiredUnits": 710.2238176133419,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-Phrygian-s3": {
+      "oneSystemRequiredUnits": 1631.4344124860975,
+      "splitRequiredUnits": 898.2172062430487,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-Lydian-s19": {
+      "oneSystemRequiredUnits": 458.12486080160915,
+      "splitRequiredUnits": 302.0624304008046,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-Mixolydian-s64": {
+      "oneSystemRequiredUnits": 926.3791310582529,
+      "splitRequiredUnits": 540.6895655291264,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-Aeolian-s3": {
+      "oneSystemRequiredUnits": 1636.6664812754339,
+      "splitRequiredUnits": 910.8332406377169,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-Locrian-s19": {
+      "oneSystemRequiredUnits": 661.1782495852347,
+      "splitRequiredUnits": 420.0891247926173,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-Major-s3": {
+      "oneSystemRequiredUnits": 1006.404585402006,
+      "splitRequiredUnits": 590.702292701003,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-Minor-s19": {
+      "oneSystemRequiredUnits": 1463.9867372278286,
+      "splitRequiredUnits": 821.4933686139143,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-Ionian-s64": {
+      "oneSystemRequiredUnits": 715.2552772129866,
+      "splitRequiredUnits": 458.1276386064933,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-Dorian-s3": {
+      "oneSystemRequiredUnits": 1067.1321303437535,
+      "splitRequiredUnits": 617.5660651718767,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-Phrygian-s19": {
+      "oneSystemRequiredUnits": 1302.977012633026,
+      "splitRequiredUnits": 714.488506316513,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-Lydian-s64": {
+      "oneSystemRequiredUnits": 704.7683898866294,
+      "splitRequiredUnits": 441.8841949433147,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-Mixolydian-s3": {
+      "oneSystemRequiredUnits": 941.3257146193645,
+      "splitRequiredUnits": 543.6628573096823,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-Aeolian-s19": {
+      "oneSystemRequiredUnits": 1379.7700609446724,
+      "splitRequiredUnits": 767.3850304723362,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-Locrian-s64": {
+      "oneSystemRequiredUnits": 868.3974416301874,
+      "splitRequiredUnits": 526.6987208150937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-Major-s3": {
+      "oneSystemRequiredUnits": 1011.5397580355695,
+      "splitRequiredUnits": 578.2698790177848,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-Minor-s19": {
+      "oneSystemRequiredUnits": 1832.4824087300876,
+      "splitRequiredUnits": 1008.7412043650438,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-Ionian-s64": {
+      "oneSystemRequiredUnits": 470.08993182009027,
+      "splitRequiredUnits": 317.5449659100451,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-Dorian-s3": {
+      "oneSystemRequiredUnits": 1109.5755390189065,
+      "splitRequiredUnits": 655.2877695094533,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-Phrygian-s19": {
+      "oneSystemRequiredUnits": 1813.626635455243,
+      "splitRequiredUnits": 990.8133177276216,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-Lydian-s64": {
+      "oneSystemRequiredUnits": 498.04838316094373,
+      "splitRequiredUnits": 341.5241915804719,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-Mixolydian-s3": {
+      "oneSystemRequiredUnits": 974.270024562058,
+      "splitRequiredUnits": 576.635012281029,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-Aeolian-s19": {
+      "oneSystemRequiredUnits": 1802.7343055571737,
+      "splitRequiredUnits": 974.3671527785868,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-Locrian-s64": {
+      "oneSystemRequiredUnits": 632.0148611013822,
+      "splitRequiredUnits": 393.5074305506911,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-Major-s19": {
+      "oneSystemRequiredUnits": 910.679271331728,
+      "splitRequiredUnits": 533.8396356658641,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-Minor-s64": {
+      "oneSystemRequiredUnits": 1753.9303504806533,
+      "splitRequiredUnits": 954.4651752403266,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-Ionian-s3": {
+      "oneSystemRequiredUnits": 532.0887795875792,
+      "splitRequiredUnits": 329.0443897937896,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-Dorian-s19": {
+      "oneSystemRequiredUnits": 904.1749260198249,
+      "splitRequiredUnits": 534.5874630099124,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-Phrygian-s64": {
+      "oneSystemRequiredUnits": 1624.0547057770066,
+      "splitRequiredUnits": 912.5273528885033,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-Lydian-s3": {
+      "oneSystemRequiredUnits": 568.8662821427661,
+      "splitRequiredUnits": 361.93314107138303,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-Mixolydian-s19": {
+      "oneSystemRequiredUnits": 1156.9636003105827,
+      "splitRequiredUnits": 670.9818001552914,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-Aeolian-s64": {
+      "oneSystemRequiredUnits": 1880.646577955089,
+      "splitRequiredUnits": 1029.8232889775445,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-Locrian-s3": {
+      "oneSystemRequiredUnits": 660.2552772129866,
+      "splitRequiredUnits": 403.1276386064933,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-Major-s64": {
+      "oneSystemRequiredUnits": 1171.6584577695453,
+      "splitRequiredUnits": 680.8292288847726,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-Minor-s3": {
+      "oneSystemRequiredUnits": 1247.4438717061496,
+      "splitRequiredUnits": 696.7219358530748,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-Ionian-s19": {
+      "oneSystemRequiredUnits": 986.8854381999831,
+      "splitRequiredUnits": 577.4427190999916,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-Dorian-s64": {
+      "oneSystemRequiredUnits": 1041.2579216434196,
+      "splitRequiredUnits": 583.6289608217098,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-Phrygian-s3": {
+      "oneSystemRequiredUnits": 1464.8118568847733,
+      "splitRequiredUnits": 814.9059284423867,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-Lydian-s19": {
+      "oneSystemRequiredUnits": 749.6931687685299,
+      "splitRequiredUnits": 447.84658438426493,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-Mixolydian-s64": {
+      "oneSystemRequiredUnits": 958.3462639794584,
+      "splitRequiredUnits": 556.6731319897292,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-Aeolian-s3": {
+      "oneSystemRequiredUnits": 1559.4936730615514,
+      "splitRequiredUnits": 872.2468365307757,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-Locrian-s19": {
+      "oneSystemRequiredUnits": 827.6746617793326,
+      "splitRequiredUnits": 503.3373308896663,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-Major-s3": {
+      "oneSystemRequiredUnits": 1001.1389454954033,
+      "splitRequiredUnits": 588.0694727477016,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-Minor-s19": {
+      "oneSystemRequiredUnits": 1912.8720119208901,
+      "splitRequiredUnits": 1045.936005960445,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "notes_too_wide"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-Ionian-s64": {
+      "oneSystemRequiredUnits": 506.08993182009027,
+      "splitRequiredUnits": 353.5449659100451,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-Dorian-s3": {
+      "oneSystemRequiredUnits": 1017.4107168408611,
+      "splitRequiredUnits": 592.7053584204306,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-Phrygian-s19": {
+      "oneSystemRequiredUnits": 1388.4205871222962,
+      "splitRequiredUnits": 757.2102935611481,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-Lydian-s64": {
+      "oneSystemRequiredUnits": 583.7636238330917,
+      "splitRequiredUnits": 381.38181191654587,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-Mixolydian-s3": {
+      "oneSystemRequiredUnits": 833.1055121230254,
+      "splitRequiredUnits": 489.5527560615127,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-Aeolian-s19": {
+      "oneSystemRequiredUnits": 1483.5090828698808,
+      "splitRequiredUnits": 819.2545414349404,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-Locrian-s64": {
+      "oneSystemRequiredUnits": 662.0148611013822,
+      "splitRequiredUnits": 423.5074305506911,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-Major-s19": {
+      "oneSystemRequiredUnits": 922.7168552943994,
+      "splitRequiredUnits": 533.8584276471997,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-Minor-s64": {
+      "oneSystemRequiredUnits": 1843.9824612538882,
+      "splitRequiredUnits": 1014.4912306269441,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-Ionian-s3": {
+      "oneSystemRequiredUnits": 607.7177670068227,
+      "splitRequiredUnits": 386.35888350341133,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-Dorian-s19": {
+      "oneSystemRequiredUnits": 1363.953400180012,
+      "splitRequiredUnits": 782.476700090006,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-Phrygian-s64": {
+      "oneSystemRequiredUnits": 1826.6482971767346,
+      "splitRequiredUnits": 997.3241485883673,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-Lydian-s3": {
+      "oneSystemRequiredUnits": 837,
+      "splitRequiredUnits": 511,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-Mixolydian-s19": {
+      "oneSystemRequiredUnits": 1175.3229802240598,
+      "splitRequiredUnits": 677.1614901120299,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-Aeolian-s64": {
+      "oneSystemRequiredUnits": 1847.646577955089,
+      "splitRequiredUnits": 996.8232889775445,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-Locrian-s3": {
+      "oneSystemRequiredUnits": 723.2526943652899,
+      "splitRequiredUnits": 439.12634718264496,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-chain-p1": {
+      "oneSystemRequiredUnits": 1040.5064380315873,
+      "splitRequiredUnits": 597.7532190157937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-chain-p2": {
+      "oneSystemRequiredUnits": 1022.4073490661033,
+      "splitRequiredUnits": 588.7036745330516,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels1-chain-p3": {
+      "oneSystemRequiredUnits": 989.1452321098186,
+      "splitRequiredUnits": 572.0726160549093,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-chain-p1": {
+      "oneSystemRequiredUnits": 1040.5064380315873,
+      "splitRequiredUnits": 597.7532190157937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-chain-p2": {
+      "oneSystemRequiredUnits": 1022.4073490661033,
+      "splitRequiredUnits": 588.7036745330516,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels2-chain-p3": {
+      "oneSystemRequiredUnits": 989.1452321098186,
+      "splitRequiredUnits": 572.0726160549093,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-chain-p1": {
+      "oneSystemRequiredUnits": 994.9600717839003,
+      "splitRequiredUnits": 597.9800358919501,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-chain-p2": {
+      "oneSystemRequiredUnits": 1034.6265792762983,
+      "splitRequiredUnits": 617.8132896381492,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels1-chain-p3": {
+      "oneSystemRequiredUnits": 954.9511542570622,
+      "splitRequiredUnits": 577.9755771285311,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-chain-p1": {
+      "oneSystemRequiredUnits": 994.9600717839003,
+      "splitRequiredUnits": 597.9800358919501,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-chain-p2": {
+      "oneSystemRequiredUnits": 1031.4736996590684,
+      "splitRequiredUnits": 616.2368498295342,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels2-chain-p3": {
+      "oneSystemRequiredUnits": 954.9511542570622,
+      "splitRequiredUnits": 577.9755771285311,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-chain-p1": {
+      "oneSystemRequiredUnits": 835.5852281228308,
+      "splitRequiredUnits": 500.2926140614154,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-chain-p2": {
+      "oneSystemRequiredUnits": 1054.6899645949552,
+      "splitRequiredUnits": 609.8449822974776,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels1-chain-p3": {
+      "oneSystemRequiredUnits": 986.5788140340508,
+      "splitRequiredUnits": 575.7894070170254,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-chain-p1": {
+      "oneSystemRequiredUnits": 835.5852281228308,
+      "splitRequiredUnits": 500.2926140614154,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-chain-p2": {
+      "oneSystemRequiredUnits": 983.3113656689831,
+      "splitRequiredUnits": 574.1556828344915,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels2-chain-p3": {
+      "oneSystemRequiredUnits": 986.5788140340508,
+      "splitRequiredUnits": 575.7894070170254,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-chain-p1": {
+      "oneSystemRequiredUnits": 1127.3974518820341,
+      "splitRequiredUnits": 658.6987259410171,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-chain-p2": {
+      "oneSystemRequiredUnits": 1127.3974518820341,
+      "splitRequiredUnits": 658.6987259410171,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels1-chain-p3": {
+      "oneSystemRequiredUnits": 1098.2743253568592,
+      "splitRequiredUnits": 644.1371626784296,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-chain-p1": {
+      "oneSystemRequiredUnits": 1127.3974518820341,
+      "splitRequiredUnits": 658.6987259410171,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-chain-p2": {
+      "oneSystemRequiredUnits": 1127.3974518820341,
+      "splitRequiredUnits": 658.6987259410171,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels2-chain-p3": {
+      "oneSystemRequiredUnits": 1098.2743253568592,
+      "splitRequiredUnits": 644.1371626784296,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-chain-p1": {
+      "oneSystemRequiredUnits": 1070.5064380315873,
+      "splitRequiredUnits": 627.7532190157937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-chain-p2": {
+      "oneSystemRequiredUnits": 1070.5064380315873,
+      "splitRequiredUnits": 627.7532190157937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels1-chain-p3": {
+      "oneSystemRequiredUnits": 982.2343630075546,
+      "splitRequiredUnits": 583.6171815037774,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-chain-p1": {
+      "oneSystemRequiredUnits": 1070.5064380315873,
+      "splitRequiredUnits": 627.7532190157937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-chain-p2": {
+      "oneSystemRequiredUnits": 1070.5064380315873,
+      "splitRequiredUnits": 627.7532190157937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels2-chain-p3": {
+      "oneSystemRequiredUnits": 982.2343630075546,
+      "splitRequiredUnits": 583.6171815037774,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-key-change-p1": {
+      "oneSystemRequiredUnits": 1089.0465740145198,
+      "splitRequiredUnits": 628.5232870072599,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels0-key-change-p2": {
+      "oneSystemRequiredUnits": 1068.4856066922448,
+      "splitRequiredUnits": 623.7428033461224,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-key-change-p1": {
+      "oneSystemRequiredUnits": 1051.5530831455399,
+      "splitRequiredUnits": 609.7765415727699,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-levels3-key-change-p2": {
+      "oneSystemRequiredUnits": 1138.0354470322154,
+      "splitRequiredUnits": 658.5177235161077,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-key-change-p1": {
+      "oneSystemRequiredUnits": 1089.0465740145198,
+      "splitRequiredUnits": 628.5232870072599,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels0-key-change-p2": {
+      "oneSystemRequiredUnits": 983.2787372710216,
+      "splitRequiredUnits": 581.1393686355108,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-key-change-p1": {
+      "oneSystemRequiredUnits": 1051.5530831455399,
+      "splitRequiredUnits": 609.7765415727699,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-levels3-key-change-p2": {
+      "oneSystemRequiredUnits": 1138.0354470322154,
+      "splitRequiredUnits": 658.5177235161077,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-key-change-p1": {
+      "oneSystemRequiredUnits": 1051.5530831455399,
+      "splitRequiredUnits": 609.7765415727699,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels0-key-change-p2": {
+      "oneSystemRequiredUnits": 1059.3847634291685,
+      "splitRequiredUnits": 619.1923817145843,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-key-change-p1": {
+      "oneSystemRequiredUnits": 1051.5530831455399,
+      "splitRequiredUnits": 609.7765415727699,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-levels3-key-change-p2": {
+      "oneSystemRequiredUnits": 1243.0043808462528,
+      "splitRequiredUnits": 711.0021904231264,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-key-change-p1": {
+      "oneSystemRequiredUnits": 1100.7806726603026,
+      "splitRequiredUnits": 634.3903363301513,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels0-key-change-p2": {
+      "oneSystemRequiredUnits": 1161.0487540761799,
+      "splitRequiredUnits": 670.0243770380899,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-key-change-p1": {
+      "oneSystemRequiredUnits": 1100.7806726603026,
+      "splitRequiredUnits": 634.3903363301513,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-levels3-key-change-p2": {
+      "oneSystemRequiredUnits": 1161.0487540761799,
+      "splitRequiredUnits": 670.0243770380899,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-key-change-p1": {
+      "oneSystemRequiredUnits": 1093.9060697693244,
+      "splitRequiredUnits": 630.9530348846622,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels0-key-change-p2": {
+      "oneSystemRequiredUnits": 1138.0354470322154,
+      "splitRequiredUnits": 658.5177235161077,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-key-change-p1": {
+      "oneSystemRequiredUnits": 1093.9060697693244,
+      "splitRequiredUnits": 630.9530348846622,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-levels3-key-change-p2": {
+      "oneSystemRequiredUnits": 1138.0354470322154,
+      "splitRequiredUnits": 658.5177235161077,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-lock-p1": {
+      "oneSystemRequiredUnits": 1577.4089765415877,
+      "splitRequiredUnits": 881.2044882707938,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-lock-p2-locked": {
+      "oneSystemRequiredUnits": 1577.4089765415877,
+      "splitRequiredUnits": 881.2044882707938,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-lock-p3-changed": {
+      "oneSystemRequiredUnits": 1595.040365209407,
+      "splitRequiredUnits": 890.0201826047035,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-lock-p4-forced-bend": {
+      "oneSystemRequiredUnits": 1070.5064380315873,
+      "splitRequiredUnits": 627.7532190157937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-lock-p1": {
+      "oneSystemRequiredUnits": 1435.8306458314844,
+      "splitRequiredUnits": 810.4153229157422,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-lock-p2-locked": {
+      "oneSystemRequiredUnits": 1435.8306458314844,
+      "splitRequiredUnits": 810.4153229157422,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-lock-p3-changed": {
+      "oneSystemRequiredUnits": 1407.1261310536386,
+      "splitRequiredUnits": 796.0630655268193,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "eb-alto-lock-p4-forced-bend": {
+      "oneSystemRequiredUnits": 935.4497904326613,
+      "splitRequiredUnits": 560.2248952163307,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-lock-p1": {
+      "oneSystemRequiredUnits": 1508.4857294491874,
+      "splitRequiredUnits": 846.7428647245937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-lock-p2-locked": {
+      "oneSystemRequiredUnits": 1508.4857294491874,
+      "splitRequiredUnits": 846.7428647245937,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-lock-p3-changed": {
+      "oneSystemRequiredUnits": 1595.040365209407,
+      "splitRequiredUnits": 890.0201826047035,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-baritone-lock-p4-forced-bend": {
+      "oneSystemRequiredUnits": 1018.6265792762982,
+      "splitRequiredUnits": 601.8132896381492,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-jam-eighth-offbeats-close-rung1-p1": {
+      "oneSystemRequiredUnits": 748.9349172413383,
+      "splitRequiredUnits": 437.46745862066916,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-jam-eighth-offbeats-close-rung2-p1": {
+      "oneSystemRequiredUnits": 851.4623152798781,
+      "splitRequiredUnits": 488.73115763993906,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-jam-eighth-offbeats-close-rung3-p1": {
+      "oneSystemRequiredUnits": 767.9661688507978,
+      "splitRequiredUnits": 446.9830844253989,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-jam-eighth-offbeats-close-p2-locked": {
+      "oneSystemRequiredUnits": 748.9349172413383,
+      "splitRequiredUnits": 437.46745862066916,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-jam-eighth-offbeats-close-p3-locked": {
+      "oneSystemRequiredUnits": 748.9349172413383,
+      "splitRequiredUnits": 437.46745862066916,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-jam-tresillo-leaps-near-rung1-p1": {
+      "oneSystemRequiredUnits": 1046.5397531527947,
+      "splitRequiredUnits": 605.7698765763973,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-jam-tresillo-leaps-near-rung2-p1": {
+      "oneSystemRequiredUnits": 1046.5397531527947,
+      "splitRequiredUnits": 605.7698765763973,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-jam-tresillo-leaps-near-rung3-p1": {
+      "oneSystemRequiredUnits": 824.7775303139717,
+      "splitRequiredUnits": 494.88876515698587,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-jam-tresillo-leaps-near-p2-unlocked-drifted": {
+      "oneSystemRequiredUnits": 1046.5397531527947,
+      "splitRequiredUnits": 605.7698765763973,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-jam-sixteenth-bursts-free-rung1-p1": {
+      "oneSystemRequiredUnits": 1088.6060555964673,
+      "splitRequiredUnits": 617.3030277982336,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-jam-sixteenth-bursts-free-rung2-p1": {
+      "oneSystemRequiredUnits": 1088.6060555964673,
+      "splitRequiredUnits": 617.3030277982336,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-jam-sixteenth-bursts-free-rung3-p1": {
+      "oneSystemRequiredUnits": 1088.6060555964673,
+      "splitRequiredUnits": 617.3030277982336,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "my-horn-jam-sixteenth-bursts-free-p2-locked-drifted": {
+      "oneSystemRequiredUnits": 1088.6060555964673,
+      "splitRequiredUnits": 617.3030277982336,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "c-keyboard-jam-eighth-offbeats-kept-tempo-key-p1": {
+      "oneSystemRequiredUnits": 734.7321409974112,
+      "splitRequiredUnits": 445.8660704987056,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    },
+    "bb-tenor-jam-tresillo-leaps-kept-drift-lock-p1": {
+      "oneSystemRequiredUnits": 1094.5397531527947,
+      "splitRequiredUnits": 629.7698765763973,
+      "verdicts": {
+        "oneSystem984": {
+          "kind": "fits"
+        },
+        "oneSystem1400": {
+          "kind": "fits"
+        },
+        "split700": {
+          "kind": "fits"
+        },
+        "split728": {
+          "kind": "fits"
+        }
+      }
+    }
+  }
+}
