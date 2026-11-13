@@ -5166,8 +5166,8 @@ quality therefore comes from the key and mode, and only four qualities can occur
   rarer, and Off makes none. Strongly favored must give a clear majority: **at least 3 in 4
   harmony events in their seventh form** over the sweep (§D15 item 5), "a seventh on nearly every
   chord", the norm in jazz. Sometimes is closer to pop, where most chords stay triads. The shares
-  the build measures are reported to `ux-writer`, whose labels (Off, Sometimes, Often, Mostly)
-  rest on them.
+  the build measures are reported to `ux-writer`, whose labels (Off, Sometimes, Often, Always;
+  ux D485) rest on them.
 - **The same chance at every degree.** No role or degree is favored (not the degree-5 chord first,
   say): in jazz every chord of a progression takes its seventh, and a role order would be a style
   choice v3.3 does not make.

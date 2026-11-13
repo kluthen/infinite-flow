@@ -604,3 +604,14 @@ archived range D407–D509 that its archive notice lists.
   the event's start, so those two give M1 16 draw bytes and Sometimes and Favored nearly equal
   shares (chunk 12's report). Now in: [build plan v3.3, M1](versions/v3/build-plan-v3.3.md#m1--the-seventh-share) and
   [chunk 18](versions/v3/build-plan-v3.3.md#chunk-18--measurements-first-run-shares-cost-guard-and-ending-examples).
+- **D534 (2026-11-13): gate DP: no finer fallback; chunk 20 is skipped.** Chunk 18's M1 (reference
+  machine, 10,224 phrases per level, a seed per phrase): Strongly favored 100 % of events in their
+  seventh form (28,682 of 28,682), Sometimes 25.3 %, Favored 50.3 %, the fallback share 0 in every
+  cell, so 3 in 4 is reached. DP reopens if the release gate's final M1, after L2's tuning, misses
+  it. Now in: [build plan v3.3, gates](versions/v3/build-plan-v3.3.md#gates),
+  [M1](versions/v3/build-plan-v3.3.md#m1--the-seventh-share).
+- **D535 (2026-11-13): ISS-019 is a bug against §D6.1 and §D6.3, no new ruling; chunk 5's second
+  addendum fixes it in wave 4, before the gate.** A figure's goal on the final attack reads the
+  triad, as the validator does; the gate then covers the fix and chunk 21 starts from a consistent
+  generator. Now in: [build plan v3.3, chunk 5](versions/v3/build-plan-v3.3.md#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search),
+  [waves](versions/v3/build-plan-v3.3.md#waves).
