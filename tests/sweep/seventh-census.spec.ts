@@ -4,17 +4,26 @@
  * hand-built sweep fixture (a plan with seventh-form events and a chord held across a barline, its
  * triads-only fallback, a plan with no seventh drawn, a failed generation) is classified and
  * tallied exactly; a plan that is not serialized, or a draw it could not hold, is refused; a real
- * phrase generated at Off holds triads only; and the level dimension refuses what cannot be
- * measured before the generator reads the level.
+ * phrase generated at Off holds triads only, and one above Off has the sevenths its draw gave it
+ * counted from the generator's own draw; over a reduced sweep at every level, the seventh share
+ * never falls a step up, each phrase holds all its drawn sevenths or none, and every chord is a
+ * triad or the seventh chord on its degree; and the level dimension refuses what cannot be
+ * measured until the measurements open the levels (chunk 18).
  */
 
 import { describe, expect, it } from 'vitest'
 
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
+import { isSeventhDrawn } from '@/domain/harmony/seventh-draw'
 import { chordPlan } from '../unit/domain/harmony/seventh-chord-fixtures'
 import { buildIntent } from '../unit/domain/generation/carry-in/carry-in-fixture'
 import { caseSettings, sweepCases } from '../unit/session/deadline-sweep'
-import { classifyPlan, seventhCensusOf, type FailedSeventhCensus } from './seventh-census'
+import {
+  classifyPlan,
+  drawnSeventhsOf,
+  seventhCensusOf,
+  type FailedSeventhCensus,
+} from './seventh-census'
 import { SeventhTally, censusSettings } from './seventh-census-sweep'
 import { chordFamiliesAt, seventhLevelsFrom } from './seventh-levels'
 
@@ -125,10 +134,24 @@ describe('seventh census on a real generated phrase', () => {
     ])
   })
 
-  it('refuses a phrase above Off, whose draw it cannot read before chunk 12', () => {
+  it('counts the events the draw gave their seventh form first, above Off', () => {
     const built = buildIntent({ seed: 7, label: 'seventh-census' })
-    const intent = { ...built, chordFamilies: chordFamiliesAt('sometimes') }
-    expect(() => seventhCensusOf(intent, generatePhrase(intent))).toThrow(/chunk 12/)
+    for (const level of ['sometimes', 'favored', 'stronglyFavored'] as const) {
+      const intent = { ...built, chordFamilies: chordFamiliesAt(level) }
+      const outcome = generatePhrase(intent)
+      if (outcome.kind !== 'generation_success')
+        throw new Error(`Expected a generated phrase, got ${outcome.code}.`)
+      const events = outcome.provenance.harmony.events
+      const drawn = events.filter((event) => isSeventhDrawn(level, intent.seed, event)).length
+      expect(drawnSeventhsOf(intent, outcome), level).toBe(drawn)
+      const census = seventhCensusOf(intent, outcome)
+      if ('kind' in census) throw new Error(`Expected a census, got ${census.code}.`)
+      expect(census.fallback, level).toBe(drawn > 0 && census.seventhEvents === 0)
+    }
+    const strongly = { ...built, chordFamilies: chordFamiliesAt('stronglyFavored') }
+    const outcome = generatePhrase(strongly)
+    if (outcome.kind !== 'generation_success') throw new Error(outcome.code)
+    expect(drawnSeventhsOf(strongly, outcome)).toBe(outcome.provenance.harmony.events.length)
   })
 })
 
