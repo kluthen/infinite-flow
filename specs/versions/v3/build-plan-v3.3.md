@@ -1628,7 +1628,7 @@ Record: 38295847 (f95a0f03 16a the Idle state and the routing point, 333ec35f 16
 
 ### Chunk 17 — The level on the device: data version 5
 
-Status: planned
+Status: merged (w4, fa3c9fe4)
 Wave: 4
 Depends on: 10, 11, 16 (and v3.0 chunks 4–7 and 9, v3.1 chunk 16, v3.2 chunk 22); C1, done
 (the kept-session, database and player preset atoms of §D12 items 5–7 and the presets' half of
@@ -1738,6 +1738,15 @@ newer. A kept body's harmony without a seventh reads as triads.
   the settings record, the bootstrap that loads the level into the state, the session's action
   that saves it and the workspace that starts from it, Delete everything, the visits that save
   nothing, the e2e and M3.
+
+Record: fa3c9fe4 (5ffab9c2 17a data version 5 and the codecs, 9559e54d 17b the settings record,
+the saves, the workspace start, the e2e, M3 and H5). One reading of the text, confirmed by the
+driver and sent to `spec-writer` at the gate: "`src/` writes only data version 5's body" holds for
+the app's writers; step 4 (`kept-sessions-v4.ts`) keeps a data-version-4 writer of its own
+(`rewrittenKeptBodyRecordV4`, Off-only, fed by the triad-only version 2 reader), as step 2 keeps
+its version 2 writer, so a database at versions 0–3 passes every step in order and
+`module_kept_session_jam_upgrade_step` stays true. A6: 4.150 MB. M3 in `docs/storage.md`. Chunk
+14's `?storageRead=fail` workaround dropped, snapshot unchanged. H5 open for the release gate.
 
 ### Chunk 18 — Measurements, first run: shares, cost guard and ending examples
 

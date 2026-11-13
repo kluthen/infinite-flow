@@ -770,3 +770,37 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   none made untrue.
 - Figures: 6 agents, 377 tool calls, 43.3M tokens in / 268k out, max context 266k, $21.48 at API
   prices.
+
+### Chunk 17 merged (2026-11-13)
+
+- fa3c9fe4 (5ffab9c2 17a, 9559e54d 17b). Done when met, each item with named tests: the level
+  survives a reload at each value (e2e `seventh-chords-level.spec.ts`), a corrupt or unknown value
+  loads Off (seeded property test, 300 rounds); a player preset at Mostly, Custom based on a
+  built-in; choosing a preset that differs only in its level saves it, there and back; v3.2 data
+  opens at data version 5 with presets and bodies at 5 and the level at Off, nothing else
+  rewritten, exports byte-identical, a v3.2 reader sees `newer` (unit and e2e
+  `kept-sessions-carried-over.spec.ts`); a session at Mostly reopens and replays; a carried
+  seventh round-trips at 5 and is refused at 1, 2 and 4; Delete everything, outdated tab and
+  failed read write no level.
+- A6 size bound: 4.150 MB on the data-version-5 body (within 4.25 MB; v3.2 4.07 MB), for the sync.
+- M3 (2026-11-13, Ryzen 5 PRO 8640HS, 11 GiB, headless Chromium, load average about 2.5): step 5
+  on v3.2 data 60 / 204–210 / 778–826 ms for 10 / 100 / 500 sessions (step 4 was 948 ms), warm ≤
+  20 ms; start-up read ≤ 37 ms cold. From v3.1 data (500) 1,478 ms; from v3.0 data (500)
+  2,002 ms, past the 2 s wait (that visit starts from defaults, the next reads normally; D376; no
+  v3.0 users). Owner repeats the deciding runs on the reference machine.
+- Driver decision: step 4 keeps a data-version-4 writer of its own (`rewrittenKeptBodyRecordV4`,
+  Off-only), as step 2 keeps its version 2 writer; the app's writers write only version 5. The
+  plan's "`src/` writes only data version 5's body" reads as the app's writers; to `spec-writer`
+  at the gate for wording.
+- Chunk 14's `?storageRead=fail` workaround dropped (saving on, snapshot identical): the kept
+  session error at a seventh level is gone. H5 written, open for the release gate.
+- For the sync: links on the step (`module_presets_and_kept_sessions_upgrade_step`, with built
+  names `PRESETS_AND_KEPT_SESSIONS_V5`, `upgradedPresetV5`, `upgradedKeptBodyV5`,
+  `carriedOverPresetRecord`, `parseKeptSessionBodyV4`, `parseKeptIntentV4`,
+  `rewrittenKeptBodyRecordV4`; `rewriteEach` passes the key), `rule_earlier_kept_sessions_*`;
+  `req_seventh_chords_level` linked from tests only (`settings-record.ts`, `settings-saver.ts` at
+  the 10-atom limit). Revisions' drift as expected (`module_profile_control_customization`,
+  `service_idle_generation_session`); `rule_settings_saved_on_change` waits for wave 5 (A9).
+  `doc-get pack 17` printed no block for `req_last_session_review`.
+- Figures: 3 agents, 444 tool calls, 97.1M tokens in / 353k out, max context **410k** (over
+  300k: one owner built both halves and M3's long runs in one context), $33.10 at API prices.
