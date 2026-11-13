@@ -982,3 +982,27 @@ the key (no sharps or flats) for the change of collection.
 - [ ] Pass: every symbol right in MuseScore and every backing chord four notes in the DAW.
 
 **Result:** not run yet (needs the owner).
+
+## v3.3 H6. Symbols at the narrowest widths (chunk 14; run after chunk 19)
+
+The reference machine, Chrome, in the app built from the branch holding chunk 19 (the Seventh
+chords control). Seventh chord symbols are longer than the triads' (`G♯m7♭5` against `G♯dim`);
+two of them in one measure must fit at every supported width, phones included (spec item 11).
+The longest symbol is a root with an accidental plus `m7♭5`: in A major the chord on degree 7 is
+G♯m7♭5 in concert pitch, and each instrument shows it in its own written key (A major for the C
+MIDI keyboard, B major for the B-flat tenor saxophone, F♯ major for the E-flat alto saxophone).
+
+- [ ] Set the Seventh chords control to Mostly and the written key to the instrument's key above
+      (A for the keyboard, B for the tenor, F♯ for the alto), Collection Major.
+- [ ] For each instrument, at the narrowest width of each named breakpoint (browser windows
+      768, 1024 and 1440 px wide, and a landscape phone, 740 by 360, below
+      `bp-tablet-landscape`), generate several phrases and look at every measure
+      holding two chords: no symbol touches the next one, none crosses a barline, and none is
+      smaller than the others or than a triad's symbol.
+- [ ] In one of them, check the `m7♭5` symbol: its ♭ is the same sign, at the same size, as a
+      root's flat (as in `E♭`), on the same line as its letters, with no superscript.
+- [ ] Phones are low priority but must not break: on the landscape phone, a phrase that does not
+      fit is replaced unseen (Loading lasts a little longer), never drawn overlapping.
+- [ ] Pass: no symbol touches, crosses a barline or is shrunk, at any width checked.
+
+**Result:** not run yet (needs chunk 19 and the owner).

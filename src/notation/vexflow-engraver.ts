@@ -14,10 +14,18 @@
  * With those two files, ./vexflow-mapping.ts and ./vexflow-two-system-engraver.ts, this is one of
  * the only five files allowed to import 'vexflow'.
  */
-import { Formatter, StaveNote, Voice, type Beam } from 'vexflow/bravura'
+import {
+  ChordSymbol,
+  Formatter,
+  Modifier,
+  Stave,
+  StaveNote,
+  Voice,
+  type Beam,
+} from 'vexflow/bravura'
 
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
-import type { WrittenPhrase } from '../domain/notation/written-phrase-types'
+import type { WrittenMeasure, WrittenPhrase } from '../domain/notation/written-phrase-types'
 import type { InstrumentClef } from '../domain/profile/instrument-clef'
 import { systemMeasureAnchors, type MeasureAnchors } from './engraving-anchors'
 import { NotationError } from './notation-error'
@@ -25,6 +33,8 @@ import { resolveGlyphIdentities } from './note-identity'
 import { tagSystemNoteParts, type TaggedNoteGlyph } from './note-part-tags'
 import {
   NOTATION_SYSTEM_POSITION_UNITS,
+  planChordSymbolShortfall,
+  planMeasureMinWidth,
   planStaffPlacement,
   planStaffRoom,
   planSystemLayout,
@@ -48,6 +58,8 @@ import {
   buildStaveNote,
   buildSystemTies,
   describeNoteParts,
+  isSeventhChordSymbol,
+  SpannedChordSymbol,
   type FlatGlyph,
 } from './vexflow-mapping'
 import {
@@ -141,13 +153,19 @@ export async function ensureNotationFonts(): Promise<void> {
   }
 }
 
+/** Intent: build one measure's StaveNote glyphs, with accidentals, dots and chord symbols attached. */
+function buildOneMeasureGlyphs(
+  measure: WrittenMeasure,
+  clef: InstrumentClef,
+): readonly StaveNote[] {
+  const glyphs = measure.events.map((event) => buildStaveNote(event, clef))
+  attachMeasureChordSymbols(measure, glyphs)
+  return glyphs
+}
+
 /** Intent: build the four measures' StaveNote glyphs, with accidentals, dots and chord symbols attached. */
 function buildMeasureGlyphs(phrase: WrittenPhrase): readonly (readonly StaveNote[])[] {
-  return phrase.measures.map((measure) => {
-    const glyphs = measure.events.map((event) => buildStaveNote(event, phrase.clef))
-    attachMeasureChordSymbols(measure, glyphs)
-    return glyphs
-  })
+  return phrase.measures.map((measure) => buildOneMeasureGlyphs(measure, phrase.clef))
 }
 
 /** Intent: build one strict 4/4 Voice per measure, populated with that measure's glyphs. */
@@ -172,11 +190,53 @@ function buildPhraseBeams(
   return phrase.measures.map((measure, index) => buildMeasureBeams(measure, glyphs[index]!))
 }
 
-/** Intent: measure each measure's minimum content width (raw units) via a throwaway Formatter. */
-function measureMinWidths(voices: readonly Voice[]): readonly [number, number, number, number] {
-  const widths = voices.map((voice) =>
-    new Formatter().joinVoices([voice]).preCalculateMinTotalWidth([voice]),
+/**
+ * Intent: how far one measure's chord symbols fall short of fitting (`planChordSymbolShortfall`)
+ * when the measure is drawn `width` units wide: on a scratch copy of its glyphs, beams and voice,
+ * formatted on a scratch stave of that width as a measure inside a system is, each symbol from
+ * where VexFlow starts drawing it over its note to that start plus its full width, the closing
+ * barline at the stave's end. The drawn glyphs are never touched.
+ */
+// @spec-link [[rule_seventh_chord_symbols]]
+function chordSymbolShortfall(phrase: WrittenPhrase, measureIndex: number, width: number): number {
+  const measure = phrase.measures[measureIndex]!
+  const glyphs = buildOneMeasureGlyphs(measure, phrase.clef)
+  buildMeasureBeams(measure, glyphs)
+  const [voice] = buildMeasureVoices([glyphs])
+  const stave = new Stave(0, 0, width)
+  // Given the stave, the formatter also places the notes on it, so their modifier positions exist.
+  new Formatter().joinVoices([voice!]).formatToStave([voice!], stave, { stave })
+  const spans = glyphs.flatMap((glyph) =>
+    glyph.getModifiersByType(ChordSymbol.CATEGORY).map((symbol) => {
+      if (!(symbol instanceof SpannedChordSymbol)) {
+        throw new Error('A chord symbol was not built by buildChordSymbol.')
+      }
+      const startUnits = glyph.getModifierStartXY(Modifier.Position.ABOVE, symbol.getIndex()!).x
+      return { startUnits, endUnits: startUnits + symbol.fullWidth() }
+    }),
   )
+  return planChordSymbolShortfall(spans, stave.getX() + stave.getWidth())
+}
+
+/**
+ * Intent: measure each measure's minimum content width (raw units): its voice's, via a throwaway
+ * Formatter; a measure carrying a seventh chord symbol is widened where its chord symbols need
+ * more (`planMeasureMinWidth`), so each symbol's full width counts and two symbols of one measure
+ * keep a staff space between them. A measure of triad symbols only keeps its voice's width, as in
+ * v3.2 (its symbols report their widths to the formatter, which widens their notes' columns).
+ */
+// @spec-link [[rule_seventh_chord_symbols]]
+function measureMinWidths(
+  phrase: WrittenPhrase,
+  voices: readonly Voice[],
+): readonly [number, number, number, number] {
+  const widths = voices.map((voice, measureIndex) => {
+    const voiceWidth = new Formatter().joinVoices([voice]).preCalculateMinTotalWidth([voice])
+    if (!phrase.measures[measureIndex]!.chords.some(isSeventhChordSymbol)) return voiceWidth
+    return planMeasureMinWidth(voiceWidth, (width) =>
+      chordSymbolShortfall(phrase, measureIndex, width),
+    )
+  })
   return [widths[0]!, widths[1]!, widths[2]!, widths[3]!]
 }
 
@@ -270,7 +330,7 @@ function planPhraseLayout(
   const outcome = planSystemLayout({
     containerWidthPx,
     leadingWidth,
-    measureMinWidths: measureMinWidths(voices),
+    measureMinWidths: measureMinWidths(phrase, voices),
     systemPadding: SYSTEM_PADDING_UNITS,
     viewport,
     systemPositionUnits,

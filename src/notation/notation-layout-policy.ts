@@ -447,6 +447,78 @@ export function planStaffPlacement(
 export const NOTATION_MIN_MEASURE_WIDTH_UNITS = 40
 
 /**
+ * The least room, in engraving units, kept between two chord symbols of one measure: one staff
+ * space, from the end of one symbol's ink to the start of the next one's.
+ */
+// @spec-link [[rule_seventh_chord_symbols]]
+export const NOTATION_CHORD_SYMBOL_GAP_UNITS = NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
+
+/** One chord symbol's horizontal extent in a formatted measure, in engraving units. */
+export interface ChordSymbolSpan {
+  readonly startUnits: number
+  readonly endUnits: number
+}
+
+/**
+ * How many engraving units a measure, as formatted, falls short of holding its chord symbols, in
+ * the order they are drawn: each must end at least `NOTATION_CHORD_SYMBOL_GAP_UNITS` before the
+ * next one starts, and the last one no later than the measure's closing barline. The largest
+ * shortfall of any of these, or 0 when they all hold.
+ */
+// @spec-link [[rule_seventh_chord_symbols]]
+export function planChordSymbolShortfall(
+  spans: readonly ChordSymbolSpan[],
+  closingBarlineUnits: number,
+): number {
+  let shortfall = 0
+  spans.forEach((span, index) => {
+    const next = spans[index + 1]
+    const limit =
+      next === undefined ? closingBarlineUnits : next.startUnits - NOTATION_CHORD_SYMBOL_GAP_UNITS
+    shortfall = Math.max(shortfall, span.endUnits - limit)
+  })
+  return shortfall
+}
+
+/** How close, in engraving units, the measure width found for chord symbols is to the least one. */
+const MEASURE_WIDTH_TOLERANCE_UNITS = 1
+/** How many widenings a measure's chord symbols may take before the search gives up as a bug. */
+const MEASURE_WIDTH_MAX_WIDENINGS = 32
+
+/**
+ * A measure's minimum width with its chord symbols counted in full: its voice's minimum width when
+ * the symbols, formatted at that width, already fit (`shortfallAt` gives 0 or less), else the least
+ * width, within one unit, at which they do. `shortfallAt(width)` formats the measure at `width` and
+ * returns `planChordSymbolShortfall` for it; a wider measure only spreads its notes, so the
+ * shortfall shrinks as the width grows. A measure whose symbols fit as it is so keeps its voice's
+ * width exactly.
+ */
+// @spec-link [[rule_seventh_chord_symbols]]
+// @spec-link [[module_notation_layout_preflight]]
+export function planMeasureMinWidth(
+  voiceMinWidth: number,
+  shortfallAt: (width: number) => number,
+): number {
+  let shortfall = shortfallAt(voiceMinWidth)
+  if (shortfall <= 0) return voiceMinWidth
+  let narrow = voiceMinWidth
+  let wide = voiceMinWidth + shortfall
+  for (let widenings = 0; (shortfall = shortfallAt(wide)) > 0; widenings += 1) {
+    if (widenings >= MEASURE_WIDTH_MAX_WIDENINGS) {
+      throw new Error(`A measure's chord symbols still fall ${shortfall} units short at ${wide}.`)
+    }
+    narrow = wide
+    wide += 2 * shortfall
+  }
+  while (wide - narrow > MEASURE_WIDTH_TOLERANCE_UNITS) {
+    const middle = (narrow + wide) / 2
+    if (shortfallAt(middle) > 0) narrow = middle
+    else wide = middle
+  }
+  return wide
+}
+
+/**
  * Mirrors the workspace's own `--breakpoint-tablet-landscape: 64rem` breakpoint
  * (src/styles/theme.css) as a width-only `matchMedia` query: while it matches, the window gives the
  * staff a height budget to fit as well as the width, and the Idle staff uses the split layout. The stylesheet's phone staff block

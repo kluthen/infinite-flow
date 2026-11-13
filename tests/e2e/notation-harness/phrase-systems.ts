@@ -6,8 +6,10 @@
  * reported geometry, and each SVG's size, normalised markup (VexFlow's per-element `autoN` ids
  * renamed in order of appearance, since they count every element ever created on the page), note
  * ids, measure-slot indices and each slot's drawn notehead x positions, plus the reported measure
- * anchors and the fixture's event count per measure. Hosts are scratch elements laid out on the
- * page, so the engraver's bounds check can measure them, and removed once read.
+ * anchors and the fixture's event count per measure. `chordSymbolGeometry` draws a fixture whole
+ * the same way and reports where each drawn chord symbol lies against its measure's closing
+ * barline. Hosts are scratch elements laid out on the page, so the engraver's bounds check can
+ * measure them, and removed once read.
  */
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { MeasureAnchors } from '@/notation/engraving-anchors'
@@ -16,7 +18,7 @@ import type { VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import { resolveFixture } from './fixtures'
 
 /** Intent: create a laid-out scratch host on the page, so drawn SVGs have real boxes. */
-function scratchHost(): HTMLElement {
+export function scratchHost(): HTMLElement {
   const host = document.createElement('div')
   host.className = 'notation-systems-scratch'
   document.body.append(host)
@@ -76,6 +78,33 @@ function anchorsSnapshot(anchors: readonly MeasureAnchors[]): NotationHarnessMea
     eventStartsPx: [...eventStartsPx],
     barlinePx,
   }))
+}
+
+/**
+ * Intent: each chord symbol drawn in one system SVG, in document order: the measure slot holding
+ * it, its text content, its horizontal extent in CSS px from the SVG's left edge (its box as the
+ * browser lays it out) and each of its `<text>` runs, in drawing order, with the font size and
+ * baseline (`y`) it was drawn at.
+ */
+function drawnChordSymbols(svg: SVGSVGElement): NotationHarnessChordSymbolBox[] {
+  const svgLeft = svg.getBoundingClientRect().left
+  return [...svg.querySelectorAll('g.measure-slot')].flatMap((slot) =>
+    [...slot.querySelectorAll('g.vf-chordsymbol')].map((symbol) => {
+      const box = symbol.getBoundingClientRect()
+      return {
+        measureIndex: Number(slot.getAttribute('data-measure-index')),
+        systemIndex: Number(slot.getAttribute('data-system-index')),
+        text: symbol.textContent ?? '',
+        leftPx: box.left - svgLeft,
+        rightPx: box.right - svgLeft,
+        runs: [...symbol.querySelectorAll('text')].map((run) => ({
+          text: run.textContent ?? '',
+          fontSize: run.getAttribute('font-size'),
+          y: run.getAttribute('y'),
+        })),
+      }
+    }),
+  )
 }
 
 /** Intent: a phrase's event count (notes and rests) per measure, in phrase order. */
@@ -153,6 +182,31 @@ export function notationSystemsHook(
         }
       } finally {
         host.remove()
+      }
+    },
+    async chordSymbolGeometry(fixtureName, containerWidthPx, viewport) {
+      const engraver = await readyEngraver()
+      const hosts = [scratchHost(), scratchHost()] as const
+      try {
+        const score = engraver.engraveWrittenPhrase(
+          hosts,
+          resolveFixture(fixtureName),
+          1,
+          containerWidthPx,
+          viewport,
+        )
+        return {
+          staffSpacePx: score.staffSpacePx,
+          requiredUnits: score.requiredUnits,
+          symbols: score.svgs.flatMap(drawnChordSymbols),
+          barlines: score.measureAnchors.map(({ measureIndex, systemIndex, barlinePx }) => ({
+            measureIndex,
+            systemIndex,
+            barlinePx,
+          })),
+        }
+      } finally {
+        for (const host of hosts) host.remove()
       }
     },
     async engravePartFailure(fixtureName, phraseNumber, part, containerWidthPx, viewport) {

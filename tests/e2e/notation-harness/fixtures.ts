@@ -13,7 +13,11 @@
  * production code change. The `stemDirections` fixture runs the same transform over notes on both
  * sides of the staff's middle line, single and beamed. The `myInstrumentTritoneHigher` fixture runs
  * it for a player-made instrument built with the real `makeMyInstrument`. Hand-built notes get
- * their stem directions from the real domain rule (`assignStemDirections`), never hard-coded.
+ * their stem directions from the real domain rule (`assignStemDirections`), never hard-coded. The
+ * parts the hand-built fixtures share are in ./fixture-parts.ts; the seventh chord symbol
+ * calibration fixtures and their triad controls (`seventhsSixteenth`, `seventhsEighth`,
+ * `seventhsQuarter`, `triadsSixteenth`, `triadsEighth`, `triadsQuarter`) are built in
+ * ./seventh-fixtures.ts.
  */
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeMeasure, type Measure, type MeasureIndex } from '@/domain/events/measure'
@@ -24,51 +28,31 @@ import { BB_TENOR_PROFILE, EB_ALTO_PROFILE } from '@/domain/profile/instrument-p
 import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
-import { assignStemDirections, type UnstemmedWrittenNote } from '@/domain/notation/stem-direction'
 import type {
   ConcertChordSymbol,
-  DisplayedAccidental,
-  NotatedDuration,
   NotationPhraseInput,
-  SpelledPitch,
   SpelledPitchClass,
   WrittenChordSymbol,
   WrittenKey,
   WrittenMeasure,
   WrittenPhrase,
-  WrittenRest,
 } from '@/domain/notation/written-phrase-types'
 import type { Collection, PitchClass } from '@/domain/controls/generation-controls'
+import {
+  CONCERT_TRANSPOSITION,
+  DENSE_ACCIDENTAL_CYCLE,
+  DENSE_PITCH_CYCLE,
+  FIXTURE_WRITTEN_RANGE,
+  SIXTEENTH,
+  TIME_SIGNATURE,
+  gridMeasure,
+  keyCMajor,
+  stemmedMeasure,
+} from './fixture-parts'
+import { buildChordGridPhrase } from './seventh-fixtures'
 
-const CONCERT_TRANSPOSITION = { chromatic: 0, diatonic: 0 } as const
-/**
- * The written range every hand-built phrase is placed for: the saxophones' (written C4 to C6),
- * which holds all their notes, up to the dense phrases' written C6.
- */
-const FIXTURE_WRITTEN_RANGE = { minMidi: 60, maxMidi: 84 } as const
 /** The C MIDI keyboard's active concert range, for the test-only transpositions' phrases. */
 const KEYBOARD_CONCERT_RANGE = { minMidi: 48, maxMidi: 72 } as const
-const TIME_SIGNATURE = { beats: 4, beatValue: 4 } as const
-
-/** Intent: build the no-accidental C major written key shared by the dense and simple fixtures. */
-function keyCMajor(): WrittenKey {
-  const scale: readonly SpelledPitchClass[] = [
-    { letter: 'C', alter: 0 },
-    { letter: 'D', alter: 0 },
-    { letter: 'E', alter: 0 },
-    { letter: 'F', alter: 0 },
-    { letter: 'G', alter: 0 },
-    { letter: 'A', alter: 0 },
-    { letter: 'B', alter: 0 },
-  ]
-  return {
-    tonic: { letter: 'C', alter: 0 },
-    collection: 'Major',
-    label: 'C Major',
-    scale,
-    signature: { accidental: null, count: 0, letters: [], ionianTonic: { letter: 'C', alter: 0 } },
-  }
-}
 
 /** Intent: build the six-sharp F-sharp major written key. */
 function keyFSharpMajor(): WrittenKey {
@@ -120,40 +104,8 @@ function keyDFlatMajor(): WrittenKey {
   }
 }
 
-/** A hand-built measure whose notes carry no stem direction yet. */
-type UnstemmedMeasure = Omit<WrittenMeasure, 'events'> & {
-  readonly events: readonly (UnstemmedWrittenNote | WrittenRest)[]
-}
-
-/**
- * Intent: complete a hand-built measure with the stem directions the real domain rule gives its
- * notes (beam groups included), so no fixture hard-codes a direction.
- */
-function stemmedMeasure(measure: UnstemmedMeasure): WrittenMeasure {
-  return {
-    ...measure,
-    events: assignStemDirections(measure.events, measure.beamGroups, BUILT_IN_INSTRUMENT_CLEF),
-  }
-}
-
-const SIXTEENTH: NotatedDuration = { value: 'sixteenth', dots: 0, ticks: 1 }
-
 /** Intent: build one full-sixteenth-grid measure with a few displayed accidentals and two chords. */
-function denseMeasure(
-  measureIndex: 0 | 1 | 2 | 3,
-  pitches: readonly SpelledPitch[],
-  accidentals: readonly (DisplayedAccidental | null)[],
-): WrittenMeasure {
-  const events = pitches.map((pitch, i) => ({
-    kind: 'note' as const,
-    startTick: i,
-    duration: SIXTEENTH,
-    pitch,
-    accidental: accidentals[i] ?? null,
-    tieFromPrevious: false,
-    tieToNext: false,
-    sourceEventIndex: i,
-  }))
+function denseMeasure(measureIndex: 0 | 1 | 2 | 3): WrittenMeasure {
   const chordAtStart: WrittenChordSymbol = {
     startTick: 0,
     root: { letter: 'C', alter: 0 },
@@ -168,63 +120,19 @@ function denseMeasure(
     bass: null,
     text: 'G7',
   }
-  return stemmedMeasure({
-    index: measureIndex,
-    events,
-    beamGroups: [
-      [0, 1, 2, 3],
-      [4, 5, 6, 7],
-      [8, 9, 10, 11],
-      [12, 13, 14, 15],
-    ],
-    chords: [chordAtStart, chordMid],
-  })
+  return gridMeasure(measureIndex, SIXTEENTH, DENSE_PITCH_CYCLE, DENSE_ACCIDENTAL_CYCLE, [
+    chordAtStart,
+    chordMid,
+  ])
 }
 
 /** Intent: build the dense fixture -- 16 sixteenths per measure, accidentals, a mid-bar chord change. */
 function buildDensePhrase(): WrittenPhrase {
-  const pitchCycle: readonly SpelledPitch[] = [
-    { letter: 'C', alter: 0, octave: 5 },
-    { letter: 'D', alter: 0, octave: 5 },
-    { letter: 'E', alter: -1, octave: 5 },
-    { letter: 'F', alter: 1, octave: 5 },
-    { letter: 'G', alter: 0, octave: 5 },
-    { letter: 'A', alter: 0, octave: 5 },
-    { letter: 'B', alter: -1, octave: 5 },
-    { letter: 'C', alter: 0, octave: 6 },
-    { letter: 'B', alter: 0, octave: 5 },
-    { letter: 'A', alter: 0, octave: 5 },
-    { letter: 'G', alter: 1, octave: 5 },
-    { letter: 'F', alter: 0, octave: 5 },
-    { letter: 'E', alter: 0, octave: 5 },
-    { letter: 'D', alter: -1, octave: 5 },
-    { letter: 'C', alter: 0, octave: 5 },
-    { letter: 'D', alter: 0, octave: 5 },
-  ]
-  const accidentalCycle: readonly (DisplayedAccidental | null)[] = [
-    null,
-    null,
-    'flat',
-    'sharp',
-    null,
-    null,
-    'flat',
-    null,
-    'natural',
-    null,
-    'sharp',
-    null,
-    null,
-    'flat',
-    null,
-    null,
-  ]
-
   const measures: readonly [WrittenMeasure, WrittenMeasure, WrittenMeasure, WrittenMeasure] = [
-    denseMeasure(0, pitchCycle, accidentalCycle),
-    denseMeasure(1, pitchCycle, accidentalCycle),
-    denseMeasure(2, pitchCycle, accidentalCycle),
-    denseMeasure(3, pitchCycle, accidentalCycle),
+    denseMeasure(0),
+    denseMeasure(1),
+    denseMeasure(2),
+    denseMeasure(3),
   ]
 
   return {
@@ -641,6 +549,12 @@ export type FixtureName =
   | 'writtenFlatSideEbAlto'
   | 'stemDirections'
   | 'myInstrumentTritoneHigher'
+  | 'seventhsSixteenth'
+  | 'seventhsEighth'
+  | 'triadsSixteenth'
+  | 'triadsEighth'
+  | 'seventhsQuarter'
+  | 'triadsQuarter'
 
 /** Intent: resolve a harness fixture name to its WrittenPhrase, crashing on an unknown name. */
 // @test-link [[module_notation_layout_preflight]]
@@ -668,6 +582,18 @@ export function resolveFixture(name: string): WrittenPhrase {
       return buildStemDirectionsPhrase()
     case 'myInstrumentTritoneHigher':
       return buildMyInstrumentTritoneHigherPhrase()
+    case 'seventhsSixteenth':
+      return buildChordGridPhrase('sixteenth', 'sevenths')
+    case 'seventhsEighth':
+      return buildChordGridPhrase('eighth', 'sevenths')
+    case 'triadsSixteenth':
+      return buildChordGridPhrase('sixteenth', 'triads')
+    case 'triadsEighth':
+      return buildChordGridPhrase('eighth', 'triads')
+    case 'seventhsQuarter':
+      return buildChordGridPhrase('quarter', 'sevenths')
+    case 'triadsQuarter':
+      return buildChordGridPhrase('quarter', 'triads')
     default:
       throw new Error(`Unknown notation harness fixture: ${name}`)
   }

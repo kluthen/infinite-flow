@@ -102,7 +102,7 @@ The license facts were read from each embedded font's own name table. That table
 | Dotted duration                            | Dot encoded in the duration code (so the tick count is correct) plus a `Dot` modifier                                                                                                                                                                                                                                                                                    |
 | `beamGroups`                               | One `Beam` per group                                                                                                                                                                                                                                                                                                                                                     |
 | `tieToNext` / `tieFromPrevious`            | `StaveTie` between consecutive glyphs, including across barlines. A tie from bar 2 into bar 3 in the split layout is drawn as two partial `StaveTie`s, one in each system's SVG: one leaving the last note of the top system and one arriving at the first note of the bottom system.                                                                                    |
-| `WrittenChordSymbol`                       | `ChordSymbol` on the glyph at the same start tick: root letter, accidental glyph, suffix, and optional `/bass`                                                                                                                                                                                                                                                           |
+| `WrittenChordSymbol`                       | `ChordSymbol` on the glyph at the same start tick: root letter, accidental glyph, suffix, and optional `/bass`, all on one baseline at the one chord-symbol size. The suffix is text (`m`, `dim`, `maj7`, `m7`, `7`), except the ♭ of `m7♭5`, drawn with the music font's chord-symbol flat, the glyph a root's flat uses; no superscript, no signs (Δ, −, ø)            |
 
 The adapter draws exactly what the written phrase says. It never re-spells, re-derives accidentals, or re-segments rhythm, and it relies on no automatic VexFlow accidental, beam, stem, or spelling logic. Each `Beam` keeps the stem direction its notes were built with, which the written phrase makes the same for the whole group.
 
@@ -146,7 +146,7 @@ position      = systemPositionUnits × min(maxStaffSpace / 10, heightScale)
 ```
 
 - `systemPositionUnits` is the shared system-position size, 160 unless a saved my instrument needs more.
-- `leadingWidth` is the clef, key signature, and time signature on the first stave. Each measure's minimum width comes from VexFlow's formatter.
+- `leadingWidth` is the clef, key signature, and time signature on the first stave. Each measure's minimum width comes from VexFlow's formatter, widened where its chord symbols need more (see [Chord symbols in the width](#chord-symbols-in-the-width)).
 - Every measure gets the same width, so the measures read as visibly equal. The two systems of the split layout share the same column positions, so bar 3 sits directly under bar 1 and bar 4 under bar 2. The bottom system's notes are forced to start at the top system's note-start position, so the columns stay aligned although it carries no time signature. A system spans the container's full width: when the height sets the scale, the measures widen to fill it.
 - The position size does not depend on the phrase or on the instrument selected: only on the viewport and the shared size, which a saved my instrument sets. With no height budget (from 64rem up), where the scale fits the width only, it is the position height at the maximum scale (192 px at 12 px per staff space for the built-in size), so every phrase fits it. The frame keeps its fixed minimum block size (24rem, 384 px) and grows past it to hold both positions, to 418 px with its padding and border, 34 px taller than v1's frame; from the 90rem desktop breakpoint its 28rem (448 px) minimum holds. Below 64rem it is the position height at the height-fit scale, in either layout. A phrase whose width needs a smaller scale is drawn smaller, at the top of its position.
 - **The height budget** is read by `PhraseScore` from `staff-frame`'s computed `max-block-size`, minus the frame's block padding and border. The stylesheet builds that maximum from `--staff-systems-phone-block-budget`: the small viewport height (`100svh`, the height with the browser's toolbars showing) minus the session cue row, its gap and the frame chrome. Below 64rem the frame's block padding is `--staff-frame-padding-block-phone` (8 px) instead of its usual 16 px, which it keeps on its inline sides. No pixel value is written in application code. Because the budget uses the small viewport height, a browser toolbar showing or hiding changes neither the budget nor the scale.
@@ -170,6 +170,33 @@ In every failure no partial notation is shown. Both positions are cleared, toget
 Redraw rules (at Idle; a session's are under Session Systems below): engraving starts only after the fonts are ready and the container has a measured width. `PhraseScore` checks its inputs (the container width, the layout with its height budget, and the shared size) on every container resize, window resize and breakpoint crossing, coalesced to one check per animation frame. It re-engraves only when one of them changed, or when the phrase changed. Any other signal, such as a browser toolbar showing or hiding, leaves the staff untouched. A redraw keeps each position's `staff-content` unit and replaces only its SVG, so the unit's entrance fade does not replay.
 
 `PhraseScore` reports those same inputs, `{ containerWidthPx, viewport }` with `systemPositionUnits` when it is given the shared size (`StaffLayoutInputs`), through its `layout-inputs` event, always the window's viewport, during a session too: once at its first measurement and again whenever they really change, compared with the last report, with or without a phrase, and before it engraves. It reports again after the engraver module has loaded if the inputs moved meanwhile. A signal that changes no input reports nothing.
+
+### Chord symbols in the width
+
+A chord symbol is never shrunk, abbreviated, wrapped or overlapped: a seventh chord's symbol counts its full width toward the minimum width of the measure that carries it (v3.3, ux D258). Two regimes coexist, so that triads stay exactly as v3.2 draws them:
+
+- **A triad's symbol** reports its width to VexFlow's formatter, as in v3.2: the formatter widens the column of the note it sits on by the symbol's width, pushing the following notes right. It keeps no more than its own padding before the next note and does not check the closing barline; a measure of triad symbols only keeps its voice width.
+- **A seventh chord's symbol** does not report its width (`setReportWidth(false)` in `buildChordSymbol`, `vexflow-mapping.ts`). Pushing the notes after its own note by a symbol as long as `G♯m7♭5` would widen a dense measure far more than the symbol needs (a measure of sixteenths with two of them needed about 40 % more width than with triads); instead the symbol takes its room from the whole stretch of notes under it, up to the next symbol or the barline. Every chord symbol is a `SpannedChordSymbol`, which can tell its full width (`fullWidth()`: its runs and the padding VexFlow lays after each) whether or not it reports it.
+
+For a measure carrying a seventh chord's symbol, `measureMinWidths` (`vexflow-engraver.ts`) takes the voice width from the formatter, then `planMeasureMinWidth` (`notation-layout-policy.ts`) widens it where needed:
+
+- `chordSymbolShortfall` builds a scratch copy of the measure (glyphs, beams, voice; the drawn glyphs are never touched), formats it on a scratch stave of a given width as a measure inside a system is drawn, and reads each symbol from where VexFlow starts drawing it over its note to that start plus its full width. `planChordSymbolShortfall` gives how far the measure falls short: each symbol must end at least `NOTATION_CHORD_SYMBOL_GAP_UNITS` (one staff space) before the next one starts, and the last no later than the closing barline.
+- When the symbols fit at the voice width, the measure keeps it. Otherwise the width grows until they fit, then a bisection brings it within one unit of the least width that does. A wider measure only spreads its notes, so the shortfall never grows with the width; the search throws if the symbols never fit, a bug rather than a phrase.
+- At Off no phrase carries a seventh chord, so every triad phrase is planned, checked and drawn exactly as in v3.2: `notation-triad-layout-corpus.spec.ts` checks it on the 297 phrases of the v3.2 replay-key corpus against a baseline recorded on v3.2's engraver.
+- The planner and the pre-draw checks see only the widened minimum widths, so a phrase whose symbols cannot fit at the floor is "notes too wide" like any other and takes the same fresh-seed retries, at idle and in a session's look-ahead; it is never drawn overlapping.
+
+**Calibration (v3.3, 2026-11-13, Chromium).** `notation-seventh-symbols.spec.ts` engraves the calibration case of ux D258 (a measure holding two two-beat chords with the longest symbols, G♯m7♭5 and E♭m7♭5, at the densest rhythm each layout allows, in A major, harness fixtures `seventhsSixteenth`, `seventhsEighth`, `seventhsQuarter`) at the narrowest width of each named breakpoint, and reads every drawn symbol's extent against its measure's closing barline:
+
+| Fixture, window                 | Layout     | requiredUnits | Triad control | Staff space | Smallest gap | Smallest barline clearance |
+| ------------------------------- | ---------- | ------------- | ------------- | ----------- | ------------ | -------------------------- |
+| `seventhsSixteenth`, 1024 px    | one system | 1192          | 1720.1        | 7.97 px     | 4.92 spaces  | 51.2 px                    |
+| `seventhsSixteenth`, 1440 px    | one system | 1192          | 1720.1        | 11.46 px    | 4.93 spaces  | 73.6 px                    |
+| `seventhsEighth`, 768 px        | split      | 526.1         | —             | 7.31 px     | 13.34 spaces | 82.7 px                    |
+| `seventhsEighth`, 740 × 360 px  | split      | 526.1         | —             | 7.31 px     | 12.26 spaces | 76.5 px                    |
+| `seventhsQuarter`, 1024 px      | one system | 831.1         | 701.0         | 11.43 px    | 1.59 spaces  | 8.5 px                     |
+| `seventhsQuarter`, 740 × 360 px | split      | 499.6         | —             | 7.31 px     | 10.41 spaces | 90.0 px                    |
+
+Every case fits above the floor, so the symbols never make the calibration case too wide for the room. In dense rhythms the seventh symbols cost less width than triad symbols (their notes' columns are not pushed); in a sparse one (quarters) the span rule binds and widens the measure. Below the floor the phrase is "notes too wide": in the 740 × 360 window `seventhsQuarter` is drawn down to a 284 px frame and is "notes too wide", never drawn, from 280 px. The symbols' ink rises no higher than the triad symbols' over the same notes (the ♭ is the glyph a root's flat already uses), so the shared system-position size of 160 units holds.
 
 ### Pre-draw Checks
 
@@ -321,17 +348,17 @@ So no range wider than two octaves keeps 16 spaces. A range of exactly two octav
 
 The size for some wider ranges (ink above and below the staff's top line, start marker included):
 
-| Written range             | MIDI   | Ink above / below | Size            |
-| ------------------------- | ------ | ----------------- | --------------- |
-| D4 to D6 (two octaves)    | 62–86  | 62 / 75           | 160 (16 spaces) |
-| E3 to D6 (34 semitones)   | 52–86  | 72 / 85           | 180 (18 spaces) |
-| C3 to C6 (three octaves)  | 48–84  | 72 / 92           | 180 (18 spaces) |
-| C2 to C4 (low)            | 36–60  | 47 / 127          | 190 (19 spaces) |
-| C1 to C3 (very low)       | 24–48  | 47 / 162          | 230 (23 spaces) |
-| C6 to C8 (high)           | 84–108 | 127 / 60          | 210 (21 spaces) |
-| C3 to C7 (four octaves)   | 48–96  | 92 / 95           | 210 (21 spaces) |
-| C2 to C7 (five octaves)   | 36–96  | 92 / 127          | 240 (24 spaces) |
-| C2 to C6 (four octaves)   | 36–84  | 82 / 127          | 230 (23 spaces) |
+| Written range            | MIDI   | Ink above / below | Size            |
+| ------------------------ | ------ | ----------------- | --------------- |
+| D4 to D6 (two octaves)   | 62–86  | 62 / 75           | 160 (16 spaces) |
+| E3 to D6 (34 semitones)  | 52–86  | 72 / 85           | 180 (18 spaces) |
+| C3 to C6 (three octaves) | 48–84  | 72 / 92           | 180 (18 spaces) |
+| C2 to C4 (low)           | 36–60  | 47 / 127          | 190 (19 spaces) |
+| C1 to C3 (very low)      | 24–48  | 47 / 162          | 230 (23 spaces) |
+| C6 to C8 (high)          | 84–108 | 127 / 60          | 210 (21 spaces) |
+| C3 to C7 (four octaves)  | 48–96  | 92 / 95           | 210 (21 spaces) |
+| C2 to C7 (five octaves)  | 36–96  | 92 / 127          | 240 (24 spaces) |
+| C2 to C6 (four octaves)  | 36–84  | 82 / 127          | 230 (23 spaces) |
 
 Written C3 to C6 lies inside the built-ins' combined reach (the keyboard's low C3, the saxophones' high C6), but no built-in's range holds both ends, and its register windows of 18 semitones allow wider beam groups, so it needs 18 spaces. A grown size needs a taller window below 64rem: at the floor two positions take as many CSS px as the size has units (230 px at 23 spaces), so a window needs a small viewport height 126 px more than that (356 px at 23 spaces, 286 px at 16).
 
