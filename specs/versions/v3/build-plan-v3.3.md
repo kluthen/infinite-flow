@@ -1,12 +1,9 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v17 (2026-11-13): v16 with wave 3's chunk reports and spec D533 written in: chunk 12
-names its built rebuild site; chunk 15's in-browser phrases as built; H3 checks Chrome only (spec
-D399); chunk 17 saves the level with a preset's selection; chunk 18 measures M1 over a seed per
-phrase (D533), counts fallbacks and clears the stale "until chunk 16" text.
-v16 (2026-11-13): v15 with wave 3's preflight corrections and spec D532 written in: chunk
-12 rebuilds at two sites and carries A4; chunk 15's capture is C1's A3; chunk 16 gains the level's
-routing-point action, `Start with this phrase` and a three-way split.
+Status: v18 (2026-11-13): v17 with wave 4's preflight corrections (66deacab) written in: chunk 17
+names its capture, saves the level from the session's action and loads it into the workspace, and
+checks A6's size bound; chunk 18 clears every stale "until chunks 12 and 16" text, names the rule
+M1 measures and its revisions if a share is tuned, and tunes from M1, not M2.
 
 The Seventh chords level (richer chords, optional), written from
 [master spec Part D](master-spec.md#part-d--v33) (v1.4, 2026-11-12, with spec D263–D275,
@@ -1619,7 +1616,8 @@ Wave: 4
 Depends on: 10, 11, 16 (and v3.0 chunks 4–7 and 9, v3.1 chunk 16, v3.2 chunk 22); C1, done
 (the kept-session, database and player preset atoms of §D12 items 5–7 and the presets' half of
 item 9, applied at wave 4's sync; the saved-settings half of item 9 at wave 5's)
-Architecture capture: data version 5 and its upgrade step (D279 as amended by D515), inside v3.0's
+Architecture capture: data version 5 and its upgrade step (D279 as amended by D515), captured in
+wave 4's preflight (66deacab) as `module_presets_and_kept_sessions_upgrade_step` 0.1, inside v3.0's
 [storage design](build-plan.md#the-storage-design-the-chunks-build-on): one new `settings` record
 keyed `chordFamilies.seventh-chords`, added with no step as v3.2 added its `jam.*` and guide
 records; each player preset record and each kept phrase's stored intent gain `chordFamilies`, and a
@@ -1636,7 +1634,9 @@ newer. A kept body's harmony without a seventh reads as triads.
     codec reads an absent level as Off.
   - **Settings:** one record, `chordFamilies.seventh-chords`, saved on change under the save
     policy, never during a session. Tolerant: absent, unknown or invalid loads at Off, every other
-    setting still loading.
+    setting still loading. The session's `setChordFamilyLevel` saves its change, the selection it
+    makes included (today `applyChosen(…, 'unsaved')`), and the workspace's session starts from
+    the loaded level (today `initialSettings.chordFamilies: OFF_CHORD_FAMILIES`).
   - **Player presets:** the record gains `chordFamilies` by value; the values win, so a saved level
     differing from the selected preset's loads as Custom based on it.
   - **Choosing a preset saves its level with the selection:** the changes a player's choice
@@ -1662,8 +1662,11 @@ newer. A kept body's harmony without a seventh reads as triads.
   (`chosenControlChanges`), `src/storage/records/preset-record.ts` (v3.1), the kept phrase's codec (`src/storage/records/kept-session-body.ts`,
   `kept-session-body-read.ts`, `kept-intent-parsers.ts`, `kept-phrase-parsers.ts`),
   `src/storage/migrations/presets-and-kept-sessions-v5.ts` (new, named after
-  `kept-sessions-v4.ts`), `src/storage/database.ts`, and the bootstrap that loads settings into the
-  state (`src/storage-bootstrap.ts`); tests under `tests/unit/storage/`,
+  `kept-sessions-v4.ts`), `src/storage/database.ts`, the bootstrap that loads settings into the
+  state (`src/storage-bootstrap.ts`), `src/composables/generation-session-control-actions.ts`
+  (`setChordFamilyLevel` saves) and `src/components/workspace/create-workspace-session.ts` (the
+  loaded level, not `OFF_CHORD_FAMILIES`, with its "No record holds the Seventh chords level until
+  data version 5" comment); tests under `tests/unit/storage/`,
   `tests/e2e/storage/seventh-chords-level.spec.ts` (new).
 - **Spec sections:** [§D8.2](master-spec.md#d82-saving-on-the-device),
   [§D9](master-spec.md#d9-the-generation-request-the-replay-key-and-kept-sessions) (kept sessions),
@@ -1682,8 +1685,12 @@ newer. A kept body's harmony without a seventh reads as triads.
   `rule_saved_settings_load_tolerantly`, `rule_presets_load_tolerantly`,
   `rule_kept_session_content`, `entity_kept_session_record`, `module_kept_session_codec`,
   `module_on_device_database`, `entity_player_preset_record`,
-  `rule_player_presets_saved_on_device`; revise `rule_session_history_keeps_timeline_and_inputs`.
-  Drift check: `rule_preset_load_values_win`, `rule_earlier_kept_sessions_carried_over`,
+  `rule_player_presets_saved_on_device`; revise `rule_session_history_keeps_timeline_and_inputs`;
+  revise, interface wording only, no contract bump, `module_profile_control_customization` (STABLE
+  1.3: the TECHNICAL INTERFACE clause on `setChordFamilyLevel` applying its change unsaved goes;
+  the EXPECTATION, every edit handing its change to the settings saver, keeps its wording) and
+  `service_idle_generation_session` (REVIEW 0.11: the workspace no longer gives the level as
+  `OFF_CHORD_FAMILIES`). Drift check: `rule_preset_load_values_win`, `rule_earlier_kept_sessions_carried_over`,
   `rule_outdated_tab_reads_what_it_can` (STABLE, wording unchanged).
 - **Done when:**
   - The level survives a reload at each value (e2e, seeded through the storage seam); a corrupt or
@@ -1699,6 +1706,9 @@ newer. A kept body's harmony without a seventh reads as triads.
     reader leaves each version 5 record unread as newer.
   - A session kept at Mostly reopens with its seventh-chord symbols as displayed and replays each
     phrase from its inputs.
+  - A6's size bound holds: a 30-minute 240 BPM Jazz Sixteenth session's session-wide record and
+    body, 4.07 MB in v3.2, stay within 4.25 MB on the data-version-5 body (the bound test in
+    `tests/unit/storage/kept-session-record.spec.ts`); the measured figure goes to wave 4's sync.
   - A kept phrase joined after a carried seventh chord, at Mostly and at Off (the phrase after
     `Start with this phrase`, spec D519), round-trips through the data-version-5 body; a body of
     data versions 1–4 holding one is still refused.
@@ -1708,8 +1718,9 @@ newer. A kept body's harmony without a seventh reads as triads.
 - **Verification:** chunk checks; M3; a debug run reloading with seeded v3.2 data.
 - **Split rule:** if the brief passes about five source files, 17a data version 5 and the records'
   codecs (the migration, `database.ts`, `preset-record.ts`, the kept phrase's codec files), 17b
-  the settings record, the bootstrap that loads the level into the state, Delete everything, the
-  visits that save nothing, the e2e and M3.
+  the settings record, the bootstrap that loads the level into the state, the session's action
+  that saves it and the workspace that starts from it, Delete everything, the visits that save
+  nothing, the e2e and M3.
 
 ### Chunk 18 — Measurements, first run: shares, cost guard and ending examples
 
@@ -1728,8 +1739,10 @@ Architecture capture: none
     `/chunk 12/` case), and `unmeasurableSeventhSettings` (`cost-guard.ts`) is empty. Jam's
     phrase 1 runs through the double of the ladder above Off (M2's How; the real one at the
     release gate). The text that still says a level above Off can't be measured "until … the
-    session carries it (chunk 16)", `seventh-levels.ts`'s comment and refusal message and
-    `docs/generation-latency.md`'s [Seventh chords](../../../docs/generation-latency.md#seventh-chords)
+    session carries it (chunk 16)" or "until v3.3 chunks 12 and 16", `seventh-levels.ts`'s comment
+    and refusal message, the population and runner headers (`jam-sweep-population.ts`,
+    `lock-census.measure.ts`), `cost-guard.measure.ts`'s message, `docs/testing.md`'s `measure:*`
+    rows and `docs/generation-latency.md`'s [Seventh chords](../../../docs/generation-latency.md#seventh-chords)
     section, says what holds once this chunk opens the runs.
   - **M1** at each level and mode, **over a seed per phrase** (D533): the census population
     (`seventh-census-sweep.ts`) keeps `sweepCases()`'s settings, cases and modes, but each
@@ -1744,7 +1757,9 @@ Architecture capture: none
     taken.
   - **M2** on §D10's settings, Speed drill first, at 60, 120 and 240 BPM, a 240 BPM session, a
     fresh Jam's phrase 1 at 180 BPM (D506) and a session with locked bars. A setting outside the acceptance is tuned down (Sometimes and
-    Favored) or reported (Strongly favored, through DP); never by raising the allowance.
+    Favored) or reported (Strongly favored, through DP); never by raising the allowance. M2 keeps
+    `SEEDS` 7 and 13 (D533), so its seventh shares at Sometimes and Favored rest on 16 draw bytes: a
+    share is tuned from M1's figures, never M2's.
   - **Join loss by cause** (M2, D531): at each level and tempo, the standalone productions by kind
     beside Off's (the cost runner's `productions`: after the cutover, after a failure past it,
     after no legal pitch plan, after three retries, carry-in unusable), and a count of the failed
@@ -1766,7 +1781,9 @@ Architecture capture: none
   `tests/sweep/seventh-levels.ts` (the levels, its comment and refusal message),
   `tests/sweep/seventh-census-sweep.ts` and `tests/sweep/seventh-census.measure.ts` (a seed per
   phrase), `tests/sweep/seventh-census.spec.ts`, `tests/sweep/lock-census-runner.spec.ts`,
-  `tests/sweep/cost-guard*.ts` (the join-loss count), `docs/generation-latency.md` (§Seventh
+  `tests/sweep/cost-guard*.ts` (the join-loss count and the stale message),
+  `tests/sweep/jam-sweep-population.ts` and `tests/sweep/lock-census.measure.ts` (the stale
+  headers), `docs/testing.md` (the stale `measure:*` rows), `docs/generation-latency.md` (§Seventh
   chords: the figures and the stale text), `docs/music/pitch-planner-validation.md` (only if the
   count is above zero), [`HARDWARE-CHECKLIST.md`](../../../HARDWARE-CHECKLIST.md) (the v3.3
   part: H1, with L1's examples).
@@ -1774,11 +1791,13 @@ Architecture capture: none
   [§D6.3](master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check),
   [§D10](master-spec.md#d10-the-cost-guard-generation-time-with-seventh-chords); items 5 (first
   measurement; reported), 21 (first measurement), 9 (the examples), 18 (every kind replays).
-- **Atoms:** none (measurement).
-- **Revisions:** none.
+- **Atoms:** `rule_seventh_chords_level_steps` (DRAFT, the rule M1 measures).
+- **Revisions:** only if a share is tuned: revise `module_named_stream_pseudorandomness` (REVIEW;
+  it names `SOMETIMES_SEVENTH_SHARE` 64 and `FAVORED_SEVENTH_SHARE` 128) and
+  `rule_seventh_chords_level_steps` (DRAFT; "about 1 in 4 / 1 in 2"); otherwise none.
 - **Done when:**
   - Every level is measurable, and no comment, message or document still says a level above Off
-    waits on chunk 16.
+    waits on chunk 12 or 16.
   - M1's population gives each phrase its own seed, the same at the four levels (a test over the
     census population: no two phrases of one level share a seed); over the whole sweep the drawn
     share of events is within 0.02 of 64/256 at Sometimes and of 128/256 at Favored.
