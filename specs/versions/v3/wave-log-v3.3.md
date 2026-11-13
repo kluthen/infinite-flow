@@ -449,3 +449,36 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   16 after 12, whose capture fixes the draw and the plan variants). Wordings wave 3's sync applies:
   A3, A4 and A8's sentences on the Idle state, the request and the current settings (with chunk
   16; D527), CONTRACT 17.0.0.
+
+### Wave 3 preflight (2026-11-13)
+
+- `documentalist`'s wave preflight (43cd9728): every chunk **PROCEED with notes**, no halt.
+  Captures (chunk 12), all at REVIEW, none on the contract: `module_named_stream_pseudorandomness`
+  0.7 (the per-event draw, `seventh-draw.ts`), `service_generation_orchestration` 0.7 (each plan
+  with a drawn seventh becomes its seventh variant then its triads-only variant, after the ranking
+  and the carry-in filter; `harmony-variants.ts`), `service_generation_result_validation` 0.5,
+  `module_harmony_candidate_domain` 0.5, `module_ranked_candidate_ordering` 0.8. Chunk 15's `ifk5.`
+  capture is held as C1's A3 text in the change set: `module_phrase_replay_key` is STABLE and on
+  the contract, so it changes only at the 17.0.0 sync (as wave 1 did with `module_preset_model`).
+- Wordings wave 3's sync applies, CONTRACT 17.0.0: A3 (`module_phrase_replay_key` 0.8, chunk 15),
+  A4 (`rule_seeded_phrase_reproduction` 0.4, now with chunk 12, D532), A8's Idle half
+  (`rule_choosing_preset_sets_its_settings` 0.3, `module_generative_profile_selection` 1.5,
+  `module_profile_control_customization` 1.3; chunk 16).
+- Plan corrections sent to `spec-writer` before the first chunk: plan v16 (16fdc83b), spec D532.
+  Chunk 12 has two rebuild sites (`buildHarmonyDomain`, `harmonyProvenanceFailures`):
+  `carriedHarmonyFits` takes no level and is tested to give the same answer at every level (STABLE
+  `rule_harmony_change_drops_unfit_harmonic_carry_in`); `rule_seventh_chords_diatonic_only` added to
+  its Atoms; A4 rides with chunk 12. Chunk 15 gains Revisions `entity_phrase_carry_in`,
+  `module_generation_worker_protocol` and drift checks `entity_request_rhythm_lock`,
+  `entity_steering_block`. Chunk 16: builds the routing point's level action (D532, option a: makes
+  Custom, refused in flight, saves nothing until chunk 17, called only by tests until chunk 19),
+  builds the `Start with this phrase` case (§D8.3, D519, ux D481; the stale-phrase prompt names
+  "Seventh chords"), gains seven files (Jam's `SessionSettings` is `fresh-jam-settings.ts`, not
+  `jam-settings.ts`), Revisions `module_generation_request_construction`,
+  `module_idle_pregeneration_queue`, `service_session_engine`, drift checks
+  `service_idle_generation_session`, `module_session_pregeneration_plan`, and splits 16a–16c.
+- Put to the owner: O1, may the 17.0.0 sync update STABLE `module_settings_mutation`'s interface
+  line (the settings shape gains the level; no guarantee changes)? Open: O2,
+  `module_tension_arc_cycle`'s stale "`ifk1.`" (O230), unchanged. If chunk 15 ever leaves the wave,
+  the confirmed 17.0 contract paragraph (A3 and A4 in one sentence) would need splitting with the
+  owner's confirmation.
