@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.135
+Status: draft v2.136
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -590,3 +590,12 @@ archived range D407–D509 that its archive notice lists.
   rare, and the cause count shows it. The real ladder reads Jam's level only from chunk 23, so the
   release gate's final M2 runs it. Now in: [build plan v3.3, M2](versions/v3/build-plan-v3.3.md#m2--the-cost-guard)
   and [chunk 18](versions/v3/build-plan-v3.3.md#chunk-18--measurements-first-run-shares-cost-guard-and-ending-examples).
+- **D532 (2026-11-13): chunk 16 builds the level's change at the routing point; A4 rides with
+  chunk 12.** Wave 3's preflight found A8's `module_profile_control_customization` half with no
+  edit to route. Chunk 16 adds the level action through `applyChosen`, saving nothing until chunk 17
+  and called by no control until chunk 19, so the wording holds at wave 3's 17.0.0 sync, as the
+  change set expects. A4 is reproduction from request and seed, which chunk 12's draw makes true;
+  the key is A3's, with chunk 15. Neither changes a wording or a bump. Rejected: moving A8's half to
+  chunk 19 and 19.0.0. Now in: [build plan v3.3, C1](versions/v3/build-plan-v3.3.md#gates), chunks
+  [12](versions/v3/build-plan-v3.3.md#chunk-12--the-level-orders-the-plans) and
+  [16](versions/v3/build-plan-v3.3.md#chunk-16--the-level-in-a-session-and-in-pre-generation).
