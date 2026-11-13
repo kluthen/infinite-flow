@@ -684,3 +684,16 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   preflight raises M2's seeds (`cost-guard`, `jam-sweep` use only seeds 7 and 13 above Off), and
   its sync applies A5–A7 and A9's presets (CONTRACT 18.0.0). O2 (`module_tension_arc_cycle`'s
   "`ifk1.`", O230) stays open.
+
+## Wave 4
+
+### Wave 4 start (2026-11-13)
+
+- Wave 3 merged into `main` 557a7e57 (not pushed). Branch `v3.3-w4` cut from it, worktree
+  `/home/bastien/work/infinite_flow-v3.3-w4`. Chunks 13, 14, 17, 18; κ = 1; order 13, 14, 17, 18
+  (no in-wave edge; ties by number). Every Depends on is merged (10, 11, 12, 15, 16) or cleared
+  (D0, C1). Wordings wave 4's sync applies: A5–A7 and A9's presets (with chunk 17), CONTRACT
+  18.0.0. Carried into the preflight: M2's seeds (`cost-guard`, `jam-sweep` run only seeds 7 and
+  13 above Off) to widen; the wave-3 driver decision that chunk 17's sync rewrites
+  `module_profile_control_customization`'s "hands what it changed to the settings saver" sentence.
+  DP, U1a and L1 open at this wave's end.
