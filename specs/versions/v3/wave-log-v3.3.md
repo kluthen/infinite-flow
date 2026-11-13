@@ -697,3 +697,26 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   13 above Off) to widen; the wave-3 driver decision that chunk 17's sync rewrites
   `module_profile_control_customization`'s "hands what it changed to the settings saver" sentence.
   DP, U1a and L1 open at this wave's end.
+
+### Wave 4 preflight (2026-11-13)
+
+- `documentalist`'s wave preflight (66deacab): 13 PROCEED; 14 PROCEED with notes (drift checks at
+  the sync: `module_notation_display_convention`, `module_notation_note_identity_overlays`,
+  `rule_session_ends_when_staff_too_small`, `module_session_rolling_display`); 17 PROCEED with
+  notes (plan corrections 1–4); 18 PROCEED with notes (corrections 5–6). Capture (chunk 17):
+  `module_presets_and_kept_sessions_upgrade_step` DRAFT 0.1. Wordings the sync applies: A5
+  (`rule_kept_session_content`), A6 (`entity_kept_session_record`, `module_kept_session_codec`,
+  `module_on_device_database`), A7 (`entity_player_preset_record`,
+  `rule_player_presets_saved_on_device`), A9's presets half (`rule_presets_load_tolerantly`);
+  CONTRACT 18.0.0. All fit chunk 17 as written. O2 untouched by this wave.
+- Driver decisions: M2 keeps seeds 7 and 13 above Off (D533; at Strongly favored every event draws
+  its seventh, and new seeds would mix into the Off comparison); a share is tuned from M1, never
+  M2. A11 stays at wave 5 with chunk 19: the wave-4 sync reports `module_saved_data_loader`'s
+  missing level as pending A11, not drift.
+- `spec-writer`'s plan v18 (b9c1afb2), no ruling: chunk 17 Revisions gain
+  `module_profile_control_customization` (interface clause only, no bump) and
+  `service_idle_generation_session`; Files gain `generation-session-control-actions.ts` and
+  `create-workspace-session.ts`; Done when gains A6's 4.25 MB size check; capture line named.
+  Chunk 18 Files gain `jam-sweep-population.ts`, `lock-census.measure.ts` and `docs/testing.md`'s
+  `measure:*` rows; conditional Revisions if a share is tuned; Atoms names
+  `rule_seventh_chords_level_steps`; M2's 16-draw-byte caveat.
