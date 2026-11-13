@@ -4,10 +4,10 @@
  * v3.1 tab left at data version 3, holding v3.1 kept sessions (plain, pinned with a comment, with
  * favorites, with played notes kept, on my instrument) and a record of every other store, opens in
  * v3.2 at data version 4; each session-wide record is carried over at data version 4 as no Jam
- * and each body with no doodle, every other field as stored; each session decodes, reviews and
- * exports exactly as before, and every other record keeps its data version. A database at data
- * version 1 goes through step 2, then step 4, its session-wide record reaching data version 4
- * through 2.
+ * and each body with no doodle, every other field as stored; once v3.3 has carried the bodies on
+ * to data version 5, each session decodes, reviews and exports exactly as before, and every other
+ * record keeps its data version. A database at data version 1 goes through step 2, then step 4,
+ * then step 5, its session-wide record reaching data version 4 through 2.
  * Sessions are carried over at the open only, never when read.
  */
 
@@ -37,7 +37,7 @@ import {
   encodeMyInstrumentRecord,
   MY_INSTRUMENT_RECORD_KEY,
 } from '@/storage/records/my-instrument-record'
-import { encodePresetRecord } from '@/storage/records/preset-record'
+
 import { encodeSettingRecord } from '@/storage/records/settings-record'
 import { openStoragePort, type StorageChange } from '@/storage/storage-port'
 import { lowHorn, recordedMyInstrumentSession } from '../session/my-instrument-session'
@@ -51,10 +51,11 @@ import {
   v1Session,
 } from './kept-sessions-v1-fixtures'
 import { seedVersion3, V31_APP_VERSION, v2Session } from './kept-sessions-v2-fixtures'
+import { openV32Port, V32_APP_VERSION, v3PresetRecord } from './kept-sessions-v4-fixtures'
 import { freshFactory, rawGet, rawPut, withRawDatabase } from './storage-test-doubles'
 
-/** The app version of the v3.2 tab that upgrades the database. */
-const V32_APP_VERSION = '3.2.0-test'
+/** The app version of the v3.3 tab that carries the bodies on to data version 5. */
+const V33_APP_VERSION = '3.3.0-test'
 
 /** The facts of a kept session with no favorite, no comment and its played notes not kept. */
 const PLAIN: KeptSessionFacts = {
@@ -177,14 +178,14 @@ function otherStoreWrites(): StorageChange[] {
       kind: 'write',
       store: 'presets',
       key: 'player-1',
-      record: encodePresetRecord(lateNight, V31_APP_VERSION),
+      record: v3PresetRecord(lateNight, V31_APP_VERSION),
     },
   ]
 }
 
-/** Intent: the port of the v3.2 tab over the factory's database, every production step run. */
-function openV32(factory: IDBFactory) {
-  return openStoragePort({ factory, appVersion: V32_APP_VERSION })
+/** Intent: the port of the v3.3 tab over the factory's database, every production step run. */
+function openV33(factory: IDBFactory) {
+  return openStoragePort({ factory, appVersion: V33_APP_VERSION })
 }
 
 /** Intent: the production steps, each recorded in `ran` before it runs. */
@@ -206,7 +207,21 @@ describe('a data version 3 database of v3.1 kept sessions, opened by v3.2', () =
   let seeded: Map<string, StoredKeptSession>
   let others: StorageChange[]
   let status: string
+  let state: Awaited<ReturnType<typeof databaseState>>
   let after: Map<string, StoredKeptSession>
+  /** The record of every other store as it stood once v3.2 had opened the database. */
+  let othersAfter: unknown[]
+  /** Each session's stored values once v3.3 has carried its body on to data version 5. */
+  let carried: Map<string, StoredKeptSession>
+
+  /** Intent: each session's stored values, read raw. */
+  async function rawSessions(): Promise<Map<string, StoredKeptSession>> {
+    return new Map(
+      await Promise.all(
+        sessions.map(async ({ key }) => [key, await rawSession(factory, key)] as const),
+      ),
+    )
+  }
 
   beforeAll(async () => {
     factory = freshFactory()
@@ -222,20 +237,23 @@ describe('a data version 3 database of v3.1 kept sessions, opened by v3.2', () =
       ...[...seeded].flatMap(([key, stored]) => sessionWrites({ key, stored })),
       ...others,
     ])
-    status = (await openV32(factory)).status()
-    after = new Map(
-      await Promise.all(
-        sessions.map(async ({ key }) => [key, await rawSession(factory, key)] as const),
-      ),
+    const v32 = await openV32Port(factory)
+    status = v32.status()
+    state = await databaseState(factory)
+    after = await rawSessions()
+    othersAfter = await withRawDatabase(factory, (database) =>
+      Promise.all(others.map((write) => rawGet(database, write.store, write.key))),
     )
+    expect((await openV33(factory)).status()).toBe('ready')
+    carried = await rawSessions()
   }, 60_000)
 
   // @test-link [[module_kept_session_jam_upgrade_step]]
   // @test-link [[module_on_device_database]]
-  it('opens at data version 4, the port ready, meta naming the upgrading app', async () => {
+  it('opens at data version 4, the port ready, meta naming the upgrading app', () => {
     expect(status).toBe('ready')
-    expect(DATABASE_DATA_VERSION).toBe(4)
-    expect(await databaseState(factory)).toEqual({
+    expect(DATABASE_DATA_VERSION).toBe(5)
+    expect(state).toEqual({
       version: 4,
       meta: { dataVersion: 4, appVersion: V32_APP_VERSION },
     })
@@ -278,23 +296,23 @@ describe('a data version 3 database of v3.1 kept sessions, opened by v3.2', () =
   // @test-link [[rule_earlier_sessions_open_without_doodle]]
   it('decodes each session as v3.1 read it, with its pins, favorites, comment and clefs', () => {
     for (const kept of sessions) {
-      const session = decoded(after.get(kept.key)!)
+      const session = decoded(carried.get(kept.key)!)
       expect(session, kept.key).toEqual(keptByV31(kept))
       expect(session.phrases.map((phrase) => phrase.intent)).toEqual(
         parseKeptSessionBodyV2(seeded.get(kept.key)!.body).map((phrase) => phrase.intent),
       )
     }
-    expect(decoded(after.get('favorites')!).phrases.map((phrase) => phrase.favorite)).toEqual([
+    expect(decoded(carried.get('favorites')!).phrases.map((phrase) => phrase.favorite)).toEqual([
       true,
       false,
       true,
       false,
     ])
-    expect(decoded(after.get('pinned-comment')!).summary).toMatchObject({
+    expect(decoded(carried.get('pinned-comment')!).summary).toMatchObject({
       pinned: true,
       comment: 'Swung the second half.',
     })
-    expect(decoded(after.get('my-instrument')!).phrases.map((phrase) => phrase.clef)).toEqual([
+    expect(decoded(carried.get('my-instrument')!).phrases.map((phrase) => phrase.clef)).toEqual([
       'bass',
       'bass',
       'bass',
@@ -305,7 +323,7 @@ describe('a data version 3 database of v3.1 kept sessions, opened by v3.2', () =
   it("gives each session's review notation and every export byte-identical to before the upgrade", () => {
     for (const kept of sessions) {
       const before = keptByV31(kept)
-      const session = decoded(after.get(kept.key)!)
+      const session = decoded(carried.get(kept.key)!)
       expect(notationText(session), kept.key).toBe(notationText(before))
       const bytes = exportBytes(session)
       expect(bytes, kept.key).toHaveLength(kept.facts.playedNotesKept ? 5 : 4)
@@ -319,18 +337,17 @@ describe('a data version 3 database of v3.1 kept sessions, opened by v3.2', () =
     const { playedNotes } = after.get('played-notes')!
     expect(playedNotes).toStrictEqual(seeded.get('played-notes')!.playedNotes)
     expect((playedNotes as { dataVersion: number }).dataVersion).toBe(1)
-    expect(decoded(after.get('played-notes')!).phrases.flatMap((p) => p.playedNotes)).toHaveLength(
-      10,
+    expect(
+      decoded(carried.get('played-notes')!).phrases.flatMap((p) => p.playedNotes),
+    ).toHaveLength(10)
+    expect(othersAfter).toStrictEqual(
+      others.map((write) => (write.kind === 'write' ? write.record : 0)),
     )
-    const stored = await withRawDatabase(factory, (database) =>
-      Promise.all(others.map((write) => rawGet(database, write.store, write.key))),
-    )
-    expect(stored).toStrictEqual(others.map((write) => (write.kind === 'write' ? write.record : 0)))
   })
 
   // @test-link [[module_kept_session_jam_upgrade_step]]
   it('rewrites no session when it is read or the database opened again', async () => {
-    const port = await openV32(factory)
+    const port = await openV33(factory)
     for (const { key } of sessions) {
       decodeKeptSession({
         summary: await port.read('sessionSummaries', key),
@@ -343,10 +360,10 @@ describe('a data version 3 database of v3.1 kept sessions, opened by v3.2', () =
     expect(decodeKeptSession({ ...seeded.get('plain')!, body: v31Body })).toEqual({
       reading: 'unreadable',
     })
-    await openV32(factory)
+    await openV33(factory)
 
     for (const { key } of sessions)
-      expect(await rawSession(factory, key), key).toStrictEqual(after.get(key))
+      expect(await rawSession(factory, key), key).toStrictEqual(carried.get(key))
     expect(
       await withRawDatabase(factory, (database) => rawGet(database, 'sessionBodies', 'late')),
     ).toStrictEqual(v31Body)
@@ -355,10 +372,11 @@ describe('a data version 3 database of v3.1 kept sessions, opened by v3.2', () =
 
 // @test-link [[module_kept_session_jam_upgrade_step]]
 // @test-link [[module_kept_session_upgrade_step]]
-describe('a data version 1 database of a v3.0 kept session, opened by v3.2', () => {
+describe('a data version 1 database of a v3.0 kept session, opened by v3.3', () => {
   // @test-link [[module_kept_session_jam_upgrade_step]]
   // @test-link [[module_on_device_database]]
-  it('runs steps 2, 3 and 4 in order, the session-wide record and the body reaching data version 4 through 2', async () => {
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it('runs steps 2, 3, 4 and 5 in order, the session-wide record reaching data version 4 through 2 and the body 5 through 2 and 4', async () => {
     const factory = freshFactory()
     const kept: V31Session = {
       key: 'v30',
@@ -377,18 +395,18 @@ describe('a data version 1 database of a v3.0 kept session, opened by v3.2', () 
 
     const port = await openStoragePort({
       factory,
-      appVersion: V32_APP_VERSION,
+      appVersion: V33_APP_VERSION,
       migrations: recordedProductionSteps(ran),
     })
 
     expect(port.status()).toBe('ready')
-    expect(ran).toEqual([2, 3, 4])
-    expect((await databaseState(factory)).version).toBe(4)
+    expect(ran).toEqual([2, 3, 4, 5])
+    expect((await databaseState(factory)).version).toBe(5)
     const after = await rawSession(factory, kept.key)
-    expect(after.body).toMatchObject({ dataVersion: 4, appVersion: V32_APP_VERSION })
+    expect(after.body).toMatchObject({ dataVersion: 5, appVersion: V33_APP_VERSION })
     expect(after.summary).toMatchObject({
       dataVersion: 4,
-      appVersion: V32_APP_VERSION,
+      appVersion: V33_APP_VERSION,
       recordedByAppVersion: V30_APP_VERSION,
       isJam: false,
     })

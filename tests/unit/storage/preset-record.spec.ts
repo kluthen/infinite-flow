@@ -1,7 +1,11 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
-import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
+import {
+  CHORD_FAMILY_LEVEL_IDS,
+  OFF_CHORD_FAMILIES,
+  type ChordFamilies,
+} from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { FIGURE_IDS, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
@@ -14,6 +18,7 @@ import {
 import { createMulberry32 } from '@/domain/random/prng'
 import type { StoredEntry } from '@/storage/database'
 import {
+  carriedOverPresetRecord,
   decodePlayerPresets,
   encodePresetRecord,
   FIGURE_INTRODUCED_AT,
@@ -48,21 +53,37 @@ const PLAYER: Preset = makePreset({
     chromaticApproach: 'stronglyFavored',
     chromaticEnclosure: 'asToday',
   },
-  chordFamilies: OFF_CHORD_FAMILIES,
+  chordFamilies: { 'seventh-chords': 'stronglyFavored' },
   restriction: { keys: ['D', 'A'], modes: ['Dorian', 'Mixolydian'] },
   kind: 'player',
 })
 
-/** PLAYER's record exactly as v3.2 writes it: no Seventh chords level. */
-const PLAYER_RECORD_JSON =
-  '{"dataVersion":3,"appVersion":"3.1.0-test","id":"player-1","name":"Late night",' +
+/** PLAYER's controls and figure levels as a record's JSON holds them. */
+const PLAYER_CONTROLS_AND_LEVELS_JSON =
   '"controls":{"harmonicMotion":"Active diatonic","tension":"Build","noteDensity":"Sixteenth",' +
   '"rhythmicVariety":"Heavily varied","syncopation":"Active displacement",' +
   '"silenceDensity":"Breath-heavy","contour":"Falling","register":"High","leapiness":"Angular",' +
   '"arpeggioChaos":"Chaotic"},"levels":{"passingTone":"favored","accentedPassingTone":"off",' +
   '"neighborTone":"stronglyFavored","appoggiatura":"asToday","diatonicEnclosure":"favored",' +
-  '"chromaticApproach":"stronglyFavored","chromaticEnclosure":"asToday"},' +
+  '"chromaticApproach":"stronglyFavored","chromaticEnclosure":"asToday"},'
+
+/** PLAYER's record exactly as v3.3 writes it: data version 5, its Seventh chords level at Mostly. */
+const PLAYER_RECORD_JSON =
+  '{"dataVersion":5,"appVersion":"3.1.0-test","id":"player-1","name":"Late night",' +
+  PLAYER_CONTROLS_AND_LEVELS_JSON +
+  '"chordFamilies":{"seventh-chords":"stronglyFavored"},' +
   '"restriction":{"keys":["D","A"],"modes":["Dorian","Mixolydian"]}}'
+
+/** PLAYER's record at Off exactly as v3.2 wrote it: data version 3, no Seventh chords level. */
+const V32_RECORD_JSON =
+  '{"dataVersion":3,"appVersion":"3.1.0-test","id":"player-1","name":"Late night",' +
+  PLAYER_CONTROLS_AND_LEVELS_JSON +
+  '"restriction":{"keys":["D","A"],"modes":["Dorian","Mixolydian"]}}'
+
+/** PLAYER at a given Seventh chords level. */
+function playerAt(chordFamilies: ChordFamilies): Preset {
+  return makePreset({ ...PLAYER, chordFamilies })
+}
 
 type Stored = Record<string, unknown>
 
@@ -94,7 +115,7 @@ const REMOVE = Symbol('remove the field')
 describe('the player preset record', () => {
   // @test-link [[entity_player_preset_record]]
   // @test-link [[rule_player_presets_saved_on_device]]
-  it('writes and reads back the same id, name, ten controls, seven levels and restriction', () => {
+  it('writes and reads back the same id, name, ten controls, seven levels, Seventh chords level and restriction', () => {
     const record = encodePresetRecord(PLAYER, APP_VERSION)
 
     expect(record).toEqual({
@@ -104,16 +125,18 @@ describe('the player preset record', () => {
       name: PLAYER.name,
       controls: PLAYER.controls,
       levels: PLAYER.levels,
+      chordFamilies: PLAYER.chordFamilies,
       restriction: PLAYER.restriction,
     })
     expect(Object.keys(record.controls)).toEqual(PRESET_HELD_CONTROL_KEYS)
     expect(Object.keys(record.levels)).toEqual(FIGURE_IDS)
+    expect(record.chordFamilies).not.toBe(PLAYER.chordFamilies)
     expect(record.restriction.keys).not.toBe(PLAYER.restriction.keys)
     expect(decodeOne(structuredClone(record))).toEqual(PLAYER)
 
     const anywhere = makePreset({ ...PLAYER, restriction: ANY_KEY_AND_MODE })
     expect(decodeOne(structuredClone(encodePresetRecord(anywhere, APP_VERSION)))).toEqual(anywhere)
-    expect(PRESET_RECORD_DATA_VERSION).toBe(3)
+    expect(PRESET_RECORD_DATA_VERSION).toBe(5)
   })
 
   // @test-link [[entity_player_preset_record]]
@@ -143,37 +166,84 @@ describe('the player preset record', () => {
 
 describe('the player preset record and the Seventh chords level', () => {
   // @test-link [[entity_player_preset_record]]
-  // @test-link [[rule_presets_load_tolerantly]]
   // @test-link [[req_seventh_chords_level]]
-  it("reads every player preset of a record in v3.2's shape with the level at Off", () => {
-    const presets = decodePlayerPresets([{ key: PLAYER.id, value: JSON.parse(PLAYER_RECORD_JSON) }])
-
-    expect(presets).toEqual([PLAYER])
-    for (const preset of presets) {
-      expect(preset.chordFamilies).toEqual(OFF_CHORD_FAMILIES)
-      expect(Object.isFrozen(preset)).toBe(true)
-      expect(Object.isFrozen(preset.chordFamilies)).toBe(true)
-    }
-  })
-
-  // @test-link [[entity_player_preset_record]]
-  // @test-link [[req_seventh_chords_level]]
-  it("writes a preset byte for byte in v3.2's shape, and a read and rewrite gives the same bytes", () => {
+  it('writes a preset at Mostly byte for byte, the level by family id after the figure levels, and a read and rewrite gives the same bytes', () => {
     const written = JSON.stringify(encodePresetRecord(PLAYER, APP_VERSION))
     expect(written).toBe(PLAYER_RECORD_JSON)
 
     const reread = decodeOne(JSON.parse(written))!
+    expect(reread.chordFamilies).toEqual({ 'seventh-chords': 'stronglyFavored' })
     expect(JSON.stringify(encodePresetRecord(reread, APP_VERSION))).toBe(PLAYER_RECORD_JSON)
   })
 
   // @test-link [[entity_player_preset_record]]
+  // @test-link [[rule_player_presets_saved_on_device]]
   // @test-link [[req_seventh_chords_level]]
-  it('refuses to store a preset whose Seventh chords level is above Off', () => {
-    for (const level of ['sometimes', 'favored', 'stronglyFavored'] as const) {
-      const above = makePreset({ ...PLAYER, chordFamilies: { 'seventh-chords': level } })
-      expect(() => encodePresetRecord(above, APP_VERSION)).toThrow(/above Off/u)
-    }
-    expect(() => encodePresetRecord(PLAYER, APP_VERSION)).not.toThrow()
+  it.each(CHORD_FAMILY_LEVEL_IDS)('stores a preset at %s and loads it with that level', (level) => {
+    const preset = playerAt({ 'seventh-chords': level })
+
+    const loaded = decodeOne(structuredClone(encodePresetRecord(preset, APP_VERSION)))
+
+    expect(loaded).toEqual(preset)
+    expect(Object.isFrozen(loaded!.chordFamilies)).toBe(true)
+  })
+
+  // @test-link [[entity_player_preset_record]]
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it("reads a record in v3.2's shape, at data version 3, as unreadable: only the upgrade step reads it", () => {
+    expect(decodePlayerPresets([{ key: PLAYER.id, value: JSON.parse(V32_RECORD_JSON) }])).toEqual(
+      [],
+    )
+  })
+
+  // @test-link [[entity_player_preset_record]]
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  // @test-link [[rule_presets_load_tolerantly]]
+  it("carries a record in v3.2's shape over at data version 5, every field as stored, the level at Off, loading as before", () => {
+    const stored = JSON.parse(V32_RECORD_JSON) as Stored
+
+    const carried = carriedOverPresetRecord(stored, PLAYER.id, '3.3.0-test')
+
+    expect(carried).toStrictEqual({
+      ...stored,
+      dataVersion: 5,
+      appVersion: '3.3.0-test',
+      chordFamilies: OFF_CHORD_FAMILIES,
+    })
+    expect(Object.keys(carried!)).toEqual([...Object.keys(stored), 'chordFamilies'])
+    expect(decodeOne(structuredClone(carried))).toEqual(playerAt(OFF_CHORD_FAMILIES))
+    expect(stored).toStrictEqual(JSON.parse(V32_RECORD_JSON))
+  })
+
+  // @test-link [[entity_player_preset_record]]
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it('keeps every stored field of a carried-over record as it is, even one a read would change', () => {
+    const stored = { ...(JSON.parse(V32_RECORD_JSON) as Stored), name: '  Late night  ', tempo: 9 }
+
+    expect(carriedOverPresetRecord(stored, PLAYER.id, APP_VERSION)).toMatchObject({
+      name: '  Late night  ',
+      tempo: 9,
+    })
+  })
+
+  // @test-link [[entity_player_preset_record]]
+  // @test-link [[module_presets_and_kept_sessions_upgrade_step]]
+  it('gives no carried-over record of one it cannot read at data version 3, and refuses an empty app version', () => {
+    const stored = JSON.parse(V32_RECORD_JSON) as Stored
+    const unreadable: readonly (readonly [unknown, IDBValidKey])[] = [
+      [null, PLAYER.id],
+      ['player-1', PLAYER.id],
+      [{ ...stored, dataVersion: 2 }, PLAYER.id],
+      [{ ...stored, dataVersion: 4 }, PLAYER.id],
+      [JSON.parse(PLAYER_RECORD_JSON), PLAYER.id],
+      [{ ...stored, appVersion: '' }, PLAYER.id],
+      [stored, 'player-2'],
+      [stored, 7],
+      [{ ...stored, id: 'jazz' }, 'jazz'],
+    ]
+    for (const [value, key] of unreadable)
+      expect(carriedOverPresetRecord(value, key, APP_VERSION)).toBeNull()
+    expect(() => carriedOverPresetRecord(stored, PLAYER.id, '')).toThrow(/app version/u)
   })
 })
 
@@ -334,6 +404,20 @@ describe('reading a player preset field by field', () => {
   })
 
   // @test-link [[rule_presets_load_tolerantly]]
+  // @test-link [[req_seventh_chords_level]]
+  it('reads a missing, unknown or invalid Seventh chords level as Off, every other field kept', () => {
+    const invalid = [REMOVE, 'favored', null, 3, [], {}, { 'seventh-chords': 'often' }]
+    const invalidLevel = [REMOVE, 'Mostly', 'off ', null, 2, {}, ['favored']]
+    for (const value of invalid)
+      expect(decodeOne(edited(['chordFamilies'], value))).toEqual(playerAt(OFF_CHORD_FAMILIES))
+    for (const value of invalidLevel) {
+      expect(decodeOne(edited(['chordFamilies', 'seventh-chords'], value))).toEqual(
+        playerAt(OFF_CHORD_FAMILIES),
+      )
+    }
+  })
+
+  // @test-link [[rule_presets_load_tolerantly]]
   it('ignores extra fields at the top level and inside the controls and levels', () => {
     const record = storedPlayer()
     const extra = {
@@ -342,6 +426,7 @@ describe('reading a player preset field by field', () => {
       tempo: 200,
       controls: { ...(record.controls as Stored), tempo: 200, tonalCenter: 'C' },
       levels: { ...(record.levels as Stored), trill: 'favored' },
+      chordFamilies: { ...(record.chordFamilies as Stored), 'ninth-chords': 'favored' },
     }
 
     expect(decodeOne(extra)).toEqual(PLAYER)
@@ -358,10 +443,12 @@ describe('a record that cannot be read at all', () => {
       { key: 'player-1', value: 'player-1' },
       { key: 'player-1', value: [record] },
       { key: 'player-1', value: { ...record, dataVersion: 2 } },
-      { key: 'player-1', value: { ...record, dataVersion: '3' } },
+      { key: 'player-1', value: { ...record, dataVersion: 3 } },
+      { key: 'player-1', value: { ...record, dataVersion: 4 } },
+      { key: 'player-1', value: { ...record, dataVersion: '5' } },
       { key: 'player-1', value: { ...record, appVersion: '' } },
       { key: 'player-1', value: edited(['appVersion'], REMOVE) },
-      { key: 'player-1', value: { ...record, dataVersion: 4 } },
+      { key: 'player-1', value: { ...record, dataVersion: 6 } },
       { key: 'player-1', value: edited(['id'], REMOVE) },
       { key: 'player-1', value: { ...record, id: '' } },
       { key: 'player-1', value: { ...record, id: 7 } },
@@ -406,9 +493,18 @@ interface Spot {
 
 /** Every place a corruption can hit, top-level fields and the fields inside them. */
 const SPOTS: readonly Spot[] = [
-  ...['id', 'name', 'controls', 'levels', 'restriction', 'dataVersion', 'appVersion', 'extra'].map(
-    (field) => ({ path: [field], touches: field }),
-  ),
+  ...[
+    'id',
+    'name',
+    'controls',
+    'levels',
+    'chordFamilies',
+    'restriction',
+    'dataVersion',
+    'appVersion',
+    'extra',
+  ].map((field) => ({ path: [field], touches: field })),
+  { path: ['chordFamilies', 'seventh-chords'], touches: 'chordFamilies.seventh-chords' },
   ...PRESET_HELD_CONTROL_KEYS.map((key) => ({
     path: ['controls', key],
     touches: `controls.${key}`,
@@ -482,6 +578,8 @@ describe('a randomly corrupted record', () => {
             expect(preset.levels[figure], `round ${round}`).toBe(PLAYER.levels[figure])
           }
         }
+        if (!touched(hits, 'chordFamilies.seventh-chords'))
+          expect(preset.chordFamilies, `round ${round}`).toEqual(PLAYER.chordFamilies)
         for (const half of ['keys', 'modes'] as const) {
           if (!touched(hits, `restriction.${half}`)) {
             expect(preset.restriction[half], `round ${round}`).toEqual(PLAYER.restriction[half])

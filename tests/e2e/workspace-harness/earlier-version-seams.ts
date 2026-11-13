@@ -1,16 +1,30 @@
 /**
  * The workspace harness's seeds of an earlier version's data: kept sessions and settings records
- * written as v3.0 kept them (data version 1), or kept sessions as v3.1 kept them (data version 3),
- * each through a port opened as that version's tab opens the database, before the held load runs,
- * so the load's open upgrades them (`storage-seams.ts` publishes them on
- * `window.__workspaceHarnessHeldLoad`): from data version 1, steps 2 to 4; from data version 3,
- * step 4 only. The values are written as given, never through the save policy or a codec. The
- * earlier tab's port, opened on the first seed and shared by the seeds of its version, stays open,
- * as an earlier tab left open, until the upgrade's version change closes it; a seed of the other
- * earlier version then throws, since one database holds one version's data.
+ * written as v3.0 kept them (data version 1), kept sessions as v3.1 kept them (data version 3), or
+ * v3.2's settings, player presets and kept sessions (data version 4), each through a port opened
+ * as that version's tab opens the database, before the held load runs, so the load's open
+ * upgrades them (`storage-seams.ts` publishes them on `window.__workspaceHarnessHeldLoad`): from
+ * data version 1, steps 2 to 5; from data version 3, steps 4 and 5; from data version 4, step 5
+ * only. v3.0's and v3.1's values are written as given, never through the save policy or a codec;
+ * v3.2's settings and player presets are encoded as v3.2 wrote them (no Seventh chords level, the
+ * player preset record at data version 3), and its kept sessions are written as given once checked
+ * to be data version 4's bytes, holding no seventh chord and no level. The earlier tab's port,
+ * opened on the first seed and shared by the seeds of its version, stays open, as an earlier tab
+ * left open, until the upgrade's version change closes it; a seed of another earlier version then
+ * throws, since one database holds one version's data.
  */
+import { OFF_CHORD_FAMILIES } from '../../../src/domain/chords/chord-families'
+import { makePreset, type Preset } from '../../../src/domain/presets/preset-selection'
 import { PRODUCTION_MIGRATIONS, type MigrationStep } from '../../../src/storage/database'
 import type { RecordVersions } from '../../../src/storage/record-envelope'
+import { encodePresetRecord } from '../../../src/storage/records/preset-record'
+import {
+  encodeSettingRecord,
+  JAM_SETTING_KEYS,
+  SETTING_KEYS,
+  type SettingKey,
+  type SettingValue,
+} from '../../../src/storage/records/settings-record'
 import {
   browserStorage,
   openStoragePort,
@@ -20,7 +34,7 @@ import {
 
 /** An earlier version's tab: its name in messages, its app version and its migrations. */
 interface EarlierTab {
-  readonly name: 'v3.0' | 'v3.1'
+  readonly name: 'v3.0' | 'v3.1' | 'v3.2'
   readonly appVersion: string
   readonly migrations: readonly MigrationStep[]
 }
@@ -38,6 +52,22 @@ const V31_TAB: EarlierTab = {
   appVersion: '3.1.0',
   migrations: PRODUCTION_MIGRATIONS.slice(0, 3),
 }
+
+/** v3.2's tab: the database at data version 4. */
+const V32_TAB: EarlierTab = {
+  name: 'v3.2',
+  appVersion: '3.2.0',
+  migrations: PRODUCTION_MIGRATIONS.slice(0, 4),
+}
+
+/** The data version v3.2 wrote its kept session-wide records and bodies at. */
+const V32_KEPT_DATA_VERSION = 4
+
+/** The data version v3.2 wrote its player preset records at. */
+const V32_PRESET_DATA_VERSION = 3
+
+/** The settings key prefix of the Seventh chords level, which v3.2 never stored. */
+const LEVEL_KEY_PREFIX = 'chordFamilies.'
 
 /** How many kept sessions one seeding batch writes. */
 const SEED_BATCH = 50
@@ -58,6 +88,89 @@ export interface EarlierVersionSeeds {
     template: WorkspaceHarnessEarlierSession,
     count: number,
   ) => Promise<void>
+  /** Write `count` copies of the kept session `template`, as v3.2 kept it. */
+  readonly seedVersionFourSessions: (
+    template: WorkspaceHarnessEarlierSession,
+    count: number,
+  ) => Promise<void>
+  /** Write each setting's record as v3.2 wrote it, in one batch. */
+  readonly seedVersionFourSettings: (values: Readonly<Record<string, unknown>>) => Promise<void>
+  /** Write each player preset's record as v3.2 wrote it, in one batch. */
+  readonly seedVersionFourPresets: (
+    presets: readonly WorkspaceHarnessPresetInput[],
+  ) => Promise<void>
+}
+
+/** Intent: every object key anywhere in a value, nested objects and arrays included. */
+function allKeys(value: unknown, into: Set<string> = new Set()): Set<string> {
+  if (Array.isArray(value)) {
+    for (const item of value) allKeys(item, into)
+  } else if (typeof value === 'object' && value !== null) {
+    for (const [key, field] of Object.entries(value)) {
+      into.add(key)
+      allKeys(field, into)
+    }
+  }
+  return into
+}
+
+/**
+ * Intent: refuse a kept session template that is not data version 4's bytes, as v3.2 wrote them:
+ * its session-wide record and body at data version 4, its body holding no seventh chord and no
+ * Seventh chords level, which no v3.2 body held.
+ */
+function checkVersionFourSession(template: WorkspaceHarnessEarlierSession): void {
+  /** Intent: the data version a seeded record holds, whatever it is. */
+  const versionOf = (record: unknown): unknown => (record as { dataVersion?: unknown }).dataVersion
+  if (
+    versionOf(template.summary) !== V32_KEPT_DATA_VERSION ||
+    versionOf(template.body) !== V32_KEPT_DATA_VERSION
+  ) {
+    throw new Error('Workspace harness: a v3.2 kept session is at data version 4')
+  }
+  const keys = allKeys(template.body)
+  if (keys.has('seventh') || keys.has('chordFamilies')) {
+    throw new Error('Workspace harness: v3.2 never kept a seventh chord or a Seventh chords level')
+  }
+}
+
+/**
+ * Intent: a settings record as v3.2 wrote it: encoded by the settings codec at v3.2's app version,
+ * whose shapes v3.2 shared; a key naming no setting v3.2 had, the Seventh chords level's
+ * included, throws.
+ */
+function versionFourSetting(key: string, value: unknown): StorageChange {
+  const known = [...SETTING_KEYS, ...JAM_SETTING_KEYS].includes(key as SettingKey)
+  if (!known || key.startsWith(LEVEL_KEY_PREFIX)) {
+    throw new Error(`Workspace harness: "${key}" names no setting v3.2 stored`)
+  }
+  // A seeded value is not checked, as storage.seedSettings's is not.
+  const record = encodeSettingRecord(
+    key as SettingKey,
+    value as SettingValue<SettingKey>,
+    V32_TAB.appVersion,
+  )
+  return { kind: 'write', store: 'settings', key, record }
+}
+
+/**
+ * Intent: a player preset's record as v3.2 wrote it: built by the preset model (which refuses an
+ * invalid one), encoded by the preset codec at v3.2's app version, then the same fields in the
+ * same order without the Seventh chords level, at data version 3. A preset given a level throws:
+ * v3.2 stored none.
+ */
+function versionFourPreset(input: WorkspaceHarnessPresetInput): StorageChange {
+  if (input.chordFamilies !== undefined) {
+    throw new Error('Workspace harness: a v3.2 player preset holds no Seventh chords level')
+  }
+  const preset = makePreset({ ...(input as unknown as Preset), chordFamilies: OFF_CHORD_FAMILIES })
+  const encoded = encodePresetRecord(preset, V32_TAB.appVersion)
+  const record = Object.fromEntries(
+    Object.entries(encoded)
+      .filter(([field]) => field !== 'chordFamilies')
+      .map(([field, value]) => [field, field === 'dataVersion' ? V32_PRESET_DATA_VERSION : value]),
+  ) as unknown as RecordVersions
+  return { kind: 'write', store: 'presets', key: preset.id, record }
 }
 
 /** Intent: a raw seeded value as a stored record; throws when it is not an object. */
@@ -110,10 +223,11 @@ function earlierCopy(template: WorkspaceHarnessEarlierSession, index: number): S
 /**
  * Intent: the earlier versions' seeds: each writes through a port opened as that version's tab
  * opens the database (once, on the first seed, and shared by the seeds of that version), keeping
- * that port open: `count` copies of a kept session, in batches, or settings records, each under
- * its own key, in one batch. Each throws when `allowed()` is false (the load released, or the
- * app's port opened), for an invalid count or a record with no string key, when the earlier port
- * does not open `ready`, and when the other earlier version's port was opened first.
+ * that port open: `count` copies of a kept session, in batches, or settings records or v3.2's
+ * player presets, each under its own key, in one batch. Each throws when `allowed()` is false (the
+ * load released, or the app's port opened), for an invalid count, a record with no string key or
+ * a value v3.2 never stored, when the earlier port does not open `ready`, and when another earlier
+ * version's port was opened first.
  */
 export function createEarlierVersionSeeds(allowed: () => boolean): EarlierVersionSeeds {
   // The earlier tab's port, kept open; the upgrade closes it.
@@ -162,6 +276,12 @@ export function createEarlierVersionSeeds(allowed: () => boolean): EarlierVersio
     }
   }
 
+  /** Intent: write `changes` in one batch through v3.2's port. */
+  async function seedVersionFour(seed: string, changes: readonly StorageChange[]): Promise<void> {
+    const port = await openedEarlierPort(V32_TAB, seed)
+    await port.apply(changes)
+  }
+
   return {
     seedVersionOneSessions: (template, count) =>
       seedSessions(V30_TAB, 'seedVersionOneSessions', template, count),
@@ -178,5 +298,16 @@ export function createEarlierVersionSeeds(allowed: () => boolean): EarlierVersio
     },
     seedVersionThreeSessions: (template, count) =>
       seedSessions(V31_TAB, 'seedVersionThreeSessions', template, count),
+    seedVersionFourSessions: (template, count) => {
+      checkVersionFourSession(template)
+      return seedSessions(V32_TAB, 'seedVersionFourSessions', template, count)
+    },
+    seedVersionFourSettings: (values) =>
+      seedVersionFour(
+        'seedVersionFourSettings',
+        Object.entries(values).map(([key, value]) => versionFourSetting(key, value)),
+      ),
+    seedVersionFourPresets: (presets) =>
+      seedVersionFour('seedVersionFourPresets', presets.map(versionFourPreset)),
   }
 }

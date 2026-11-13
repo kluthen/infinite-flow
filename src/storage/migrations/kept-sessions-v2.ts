@@ -24,7 +24,7 @@ import { readEnvelope } from '../record-envelope'
 import {
   parseKeptSessionBodyV1,
   rewrittenKeptBodyRecordV2,
-  type KeptSessionBodyRecord,
+  type KeptSessionBodyRecordV4,
 } from '../records/kept-session-body'
 import {
   parseKeptSessionSummaryV1,
@@ -70,7 +70,7 @@ export function upgradedKeptSummary(
 export function upgradedKeptBody(
   stored: unknown,
   appVersion: string,
-): KeptSessionBodyRecord | null {
+): KeptSessionBodyRecordV4 | null {
   try {
     if (readEnvelope(stored, FROM_VERSION) !== 'current') return null
     const phrases = parseKeptSessionBodyV1(stored)

@@ -483,7 +483,20 @@ A spec that needs saved data opens the harness (its browser context starts empty
 `storage.seedSettings` (and `storage.seedMyInstrument` for my instrument), then reloads the page,
 so the next load reads what was seeded. With `?storageLoad=held` the load does not start until
 `window.__workspaceHarnessHeldLoad.release()`, which the page publishes at once: until then the
-page shows only its background. With
+page shows only its background. While it is held, the held-load object also seeds an earlier
+version's data through a port opened as that version's tab opens the database
+(`earlier-version-seams.ts`), so the load's open upgrades it: v3.0's kept sessions and settings
+records (`seedVersionOneSessions`, `seedVersionOneSettings`, data version 1), v3.1's kept
+sessions (`seedVersionThreeSessions`, data version 3), or v3.2's (data version 4):
+`seedVersionFourSessions` (a kept session given as v3.2 kept it, refused if it is not at data
+version 4 or its body holds a `seventh` or a `chordFamilies`), `seedVersionFourSettings` (each
+setting's record as v3.2 wrote it; the Seventh chords level's key is refused) and
+`seedVersionFourPresets` (each player preset's record as v3.2 wrote it, at data version 3 with no
+level; a preset given a level is refused). Node turns a session this version kept into v3.2's
+bytes with `v32Session` (`tests/e2e/storage/kept-session-v1-helpers.ts`), as `v31Session` and
+`v30Session` do for the earlier versions. One database holds one version's data: a seed of
+another version after the first throws. `storage.seedPresets` seeds each player preset at the
+Seventh chords level its input gives (`chordFamilies`), Off when it gives none. With
 `?storageRead=fail` every read of the app's port fails, and with `?storageRead=slow` each ends a
 second after the start-up wait, so the visit starts from the defaults. The app's port is the opened
 port wrapped by these injections (the keyed read included); the seeds, `storage.records` and
@@ -549,6 +562,13 @@ real UI, and read the `presets` store back through `storage.keyedRecords`; they 
 `?storageRead=fail`, count changes with the write spy, count `navigator.storage.persist()` calls
 with the init-script spy of `my-instrument-sheet-helpers.ts`, and scan a session's export files,
 byte for byte, for the name and restriction of the player preset it was played under.
+`seventh-chords-level.spec.ts` sets session mode's Seventh chords level, which has no control on
+screen yet, through the routing-point seam (`setChordFamilyLevel`) or a preset choice, and reads
+it back from the request of the next phrase it generates (`generationRequests`), the stored
+`chordFamilies.seventh-chords` record and the preset box; it seeds a player preset holding a level
+with `storage.seedPresets`. `kept-sessions-carried-over.spec.ts` seeds v3.2's settings, a player
+preset, a pinned session and a Jam session through the v3.2 held-load seeds and checks the open
+carries them to data version 5.
 The harness's audio seam (`window.__workspaceHarness.audio.set…`) drives the
 transport directly and saves nothing; only the mix controls on screen save.
 

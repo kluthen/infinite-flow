@@ -95,8 +95,8 @@ const FIRST_LOAD_SETTINGS: InitialGenerationSettings = {
  * for it. Its state starts from the given initial settings (the saved ones the app loaded before
  * its first draw), or from the first-load values when none are given. The player's changes to the
  * controls, the figure levels, the Seventh chords level, the preset selection and the theme go
- * through the one routing point, which saves what they changed through `saveSettings` (the level
- * excepted, which no record holds yet); the presets it knows, chosen from,
+ * through the one routing point, which saves what they changed through `saveSettings`; the
+ * presets it knows, chosen from,
  * judged against and named from, are the built-ins, then the player presets it was given.
  * While the controls name my instrument, every intent it builds carries my instrument's profile as
  * data; starting with them naming it and no my instrument given is a caller defect and throws.

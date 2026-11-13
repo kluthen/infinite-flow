@@ -893,14 +893,16 @@ type WorkspaceHarnessStoreName =
 
 /**
  * A player preset as plain JSON (src/domain/presets/preset-selection.ts's `Preset`): its id,
- * name, ten preset-held controls, seven figure levels by figure id, its key and mode restriction
- * (`'any'` or a list for each half) and its kind, `player`.
+ * name, ten preset-held controls, seven figure levels by figure id, its Seventh chords level by
+ * family id (`{ 'seventh-chords': 'stronglyFavored' }`; Off when left out), its key and mode
+ * restriction (`'any'` or a list for each half) and its kind, `player`.
  */
 interface WorkspaceHarnessPresetInput {
   readonly id: string
   readonly name: string
   readonly controls: Readonly<Record<string, string>>
   readonly levels: Readonly<Record<string, string>>
+  readonly chordFamilies?: Readonly<Record<string, string>>
   readonly restriction: {
     readonly keys: 'any' | readonly string[]
     readonly modes: 'any' | readonly string[]
@@ -1103,6 +1105,32 @@ interface WorkspaceHarnessHeldLoad {
     template: WorkspaceHarnessEarlierSession,
     count: number,
   ) => Promise<void>
+  /**
+   * Before `release()` only, as `seedVersionOneSessions` but as v3.2 would: open the database as a
+   * v3.2 tab would, at data version 4 (`ready`, or this throws), and write `count` copies of
+   * `template`, given as v3.2 kept it (its session-wide record and body at data version 4), keyed
+   * and started the same way. Throws for a template not at data version 4 or whose body holds a
+   * `seventh` or a `chordFamilies` anywhere: v3.2 never kept a seventh chord or a level. The v3.2
+   * port stays open until the load's upgrade to data version 5 closes it; a seed of another
+   * earlier version throws after it, and it after one.
+   */
+  seedVersionFourSessions: (
+    template: WorkspaceHarnessEarlierSession,
+    count: number,
+  ) => Promise<void>
+  /**
+   * Before `release()` only, through the same v3.2 port: write one settings record per entry, as
+   * v3.2 wrote it (the settings codec's record at 3.2.0, the value not checked), in one batch.
+   * A key naming no setting, or the Seventh chords level's (`chordFamilies.*`), throws.
+   */
+  seedVersionFourSettings: (values: Readonly<Record<string, unknown>>) => Promise<void>
+  /**
+   * Before `release()` only, through the same v3.2 port: write each player preset's record as
+   * v3.2 wrote it (built by the preset model, encoded by the preset codec at 3.2.0, then at data
+   * version 3 without the Seventh chords level), under its id, in one batch. A preset given a
+   * `chordFamilies` throws.
+   */
+  seedVersionFourPresets: (presets: readonly WorkspaceHarnessPresetInput[]) => Promise<void>
 }
 
 interface Window {

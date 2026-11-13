@@ -1,21 +1,26 @@
 /**
  * The player preset record: one record of the `presets` store per player preset, under the
  * preset's internal id, which the record also holds, in the record envelope: the preset's name,
- * its ten preset-held controls, its seven figure levels by figure id, and its key and mode
- * restriction. A built-in preset is never stored, and neither is the restriction in force. The
- * record holds no Seventh chords level: reading gives every player preset the level at Off, and
- * writing refuses a preset above Off rather than storing it as Off. Each save writes the whole
- * record. Pure: no browser API.
+ * its ten preset-held controls, its seven figure levels by figure id, its Seventh chords level by
+ * chord family id, and its key and mode restriction. A built-in preset is never stored, and
+ * neither is the restriction in force. Each save writes the whole record. Pure: no browser API.
  *
  * Reading is tolerant, record by record and field by field, like the settings records: an unknown
- * or invalid control, level or name takes that setting's first-load value, a missing name a
- * numbered one, and an unknown key or mode is dropped from its restriction list. A record that
- * cannot be read at all (not a record, damaged, written by a newer data version, or not under its
- * own id) is not listed, and the store keeps it as it is. Reading never throws for what was
- * stored, and never changes it.
+ * or invalid control, level or name takes that setting's first-load value, a missing, unknown or
+ * invalid Seventh chords level reads Off, a missing name a numbered one, and an unknown key or
+ * mode is dropped from its restriction list. A record that cannot be read at all (not a record,
+ * damaged, written at an earlier or a newer data version, or not under its own id) is not listed,
+ * and the store keeps it as it is. Reading never throws for what was stored, and never changes
+ * it. A record at data version 3, v3.1's and v3.2's, which held no Seventh chords level, is read
+ * only by the upgrade step to data version 5, which carries it over with the level at Off.
  */
 
-import { isOffChordFamilies, OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
+import {
+  CHORD_FAMILY_IDS,
+  CHORD_FAMILY_LEVEL_IDS,
+  OFF_CHORD_FAMILIES,
+  type ChordFamilies,
+} from '@/domain/chords/chord-families'
 import {
   ARPEGGIO_CHAOS_VALUES,
   COLLECTIONS,
@@ -61,9 +66,15 @@ import {
 import type { StoredEntry } from '../database'
 import { readEnvelope, type RecordVersions } from '../record-envelope'
 
-/** The data version at which the player preset record's shape was introduced. */
+/**
+ * The data version at which the player preset record's shape was introduced: 5 in v3.3, the shape
+ * holding the Seventh chords level.
+ */
 // @spec-link [[entity_player_preset_record]]
-export const PRESET_RECORD_DATA_VERSION = 3
+export const PRESET_RECORD_DATA_VERSION = 5
+
+/** The data version of v3.1's and v3.2's record shape, which only the upgrade step reads. */
+const PRESET_RECORD_V3_DATA_VERSION = 3
 
 /**
  * The preset-record data version at which each figure first existed. A level a record lacks for a
@@ -83,7 +94,8 @@ export const FIGURE_INTRODUCED_AT: Readonly<Record<FigureId, number>> = deepFree
 
 /**
  * One stored player preset: the envelope's two versions, its id (the record's key too), its name,
- * its ten controls, its seven levels and its restriction. No kind: only player presets are stored.
+ * its ten controls, its seven levels, its Seventh chords level and its restriction. No kind: only
+ * player presets are stored.
  */
 // @spec-link [[entity_player_preset_record]]
 export interface PresetRecord extends RecordVersions {
@@ -91,6 +103,7 @@ export interface PresetRecord extends RecordVersions {
   readonly name: string
   readonly controls: PresetHeldControls
   readonly levels: FigureLevels
+  readonly chordFamilies: ChordFamilies
   readonly restriction: KeyAndModeRestriction
 }
 
@@ -101,10 +114,10 @@ function copiedHalf<T>(half: RestrictionHalf<T>): RestrictionHalf<T> {
 
 /**
  * Intent: the whole record of a player preset, written by the app at `appVersion`: its id and
- * name, the ten controls in preset order, the seven levels in figure order and its restriction,
- * and no Seventh chords level. A built-in preset, an empty app version or a preset whose Seventh
- * chords level is above Off is a caller defect and throws: a built-in is never stored, no app
- * could read a record without its app version, and the record cannot hold a level above Off.
+ * name, the ten controls in preset order, the seven levels in figure order, its Seventh chords
+ * level, at any level, by chord family id, and its restriction. A built-in preset or an empty app
+ * version is a caller defect and throws: a built-in is never stored, and no app could read a
+ * record without its app version.
  */
 // @spec-link [[entity_player_preset_record]]
 // @spec-link [[rule_player_presets_saved_on_device]]
@@ -112,11 +125,6 @@ function copiedHalf<T>(half: RestrictionHalf<T>): RestrictionHalf<T> {
 export function encodePresetRecord(preset: Preset, appVersion: string): PresetRecord {
   if (preset.kind !== 'player') throw new Error('preset record: only a player preset is stored')
   if (appVersion === '') throw new Error('preset record: the app version must not be empty')
-  if (!isOffChordFamilies(preset.chordFamilies)) {
-    throw new Error(
-      `preset record: a preset's Seventh chords level ${JSON.stringify(preset.chordFamilies)} is above Off, which this record cannot store`,
-    )
-  }
   return {
     dataVersion: PRESET_RECORD_DATA_VERSION,
     appVersion,
@@ -128,6 +136,9 @@ export function encodePresetRecord(preset: Preset, appVersion: string): PresetRe
     levels: Object.fromEntries(
       FIGURE_IDS.map((figure) => [figure, preset.levels[figure]]),
     ) as FigureLevels,
+    chordFamilies: Object.fromEntries(
+      CHORD_FAMILY_IDS.map((family) => [family, preset.chordFamilies[family]]),
+    ) as ChordFamilies,
     restriction: {
       keys: copiedHalf(preset.restriction.keys),
       modes: copiedHalf(preset.restriction.modes),
@@ -219,6 +230,25 @@ function readLevels(stored: unknown, recordDataVersion: number): FigureLevels {
 }
 
 /**
+ * Intent: the Seventh chords level of a stored record, each chord family read on its own: a known
+ * level is kept, and a missing, unknown or ill-typed one (every one when the field is missing or
+ * not an object) reads Off. Other keys are ignored.
+ */
+// @spec-link [[entity_player_preset_record]]
+// @spec-link [[rule_presets_load_tolerantly]]
+function readChordFamilies(stored: unknown): ChordFamilies {
+  const families: Record<string, unknown> = isPlainRecord(stored) ? stored : {}
+  return Object.fromEntries(
+    CHORD_FAMILY_IDS.map((family) => {
+      const known = Object.hasOwn(families, family)
+        ? CHORD_FAMILY_LEVEL_IDS.find((level) => level === families[family])
+        : undefined
+      return [family, known ?? OFF_CHORD_FAMILIES[family]]
+    }),
+  ) as ChordFamilies
+}
+
+/**
  * Intent: one stored restriction half: "any", or the known entries of a stored list, the first
  * occurrence of each kept in order; an empty result, or anything else, reads "any".
  */
@@ -247,45 +277,93 @@ function readName(stored: unknown): string | null {
 }
 
 /** A readable record's fields, its name still null when it has to be numbered. */
-type ReadRecord = Omit<Preset, 'name' | 'kind' | 'chordFamilies'> & { readonly name: string | null }
+type ReadRecord = Omit<Preset, 'name' | 'kind'> & { readonly name: string | null }
 
 /**
- * Intent: the fields of one stored entry, or null when it cannot be read at all: not a record, a
- * damaged or newer envelope, or an id that is missing, not the entry's key or a built-in's.
+ * Intent: the stored value of one entry when it can be read at all at `dataVersion`, null
+ * otherwise: not a record, a damaged envelope or one of another data version, or an id that is
+ * missing, not the entry's key or a built-in's.
  */
-function readRecord(entry: StoredEntry): ReadRecord | null {
+function readableValue(entry: StoredEntry, dataVersion: number): Record<string, unknown> | null {
   const { value } = entry
   if (!isPlainRecord(value)) return null
-  if (readEnvelope(value, PRESET_RECORD_DATA_VERSION) !== 'current') return null
+  if (readEnvelope(value, dataVersion) !== 'current') return null
   const { id } = value
   if (typeof id !== 'string' || id === '' || id !== entry.key || isBuiltInPresetId(id)) {
     return null
   }
+  return value
+}
+
+/**
+ * Intent: the fields of one stored entry, or null when it cannot be read at all: not a record, a
+ * damaged, earlier or newer envelope, or an id that is missing, not the entry's key or a
+ * built-in's.
+ */
+function readRecord(entry: StoredEntry): ReadRecord | null {
+  const value = readableValue(entry, PRESET_RECORD_DATA_VERSION)
+  if (value === null) return null
   return {
-    id,
+    id: entry.key,
     name: readName(value.name),
     controls: readHeldControls(value.controls),
     // A current record's data version is the shape's.
     levels: readLevels(value.levels, PRESET_RECORD_DATA_VERSION),
+    chordFamilies: readChordFamilies(value.chordFamilies),
     restriction: readRestriction(value.restriction),
   }
 }
 
-/**
- * Intent: the player preset of a readable record, under the name it loads with, its Seventh
- * chords level at Off since the record holds none.
- */
+/** Intent: the player preset of a readable record, under the name it loads with. */
 function playerPreset(record: ReadRecord, name: string): Preset {
-  return makePreset({ ...record, name, chordFamilies: OFF_CHORD_FAMILIES, kind: 'player' })
+  return makePreset({ ...record, name, kind: 'player' })
+}
+
+/**
+ * A data version 3 record carried over to data version 5: every field it stored, as stored, with
+ * the Seventh chords level at Off and the envelope of the app that carried it over.
+ */
+// @spec-link [[entity_player_preset_record]]
+// @spec-link [[module_presets_and_kept_sessions_upgrade_step]]
+export type CarriedOverPresetRecord = RecordVersions & {
+  readonly chordFamilies: ChordFamilies
+} & Readonly<Record<string, unknown>>
+
+/**
+ * Intent: the data version 5 record of a data version 3 one, v3.1's or v3.2's, stored under `key`,
+ * as the upgrade step to data version 5 writes it by `appVersion`: every field it stored kept as
+ * it is, never read and written again, so nothing a tolerant read would change is changed, with
+ * the Seventh chords level at Off and the upgrading app's envelope. Null for a record the codec
+ * cannot read at all at data version 3 (not a record, a damaged envelope or one of another data
+ * version, an id that is missing, not its key or a built-in's), which is then left as it is.
+ * Throws, as a caller defect, for an empty app version.
+ */
+// @spec-link [[entity_player_preset_record]]
+// @spec-link [[module_presets_and_kept_sessions_upgrade_step]]
+export function carriedOverPresetRecord(
+  stored: unknown,
+  key: IDBValidKey,
+  appVersion: string,
+): CarriedOverPresetRecord | null {
+  if (appVersion === '') throw new Error('preset record: the app version must not be empty')
+  if (typeof key !== 'string') return null
+  const value = readableValue({ key, value: stored }, PRESET_RECORD_V3_DATA_VERSION)
+  if (value === null) return null
+  return {
+    ...value,
+    dataVersion: PRESET_RECORD_DATA_VERSION,
+    appVersion,
+    chordFamilies: { ...OFF_CHORD_FAMILIES },
+  }
 }
 
 /**
  * Intent: the player presets of the `presets` store's entries, in entry order, each read on its
  * own and field by field. An entry that cannot be read at all is not listed, with no notice, and
  * is never changed. A missing name becomes a numbered one: each nameless preset, in entry order,
- * takes the first suggested name no built-in, named or already numbered preset has. Every player
- * preset loads with the Seventh chords level at Off, since the record holds none. Never throws for
- * what was stored.
+ * takes the first suggested name no built-in, named or already numbered preset has. Each player
+ * preset loads with its stored Seventh chords level, Off when it is missing or not one the record
+ * can hold. Never throws for what was stored.
  */
 // @spec-link [[entity_player_preset_record]]
 // @spec-link [[rule_presets_load_tolerantly]]

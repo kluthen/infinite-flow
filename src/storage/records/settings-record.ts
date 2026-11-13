@@ -2,7 +2,8 @@
  * The settings records: what is written for each saved setting, and how a load reads it back.
  * Each setting is its own record, so each loads, and fails to load, on its own. Every record
  * carries the data version of its own shape and the version of the app that wrote it: 1 for the
- * settings v3.0 already saved, 3 for the preset selection and the figure levels, introduced at
+ * settings v3.0 already saved and the records added beside them since with no step (v3.2's, and
+ * v3.3's Seventh chords level), 3 for the preset selection and the figure levels, introduced at
  * data version 3.
  *
  * Reading is tolerant, setting by setting, and this codec is the one place the app's "no silent
@@ -33,6 +34,11 @@ import {
   type AudioMix,
   type AudioMixDesign,
 } from '@/audio/audio-mix'
+import {
+  CHORD_FAMILY_IDS,
+  CHORD_FAMILY_LEVEL_IDS,
+  type ChordFamilies,
+} from '@/domain/chords/chord-families'
 import {
   ACCEPTED_INSTRUMENT_PROFILE_IDS,
   ARPEGGIO_CHAOS_VALUES,
@@ -103,7 +109,8 @@ export const V30_PROFILE_SELECTION_KEY = 'profileSelection'
 export { MY_INSTRUMENT_ID }
 
 /** The settings stored as one record per field; the others are one record each. */
-type SettingGroup = 'controls' | 'figureLevels' | 'mix' | 'sessionOptions' | 'review'
+type SettingGroup =
+  'controls' | 'figureLevels' | 'chordFamilies' | 'mix' | 'sessionOptions' | 'review'
 
 /**
  * The record key of each field of a group: `controls.tempo`, `figureLevels.passingTone`,
@@ -153,6 +160,7 @@ export const JAM_SETTING_KEYS: readonly JamSettingKey[] = deepFreeze(
 export type SettingKey =
   | FieldKey<'controls'>
   | FieldKey<'figureLevels'>
+  | FieldKey<'chordFamilies'>
   | 'presetSelection'
   | 'theme'
   | FieldKey<'mix'>
@@ -342,6 +350,16 @@ const LEVEL_PARSERS: GroupParsers<FigureLevels> = Object.fromEntries(
 ) as GroupParsers<FigureLevels>
 
 /**
+ * Each chord family's level parser, in CHORD_FAMILY_IDS order: one of the four known levels. The
+ * Seventh chords level's record v3.3 added beside the others with no upgrade step: a store written
+ * before v3.3 has none, and the level loads Off.
+ */
+// @spec-link [[rule_saved_settings_load_tolerantly]]
+const CHORD_FAMILY_PARSERS: GroupParsers<ChordFamilies> = Object.fromEntries(
+  CHORD_FAMILY_IDS.map((family) => [family, oneOf(CHORD_FAMILY_LEVEL_IDS)]),
+) as GroupParsers<ChordFamilies>
+
+/**
  * Each audio mix control's parser, a switch and a volume per channel: the click's and the
  * backing's, then each guide's, records v3.2 added beside them with no upgrade step: a store
  * written before v3.2 has none, and each takes its default (the guide off, the design's level).
@@ -432,6 +450,7 @@ function fieldKeys<G extends SettingGroup>(group: G, parsers: object): FieldKey<
 export const SETTING_KEYS: readonly SettingKey[] = deepFreeze([
   ...fieldKeys('controls', CONTROL_PARSERS),
   ...fieldKeys('figureLevels', LEVEL_PARSERS),
+  ...fieldKeys('chordFamilies', CHORD_FAMILY_PARSERS),
   'presetSelection',
   'theme',
   ...fieldKeys('mix', MIX_PARSERS),
@@ -464,7 +483,8 @@ const LEVEL_KEY_PREFIX = 'figureLevels.'
 /**
  * Intent: the data version of one setting's record shape: 3 for the preset selection and each
  * figure level, introduced at data version 3; 1 for every setting v3.0 already saved, and for the
- * records v3.2 added beside them (session mode's three options, Jam's group), with no step.
+ * records added beside them with no step: v3.2's (session mode's three options, Jam's group) and
+ * v3.3's Seventh chords level.
  */
 // @spec-link [[module_settings_upgrade_step]]
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
@@ -569,32 +589,41 @@ function decodeGroup<G extends SettingGroup>(
   return Object.fromEntries(entries) as SavedSettings[G]
 }
 
+/** The loaded values a preset selection is judged against. */
+interface LoadedValues {
+  readonly controls: GenerationControls
+  readonly figureLevels: FigureLevels
+  readonly chordFamilies: ChordFamilies
+}
+
 /**
  * Intent: whether the loaded values still match a preset: its ten preset-held controls, its seven
- * levels, and the loaded written key and mode inside its restriction.
+ * levels, its Seventh chords level, and the loaded written key and mode inside its restriction.
  */
-function matchesPreset(preset: Preset, controls: GenerationControls, levels: FigureLevels) {
+// @spec-link [[rule_preset_load_values_win]]
+function matchesPreset(preset: Preset, loaded: LoadedValues): boolean {
+  const { controls, figureLevels, chordFamilies } = loaded
   return (
     PRESET_HELD_CONTROL_KEYS.every((key) => controls[key] === preset.controls[key]) &&
-    FIGURE_IDS.every((figure) => levels[figure] === preset.levels[figure]) &&
+    FIGURE_IDS.every((figure) => figureLevels[figure] === preset.levels[figure]) &&
+    CHORD_FAMILY_IDS.every((family) => chordFamilies[family] === preset.chordFamilies[family]) &&
     allowsKeyAndMode(preset.restriction, controls.tonalCenter, controls.collection)
   )
 }
 
 /**
  * Intent: the preset selection a load gives, judged against the loaded values: the values win. A
- * selected preset that no longer exists loads as Custom with no base; one whose values or
- * restriction the loaded values no longer match (a value fell back, a built-in was retuned, a
- * player preset changed in another tab) loads as Custom based on it. Custom keeps its base while
- * that preset exists, and has none otherwise. It never changes a control or a level, so loading
- * never moves the key or mode. Silent, like every fallback here.
+ * selected preset that no longer exists loads as Custom with no base; one whose values (its
+ * Seventh chords level included) or restriction the loaded values no longer match (a value fell
+ * back, a built-in was retuned, a player preset changed in another tab) loads as Custom based on
+ * it. Custom keeps its base while that preset exists, and has none otherwise. It never changes a
+ * control or a level, so loading never moves the key or mode. Silent, like every fallback here.
  */
 // @spec-link [[rule_preset_load_values_win]]
 // @spec-link [[rule_saved_settings_load_tolerantly]]
 function loadedPresetSelection(
   selection: PresetSelection,
-  controls: GenerationControls,
-  figureLevels: FigureLevels,
+  loaded: LoadedValues,
   presets: readonly Preset[],
 ): PresetSelection {
   if (selection.kind === 'custom') {
@@ -605,9 +634,7 @@ function loadedPresetSelection(
   }
   const preset = findPreset(presets, selection.presetId)
   if (preset === undefined) return { kind: 'custom', baseId: null }
-  return matchesPreset(preset, controls, figureLevels)
-    ? selection
-    : { kind: 'custom', baseId: preset.id }
+  return matchesPreset(preset, loaded) ? selection : { kind: 'custom', baseId: preset.id }
 }
 
 /**
@@ -615,7 +642,8 @@ function loadedPresetSelection(
  * damaged, newer or invalid record gives that setting its default, silently, and never disturbs
  * another setting. Never throws for what was stored. The decoded controls are rebuilt by the
  * strict control builder, so what the app runs is still guarded by it, and the preset selection
- * is then judged against them and the decoded levels: a preset they no longer match loads Custom.
+ * is then judged against them, the decoded figure levels and the decoded Seventh chords level: a
+ * preset they no longer match loads Custom.
  */
 // @spec-link [[rule_saved_settings_load_tolerantly]]
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
@@ -639,13 +667,19 @@ export function decodeSettings(
     decodeGroup('controls', CONTROL_PARSERS, defaults.controls, read),
   )
   const figureLevels = decodeGroup('figureLevels', LEVEL_PARSERS, defaults.figureLevels, read)
+  const chordFamilies = decodeGroup(
+    'chordFamilies',
+    CHORD_FAMILY_PARSERS,
+    defaults.chordFamilies,
+    read,
+  )
   return deepFreeze({
     controls,
     figureLevels,
+    chordFamilies,
     presetSelection: loadedPresetSelection(
       read('presetSelection', readPresetSelection, defaults.presetSelection),
-      controls,
-      figureLevels,
+      { controls, figureLevels, chordFamilies },
       context.presets,
     ),
     theme: read('theme', oneOf(THEME_PREFERENCES), defaults.theme),

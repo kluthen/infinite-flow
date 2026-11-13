@@ -5,7 +5,8 @@
  *
  * Where each default comes from in the running app: the 14 generation controls from
  * `src/domain/controls/profile-selection.ts`; the seven figure levels, Neutral's, from
- * `src/domain/figures/figure-levels.ts`; the preset selection, Neutral, from
+ * `src/domain/figures/figure-levels.ts`; the Seventh chords level, Off, from
+ * `src/domain/chords/chord-families.ts`; the preset selection, Neutral, from
  * `src/domain/presets/built-in-presets.ts`; the theme from the generation session's first state
  * (`System`); the audio mix from the design tokens, read at start-up, so it is passed in; the
  * three "During a session" options from the session controller's flags, all off, and session
@@ -18,6 +19,7 @@
 import type { AudioMix } from '@/audio/audio-mix'
 import type { GeneratedNotesFormat } from '@/components/review/review-types'
 import type { ThemePreference } from '@/composables/generation-session-types'
+import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
@@ -52,15 +54,16 @@ export interface ReviewPreferences {
 }
 
 /**
- * Every saved setting, each the value the player chose: the chosen controls and figure levels
- * (never the ones a phrase was generated with), the preset selection, and no tempo a Rising-tempo
- * session reached.
+ * Every saved setting, each the value the player chose: the chosen controls, figure levels and
+ * session mode's Seventh chords level (never the ones a phrase was generated with), the preset
+ * selection, and no tempo a Rising-tempo session reached.
  */
 // @spec-link [[rule_settings_saved_on_change]]
 // @spec-link [[rule_saved_setting_is_players_choice]]
 export interface SavedSettings {
   readonly controls: GenerationControls
   readonly figureLevels: FigureLevels
+  readonly chordFamilies: ChordFamilies
   readonly presetSelection: PresetSelection
   readonly theme: ThemePreference
   readonly mix: AudioMix
@@ -144,6 +147,7 @@ export function defaultSettings(mixDefaults: AudioMix): SavedSettings {
   return deepFreeze({
     controls: DEFAULT_GENERATION_CONTROLS,
     figureLevels: NEUTRAL_FIGURE_LEVELS,
+    chordFamilies: OFF_CHORD_FAMILIES,
     presetSelection: DEFAULT_PRESET_SELECTION,
     theme: DEFAULT_THEME,
     mix: { ...mixDefaults },
