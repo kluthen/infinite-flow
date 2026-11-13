@@ -6,8 +6,10 @@ import { describe, expect, it } from 'vitest'
 
 import { encodeGeneratedNotesMusicXml } from '@/export/musicxml/musicxml-encoder'
 import {
+  bbTenorSeventhsSession,
   bbTenorTempoChangeSession,
   cKeyboardPlainSession,
+  cKeyboardSeventhsSession,
   cKeyboardSession,
   ebAltoKeyChangeSession,
   myTenorSession,
@@ -53,6 +55,8 @@ describe('MusicXML output against the MusicXML 4.0 schema', () => {
     ['E-flat alto with a key change', ebAltoKeyChangeSession()],
     ['C keyboard, five phrases, two tempo changes', cKeyboardPlainSession([90, 90, 125, 125, 90])],
     ['my instrument in bass clef', myTenorSession('bass')],
+    ['C keyboard with the four seventh chords', cKeyboardSeventhsSession()],
+    ['B-flat tenor with the four seventh chords', bbTenorSeventhsSession()],
   ])('validates the encoder output for the %s session', (_name, session) => {
     const result = validate(encodeGeneratedNotesMusicXml(session))
     expect(result.output).toBe('- validates\n')

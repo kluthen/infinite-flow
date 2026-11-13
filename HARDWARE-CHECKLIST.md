@@ -952,3 +952,33 @@ Edge half (spec D399).
 **Result:** not run yet with a key copied from Chrome (needs chunk 19). Chunk 15 ran the spec in
 Chromium (2026-11-13) with the example key: 8 passed, none skipped. The Edge half was dropped
 (spec D399, plan v17).
+
+## v3.3 H4. The files (chunk 13; about 10 min)
+
+The reference machine, MuseScore and a DAW (or any MIDI tool that shows the notes). Seventh
+chords must reach both files as the app shows and plays them (spec item 12). Until chunk 19 the
+app always sends Off, so the two files come from a spec, not from the Review: a two-phrase C MIDI
+keyboard session at the strongest Seventh chords level (written pitch is concert pitch). Phrase 1
+(C major, seed 1) holds Cmaj7, Dm7, G7, G7; phrase 2 (C Ionian, seed 2) holds Cmaj7, Dm7, Bm7♭5,
+Cmaj7. No single collection plans both G7 and Bm7♭5, hence the two phrases; measure 5 restates
+the key (no sharps or flats) for the change of collection.
+
+- [ ] From the repo, write the two files (any empty directory will do):
+
+      ```sh
+      SEVENTH_CHORDS_HAND_CHECK_DIR=/tmp/h4 npx vitest run tests/unit/export/seventh-chords-files.spec.ts
+      ```
+
+      It writes `seventh-chords.musicxml` and `seventh-chords-with-backing.mid`, byte for byte
+      what the app's export builds.
+
+- [ ] Open `seventh-chords.musicxml` in MuseScore (File > Open): it opens with no error, eight
+      measures, and the chord symbols read Cmaj7, Dm7, G7, G7 then Cmaj7, Dm7, Bm7♭5, Cmaj7
+      (MuseScore may draw the half-diminished one as Bø7 or Bm7(♭5), depending on its
+      chord-symbol style; any of these is right).
+- [ ] Open `seventh-chords-with-backing.mid` in the DAW: three tracks, and in the "Backing" track
+      every chord, in the register above the bass line, holds four notes, the seventh chord's
+      tones: C E G B for Cmaj7, D F A C for Dm7, G B D F for G7, B D F A for Bm7♭5.
+- [ ] Pass: every symbol right in MuseScore and every backing chord four notes in the DAW.
+
+**Result:** not run yet (needs the owner).

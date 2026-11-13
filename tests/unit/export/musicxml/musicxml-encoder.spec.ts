@@ -17,8 +17,10 @@ import {
   type MusicXmlSessionPhrase,
 } from '@/export/musicxml/musicxml-export-input'
 import {
+  bbTenorSeventhsSession,
   bbTenorTempoChangeSession,
   cKeyboardPlainSession,
+  cKeyboardSeventhsSession,
   cKeyboardSession,
   ebAltoKeyChangeSession,
   myTenorSession,
@@ -342,6 +344,15 @@ describe('encodeGeneratedNotesMusicXml: written pitch and transposition', () => 
   })
 })
 
+/** Intent: every chord symbol of a session's file as "<measure>:<root>:<kind>:<printed suffix>". */
+function chordLabels(session: GeneratedNotesMusicXmlInput): string[] {
+  return Array.from(encodeAndParse(session).querySelectorAll('harmony')).map(
+    (harmony) =>
+      `${measureNumber(harmony)}:${text(harmony, 'root-step')}${text(harmony, 'root-alter') ?? ''}` +
+      `:${text(harmony, 'kind')}:${harmony.querySelector('kind')!.getAttribute('text')}`,
+  )
+}
+
 // @test-link [[rule_generated_notes_musicxml_export]]
 describe('encodeGeneratedNotesMusicXml: chord symbols', () => {
   it('writes every chord symbol, respelled in written pitch', () => {
@@ -365,6 +376,23 @@ describe('encodeGeneratedNotesMusicXml: chord symbols', () => {
       '6:A:major:',
       '7:G:major:',
       '8:D:major:',
+    ])
+  })
+
+  // @test-link [[rule_generated_notes_musicxml_export]]
+  it('writes the four seventh chords with their MusicXML kinds and suffixes, in written pitch', () => {
+    // Concert Cmaj7, Dm7, G7, Bm7♭5: as is for the keyboard, a major ninth up for the tenor.
+    expect(chordLabels(cKeyboardSeventhsSession())).toEqual([
+      '1:C:major-seventh:maj7',
+      '2:D:minor-seventh:m7',
+      '3:G:dominant:7',
+      '4:B:half-diminished:m7♭5',
+    ])
+    expect(chordLabels(bbTenorSeventhsSession())).toEqual([
+      '1:D:major-seventh:maj7',
+      '2:E:minor-seventh:m7',
+      '3:A:dominant:7',
+      '4:C1:half-diminished:m7♭5',
     ])
   })
 
