@@ -5,12 +5,13 @@ layer: ARCHITECTURE
 human_name: Ranked Candidate Ordering
 type: MODULE
 priority: 1
-version: 0.7
+version: 0.8
 tags: generation
 parents:
   - [[entity_concert_event_timeline]]
   - [[rule_forced_bend]]
   - [[rule_rhythm_lock_strict]]
+  - [[rule_seventh_chords_keep_the_chord_plan]]
 dependents: []
 ---
 
@@ -22,7 +23,7 @@ Turn a harmony or rhythm candidate domain into one deterministic, seed-dependent
 ## THE RULE / LOGIC
 A candidate's place in a harmony or rhythm order is a tuple compared term by term: its preference rank, then its seeded tie key, then its canonical candidateIndex, every key and identity compared in UTF-16 code-unit order, never by locale. Sorting never mutates its input and is stable and explicit about every term.
 
-Without a preference. Every harmony candidate, and every rhythm candidate of a request holding neither the rhythm lock's locked bars nor a steering block, has the same preference rank, so its place is the seeded tie key, then candidateIndex: the order this module gave before the preference rank existed, so such a request is searched exactly as before. Ranking a harmony candidate domain always sorts this way.
+Without a preference. Every harmony candidate, and every rhythm candidate of a request holding neither the rhythm lock's locked bars nor a steering block, has the same preference rank, so its place is the seeded tie key, then candidateIndex: the order this module gave before the preference rank existed, so such a request is searched exactly as before. Ranking a harmony candidate domain always sorts this way. It ranks the domain's triad-form candidates only: the plan variants a Seventh chords level above Off gives are built from the ranked order afterwards (service_generation_orchestration), so the level never changes a harmony candidate's tie key or its place among the plans.
 
 The preference seam. Rhythm ranking takes a preference rank for each candidate, computed inside generation from the request alone, never from the app's state. Under the rhythm lock with locked bars (module_rhythm_lock_order), the drawn rhythm change's candidates come first when the phrase draws one (module_rhythm_change_draw), then the candidates whose written bars equal the locked bars, then every other candidate in the forced bend's order. A steering block orders rhythm candidates through the same seam. A preference is an order, never a filter: every candidate of the domain stays in the order exactly once, so every phrase possible without the preference stays possible.
 
@@ -41,3 +42,4 @@ Callers supply a harmony candidate list and a seed to receive a frozen, ranked h
 - Keys and identities are compared in code-unit order, never by locale.
 - A rhythm domain materialized through the lazy-domain entry point yields the same ranked order and domain size as ranking its fully-drained candidate list directly.
 - For every rhythm candidate and seed, the tie key rhythm ranking computes equals the per-candidate rhythm tie-key function's key, and with no preference the ranked rhythm order equals sorting by that function's keys, then candidateIndex.
+- The ranked harmony order is the same at every Seventh chords level.

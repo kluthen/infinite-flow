@@ -8,7 +8,8 @@ layer: BUSINESS
 version: 0.1
 priority: 1
 human_name: Every Chord Has the Same Chance of Its Seventh
-dependents: []
+dependents:
+  - [[module_named_stream_pseudorandomness]]
 type: RULE
 ---
 

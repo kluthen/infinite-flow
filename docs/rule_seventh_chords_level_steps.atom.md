@@ -3,7 +3,9 @@ id: rule_seventh_chords_level_steps
 status: DRAFT
 layer: BUSINESS
 priority: 1
-dependents: []
+dependents:
+  - [[module_named_stream_pseudorandomness]]
+  - [[service_generation_orchestration]]
 type: RULE
 version: 0.1
 human_name: What Each Seventh Chords Level Does

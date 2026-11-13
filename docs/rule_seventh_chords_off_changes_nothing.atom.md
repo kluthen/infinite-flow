@@ -6,7 +6,8 @@ human_name: At Off, Phrases Are as Before Seventh Chords
 tags: [v3, release-v3.3, generation, chords]
 parents:
   - [[req_seventh_chords_level]]
-dependents: []
+dependents:
+  - [[service_generation_orchestration]]
 type: RULE
 layer: BUSINESS
 version: 0.1

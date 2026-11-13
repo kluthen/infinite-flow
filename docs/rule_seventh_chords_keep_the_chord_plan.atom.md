@@ -7,7 +7,10 @@ tags: [v3, release-v3.3, generation, chords]
 human_name: Seventh Chords Leave the Chord Plans as They Were
 parents:
   - [[req_seventh_chords_level]]
-dependents: []
+dependents:
+  - [[module_harmony_candidate_domain]]
+  - [[module_ranked_candidate_ordering]]
+  - [[service_generation_orchestration]]
 type: RULE
 layer: BUSINESS
 ---
