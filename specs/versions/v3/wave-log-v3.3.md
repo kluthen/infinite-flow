@@ -836,3 +836,22 @@ render:seventh-endings` command.
   `seventh-chord-inputs.ts` row ("before v3.3 chunk 12").
 - Figures: 4 agents, 243 tool calls, 30.2M tokens in / 186k out, max context 264k, $16.82 at API
   prices.
+
+### DP, U1a and ISS-019 (2026-11-13)
+
+- `ux-writer` (fc2972de), **U1a done, ux D485**: the labels become Off, Sometimes, Often,
+  **Always** (Mostly → Always: Strongly favored draws every event, 100 % measured; wording only,
+  saved data names the spec's level). The owner is told. ux D486: the root–suffix space VexFlow
+  draws ("C maj7") is tolerated in v3.3 and carried forward as a follow-up.
+- `spec-writer`'s plan v19 (6b01298f): **DP done, spec D534**: no finer fallback, chunk 20
+  skipped (reopens only if the release gate's final M1 misses 3 in 4). **Spec D535**: ISS-019 is
+  a bug against §D6.1/§D6.3 (no new ruling), fixed as chunk 5's **second addendum** on the wave-4
+  branch before the gate: the five figure-path builders in `pitch-candidates.ts` read the final
+  attack's triad through one helper, `figureGoalMidis`; validator unchanged; ISS-019 closes with
+  it. Plan items: chunk 13's Files, chunk 14's Done when (the `denseTie` baselines, a Read-first
+  row), chunk 17's "the app's writers", chunk 18's two leftovers to the gate's executor, "Always"
+  through the plan and §D5.2 (chunk 19 renames code comments and test titles). L1 open (H1 ready,
+  the owner listens). `docs/release/v3.3-intent-change-set.md:848` still says Mostly: for the
+  sync.
+- Next: `documentalist` peek over the addendum's files (an inserted piece of work after the
+  preflight), then the addendum, then the wave gate.
