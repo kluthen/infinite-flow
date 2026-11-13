@@ -26,7 +26,7 @@ import { makeSeed } from '@/domain/random/seed'
 import { adaptCarryIn } from '@/session/carry-in-adaptation'
 import { ALL_GROUPS_ALLOWED, mutationCandidates } from '@/session/settings-mutation'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
-import { sessionFigureLevels } from '@/session/session-intents'
+import { sessionFigureLevels } from '@/session/session-figure-levels'
 import {
   BASE_CONTROLS,
   carryInAfter,

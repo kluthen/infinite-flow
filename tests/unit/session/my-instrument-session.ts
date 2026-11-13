@@ -17,7 +17,7 @@ import { makeSeed } from '@/domain/random/seed'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionSettings, SessionStart } from '@/session/session-types'
 import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
-import { sessionFigureLevels } from '@/session/session-intents'
+import { sessionFigureLevels } from '@/session/session-figure-levels'
 import { BASE_CONTROLS, generateSuccess } from '../domain/generation/carry-in/carry-in-fixture'
 import { recordRunnerSession } from './history-recording'
 

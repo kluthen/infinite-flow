@@ -63,7 +63,7 @@ import {
 } from '@/session/settings-mutation'
 import { presetLabel } from '@/domain/controls/preset-label'
 import { FIGURE_IDS, levelsForProfile, NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
-import { sessionFigureLevels } from '@/session/session-intents'
+import { sessionFigureLevels } from '@/session/session-figure-levels'
 
 interface SettingMeasurement {
   readonly noteDensity: string

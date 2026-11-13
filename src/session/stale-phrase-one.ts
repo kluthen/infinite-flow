@@ -11,8 +11,8 @@ import { CHORD_FAMILY_IDS, type ChordFamilyId } from '../domain/chords/chord-fam
 import type { GenerationControls } from '../domain/controls/generation-controls'
 import type { FigureId } from '../domain/figures/figure-levels'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
+import { figuresWithChangedLevels } from './session-figure-levels'
 import {
-  figuresWithChangedLevels,
   freezeSessionSettings,
   sessionInstrumentProfile,
   sessionSettingsAtStart,
