@@ -33,6 +33,19 @@ import {
 import type { BoundPitchPlannerInput } from '@/domain/pitch/pitch-types'
 import { validatePitchPhrase } from '@/domain/pitch/validation/pitch-phrase-validator'
 import type { PitchValidationFailure } from '@/domain/pitch/validation/pitch-validation-types'
+import { parseChordFamilies, type ChordFamilyLevel } from '@/domain/chords/chord-families'
+import type { GenerationIntent } from '@/domain/generation/generation-intent'
+import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
+import { makeHarmonyCollection } from '@/domain/harmony/collection'
+import { chordTones } from '@/domain/harmony/harmony-types'
+import { validateGenerationResult } from '@/domain/validation/generation-result-validator'
+import {
+  attackMidis,
+  buildIntent,
+  carryInAfter,
+  type SuccessOutcome,
+} from '../../generation/carry-in/carry-in-fixture'
+import { CONTROL_SETS } from '../../generation/carry-in/carry-in-matrix'
 
 /** Bounded slice of each iterable a case draws from, keeping the whole matrix fast and finite. */
 const CANDIDATE_SAMPLE_SIZE = 2
@@ -418,5 +431,167 @@ describe('property: every planned phrase passes independent validation', () => {
         !outcomes.some((outcome) => outcome.leapiness === leapiness && outcome.planned > 0),
     )
     expect(starved, summarizeStarvedLeapiness(outcomes)).toEqual([])
+  })
+})
+
+/** The levels above Off the search-and-validator property runs at. */
+const LEVELS_ABOVE_OFF: readonly ChordFamilyLevel[] = ['sometimes', 'favored', 'stronglyFavored']
+/** The session seeds of the property's chains, added to until a joined phrase ends on a seventh. */
+const CHAIN_SEEDS = [7, 13, 21] as const
+/** The phrases of one chain: phrase 1 without carry-in, then each with the one before's. */
+const CHAIN_LENGTH = 4
+
+/** What the property found over every chain; the counters grow as the chains run. */
+interface LevelPropertyOutcome {
+  phrases: number
+  joined: number
+  seventhTenseEndings: number
+  readonly failedGenerations: string[]
+  readonly invalid: string[]
+  readonly offTheChord: string[]
+}
+
+/** The phrase before in a chain, whose carry-in the next phrase receives. */
+interface ChainLink {
+  readonly intent: GenerationIntent
+  readonly outcome: SuccessOutcome
+  readonly number: number
+}
+
+/** Intent: one phrase of a chain: a control set's controls in the Middle register, at a level. */
+function chainIntent(
+  set: (typeof CONTROL_SETS)[number],
+  level: ChordFamilyLevel,
+  seed: number,
+  previous: ChainLink | undefined,
+): GenerationIntent {
+  return buildIntent({
+    controls: { ...set.controls, register: 'Middle' },
+    musicalProfile: set.musicalProfile,
+    seed,
+    label: `level-property-${level}`,
+    chordFamilies: parseChordFamilies({ 'seventh-chords': level }),
+    ...(previous === undefined
+      ? {}
+      : { carryIn: carryInAfter(previous.intent, previous.outcome, previous.number) }),
+  })
+}
+
+/** Intent: true when the phrase's final attack is its final chord's seventh. */
+function endsOnSeventh(outcome: SuccessOutcome): boolean {
+  const final = outcome.provenance.harmony.events.at(-1)!
+  const lastAttack = attackMidis(outcome.result.timeline.measures).at(-1)!
+  return final.seventh !== undefined && lastAttack % 12 === final.seventh.pitchClass
+}
+
+/** Intent: the chords of a phrase that are neither the triad nor the seventh chord on their degree. */
+function chordsOffTheirDegree(
+  intent: GenerationIntent,
+  outcome: SuccessOutcome,
+): readonly string[] {
+  const collection = makeHarmonyCollection(intent.controls.tonalCenter, intent.controls.collection)
+  return outcome.provenance.harmony.events.flatMap((event, index) => {
+    const degree = event.triad.degree
+    const seventhChord = collection.seventhChords[degree - 1]!
+    const expected =
+      event.seventh === undefined
+        ? collection.triads[degree - 1]!.pitchClasses
+        : seventhChord.pitchClasses
+    const sameQuality =
+      event.seventh === undefined || event.seventh.quality === seventhChord.quality
+    return JSON.stringify(chordTones(event)) === JSON.stringify(expected) && sameQuality
+      ? []
+      : [`${intent.requestId} event ${index}`]
+  })
+}
+
+/** Intent: record one generated phrase of a chain, validated independently; false when it failed. */
+function recordPhrase(
+  found: LevelPropertyOutcome,
+  intent: GenerationIntent,
+  outcome: ReturnType<typeof generatePhrase>,
+  where: string,
+): outcome is SuccessOutcome {
+  if (outcome.kind !== 'generation_success') {
+    found.failedGenerations.push(`${where}: ${outcome.code}`)
+    return false
+  }
+  found.phrases += 1
+  const verdict = validateGenerationResult({
+    intent,
+    request: outcome.request,
+    result: outcome.result,
+    provenance: outcome.provenance,
+  })
+  if (verdict.kind === 'invalid_generation_result')
+    found.invalid.push(`${where}: ${verdict.failures.map((failure) => failure.code).join(',')}`)
+  found.offTheChord.push(...chordsOffTheirDegree(intent, outcome))
+  if (intent.carryIn !== undefined) {
+    found.joined += 1
+    if (endsOnSeventh(outcome)) found.seventhTenseEndings += 1
+  }
+  return true
+}
+
+/** Intent: run one session chain at one level, each phrase joined to the one before. */
+function runChain(
+  found: LevelPropertyOutcome,
+  set: (typeof CONTROL_SETS)[number],
+  level: ChordFamilyLevel,
+  seed: number,
+): void {
+  let previous: ChainLink | undefined
+  for (let number = 1; number <= CHAIN_LENGTH; number += 1) {
+    const intent = chainIntent(set, level, seed + 1000 * (number - 1), previous)
+    const outcome = generatePhrase(intent)
+    if (!recordPhrase(found, intent, outcome, `${level} ${set.name} seed ${seed} phrase ${number}`))
+      return
+    previous = { intent, outcome, number }
+  }
+}
+
+/** Intent: run every chain at every level above Off, validating each phrase independently. */
+function runLevelChains(): LevelPropertyOutcome {
+  const found: LevelPropertyOutcome = {
+    phrases: 0,
+    joined: 0,
+    seventhTenseEndings: 0,
+    failedGenerations: [],
+    invalid: [],
+    offTheChord: [],
+  }
+  for (const level of LEVELS_ABOVE_OFF)
+    for (const set of CONTROL_SETS)
+      for (const seed of CHAIN_SEEDS) runChain(found, set, level, seed)
+  return found
+}
+
+// @test-link [[service_generation_result_validation]]
+// @test-link [[rule_seventh_chords_diatonic_only]]
+describe('property: every phrase searched above Off passes the result validator, joins included', () => {
+  let outcome: LevelPropertyOutcome
+
+  beforeAll(() => {
+    outcome = runLevelChains()
+    console.log(
+      `LEVEL-PROPERTY phrases=${outcome.phrases} joined=${outcome.joined} ` +
+        `seventhTenseEndings=${outcome.seventhTenseEndings} failed=${outcome.failedGenerations.length}`,
+    )
+  }, 120_000)
+
+  it('validates every phrase generated at each level, with and without a carry-in', () => {
+    expect(outcome.invalid).toEqual([])
+    expect(
+      outcome.failedGenerations.filter((failure) => failure.endsWith('result_validation_failed')),
+    ).toEqual([])
+    expect(outcome.joined).toBeGreaterThan(0)
+  })
+
+  it('makes every chord a triad or the seventh chord on its degree', () => {
+    expect(outcome.offTheChord).toEqual([])
+  })
+
+  it("searches joined phrases that end on their final chord's seventh as a tense note", () => {
+    expect(outcome.seventhTenseEndings).toBeGreaterThan(0)
   })
 })

@@ -47,6 +47,7 @@ import {
   searchesVaryingWindows,
   selectVaryingRegister,
 } from './request-resolution'
+import { harmonyPlanVariants } from './harmony-variants'
 import { GENERATION_SEARCH_POLICY_CARRY_IN_V1, GENERATION_SEARCH_POLICY_V1 } from './search-ledger'
 import {
   DEFAULT_WINDOW_SEARCH_DEPS,
@@ -353,6 +354,27 @@ function harmonyCandidatesAfterCarryIn(
 }
 
 /**
+ * Intent: the harmony list every window searches, rebuilt from the intent's Seventh chords level
+ * and seed as the result validator rebuilds it: the plans the carry-in leaves open, ranked by the
+ * seeded tie key on their triad identity, then their plan variants. At Off that is the ranked
+ * list itself, object for object, and no draw is made; above Off each plan with a drawn seventh is
+ * its seventh variant then itself, side by side, so both walks try the two forms in turn.
+ */
+// @spec-link [[service_generation_orchestration]]
+// @spec-link [[rule_rhythm_lock_tries_both_forms]]
+export function searchedHarmonyOrder(
+  intent: GenerationIntent,
+  harmonyDomain: HarmonyCandidateDomain,
+): readonly HarmonyCandidate[] {
+  const ranked = rankHarmonyCandidates(
+    harmonyCandidatesAfterCarryIn(harmonyDomain, intent),
+    intent.seed,
+  )
+  const level = intent.chordFamilies['seventh-chords']
+  return harmonyPlanVariants(ranked, harmonyDomain.collection, level, intent.seed)
+}
+
+/**
  * Intent: the search policy every window of one generation searches under, picked from the intent
  * alone: the carry-in policy for an intent with a carry-in, and the first release's policy for every
  * intent without one, so that generation stays byte-identical to the first release. Replaying a
@@ -371,7 +393,8 @@ function searchPolicyFor(intent: GenerationIntent): GenerationSearchPolicy {
  * structural harmony and rhythm domains once, resolve the intent's one-or-three core requests,
  * search every window independently, and resolve the documented outcome precedence among them.
  * With a carry-in, the harmony starts from the carried chord (if one was carried) and the one
- * carried window is searched.
+ * carried window is searched. Above Off, the Seventh chords level adds each ranked plan's seventh
+ * variant before it (`searchedHarmonyOrder`); the search policy and its allowance stay the same.
  * `options.searchPolicy` defaults to the policy picked from the intent (with or without carry-in)
  * and is its only override; `options.deps` defaults to the production collaborators.
  * Without locked bars, a steering block orders the rhythms every window walks (built once here,
@@ -411,8 +434,7 @@ export function generatePhrase(
     return deepFreeze(outcome)
   }
 
-  const harmonyCandidates = harmonyCandidatesAfterCarryIn(harmonyDomain, intent)
-  const rankedHarmony = rankHarmonyCandidates(harmonyCandidates, intent.seed)
+  const rankedHarmony = searchedHarmonyOrder(intent, harmonyDomain)
   const rankedRhythm = rankMaterializedRhythmCandidates(
     rhythmDomain.grammarVersion,
     rhythmDomain.candidates,

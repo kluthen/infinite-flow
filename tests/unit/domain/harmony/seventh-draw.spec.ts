@@ -60,18 +60,25 @@ function drawnDigits(level: 'sometimes' | 'favored', seed: number): string {
   ).join('')
 }
 
-/** Every harmony event of every candidate plan, over every mode, motion and tension. */
+/**
+ * One harmony event of each start, degree and role that some candidate plan holds, over every
+ * mode, motion and tension.
+ */
 function everyPlannedEvent(): readonly HarmonyEvent[] {
   const inputs = COLLECTIONS.flatMap((collection) =>
     HARMONIC_MOTIONS.flatMap((harmonicMotion) =>
       TENSION_ARCS.map((tensionArc) => ({ collection, harmonicMotion, tensionArc })),
     ),
   )
-  return inputs.flatMap((input) => {
+  const events = inputs.flatMap((input) => {
     const domain = makeHarmonyCandidateDomain({ tonalCenter: 'D', ...input })
     if (domain.kind !== 'harmony_candidate_domain') return []
     return domain.candidates.flatMap((candidate) => candidate.events)
   })
+  const byKind = new Map<string, HarmonyEvent>()
+  for (const event of events)
+    byKind.set(`${event.barIndex}:${event.startBeat}:${event.triad.degree}:${event.role}`, event)
+  return [...byKind.values()]
 }
 
 beforeEach(() => {

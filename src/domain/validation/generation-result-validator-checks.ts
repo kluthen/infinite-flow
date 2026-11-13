@@ -17,6 +17,7 @@ import { WHOLE_NOTE, compareRational, sumRational, type Rational } from '../time
 import { NonIntegerTickError, sixteenthTicksOf } from '../time/ticks'
 import { makeHarmonyCandidateDomain } from '../harmony/harmony-planner'
 import { harmonyJoinFollows } from '../harmony/harmony-join'
+import { harmonyPlanVariants } from '../generation/orchestration/harmony-variants'
 import { validateRhythmCandidate } from '../rhythm/rhythm-validator'
 import type { RhythmBar, RhythmEvent } from '../rhythm/rhythm-types'
 import type { GenerationResultValidationFailure } from './generation-result-validator'
@@ -308,7 +309,12 @@ export function rhythmCorrespondenceFailures(
   return { failures, structurallyValid }
 }
 
-/** Re-derive the structural harmony domain and require an exact-identity, exact-content match. */
+/**
+ * Re-derive the harmony list generation searched, from the intent's controls, Seventh chords level
+ * and seed: the structural domain's plans and, above Off, their plan variants. The recorded plan
+ * must be one of them, identity and content alike, so a plan claiming seventh forms the level and
+ * seed do not give is refused.
+ */
 // @spec-link [[service_generation_result_validation]]
 export function harmonyProvenanceFailures(
   intent: GenerationIntent,
@@ -323,9 +329,13 @@ export function harmonyProvenanceFailures(
   if (domain.kind !== 'harmony_candidate_domain')
     return [{ code: 'harmony_provenance_mismatch', detail: 'no_legal_harmony_plan' }]
 
-  const match = domain.candidates.find(
-    (candidate) => candidate.identity === provenance.harmony.identity,
+  const searched = harmonyPlanVariants(
+    domain.candidates,
+    domain.collection,
+    intent.chordFamilies['seventh-chords'],
+    intent.seed,
   )
+  const match = searched.find((candidate) => candidate.identity === provenance.harmony.identity)
   if (!match)
     return [
       {
