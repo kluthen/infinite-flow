@@ -3,7 +3,7 @@
  * phrases, the carry-in each one hands forward, and the attack facts a join is judged on.
  */
 
-import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
+import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
 import {
   makeGenerationControls,
   type GenerationControls,
@@ -50,7 +50,8 @@ export const BASE_CONTROLS: GenerationControls = makeGenerationControls({
 
 /**
  * Intent: build one real intent for written controls, a seed and an optional carry-in, with the
- * given figure levels, or else the given profile's (Neutral's by default).
+ * given figure levels, or else the given profile's (Neutral's by default), and the given Seventh
+ * chords level, Off by default.
  */
 export function buildIntent(options: {
   readonly controls?: Partial<GenerationControls>
@@ -59,6 +60,7 @@ export function buildIntent(options: {
   readonly seed: number
   readonly carryIn?: CarryIn
   readonly label?: string
+  readonly chordFamilies?: ChordFamilies
 }): GenerationIntent {
   const controls = makeGenerationControls({ ...BASE_CONTROLS, ...options.controls })
   const label = options.label ?? 'carry-in'
@@ -67,7 +69,7 @@ export function buildIntent(options: {
     seed: makeSeed(options.seed),
     controls,
     figureLevels: options.figureLevels ?? levelsForProfile(options.musicalProfile ?? 'Neutral'),
-    chordFamilies: OFF_CHORD_FAMILIES,
+    chordFamilies: options.chordFamilies ?? OFF_CHORD_FAMILIES,
   }
   return options.carryIn === undefined
     ? createGenerationIntent(input)
