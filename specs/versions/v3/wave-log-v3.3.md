@@ -439,3 +439,13 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   exactly for `doc-get`, cut from this branch at 50b41aa5) merged into the wave first, as plan v15;
   `doc-get lint plan`: 0 unresolved references. Next: wave 3 (chunks 12, 15, 16) in a fresh
   session; its sync applies A3, A4 and A8's Idle-state sentences (CONTRACT 17.0.0).
+
+## Wave 3
+
+### Wave 3 start (2026-11-13)
+
+- Wave 2 merged into `main` b8e291e8 and pushed. Branch `v3.3-w3` cut from it, worktree
+  `/home/bastien/work/infinite_flow-v3.3-w3`. Chunks 12, 15, 16; κ = 1; order 12, 15, 16 (15 and
+  16 after 12, whose capture fixes the draw and the plan variants). Wordings wave 3's sync applies:
+  A3, A4 and A8's sentences on the Idle state, the request and the current settings (with chunk
+  16; D527), CONTRACT 17.0.0.
