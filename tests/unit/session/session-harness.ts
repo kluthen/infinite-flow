@@ -150,7 +150,8 @@ const phraseOneCache = new Map<string, SessionStart['phraseOne']>()
 
 /**
  * Intent: a real phrase 1 generated at Idle from the settings' controls (with optional overrides,
- * such as the density the Idle window gave it) and a seed; cached, since generation is pure.
+ * such as the density the Idle window gave it), their Seventh chords level and a seed; cached,
+ * since generation is pure.
  */
 export function phraseOneFor(
   settings: SessionSettings,
@@ -158,10 +159,11 @@ export function phraseOneFor(
 ): SessionStart['phraseOne'] {
   const controls = { ...settings.controls, ...options.controls }
   const seed = options.seed ?? 11
-  const key = JSON.stringify({ controls, seed })
+  const { chordFamilies } = settings
+  const key = JSON.stringify({ controls, chordFamilies, seed })
   const cached = phraseOneCache.get(key)
   if (cached !== undefined) return cached
-  const intent = buildIntent({ controls, seed, label: 'phrase-1' })
+  const intent = buildIntent({ controls, seed, label: 'phrase-1', chordFamilies })
   const phraseOne = { intent, outcome: generateSuccess(intent) }
   phraseOneCache.set(key, phraseOne)
   return phraseOne

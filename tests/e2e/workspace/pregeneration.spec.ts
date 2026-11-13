@@ -5,7 +5,8 @@
  * harness's call records and held at its background gate, so each case is deterministic: a
  * session spends the ready phrases instead of requesting them, a player request or Start cancels
  * a held attempt and never waits for it, a change of the queue's key discards the ready phrases
- * (a Reel choice, which moves the mode and puts its restriction in force, among them), a tempo
+ * (a Reel choice, which moves the mode and puts its restriction in force, and a Seventh chords
+ * level change, set through the harness until its control ships, among them), a tempo
  * change and a rename of the selected preset keep them, a window crossing that steps the density
  * down discards the phrases made at the wider density, nothing runs while a review shows, and no
  * record is stored.
@@ -228,6 +229,20 @@ const KEY_CHANGES: readonly KeyChange[] = [
       expect(request.figureLevels.chromaticApproach).toBe('asToday')
       expect(request.figureLevels.chromaticEnclosure).toBe('asToday')
     },
+    stale: true,
+  },
+  {
+    name: 'a Seventh chords level change',
+    sessionSeed: SESSION_SEED,
+    /** Intent: set the level to Often through the routing point, as its control will. */
+    apply: async (page) => {
+      expect(
+        await page.evaluate(() =>
+          window.__workspaceHarness.setChordFamilyLevel('seventh-chords', 'favored'),
+        ),
+      ).toBe(true)
+    },
+    expectCarried: (request) => expect(request.chordFamilies['seventh-chords']).toBe('favored'),
     stale: true,
   },
   {

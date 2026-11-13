@@ -7,6 +7,7 @@
  */
 
 import type { IdlePhraseSettings } from '../composables/workspace-session-result'
+import { CHORD_FAMILY_IDS, type ChordFamilyId } from '../domain/chords/chord-families'
 import type { GenerationControls } from '../domain/controls/generation-controls'
 import type { FigureId } from '../domain/figures/figure-levels'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
@@ -98,32 +99,46 @@ function instrumentDiffers(before: SessionSettings, after: SessionSettings): boo
   )
 }
 
+/** Intent: the chord families (the Seventh chords level) whose level differs, in their order. */
+function familiesWithChangedLevels(
+  before: SessionSettings,
+  after: SessionSettings,
+): ChordFamilyId[] {
+  return CHORD_FAMILY_IDS.filter(
+    (family) => before.chordFamilies[family] !== after.chordFamilies[family],
+  )
+}
+
 /**
  * Intent: whether phrase 1 is stale: a setting the generation reads has a different value now
  * than when phrase 1 was generated. Values are compared, not edits. Every generation control
- * counts but the tempo, each figure's level counts (a change of the selection alone changes
- * none), and the instrument counts as the generation reads it; the session options, the mix, the
- * theme and the window never reach either side.
+ * counts but the tempo, each figure's level and the Seventh chords level count (a change of the
+ * selection alone changes none), and the instrument counts as the generation reads it; the
+ * session options, the mix, the theme and the window never reach either side.
  */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
 export function isPhraseOneStale(phraseOne: SessionSettings, current: SessionSettings): boolean {
   return (
     controlsDiffer(phraseOne.controls, current.controls) ||
     figuresWithChangedLevels(phraseOne, current).length > 0 ||
+    familiesWithChangedLevels(phraseOne, current).length > 0 ||
     instrumentDiffers(phraseOne, current)
   )
 }
 
-/** A setting that can make phrase 1 stale: a generation control but the tempo, or a figure. */
+/**
+ * A setting that can make phrase 1 stale: a generation control but the tempo, a figure, or a
+ * chord family (the Seventh chords level).
+ */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
-export type StaleSetting = Exclude<keyof GenerationControls, 'tempo'> | FigureId
+export type StaleSetting = Exclude<keyof GenerationControls, 'tempo'> | FigureId | ChordFamilyId
 
 /**
  * Intent: every setting whose value differs from phrase 1's, over what the generation reads, as
  * `isPhraseOneStale` compares them, for the prompt to name: each generation control but the
  * tempo, the instrument's control also when my instrument's range or transposition differs, then
- * each figure whose level differs, in FIGURE_IDS order, the selection never named. None when
- * phrase 1 is not stale.
+ * each figure whose level differs, in FIGURE_IDS order, then each chord family whose level
+ * differs, the selection never named. None when phrase 1 is not stale.
  */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
 export function staleSettingsOf(
@@ -137,5 +152,9 @@ export function staleSettingsOf(
   )
   if (!changed.includes('instrumentProfileId') && instrumentDiffers(phraseOne, current))
     changed.push('instrumentProfileId')
-  return [...changed, ...figuresWithChangedLevels(phraseOne, current)]
+  return [
+    ...changed,
+    ...figuresWithChangedLevels(phraseOne, current),
+    ...familiesWithChangedLevels(phraseOne, current),
+  ]
 }

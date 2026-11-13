@@ -16,7 +16,12 @@ import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import { makeSeed } from '@/domain/random/seed'
 import type { SessionSettings } from '@/session/session-types'
 import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
-import { phraseOneSettings, phraseOneSettingsAtStart } from '@/session/stale-phrase-one'
+import {
+  isPhraseOneStale,
+  phraseOneSettings,
+  phraseOneSettingsAtStart,
+  staleSettingsOf,
+} from '@/session/stale-phrase-one'
 
 const FAVORED: ChordFamilies = { 'seventh-chords': 'favored' }
 
@@ -66,5 +71,40 @@ describe("phrase 1's settings hold the level it was generated with", () => {
     const atStart = phraseOneSettingsAtStart(settingsAt(OFF_CHORD_FAMILIES), phraseOne)
     expect(atStart.chordFamilies).toEqual(FAVORED)
     expect(phraseOneSettingsAtStart(settingsAt(FAVORED), undefined).chordFamilies).toEqual(FAVORED)
+  })
+})
+
+// @test-link [[rule_stale_phrase_prompt_at_start]]
+describe('the level counts when phrase 1 is compared with the current settings', () => {
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it('makes phrase 1 out of date once the level differs, naming the Seventh chords level', () => {
+    const phraseOne = phraseOneAt(OFF_CHORD_FAMILIES)
+
+    expect(isPhraseOneStale(phraseOne, settingsAt(FAVORED))).toBe(true)
+    expect(staleSettingsOf(phraseOne, settingsAt(FAVORED))).toEqual(['seventh-chords'])
+    expect(isPhraseOneStale(phraseOneAt(FAVORED), settingsAt(OFF_CHORD_FAMILIES))).toBe(true)
+  })
+
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it('keeps phrase 1 current at its own level, a level changed and changed back included', () => {
+    const phraseOne = phraseOneAt(FAVORED)
+    const changedBack = { ...settingsAt(OFF_CHORD_FAMILIES), chordFamilies: FAVORED }
+
+    expect(isPhraseOneStale(phraseOne, settingsAt(FAVORED))).toBe(false)
+    expect(isPhraseOneStale(phraseOne, changedBack)).toBe(false)
+    expect(staleSettingsOf(phraseOne, changedBack)).toEqual([])
+  })
+
+  // @test-link [[rule_stale_phrase_prompt_at_start]]
+  it('names the level beside the other settings that changed', () => {
+    const current = {
+      ...settingsAt(FAVORED),
+      controls: { ...settingsAt(FAVORED).controls, tonalCenter: 'F#' as const },
+    }
+
+    expect(staleSettingsOf(phraseOneAt(OFF_CHORD_FAMILIES), current)).toEqual([
+      'tonalCenter',
+      'seventh-chords',
+    ])
   })
 })

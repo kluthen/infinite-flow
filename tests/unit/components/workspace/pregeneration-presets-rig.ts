@@ -103,6 +103,7 @@ export async function presetRig(start: PresetRigStart): Promise<PresetPregenerat
   })
   actions.replacePlayerPresets(start.playerPresets ?? [], settings.selection)
   rig.idle.figureLevels = settings.figureLevels
+  rig.idle.chordFamilies = settings.chordFamilies
   rig.idle.result = {
     ...idlePhraseFor(settings.controls, 11, PRESET_RIG_SESSION_SEED),
     settings,
