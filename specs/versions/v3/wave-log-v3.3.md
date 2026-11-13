@@ -738,3 +738,35 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   `rule_generated_notes_musicxml_export`; drift check `module_review_export_pipeline` found none.
 - Figures: 2 agents, 94 tool calls, 7.1M tokens in / 57k out, max context 115k, $4.09 at API
   prices.
+
+### Chunk 14 merged (2026-11-13)
+
+- f4035686 (defc8906). The first owner stopped on a WIP commit (aecbe99e): the existing overlay
+  baselines `band-and-system-break-tie-phone` (light, dark) moved about 12 %, because the harness
+  fixture `denseTie` carries a G7, written before seventh chords existed and now fitted as a seventh
+  symbol. Not the triad guard (no triad moves, nothing at Off). Driver's ruling, a minor issue
+  under the owner's standing delegation: option (a), re-record those two baselines only, fixture
+  unchanged; a `coding-executor` amended and merged. To `spec-writer` at the gate.
+- Done when met: calibration case at every named breakpoint and both layouts (unit and e2e
+  `notation-seventh-symbols.spec.ts`; smallest gap 1.59 sp, `seventhsQuarter` at 1024 px); the
+  too-many-notes path below `bp-tablet-landscape` (280 px gives `notation_notes_too_wide`); the
+  triad layout corpus (`notation-triad-layout-corpus.spec.ts`, 297 of 297, exact against
+  `tests/fixtures/notation/triad-layout-corpus-v3.2.json`); four new snapshots (idle staff, split
+  systems, session positions, review); H6 written. `test:notation` 121 passed, 4 skipped; corpus
+  guard 17 files, 488 tests.
+- Built: seventh symbols stop reporting their width to VexFlow and count their full width toward
+  the notes up to the next symbol or the barline, one staff space apart; triad-only measures keep
+  v3.2's measuring, so they can sit closer than a staff space at the minimum width (as v3.2 did,
+  e.g. `my-horn-levels2-Lydian-s19` bar 3).
+- For the gate and the report: playing a session at a seventh level with saving on raises "kept
+  session record: … above Off, which data version 4 cannot store" (chunk 17's data version 5 clears
+  it; the review snapshot spec works around it with `?storageRead=fail`, passed to chunk 17's
+  brief); VexFlow draws a space between root and suffix ("C maj7", "A m" in v3.2 already), a note
+  for `ux-writer`; the bundle: `vexflow-mapping.ts` imports `CHORD_SUFFIX_BY_SEVENTH_QUALITY` into
+  the lazy engraver chunk.
+- For the sync: `@spec-link`/`@test-link` `rule_seventh_chord_symbols` on the mapping, policy and
+  engraver functions and the new tests; `module_notation_layout_preflight` revision (a measure with
+  a seventh symbol is widened by the span rule); the four extra atoms and the two drift checks:
+  none made untrue.
+- Figures: 6 agents, 377 tool calls, 43.3M tokens in / 268k out, max context 266k, $21.48 at API
+  prices.

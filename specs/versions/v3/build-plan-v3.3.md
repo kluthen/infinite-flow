@@ -1314,7 +1314,7 @@ doesn't name. H4 is open for the owner in `HARDWARE-CHECKLIST.md`.
 
 ### Chunk 14 — Seventh chord symbols on the staff
 
-Status: planned
+Status: merged (w4, f4035686)
 Wave: 4
 Depends on: 10, D0
 Architecture capture: none
@@ -1371,6 +1371,16 @@ Architecture capture: none
     once the level can be raised in the app.
 - **Verification:** chunk checks; `npm run test:notation` (this chunk's area); H6 after chunk 19.
 - **Split rule:** none needed (three source files).
+
+Record: f4035686 (defc8906). One deviation from the Done when, on the driver's ruling: the existing
+overlay baselines `band-and-system-break-tie-phone` (light, dark) were re-recorded, because the old
+harness fixture `denseTie` carries a G7, now a seventh symbol fitted by the span rule; every other
+existing snapshot is unchanged; for `spec-writer` at the gate. How the Fit rule is built: a seventh
+symbol no longer reports its width to VexFlow (which already widened the note under it, failing the
+calibration case at 1024 px) and its full width counts against the notes up to the next symbol or
+the barline (`planChordSymbolShortfall`, `planMeasureMinWidth`); measures of triad symbols only
+keep v3.2's measuring, so the 297-phrase triad corpus is exact (`docs/notation-engraving.md`,
+"Chord symbols in the width"). H6 written, open until chunk 19.
 
 ### Chunk 15 — Replay key `ifk5.`
 
