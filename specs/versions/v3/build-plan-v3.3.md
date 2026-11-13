@@ -1400,7 +1400,7 @@ Architecture capture: none
 
 ### Chunk 15 — Replay key `ifk5.`
 
-Status: planned
+Status: merged (w3, e0d5b7c2)
 Wave: 3
 Depends on: 3, 8, 10 (the quality names the replay tool prints), 12 (and v3.2 chunk 12, `ifk4.`);
 C1, done (`module_phrase_replay_key`, A3, applied at wave 3's sync)
@@ -1481,6 +1481,8 @@ is STABLE and on the contract, so it changes only at the 17.0.0 sync.
   (`phrase-replay-key.ts`, `phrase-replay-key-decode.ts`, `phrase-replay.ts`), 15b the report and
   the tool (`phrase-replay-bars.ts`, `phrase-replay-report.ts`, `phrase-replay-names.ts`,
   `scripts/replay-phrase.mjs`).
+
+Record: e0d5b7c2 (3b6522cf 15a the key, ed656b70 15b the report and the tool). Two points reported to the driver, sent to `spec-writer` at the wave gate: the in-browser test's "triads fallback" phrase is a Sometimes phrase whose plan stays triads (seed 4246), since no request above Off falls back to triads through a key and the worker (only with injected deps, chunk 12's test); H3's Edge half and "Chrome and Edge" disagree with item 18 (Chrome only; Edge waived by D399). H3 left for the owner in `HARDWARE-CHECKLIST.md` (no `msedge` here).
 
 ### Chunk 16 — The level in a session and in pre-generation
 

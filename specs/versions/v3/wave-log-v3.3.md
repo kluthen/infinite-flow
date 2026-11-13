@@ -504,3 +504,27 @@ Reference machine (AMD Ryzen 5 PRO 8640HS), Node 22.23.4; no `atd audit`.
   five captures; `buildIntent` in the carry-in fixture takes an optional `chordFamilies`.
 - Figures: 1 agents, 105 tool calls, 18.9M tokens in / 104k out, max context 286k, $7.15 at API
   prices.
+
+### Chunk 15 merged (2026-11-13)
+
+- e0d5b7c2 (3b6522cf 15a the key; ed656b70 15b the report and the tool). Every key is `ifk5.`
+  (`ifk4.`'s tuple plus the level at slot 9; a carried seventh); `ifk1.`–`ifk4.` decode at Off,
+  triad-only; `ifk6.` unsupported; the `ifk4.` writer is test-only (`ifk4-key-writer.ts`). Replay
+  tool by hand on each version: seventh qualities and four notes printed (Cmaj7, Em7, Dm7, G7,
+  Bm7♭5). Corpus guard 16 files / 465 tests green; related 41 files / 414 tests; e2e replay specs
+  green in Chromium. `reviewer` OKAY (the key is on the contract).
+- H3 left for the owner: no `msedge` on this machine; written into `HARDWARE-CHECKLIST.md`'s new
+  v3.3 part with a ready Mostly key (built from the format, since the app sends Off until 19).
+- For `spec-writer` at the gate: (1) no request above Off falls back to triads through a key and
+  the worker (about 2,700 Mostly phrases; only with injected deps), so the in-browser test's
+  "triads fallback" phrase is a Sometimes phrase whose plan stays triads (seed 4246); (2) H3's Edge
+  half and the plan's "Chrome and Edge" for item 18 disagree with the spec (item 18 says Chrome;
+  Edge waived by D399).
+- For the sync: stale key-version wording in the contract atom (line 56, "`ifk4.`"),
+  `entity_phrase_carry_in`, `module_generation_worker_protocol`, `service_headless_phrase_replay`
+  (report holds `chordFamilies` and the seventh); `rule_jam_and_lock_off_reproduce_earlier_phrases`
+  unchecked; drift checks `entity_request_rhythm_lock`, `entity_steering_block`: none.
+- Gate notes: the sweep's lock census now replays `ifk5.` keys; `lint:health` warning
+  (`deterministic-replay.spec.ts` 409 lines); `phrase-replay-key-decode.ts` at the 10-atom limit.
+- Figures: 3 agents, 177 tool calls, 27.6M tokens in / 125k out, max context 287k, $10.32 at API
+  prices.
