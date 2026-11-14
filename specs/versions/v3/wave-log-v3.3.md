@@ -1023,3 +1023,30 @@ them under it.
   applies: A9's settings half and A11 (`module_saved_data_loader`, only if the level sits outside
   the controls), CONTRACT 19.0.0. Chunk 19 renames "Mostly" to "Always" in code comments and test
   titles (ux D485).
+
+### Wave 5 preflight (2026-11-14)
+
+- The owner, at the wave's start: `main` pushed (37d7fcd3); the six promotions approved
+  (`rule_no_export_carries_seventh_chords_level`, `rule_seventh_chord_symbols`,
+  `rule_earlier_kept_sessions_read_at_off`, `module_presets_and_kept_sessions_upgrade_step`,
+  `rule_seventh_chords_level_steps`, `rule_seventh_chord_draws_reproducible`); both optional
+  wordings approved ("short of the final note" in `rule_figures_resolve_onto_chord_tones`,
+  `rule_embellishment_figures_defined`, `rule_levels_govern_free_figures_only`; "by" for "before"
+  in `rule_open_phrase_ending`, STABLE). Driver: all applied at wave 5's sync, the STABLE wording
+  under its 19.0.0 bump. L1 not listened yet: chunk 21 stays blocked.
+- `documentalist`'s wave preflight (e26903e3): 19 PROCEED with sign-off pending (A11, confirmed at
+  C1; `module_profile_control_customization`'s "no control calls setChordFamilyLevel yet" clause);
+  23 PROCEED; 21 PROCEED with sign-off pending (C2), still blocked on L1, and O310 open. Captures:
+  `module_jam_settings` 0.4 (chunk 23: the level as one more `jam.*` setting; every Jam request
+  carries it); new `module_seventh_chords_level_options` 0.1 DRAFT (the shared
+  `seventhChordsOptions`, ids `off`, `sometimes`, `favored`, `stronglyFavored`, labels Off,
+  Sometimes, Often, Always; chunk 19's, reused by 23). Wordings the sync applies: A9's settings
+  half (`rule_settings_saved_on_change` 0.6, `rule_saved_settings_load_tolerantly` 0.5), A11
+  (`module_saved_data_loader` 0.10; the level sits outside the controls, so A11 applies);
+  CONTRACT 19.0.0. No atom names "Mostly" as a label.
+- Requests that hard-code Off today (for chunk 23): `src/jam/fresh-jam-settings.ts:44`
+  (`OFF_CHORD_FAMILIES`, used by fresh Jam, Jam again and the kept doodle) and
+  `src/jam/jam-phrase-one-attempts.ts:190`; `generation-session-prewarm.ts:128` posts Off on
+  purpose (warm-up only, no phrase).
+- Plan corrections 1–6 sent to `spec-writer`. Driver: correction 3's STABLE clause is an interface
+  sentence made false by the chunk, no bump, as plan v18 did for chunk 17; the owner is told.
