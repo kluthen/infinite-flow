@@ -1,8 +1,9 @@
 /**
  * Jam's own settings (master spec C5.16, C10.2): the small set a Jam is shaped with, apart from
  * session mode's. Its written key and collection, its tempo (60 to 180 BPM in steps of 10),
- * harmonic motion, tension, one Embellishments level for all seven figures, its drift, its rhythm
- * lock and the lock's allowed rhythm changes. The instrument is shared and stays session mode's;
+ * harmonic motion, tension, one Embellishments level for all seven figures, its own Seventh chords
+ * level (never session mode's), its drift, its rhythm lock and the lock's allowed rhythm changes.
+ * The instrument is shared and stays session mode's;
  * arpeggio chaos is held at Varied and the rhythm and shape controls come from the doodle, so none
  * of them is a Jam setting.
  *
@@ -19,6 +20,7 @@
  */
 import { shallowRef, type ShallowRef } from 'vue'
 
+import { CHORD_FAMILY_LEVEL_IDS, type ChordFamilyLevel } from '@/domain/chords/chord-families'
 import {
   COLLECTIONS,
   HARMONIC_MOTIONS,
@@ -77,6 +79,11 @@ export interface JamSettings {
   readonly rhythmLockOn: boolean
   /** The rhythm changes the lock allows, in RHYTHM_CHANGE_KINDS order; kept while it is off. */
   readonly allowedRhythmChanges: readonly RhythmChangeKind[]
+  /**
+   * Jam's own Seventh chords level, held by its chord family's capability name; Jam's alone,
+   * never session mode's level.
+   */
+  readonly 'seventh-chords': ChordFamilyLevel
 }
 
 /** Session mode's current values Jam's key, mode and tempo start from. */
@@ -99,7 +106,8 @@ function keptInJamRange(tempo: number): number {
 /**
  * Intent: Jam's first values: the key, the mode and the tempo from session mode's current values,
  * the tempo kept inside 60 to 180 BPM; Gentle diatonic, Lift, Embellishments Rarely (the level
- * `asToday`), drift Near, the lock off and every allowed rhythm change off.
+ * `asToday`), the Seventh chords level Off, drift Near, the lock off and every allowed rhythm
+ * change off.
  */
 // @spec-link [[rule_jam_settings_first_values]]
 export function jamFirstValues(session: SessionModeStart): JamSettings {
@@ -113,6 +121,7 @@ export function jamFirstValues(session: SessionModeStart): JamSettings {
     drift: 'Near',
     rhythmLockOn: false,
     allowedRhythmChanges: [],
+    'seventh-chords': 'off',
   })
 }
 
@@ -157,6 +166,7 @@ const READERS: { readonly [F in JamSettingField]: (value: unknown) => JamSetting
     drift: oneOf(JAM_DRIFTS),
     rhythmLockOn: (value) => (typeof value === 'boolean' ? value : undefined),
     allowedRhythmChanges: readAllowedRhythmChanges,
+    'seventh-chords': oneOf(CHORD_FAMILY_LEVEL_IDS),
   }
 
 const RECORD_FIELDS = ['key', 'dataVersion', 'appVersion', 'value'] as const
