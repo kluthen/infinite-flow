@@ -113,7 +113,7 @@ function holdsSeventh(records: readonly ReviewedPhrase[]): boolean {
 const SEVENTH_KIND = /<kind text="(maj7|m7|7|m7♭5)">/u
 
 /**
- * The level ids and the control's labels in the spec (Seventh chords; Sometimes, Often, Mostly),
+ * The level ids and the control's labels in the spec (Seventh chords; Sometimes, Often, Always),
  * lower-cased for a case-insensitive scan. Off is left out: those three letters can occur in any
  * binary MIDI data.
  */
@@ -124,7 +124,7 @@ const LEVEL_NEEDLES: readonly string[] = [
   'seventh-chords',
   'seventh chords',
   'often',
-  'mostly',
+  'always',
 ]
 
 /** Intent: the file's bytes read one byte per character, lower-cased, for a byte scan. */

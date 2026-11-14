@@ -63,7 +63,7 @@ describe('composeWorkspaceSession: the Seventh chords level', () => {
 
   // @test-link [[req_seventh_chords_level]]
   // @test-link [[rule_preset_load_values_win]]
-  it('starts with a player preset holding Mostly selected at Mostly, the selection kept', () => {
+  it('starts with a player preset holding Always selected at Always, the selection kept', () => {
     const mostly = makePreset({
       ...builtInPreset('neutral'),
       id: 'player-1',

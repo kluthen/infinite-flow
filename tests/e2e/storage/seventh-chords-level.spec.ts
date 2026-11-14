@@ -1,17 +1,16 @@
 /**
  * v3.3 chunk 17, session mode's Seventh chords level on the device, on the workspace harness (port
  * 4175: fake audio clock, real generations) over the browser's real IndexedDB; each test starts
- * from an empty browser context. The level has no control on screen yet (chunk 19): a spec sets
- * it through the harness's routing-point seam (`setChordFamilyLevel`, the action its control will
- * call) or by choosing a preset, and reads it back from the request the next phrase is generated
- * from (`generationRequests`), the stored `chordFamilies.seventh-chords` record and the preset
- * box:
+ * from an empty browser context. A spec sets the level through the harness's routing-point seam
+ * (`setChordFamilyLevel`, the action its control calls) or by choosing a preset, and reads it back
+ * from the request the next phrase is generated from (`generationRequests`), the stored
+ * `chordFamilies.seventh-chords` record and the preset box:
  *
  * - the level comes back after a reload at each of its four values;
- * - a player preset holding Mostly loads selected with it; a saved level differing from the
+ * - a player preset holding Always loads selected with it; a saved level differing from the
  *   selected built-in's loads as "Custom, based on {name}";
  * - choosing a preset that differs from the current settings only in its level saves the level
- *   with the selection, both to a player preset at Mostly and back to a built-in at Off;
+ *   with the selection, both to a player preset at Always and back to a built-in at Off;
  * - Delete everything leaves the level at Off; an outdated tab and a visit whose read failed
  *   write no level;
  * - a session played at a level above Off, saving on, is kept with no page error.
@@ -36,13 +35,13 @@ import { askConfirmation, confirmingAction, openYourData } from './your-data-hel
 /** The Seventh chords level's settings record key. */
 const LEVEL_KEY = 'chordFamilies.seventh-chords'
 
-/** The level's internal ids, Off first; the interface calls `stronglyFavored` Mostly. */
+/** The level's internal ids, Off first; the interface calls `stronglyFavored` Always. */
 const LEVELS = ['off', 'sometimes', 'favored', 'stronglyFavored'] as const
 
 /** How long a save takes at most to land on this harness. */
 const SETTLE_MS = 300
 
-/** A player preset holding Neutral's values with the Seventh chords level at Mostly, anywhere. */
+/** A player preset holding Neutral's values with the Seventh chords level at Always, anywhere. */
 const NEUTRAL_SEVENTHS: WorkspaceHarnessPresetInput = {
   id: 'player-1',
   name: 'Neutral sevenths',
@@ -136,7 +135,7 @@ test('the level comes back after a reload at each of its four values', async ({ 
 
 // @test-link [[req_seventh_chords_level]]
 // @test-link [[rule_preset_load_values_win]]
-test('a player preset holding Mostly loads selected with it', async ({ page }) => {
+test('a player preset holding Always loads selected with it', async ({ page }) => {
   await gotoStorageHarness(page)
   await seedNeutralSevenths(page)
   await seedSettings(page, {
@@ -249,7 +248,7 @@ test('a visit whose read failed starts at Off and writes no level', async ({ pag
 
 // @test-link [[req_seventh_chords_level]]
 // @test-link [[rule_no_save_during_session]]
-test('a session played at Mostly, saving on, is kept at Mostly with no page error', async ({
+test('a session played at Always, saving on, is kept at Always with no page error', async ({
   page,
 }) => {
   test.setTimeout(120_000)

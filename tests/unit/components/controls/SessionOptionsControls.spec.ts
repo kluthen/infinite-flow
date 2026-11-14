@@ -38,7 +38,7 @@ const FIRST_VISIT: GroupProps = {
 }
 
 const VARY_NOTE =
-  'Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument or the tempo. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.'
+  'Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument, the tempo or Seventh chords. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.'
 
 const UNAVAILABLE_NOTE =
   'Nothing is allowed to vary with these choices. Turn on another group below.'
@@ -159,7 +159,7 @@ describe('SessionOptionsControls: the four fields', () => {
   })
 
   // @test-link [[req_settings_mutation_flag]]
-  it("names Vary settings' v3.2 note", () => {
+  it("names Vary settings' v3.3 note", () => {
     const wrapper = mountGroup()
     const describedBy = radiogroup(wrapper, 'Vary settings').attributes('aria-describedby')
     expect(textOf(wrapper, describedBy)).toBe(VARY_NOTE)

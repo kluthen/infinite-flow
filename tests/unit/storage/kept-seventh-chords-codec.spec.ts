@@ -1,6 +1,6 @@
 /**
  * The kept-session codec over sessions played with the Seventh chords level, at data version 5: a
- * session generated at Mostly, each phrase joined from the one before (phrase 2 after a carried
+ * session generated at Always, each phrase joined from the one before (phrase 2 after a carried
  * seventh chord), encodes and decodes with each phrase's level and every seventh in its harmony,
  * its stored request and its carry-in, reviews and exports as the session in memory does, and
  * replays each phrase from its decoded inputs; a phrase at Off joined after a carried seventh
@@ -91,7 +91,7 @@ function phraseAt(
 }
 
 /**
- * Intent: a three-phrase session at Mostly: phrase 1 (seed 5) every event a seventh chord, ending
+ * Intent: a three-phrase session at Always: phrase 1 (seed 5) every event a seventh chord, ending
  * on G7, which phrase 2 carries, phrase 3 joined from phrase 2.
  */
 function mostlySession(): readonly SessionHistoryRecord[] {
@@ -100,7 +100,7 @@ function mostlySession(): readonly SessionHistoryRecord[] {
   return [first, second, phraseAt('stronglyFavored', 13, 3, second)]
 }
 
-/** Intent: phrase 1 at Mostly (seed 5), then phrase 2 at Off joined after its carried G7. */
+/** Intent: phrase 1 at Always (seed 5), then phrase 2 at Off joined after its carried G7. */
 function offAfterCarriedSeventh(): readonly SessionHistoryRecord[] {
   const first = phraseAt('stronglyFavored', 5, 1)
   return [first, phraseAt('off', 12, 2, first)]
@@ -167,7 +167,7 @@ function expectReplays(session: KeptSession): void {
 // @test-link [[module_kept_session_codec]]
 // @test-link [[entity_kept_session_record]]
 // @test-link [[rule_seventh_chord_draws_reproducible]]
-describe('a kept session played at Mostly', () => {
+describe('a kept session played at Always', () => {
   let records: readonly SessionHistoryRecord[]
   let stored: StoredKeptSession
 
@@ -177,7 +177,7 @@ describe('a kept session played at Mostly', () => {
   }, 120_000)
 
   // @test-link [[rule_kept_session_content]]
-  it('is built from real phrases at Mostly, with sevenths, phrase 2 joined after a carried seventh', () => {
+  it('is built from real phrases at Always, with sevenths, phrase 2 joined after a carried seventh', () => {
     for (const record of records)
       expect(record.intent.chordFamilies).toStrictEqual({ 'seventh-chords': 'stronglyFavored' })
     expect(

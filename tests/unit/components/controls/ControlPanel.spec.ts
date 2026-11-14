@@ -23,6 +23,7 @@ describe('ControlPanel', () => {
       'Collection',
       'Instrument profile',
       'Harmonic motion',
+      'Seventh chords',
       'Tension',
       'Note density',
       'Rhythmic variety',

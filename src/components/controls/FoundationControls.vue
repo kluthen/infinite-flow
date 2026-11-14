@@ -1,13 +1,13 @@
 <script setup lang="ts">
 /**
  * The "Foundation" control group: tempo, tonal center, collection, instrument profile (with its
- * range summary), harmonic motion, and tension; the preset is chosen in the preset bar above the
- * groups. Props-in/events-out only; every value shown is exactly the `controls` prop this
- * component receives, and every change is reported upward rather than applied locally. Under the
- * tempo stepper, after a session that ran rising tempo, a quiet note states the tempo that session
- * reached. While my instrument exists, the instrument control offers it as a fourth choice,
- * labelled with its name, and states its range and windows, from its profile given as data, as for
- * a built-in profile. `instrument-actions` under it reads `Create my instrument` or `Edit my
+ * range summary), harmonic motion, the Seventh chords level, and tension; the preset is chosen in
+ * the preset bar above the groups. Props-in/events-out only; every value shown is exactly the
+ * `controls` and `chordFamilies` props this component receives, and every change is reported
+ * upward rather than applied locally. Under the tempo stepper, after a session that ran rising
+ * tempo, a quiet note states the tempo that session reached. While my instrument exists, the
+ * instrument control offers it as a fourth choice, labelled with its name, and states its range
+ * and windows, from its profile given as data, as for a built-in profile. `instrument-actions` under it reads `Create my instrument` or `Edit my
  * instrument` and asks for the My instrument sheet. Written key and Collection carry the key and
  * mode marks, each with its note under the control: at Idle and in the review mode from the
  * restriction in force for the shown selection, key and mode; during a session from the session's
@@ -15,6 +15,7 @@
  */
 import { computed, useId } from 'vue'
 
+import type { ChordFamilies, ChordFamilyId, ChordFamilyLevel } from '@/domain/chords/chord-families'
 import {
   PITCH_CLASSES,
   TEMPO_VALUES,
@@ -45,6 +46,9 @@ import {
   instrumentChoiceOptions,
   keyAndModeMarks,
   profileRangeSummaryText,
+  SEVENTH_CHORDS_NOTE,
+  seventhChordsLevelOfSegment,
+  seventhChordsOptions,
   tensionOptions,
   tonalCenterOptions,
   withMarks,
@@ -52,6 +56,8 @@ import {
 
 const props = defineProps<{
   controls: GenerationControls
+  /** The chord families' levels: the Seventh chords control shows the seventh-chords family's. */
+  chordFamilies: ChordFamilies
   /** The preset selection: a preset, or Custom naming its base. */
   selection: PresetSelection
   /** The presets the session knows, which name the selection: the built-ins, then the player's. */
@@ -70,6 +76,10 @@ const props = defineProps<{
 const emit = defineEmits<{
   'set-control': [payload: SetControlPayload]
   'select-instrument-profile': [id: GenerationControls['instrumentProfileId']]
+  /** A Seventh chords segment was chosen: the level for the seventh-chords family. */
+  'set-chord-family-level': [
+    payload: { readonly family: ChordFamilyId; readonly level: ChordFamilyLevel },
+  ]
   /** `instrument-actions` was pressed: open the My instrument sheet. */
   'open-my-instrument': []
 }>()
@@ -130,6 +140,7 @@ const collectionChoiceOptions = computed(() =>
 
 const writtenKeyNoteId = useId()
 const collectionNoteId = useId()
+const seventhChordsNoteId = useId()
 
 /** Intent: report a tempo change, re-validating against the tempo catalog before it leaves. */
 function handleTempo(value: number): void {
@@ -157,6 +168,20 @@ function handleHarmonicMotion(value: string): void {
   emit('set-control', {
     key: 'harmonicMotion',
     value: validateControlValue(HARMONIC_MOTIONS, value, 'Harmonic motion'),
+  })
+}
+
+/**
+ * Intent: report a Seventh chords level change for the seventh-chords family, re-validating the
+ * segment against the level ids; the level action makes Custom, saves it and discards the
+ * prepared phrases, and the phrase on screen stays.
+ */
+// @spec-link [[module_seventh_chords_level_options]]
+// @spec-link [[req_seventh_chords_level]]
+function handleSeventhChords(value: string): void {
+  emit('set-chord-family-level', {
+    family: 'seventh-chords',
+    level: seventhChordsLevelOfSegment(value),
   })
 }
 
@@ -268,6 +293,19 @@ const profileRangeSummary = computed(() => profileRangeSummaryText(activeInstrum
         :readonly="readonly"
         @update:model-value="handleHarmonicMotion"
       />
+    </div>
+    <!-- @spec-link [[module_seventh_chords_level_options]] -->
+    <div class="field-group" :class="{ 'is-readonly': readonly }">
+      <span class="field-label">Seventh chords</span>
+      <SegmentedControl
+        label="Seventh chords"
+        :options="seventhChordsOptions"
+        :model-value="chordFamilies['seventh-chords']"
+        :readonly="readonly"
+        :described-by="seventhChordsNoteId"
+        @update:model-value="handleSeventhChords"
+      />
+      <p :id="seventhChordsNoteId" class="field-note">{{ SEVENTH_CHORDS_NOTE }}</p>
     </div>
     <div class="field-group" :class="{ 'is-readonly': readonly }">
       <span class="field-label">Tension</span>

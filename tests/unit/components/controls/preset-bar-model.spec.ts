@@ -156,10 +156,13 @@ describe('presetDescription', () => {
       'speed-drill',
       'Dense, changing rhythms with most embellishments favored, to read fast in any key.',
     ],
-    ['jazz', 'Eighth notes and offbeats, now and then with a short note from outside the key.'],
+    [
+      'jazz',
+      'Eighth notes and offbeats, now and then with a short note from outside the key. Also try raising Seventh chords, the usual chords of jazz.',
+    ],
     [
       'bebop',
-      'Fast jazz lines that circle chord notes from outside the key. It uses Major rather than Ionian: the same notes, with chords that lead home through the chord on the 5th note.',
+      'Fast jazz lines that circle chord notes from outside the key. It uses Major rather than Ionian: the same notes, with chords that lead home through the chord on the 5th note. Also try raising Seventh chords, the usual chords of jazz.',
     ],
     [
       'pop-song',
@@ -169,7 +172,10 @@ describe('presetDescription', () => {
       'reel',
       'A fast folk dance in steady eighth notes, in Mixolydian or Dorian. Also try it in Ionian (a major key).',
     ],
-    ['modal-dorian', 'A steady two-chord bed in Dorian, so its color note is heard in the melody.'],
+    [
+      'modal-dorian',
+      'A steady two-chord bed in Dorian, so its color note is heard in the melody. Also try raising Seventh chords, for a richer, jazzier bed.',
+    ],
   ])('gives the built-in %s its own sentence', (id, sentence) => {
     expect(presetDescription(preset(id), BUILT_IN_PRESETS)).toBe(sentence)
   })

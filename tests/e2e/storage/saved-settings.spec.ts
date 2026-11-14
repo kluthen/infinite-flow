@@ -98,7 +98,7 @@ test('the controls and the preset selection the player changed come back after a
   await reloadHarness(page)
   await expectPresetShown(page, 'Jazz')
   await expect(presetDescription(page)).toHaveText(
-    'Eighth notes and offbeats, now and then with a short note from outside the key.',
+    'Eighth notes and offbeats, now and then with a short note from outside the key. Also try raising Seventh chords, the usual chords of jazz.',
   )
   await expect(page.locator('.control-summary')).toHaveText('D Dorian · Jazz · Lift · Shaped')
   await expectChecked(page, 'Register', 'Varying')
