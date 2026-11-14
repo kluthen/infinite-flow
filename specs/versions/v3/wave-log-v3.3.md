@@ -1050,3 +1050,11 @@ them under it.
   purpose (warm-up only, no phrase).
 - Plan corrections 1–6 sent to `spec-writer`. Driver: correction 3's STABLE clause is an interface
   sentence made false by the chunk, no bump, as plan v18 did for chunk 17; the owner is told.
+- `spec-writer`'s plan v21 (627e2d49), no ruling: corrections 1–6 applied. Chunk 19 names the
+  options capture, A11 unconditional, the catalog revision dropped, Revisions gain
+  `entity_phrase_carry_in` and `module_profile_control_customization` (interface clause, no bump);
+  chunk 23's Files gain `fresh-jam-settings.ts` and `jam-phrase-one-attempts.ts`, its halves
+  rebalanced (23a state and saving, 23b generation and the control); chunk 21 gains two
+  Revisions, two drift checks and "O310 open, needed before it starts"; a C2 row; the stale DP row
+  gone. Driver: no gate row for O310 (chunk 21's Depends on tracks it beside L1).
+- Chunk 19 dispatched to a `coding-leader` (worktree `../infinite_flow-v3.3-c19`).

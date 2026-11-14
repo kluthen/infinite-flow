@@ -1894,7 +1894,7 @@ H1 written with L1's ten examples, open for the owner.
 
 ### Chunk 19 — The Seventh chords control
 
-Status: planned
+Status: in progress
 Wave: 5
 Depends on: 11, 16, 17, D0, U1a (for the labels); and every chunk a seventh passes through once
 the app can make one: 9 (the backing), 10 (the symbols), 13 (MusicXML), 14 (the staff), 15
