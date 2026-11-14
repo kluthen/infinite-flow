@@ -1,6 +1,6 @@
 # Issues
 
-Tracked issues for Infinite Flow. See `.claude/skills/issue_management/SKILL.md` for the workflow.
+Tracked issues for Infinite Flow. Filed and kept with the global `issue_management` skill (`~/.claude/skills/issue_management/SKILL.md`).
 
 ## Index
 
