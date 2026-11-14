@@ -3,7 +3,7 @@ id: rule_embellishment_figures_defined
 status: REVIEW
 tags: [v3, release-v3.1, generation, figures, changes-in-v3.3]
 layer: BUSINESS
-version: 0.2
+version: 0.3
 priority: 1
 parents:
   - [[req_embellishment_figure_levels]]
@@ -36,5 +36,5 @@ Each figure-level control governs exactly one of these seven figures.
 
 ## EXPECTATION
 - Every free figure the generator writes is one of the seven figures as defined here.
-- Under a chord played as a seventh chord, a figure may decorate and land on its seventh.
+- Under a chord played as a seventh chord, a figure may decorate and land on its seventh short of the final note.
 - A level never adds a note: an enclosure appears only where three back-to-back notes sit under one chord.

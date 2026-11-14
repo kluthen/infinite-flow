@@ -10,6 +10,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { readAudioMixDesign, type AudioMixDesign } from '@/audio/audio-mix'
+import { CHORD_FAMILY_LEVEL_IDS, type ChordFamilyLevel } from '@/domain/chords/chord-families'
 import { FIGURE_IDS, FIGURE_LEVEL_IDS } from '@/domain/figures/figure-levels'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
@@ -68,6 +69,7 @@ const FIRST: JamSettings = {
   drift: 'Near',
   rhythmLockOn: false,
   allowedRhythmChanges: [],
+  'seventh-chords': 'off',
 }
 
 /** A value other than its first value for every Jam setting. */
@@ -81,6 +83,7 @@ const CHANGED: JamSettings = {
   drift: 'Free',
   rhythmLockOn: true,
   allowedRhythmChanges: ['move_rest', 'merge_notes'],
+  'seventh-chords': 'favored',
 }
 
 /** Intent: one well-formed stored record of a Jam setting. */
@@ -303,7 +306,7 @@ describe("Jam's settings: saved when changed", () => {
     })
 
     for (const [field, value] of Object.entries(CHANGED)) store.change({ [field]: value })
-    await vi.waitFor(async () => expect((await storedSettings(port)).size).toBe(1 + 9))
+    await vi.waitFor(async () => expect((await storedSettings(port)).size).toBe(1 + 10))
 
     const after = await storedSettings(port)
     const sessionKeys = [...after.keys()].filter((key) => !key.startsWith('jam.'))
@@ -394,6 +397,167 @@ describe("Jam's settings: the load hands them on undecoded", () => {
 })
 
 // @test-link [[module_jam_settings]]
+// @test-link [[rule_jam_has_own_seventh_chords_level]]
+describe("Jam's settings: Jam's own Seventh chords level", () => {
+  /** Its record key, named by its chord family's capability name. */
+  const LEVEL_KEY = 'jam.seventh-chords'
+  /** Session mode's own level's record key. */
+  const SESSION_LEVEL_KEY = 'chordFamilies.seventh-chords'
+
+  /** Intent: a port over a fresh store, the visit's saver over it, and the factory to reload. */
+  async function savingVisit() {
+    const factory = freshFactory()
+    const port = await readyPort(factory)
+    const saves = createVisitSaves(Promise.resolve(createSavePolicy(port)), TEST_APP_VERSION)
+    return { factory, port, saveSettings: saves.saveSettings }
+  }
+
+  /** Intent: the value of the stored record under `key`, or undefined when there is none. */
+  async function storedValue(port: StoragePort, key: string): Promise<unknown> {
+    return ((await storedSettings(port)).get(key) as { value: unknown } | undefined)?.value
+  }
+
+  // @test-link [[rule_jam_settings_first_values]]
+  it('is Off on a first visit, and its first value is not saved', () => {
+    const saver = recordingSaver()
+
+    const store = createJamSettings({ records: [], session: SESSION, saveSettings: saver.save })
+
+    expect(store.settings.value['seventh-chords']).toBe('off')
+    expect(saver.batches.flatMap((batch) => Object.keys(batch))).not.toContain(LEVEL_KEY)
+  })
+
+  // @test-link [[rule_jam_settings_saved_on_change]]
+  // @test-link [[rule_jam_settings_load_tolerantly]]
+  it.each(CHORD_FAMILY_LEVEL_IDS)(
+    "survives a reload at %s, through the saver, the settings store and the load's hand-off",
+    async (level) => {
+      const { factory, port, saveSettings } = await savingVisit()
+      const store = createJamSettings({ records: [], session: SESSION, saveSettings })
+
+      store.change({ 'seventh-chords': level === 'favored' ? 'sometimes' : 'favored' })
+      store.change({ 'seventh-chords': level })
+      await vi.waitFor(async () => expect(await storedValue(port, LEVEL_KEY)).toBe(level))
+
+      const load = await loadSavedData(dependencies(() => readyPort(factory)))
+      const reloaded = createJamSettings({
+        records: load.jamSettingsRecords,
+        session: { tempo: 90, tonalCenter: 'C', collection: 'Ionian' },
+        saveSettings: () => {},
+      })
+
+      expect(reloaded.settings.value).toEqual({ ...FIRST, 'seventh-chords': level })
+    },
+  )
+
+  // @test-link [[rule_jam_settings_load_tolerantly]]
+  it.each([
+    ['always'],
+    ['Always'],
+    ['Off'],
+    ['favored '],
+    [42],
+    [null],
+    [true],
+    [['favored']],
+    [{}],
+  ])('loads a stored level of %j as Off, every other Jam setting as saved', (value) => {
+    const records = Object.entries(CHANGED).map(([field, saved]) =>
+      jamRecord(field as keyof JamSettings, field === 'seventh-chords' ? value : saved),
+    )
+
+    const decoded = decodeJamSettings(records, SESSION)
+
+    expect(decoded.settings).toEqual({ ...CHANGED, 'seventh-chords': 'off' })
+    expect(decoded.startedFromSessionMode).toEqual({})
+  })
+
+  // @test-link [[rule_jam_settings_load_tolerantly]]
+  it('loads Off when no record holds it, as in every store written before it, every other setting as saved', () => {
+    const records = Object.entries(CHANGED)
+      .filter(([field]) => field !== 'seventh-chords')
+      .map(([field, value]) => jamRecord(field as keyof JamSettings, value))
+
+    expect(decodeJamSettings(records, SESSION).settings).toEqual({
+      ...CHANGED,
+      'seventh-chords': 'off',
+    })
+  })
+
+  // @test-link [[rule_jam_settings_saved_on_change]]
+  it('saves a change at Idle as its one record, jam.seventh-chords, and writes no session-mode record', async () => {
+    const { port, saveSettings } = await savingVisit()
+    await port.write(
+      'settings',
+      SESSION_LEVEL_KEY,
+      encodeSettingRecord(SESSION_LEVEL_KEY, 'stronglyFavored', TEST_APP_VERSION),
+    )
+    const before = await storedSettings(port)
+    const batches: SettingChanges[] = []
+    const store = createJamSettings({
+      records: [],
+      session: SESSION,
+      saveSettings: (changes) => {
+        batches.push(changes)
+        saveSettings(changes)
+      },
+    })
+
+    store.change({ 'seventh-chords': 'sometimes' })
+    await vi.waitFor(async () => expect(await storedValue(port, LEVEL_KEY)).toBe('sometimes'))
+
+    expect(batches.slice(1)).toEqual([{ [LEVEL_KEY]: 'sometimes' }])
+    const after = await storedSettings(port)
+    expect([...after.keys()].filter((key) => !key.startsWith('jam.'))).toEqual([SESSION_LEVEL_KEY])
+    expect(after.get(SESSION_LEVEL_KEY)).toEqual(before.get(SESSION_LEVEL_KEY))
+  })
+
+  // @test-link [[rule_jam_settings_first_values]]
+  it('is removed by Delete everything, so the next load gives Off', async () => {
+    const { factory, port, saveSettings } = await savingVisit()
+    const store = createJamSettings({ records: [], session: SESSION, saveSettings })
+    store.change({ 'seventh-chords': 'stronglyFavored' })
+    await vi.waitFor(async () => expect(await storedValue(port, LEVEL_KEY)).toBe('stronglyFavored'))
+
+    await createSavePolicy(port).deleteEverything()
+    const load = await loadSavedData(dependencies(() => readyPort(factory)))
+
+    expect((await storedSettings(await readyPort(factory))).has(LEVEL_KEY)).toBe(false)
+    expect(load.jamSettingsRecords).toEqual([])
+    expect(decodeJamSettings(load.jamSettingsRecords, SESSION).settings['seventh-chords']).toBe(
+      'off',
+    )
+  })
+
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  it("moves apart from session mode's level, each record read only by its own mode", async () => {
+    const { factory, port, saveSettings } = await savingVisit()
+    const writeSessionLevel = (level: ChordFamilyLevel) =>
+      port.write(
+        'settings',
+        SESSION_LEVEL_KEY,
+        encodeSettingRecord(SESSION_LEVEL_KEY, level, TEST_APP_VERSION),
+      )
+    await writeSessionLevel('stronglyFavored')
+    const store = createJamSettings({ records: [], session: SESSION, saveSettings })
+    store.change({ 'seventh-chords': 'sometimes' })
+    await vi.waitFor(async () => expect(await storedValue(port, LEVEL_KEY)).toBe('sometimes'))
+
+    const first = await loadSavedData(dependencies(() => readyPort(factory)))
+    await writeSessionLevel('off')
+    const second = await loadSavedData(dependencies(() => readyPort(factory)))
+
+    expect(first.settings.chordFamilies).toEqual({ 'seventh-chords': 'stronglyFavored' })
+    expect(second.settings.chordFamilies).toEqual({ 'seventh-chords': 'off' })
+    for (const load of [first, second]) {
+      expect(decodeJamSettings(load.jamSettingsRecords, SESSION).settings['seventh-chords']).toBe(
+        'sometimes',
+      )
+    }
+  })
+})
+
+// @test-link [[module_jam_settings]]
 describe("Jam's settings: what a Jam is generated with", () => {
   // @test-link [[rule_jam_embellishments_one_level]]
   it.each(FIGURE_LEVEL_IDS)('give Embellishments %s to all seven figures alike', (level) => {
@@ -421,12 +585,12 @@ describe("Jam's settings: what a Jam is generated with", () => {
   })
 
   // @test-link [[module_jam_settings]]
-  it("list nine record keys of the jam group, none of them session mode's", () => {
+  it("list ten record keys of the jam group, none of them session mode's", () => {
     const sessionKeys = new Set<SettingKey>(
       Object.keys(defaultSettings(MIX_DESIGN.defaults)) as SettingKey[],
     )
 
-    expect(JAM_SETTING_KEYS).toHaveLength(9)
+    expect(JAM_SETTING_KEYS).toHaveLength(10)
     expect(JAM_SETTING_KEYS.every((key) => key.startsWith('jam.') && !sessionKeys.has(key))).toBe(
       true,
     )

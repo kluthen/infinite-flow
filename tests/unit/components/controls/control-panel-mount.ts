@@ -6,6 +6,7 @@ import { mount } from '@vue/test-utils'
 
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import type { PresetActionsRow, SessionStartSettings } from '@/components/controls/preset-bar-model'
+import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
@@ -23,7 +24,8 @@ const NO_PRESET_ACTIONS: PresetActionsRow = {
 
 /**
  * Intent: mount the control panel showing `controls` and `selection` among `presets`, readonly
- * (its session options too) when `readonly`, with `startSettings` as the session's start settings.
+ * (its session options too) when `readonly`, with `startSettings` as the session's start settings
+ * and `chordFamilies` as the Seventh chords level it shows.
  */
 export function mountPanel(
   controls: GenerationControls = DEFAULT_GENERATION_CONTROLS,
@@ -31,11 +33,13 @@ export function mountPanel(
   readonly = false,
   presets: readonly Preset[] = BUILT_IN_PRESETS,
   startSettings: SessionStartSettings | null = null,
+  chordFamilies: ChordFamilies = OFF_CHORD_FAMILIES,
 ) {
   return mount(ControlPanel, {
     props: {
       controls,
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies,
       selection,
       presets,
       readonly,

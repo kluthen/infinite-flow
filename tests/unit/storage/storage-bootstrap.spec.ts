@@ -79,7 +79,7 @@ async function seedSettings(port: StoragePort, settings: SavedSettings): Promise
   }
 }
 
-/** A player preset: Jazz's controls with Tension at Build, Dorian only, Seventh chords at Mostly. */
+/** A player preset: Jazz's controls with Tension at Build, Dorian only, Seventh chords at Always. */
 const LATE_NIGHT: Preset = makePreset({
   id: 'player-1',
   name: 'Late night',

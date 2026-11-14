@@ -1,6 +1,6 @@
 ---
 id: module_presets_and_kept_sessions_upgrade_step
-status: DRAFT
+status: REVIEW
 version: 0.2
 priority: 1
 tags: [v3, release-v3.3, storage, presets, session, chords]

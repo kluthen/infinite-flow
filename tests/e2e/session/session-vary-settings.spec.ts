@@ -82,13 +82,13 @@ async function checkedIn(page: Page, name: string): Promise<string | null> {
 const NEUTRAL_DESCRIPTION = "Plain lines in the key, in quarter notes: the app's starting point."
 /** Jazz's description line. */
 const JAZZ_DESCRIPTION =
-  'Eighth notes and offbeats, now and then with a short note from outside the key.'
+  'Eighth notes and offbeats, now and then with a short note from outside the key. Also try raising Seventh chords, the usual chords of jazz.'
 /** Reel's description line. */
 const REEL_DESCRIPTION =
   'A fast folk dance in steady eighth notes, in Mixolydian or Dorian. Also try it in Ionian (a major key).'
 /** Modal (Dorian)'s description line. */
 const MODAL_DESCRIPTION =
-  'A steady two-chord bed in Dorian, so its color note is heard in the melody.'
+  'A steady two-chord bed in Dorian, so its color note is heard in the melody. Also try raising Seventh chords, for a richer, jazzier bed.'
 
 /** Intent: the preset box shows `text` and its description line reads `description`. */
 async function expectPreset(page: Page, text: string, description: string): Promise<void> {
@@ -193,7 +193,7 @@ test('a figure step shows Custom in place at its phrase with nothing moving, and
   await gotoSessionHarness(page, DESKTOP)
   expect(await checkedIn(page, 'Vary settings')).toBe('Off')
   await expect(radiogroup(page, 'Vary settings')).toHaveAccessibleDescription(
-    'Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument or the tempo. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.',
+    'Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument, the tempo or Seventh chords. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.',
   )
   await queueMutationSeed(page, FIGURE_STEP_ON_PHRASE_3)
   await readyToStart(page)

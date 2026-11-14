@@ -7,6 +7,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import FoundationControls from '@/components/controls/FoundationControls.vue'
+import { SEVENTH_CHORDS_NOTE } from '@/components/controls/control-options'
 import type { SessionStartSettings } from '@/components/controls/preset-bar-model'
 import {
   COLLECTIONS,
@@ -15,6 +16,7 @@ import {
   type Collection,
   type PitchClass,
 } from '@/domain/controls/generation-controls'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { BUILT_IN_PRESETS, builtInPreset } from '@/domain/presets/built-in-presets'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
@@ -37,6 +39,7 @@ function mountGroup(
         tonalCenter: key,
         collection: mode,
       }),
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection,
       presets: BUILT_IN_PRESETS,
       readonly: startSettings !== null,
@@ -70,6 +73,14 @@ function note(wrapper: Group, label: 'Written key' | 'Collection'): string | nul
   return wrapper.get(`[id="${id}"]`).text()
 }
 
+/** Intent: the texts of the group's notes but the Seventh chords note, which always shows. */
+function markNotes(wrapper: Group): string[] {
+  return wrapper
+    .findAll('.field-note')
+    .map((element) => element.text())
+    .filter((text) => text !== SEVENTH_CHORDS_NOTE)
+}
+
 /** Intent: the Written key and Collection marks and notes, for one comparison. */
 function marksOf(wrapper: Group) {
   return {
@@ -97,7 +108,7 @@ describe('the key and mode marks at Idle and in the review mode', () => {
     expect(afterCollection?.classList.contains('field-note')).toBe(true)
     expect(afterCollection?.textContent).toBe(REEL_NOTE)
     expect(radiogroup(wrapper, 'Written key').attributes('aria-describedby')).toBeUndefined()
-    expect(wrapper.findAll('.field-note').map((element) => element.text())).toEqual([REEL_NOTE])
+    expect(markNotes(wrapper)).toEqual([REEL_NOTE])
   })
 
   // @test-link [[module_key_and_mode_marks]]
@@ -106,7 +117,7 @@ describe('the key and mode marks at Idle and in the review mode', () => {
     const custom: PresetSelection = { kind: 'custom', baseId: 'reel' }
     const outside = mountGroup(custom, 'C', 'Ionian')
     expect(marksOf(outside)).toEqual(NONE)
-    expect(outside.findAll('.field-note')).toHaveLength(0)
+    expect(markNotes(outside)).toHaveLength(0)
     expect(marksOf(mountGroup(custom, 'C', 'Dorian')).collection).toEqual({
       marked: ['Dorian', 'Mixolydian'],
       note: REEL_NOTE,

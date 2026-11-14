@@ -61,7 +61,7 @@ const REGISTER_ON_PHRASE_3 = 25
 
 /** Jazz's description line, which a session keeps from its start. */
 const JAZZ_DESCRIPTION =
-  'Eighth notes and offbeats, now and then with a short note from outside the key.'
+  'Eighth notes and offbeats, now and then with a short note from outside the key. Also try raising Seventh chords, the usual chords of jazz.'
 
 /** Intent: whether a radio is the checked option of its group. */
 async function expectChecked(page: Page, group: string, option: string): Promise<void> {

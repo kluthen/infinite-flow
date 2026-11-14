@@ -2,8 +2,11 @@
  * Builds every SegmentedControl option list this workspace renders directly from the domain
  * catalogs in generation-controls.ts, in catalog order, so a catalog addition or reorder needs no
  * parallel edit here. Most catalog values double as their own display label; a handful of values
- * carry a friendlier or enharmonic label instead, listed in the small override maps below.
+ * carry a friendlier or enharmonic label instead, listed in the small override maps below. The
+ * Seventh chords level's options, shared by session mode's control and Jam's, are its own list of
+ * level ids and labels.
  */
+import { CHORD_FAMILY_LEVEL_IDS, type ChordFamilyLevel } from '@/domain/chords/chord-families'
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import type { RegisterId } from '@/domain/profile/register-id'
 import { deriveRegisterWindowCandidates } from '@/domain/profile/register-window-derivation'
@@ -268,4 +271,41 @@ export function withMarks(
   return options.map((option) =>
     marked.includes(option.value) ? { ...option, marked: true } : option,
   )
+}
+
+/** The player-facing label of each Seventh chords level, as the phrase-workspace handoff words them. */
+const SEVENTH_CHORDS_LABELS: Readonly<Record<ChordFamilyLevel, string>> = deepFreeze({
+  off: 'Off',
+  sometimes: 'Sometimes',
+  favored: 'Often',
+  stronglyFavored: 'Always',
+})
+
+/**
+ * Intent: the Seventh chords level's option model, shared by session mode's control and Jam's:
+ * its four levels in increasing order, each valued by its level id and labelled for the player
+ * (Off, Sometimes, Often, Always). Its own list, never the figure levels' (Off, Rarely, Often,
+ * Very often); no option is ever disabled.
+ */
+// @spec-link [[module_seventh_chords_level_options]]
+export const seventhChordsOptions: readonly SegmentedControlOption[] = deepFreeze(
+  CHORD_FAMILY_LEVEL_IDS.map((level) => ({ value: level, label: SEVENTH_CHORDS_LABELS[level] })),
+)
+
+/** Intent: the Seventh chords control's note: what the level does, a preference, never a promise. */
+// @spec-link [[module_seventh_chords_level_options]]
+export const SEVENTH_CHORDS_NOTE =
+  'How often a chord gets one more note stacked on top, as G7 (G, B, D, F) instead of G (G, B, D): a richer, jazzier sound. A preference, never a promise.'
+
+/**
+ * Intent: the level a segment of the Seventh chords control stands for. A value that is no level
+ * is a defect, refused.
+ */
+// @spec-link [[module_seventh_chords_level_options]]
+export function seventhChordsLevelOfSegment(value: string): ChordFamilyLevel {
+  const level = CHORD_FAMILY_LEVEL_IDS.find((candidate) => candidate === value)
+  if (level === undefined) {
+    throw new Error(`Seventh chords has no level ${JSON.stringify(value)}.`)
+  }
+  return level
 }

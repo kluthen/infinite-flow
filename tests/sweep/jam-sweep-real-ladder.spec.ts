@@ -8,11 +8,12 @@
  * readiness, the attempt that made it): rung 1 at once; rung 2 first with no join; the retries
  * skipped after a search that covered every candidate; the retries; an attempt crossing the
  * cutover, or ending on it, cut and rung 3 asked for after the restart; rung 3 failing, ending at
- * or after the deadline: no phrase 1.
+ * or after the deadline: no phrase 1. Each at Off and at Always, the level Jam's phrase 1 carries.
  */
 
 import { describe, expect, it } from 'vitest'
 
+import type { ChordFamilyLevel } from '@/domain/chords/chord-families'
 import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { generatePhrase } from '@/domain/generation/orchestration/generation-orchestrator'
 import type { GenerationFailureCode } from '@/domain/generation/orchestration/orchestration-types'
@@ -66,17 +67,19 @@ interface ScriptedRun {
 }
 
 /**
- * Intent: run a ladder on a doodle at a tempo over a scripted generator, its input built as the
- * sweep's Jam builds it (the case's settings at the tempo, what the doodle gives phrase 1).
+ * Intent: run a ladder on a doodle at a tempo and a Seventh chords level over a scripted
+ * generator, its input built as the sweep's Jam builds it (the case's settings at the tempo and
+ * the level, what the doodle gives phrase 1).
  */
 function runScripted(
   ladder: PhraseOneLadder,
   tempo: number,
+  level: ChordFamilyLevel,
   doodleName: string,
   script: Script,
   lock: JamLock = { on: false },
 ): ScriptedRun {
-  const settings = caseSettings(FIRST_CASE, tempo)
+  const settings = caseSettings({ ...FIRST_CASE, seventhLevel: level }, tempo)
   const quantized = DOODLES.find((each) => each.name === doodleName)!.quantized
   const doodle = doodlePhraseOne(settings, quantized, 'Near', lock)
   const deadline = phraseOneDeadlineSeconds(tempo)
@@ -265,27 +268,30 @@ describe("Jam phrase 1: chunk 18's real ladder agrees with the double (C5.7, C11
     expect(hasJoin(UNJOINED)).toBe(false)
   })
 
-  for (const tempo of [120, 240])
-    for (const scenario of SCENARIOS)
-      it(`${scenario.name}, at ${tempo} BPM`, () => {
-        const { doodle, script, lock } = scenario
-        const real = runScripted(JAM_REAL_LADDER, tempo, doodle, script, lock)
-        const double = runScripted(JAM_DOUBLE_LADDER, tempo, doodle, script, lock)
-        expect(agreed(real)).toEqual(agreed(double))
-        expect(real.intents.map(withoutRequestId)).toEqual(double.intents.map(withoutRequestId))
-        const readyIntent = real.result.ready?.phraseOne.intent
-        expect(readyIntent && withoutRequestId(readyIntent)).toEqual(
-          double.result.ready && withoutRequestId(double.result.ready.phraseOne.intent),
-        )
-        expect(real.result.attempts.map((each) => each.attempt)).toEqual(scenario.attempts)
-        const cutover = phraseOneDeadlineSeconds(tempo) - STANDALONE_RESERVE_SECONDS
-        expect(
-          real.result.attempts.flatMap((each) => (each.cancelledAt === undefined ? [] : [each])),
-        ).toEqual(
-          (scenario.cut ?? []).map((index) =>
-            expect.objectContaining({ attempt: index, cancelledAt: cutover }),
-          ),
-        )
-        expect(real.result.ready?.rung ?? null).toBe(scenario.rung)
-      })
+  for (const level of ['off', 'stronglyFavored'] as const)
+    for (const tempo of [120, 240])
+      for (const scenario of SCENARIOS)
+        it(`${scenario.name}, at ${tempo} BPM, Seventh chords ${level}`, () => {
+          const { doodle, script, lock } = scenario
+          const real = runScripted(JAM_REAL_LADDER, tempo, level, doodle, script, lock)
+          const double = runScripted(JAM_DOUBLE_LADDER, tempo, level, doodle, script, lock)
+          expect(agreed(real)).toEqual(agreed(double))
+          expect(real.intents.map(withoutRequestId)).toEqual(double.intents.map(withoutRequestId))
+          for (const intent of real.intents)
+            expect(intent.chordFamilies).toStrictEqual({ 'seventh-chords': level })
+          const readyIntent = real.result.ready?.phraseOne.intent
+          expect(readyIntent && withoutRequestId(readyIntent)).toEqual(
+            double.result.ready && withoutRequestId(double.result.ready.phraseOne.intent),
+          )
+          expect(real.result.attempts.map((each) => each.attempt)).toEqual(scenario.attempts)
+          const cutover = phraseOneDeadlineSeconds(tempo) - STANDALONE_RESERVE_SECONDS
+          expect(
+            real.result.attempts.flatMap((each) => (each.cancelledAt === undefined ? [] : [each])),
+          ).toEqual(
+            (scenario.cut ?? []).map((index) =>
+              expect.objectContaining({ attempt: index, cancelledAt: cutover }),
+            ),
+          )
+          expect(real.result.ready?.rung ?? null).toBe(scenario.rung)
+        })
 })

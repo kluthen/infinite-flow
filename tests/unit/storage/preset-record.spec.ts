@@ -67,7 +67,7 @@ const PLAYER_CONTROLS_AND_LEVELS_JSON =
   '"neighborTone":"stronglyFavored","appoggiatura":"asToday","diatonicEnclosure":"favored",' +
   '"chromaticApproach":"stronglyFavored","chromaticEnclosure":"asToday"},'
 
-/** PLAYER's record exactly as v3.3 writes it: data version 5, its Seventh chords level at Mostly. */
+/** PLAYER's record exactly as v3.3 writes it: data version 5, its Seventh chords level at Always. */
 const PLAYER_RECORD_JSON =
   '{"dataVersion":5,"appVersion":"3.1.0-test","id":"player-1","name":"Late night",' +
   PLAYER_CONTROLS_AND_LEVELS_JSON +
@@ -167,7 +167,7 @@ describe('the player preset record', () => {
 describe('the player preset record and the Seventh chords level', () => {
   // @test-link [[entity_player_preset_record]]
   // @test-link [[req_seventh_chords_level]]
-  it('writes a preset at Mostly byte for byte, the level by family id after the figure levels, and a read and rewrite gives the same bytes', () => {
+  it('writes a preset at Always byte for byte, the level by family id after the figure levels, and a read and rewrite gives the same bytes', () => {
     const written = JSON.stringify(encodePresetRecord(PLAYER, APP_VERSION))
     expect(written).toBe(PLAYER_RECORD_JSON)
 

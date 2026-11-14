@@ -1340,8 +1340,8 @@ with Bebop), the Jam sweep (`npm run measure:jam`, `JAM_LEVELS`) for a fresh Jam
 the level in its labels; the cost runner also prints, per setting, the share of the distinct
 intents' harmony events in their seventh form and of phrases fallen back to triads, and per tempo
 the phrases 2 to 6 by production and the failed joins by cause (spec D531). Every level is
-measurable; above Off, a fresh Jam's phrase 1 goes through the Jam sweep's double of the ladder
-(the real ladder builds it at Off until chunk 23 carries Jam's level).
+measurable, a fresh Jam's phrase 1 through the Jam sweep's double of the ladder or its real ladder
+alike: both build it at the case's level (the real ladder carries Jam's level since chunk 23).
 
 ### Off baseline (v3.3 chunk 4)
 
@@ -1454,7 +1454,7 @@ phrase generated). The failed intents are `no_legal_pitch_plan` and `search_limi
 Off, except **Bebop at Strongly favored: 105 `result_validation_failed`**, all joined attempts: the
 search ends a joined phrase with a chromatic enclosure onto the final chord's seventh, which the
 validator reads as a tense note, not a chord tone, and refuses the phrase
-([ISS-019](../issues/Ref_20261113_figure_target_final_seventh_validator_refusal.md); Sometimes 30
+(ISS-019, resolved in e8441a11 by chunk 5's second addendum; Sometimes 30
 and Favored 68 with Bebop, 0 at Off). The ladder's next rung generates the phrase: none is lost.
 The slowest attempts are failed joins searching their whole allowance (Neutral 3.6 s above Off
 against 2.0 s at Off); no attempt generated on its own came near the 1.075 s reserve.

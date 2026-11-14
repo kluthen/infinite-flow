@@ -108,7 +108,7 @@ function intentAt(
 }
 
 /**
- * Intent: the carry-in a Mostly phrase 1 (seed 5, every event in seventh form) hands forward: its
+ * Intent: the carry-in an Always phrase 1 (seed 5, every event in seventh form) hands forward: its
  * final chord G7, the key's own seventh on degree 5, carried with its seventh.
  */
 function carriedSeventhCarryIn(): CarryIn {

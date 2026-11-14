@@ -137,6 +137,19 @@ describe('the Seventh chords level record', () => {
     }
   })
 
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  it("ignores Jam's own level record, jam.seventh-chords, whatever it holds", () => {
+    const jamLevel = encodeSettingRecord('jam.seventh-chords', 'stronglyFavored', APP_VERSION)
+    const withoutSessionLevel = rawRecords(NON_DEFAULT).filter((record) => record.key !== KEY)
+
+    expect(decodeSettings([...rawRecords(atLevel('sometimes')), jamLevel], CONTEXT)).toEqual(
+      atLevel('sometimes'),
+    )
+    expect(decodeSettings([...withoutSessionLevel, jamLevel], CONTEXT).chordFamilies).toEqual(
+      OFF_CHORD_FAMILIES,
+    )
+  })
+
   // @test-link [[rule_saved_settings_load_tolerantly]]
   it('loads Off for a level saved twice, without touching the rest', () => {
     const twice = [
@@ -175,7 +188,7 @@ describe('the preset selection judged with the level', () => {
 
   // @test-link [[rule_preset_load_values_win]]
   // @test-link [[req_seventh_chords_level]]
-  it('keeps a player preset holding Mostly selected with Mostly saved, and makes it Custom at another level', () => {
+  it('keeps a player preset holding Always selected with Always saved, and makes it Custom at another level', () => {
     const mostly = makePreset({
       id: 'player-mostly',
       name: 'Rich',

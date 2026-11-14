@@ -13,6 +13,7 @@ dependents:
   - [[module_figure_level_options]]
   - [[module_preset_model]]
   - [[module_profile_control_customization]]
+  - [[module_seventh_chords_level_options]]
   - [[rule_custom_names_its_base]]
 ---
 

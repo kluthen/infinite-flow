@@ -1,6 +1,6 @@
 ---
 id: rule_seventh_chords_level_steps
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 dependents:

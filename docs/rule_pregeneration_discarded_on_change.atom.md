@@ -13,6 +13,7 @@ dependents:
   - [[module_figure_level_options]]
   - [[module_idle_pregeneration_queue]]
   - [[module_player_presets]]
+  - [[module_seventh_chords_level_options]]
 ---
 
 # Pre-Generated Phrases Discarded on Change

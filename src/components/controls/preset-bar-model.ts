@@ -78,13 +78,14 @@ const BUILT_IN_DESCRIPTIONS: Readonly<Record<BuiltInPresetId, string>> = deepFre
     'One chord, quarter notes, steps only, nothing tense. A warm-up, or a first try at improvising.',
   'speed-drill':
     'Dense, changing rhythms with most embellishments favored, to read fast in any key.',
-  jazz: 'Eighth notes and offbeats, now and then with a short note from outside the key.',
+  jazz: 'Eighth notes and offbeats, now and then with a short note from outside the key. Also try raising Seventh chords, the usual chords of jazz.',
   bebop:
-    'Fast jazz lines that circle chord notes from outside the key. It uses Major rather than Ionian: the same notes, with chords that lead home through the chord on the 5th note.',
+    'Fast jazz lines that circle chord notes from outside the key. It uses Major rather than Ionian: the same notes, with chords that lead home through the chord on the 5th note. Also try raising Seventh chords, the usual chords of jazz.',
   'pop-song':
     'Song-like phrases over familiar chords. It uses Major rather than Ionian: the same notes, with chords that lead home the way songs do.',
   reel: 'A fast folk dance in steady eighth notes, in Mixolydian or Dorian. Also try it in Ionian (a major key).',
-  'modal-dorian': 'A steady two-chord bed in Dorian, so its color note is heard in the melody.',
+  'modal-dorian':
+    'A steady two-chord bed in Dorian, so its color note is heard in the melody. Also try raising Seventh chords, for a richer, jazzier bed.',
 })
 
 const NO_BASE_DESCRIPTION = 'Your own settings. Save them as a preset to keep them under a name.'

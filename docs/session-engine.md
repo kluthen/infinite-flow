@@ -1793,10 +1793,11 @@ Jam's phase, which the cue row reads (`jam-capture`, `jam-writing`), never a doo
 readings once phrase 1 enters, which it also records on the handle (`recordDoodleControls`) for the
 review; an `ended` output from the engine, whatever its cause, stops the capture and empties the
 readings. The settings it starts under are Jam's own (`freshJamSettings`,
-`src/jam/fresh-jam-settings.ts`): Jam's controls and figure levels, a custom selection from no
-preset (Jam mode has none), no restriction, Vary settings' default groups (it never runs in a
-Jam), Jam's lock, allowed changes and drift, and my instrument's profile when it is the
-instrument.
+`src/jam/fresh-jam-settings.ts`): Jam's controls and figure levels, (v3.3) Jam's own Seventh chords
+level, never session mode's, which every attempt of phrase 1's ladder and every later phrase of
+the Jam carry, fixed for the Jam, a custom selection from no preset (Jam mode has none), no
+restriction, Vary settings' default groups (it never runs in a Jam), Jam's lock, allowed changes
+and drift, and my instrument's profile when it is the instrument.
 
 ### A Jam's end
 

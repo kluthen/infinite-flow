@@ -80,7 +80,7 @@ function builtIn(name: string, id: string, mode: string, column: string, descrip
 
 const NEUTRAL_DESCRIPTION = "Plain lines in the key, in quarter notes: the app's starting point."
 const JAZZ_DESCRIPTION =
-  'Eighth notes and offbeats, now and then with a short note from outside the key.'
+  'Eighth notes and offbeats, now and then with a short note from outside the key. Also try raising Seventh chords, the usual chords of jazz.'
 
 /** The eight built-ins, in the box's order, with master spec B6.5's values written out. */
 const BUILT_INS = [
@@ -117,7 +117,7 @@ const BUILT_INS = [
     'bebop',
     'Major',
     'Active diatonic | Build | Eighth notes | Strict | Occasional offbeats | Sparse | Wandering | Varying | Leaping | Varied',
-    'Fast jazz lines that circle chord notes from outside the key. It uses Major rather than Ionian: the same notes, with chords that lead home through the chord on the 5th note.',
+    'Fast jazz lines that circle chord notes from outside the key. It uses Major rather than Ionian: the same notes, with chords that lead home through the chord on the 5th note. Also try raising Seventh chords, the usual chords of jazz.',
   ),
   builtIn(
     'Pop song',
@@ -138,7 +138,7 @@ const BUILT_INS = [
     'modal-dorian',
     'Dorian',
     'Gentle diatonic | Lift | Eighth notes | Slightly varied | Occasional offbeats | Conversational space | Wandering | Varying | Leaping | Varied',
-    'A steady two-chord bed in Dorian, so its color note is heard in the melody.',
+    'A steady two-chord bed in Dorian, so its color note is heard in the melody. Also try raising Seventh chords, for a richer, jazzier bed.',
   ),
 ]
 

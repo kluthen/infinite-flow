@@ -1462,9 +1462,12 @@ While Jam mode shows (Jam's code loaded and Jam's settings made, `use-jam-settin
 
 - **Foundation**: Jam's tempo (`TempoStepper` over `JAM_TEMPO_VALUES`, 60 to 180 BPM in steps of
   10; `Tap tempo` joins it in chunk 32), written key, collection, the shared instrument (its range
-  summary and `instrument-actions` as in session mode), harmonic motion, tension, and one
-  Embellishments level (`Off`, `Rarely`, `Often`, `Very often`, the figure levels' options) given
-  to all seven figures (`jamFigureLevels`).
+  summary and `instrument-actions` as in session mode), harmonic motion, (v3.3) Jam's own Seventh
+  chords level (session mode's control: `seventhChordsOptions`, `Off` to `Always`, and
+  `SEVENTH_CHORDS_NOTE` from `control-options.ts`; its value `jam.seventh-chords`, never session
+  mode's level, carried by every phrase of a Jam), tension, and one Embellishments level (`Off`,
+  `Rarely`, `Often`, `Very often`, the figure levels' options) given to all seven figures
+  (`jamFigureLevels`).
 - **Following your doodle**: Drift (`Close`, `Near`, `Free`) and Jam's own rhythm lock, the same
   `RhythmLockField` as session mode's with Jam's note (its `note` prop), its allowed rhythm changes
   under it.

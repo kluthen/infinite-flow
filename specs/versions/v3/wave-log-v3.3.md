@@ -1009,3 +1009,228 @@ them under it.
   wordings and "Always" (kept unless the owner objects); L1 (H1) and H4 still with the owner. Next:
   wave 5 (chunks 19 and 23; 21 only if L1 approves) in a fresh session; its sync applies A9's
   settings half and A11 (CONTRACT 19.0.0).
+
+## Wave 5
+
+### Wave 5 start (2026-11-14)
+
+- Wave 4 merged into `main` 37d7fcd3 (not pushed). Branch `v3.3-w5` cut from it, worktree
+  `/home/bastien/work/infinite_flow-v3.3-w5`. Chunks 19 and 23 (in-wave 19 → 23), κ = 1, order
+  19, 23. Every Depends on is merged (3, 9–17) or cleared (D0, U1a, C1). Chunk 21 is
+  **blocked (on L1)** from the start: it joins only if the owner's L1 approves the seventh as an
+  ending (C2 then gates its merge), otherwise it is recorded as skipped; the preflight covers it
+  so it can join without a second one. Chunk 20 skipped (DP, D534). Wordings wave 5's sync
+  applies: A9's settings half and A11 (`module_saved_data_loader`, only if the level sits outside
+  the controls), CONTRACT 19.0.0. Chunk 19 renames "Mostly" to "Always" in code comments and test
+  titles (ux D485).
+
+### Wave 5 preflight (2026-11-14)
+
+- The owner, at the wave's start: `main` pushed (37d7fcd3); the six promotions approved
+  (`rule_no_export_carries_seventh_chords_level`, `rule_seventh_chord_symbols`,
+  `rule_earlier_kept_sessions_read_at_off`, `module_presets_and_kept_sessions_upgrade_step`,
+  `rule_seventh_chords_level_steps`, `rule_seventh_chord_draws_reproducible`); both optional
+  wordings approved ("short of the final note" in `rule_figures_resolve_onto_chord_tones`,
+  `rule_embellishment_figures_defined`, `rule_levels_govern_free_figures_only`; "by" for "before"
+  in `rule_open_phrase_ending`, STABLE). Driver: all applied at wave 5's sync, the STABLE wording
+  under its 19.0.0 bump. L1 not listened yet: chunk 21 stays blocked.
+- `documentalist`'s wave preflight (e26903e3): 19 PROCEED with sign-off pending (A11, confirmed at
+  C1; `module_profile_control_customization`'s "no control calls setChordFamilyLevel yet" clause);
+  23 PROCEED; 21 PROCEED with sign-off pending (C2), still blocked on L1, and O310 open. Captures:
+  `module_jam_settings` 0.4 (chunk 23: the level as one more `jam.*` setting; every Jam request
+  carries it); new `module_seventh_chords_level_options` 0.1 DRAFT (the shared
+  `seventhChordsOptions`, ids `off`, `sometimes`, `favored`, `stronglyFavored`, labels Off,
+  Sometimes, Often, Always; chunk 19's, reused by 23). Wordings the sync applies: A9's settings
+  half (`rule_settings_saved_on_change` 0.6, `rule_saved_settings_load_tolerantly` 0.5), A11
+  (`module_saved_data_loader` 0.10; the level sits outside the controls, so A11 applies);
+  CONTRACT 19.0.0. No atom names "Mostly" as a label.
+- Requests that hard-code Off today (for chunk 23): `src/jam/fresh-jam-settings.ts:44`
+  (`OFF_CHORD_FAMILIES`, used by fresh Jam, Jam again and the kept doodle) and
+  `src/jam/jam-phrase-one-attempts.ts:190`; `generation-session-prewarm.ts:128` posts Off on
+  purpose (warm-up only, no phrase).
+- Plan corrections 1–6 sent to `spec-writer`. Driver: correction 3's STABLE clause is an interface
+  sentence made false by the chunk, no bump, as plan v18 did for chunk 17; the owner is told.
+- `spec-writer`'s plan v21 (627e2d49), no ruling: corrections 1–6 applied. Chunk 19 names the
+  options capture, A11 unconditional, the catalog revision dropped, Revisions gain
+  `entity_phrase_carry_in` and `module_profile_control_customization` (interface clause, no bump);
+  chunk 23's Files gain `fresh-jam-settings.ts` and `jam-phrase-one-attempts.ts`, its halves
+  rebalanced (23a state and saving, 23b generation and the control); chunk 21 gains two
+  Revisions, two drift checks and "O310 open, needed before it starts"; a C2 row; the stale DP row
+  gone. Driver: no gate row for O310 (chunk 21's Depends on tracks it beside L1).
+- Chunk 19 dispatched to a `coding-leader` (worktree `../infinite_flow-v3.3-c19`).
+
+### Chunk 19 merged (2026-11-14)
+
+- 7a5acb01 (9be41a69). Done when met: the control sends its level in the next request at Idle and
+  in the review mode, Off on a first visit and after Delete everything (e2e
+  `seventh-chords-control.spec.ts`, 13 tests, in the `test:e2e` list); `seventhChordsOptions` is
+  its own list (unit); a change makes Custom, restarts pre-generation, keeps the phrase, starts a
+  round under the too-many-notes notice, announces nothing; read-only in Loading and through a
+  session (the session's level shown from phrase 2 after "Start with this phrase"); wraps at phone,
+  tablet and desktop, keyboard as a figure level, axe clean in both themes; the Vary note and the
+  three descriptions; no "Mostly" left but the three invalid-value cases, no baseline re-recorded.
+  Related unit 411 files / 5,644 tests, 79 e2e + 1 skip (the replay hand check), static checks,
+  `atd:lint`/`atd:check`, `lint:health` clean.
+- For the sync: links on `module_seventh_chords_level_options`, `req_seventh_chords_level`,
+  `rule_custom_selection`, `rule_vary_settings_never_moves_seventh_chords_level`; Revisions as the
+  plan lists them.
+- For the gate: `HARDWARE-CHECKLIST.md`'s "Until chunk 19…" / "needs chunk 19" run conditions
+  (about lines 1000, 1007, 1014, 1124) are now stale (comment and doc only); the lexicon's "the
+  app's chords are triads" lines wait for the release gate (`documentalist`). H6 is ready for the
+  owner.
+- Figures: 2 agents, 136 tool calls, 19.6M tokens in / 73k out, max context 232k, $6.75 at API
+  prices.
+- Chunk 23 dispatched to a `coding-leader` (worktree `../infinite_flow-v3.3-c23`; 23a, 23b).
+
+### Chunk 23 merged (2026-11-14)
+
+- 7901b007 (9012ad10 23a, 5eb0ac03 23b; one `coding-executor` per half). Done when met: Jam's
+  level (`jam.seventh-chords`, in `JAM_SETTING_FIELDS`, no data-version change) Off on a first
+  visit and after Delete everything, survives a reload at each value, bad values load Off with the
+  other Jam settings kept (unit); neither mode moves the other's level (unit and e2e
+  `jam-seventh-chords.spec.ts`, in the `test:e2e` list); every rung of phrase 1 and every later
+  phrase carry Jam's level, fixed for the Jam, and a Jam at Always writes sevenths (unit, e2e; the
+  e2e was not seen red first, the units were); a change at Idle with a kept doodle rewrites phrase
+  1 and discards the prepared phrases, Jam again uses the level as it stands; the control after
+  Harmonic motion, read-only during a Jam, chunk 19's list and note; the real ladder and its double
+  match at Off and Always (45/45; 22 red with the fix stashed).
+- Corpus guard 14 files, 458 tests unchanged; related unit 175 files / 1,861 tests (23a), 57 / 473
+  (23b); Playwright 6/6 (new spec, `jam-settings`, Jam controls axe at Always, both themes);
+  static checks, `lint:links`, `atd:lint`/`atd:check` pass. Docs made true: `storage.md`,
+  `phrase-workspace.md`, `session-engine.md`, `generation-latency.md`, `testing.md`.
+- For the sync: links on `rule_jam_has_own_seventh_chords_level`, `module_jam_settings`,
+  `module_seventh_chords_level_options`, the `rule_jam_settings_*` atoms; Revisions as the plan
+  lists them. For the gate: the sweep (Jam cases above Off now allowed on the real ladder), the
+  start-up figure (`settings-record.ts` gained one key). H2's Jam half with the owner.
+- Figures: 3 agents, 165 tool calls, 15.5M tokens in / 88k out, max context 177k, $6.71 at API
+  prices.
+- Chunks 19 and 23 merged; chunk 21 still blocked on L1 (the owner hasn't listened yet) and O310.
+  Wave gate dispatched to a `coding-executor`.
+
+### Wave 5 gate (2026-11-14, green on 5c3da0d4)
+
+- Leftovers (0d83e3f8): `HARDWARE-CHECKLIST.md`'s v3.3 H3, H4 and H6 run conditions made true
+  after chunk 19 (how to set the level in the app); no recorded result changed.
+- Machine: local host, 12 cores, 09:17–09:55 CET, **not idle** (another project's database fill
+  and a grafana restart; load 4.7 at start, about 18 at the e2e peak).
+- `npm run quality`: run 1 red at `lint:health` (2 errors: `settings-record.ts` and
+  `tests/e2e/accessibility.spec.ts` at 11 atoms, chunk 23's links to
+  `rule_jam_has_own_seventh_chords_level`); fix 5c3da0d4, comments only: the link moves from
+  `JAM_SETTING_FIELDS` to `JamSettings` (`jam-settings.ts`), the Jam-controls axe test drops it
+  (the rule keeps its e2e links in `jam-seventh-chords.spec.ts`). Runs 2 and 3: e2e failures from
+  the host's load (`ERR_NETWORK_CHANGED`, a harness page not loading in 180 s), each green when
+  re-run alone; the rest of the chain then ran on 5c3da0d4 to the end. Every step passed on
+  5c3da0d4: unit 10,180 in 653 files (+49, +2); e2e 752 + 1 skipped with pre-generation off and on
+  (+15); a11y 76; notation 121 + 4 skipped; build, `verify:boundaries`, `atd:lint`, `atd:check`.
+- Sweep: 167 tests in 13 files (+22: the real ladder at Off and Always). Of 94 `SWEEP-` lines,
+  91 equal wave 4's; 3 differ, all Sixteenth at 240 BPM (one phrase-5 skip moves from
+  cutover-cancel to no-legal-pitch-plan; one carry-in loss to the time rule gone). Wave 4's tree
+  (37d7fcd3) run today at load about 2 gives the same three lines: the machine, not the wave
+  (chunks 19 and 23 change no generation code). No new line above Off.
+- Start-up JavaScript **387,038 B** of 409,600 B in 18 chunks (+1,598 B), entry file 332,026 B
+  (+1,598 B); engraver 735,085 B (unchanged); Jam's chunk 61,777 B (+0.59 kB), still out of the
+  first load.
+- Wave sync dispatched to `documentalist`.
+
+### Wave 5 sync and report (2026-11-14)
+
+- `documentalist`'s wave sync (025312c0): **CONTRACT 19.0.0**. C1 A9's settings half
+  (`rule_settings_saved_on_change` 0.6, `rule_saved_settings_load_tolerantly` 0.5), A11
+  (`module_saved_data_loader` 0.10). Chunk 19's Revisions: `user_story_controlled_phrase_generation`
+  0.4, `module_seventh_chords_level_options` 0.2, `entity_phrase_carry_in` 0.11,
+  `module_profile_control_customization` 1.5 (interface clause only, no bump; the owner is told).
+  Chunk 23's: `req_jam_settings`, `rule_jam_settings_saved_on_change`, `rule_jam_settings_first_values`,
+  `rule_jam_settings_load_tolerantly`, `rule_jam_setting_change_rewrites_kept_phrase_one` 0.2,
+  `rule_held_doodle_phrase_one_at_idle` 0.4, `rule_doodle_only_orders_candidates` 0.3;
+  `module_jam_settings` stays 0.4 (the capture matches). Owner-approved: the six promotions to
+  REVIEW; "short of the final note" in the three figure rules; `rule_open_phrase_ending` 0.6 ("by
+  the final sounding event") under 19.0.0. Every link of chunks 19 and 23 checked, the moved one
+  included; no drift.
+- Findings, none changed: `rule_no_export_carries_seventh_chords_level` has test links only
+  (NO_IMPL; matters before STABLE); `entity_phrase_carry_in`'s "Nothing makes a carry-in from no
+  phrase until Jam's engine does" stale since v3.2 (later rewording); **for `spec-writer` at the
+  release gate**: the change set's part E lists `rule_jam_phrase_one_failure_ladder` under chunk
+  23, plan v21's Revisions don't (its wording still holds): add it to the release sync or drop it
+  from part E.
+- **ISS-020** filed (b4572b53, Medium): `npm run atd:check` (plain `atd check`) looks only at
+  uncommitted changes, so on a gate's committed tree it prints "No atoms found for the specified
+  scope" and passes without checking the wave. Not fixed in this wave (tooling; the sync checked
+  the wave's links). ISS-019's file removed in the same commit (resolved in e8441a11).
+- Promotion candidates for the release gate: `module_seventh_chords_level_options`,
+  `rule_jam_has_own_seventh_chords_level`, `req_seventh_chords_level`, `req_jam_settings`,
+  `rule_doodle_only_orders_candidates`.
+- `doc-ids compare main v3.3-w5`: 0 collisions.
+- Open at the wave's end: **chunk 21**, blocked on L1 (the owner hasn't listened to H1) and O310;
+  C2 after L1. H2 (both halves now), H4, H5, H6 with the owner; L2 and U1b; the owner's M2 and M3
+  reference-machine reruns (release gate at the latest, D537).
+- Report to the owner: chunks 19 and 23 merged, 21 still blocked; gate green on 5c3da0d4 (machine
+  loaded, e2e flakes re-run green; sweep's 3 Sixteenth-240 lines are the machine); start-up
+  JavaScript 387,038 B; CONTRACT 19.0.0; ISS-020. Merge into `main` on the owner's word; asked
+  what to do with chunk 21.
+
+#### Wave 5 figures
+
+- Time: 2026-11-14 08:17 → 2026-11-14 10:05 (1h47)
+- Agents: 10 · tool calls: 589 · model turns: 583
+- Tokens in: 62.2M (fresh 1k, cache write 1.3M, cache read 60.9M) · out: 326k
+- Max context: 232k (coding-leader: v3.3 wave 5 chunk 19)
+- Cost: $25.61 at API list prices (checked 2026-11-12)
+- Ends: at its last tagged agent (not merged yet)
+- Not counted: other top-level sessions active in the window, with no agent of this wave: 02e9534e, a1b1e74e
+
+##### By role
+
+| role               | agents | calls | tokens in |  out |  cost | share | max ctx |
+| ------------------ | -----: | ----: | --------: | ---: | ----: | ----: | ------: |
+| coding-executor    |      4 |   237 |     20.2M | 116k | $8.36 |   33% |    177k |
+| coding-leader      |      2 |   147 |     20.8M |  78k | $7.45 |   29% |    232k |
+| documentalist      |      2 |   131 |     13.5M |  77k | $5.76 |   23% |    175k |
+| driver (top level) |      1 |    43 |      5.5M |  33k | $2.78 |   11% |    160k |
+| spec-writer        |      1 |    31 |      2.2M |  22k | $1.26 |    5% |     93k |
+
+##### By chunk
+
+| chunk          | agents | calls | tokens in | out |   cost | share | max ctx |
+| -------------- | -----: | ----: | --------: | --: | -----: | ----: | ------: |
+| 19             |      2 |   136 |     19.6M | 73k |  $6.75 |   26% |    232k |
+| 23             |      3 |   165 |     15.5M | 88k |  $6.71 |   26% |    177k |
+| outside chunks |        |       |           |     | $12.15 |   47% |         |
+
+##### By activity (tool calls)
+
+| activity    | calls | share | writes | results |
+| ----------- | ----: | ----: | -----: | ------: |
+| dispatch    |     9 |    2% |        |      9k |
+| doc-get     |    16 |    3% |        |     39k |
+| plan        |    46 |    8% |      6 |    190k |
+| spec        |     6 |    1% |      1 |     11k |
+| design      |     1 |    0% |        |      1k |
+| intent      |    62 |   11% |     10 |    177k |
+| other docs  |    54 |    9% |      8 |    259k |
+| source      |   180 |   31% |     13 |    536k |
+| checks      |    87 |   15% |        |     77k |
+| git         |    40 |    7% |        |     63k |
+| shell other |    71 |   12% |      5 |    122k |
+| skills      |     5 |    1% |        |     174 |
+| other files |     2 |    0% |        |    102k |
+| other tools |    10 |    2% |        |      2k |
+
+##### Largest contexts
+
+| agent              |                               task | calls | max ctx |  cost |
+| ------------------ | ---------------------------------: | ----: | ------: | ----: |
+| coding-leader      |               v3.3 wave 5 chunk 19 |   116 |    232k | $6.03 |
+| coding-executor    | Build chunk 23b generation/control |   104 |    177k | $4.18 |
+| documentalist      |                   v3.3 wave 5 sync |    53 |    175k | $2.79 |
+| driver (top level) |            driver session 500a86b2 |    43 |    160k | $2.78 |
+| documentalist      |              v3.3 wave 5 preflight |    78 |    141k | $2.97 |
+
+No agent over 300k tokens of context.
+
+- The owner, 2026-11-14: "Merge and push"; chunk 21: "Close wave 5 without it". `spec-writer`'s
+  plan v22 (e97de4f4), **spec D538**: chunk 21 leaves wave 5, still blocked on L1 and O310, and
+  becomes its own conditional wave 6 (runs only if L1 approves the seventh, before the release
+  gate; a `documentalist` peek over its files once O310 is ruled, wave 5's preflight having
+  covered it; C2 at wave 6's sync, 20.0.0); otherwise it is recorded as skipped. Wave 5 merged
+  into `main` and pushed. Next: the release gate's preparations or wave 6 after L1, in a fresh
+  session; L1, O310, H2, H4–H6, L2, U1b and the M2/M3 reruns with the owner.

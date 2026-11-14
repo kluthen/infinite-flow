@@ -122,7 +122,9 @@ type FieldKey<G extends SettingGroup> = `${G}.${keyof SavedSettings[G] & string}
  * The fields of Jam's own settings, each one record of the `jam` group beside session mode's
  * groups, with no upgrade step and no data version of their own (master spec C5.16, C10.2). This
  * codec only lists their keys and stores their values as given: Jam's code (src/jam/) decodes
- * them, so the first load decodes nothing of Jam's.
+ * them, so the first load decodes nothing of Jam's. Jam's own Seventh chords level is one more
+ * field, named by its chord family's capability name (`jam.seventh-chords`), with no upgrade step
+ * and no change of data version either.
  */
 // @spec-link [[module_jam_settings]]
 export const JAM_SETTING_FIELDS = deepFreeze([
@@ -135,6 +137,7 @@ export const JAM_SETTING_FIELDS = deepFreeze([
   'drift',
   'rhythmLockOn',
   'allowedRhythmChanges',
+  'seventh-chords',
 ] as const)
 
 /** One of Jam's settings, by its field name. */

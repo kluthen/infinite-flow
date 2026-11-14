@@ -7,6 +7,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import ControlPanel from '@/components/controls/ControlPanel.vue'
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
@@ -32,6 +33,7 @@ function mountPanel(
     props: {
       controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, instrumentProfileId }),
       figureLevels: NEUTRAL_FIGURE_LEVELS,
+      chordFamilies: OFF_CHORD_FAMILIES,
       selection: DEFAULT_PRESET_SELECTION,
       presets: BUILT_IN_PRESETS,
       readonly: false,

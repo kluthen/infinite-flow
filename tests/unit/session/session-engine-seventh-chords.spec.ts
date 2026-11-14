@@ -128,7 +128,7 @@ describe('a session started with this phrase, phrase 1 made at another level', (
   // @test-link [[rule_stale_phrase_prompt_at_start]]
   it.each([
     ['Off', 'Often', OFF_CHORD_FAMILIES, FAVORED],
-    ['Mostly', 'Off', STRONGLY, OFF_CHORD_FAMILIES],
+    ['Always', 'Off', STRONGLY, OFF_CHORD_FAMILIES],
   ] as const)(
     'phrase 1 at %s keeps its own level; every attempt from phrase 2 carries the session level %s',
     (_from, _to, phraseOneLevel, sessionLevel) => {

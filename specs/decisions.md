@@ -631,3 +631,9 @@ archived range D407–D509 that its archive notice lists.
   from v3.1's), not the atom's "about 220 sessions of about 13 minutes"; the behaviour holds
   (D376). An overrun at fewer sessions than the atom says goes to the owner. Now in:
   [build plan v3.3, chunk 22](versions/v3/build-plan-v3.3.md#chunk-22--v33-release-gate).
+- **D538 (2026-11-14): wave 5 closes without chunk 21, which becomes its own conditional wave 6.**
+  The owner's ruling: chunk 21 is still blocked on L1 (H1 not listened to yet) and O310. Wave 6
+  runs only if L1 approves the seventh as an ending (then O310 ruled, C2 drafted and confirmed, a
+  peek, C2's 20.0.0 at its sync), before the release gate; otherwise chunk 21 is recorded as
+  skipped. Now in: [build plan v3.3, waves](versions/v3/build-plan-v3.3.md#waves),
+  [chunk 21](versions/v3/build-plan-v3.3.md#chunk-21--endings-on-the-seventh-second-option-conditional).

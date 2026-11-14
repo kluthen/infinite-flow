@@ -931,7 +931,7 @@ phrase never repays a recovery on the tonic chord's seventh (the triad reading).
 the seventh may become an ending note and a landing note. Each file plays a phrase (or a pair of
 phrases) as the app generates it, with the backing, then the same music with **one note moved onto
 the chord's seventh**: listen to the two halves one after the other. Every phrase is at the
-strongest Seventh chords level (Mostly), concert pitch, over the built-in instruments' registers.
+strongest Seventh chords level (Always), concert pitch, over the built-in instruments' registers.
 
 The ten files are in
 `/tmp/claude-1001/-home-bastien-work-infinite-flow/a1b1e74e-1fb1-429c-80dc-2da3a79ae946/scratchpad/h1/`,
@@ -982,13 +982,14 @@ npm run render:seventh-endings -- --out /tmp/h1 \
 
 The reference machine, from the repo, in a worktree holding chunk 19. Chrome must make the same
 phrase as the headless replay from a replay key copied from a Chrome session. The spec run below
-replays hand-written `ifk5.` keys (a Mostly phrase, a Sometimes phrase, a Sometimes phrase whose
+replays hand-written `ifk5.` keys (an Always phrase, a Sometimes phrase, a Sometimes phrase whose
 chords all stay triads, and a phrase joined after a carried seventh chord) and a slice of the
 recorded older keys in the browser's own generation worker, and replays your key, checking each
 against the headless replay of the same key. Chrome is the one supported browser, so there is no
 Edge half (spec D399).
 
-- [ ] In Chrome, set the Seventh chords control to Mostly, generate a phrase, open the console
+- [ ] In Chrome, at Idle, set the **Seventh chords** control (settings, Foundation group, right
+      after Harmonic motion) to Always, generate a phrase, open the console
       (F12, Console tab) and copy the whole line
       `[Infinite Flow] phrase replay key · workspace phrase · seed1-… · ifk5.…`.
 - [ ] `npm run build`, then run, with your key between the single quotes:
@@ -997,26 +998,26 @@ Edge half (spec D399).
       INFINITE_FLOW_REPLAY_KEY='ifk5.…' npx playwright test tests/e2e/release/deterministic-replay.spec.ts
       ```
 
-      Until chunk 19 the app always sends Off, so this example key, made with the replay tool's
-      key format (seed 4242, C major, Settled, Mostly), stands in for a copied one:
+      To try the run before copying a key of your own, use this example key, made with the
+      replay tool's key format (seed 4242, C major, Settled, Always); the pass needs a copied one:
       `ifk5.WyJzZXZlbnRocy00MjQyIiw0MjQyLFs5MCwiQyIsIk1ham9yIiwiR2VudGxlIGRpYXRvbmljIiwiU2V0dGxlZCIsIlF1YXJ0ZXIiLCJTbGlnaHRseSB2YXJpZWQiLCJPY2Nhc2lvbmFsIG9mZmJlYXRzIiwiU3BhcnNlIiwiQXJjaCIsIk1pZGRsZSIsIlNoYXBlZCIsIlByZWRpY3RhYmxlIiwiYy1rZXlib2FyZCJdLHsicGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwiYWNjZW50ZWRQYXNzaW5nVG9uZSI6ImFzVG9kYXkiLCJuZWlnaGJvclRvbmUiOiJhc1RvZGF5IiwiYXBwb2dnaWF0dXJhIjoib2ZmIiwiZGlhdG9uaWNFbmNsb3N1cmUiOiJvZmYiLCJjaHJvbWF0aWNBcHByb2FjaCI6Im9mZiIsImNocm9tYXRpY0VuY2xvc3VyZSI6Im9mZiJ9LDEsbnVsbCxudWxsLG51bGwsbnVsbCx7InNldmVudGgtY2hvcmRzIjoic3Ryb25nbHlGYXZvcmVkIn1d`
 
 - [ ] Pass: every test passed, none skipped and none failed. A skipped test means the key was not
       given.
 
-**Result:** not run yet with a key copied from Chrome (needs chunk 19). Chunk 15 ran the spec in
+**Result:** not run yet with a key copied from Chrome (needs the owner). Chunk 15 ran the spec in
 Chromium (2026-11-13) with the example key: 8 passed, none skipped. The Edge half was dropped
 (spec D399, plan v17).
 
 ## v3.3 H4. The files (chunk 13; about 10 min)
 
 The reference machine, MuseScore and a DAW (or any MIDI tool that shows the notes). Seventh
-chords must reach both files as the app shows and plays them (spec item 12). Until chunk 19 the
-app always sends Off, so the two files come from a spec, not from the Review: a two-phrase C MIDI
-keyboard session at the strongest Seventh chords level (written pitch is concert pitch). Phrase 1
-(C major, seed 1) holds Cmaj7, Dm7, G7, G7; phrase 2 (C Ionian, seed 2) holds Cmaj7, Dm7, Bm7♭5,
-Cmaj7. No single collection plans both G7 and Bm7♭5, hence the two phrases; measure 5 restates
-the key (no sharps or flats) for the change of collection.
+chords must reach both files as the app shows and plays them (spec item 12). The two files come
+from a spec rather than from the Review, so that their chords are known in advance: a two-phrase
+C MIDI keyboard session at the strongest Seventh chords level (written pitch is concert pitch).
+Phrase 1 (C major, seed 1) holds Cmaj7, Dm7, G7, G7; phrase 2 (C Ionian, seed 2) holds Cmaj7,
+Dm7, Bm7♭5, Cmaj7. No single collection plans both G7 and Bm7♭5, hence the two phrases; measure 5
+restates the key (no sharps or flats) for the change of collection.
 
 - [ ] From the repo, write the two files (any empty directory will do):
 
@@ -1108,8 +1109,9 @@ The longest symbol is a root with an accidental plus `m7♭5`: in A major the ch
 G♯m7♭5 in concert pitch, and each instrument shows it in its own written key (A major for the C
 MIDI keyboard, B major for the B-flat tenor saxophone, F♯ major for the E-flat alto saxophone).
 
-- [ ] Set the Seventh chords control to Mostly and the written key to the instrument's key above
-      (A for the keyboard, B for the tenor, F♯ for the alto), Collection Major.
+- [ ] At Idle, set the **Seventh chords** control (settings, Foundation group, right after
+      Harmonic motion) to Always and the written key to the instrument's key above (A for the
+      keyboard, B for the tenor, F♯ for the alto), Collection Major.
 - [ ] For each instrument, at the narrowest width of each named breakpoint (browser windows
       768, 1024 and 1440 px wide, and a landscape phone, 740 by 360, below
       `bp-tablet-landscape`), generate several phrases and look at every measure
@@ -1121,4 +1123,4 @@ MIDI keyboard, B major for the B-flat tenor saxophone, F♯ major for the E-flat
       fit is replaced unseen (Loading lasts a little longer), never drawn overlapping.
 - [ ] Pass: no symbol touches, crosses a barline or is shrunk, at any width checked.
 
-**Result:** not run yet (needs chunk 19 and the owner).
+**Result:** not run yet (needs the owner).
