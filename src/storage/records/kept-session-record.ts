@@ -247,8 +247,9 @@ function playedNotesRecord(
  * the presets the session knew, the instrument's display name from phrase 1's intent, the starting
  * tempo from phrase 1, the tempo reached from the last phrase, and whether it is a Jam with, for a
  * Jam, whether its suggestion was declined), the body, and the played notes only when they are
- * kept, each written by `appVersion`, the session-wide record and the body at data version 4, the
- * played notes at data version 1, every field copied by name. The body holds a Jam's doodle and,
+ * kept, each written by `appVersion`, the session-wide record at data version 4, the body at data
+ * version 5 (each phrase's intent with its Seventh chords level, each harmony with its seventh
+ * chords), the played notes at data version 1, every field copied by name. The body holds a Jam's doodle and,
  * for a fresh Jam, its played-notes clock, kept whether or not the played notes are. Every time is
  * in seconds from phrase 1's scheduled start, but a fresh Jam's played notes, its raw doodle notes
  * included, which are in seconds from its count-in's first beat. Throws, as a caller defect, on a

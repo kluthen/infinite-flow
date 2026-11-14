@@ -97,8 +97,8 @@ export interface LockCensusChoices {
 /**
  * Intent: the runner's choices from an environment: `LOCK_LIMIT` a positive whole number of
  * evenly spaced cases (none: every case), `LOCK_SETTINGS` sweep (default), builtin or both,
- * `LOCK_LEVELS` the Seventh chords levels, comma-separated level ids (default every level
- * measurable today, seventh-levels.ts). Anything else fails.
+ * `LOCK_LEVELS` the Seventh chords levels, comma-separated level ids (default all four,
+ * seventh-levels.ts). Anything else fails.
  */
 export function lockCensusChoices(env: NodeJS.ProcessEnv = process.env): LockCensusChoices {
   const rawLimit = env.LOCK_LIMIT?.trim() ?? ''

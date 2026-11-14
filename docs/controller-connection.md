@@ -38,9 +38,11 @@ sheet's states, named actions, focus, check result copy and device changes) and 
 
 ## Module layout and lazy loading
 
-The entry chunk has a size budget (`npm run verify:boundaries`, see
-[The entry budget](#the-entry-budget)). Only what the header must show at once is in it; the sheet
-loads on demand as its own chunk, and the check's note is drawn by the lazy VexFlow engraver.
+The first load has a size budget (`npm run verify:boundaries`): since v3.3 wave 4 it counts all
+JavaScript loaded at startup, the entry chunk and every chunk it imports statically (400 KiB; see
+[The entry budget](#the-entry-budget) for its history). Only what the header must show at once is
+in the entry chunk; the sheet loads on demand as its own chunk, and the check's note is drawn by
+the lazy VexFlow engraver.
 
 | File                                                                  | Holds                                                                                                              | Chunk              |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------ |

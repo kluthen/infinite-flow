@@ -21,7 +21,13 @@ import { compileAttacks } from '@/domain/pitch/pitch-context'
 import { collectionPitchClasses } from '@/domain/pitch/pitch-harmony'
 import { bindTensionRequirement, makePitchPolicy } from '@/domain/pitch/pitch-policy'
 import { makeBoundPitchPlannerInput } from '@/domain/pitch/pitch-types'
-import type { BoundPitchPlannerInput, ConcreteTensionBinding } from '@/domain/pitch/pitch-types'
+import type {
+  BoundPitchPlannerInput,
+  ConcreteTensionBinding,
+  PitchFigureKind,
+} from '@/domain/pitch/pitch-types'
+import type { TensionFigureKind } from '@/domain/harmony/harmony-types'
+import { boundSeventhInput, PLAN_KINDS } from './seventh-chord-inputs'
 
 /** Plain UTF-16 code-unit order of two strings, independent of the runtime's locale. */
 function codeUnitOrder(a: string, b: string): number {
@@ -439,5 +445,161 @@ describe('pitch-candidates: each candidate names the free figures it may start',
     )
     expect(tense.length).toBeGreaterThan(0)
     for (const candidate of tense) expect(candidate).not.toHaveProperty('figures')
+  })
+})
+
+/** The static C-major plan in seventh form: every attack sounds Cmaj7 (C E G B), B its seventh. */
+const STATIC_C = PLAN_KINDS.find((kind) => kind.name === 'tonal static')!
+const C_TRIAD = [0, 4, 7]
+const B = 11
+
+/** Jazz's levels with the appoggiatura and the diatonic enclosure on too: every free figure. */
+const EVERY_FREE_FIGURE: FigureLevels = {
+  ...JAZZ_FIGURE_LEVELS,
+  appoggiatura: 'asToday',
+  diatonicEnclosure: 'asToday',
+}
+
+/** One figure path's target, as its reservations name it. */
+interface FigureTarget {
+  readonly kind: PitchFigureKind
+  readonly final: boolean
+  readonly pitchClass: number
+}
+
+/** The targets of the reservations `keep` selects in an input's domains. */
+function figureTargets(
+  input: BoundPitchPlannerInput,
+  keep: (bindingIdentity: string | undefined) => boolean,
+): readonly FigureTarget[] {
+  const { attacks, domains } = domainsFor(input)
+  return domains.flat().flatMap(({ reservation }) =>
+    reservation && keep(reservation.bindingIdentity)
+      ? [
+          {
+            kind: reservation.figureKind,
+            final: attacks[reservation.targetAttackIndex]!.isFinal,
+            pitchClass: reservation.targetPitchClass,
+          },
+        ]
+      : [],
+  )
+}
+
+/**
+ * The free figures' targets over the static Cmaj7 plan, across its first twelve Eighth rhythms:
+ * among them, rhythms whose attack before the final one falls on beat 3, so that a free
+ * appoggiatura may resolve onto the final attack.
+ */
+function freeFigureTargets(): readonly FigureTarget[] {
+  const plan = boundSeventhInput({ kind: STATIC_C, figureLevels: EVERY_FREE_FIGURE })
+  const rhythms = makeRhythmCandidateDomain({
+    noteDensity: 'Eighth',
+    rhythmicVariety: 'Slightly varied',
+    silenceDensity: 'Sparse',
+    syncopation: 'Straight',
+    tensionArc: 'Settled',
+  })
+  if (rhythms.kind !== 'rhythm_candidate_domain') throw new Error('fixture rhythm missing')
+  const targets: FigureTarget[] = []
+  let count = 0
+  for (const rhythm of rhythms.candidates()) {
+    const tensionBinding = bindTensionRequirement(plan.harmony, rhythm)
+    if (!tensionBinding) throw new Error('fixture binding missing')
+    const { request, policy, harmony } = plan
+    const input = makeBoundPitchPlannerInput({ request, policy, harmony, rhythm, tensionBinding })
+    targets.push(...figureTargets(input, (identity) => identity === undefined))
+    count += 1
+    if (count === 12) break
+  }
+  return targets
+}
+
+/**
+ * Tension's figure of `figureKind` scheduled onto the attack at `target` of the static Cmaj7
+ * plan, its one or two members just before it: the scheduled figure's targets.
+ */
+function scheduledTargets(figureKind: TensionFigureKind, target: number) {
+  const plan = boundSeventhInput({ kind: STATIC_C, figureLevels: EVERY_FREE_FIGURE })
+  const members =
+    figureKind === 'two_note_diatonic_approach' ? [target - 2, target - 1] : [target - 1]
+  const identity = `fixture/${figureKind}/${members.join(',')}/${target}`
+  const input = makeBoundPitchPlannerInput({
+    request: plan.request,
+    policy: plan.policy,
+    harmony: plan.harmony,
+    rhythm: plan.rhythm,
+    tensionBinding: {
+      identity,
+      bindingIndex: 0,
+      figureKind,
+      attackIndices: members,
+      targetAttackIndex: target,
+    },
+  })
+  return {
+    attacks: domainsFor(input).attacks,
+    targets: figureTargets(input, (id) => id === identity),
+  }
+}
+
+/** The distinct pitch classes of some targets, ascending. */
+function targetPitchClasses(targets: readonly FigureTarget[]): readonly number[] {
+  return [...new Set(targets.map((target) => target.pitchClass))].sort((a, b) => a - b)
+}
+
+// @test-link [[module_pitch_search_context]]
+describe("pitch-candidates: a figure's goal on the final attack is its triad, inside the phrase its chord tones", () => {
+  // @test-link [[module_pitch_search_context]]
+  // @test-link [[rule_figures_resolve_onto_chord_tones]]
+  it.each([
+    ['chromatic_approach', true],
+    ['chromatic_enclosure', true],
+    ['appoggiatura', true],
+    // The seventh lies one scale step below the root, a chord tone: no decorating note above it
+    // can enclose it, inside the phrase or at its end.
+    ['diatonic_enclosure', false],
+  ] as const)(
+    "aims no free %s on the final attack at its chord's seventh",
+    (kind, innerSeventh) => {
+      const targets = freeFigureTargets().filter((target) => target.kind === kind)
+      const onFinal = targets.filter((target) => target.final)
+      expect(onFinal.length).toBeGreaterThan(0)
+      expect(targetPitchClasses(onFinal).every((pitchClass) => C_TRIAD.includes(pitchClass))).toBe(
+        true,
+      )
+      const inner = targets.filter((target) => !target.final)
+      expect(inner.some((target) => target.pitchClass === B)).toBe(innerSeventh)
+    },
+  )
+
+  // @test-link [[module_pitch_search_context]]
+  // @test-link [[rule_figures_resolve_onto_chord_tones]]
+  it.each(['appoggiatura', 'diatonic_passing_or_neighbor', 'two_note_diatonic_approach'] as const)(
+    "aims Tension's scheduled %s onto the final attack at its triad, onto an inner one at its seventh too",
+    (figureKind) => {
+      const final = compileAttacks(boundSeventhInput({ kind: STATIC_C })).length - 1
+      const onFinal = scheduledTargets(figureKind, final)
+      expect(onFinal.attacks[final]!.isFinal).toBe(true)
+      expect(onFinal.targets.length).toBeGreaterThan(0)
+      expect(
+        targetPitchClasses(onFinal.targets).every((pitchClass) => C_TRIAD.includes(pitchClass)),
+      ).toBe(true)
+      const inner = scheduledTargets(figureKind, final - 1)
+      expect(inner.attacks[final - 1]!.isFinal).toBe(false)
+      expect(targetPitchClasses(inner.targets)).toContain(B)
+    },
+  )
+
+  // @test-link [[module_pitch_search_context]]
+  it('aims every figure on a triad final event at the same tones as before: its triad', () => {
+    const input = boundSeventhInput({
+      kind: STATIC_C,
+      figureLevels: EVERY_FREE_FIGURE,
+      sevenths: () => false,
+    })
+    const onFinal = figureTargets(input, () => true).filter((target) => target.final)
+    expect(onFinal.length).toBeGreaterThan(0)
+    expect(targetPitchClasses(onFinal)).toEqual(C_TRIAD)
   })
 })

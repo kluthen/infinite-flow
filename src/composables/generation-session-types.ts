@@ -117,8 +117,8 @@ export interface GenerationSessionActions {
   readonly setFigureLevel: (figure: FigureId, level: FigureLevel) => boolean
   /**
    * Set a chord family's level (the Seventh chords level), at Idle only (false otherwise); with a
-   * preset selected the selection becomes Custom based on it. It saves nothing: no record holds
-   * the level yet. A family or level that is not one is a defect: SessionUsageError.
+   * preset selected the selection becomes Custom based on it. It saves the level and the
+   * selection it makes. A family or level that is not one is a defect: SessionUsageError.
    */
   readonly setChordFamilyLevel: (family: ChordFamilyId, level: ChordFamilyLevel) => boolean
   /**

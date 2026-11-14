@@ -11,6 +11,7 @@
  * Pure: no browser API. The policy does the saving, holding and reporting.
  */
 
+import { CHORD_FAMILY_IDS, type ChordFamilies } from '@/domain/chords/chord-families'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import { FIGURE_IDS, type FigureLevels } from '@/domain/figures/figure-levels'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
@@ -226,6 +227,7 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
 interface ControlChoices {
   readonly controls: GenerationControls
   readonly figureLevels: FigureLevels
+  readonly chordFamilies: ChordFamilies
   readonly selection: PresetSelection
 }
 
@@ -240,8 +242,9 @@ export function sameSelection(left: PresetSelection, right: PresetSelection): bo
 
 /**
  * Intent: the settings a player's control change changed: each control whose value differs, each
- * figure level that differs, and the preset selection when it differs. For the player's change
- * handlers only, never for a watcher of control values.
+ * figure level and chord family level (the Seventh chords level) that differs, and the preset
+ * selection when it differs, so a preset choice saves the level with the selection. For the
+ * player's change handlers only, never for a watcher of control values.
  */
 // @spec-link [[rule_settings_saved_on_change]]
 // @spec-link [[rule_saved_setting_is_players_choice]]
@@ -260,6 +263,11 @@ export function chosenControlChanges(
   for (const figure of FIGURE_IDS) {
     if (before.figureLevels[figure] !== after.figureLevels[figure]) {
       changed.push([`figureLevels.${figure}`, after.figureLevels[figure]])
+    }
+  }
+  for (const family of CHORD_FAMILY_IDS) {
+    if (before.chordFamilies[family] !== after.chordFamilies[family]) {
+      changed.push([`chordFamilies.${family}`, after.chordFamilies[family]])
     }
   }
   if (!sameSelection(before.selection, after.selection)) {

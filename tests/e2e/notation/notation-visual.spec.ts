@@ -5,7 +5,11 @@
  * instrument's own written pitch), at a normal desktop width in the one-system layout, plus one
  * fixed phone-viewport case showing the whole staff frame in the split layout at idle: a sparse
  * phrase that one system would hold, drawn as bars 1-2 over bars 3-4 in the two reserved system
- * positions. Baselines are generated with `--update-snapshots` and must then re-run stable.
+ * positions. v3.3's seventh chord symbols add three cases on the A major chord-grid fixtures:
+ * `seventhsQuarter` in the one-system layout at a desktop width, `seventhsEighth`'s whole staff
+ * frame in the split layout on the phone viewport, and `seventhsEighth` drawn by the session's own
+ * per-system path into the one-system layout's two system positions (phrases 1 and 2, each
+ * whole). Baselines are generated with `--update-snapshots` and must then re-run stable.
  */
 import { expect, test } from '@playwright/test'
 
@@ -52,4 +56,70 @@ test('two-system phone layout matches its baseline', async ({ page }) => {
 
   await waitForStaffFadeSettled(page)
   await expect(page.locator('.staff-frame')).toHaveScreenshot('two-system-phone-staff-frame.png')
+})
+
+// @test-link [[rule_seventh_chord_symbols]]
+test('seventh chord symbols: staff-content matches its baseline for seventhsQuarter at a desktop width', async ({
+  page,
+}) => {
+  await page.goto('/?fixture=seventhsQuarter&width=1200')
+  await waitForHarnessSettled(page)
+  const harnessState = await page.evaluate(() => window.__notationHarness)
+  expect(harnessState.state).toBe('ready')
+  expect(harnessState.engraved?.systemCount).toBe(1)
+
+  await waitForStaffFadeSettled(page)
+  await expect(page.locator('.staff-content')).toHaveScreenshot(
+    'sevenths-quarter-staff-content.png',
+  )
+})
+
+// @test-link [[rule_seventh_chord_symbols]]
+test('seventh chord symbols: the split phone staff frame matches its baseline for seventhsEighth', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 740, height: 360 })
+  await page.goto('/?fixture=seventhsEighth&width=700')
+  await waitForHarnessSettled(page)
+  const harnessState = await page.evaluate(() => window.__notationHarness)
+  expect(harnessState.state).toBe('ready')
+  expect(harnessState.engraved?.systemCount).toBe(2)
+
+  await waitForStaffFadeSettled(page)
+  await expect(page.locator('.staff-frame')).toHaveScreenshot(
+    'sevenths-eighth-two-system-phone-staff-frame.png',
+  )
+})
+
+// @test-link [[rule_seventh_chord_symbols]]
+test("seventh chord symbols: the one-system session's two system positions match their baseline for seventhsEighth", async ({
+  page,
+}) => {
+  await page.goto('/?fixture=seventhsEighth&width=1200')
+  await waitForHarnessSettled(page)
+  expect((await page.evaluate(() => window.__notationHarness)).state).toBe('ready')
+  const inputs = await page.evaluate(() => window.__notationLayoutInputs.at(-1)!)
+  expect(inputs.viewport.layout).toBe('one-system')
+
+  // Each position drawn whole by the session's per-system path, then shown in a staff frame of
+  // its own, one position under the other, so the stylesheet colours them as the session does.
+  await page.evaluate(async ({ containerWidthPx, viewport }) => {
+    const systems = window.__notationSystems
+    const parts = [
+      await systems.engravePart('seventhsEighth', 1, 'whole', containerWidthPx, viewport),
+      await systems.engravePart('seventhsEighth', 2, 'whole', containerWidthPx, viewport),
+    ]
+    const frame = document.createElement('div')
+    frame.className = 'staff-frame session-positions-shot'
+    for (const part of parts) {
+      const position = document.createElement('div')
+      position.innerHTML = part.svg.markup
+      frame.append(position)
+    }
+    document.body.replaceChildren(frame)
+  }, inputs)
+
+  const shot = page.locator('.session-positions-shot')
+  await expect(shot.locator('svg.staff-svg')).toHaveCount(2)
+  await expect(shot).toHaveScreenshot('sevenths-eighth-session-positions.png')
 })

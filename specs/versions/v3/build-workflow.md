@@ -1,6 +1,7 @@
 # Infinite Flow v3 — Build workflow
 
-Status: v2 (2026-10-22): the contract sign-off is recorded in the intent change set and the
+Status: v3 (2026-11-14): a wave gate reports all start-up JavaScript and the entry file, the
+plan's start-up budget gating the first (spec D536). v2 (2026-10-22): the contract sign-off is recorded in the intent change set and the
 commit that applies it, not in the atom (wave 1 preflight of v3.2). v1 (2026-10-16): written from
 §3 of the v3.0–v3.3 build plans (spec D349).
 
@@ -96,11 +97,12 @@ machine and makes timing tests fail.
 2. `npm run test:sweep` when a chunk of the wave places the sweep there (a generation or session
    chunk does; it takes long), and every other check a chunk's **Verification** line defers to the
    wave gate.
-3. **The bundle**: the entry chunk's size after `npm run build` and its change since the previous
-   wave, written in the wave log and in the wave's merge commit message; `npm run
-   verify:boundaries` holds the plan's entry budget (`entryChunkByteBudget` in
+3. **The bundle**: after `npm run build`, the size of all JavaScript loaded at start-up (the entry
+   file and every chunk it imports statically, transitively) and of the entry file, each with its
+   change since the previous wave, written in the wave log and in the wave's merge commit message;
+   `npm run verify:boundaries` holds the plan's start-up budget on the total (in
    `scripts/verify-boundaries.mjs`; raising it needs the owner). A chunk's "lazy" or "unchanged"
-   claim about the entry chunk is checked here.
+   claim about the start-up code is checked here.
 4. **Performance figures** are recorded with the machine and the date. A figure measured on a
    virtual machine never gates; the owner checks budgets on the reference machine.
 5. Then the post-task sync (above).

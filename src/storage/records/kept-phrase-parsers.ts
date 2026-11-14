@@ -2,13 +2,16 @@
  * The validators of the harmony a kept phrase stores beside its timeline, the one its chord symbols
  * are drawn from, and the list of refusals every kept-session validator throws. A harmony is read
  * back into exactly the candidate the generator chose, or refused: a missing, extra, ill-typed or
- * out-of-range field anywhere throws, and nothing is ever repaired, defaulted or partly read. The
+ * out-of-range field anywhere throws, and nothing is ever repaired, defaulted or partly read. A
+ * current (data version 5) harmony's events may hold their seventh, which must be the seventh
+ * stacked on the event's own triad; the earlier data versions' harmonies hold triads only. The
  * generation intent's readers live in `kept-intent-parsers.ts`.
  *
  * Pure: no storage access. The kept-session codec calls these and reports any refusal as an
  * unreadable record.
  */
 
+import { ChordFamiliesError } from '@/domain/chords/chord-families'
 import {
   GenerationControlError,
   TENSION_ARCS,
@@ -22,13 +25,15 @@ import {
 import { ConcertPitchError } from '@/domain/events/concert-pitch'
 import { deepFreeze } from '@/domain/events/deep-freeze'
 import { FigureLevelsError } from '@/domain/figures/figure-levels'
-import { CarryInError } from '@/domain/generation/carry-in/carry-in'
+import { CarryInError, type CarriedChordReading } from '@/domain/generation/carry-in/carry-in'
 import { GenerationRequestError } from '@/domain/generation/generation-request'
 import { RequestRhythmLockError } from '@/domain/generation/request-rhythm-lock'
 import { SteeringBlockError } from '@/domain/generation/steering-block'
+import { deriveSeventhQuality } from '@/domain/harmony/collection'
 import type {
   AbstractTensionRequirement,
   BarRole,
+  ChordSeventh,
   CollectionDegree,
   DiatonicTriad,
   HarmonyCandidate,
@@ -36,6 +41,7 @@ import type {
   HarmonyEvent,
   HarmonyRole,
   PitchClassNumber,
+  SeventhQuality,
   TensionFigureKind,
   TriadQuality,
 } from '@/domain/harmony/harmony-types'
@@ -60,9 +66,9 @@ export { KeptRecordError }
 
 /**
  * Every error a kept-session validator throws for an invalid stored value: these validators',
- * the domain parsers' they call (the rhythm lock group's, the steering block's and the quantized
- * doodle's among them), and those of the timeline and concert-pitch parsers the codec reads a
- * phrase's timeline and its played notes with.
+ * the domain parsers' they call (the rhythm lock group's, the steering block's, the chord
+ * families' and the quantized doodle's among them), and those of the timeline and concert-pitch
+ * parsers the codec reads a phrase's timeline and its played notes with.
  */
 const REFUSALS: readonly (abstract new (message: string) => Error)[] = [
   KeptRecordError,
@@ -76,6 +82,7 @@ const REFUSALS: readonly (abstract new (message: string) => Error)[] = [
   ConcertPitchError,
   RequestRhythmLockError,
   SteeringBlockError,
+  ChordFamiliesError,
   QuantizedDoodleParseError,
   QuantizedDoodleViolation,
 ]
@@ -98,6 +105,12 @@ const HARMONY_ROLES: Catalog<HarmonyRole> = {
   modal_color: true,
 }
 const TRIAD_QUALITIES: Catalog<TriadQuality> = { major: true, minor: true, diminished: true }
+const SEVENTH_QUALITIES: Catalog<SeventhQuality> = {
+  'major-seventh': true,
+  'minor-seventh': true,
+  'dominant-seventh': true,
+  'half-diminished-seventh': true,
+}
 const ENDPOINT_KINDS: Catalog<HarmonyEndpoint['kind']> = {
   tonal_degree_five_chord_tone: true,
   tonal_static_degree_five: true,
@@ -158,12 +171,60 @@ function parseBarRole(value: unknown, context: string): BarRole {
   }
 }
 
-/** Intent: one stored harmony event, on a bar and half-bar, lasting a positive even beat count. */
-function parseHarmonyEvent(value: unknown, context: string): HarmonyEvent {
+/**
+ * Intent: the quality of the seventh chord a triad and a fourth pitch class stack into, root
+ * first, through the domain's own derivation; a refusal when the four form no diatonic seventh
+ * chord, which is the only error that derivation throws.
+ */
+function stackedSeventhQuality(
+  triad: DiatonicTriad,
+  pitchClass: PitchClassNumber,
+  context: string,
+): SeventhQuality {
+  try {
+    return deriveSeventhQuality([...triad.pitchClasses, pitchClass])
+  } catch (error) {
+    throw new KeptRecordError(
+      `${context} is not the seventh stacked on its triad: ${(error as Error).message}`,
+    )
+  }
+}
+
+/**
+ * Intent: a stored event's seventh: exactly its pitch class, 0 to 11, and a known seventh-chord
+ * quality, the pitch class stacking on the event's triad into a seventh chord of that quality.
+ */
+function parseEventSeventh(value: unknown, triad: DiatonicTriad, context: string): ChordSeventh {
+  const record = exactRecord(value, ['pitchClass', 'quality'], context)
+  const pitchClass = integerIn(
+    record.pitchClass,
+    0,
+    11,
+    `${context}.pitchClass`,
+  ) as PitchClassNumber
+  const quality = member(SEVENTH_QUALITIES, record.quality, `${context}.quality`)
+  const stacked = stackedSeventhQuality(triad, pitchClass, context)
+  if (quality !== stacked)
+    throw new KeptRecordError(
+      `${context}.quality is ${JSON.stringify(quality)}, but its notes form a ${JSON.stringify(stacked)} chord.`,
+    )
+  return { pitchClass, quality }
+}
+
+/**
+ * Intent: one stored harmony event, on a bar and half-bar, lasting a positive even beat count,
+ * holding its seventh only when `reading` takes one.
+ */
+function parseHarmonyEvent(
+  value: unknown,
+  context: string,
+  reading: CarriedChordReading,
+): HarmonyEvent {
   const record = exactRecord(
     value,
     ['barIndex', 'startBeat', 'durationBeats', 'triad', 'role', 'templateId', 'barRoles'],
     context,
+    reading === 'triad-or-seventh' ? ['seventh'] : [],
   )
   const { durationBeats } = record
   if (typeof durationBeats !== 'number' || !Number.isInteger(durationBeats))
@@ -171,14 +232,18 @@ function parseHarmonyEvent(value: unknown, context: string): HarmonyEvent {
   if (durationBeats <= 0 || durationBeats % 2 !== 0)
     throw new KeptRecordError(`${context}.durationBeats must be a positive even beat count.`)
   const barRoles = nonEmptyArray(record.barRoles, `${context}.barRoles`)
+  const triad = parseTriad(record.triad, `${context}.triad`)
   return {
     barIndex: oneOfNumbers(record.barIndex, BAR_INDICES, `${context}.barIndex`),
     startBeat: oneOfNumbers(record.startBeat, START_BEATS, `${context}.startBeat`),
     durationBeats,
-    triad: parseTriad(record.triad, `${context}.triad`),
+    triad,
     role: member(HARMONY_ROLES, record.role, `${context}.role`),
     templateId: nonEmptyString(record.templateId, `${context}.templateId`),
     barRoles: barRoles.map((role, index) => parseBarRole(role, `${context}.barRoles[${index}]`)),
+    ...(Object.hasOwn(record, 'seventh')
+      ? { seventh: parseEventSeventh(record.seventh, triad, `${context}.seventh`) }
+      : {}),
   }
 }
 
@@ -242,12 +307,20 @@ function parseTensionRequirement(value: unknown): AbstractTensionRequirement {
 /**
  * Intent: read a kept phrase's stored harmony, the one its chord symbols and backing are drawn
  * from, back into the harmony candidate the generator chose: every field checked, with exactly
- * the candidate's keys at every level. Returns a fresh deep-frozen candidate, never the stored
- * value; throws a KeptRecordError (or the tension arc's GenerationControlError) for anything
- * invalid, never repairing it.
+ * the candidate's keys at every level. With `reading` at `triad-or-seventh`, as a current (data
+ * version 5) body reads it, an event may also hold its seventh, exactly a pitch class and a
+ * quality, the seventh stacked on that event's triad into a seventh chord of that quality; at
+ * `triad`, as the earlier data versions read it, an event holding a seventh is refused as an
+ * unknown field. Returns a fresh deep-frozen candidate, never the stored value; throws a
+ * KeptRecordError (or the tension arc's GenerationControlError) for anything invalid, never
+ * repairing it.
  */
 // @spec-link [[module_kept_session_codec]]
-export function parseKeptHarmony(input: unknown): HarmonyCandidate {
+// @spec-link [[entity_kept_session_record]]
+export function parseKeptHarmony(
+  input: unknown,
+  reading: CarriedChordReading = 'triad',
+): HarmonyCandidate {
   const record = exactRecord(
     input,
     [
@@ -274,7 +347,7 @@ export function parseKeptHarmony(input: unknown): HarmonyCandidate {
       (degree) => parseDegree(degree, 'Kept harmony.degreeSequence'),
     ),
     events: nonEmptyArray(record.events, 'Kept harmony.events').map((event, index) =>
-      parseHarmonyEvent(event, `Kept harmony.events[${index}]`),
+      parseHarmonyEvent(event, `Kept harmony.events[${index}]`, reading),
     ),
     endpoint: parseEndpoint(record.endpoint),
     tensionRequirement: parseTensionRequirement(record.tensionRequirement),

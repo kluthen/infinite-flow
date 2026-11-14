@@ -7,7 +7,8 @@
  * calls. The build-output scan runs over file names
  * and over a throwaway directory tree made in the system temp directory. Jam's code boundary runs
  * over the module-graph fixtures in `tests/fixtures/boundaries/module-graphs/`, shaped like the
- * build's `dist/.vite/module-graph.json`.
+ * build's `dist/.vite/module-graph.json`. The first-load budget's startup-JavaScript total runs
+ * over a throwaway build output whose chunks have known sizes.
  */
 import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -24,6 +25,7 @@ import {
   scanBuildOutputBoundaries,
   scanSourceBoundaries,
   sourceBoundaryViolations,
+  startupJavaScriptBytes,
 } from '../../../scripts/verify-boundaries.mjs'
 
 const fixtureSourceRoot = fileURLToPath(new URL('../../fixtures/boundaries/src/', import.meta.url))
@@ -334,6 +336,58 @@ describe("verify-boundaries Jam's code boundary over the build's module graph", 
       await mkdir(join(root, '.vite'))
       await writeFile(join(root, '.vite', 'module-graph.json'), '{}')
       await expect(readModuleGraph(root)).rejects.toThrow(/holds no chunks list/)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('verify-boundaries first-load budget: all JavaScript loaded at startup', () => {
+  type ModuleGraph = Awaited<ReturnType<typeof readModuleGraph>>
+
+  /** Intent: one graph chunk with no modules, which the startup total does not read. */
+  function chunk(
+    fileName: string,
+    isEntry: boolean,
+    imports: string[],
+    dynamicImports: string[] = [],
+  ): ModuleGraph['chunks'][number] {
+    return { fileName, isEntry, imports, dynamicImports, modules: [] }
+  }
+
+  test('counts the entry chunk and every chunk it imports statically, transitively, and no chunk imported only dynamically', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'verify-boundaries-'))
+    try {
+      const sizes = {
+        'assets/index-a1.js': 300,
+        'assets/shared-b2.js': 40,
+        'assets/deep-c3.js': 7,
+        'assets/lazy-d4.js': 5000,
+        'assets/lazy-dep-e5.js': 900,
+      }
+      await mkdir(join(root, 'assets'))
+      for (const [fileName, size] of Object.entries(sizes)) {
+        await writeFile(join(root, fileName), 'x'.repeat(size))
+      }
+      const graph: ModuleGraph = {
+        chunks: [
+          chunk('assets/index-a1.js', true, ['assets/shared-b2.js'], ['assets/lazy-d4.js']),
+          chunk('assets/shared-b2.js', false, ['assets/deep-c3.js']),
+          chunk('assets/deep-c3.js', false, []),
+          chunk('assets/lazy-d4.js', false, ['assets/lazy-dep-e5.js', 'assets/shared-b2.js']),
+          chunk('assets/lazy-dep-e5.js', false, []),
+        ],
+      }
+
+      const startup = await startupJavaScriptBytes(root, graph)
+
+      expect(startup.totalBytes).toBe(300 + 40 + 7)
+      expect(startup.entryBytes).toBe(300)
+      expect(startup.chunks.map(({ fileName }) => fileName).sort()).toEqual([
+        'assets/deep-c3.js',
+        'assets/index-a1.js',
+        'assets/shared-b2.js',
+      ])
     } finally {
       await rm(root, { recursive: true, force: true })
     }

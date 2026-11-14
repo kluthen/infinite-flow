@@ -116,11 +116,12 @@ Status: this file holds four parts.
   (C13, C14, C16 item 49, C17; spec D522). Built and released as version 3.2.0 on 2026-11-09
   (spec D523), the contract for the running code with Parts A and B; its hand and listening checks
   follow the tag (spec D521). Its sections are numbered C1 to C19; what v1.1 to v1.26 change is listed at the top of Part C and marked in each section they touch.
-- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.4
-  (2026-11-12), consolidated from the v3.3 direction and the chord research, refreshed against
+- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.5
+  (2026-11-14), consolidated from the v3.3 direction and the chord research, refreshed against
   v3.2 as built (spec D511–D519); **approved by the owner on 2026-11-09** (spec D520); v1.3
   corrects it after the intent ingestion (spec D526); v1.4 says what a recovery owed across the join
-  may land on (spec D530). The contract wording it changes (§D12) was
+  may land on (spec D530); v1.5 (2026-11-14) counts all start-up JavaScript against a 400 KiB
+  budget (§D13, spec D536). The contract wording it changes (§D12) was
   confirmed by the owner separately, on 2026-11-10 (spec D526). Chrome is the one supported
   browser (D15, item 18; spec D399). Its sections are numbered D1 to D17.
 
@@ -4987,7 +4988,7 @@ Five layers, so that v4 keeps them (D491; the owner does not want it rewritten i
 
 ## Part D — v3.3
 
-Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.4 (2026-11-12; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D518; §D8.3's phrase 1 after `Start with this phrase`, D519; v1.3 corrects it after the intent ingestion and the contract sign-off, spec D526: the contract at 14.1.0, the wordings confirmed and two more STABLE atoms reworded, §D12; the four-note backing stated as settled, §D7.3; the spoken words left to the design, §D7.1; the finer fallback's exception, §D5.2; v1.4 says what a leap recovery owed across the join may land on, §D6.3, spec D530), consolidated from the
+Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.5 (2026-11-14; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D518; §D8.3's phrase 1 after `Start with this phrase`, D519; v1.3 corrects it after the intent ingestion and the contract sign-off, spec D526: the contract at 14.1.0, the wordings confirmed and two more STABLE atoms reworded, §D12; the four-note backing stated as settled, §D7.3; the spoken words left to the design, §D7.1; the finer fallback's exception, §D5.2; v1.4 says what a leap recovery owed across the join may land on, §D6.3, spec D530; v1.5, 2026-11-14, counts all start-up JavaScript against a 400 KiB budget, §D13, spec D536), consolidated from the
 v3.3 direction in the [v3 notes](README.md#v33--richer-chords-optional) and the chord research
 [docs/music/chord-research.md](../../../docs/music/chord-research.md), which keeps the sources, the
 construction tables and the code and atom references line by line. **Approved by the owner on
@@ -5166,8 +5167,8 @@ quality therefore comes from the key and mode, and only four qualities can occur
   rarer, and Off makes none. Strongly favored must give a clear majority: **at least 3 in 4
   harmony events in their seventh form** over the sweep (§D15 item 5), "a seventh on nearly every
   chord", the norm in jazz. Sometimes is closer to pop, where most chords stay triads. The shares
-  the build measures are reported to `ux-writer`, whose labels (Off, Sometimes, Often, Mostly)
-  rest on them.
+  the build measures are reported to `ux-writer`, whose labels (Off, Sometimes, Often, Always;
+  ux D485) rest on them.
 - **The same chance at every degree.** No role or degree is favored (not the degree-5 chord first,
   say): in jazz every chord of a progression takes its seventh, and a role order would be a style
   choice v3.3 does not make.
@@ -5757,8 +5758,10 @@ and the join the same day while writing this part, and a re-check of all of it o
   wave by wave; the open ending's second wording depends on the listening check.
 - **The rhythm lock's walk** (§D5.3): with the plan list growing, a locked rhythm spends more of the
   same search allowance before it gives way; measured (§D10).
-- **The entry budget**: 320 KiB since spec D504, with about 16 KB left after v3.2's wave 7; the
-  control adds a few lines.
+- **The start-up budget**: all JavaScript loaded at start-up (the entry file and every chunk it
+  imports statically, transitively, in minified bytes on disk) stays within 400 KiB (409,600
+  bytes), however the bundler groups it (spec D536; it replaced D504's 320 KiB on the entry file
+  alone); 385,440 bytes after v3.3's wave 4; the control adds a few lines.
 
 ## D14. Architectural decisions and their reasons
 

@@ -316,9 +316,38 @@ async function chunkSizes(outputRoot, fileNames) {
 }
 
 /**
+ * Intent: the JavaScript the browser loads at startup, as the first-load budget counts it: the
+ * entry chunk `index-*.js` and every chunk it imports statically, transitively (see
+ * firstLoadChunks), in minified bytes on disk. Chunks reached only through a dynamic `import()`
+ * load on demand and are not counted. Gives the total, which the budget gates, and the entry
+ * chunks' own bytes, which the check only reports.
+ *
+ * @param {string} outputRoot the directory that stands for the build output `dist/`
+ * @param {ModuleGraph} graph the build's module graph (see readModuleGraph)
+ * @returns {Promise<{ totalBytes: number, entryBytes: number, chunks: { fileName: string, bytes: number, isEntry: boolean }[] }>}
+ */
+export async function startupJavaScriptBytes(outputRoot, graph) {
+  const chunks = await Promise.all(
+    firstLoadChunks(graph).map(async ({ fileName, isEntry }) => ({
+      fileName,
+      bytes: (await stat(join(outputRoot, fileName))).size,
+      isEntry,
+    })),
+  )
+  let totalBytes = 0
+  let entryBytes = 0
+  for (const { bytes, isEntry } of chunks) {
+    totalBytes += bytes
+    if (isEntry) entryBytes += bytes
+  }
+  return { totalBytes, entryBytes, chunks }
+}
+
+/**
  * Intent: the full boundary verification run by `npm run verify:boundaries`: the authored-source
  * scan of `src/`, the Workbox runtime-caching setting, the precache manifest, the build output's
- * audio-asset scan, the chunk-size budgets and Jam's code boundary (no src/jam/ module in the first
+ * audio-asset scan, the first-load budget (all JavaScript loaded at startup), the per-chunk size
+ * budgets and Jam's code boundary (no src/jam/ module in the first
  * load, read from the build's module graph). Throws with every violation found.
  */
 async function verifyBoundaries() {
@@ -369,20 +398,28 @@ async function verifyBoundaries() {
   }
 
   /**
-   * Per-chunk minified-size budgets (bytes), matched by file-name prefix. The lazy VexFlow engraver
-   * chunk (src/notation/vexflow-engraver-loader.ts) embeds the Bravura/Academico fonts and is
+   * The first-load budget (bytes): all JavaScript loaded at startup, the entry chunk index-*.js and
+   * every chunk it imports statically, transitively, minified on disk (startupJavaScriptBytes). The
+   * entry chunk alone is reported, not gated. v3.3 wave 4 (spec D536, the owner's ruling on O235,
+   * replacing spec D504's 320 KiB budget on the entry chunk alone): 400 KiB; at the wave-4 gate the
+   * startup total was 385,440 B (wave 3: 380,072 B), the entry chunk 330,428 B of it.
+   */
+  const startupJavaScriptByteBudget = 400 * 1024
+
+  /**
+   * Per-chunk minified-size budgets (bytes), matched by file-name prefix, for every JS chunk but
+   * the entry chunk, which the first-load budget covers. The lazy VexFlow engraver chunk
+   * (src/notation/vexflow-engraver-loader.ts) embeds the Bravura/Academico fonts and is
    * intentionally large -- see its budget and the matching comment on vite.config.ts's
    * `chunkSizeWarningLimit`, which silences Vite's own generic size warning in favor of this
    * targeted check. Every other JS chunk is expected to stay small; an unmatched chunk falls back to
    * the tightest budget so unexpected new chunks are still guarded.
    */
-  const entryChunkByteBudget = 320 * 1024 // v3.2 (spec D504): raised from 300 KiB, 302,365 B used after chunk 24; v3.1 (spec D359) had raised it from 224 KiB
   const generationWorkerChunkByteBudget = 170 * 1024
   const vexflowEngraverChunkByteBudget = 800 * 1024
   const defaultChunkByteBudget = 100 * 1024
 
   const chunkByteBudgets = [
-    { prefix: 'index-', budget: entryChunkByteBudget, label: 'entry chunk (index-*.js)' },
     {
       prefix: 'generation.worker-',
       budget: generationWorkerChunkByteBudget,
@@ -395,10 +432,22 @@ async function verifyBoundaries() {
     },
   ]
 
+  const distRoot = fileURLToPath(new URL('../dist/', import.meta.url))
+  const moduleGraph = await readModuleGraph(distRoot)
+  const entryChunks = moduleGraph.chunks.filter((chunk) => chunk.isEntry).map((c) => c.fileName)
+
+  const startup = await startupJavaScriptBytes(distRoot, moduleGraph)
+  if (startup.totalBytes > startupJavaScriptByteBudget) {
+    violations.push(
+      `dist/assets (startup JavaScript exceeds the first-load budget: ${startup.totalBytes} B in ${startup.chunks.length} chunk(s) > ${startupJavaScriptByteBudget} B)`,
+    )
+  }
+
   let jsChunkCount = 0
   for (const entry of assetEntries) {
     if (!entry.isFile() || extname(entry.name) !== '.js') continue
     jsChunkCount += 1
+    if (entryChunks.includes(`assets/${entry.name}`)) continue
     const matchedBudget = chunkByteBudgets.find(({ prefix }) => entry.name.startsWith(prefix))
     const budget = matchedBudget?.budget ?? defaultChunkByteBudget
     const label = matchedBudget?.label ?? 'other JS chunk'
@@ -411,8 +460,6 @@ async function verifyBoundaries() {
   }
 
   // Jam's code boundary: no src/jam/ module in the entry chunk or a chunk it imports statically.
-  const distRoot = fileURLToPath(new URL('../dist/', import.meta.url))
-  const moduleGraph = await readModuleGraph(distRoot)
   for (const { chunk, module } of firstLoadJamViolations(moduleGraph)) {
     violations.push(`dist/${chunk} (Jam's code boundary: ${module} is in the first load)`)
   }
@@ -423,9 +470,12 @@ async function verifyBoundaries() {
 
   console.log(
     `Boundary verification passed for ${files.length} authored source files, ${outputFiles.length} build-output files with no audio or sample asset, ${precacheableAssetCount} precacheable dist/assets entries, and ${jsChunkCount} JS chunk(s) within budget ` +
-      `(entry ${entryChunkByteBudget / 1024} kB, generation.worker ${generationWorkerChunkByteBudget / 1024} kB, vexflow-engraver ${vexflowEngraverChunkByteBudget / 1024} kB, other ${defaultChunkByteBudget / 1024} kB).`,
+      `(startup JavaScript ${startupJavaScriptByteBudget / 1024} kB, generation.worker ${generationWorkerChunkByteBudget / 1024} kB, vexflow-engraver ${vexflowEngraverChunkByteBudget / 1024} kB, other ${defaultChunkByteBudget / 1024} kB).`,
   )
-  const entryChunks = moduleGraph.chunks.filter((chunk) => chunk.isEntry).map((c) => c.fileName)
+  console.log(
+    `First-load budget passed: startup JavaScript ${startup.totalBytes} B of ${startupJavaScriptByteBudget} B, in ${startup.chunks.length} chunk(s) (the entry chunk and its static imports). ` +
+      `Entry chunk alone (reported, not gated): ${startup.entryBytes} B.`,
+  )
   const jamChunks = jamChunkFileNames(moduleGraph)
   console.log(
     `Jam's code boundary passed: no src/jam/ module in the first load. Entry chunk: ${await chunkSizes(distRoot, entryChunks)}. ` +

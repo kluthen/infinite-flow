@@ -921,7 +921,62 @@ change made before the release gate. Run it after wave 7.
 # v3.3 hand checks
 
 Build plan [Hand checks](specs/versions/v3/build-plan-v3.3.md#hand-checks): each check is written
-here by the chunk that needs it. This part opens with H3; the others are added by their chunks.
+here by the chunk that needs it, in the plan's order (H1 first); the others are added by their chunks.
+
+## v3.3 H1. Listening: endings on the seventh (chunk 18; gate L1; run after wave 4)
+
+Any machine with a MIDI player (a DAW, MuseScore, or any player that plays all tracks), about 20
+min. Master spec D6.3 and item 9: today a phrase never ends on its final chord's seventh, and a next
+phrase never repays a recovery on the tonic chord's seventh (the triad reading). You decide whether
+the seventh may become an ending note and a landing note. Each file plays a phrase (or a pair of
+phrases) as the app generates it, with the backing, then the same music with **one note moved onto
+the chord's seventh**: listen to the two halves one after the other. Every phrase is at the
+strongest Seventh chords level (Mostly), concert pitch, over the built-in instruments' registers.
+
+The ten files are in
+`/tmp/claude-1001/-home-bastien-work-infinite-flow/a1b1e74e-1fb1-429c-80dc-2da3a79ae946/scratchpad/h1/`,
+with a `README.md` index naming each moved note (it writes sharps: D#4 is E♭4, A#3 is B♭3).
+
+| File                     | Key          | Instrument       | What moves (second half)                                     |
+| ------------------------ | ------------ | ---------------- | ------------------------------------------------------------ |
+| `01-ending-phrase-1.mid` | C major      | C MIDI keyboard  | final note D4 to F4, the seventh of G7 (F over G7)           |
+| `02-ending-phrase-2.mid` | C Dorian     | E-flat alto sax  | final note E♭4 to B♭3, the seventh of the home chord Cm7     |
+| `03-ending-phrase-3.mid` | C Mixolydian | B-flat tenor sax | final note G3 to B♭3, the seventh of the home chord C7       |
+| `04-ending-phrase-4.mid` | G major      | C MIDI keyboard  | final note A3 to C4, the seventh of D7                       |
+| `05-ending-phrase-5.mid` | A minor      | E-flat alto sax  | final note B3 to D4, the seventh of Em7                      |
+| `06-landing-pair-6.mid`  | C major      | B-flat tenor sax | the next phrase's first note G3 to B3, the seventh of Cmaj7  |
+| `07-landing-pair-7.mid`  | C Dorian     | C MIDI keyboard  | the next phrase's first note E♭4 to B♭3, the seventh of Cm7  |
+| `08-landing-pair-8.mid`  | C Mixolydian | E-flat alto sax  | the next phrase's first note E4 to B♭3, the seventh of C7    |
+| `09-landing-pair-9.mid`  | G major      | B-flat tenor sax | the next phrase's first note D4 to F♯3, the seventh of Gmaj7 |
+| `10-landing-pair-10.mid` | A minor      | C MIDI keyboard  | the next phrase's first note E4 to G3, the seventh of Am7    |
+
+- [ ] Files 01 to 05, **ending on the seventh with no next phrase**: for each, does the moved
+      ending sound open (you could keep playing) or like a mistake?
+- [ ] Files 06 to 10, **the next phrase landing on the tonic chord's seventh**: for each, does
+      the moved first note sound right after the phrase before, or like a mistake?
+- [ ] Approved (the seventh sounds open): the contract wording of spec D12's second option
+      (gate C2), then chunk 21. Not approved: v3.3 ships the triad reading. Write your verdict
+      per file below either way.
+
+If the folder is gone, write the files again from the repo (any empty folder; the phrase replay
+keys below are the ten examples' phrases, made by the app's own generator at seed 1, except file
+10's next phrase at seed 3):
+
+```sh
+npm run render:seventh-endings -- --out /tmp/h1 \
+  --ending ifk5.WyJsMS1lbmRpbmctYy1tYWpvci1wMS0xIiwxLFs5MCwiQyIsIk1ham9yIiwiR2VudGxlIGRpYXRvbmljIiwiTGlmdCIsIlF1YXJ0ZXIiLCJTbGlnaHRseSB2YXJpZWQiLCJTdHJhaWdodCIsIlNwYXJzZSIsIkFyY2giLCJNaWRkbGUiLCJTaGFwZWQiLCJWYXJpZWQiLCJjLWtleWJvYXJkIl0seyJwYXNzaW5nVG9uZSI6ImFzVG9kYXkiLCJhY2NlbnRlZFBhc3NpbmdUb25lIjoiYXNUb2RheSIsIm5laWdoYm9yVG9uZSI6ImFzVG9kYXkiLCJhcHBvZ2dpYXR1cmEiOiJvZmYiLCJkaWF0b25pY0VuY2xvc3VyZSI6Im9mZiIsImNocm9tYXRpY0FwcHJvYWNoIjoib2ZmIiwiY2hyb21hdGljRW5jbG9zdXJlIjoib2ZmIn0sMSxudWxsLG51bGwsbnVsbCxudWxsLHsic2V2ZW50aC1jaG9yZHMiOiJzdHJvbmdseUZhdm9yZWQifV0 \
+  --ending ifk5.WyJsMS1lbmRpbmctYy1kb3JpYW4tcDEtMSIsMSxbOTAsIkEiLCJEb3JpYW4iLCJHZW50bGUgZGlhdG9uaWMiLCJMaWZ0IiwiUXVhcnRlciIsIlNsaWdodGx5IHZhcmllZCIsIlN0cmFpZ2h0IiwiU3BhcnNlIiwiQXJjaCIsIk1pZGRsZSIsIlNoYXBlZCIsIlZhcmllZCIsImViLWFsdG8iXSx7InBhc3NpbmdUb25lIjoiYXNUb2RheSIsImFjY2VudGVkUGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwibmVpZ2hib3JUb25lIjoiYXNUb2RheSIsImFwcG9nZ2lhdHVyYSI6Im9mZiIsImRpYXRvbmljRW5jbG9zdXJlIjoib2ZmIiwiY2hyb21hdGljQXBwcm9hY2giOiJvZmYiLCJjaHJvbWF0aWNFbmNsb3N1cmUiOiJvZmYifSwxLG51bGwsbnVsbCxudWxsLG51bGwseyJzZXZlbnRoLWNob3JkcyI6InN0cm9uZ2x5RmF2b3JlZCJ9XQ \
+  --ending ifk5.WyJsMS1lbmRpbmctYy1taXhvbHlkaWFuLXAxLTEiLDEsWzkwLCJEIiwiTWl4b2x5ZGlhbiIsIkdlbnRsZSBkaWF0b25pYyIsIkxpZnQiLCJRdWFydGVyIiwiU2xpZ2h0bHkgdmFyaWVkIiwiU3RyYWlnaHQiLCJTcGFyc2UiLCJBcmNoIiwiTWlkZGxlIiwiU2hhcGVkIiwiVmFyaWVkIiwiYmItdGVub3IiXSx7InBhc3NpbmdUb25lIjoiYXNUb2RheSIsImFjY2VudGVkUGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwibmVpZ2hib3JUb25lIjoiYXNUb2RheSIsImFwcG9nZ2lhdHVyYSI6Im9mZiIsImRpYXRvbmljRW5jbG9zdXJlIjoib2ZmIiwiY2hyb21hdGljQXBwcm9hY2giOiJvZmYiLCJjaHJvbWF0aWNFbmNsb3N1cmUiOiJvZmYifSwxLG51bGwsbnVsbCxudWxsLG51bGwseyJzZXZlbnRoLWNob3JkcyI6InN0cm9uZ2x5RmF2b3JlZCJ9XQ \
+  --ending ifk5.WyJsMS1lbmRpbmctZy1tYWpvci1wMS0xIiwxLFs5MCwiRyIsIk1ham9yIiwiR2VudGxlIGRpYXRvbmljIiwiTGlmdCIsIlF1YXJ0ZXIiLCJTbGlnaHRseSB2YXJpZWQiLCJTdHJhaWdodCIsIlNwYXJzZSIsIkFyY2giLCJNaWRkbGUiLCJTaGFwZWQiLCJWYXJpZWQiLCJjLWtleWJvYXJkIl0seyJwYXNzaW5nVG9uZSI6ImFzVG9kYXkiLCJhY2NlbnRlZFBhc3NpbmdUb25lIjoiYXNUb2RheSIsIm5laWdoYm9yVG9uZSI6ImFzVG9kYXkiLCJhcHBvZ2dpYXR1cmEiOiJvZmYiLCJkaWF0b25pY0VuY2xvc3VyZSI6Im9mZiIsImNocm9tYXRpY0FwcHJvYWNoIjoib2ZmIiwiY2hyb21hdGljRW5jbG9zdXJlIjoib2ZmIn0sMSxudWxsLG51bGwsbnVsbCxudWxsLHsic2V2ZW50aC1jaG9yZHMiOiJzdHJvbmdseUZhdm9yZWQifV0 \
+  --ending ifk5.WyJsMS1lbmRpbmctYS1taW5vci1wMS0xIiwxLFs5MCwiRiMiLCJNaW5vciIsIkdlbnRsZSBkaWF0b25pYyIsIkxpZnQiLCJRdWFydGVyIiwiU2xpZ2h0bHkgdmFyaWVkIiwiU3RyYWlnaHQiLCJTcGFyc2UiLCJBcmNoIiwiTWlkZGxlIiwiU2hhcGVkIiwiVmFyaWVkIiwiZWItYWx0byJdLHsicGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwiYWNjZW50ZWRQYXNzaW5nVG9uZSI6ImFzVG9kYXkiLCJuZWlnaGJvclRvbmUiOiJhc1RvZGF5IiwiYXBwb2dnaWF0dXJhIjoib2ZmIiwiZGlhdG9uaWNFbmNsb3N1cmUiOiJvZmYiLCJjaHJvbWF0aWNBcHByb2FjaCI6Im9mZiIsImNocm9tYXRpY0VuY2xvc3VyZSI6Im9mZiJ9LDEsbnVsbCxudWxsLG51bGwsbnVsbCx7InNldmVudGgtY2hvcmRzIjoic3Ryb25nbHlGYXZvcmVkIn1d \
+  --landing ifk5.WyJsMS1sYW5kaW5nLWMtbWFqb3ItcDEtMSIsMSxbOTAsIkQiLCJNYWpvciIsIkdlbnRsZSBkaWF0b25pYyIsIkxpZnQiLCJRdWFydGVyIiwiU2xpZ2h0bHkgdmFyaWVkIiwiU3RyYWlnaHQiLCJTcGFyc2UiLCJBcmNoIiwiTWlkZGxlIiwiU2hhcGVkIiwiVmFyaWVkIiwiYmItdGVub3IiXSx7InBhc3NpbmdUb25lIjoiYXNUb2RheSIsImFjY2VudGVkUGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwibmVpZ2hib3JUb25lIjoiYXNUb2RheSIsImFwcG9nZ2lhdHVyYSI6Im9mZiIsImRpYXRvbmljRW5jbG9zdXJlIjoib2ZmIiwiY2hyb21hdGljQXBwcm9hY2giOiJvZmYiLCJjaHJvbWF0aWNFbmNsb3N1cmUiOiJvZmYifSwxLG51bGwsbnVsbCxudWxsLG51bGwseyJzZXZlbnRoLWNob3JkcyI6InN0cm9uZ2x5RmF2b3JlZCJ9XQ ifk5.WyJsMS1sYW5kaW5nLWMtbWFqb3ItcDItMSIsMSxbOTAsIkQiLCJNYWpvciIsIkdlbnRsZSBkaWF0b25pYyIsIkxpZnQiLCJRdWFydGVyIiwiU2xpZ2h0bHkgdmFyaWVkIiwiU3RyYWlnaHQiLCJTcGFyc2UiLCJBcmNoIiwiTWlkZGxlIiwiU2hhcGVkIiwiVmFyaWVkIiwiYmItdGVub3IiXSx7InBhc3NpbmdUb25lIjoiYXNUb2RheSIsImFjY2VudGVkUGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwibmVpZ2hib3JUb25lIjoiYXNUb2RheSIsImFwcG9nZ2lhdHVyYSI6Im9mZiIsImRpYXRvbmljRW5jbG9zdXJlIjoib2ZmIiwiY2hyb21hdGljQXBwcm9hY2giOiJvZmYiLCJjaHJvbWF0aWNFbmNsb3N1cmUiOiJvZmYifSwyLHsibGFzdFBpdGNoIjp7Im1pZGkiOjU1LCJhcnJpdmluZ0ludGVydmFsIjoyLCJyZWNvdmVyeSI6eyJraW5kIjoic2V0dGxlZCJ9fSwicmVnaXN0ZXJXaW5kb3ciOnsia2luZCI6IlJlZ2lzdGVyV2luZG93IiwibWluTWlkaSI6NTIsIm1heE1pZGkiOjY0fSwiZmluYWxIYXJtb255Ijp7InRyaWFkIjp7ImRlZ3JlZSI6NSwicGl0Y2hDbGFzc2VzIjpbNywxMSwyXSwicXVhbGl0eSI6Im1ham9yIn0sInNldmVudGgiOnsicGl0Y2hDbGFzcyI6NSwicXVhbGl0eSI6ImRvbWluYW50LXNldmVudGgifSwicm9sZSI6Im9wZW5fYXJyaXZhbCIsImVuZHBvaW50Ijp7ImtpbmQiOiJ0b25hbF9kZWdyZWVfZml2ZV9jaG9yZF90b25lIiwiZGVncmVlIjo1fX0sInBocmFzZU51bWJlciI6MX0sbnVsbCxudWxsLG51bGwseyJzZXZlbnRoLWNob3JkcyI6InN0cm9uZ2x5RmF2b3JlZCJ9XQ \
+  --landing ifk5.WyJsMS1sYW5kaW5nLWMtZG9yaWFuLXAxLTEiLDEsWzkwLCJDIiwiRG9yaWFuIiwiR2VudGxlIGRpYXRvbmljIiwiTGlmdCIsIlF1YXJ0ZXIiLCJTbGlnaHRseSB2YXJpZWQiLCJTdHJhaWdodCIsIlNwYXJzZSIsIkFyY2giLCJNaWRkbGUiLCJTaGFwZWQiLCJWYXJpZWQiLCJjLWtleWJvYXJkIl0seyJwYXNzaW5nVG9uZSI6ImFzVG9kYXkiLCJhY2NlbnRlZFBhc3NpbmdUb25lIjoiYXNUb2RheSIsIm5laWdoYm9yVG9uZSI6ImFzVG9kYXkiLCJhcHBvZ2dpYXR1cmEiOiJvZmYiLCJkaWF0b25pY0VuY2xvc3VyZSI6Im9mZiIsImNocm9tYXRpY0FwcHJvYWNoIjoib2ZmIiwiY2hyb21hdGljRW5jbG9zdXJlIjoib2ZmIn0sMSxudWxsLG51bGwsbnVsbCxudWxsLHsic2V2ZW50aC1jaG9yZHMiOiJzdHJvbmdseUZhdm9yZWQifV0 ifk5.WyJsMS1sYW5kaW5nLWMtZG9yaWFuLXAyLTEiLDEsWzkwLCJDIiwiRG9yaWFuIiwiR2VudGxlIGRpYXRvbmljIiwiTGlmdCIsIlF1YXJ0ZXIiLCJTbGlnaHRseSB2YXJpZWQiLCJTdHJhaWdodCIsIlNwYXJzZSIsIkFyY2giLCJNaWRkbGUiLCJTaGFwZWQiLCJWYXJpZWQiLCJjLWtleWJvYXJkIl0seyJwYXNzaW5nVG9uZSI6ImFzVG9kYXkiLCJhY2NlbnRlZFBhc3NpbmdUb25lIjoiYXNUb2RheSIsIm5laWdoYm9yVG9uZSI6ImFzVG9kYXkiLCJhcHBvZ2dpYXR1cmEiOiJvZmYiLCJkaWF0b25pY0VuY2xvc3VyZSI6Im9mZiIsImNocm9tYXRpY0FwcHJvYWNoIjoib2ZmIiwiY2hyb21hdGljRW5jbG9zdXJlIjoib2ZmIn0sMix7Imxhc3RQaXRjaCI6eyJtaWRpIjo2MywiYXJyaXZpbmdJbnRlcnZhbCI6MywicmVjb3ZlcnkiOnsia2luZCI6InNldHRsZWQifX0sInJlZ2lzdGVyV2luZG93Ijp7ImtpbmQiOiJSZWdpc3RlcldpbmRvdyIsIm1pbk1pZGkiOjU0LCJtYXhNaWRpIjo2Nn0sImZpbmFsSGFybW9ueSI6eyJ0cmlhZCI6eyJkZWdyZWUiOjEsInBpdGNoQ2xhc3NlcyI6WzAsMyw3XSwicXVhbGl0eSI6Im1pbm9yIn0sInNldmVudGgiOnsicGl0Y2hDbGFzcyI6MTAsInF1YWxpdHkiOiJtaW5vci1zZXZlbnRoIn0sInJvbGUiOiJ0b25pYyIsImVuZHBvaW50Ijp7ImtpbmQiOiJtb2RhbF9ub25fdG9uaWNfY2hvcmRfdG9uZSIsImRlZ3JlZSI6NX19LCJwaHJhc2VOdW1iZXIiOjF9LG51bGwsbnVsbCxudWxsLHsic2V2ZW50aC1jaG9yZHMiOiJzdHJvbmdseUZhdm9yZWQifV0 \
+  --landing ifk5.WyJsMS1sYW5kaW5nLWMtbWl4b2x5ZGlhbi1wMS0xIiwxLFs5MCwiQSIsIk1peG9seWRpYW4iLCJHZW50bGUgZGlhdG9uaWMiLCJMaWZ0IiwiUXVhcnRlciIsIlNsaWdodGx5IHZhcmllZCIsIlN0cmFpZ2h0IiwiU3BhcnNlIiwiQXJjaCIsIk1pZGRsZSIsIlNoYXBlZCIsIlZhcmllZCIsImViLWFsdG8iXSx7InBhc3NpbmdUb25lIjoiYXNUb2RheSIsImFjY2VudGVkUGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwibmVpZ2hib3JUb25lIjoiYXNUb2RheSIsImFwcG9nZ2lhdHVyYSI6Im9mZiIsImRpYXRvbmljRW5jbG9zdXJlIjoib2ZmIiwiY2hyb21hdGljQXBwcm9hY2giOiJvZmYiLCJjaHJvbWF0aWNFbmNsb3N1cmUiOiJvZmYifSwxLG51bGwsbnVsbCxudWxsLG51bGwseyJzZXZlbnRoLWNob3JkcyI6InN0cm9uZ2x5RmF2b3JlZCJ9XQ ifk5.WyJsMS1sYW5kaW5nLWMtbWl4b2x5ZGlhbi1wMi0xIiwxLFs5MCwiQSIsIk1peG9seWRpYW4iLCJHZW50bGUgZGlhdG9uaWMiLCJMaWZ0IiwiUXVhcnRlciIsIlNsaWdodGx5IHZhcmllZCIsIlN0cmFpZ2h0IiwiU3BhcnNlIiwiQXJjaCIsIk1pZGRsZSIsIlNoYXBlZCIsIlZhcmllZCIsImViLWFsdG8iXSx7InBhc3NpbmdUb25lIjoiYXNUb2RheSIsImFjY2VudGVkUGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwibmVpZ2hib3JUb25lIjoiYXNUb2RheSIsImFwcG9nZ2lhdHVyYSI6Im9mZiIsImRpYXRvbmljRW5jbG9zdXJlIjoib2ZmIiwiY2hyb21hdGljQXBwcm9hY2giOiJvZmYiLCJjaHJvbWF0aWNFbmNsb3N1cmUiOiJvZmYifSwyLHsibGFzdFBpdGNoIjp7Im1pZGkiOjY0LCJhcnJpdmluZ0ludGVydmFsIjo0LCJyZWNvdmVyeSI6eyJraW5kIjoic2V0dGxlZCJ9fSwicmVnaXN0ZXJXaW5kb3ciOnsia2luZCI6IlJlZ2lzdGVyV2luZG93IiwibWluTWlkaSI6NTcsIm1heE1pZGkiOjY5fSwiZmluYWxIYXJtb255Ijp7InRyaWFkIjp7ImRlZ3JlZSI6MSwicGl0Y2hDbGFzc2VzIjpbMCw0LDddLCJxdWFsaXR5IjoibWFqb3IifSwic2V2ZW50aCI6eyJwaXRjaENsYXNzIjoxMCwicXVhbGl0eSI6ImRvbWluYW50LXNldmVudGgifSwicm9sZSI6InRvbmljIiwiZW5kcG9pbnQiOnsia2luZCI6Im1vZGFsX25vbl90b25pY19jaG9yZF90b25lIiwiZGVncmVlIjo1fX0sInBocmFzZU51bWJlciI6MX0sbnVsbCxudWxsLG51bGwseyJzZXZlbnRoLWNob3JkcyI6InN0cm9uZ2x5RmF2b3JlZCJ9XQ \
+  --landing ifk5.WyJsMS1sYW5kaW5nLWctbWFqb3ItcDEtMSIsMSxbOTAsIkEiLCJNYWpvciIsIkdlbnRsZSBkaWF0b25pYyIsIkxpZnQiLCJRdWFydGVyIiwiU2xpZ2h0bHkgdmFyaWVkIiwiU3RyYWlnaHQiLCJTcGFyc2UiLCJBcmNoIiwiTWlkZGxlIiwiU2hhcGVkIiwiVmFyaWVkIiwiYmItdGVub3IiXSx7InBhc3NpbmdUb25lIjoiYXNUb2RheSIsImFjY2VudGVkUGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwibmVpZ2hib3JUb25lIjoiYXNUb2RheSIsImFwcG9nZ2lhdHVyYSI6Im9mZiIsImRpYXRvbmljRW5jbG9zdXJlIjoib2ZmIiwiY2hyb21hdGljQXBwcm9hY2giOiJvZmYiLCJjaHJvbWF0aWNFbmNsb3N1cmUiOiJvZmYifSwxLG51bGwsbnVsbCxudWxsLG51bGwseyJzZXZlbnRoLWNob3JkcyI6InN0cm9uZ2x5RmF2b3JlZCJ9XQ ifk5.WyJsMS1sYW5kaW5nLWctbWFqb3ItcDItMSIsMSxbOTAsIkEiLCJNYWpvciIsIkdlbnRsZSBkaWF0b25pYyIsIkxpZnQiLCJRdWFydGVyIiwiU2xpZ2h0bHkgdmFyaWVkIiwiU3RyYWlnaHQiLCJTcGFyc2UiLCJBcmNoIiwiTWlkZGxlIiwiU2hhcGVkIiwiVmFyaWVkIiwiYmItdGVub3IiXSx7InBhc3NpbmdUb25lIjoiYXNUb2RheSIsImFjY2VudGVkUGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwibmVpZ2hib3JUb25lIjoiYXNUb2RheSIsImFwcG9nZ2lhdHVyYSI6Im9mZiIsImRpYXRvbmljRW5jbG9zdXJlIjoib2ZmIiwiY2hyb21hdGljQXBwcm9hY2giOiJvZmYiLCJjaHJvbWF0aWNFbmNsb3N1cmUiOiJvZmYifSwyLHsibGFzdFBpdGNoIjp7Im1pZGkiOjU3LCJhcnJpdmluZ0ludGVydmFsIjowLCJyZWNvdmVyeSI6eyJraW5kIjoic2V0dGxlZCJ9fSwicmVnaXN0ZXJXaW5kb3ciOnsia2luZCI6IlJlZ2lzdGVyV2luZG93IiwibWluTWlkaSI6NTIsIm1heE1pZGkiOjY0fSwiZmluYWxIYXJtb255Ijp7InRyaWFkIjp7ImRlZ3JlZSI6NSwicGl0Y2hDbGFzc2VzIjpbMiw2LDldLCJxdWFsaXR5IjoibWFqb3IifSwic2V2ZW50aCI6eyJwaXRjaENsYXNzIjowLCJxdWFsaXR5IjoiZG9taW5hbnQtc2V2ZW50aCJ9LCJyb2xlIjoib3Blbl9hcnJpdmFsIiwiZW5kcG9pbnQiOnsia2luZCI6InRvbmFsX2RlZ3JlZV9maXZlX2Nob3JkX3RvbmUiLCJkZWdyZWUiOjV9fSwicGhyYXNlTnVtYmVyIjoxfSxudWxsLG51bGwsbnVsbCx7InNldmVudGgtY2hvcmRzIjoic3Ryb25nbHlGYXZvcmVkIn1d \
+  --landing ifk5.WyJsMS1sYW5kaW5nLWEtbWlub3ItcDEtMSIsMSxbOTAsIkEiLCJNaW5vciIsIkdlbnRsZSBkaWF0b25pYyIsIkxpZnQiLCJRdWFydGVyIiwiU2xpZ2h0bHkgdmFyaWVkIiwiU3RyYWlnaHQiLCJTcGFyc2UiLCJBcmNoIiwiTWlkZGxlIiwiU2hhcGVkIiwiVmFyaWVkIiwiYy1rZXlib2FyZCJdLHsicGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwiYWNjZW50ZWRQYXNzaW5nVG9uZSI6ImFzVG9kYXkiLCJuZWlnaGJvclRvbmUiOiJhc1RvZGF5IiwiYXBwb2dnaWF0dXJhIjoib2ZmIiwiZGlhdG9uaWNFbmNsb3N1cmUiOiJvZmYiLCJjaHJvbWF0aWNBcHByb2FjaCI6Im9mZiIsImNocm9tYXRpY0VuY2xvc3VyZSI6Im9mZiJ9LDEsbnVsbCxudWxsLG51bGwsbnVsbCx7InNldmVudGgtY2hvcmRzIjoic3Ryb25nbHlGYXZvcmVkIn1d ifk5.WyJsMS1sYW5kaW5nLWEtbWlub3ItcDItMyIsMyxbOTAsIkEiLCJNaW5vciIsIkdlbnRsZSBkaWF0b25pYyIsIkxpZnQiLCJRdWFydGVyIiwiU2xpZ2h0bHkgdmFyaWVkIiwiU3RyYWlnaHQiLCJTcGFyc2UiLCJBcmNoIiwiTWlkZGxlIiwiU2hhcGVkIiwiVmFyaWVkIiwiYy1rZXlib2FyZCJdLHsicGFzc2luZ1RvbmUiOiJhc1RvZGF5IiwiYWNjZW50ZWRQYXNzaW5nVG9uZSI6ImFzVG9kYXkiLCJuZWlnaGJvclRvbmUiOiJhc1RvZGF5IiwiYXBwb2dnaWF0dXJhIjoib2ZmIiwiZGlhdG9uaWNFbmNsb3N1cmUiOiJvZmYiLCJjaHJvbWF0aWNBcHByb2FjaCI6Im9mZiIsImNocm9tYXRpY0VuY2xvc3VyZSI6Im9mZiJ9LDIseyJsYXN0UGl0Y2giOnsibWlkaSI6NTksImFycml2aW5nSW50ZXJ2YWwiOjAsInJlY292ZXJ5Ijp7ImtpbmQiOiJzZXR0bGVkIn19LCJyZWdpc3RlcldpbmRvdyI6eyJraW5kIjoiUmVnaXN0ZXJXaW5kb3ciLCJtaW5NaWRpIjo1NCwibWF4TWlkaSI6NjZ9LCJmaW5hbEhhcm1vbnkiOnsidHJpYWQiOnsiZGVncmVlIjo1LCJwaXRjaENsYXNzZXMiOls0LDcsMTFdLCJxdWFsaXR5IjoibWlub3IifSwic2V2ZW50aCI6eyJwaXRjaENsYXNzIjoyLCJxdWFsaXR5IjoibWlub3Itc2V2ZW50aCJ9LCJyb2xlIjoib3Blbl9hcnJpdmFsIiwiZW5kcG9pbnQiOnsia2luZCI6InRvbmFsX2RlZ3JlZV9maXZlX2Nob3JkX3RvbmUiLCJkZWdyZWUiOjV9fSwicGhyYXNlTnVtYmVyIjoxfSxudWxsLG51bGwsbnVsbCx7InNldmVudGgtY2hvcmRzIjoic3Ryb25nbHlGYXZvcmVkIn1d
+```
+
+**Result:** not run yet (needs the owner).
 
 ## v3.3 H3. Same phrase in Chrome (chunk 15; run after chunk 19)
 
@@ -952,3 +1007,118 @@ Edge half (spec D399).
 **Result:** not run yet with a key copied from Chrome (needs chunk 19). Chunk 15 ran the spec in
 Chromium (2026-11-13) with the example key: 8 passed, none skipped. The Edge half was dropped
 (spec D399, plan v17).
+
+## v3.3 H4. The files (chunk 13; about 10 min)
+
+The reference machine, MuseScore and a DAW (or any MIDI tool that shows the notes). Seventh
+chords must reach both files as the app shows and plays them (spec item 12). Until chunk 19 the
+app always sends Off, so the two files come from a spec, not from the Review: a two-phrase C MIDI
+keyboard session at the strongest Seventh chords level (written pitch is concert pitch). Phrase 1
+(C major, seed 1) holds Cmaj7, Dm7, G7, G7; phrase 2 (C Ionian, seed 2) holds Cmaj7, Dm7, Bm7♭5,
+Cmaj7. No single collection plans both G7 and Bm7♭5, hence the two phrases; measure 5 restates
+the key (no sharps or flats) for the change of collection.
+
+- [ ] From the repo, write the two files (any empty directory will do):
+
+      ```sh
+      SEVENTH_CHORDS_HAND_CHECK_DIR=/tmp/h4 npx vitest run tests/unit/export/seventh-chords-files.spec.ts
+      ```
+
+      It writes `seventh-chords.musicxml` and `seventh-chords-with-backing.mid`, byte for byte
+      what the app's export builds.
+
+- [ ] Open `seventh-chords.musicxml` in MuseScore (File > Open): it opens with no error, eight
+      measures, and the chord symbols read Cmaj7, Dm7, G7, G7 then Cmaj7, Dm7, Bm7♭5, Cmaj7
+      (MuseScore may draw the half-diminished one as Bø7 or Bm7(♭5), depending on its
+      chord-symbol style; any of these is right).
+- [ ] Open `seventh-chords-with-backing.mid` in the DAW: three tracks, and in the "Backing" track
+      every chord, in the register above the bass line, holds four notes, the seventh chord's
+      tones: C E G B for Cmaj7, D F A C for Dm7, G B D F for G7, B D F A for Bm7♭5.
+- [ ] Pass: every symbol right in MuseScore and every backing chord four notes in the DAW.
+
+**Result:** not run yet (needs the owner).
+
+## v3.3 H5. v3.2 data carried over (chunk 17; run at the release gate)
+
+The reference machine, from the repo, in plain Chrome, then the installed app if one is
+installed. Data that v3.2 saved on the device must come back after the update to v3.3: the
+settings with the Seventh chords level at Off, Jam's settings with Jam's own level at Off, a player
+preset unchanged, and a pinned session and a kept Jam session that open and play back as before,
+with their chords all triads (the update rewrites the player presets and kept sessions once, when
+the database opens, with the level at Off and nothing else changed: spec D515). v3.2 and v3.3 must
+be served at the same address (`http://localhost:4173`), so they share one IndexedDB. Use a Chrome
+profile whose data at that address you can lose: the first step may clear it.
+
+- [ ] Get v3.2 (tag v3.2.0, commit f93e552d), from the repo:
+
+      ```sh
+      git worktree add ../infinite_flow-v3.2.0 v3.2.0
+      cd ../infinite_flow-v3.2.0
+      npm ci && npm run build && npm run preview -- --port 4173 --strictPort
+      ```
+
+      Open `http://localhost:4173` in Chrome; the header shows v3.2.0. If this address already
+      holds data from another build, clear it first (F12, Application tab, Storage, `Clear site
+      data`), then reload.
+
+- [ ] In v3.2, at Idle: choose Jazz, set Tension to Build and save it as a player preset with
+      `Save as new preset`, named "H5 Jazz". Then change a few settings and note each: Tempo 150,
+      Written key F, Collection Dorian, and the theme. Reload: v3.2 shows them all back.
+- [ ] Still in v3.2: press Start and play a short session (a few phrases), then Stop. In its
+      review, press `Pin`. Take a screenshot of its first two phrases (notes and chord symbols).
+- [ ] Still in v3.2: switch the header's **Mode** to `Jam`, set Jam's tempo to 100 BPM and
+      **Drift** `Near`, press **Start Jam**, play a short doodle and let two or three phrases
+      play, then **Stop**. Take a screenshot of its review's first phrase. Switch back to session
+      mode. Close the tab and stop the preview (Ctrl+C).
+- [ ] Get v3.3 at the same address, from the v3.3 checkout:
+
+      ```sh
+      npm run build && npm run preview -- --port 4173 --strictPort
+      ```
+
+      Open `http://localhost:4173` in the same Chrome. The header shows v3.3's version; if it
+      still shows v3.2.0, reload once more (the service worker updates).
+
+- [ ] Every setting you changed in v3.2 is back: Tempo 150, Written key F, Collection Dorian, the
+      theme; the **Seventh chords** control shows `Off`. The preset box shows the selection you
+      left, and choosing "H5 Jazz" gives Tension Build and every other value as you saved it, with
+      Seventh chords `Off`; the preset is not shown as changed.
+- [ ] Switch to Jam mode: Jam's tempo 100 BPM and Drift `Near` are back, and Jam's own **Seventh
+      chords** control shows `Off`. Switch back to session mode.
+- [ ] The session list lists both sessions, the pinned one pinned. Open each: its phrases show the
+      same notes and chord symbols as your v3.2 screenshots, every symbol a triad (no `7` in any),
+      and playing them back sounds the same notes; the Jam session's review offers its doodle
+      again.
+- [ ] If the v3.2 app is installed (PWA) on this machine: open it before updating, check it holds
+      a pinned session, a kept Jam session and a player preset, then update it to v3.3 (open it
+      while the v3.3 preview runs at its address, and reopen it once the update is offered or
+      applied). Repeat the three checks above in the installed app.
+- [ ] Afterwards: `git worktree remove ../infinite_flow-v3.2.0`.
+- [ ] Pass: every check above holds, in Chrome and, if installed, in the app.
+
+**Result:** not run yet (the release gate, after chunks 19 and 23: the two Seventh chords
+controls).
+
+## v3.3 H6. Symbols at the narrowest widths (chunk 14; run after chunk 19)
+
+The reference machine, Chrome, in the app built from the branch holding chunk 19 (the Seventh
+chords control). Seventh chord symbols are longer than the triads' (`G♯m7♭5` against `G♯dim`);
+two of them in one measure must fit at every supported width, phones included (spec item 11).
+The longest symbol is a root with an accidental plus `m7♭5`: in A major the chord on degree 7 is
+G♯m7♭5 in concert pitch, and each instrument shows it in its own written key (A major for the C
+MIDI keyboard, B major for the B-flat tenor saxophone, F♯ major for the E-flat alto saxophone).
+
+- [ ] Set the Seventh chords control to Mostly and the written key to the instrument's key above
+      (A for the keyboard, B for the tenor, F♯ for the alto), Collection Major.
+- [ ] For each instrument, at the narrowest width of each named breakpoint (browser windows
+      768, 1024 and 1440 px wide, and a landscape phone, 740 by 360, below
+      `bp-tablet-landscape`), generate several phrases and look at every measure
+      holding two chords: no symbol touches the next one, none crosses a barline, and none is
+      smaller than the others or than a triad's symbol.
+- [ ] In one of them, check the `m7♭5` symbol: its ♭ is the same sign, at the same size, as a
+      root's flat (as in `E♭`), on the same line as its letters, with no superscript.
+- [ ] Phones are low priority but must not break: on the landscape phone, a phrase that does not
+      fit is replaced unseen (Loading lasts a little longer), never drawn overlapping.
+- [ ] Pass: no symbol touches, crosses a barline or is shrunk, at any width checked.
+
+**Result:** not run yet (needs chunk 19 and the owner).

@@ -13,6 +13,7 @@ import type { KeptSessionRecords, StoredKeptSession } from '@/storage/records/ke
 import { openStoragePort, type StorageChange, type StoragePort } from '@/storage/storage-port'
 import { storedRecords } from './kept-session-fixtures'
 import { v2Summary } from './kept-sessions-v2-fixtures'
+import { v4Body } from './kept-sessions-v4-fixtures'
 import { rawGet, rawPut, withRawDatabase } from './storage-test-doubles'
 
 /** The app version of the v3.0 tab that created the database and kept the sessions. */
@@ -77,12 +78,16 @@ export function v1Summary(summary: unknown, selection: ProfileSelection): unknow
   return Object.fromEntries(entries)
 }
 
-/** Intent: a stored body at data version 1, every phrase's intent edited by `reshape`. */
+/**
+ * Intent: a stored body at data version 1, every phrase's intent without the Seventh chords level,
+ * which data version 1 never held, and edited by `reshape`. Throws for a body holding a seventh
+ * chord or a level above Off.
+ */
 export function v1Body(
   body: unknown,
   reshape: (intent: StoredIntent, index: number) => StoredIntent,
 ): unknown {
-  return { ...(reshapedBody(body, reshape) as RecordVersions), dataVersion: 1 }
+  return { ...(reshapedBody(v4Body(body), reshape) as RecordVersions), dataVersion: 1 }
 }
 
 /** How each data version 1 phrase shape holds a phrase's intent. */
@@ -173,7 +178,7 @@ export async function seedRaw(
 /**
  * Intent: the database opened with every production migration, at the code's data version, as the
  * upgrading tab runs them: a session kept at data version 1 reaches the current shapes through
- * step 2, then step 4.
+ * step 2, then step 4, its body then through step 5.
  */
 export function openUpgraded(factory: IDBFactory): Promise<StoragePort> {
   return openStoragePort({ factory, appVersion: UPGRADING_APP_VERSION })

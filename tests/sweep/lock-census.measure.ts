@@ -21,7 +21,7 @@
  * Env: `LOCK_OUT` writes the full figures JSON (with the machine, the date and the run duration)
  * to that path; `LOCK_LIMIT` keeps N evenly spaced sweep cases; `LOCK_SETTINGS` sweep (default),
  * builtin or both; `LOCK_LEVELS` the Seventh chords levels each group plays at, comma-separated
- * level ids (default every level measurable today: Off only until v3.3 chunks 12 and 16).
+ * level ids (default all four).
  */
 
 import { writeFileSync } from 'node:fs'

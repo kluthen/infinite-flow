@@ -2,8 +2,9 @@
  * The Idle session's Seventh chords level: held in its state beside the figure levels, first-load
  * Off, carried by every intent it builds, set by choosing a preset and kept by Regenerate, and
  * changed through the routing point's level action, which makes Custom like a figure level, is
- * refused while a generation is in flight, saves nothing (no record holds the level yet) and posts
- * no rhythm-domain prewarm.
+ * refused while a generation is in flight, saves the level and the selection it makes, as a figure
+ * level's edit does, and posts no rhythm-domain prewarm. A preset choice saves the level with the
+ * selection.
  */
 import { describe, expect, it } from 'vitest'
 
@@ -130,14 +131,27 @@ describe('createGenerationSession: the Seventh chords level at Idle', () => {
   })
 
   // @test-link [[rule_choosing_preset_sets_its_settings]]
-  it('choosing a preset that differs from the current settings only in the level sets the level, and saves the selection alone', () => {
+  // @test-link [[rule_settings_saved_on_change]]
+  it('choosing a preset that differs from the current settings only in the level sets the level, and saves it with the selection', () => {
     const { session, saves } = sessionAt(OFF_CHORD_FAMILIES)
 
     expect(session.actions.selectPreset('player-7')).toBe(true)
 
     expect(session.state.chordFamilies).toEqual(FAVORED)
     expect(session.state.selection).toEqual({ kind: 'preset', presetId: 'player-7' })
-    expect(saves.at(-1)).toEqual({ presetSelection: { kind: 'preset', presetId: 'player-7' } })
+    expect(saves).toEqual([
+      {
+        'chordFamilies.seventh-chords': 'favored',
+        presetSelection: { kind: 'preset', presetId: 'player-7' },
+      },
+    ])
+
+    expect(session.actions.selectPreset('neutral')).toBe(true)
+
+    expect(saves.at(-1)).toEqual({
+      'chordFamilies.seventh-chords': 'off',
+      presetSelection: NEUTRAL,
+    })
   })
 })
 
@@ -145,14 +159,20 @@ describe('createGenerationSession: the Seventh chords level at Idle', () => {
 describe('createGenerationSession: the routing point changes the Seventh chords level', () => {
   // @test-link [[module_profile_control_customization]]
   // @test-link [[rule_custom_selection]]
-  it('a level change at Idle sets the level, makes Custom based on the selected preset, and saves nothing', async () => {
+  // @test-link [[rule_settings_saved_on_change]]
+  it('a level change at Idle sets the level, makes Custom based on the selected preset, and saves both', async () => {
     const { session, saves, generated } = sessionAt(OFF_CHORD_FAMILIES)
 
     expect(session.actions.setChordFamilyLevel('seventh-chords', 'stronglyFavored')).toBe(true)
 
     expect(session.state.chordFamilies).toEqual({ 'seventh-chords': 'stronglyFavored' })
     expect(session.state.selection).toEqual({ kind: 'custom', baseId: 'neutral' })
-    expect(saves).toEqual([])
+    expect(saves).toEqual([
+      {
+        'chordFamilies.seventh-chords': 'stronglyFavored',
+        presetSelection: { kind: 'custom', baseId: 'neutral' },
+      },
+    ])
     await session.actions.generate()
     await flushAsync()
     expect(lastLevel(generated)).toBe('stronglyFavored')
@@ -160,12 +180,13 @@ describe('createGenerationSession: the routing point changes the Seventh chords 
 
   // @test-link [[module_profile_control_customization]]
   // @test-link [[rule_custom_selection]]
-  it('in Custom a level change keeps Custom with the same base', () => {
-    const { session } = sessionAt(OFF_CHORD_FAMILIES, {}, { kind: 'custom', baseId: 'jazz' })
+  it('in Custom a level change keeps Custom with the same base, and saves the level alone', () => {
+    const { session, saves } = sessionAt(OFF_CHORD_FAMILIES, {}, { kind: 'custom', baseId: 'jazz' })
 
     expect(session.actions.setChordFamilyLevel('seventh-chords', 'sometimes')).toBe(true)
 
     expect(session.state.selection).toEqual({ kind: 'custom', baseId: 'jazz' })
+    expect(saves).toEqual([{ 'chordFamilies.seventh-chords': 'sometimes' }])
   })
 
   // @test-link [[module_profile_control_customization]]

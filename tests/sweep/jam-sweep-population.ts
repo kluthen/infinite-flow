@@ -15,7 +15,8 @@
  * no steering block); `JAM_DOODLES` none or all (default all with the double or the real ladder,
  * none with the baseline; all crosses each Jam with every doodle of the doodle set; the double and
  * the real ladder need them); `JAM_LEVELS` the Seventh chords levels, comma-separated level ids
- * (default every level measurable today: Off only until v3.3 chunks 12 and 16, seventh-levels.ts).
+ * (default all four, seventh-levels.ts). The real ladder runs at Off only: it builds Jam's phrase 1
+ * at Off until v3.3 chunk 23 carries Jam's level, so above Off phrase 1 runs through the double.
  * A steered Jam's drift walks Close, Near, Free over the case and doodle indices, so every doodle
  * meets every drift.
  */
@@ -33,7 +34,7 @@ import type { JamLock, PhraseOneLadder, RhythmDomainState } from './jam-sweep-la
 import { JAM_REAL_LADDER } from './jam-sweep-real-ladder'
 import { runJamCase, type JamDoodle, type JamMode } from './jam-sweep'
 import { JamReplaySampler } from './jam-sweep-replay'
-import { seventhLevelsFrom } from './seventh-levels'
+import { SEVENTH_LEVEL_NAMES, seventhLevelsFrom } from './seventh-levels'
 
 /** A Jam's tempos by default (M1: 240 BPM comes later). */
 export const JAM_TEMPOS: readonly number[] = [60, 120, 180]
@@ -98,7 +99,10 @@ const LOCKS_ON: readonly JamLock[] = [
   { on: true, allowedChanges: [] },
 ]
 
-/** Intent: the runner's choices from an environment (`process.env` by default). */
+/**
+ * Intent: the runner's choices from an environment (`process.env` by default). The real ladder
+ * with any level above Off fails: it builds Jam's phrase 1 at Off.
+ */
 export function jamSweepChoices(env: NodeJS.ProcessEnv = process.env): JamSweepChoices {
   const mode = oneOf('JAM_MODE', env.JAM_MODE, ['jam', 'session', 'both'], 'both')
   const domain = oneOf('JAM_DOMAIN', env.JAM_DOMAIN, ['warm', 'cold', 'both'], 'both')
@@ -111,6 +115,12 @@ export function jamSweepChoices(env: NodeJS.ProcessEnv = process.env): JamSweepC
     throw new Error(
       `JAM_LADDER=${ladder} steers each Jam by its doodle: JAM_DOODLES=none has none.`,
     )
+  const levels = seventhLevelsFrom('JAM_LEVELS', env.JAM_LEVELS)
+  const aboveOff = levels.filter((level) => level !== 'off')
+  if (ladder === 'real' && aboveOff.length > 0)
+    throw new Error(
+      `JAM_LADDER=real cannot play ${aboveOff.map((level) => SEVENTH_LEVEL_NAMES[level]).join(', ')}: the real ladder (src/jam/jam-phrase-one-attempts.ts) builds Jam's phrase 1 at Off until v3.3 chunk 23 carries Jam's level, so above Off phrase 1 runs through the double (the default). Set JAM_LEVELS=off with JAM_LADDER=real.`,
+    )
   return {
     limit: positiveInteger('JAM_LIMIT', env.JAM_LIMIT),
     modes: mode === 'both' ? ['jam', 'session'] : [mode],
@@ -122,7 +132,7 @@ export function jamSweepChoices(env: NodeJS.ProcessEnv = process.env): JamSweepC
     ],
     doodles,
     ladder,
-    levels: seventhLevelsFrom('JAM_LEVELS', env.JAM_LEVELS),
+    levels,
   }
 }
 

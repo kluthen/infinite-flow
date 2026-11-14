@@ -131,10 +131,27 @@ interface NotationHarnessKeySignature {
   }
 }
 
+/** A layout verdict as `planWrittenPhraseFit` gives it (StaffFitVerdict, serialisable). */
+interface NotationHarnessFitVerdict {
+  readonly kind: string
+  readonly cause?: string
+}
+
+/**
+ * A written phrase's fit verdict at some layout inputs and, when it fits, the raw engraving units
+ * (scale 1) one system of that layout requires for it; null when it does not fit.
+ */
+interface NotationHarnessPhrasePlan {
+  readonly verdict: NotationHarnessFitVerdict
+  readonly requiredUnits: number | null
+}
+
 /**
  * The engraver's two pure pre-draw checks, run on the real engraver module once its fonts are
  * loaded: the fit of a fixture phrase, and the phrase-independent room for a key signature. Each
- * resolves to the check's verdict.
+ * resolves to the check's verdict. `planPhrase` runs the fit check on any written phrase handed
+ * over as plain data (a serialised WrittenPhrase, as `transformToWrittenPhrase` returns it), at
+ * the shared system-position size given, and engraves it into scratch hosts when it fits.
  */
 // @test-link [[module_idle_fit_round]]
 interface NotationHarnessChecks {
@@ -142,7 +159,13 @@ interface NotationHarnessChecks {
     fixtureName: string,
     containerWidthPx: number,
     viewport: NotationHarnessLayoutInputs['viewport'],
-  ): Promise<{ readonly kind: string; readonly cause?: string }>
+  ): Promise<NotationHarnessFitVerdict>
+  planPhrase(
+    phrase: object,
+    containerWidthPx: number,
+    viewport: NotationHarnessLayoutInputs['viewport'],
+    systemPositionUnits: number,
+  ): Promise<NotationHarnessPhrasePlan>
   planRoom(
     signature: NotationHarnessKeySignature,
     containerWidthPx: number,
@@ -197,6 +220,41 @@ interface NotationHarnessEngravedGeometry {
   readonly measureEventCounts: readonly number[]
 }
 
+/** One `<text>` run of a drawn chord symbol: its text, and its `font-size` and `y` attributes. */
+interface NotationHarnessChordSymbolRun {
+  readonly text: string
+  readonly fontSize: string | null
+  readonly y: string | null
+}
+
+/**
+ * One drawn chord symbol (`g.vf-chordsymbol`): the measure slot holding it, its text content (the
+ * music-font glyphs of its accidentals included), its horizontal extent, in CSS px from its
+ * system SVG's left edge, and its `<text>` runs in drawing order.
+ */
+interface NotationHarnessChordSymbolBox {
+  readonly measureIndex: number
+  readonly systemIndex: number
+  readonly text: string
+  readonly leftPx: number
+  readonly rightPx: number
+  readonly runs: readonly NotationHarnessChordSymbolRun[]
+}
+
+/** Where a fixture's chord symbols were drawn, against each measure's closing barline. */
+interface NotationHarnessChordSymbolGeometry {
+  readonly staffSpacePx: number
+  readonly requiredUnits: number
+  /** Every drawn chord symbol, system by system, measure slot by measure slot, in drawing order. */
+  readonly symbols: readonly NotationHarnessChordSymbolBox[]
+  /** Each drawn measure's closing barline x, in CSS px from its system SVG's left edge. */
+  readonly barlines: readonly {
+    readonly measureIndex: number
+    readonly systemIndex: 0 | 1
+    readonly barlinePx: number
+  }[]
+}
+
 /** A thrown value, serialisable: its name, its NotationError code (null otherwise) and message. */
 interface NotationHarnessThrown {
   readonly name: string
@@ -208,7 +266,9 @@ interface NotationHarnessThrown {
  * The per-system engraving hook, on the real engraver module once its fonts are loaded: a fixture
  * phrase drawn whole by `engraveWrittenPhrase` (each system's SVG snapshotted), or one system part
  * drawn by `engravePhraseSystem` into one host; `engravePartFailure` draws into a host holding a
- * sentinel child and reports what was thrown and what the host kept.
+ * sentinel child and reports what was thrown and what the host kept; `chordSymbolGeometry` draws a
+ * fixture whole, as phrase 1, and reports its chord symbols' extents and text runs, and its
+ * barlines.
  */
 // @test-link [[module_session_rolling_display]]
 // @test-link [[module_notation_layout_preflight]]
@@ -234,6 +294,11 @@ interface NotationHarnessSystems {
       readonly hostHoldsSvg: boolean
     }
   >
+  chordSymbolGeometry(
+    fixtureName: string,
+    containerWidthPx: number,
+    viewport: NotationHarnessLayoutInputs['viewport'],
+  ): Promise<NotationHarnessChordSymbolGeometry>
   engravePartFailure(
     fixtureName: string,
     phraseNumber: number,

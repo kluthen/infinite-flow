@@ -9,7 +9,8 @@ layer: BUSINESS
 human_name: Sessions Kept Before Seventh Chords Read at Off
 parents:
   - [[req_seventh_chords_level]]
-dependents: []
+dependents:
+  - [[module_presets_and_kept_sessions_upgrade_step]]
 ---
 
 # Sessions Kept Before Seventh Chords Read at Off

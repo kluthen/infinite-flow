@@ -11,7 +11,6 @@
  */
 import { instrumentClefOf } from '@/domain/profile/instrument-clef'
 import { shallowRef, type InjectionKey } from 'vue'
-import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 
 import {
   createGenerationSession,
@@ -89,7 +88,8 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<
  * pre-generation policy, the session controller's Idle pre-generation queue runs its background
  * attempts on that same seam, after the prewarm, through the Idle background slot, which every
  * Idle request yields to first. Idle starts from the loaded settings' controls, figure levels,
- * preset selection and theme, the player presets the load read (listed after the built-ins), and
+ * Seventh chords level, preset selection and theme, the player presets the load read (listed
+ * after the built-ins), and
  * my instrument when it loaded (each phrase drawn in its instrument's clef), and each session
  * controller's flags
  * from its "During a session" choices, so the workspace is first drawn with them; the load itself is exposed unchanged. The visit's saves go
@@ -140,6 +140,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   const {
     controls,
     figureLevels,
+    chordFamilies,
     presetSelection: selection,
     theme,
     sessionOptions,
@@ -167,8 +168,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
     initialSettings: {
       controls,
       figureLevels,
-      // No record holds the Seventh chords level until data version 5: every visit starts at Off.
-      chordFamilies: OFF_CHORD_FAMILIES,
+      chordFamilies,
       selection,
       playerPresets: deps.savedData.playerPresets,
       theme,

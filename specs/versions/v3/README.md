@@ -6,7 +6,7 @@ checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v
 built as version 3.2.0 on 2026-11-09 (tag `v3.2.0` at f93e552d; D521, D523), stated in
 [master spec Part C](master-spec.md#part-c--v32), its hand and listening checks after the tag
 ([v3.2.x notes](#v32x-notes-after-the-tag)), its working record archived (D524); v3.3 in master
-spec Part D v1.4 (D530), approved with its build plan and its design (D520), gate R0 cleared at the
+spec Part D v1.5 (D536), approved with its build plan and its design (D520), gate R0 cleared at the
 `v3.2.0` tag (D523), gates I0 and C1 cleared (D526), wave 0 in progress; v3.4, a structural
 review before v4, opened as a scoping draft (D389), with a lexicon page added as its one
 player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until the

@@ -30,6 +30,7 @@ import type {
   WrittenEvent,
   WrittenMeasure,
 } from '../domain/notation/written-phrase-types'
+import { CHORD_SUFFIX_BY_SEVENTH_QUALITY } from '../domain/notation/notation-input'
 import type { InstrumentClef } from '../domain/profile/instrument-clef'
 import type { NotePartRefs } from './note-part-tags'
 
@@ -163,15 +164,63 @@ function addSpelledPitchClass(chordSymbol: ChordSymbol, pitchClass: SpelledPitch
   if (suffix.length > 0) chordSymbol.addGlyphOrText(suffix)
 }
 
+/** The flat sign a chord-symbol suffix writes for a lowered degree, as in `m7♭5`. */
+const SUFFIX_FLAT_SIGN = '♭'
+
+/** The four seventh-chord suffixes: maj7, m7, 7 and m7♭5. */
+const SEVENTH_SUFFIXES: ReadonlySet<string> = new Set(
+  Object.values(CHORD_SUFFIX_BY_SEVENTH_QUALITY),
+)
+
+/** Intent: whether a written chord symbol names a seventh chord, by its suffix. */
+// @spec-link [[rule_seventh_chord_symbols]]
+export function isSeventhChordSymbol(chord: Pick<WrittenChordSymbol, 'suffix'>): boolean {
+  return SEVENTH_SUFFIXES.has(chord.suffix)
+}
+
+/**
+ * A chord symbol that can tell its full drawn width whether or not it reports it to the
+ * formatter: its runs' widths, each with the padding VexFlow lays after it, as VexFlow's own
+ * chord-symbol formatting adds them up (no superscript or subscript run is ever built).
+ */
+export class SpannedChordSymbol extends ChordSymbol {
+  /** Intent: the symbol's full width, in engraving units at scale 1. */
+  fullWidth(): number {
+    return this.symbolBlocks.reduce(
+      (width, block) => width + block.getWidth() + ChordSymbol.minPadding,
+      0,
+    )
+  }
+}
+
+/**
+ * Intent: append a chord symbol's suffix on the root's baseline at the one chord-symbol size: its
+ * letters and digits as text, and each flat sign (the ♭ of `m7♭5`) as the same music-font glyph a
+ * root's flat is drawn with. A suffix with no flat sign (every triad's) stays one text block.
+ */
+// @spec-link [[rule_seventh_chord_symbols]]
+function addChordSuffix(chordSymbol: ChordSymbol, suffix: string): void {
+  suffix.split(SUFFIX_FLAT_SIGN).forEach((text, index) => {
+    if (index > 0) chordSymbol.addGlyphOrText(alterSuffix(-1))
+    if (text.length > 0) chordSymbol.addText(text)
+  })
+}
+
 /**
  * Build one ChordSymbol modifier verbatim from a written chord symbol: root letter, root
- * accidental glyph, suffix text and an optional slash bass, positioned above the staff.
+ * accidental glyph, suffix (text, its flat signs as the root's flat glyph) and an optional slash
+ * bass, positioned above the staff. A triad's symbol reports its width to the formatter, which
+ * widens its note's column by it, as in v3.2. A seventh chord's does not: its full width counts
+ * toward its measure's minimum width instead (`planMeasureMinWidth`), so a long symbol takes room
+ * from the whole stretch of notes under it rather than pushing the notes after its own note.
  */
 // @spec-link [[module_notation_display_convention]]
-export function buildChordSymbol(chord: WrittenChordSymbol): ChordSymbol {
-  const chordSymbol = new ChordSymbol()
+// @spec-link [[rule_seventh_chord_symbols]]
+export function buildChordSymbol(chord: WrittenChordSymbol): SpannedChordSymbol {
+  const chordSymbol = new SpannedChordSymbol()
+  if (isSeventhChordSymbol(chord)) chordSymbol.setReportWidth(false)
   addSpelledPitchClass(chordSymbol, chord.root)
-  if (chord.suffix.length > 0) chordSymbol.addText(chord.suffix)
+  addChordSuffix(chordSymbol, chord.suffix)
   if (chord.bass !== null) {
     chordSymbol.addText('/')
     addSpelledPitchClass(chordSymbol, chord.bass)

@@ -124,10 +124,11 @@ not an answer.
 - What could move out of it by lazy loading, at what cost to the time before the app is usable and
   to the code?
 - What do v3.2, v3.3 and v4 add to it if nothing changes? (v3.1 grew it by about 36 KB.)
-- Is the minified size the right thing to measure, or the compressed download, or the time until
-  the app is usable on the reference phone?
-- Options with their costs (keep 300 KiB; lower it to a number the review proposes; budget by
-  another measure). The owner chooses (O235).
+- The measure is settled (D536): all JavaScript loaded at start-up, in minified bytes on disk,
+  400 KiB. The review may also report the compressed download and the time until the app is
+  usable on the reference phone, as information.
+- Options with their costs (keep 400 KiB; lower it to a number the review proposes). The owner
+  chooses.
 
 ### Q3. Which refactoring opportunities are worth taking?
 

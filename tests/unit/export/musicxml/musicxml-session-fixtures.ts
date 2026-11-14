@@ -7,8 +7,10 @@
  *   a note tied across the barline between measures 3 and 4, a triad of each quality, and two
  *   measures with two chords each (measures 2 and 4, the second chord on beat 3).
  * - Phrase shape "plain": half and whole notes, one chord per measure.
+ * - Phrase shape "sevenths": the "plain" notes under one seventh chord per measure, one of each
+ *   quality: Cmaj7, Dm7, G7, Bm7♭5.
  *
- * Both shapes are written in concert C major and moved by a semitone offset, so one shape serves
+ * Every shape is written in concert C major and moved by a semitone offset, so one shape serves
  * every instrument and key.
  */
 import type { Collection, PitchClass } from '@/domain/controls/generation-controls'
@@ -120,6 +122,23 @@ function plainShape(offset: number): {
   return { timeline, chords }
 }
 
+/**
+ * The "sevenths" shape, concert C major around middle C, moved by `offset` semitones: the "plain"
+ * notes under Cmaj7, Dm7, G7 and Bm7♭5, one per measure.
+ */
+function seventhsShape(offset: number): {
+  timeline: ConcertEventTimeline
+  chords: readonly ConcertChordSymbol[]
+} {
+  const chords = [
+    chord(0, 0, 0, 'maj7', offset),
+    chord(1, 0, 2, 'm7', offset),
+    chord(2, 0, 7, '7', offset),
+    chord(3, 0, 11, 'm7♭5', offset),
+  ]
+  return { timeline: plainShape(offset).timeline, chords }
+}
+
 /** Intent: run one shape through the real display transform for an instrument and written key. */
 function written(
   shape: { timeline: ConcertEventTimeline; chords: readonly ConcertChordSymbol[] },
@@ -186,6 +205,28 @@ export function ebAltoKeyChangeSession(): GeneratedNotesMusicXmlInput {
       phrase(1, written(richShape(0), EB_ALTO_PROFILE, 'A'), 120),
       phrase(2, written(plainShape(5), EB_ALTO_PROFILE, 'D'), 120),
     ],
+  }
+}
+
+/**
+ * C MIDI keyboard, written C Ionian (concert C major): one "sevenths" phrase at 90 BPM, its chord
+ * symbols Cmaj7, Dm7, G7 and Bm7♭5 as written.
+ */
+export function cKeyboardSeventhsSession(): GeneratedNotesMusicXmlInput {
+  return {
+    instrument: C_KEYBOARD_PROFILE,
+    phrases: [phrase(1, written(seventhsShape(0), C_KEYBOARD_PROFILE, 'C'), 90)],
+  }
+}
+
+/**
+ * B-flat tenor saxophone, written D Ionian (concert C major): one "sevenths" phrase at 90 BPM, its
+ * chord symbols written a major ninth up: Dmaj7, Em7, A7 and C#m7♭5.
+ */
+export function bbTenorSeventhsSession(): GeneratedNotesMusicXmlInput {
+  return {
+    instrument: BB_TENOR_PROFILE,
+    phrases: [phrase(1, written(seventhsShape(-12), BB_TENOR_PROFILE, 'D'), 90)],
   }
 }
 

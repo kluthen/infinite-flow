@@ -107,8 +107,22 @@ One score-partwise 4.0 document, UTF-8, with the MusicXML 4.0 partwise document 
 
 - **Chord symbols.** One `<harmony>` per chord symbol, written right before the note or rest it
   starts on. The root and any slash bass are the written spellings the staff shows. `<kind>` holds
-  the MusicXML chord kind (`major`, `minor`, `diminished`). Its `text` attribute repeats the suffix
-  the staff prints (empty, `m`, `dim`), so a notation program prints the same symbol.
+  the MusicXML chord kind, and its `text` attribute repeats the suffix the staff prints, so a
+  notation program prints the same symbol:
+
+  | Quality                                                                   | Suffix printed | `<kind>`          |
+  | ------------------------------------------------------------------------- | -------------- | ----------------- |
+  | Major triad                                                               | (none)         | `major`           |
+  | Minor triad                                                               | `m`            | `minor`           |
+  | Diminished triad                                                          | `dim`          | `diminished`      |
+  | [Major seventh](music/lexicon.md#major-seventh-chord)                     | `maj7`         | `major-seventh`   |
+  | [Minor seventh](music/lexicon.md#minor-seventh-chord)                     | `m7`           | `minor-seventh`   |
+  | [Dominant seventh](music/lexicon.md#dominant-seventh-chord)               | `7`            | `dominant`        |
+  | [Half-diminished seventh](music/lexicon.md#half-diminished-seventh-chord) | `m7♭5`         | `half-diminished` |
+
+  A suffix outside this table stops the export with `MusicXmlExportError`; no quality the app
+  makes has one.
+
 - **Phrases back to back.** Four measures per phrase, from the file's first phrase, with no gap.
   Phrase _n_ fills measures numbered 4_n_ − 3 to 4_n_, its numbers in the session: a whole
   session's measures run from 1, and a favorites-only file of phrases 2, 5 and 6 numbers its
@@ -126,6 +140,9 @@ One score-partwise 4.0 document, UTF-8, with the MusicXML 4.0 partwise document 
   setting during one, but the settings-mutation flag in v2.1 can.
 - **Identification.** `<software>Infinite Flow</software>`. The document holds no date or other
   varying value, so the same session always gives the same bytes.
+- **No level.** The file holds the chords its phrases hold, seventh chords included, never the
+  Seventh chords level they were generated with, as no file carries a preset. The MIDI files
+  don't either.
 
 No stem directions, layout, fonts or page settings are written: the notation program decides them.
 
@@ -146,14 +163,19 @@ The unit specs are in `tests/unit/export/musicxml/`:
 
 - `musicxml-encoder.spec.ts` parses the output and checks each rule above: the document shape,
   written pitch, the transpose element per instrument, the key changes, chord symbols (including a
-  two-chord measure), rehearsal marks, double barlines, metronome marks, ties, beams, and the input
-  check.
+  two-chord measure and the four seventh-chord kinds), rehearsal marks, double barlines, metronome
+  marks, ties, beams, and the input check, which still refuses a suffix no quality has.
 - `musicxml-golden.spec.ts` compares the encoder's output, byte for byte, with three golden files:
   one per instrument template, one with a tempo change, one with a key change.
 - `musicxml-schema.spec.ts` validates the encoder's output and every golden file against the
-  MusicXML 4.0 schema with `xmllint`, offline. A deliberately invalid document must fail, so a
-  pass means something. `xmllint` (from libxml2) must be installed: a missing binary fails the spec
-  rather than skipping it.
+  MusicXML 4.0 schema with `xmllint`, offline, a session holding all four seventh-chord kinds
+  included. A deliberately invalid document must fail, so a pass means something. `xmllint` (from
+  libxml2) must be installed: a missing binary fails the spec rather than skipping it.
+
+`tests/unit/export/seventh-chords-files.spec.ts` exports real phrases generated at each Seventh
+chords level as MusicXML and as MIDI, the backing off and on: no file holds the level's name, and
+the same phrases recorded at Off give the same bytes. It also builds the seventh-chord hand-check
+session (see [Hand check](#hand-check)).
 
 [`docs/testing.md`](testing.md) lists the fixtures. Opening the files in MuseScore is done by hand,
 on files exactly as the app downloads them: see [Hand check](#hand-check).
@@ -223,7 +245,8 @@ One Standard MIDI File, type 1 (several tracks played together), as a `Uint8Arra
   so a note and its tie continuations are written as one MIDI note, held for their total length,
   across a barline or not. A rest writes nothing.
 - **Track 3, the backing**, named "Backing", on MIDI channel 2, only when the input carries the
-  backing: every backing note, placed from its phrase's start.
+  backing: every backing note, placed from its phrase's start. A seventh chord's backing holds its
+  four notes, as the backing played it.
 - **Velocities.** The generated line has no dynamics, so every note has the same note-on velocity:
   96 for the generated line, 72 for the backing, so the line stands out when the file plays. Every
   note-off has the neutral release velocity 64.
@@ -722,6 +745,17 @@ npx vitest run tests/unit/export/export-hand-check-files.spec.ts
 ```
 
 Changed bytes mean the downloaded files changed: do the hand check again on the new files.
+
+The seventh-chord files of v3.3's hand check H4 (a C MIDI keyboard session in C major holding
+Cmaj7, Dm7, G7 and Bm7♭5) are not committed: `seventh-chords-files.spec.ts` writes
+`seventh-chords.musicxml` and `seventh-chords-with-backing.mid` into the directory it is given,
+built by `buildGeneratedNotesFile` as the app downloads them:
+
+```sh
+SEVENTH_CHORDS_HAND_CHECK_DIR=/tmp/h4 npx vitest run tests/unit/export/seventh-chords-files.spec.ts
+```
+
+The check itself is in [`HARDWARE-CHECKLIST.md`](../HARDWARE-CHECKLIST.md#v33-h4-the-files-chunk-13-about-10-min).
 
 ### Checklist
 

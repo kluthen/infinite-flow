@@ -115,8 +115,8 @@ export interface PitchAttack {
   readonly chordPitchClasses: readonly number[]
   /**
    * The event's triad alone; equal to `chordPitchClasses` in triad form. The phrase's ends read
-   * it: the final attack's open endpoints, tense endings and note facts, and the first attack's
-   * landing after a tense carried pitch.
+   * it: the final attack's open endpoints, tense endings, note facts and figure goals, and the
+   * first attack's landing after a tense carried pitch.
    */
   readonly triadPitchClasses: readonly number[]
   /** Index of the harmony event sounding at `start`, found by absolute beat. */
@@ -126,6 +126,16 @@ export interface PitchAttack {
   readonly isBeatOne: boolean
   readonly isFirstUnderHarmonyChange: boolean
   readonly isFinal: boolean
+}
+
+/**
+ * The pitch classes a figure aimed at `target` may resolve onto: its triad on the phrase's final
+ * attack, where a seventh is never a chord tone and ends a phrase only as a tense note (spec D6.3,
+ * as the validator reads it); its chord tones, the seventh included, anywhere else.
+ */
+// @spec-link [[module_pitch_search_context]]
+export function figureGoalPitchClasses(target: PitchAttack): readonly number[] {
+  return target.isFinal ? target.triadPitchClasses : target.chordPitchClasses
 }
 
 /** How a free diatonic tone is explained: as a passing tone or as a neighbor tone. */

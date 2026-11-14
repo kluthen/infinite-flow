@@ -26,6 +26,7 @@ const SHARE_MASK = 0xff
 /**
  * Intent: Sometimes' share of harmony events, 64 / 256 = about 1 in 4, a starting value. Never
  * above Favored's.
+ * Measured shares: docs/generation-latency.md, "First run at every level (v3.3 chunk 18)" (M1).
  */
 // @spec-link [[rule_seventh_chords_level_steps]]
 export const SOMETIMES_SEVENTH_SHARE = 64
@@ -33,6 +34,7 @@ export const SOMETIMES_SEVENTH_SHARE = 64
 /**
  * Intent: Favored's share of harmony events, 128 / 256 = about 1 in 2, a starting value. Never
  * below Sometimes'.
+ * Measured shares: docs/generation-latency.md, "First run at every level (v3.3 chunk 18)" (M1).
  */
 // @spec-link [[rule_seventh_chords_level_steps]]
 export const FAVORED_SEVENTH_SHARE = 128

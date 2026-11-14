@@ -5,12 +5,15 @@ import { ADOPTED_INSTRUMENT_PROFILES } from '@/domain/profile/instrument-profile
 import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { NotationError } from '@/notation/notation-error'
 import {
+  NOTATION_CHORD_SYMBOL_GAP_UNITS,
   NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE,
   NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX,
   NOTATION_MAX_STAFF_SPACE_PX,
   NOTATION_MIN_MEASURE_WIDTH_UNITS,
   NOTATION_SYSTEM_POSITION_UNITS,
   heldViewport,
+  planChordSymbolShortfall,
+  planMeasureMinWidth,
   planStaffPlacement,
   planStaffPositions,
   planStaffRoom,
@@ -591,6 +594,125 @@ describe('planStaffRoom: whether the window has room for the staff, whatever the
       ] as const) {
         expect(plan({ viewport, measureMinWidths, containerWidthPx })).toEqual(outcome)
       }
+    }
+  })
+})
+
+describe('chord symbols in a measure', () => {
+  /**
+   * Intent: a measure of two two-beat chords formatted at `width`: the first symbol starts `lead`
+   * units in, on beat 1, the second on beat 3, half the width further, each `symbolUnits` wide.
+   */
+  function twoChordShortfall(symbolUnits: number, lead: number) {
+    return (width: number) =>
+      planChordSymbolShortfall(
+        [
+          { startUnits: lead, endUnits: lead + symbolUnits },
+          { startUnits: lead + width / 2, endUnits: lead + width / 2 + symbolUnits },
+        ],
+        width,
+      )
+  }
+
+  it('keeps one staff space between two symbols and every symbol inside its measure', () => {
+    expect(NOTATION_CHORD_SYMBOL_GAP_UNITS).toBe(NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE)
+    const first = { startUnits: 0, endUnits: 50 }
+    expect(planChordSymbolShortfall([first, { startUnits: 60, endUnits: 110 }], 110)).toBe(0)
+    expect(planChordSymbolShortfall([first, { startUnits: 55, endUnits: 105 }], 110)).toBe(5)
+    expect(planChordSymbolShortfall([first, { startUnits: 60, endUnits: 118 }], 110)).toBe(8)
+    expect(planChordSymbolShortfall([{ startUnits: 0, endUnits: 30 }], 40)).toBe(0)
+    expect(planChordSymbolShortfall([], 40)).toBe(0)
+  })
+
+  it("keeps a measure's voice width when its symbols already fit there", () => {
+    let formats = 0
+    const width = planMeasureMinWidth(200, (formatted) => {
+      formats += 1
+      return twoChordShortfall(40, 5)(formatted)
+    })
+
+    expect(width).toBe(200)
+    expect(formats).toBe(1)
+  })
+
+  // @test-link [[rule_seventh_chord_symbols]]
+  it('widens a measure until its two longest symbols fit, never overlapping or crossing its barline', () => {
+    const shortfallAt = twoChordShortfall(90, 5)
+    const width = planMeasureMinWidth(120, shortfallAt)
+
+    expect(shortfallAt(120)).toBeGreaterThan(0)
+    expect(shortfallAt(width)).toBeLessThanOrEqual(0)
+    expect(shortfallAt(width - 1)).toBeGreaterThan(0)
+    for (const wider of [width + 1, width + 50, width * 3]) {
+      expect(shortfallAt(wider)).toBeLessThanOrEqual(0)
+    }
+  })
+
+  it('fails loudly when a measure never makes room for its symbols', () => {
+    expect(() => planMeasureMinWidth(100, () => 10)).toThrow(/short/)
+  })
+
+  // @test-link [[rule_seventh_chord_symbols]]
+  it('below bp-tablet-landscape, a phrase whose symbols alone need more than the floor allows is "notes too wide", never drawn', () => {
+    const voiceWidths = [120, 120, 120, 120] as const
+    const symbolWidth = planMeasureMinWidth(120, twoChordShortfall(140, 5))
+    const containerWidthPx = requiredUnitsFor(2, voiceWidths) * FLOOR_SCALE * 1.05
+
+    expect(
+      plan({ viewport: TALL_SPLIT, measureMinWidths: voiceWidths, containerWidthPx }).kind,
+    ).toBe('fits')
+    expect(
+      plan({
+        viewport: TALL_SPLIT,
+        measureMinWidths: [symbolWidth, 120, 120, 120],
+        containerWidthPx,
+      }).kind,
+    ).toBe('notes_too_wide')
+  })
+})
+
+/**
+ * The calibration case (ux D258) as `notation-seventh-symbols.spec.ts` measured it in Chromium on
+ * 2026-11-13: A major's leading width (treble clef, three sharps, 4/4) and the widest measure of
+ * two two-beat chords with the longest symbols (G♯m7♭5, E♭m7♭5) at the densest rhythm each layout
+ * allows, in engraving units.
+ */
+const SEVENTH_CALIBRATION = {
+  leadingWidth: 108,
+  sixteenthMeasureUnits: 256,
+  eighthMeasureUnits: 179.06,
+} as const
+
+// @test-link [[rule_seventh_chord_symbols]]
+describe('the seventh chord symbols calibration case', () => {
+  it('fits at the legibility floor at the narrowest width of every named breakpoint, in both layouts', () => {
+    const cases = [
+      { containerWidthPx: 950, viewport: ONE_SYSTEM, measureUnits: 'sixteenthMeasureUnits' },
+      { containerWidthPx: 1366, viewport: ONE_SYSTEM, measureUnits: 'sixteenthMeasureUnits' },
+      {
+        containerWidthPx: 694,
+        viewport: splitViewportAtScale(0.73),
+        measureUnits: 'eighthMeasureUnits',
+      },
+      {
+        containerWidthPx: 666,
+        viewport: splitViewportAtScale(0.73),
+        measureUnits: 'eighthMeasureUnits',
+      },
+    ] as const
+    for (const { containerWidthPx, viewport, measureUnits } of cases) {
+      const width = SEVENTH_CALIBRATION[measureUnits]
+      const fitted = expectFits(
+        planSystemLayout({
+          containerWidthPx,
+          viewport,
+          leadingWidth: SEVENTH_CALIBRATION.leadingWidth,
+          measureMinWidths: [width, width, width, width],
+          systemPadding: 60,
+        }),
+      )
+      expect(fitted.scale).toBeGreaterThanOrEqual(FLOOR_SCALE)
+      expect(fitted.measureContentWidthUnits).toBeGreaterThanOrEqual(width)
     }
   })
 })
