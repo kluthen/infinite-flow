@@ -10,6 +10,7 @@ version: 0.1
 parents:
   - [[user_story_controlled_phrase_generation]]
 dependents:
+  - [[module_seventh_chords_level_options]]
   - [[rule_carried_seventh_chord_compared_by_triad]]
   - [[rule_earlier_kept_sessions_read_at_off]]
   - [[rule_extensions_never_chord_tones]]

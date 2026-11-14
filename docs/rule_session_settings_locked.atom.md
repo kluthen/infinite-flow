@@ -8,6 +8,7 @@ human_name: Settings Locked During a Session
 tags: [v2, release-v2.0, session, player-controls]
 dependents:
   - [[module_session_shown_settings]]
+  - [[module_seventh_chords_level_options]]
   - [[rule_session_change_applies_at_phrase_boundary]]
   - [[service_session_engine]]
   - [[service_session_history]]

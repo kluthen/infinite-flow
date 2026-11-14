@@ -12,6 +12,7 @@ parents:
 version: 1.4
 dependents:
   - [[module_figure_level_options]]
+  - [[module_seventh_chords_level_options]]
 human_name: The Routing Point That Decides Custom
 layer: ARCHITECTURE
 tags: [v3, release-v3.1, presets, player-controls, profile]
