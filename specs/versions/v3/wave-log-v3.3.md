@@ -1106,3 +1106,28 @@ them under it.
   prices.
 - Chunks 19 and 23 merged; chunk 21 still blocked on L1 (the owner hasn't listened yet) and O310.
   Wave gate dispatched to a `coding-executor`.
+
+### Wave 5 gate (2026-11-14, green on 5c3da0d4)
+
+- Leftovers (0d83e3f8): `HARDWARE-CHECKLIST.md`'s v3.3 H3, H4 and H6 run conditions made true
+  after chunk 19 (how to set the level in the app); no recorded result changed.
+- Machine: local host, 12 cores, 09:17–09:55 CET, **not idle** (another project's database fill
+  and a grafana restart; load 4.7 at start, about 18 at the e2e peak).
+- `npm run quality`: run 1 red at `lint:health` (2 errors: `settings-record.ts` and
+  `tests/e2e/accessibility.spec.ts` at 11 atoms, chunk 23's links to
+  `rule_jam_has_own_seventh_chords_level`); fix 5c3da0d4, comments only: the link moves from
+  `JAM_SETTING_FIELDS` to `JamSettings` (`jam-settings.ts`), the Jam-controls axe test drops it
+  (the rule keeps its e2e links in `jam-seventh-chords.spec.ts`). Runs 2 and 3: e2e failures from
+  the host's load (`ERR_NETWORK_CHANGED`, a harness page not loading in 180 s), each green when
+  re-run alone; the rest of the chain then ran on 5c3da0d4 to the end. Every step passed on
+  5c3da0d4: unit 10,180 in 653 files (+49, +2); e2e 752 + 1 skipped with pre-generation off and on
+  (+15); a11y 76; notation 121 + 4 skipped; build, `verify:boundaries`, `atd:lint`, `atd:check`.
+- Sweep: 167 tests in 13 files (+22: the real ladder at Off and Always). Of 94 `SWEEP-` lines,
+  91 equal wave 4's; 3 differ, all Sixteenth at 240 BPM (one phrase-5 skip moves from
+  cutover-cancel to no-legal-pitch-plan; one carry-in loss to the time rule gone). Wave 4's tree
+  (37d7fcd3) run today at load about 2 gives the same three lines: the machine, not the wave
+  (chunks 19 and 23 change no generation code). No new line above Off.
+- Start-up JavaScript **387,038 B** of 409,600 B in 18 chunks (+1,598 B), entry file 332,026 B
+  (+1,598 B); engraver 735,085 B (unchanged); Jam's chunk 61,777 B (+0.59 kB), still out of the
+  first load.
+- Wave sync dispatched to `documentalist`.
