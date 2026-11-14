@@ -2090,7 +2090,7 @@ Architecture capture: none
 
 ### Chunk 23 — Jam's own Seventh chords level
 
-Status: in progress
+Status: merged (w5, 7901b007)
 Wave: 5
 Depends on: 3, 12, 16, 17, 19 (in-wave: chunk 19's capture, `module_seventh_chords_level_options`,
 fixes `seventhChordsOptions`), D0, U1a
@@ -2187,6 +2187,11 @@ loaded tolerantly at Off. It is never shared with session mode's level.
   saved at Off and read by nothing yet; 23b generation and the control (`fresh-jam-settings.ts`,
   `jam-phrase-one-attempts.ts`, `JamControls.vue`, `use-kept-doodle-phrase.ts` if it must change,
   the real ladder's plumbing, the engine tests and the e2e at Always).
+
+Record: 7901b007 (9012ad10 23a state and saving, 5eb0ac03 23b generation and the control). No
+deviation from the spec or the design. `use-kept-doodle-phrase.ts`, `use-fresh-jam.ts` and
+`jam-pregeneration.ts` needed no change; the sweep population's "until chunk 23" guard on the real
+ladder above Off is removed (`jam-sweep-population.ts`).
 
 ## Chunk 22 — v3.3 release gate
 

@@ -1081,3 +1081,28 @@ them under it.
 - Figures: 2 agents, 136 tool calls, 19.6M tokens in / 73k out, max context 232k, $6.75 at API
   prices.
 - Chunk 23 dispatched to a `coding-leader` (worktree `../infinite_flow-v3.3-c23`; 23a, 23b).
+
+### Chunk 23 merged (2026-11-14)
+
+- 7901b007 (9012ad10 23a, 5eb0ac03 23b; one `coding-executor` per half). Done when met: Jam's
+  level (`jam.seventh-chords`, in `JAM_SETTING_FIELDS`, no data-version change) Off on a first
+  visit and after Delete everything, survives a reload at each value, bad values load Off with the
+  other Jam settings kept (unit); neither mode moves the other's level (unit and e2e
+  `jam-seventh-chords.spec.ts`, in the `test:e2e` list); every rung of phrase 1 and every later
+  phrase carry Jam's level, fixed for the Jam, and a Jam at Always writes sevenths (unit, e2e; the
+  e2e was not seen red first, the units were); a change at Idle with a kept doodle rewrites phrase
+  1 and discards the prepared phrases, Jam again uses the level as it stands; the control after
+  Harmonic motion, read-only during a Jam, chunk 19's list and note; the real ladder and its double
+  match at Off and Always (45/45; 22 red with the fix stashed).
+- Corpus guard 14 files, 458 tests unchanged; related unit 175 files / 1,861 tests (23a), 57 / 473
+  (23b); Playwright 6/6 (new spec, `jam-settings`, Jam controls axe at Always, both themes);
+  static checks, `lint:links`, `atd:lint`/`atd:check` pass. Docs made true: `storage.md`,
+  `phrase-workspace.md`, `session-engine.md`, `generation-latency.md`, `testing.md`.
+- For the sync: links on `rule_jam_has_own_seventh_chords_level`, `module_jam_settings`,
+  `module_seventh_chords_level_options`, the `rule_jam_settings_*` atoms; Revisions as the plan
+  lists them. For the gate: the sweep (Jam cases above Off now allowed on the real ladder), the
+  start-up figure (`settings-record.ts` gained one key). H2's Jam half with the owner.
+- Figures: 3 agents, 165 tool calls, 15.5M tokens in / 88k out, max context 177k, $6.71 at API
+  prices.
+- Chunks 19 and 23 merged; chunk 21 still blocked on L1 (the owner hasn't listened yet) and O310.
+  Wave gate dispatched to a `coding-executor`.
