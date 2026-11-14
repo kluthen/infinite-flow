@@ -64,6 +64,7 @@ export const JAM_TEMPO_VALUES: readonly number[] = deepFreeze(
 /** Jam's own settings, one value each. */
 // @spec-link [[req_jam_settings]]
 // @spec-link [[module_jam_settings]]
+// @spec-link [[rule_jam_has_own_seventh_chords_level]]
 export interface JamSettings {
   /** Jam's tempo, one of JAM_TEMPO_VALUES. */
   readonly tempo: number

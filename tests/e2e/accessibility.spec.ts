@@ -694,7 +694,6 @@ for (const controller of ['without', 'with'] as const) {
 // Jam's controls ("Shape your Jam"), the rhythm lock on so its allowed rhythm changes show, and
 // Jam's own Seventh chords level at Always with its note.
 for (const theme of ['Light', 'Dark'] as const) {
-  // @test-link [[rule_jam_has_own_seventh_chords_level]]
   test(`has no detectable axe violations in Jam's controls, the rhythm lock on, ${theme} theme`, async ({
     page,
   }) => {

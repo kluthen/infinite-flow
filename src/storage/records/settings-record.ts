@@ -127,7 +127,6 @@ type FieldKey<G extends SettingGroup> = `${G}.${keyof SavedSettings[G] & string}
  * and no change of data version either.
  */
 // @spec-link [[module_jam_settings]]
-// @spec-link [[rule_jam_has_own_seventh_chords_level]]
 export const JAM_SETTING_FIELDS = deepFreeze([
   'tempo',
   'tonalCenter',
