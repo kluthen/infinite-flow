@@ -15,7 +15,7 @@ dependents:
 layer: BUSINESS
 priority: 1
 type: RULE
-version: 0.5
+version: 0.6
 ---
 
 # Settings Saved When the Player Changes Them
@@ -25,12 +25,12 @@ Bring the player's settings back as they left them, without them having to save 
 
 ## THE RULE / LOGIC
 From v3.0, each of these settings is saved on the device when the player changes it, with no save action:
-- in session mode, the 14 generation controls, the seven figure levels, and the preset selection: which preset, or Custom and the preset it is based on, if any;
+- in session mode, the 14 generation controls, the seven figure levels, the Seventh chords level, and the preset selection: which preset, or Custom and the preset it is based on, if any;
 - the theme;
 - the audio mix: the click, the backing, the melody guide and the rhythm guide, each on or off, and each one's volume;
 - the three options for during a session: Vary settings, Tension across phrases and Rising tempo;
 - from v3.2, in session mode, the rhythm lock, its allowed rhythm changes and Vary settings' allowed groups;
-- from v3.2, Jam's own settings, as their own group: its key and mode, tempo, drift, rhythm lock, allowed rhythm changes, harmonic motion, tension and Embellishments level;
+- from v3.2, Jam's own settings, as their own group: its key and mode, tempo, drift, rhythm lock, allowed rhythm changes, harmonic motion, tension, Embellishments level and Seventh chords level;
 - the review's preferences: the generated-notes format, whether the generated-notes MIDI file carries the backing track, and the Played notes switch.
 A setting changed while no session runs is saved at once. A setting changed while a session runs, such as the theme or the audio mix, is saved when that session ends, since nothing is written during a session. After a reload, each saved setting comes back with the value the player last gave it, except the preset selection, which comes back as Custom based on the saved preset when the saved settings, or the saved key and mode, no longer match that preset, and as Custom with no base when that preset no longer exists. The three options for during a session, and the rhythm lock of each mode, stay the player's own opt-in: each comes back on only if the player had turned it on. Nothing that belongs to a running session is saved as a setting. The mode is never saved: the app always opens in session mode.
 

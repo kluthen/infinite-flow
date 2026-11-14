@@ -9,7 +9,7 @@ parents:
   - [[rule_custom_selection]]
   - [[rule_profile_control_customization]]
   - [[rule_restriction_in_force]]
-version: 1.4
+version: 1.5
 dependents:
   - [[module_figure_level_options]]
   - [[module_seventh_chords_level_options]]
@@ -36,7 +36,7 @@ Every edit of a generation setting at Idle goes through one routing point. It wo
 With a preset selected, Custom is based on that preset. Custom stays Custom with the same base, a value changed back stays Custom, and only choosing a preset leaves it (module_generative_profile_selection). The phrase on screen stays after every edit. An edit of a setting the phrase is generated from, every one but the tempo, reacts under the too-many-notes or no-room notice as any change does, starting a round or a room check, and one that changes the rhythm setting posts a prewarm. Edits apply only at Idle.
 
 ## TECHNICAL INTERFACE
-src/composables/generation-session-control-actions.ts: setControl(key, value), setFigureLevel(figure, level), setChordFamilyLevel(family, level) and selectPreset each end in applyChosen, which sets the state's controls, figureLevels, chordFamilies and selection together and saves what changed (chosenControlChanges, src/storage/settings-saver.ts), the Seventh chords level included; no control calls setChordFamilyLevel yet. The selection after an edit comes from selectionAfterChange, and the restriction in force from restrictionInForce, in src/domain/presets/preset-selection.ts, over the presets the session knows. setControl refuses instrumentProfileId; the instrument switch is src/composables/generation-session-profile-switch.ts, outside the routing point. The reactions are afterGenerationSettingChange (src/composables/generation-session-room-notice.ts) and the rhythm prewarm.
+src/composables/generation-session-control-actions.ts: setControl(key, value), setFigureLevel(figure, level), setChordFamilyLevel(family, level) and selectPreset each end in applyChosen, which sets the state's controls, figureLevels, chordFamilies and selection together and saves what changed (chosenControlChanges, src/storage/settings-saver.ts), the Seventh chords level included. The selection after an edit comes from selectionAfterChange, and the restriction in force from restrictionInForce, in src/domain/presets/preset-selection.ts, over the presets the session knows. setControl refuses instrumentProfileId; the instrument switch is src/composables/generation-session-profile-switch.ts, outside the routing point. The reactions are afterGenerationSettingChange (src/composables/generation-session-room-notice.ts) and the rhythm prewarm.
 
 ## EXPECTATION
 - With a preset selected, a change of any of the ten preset-held controls, of a figure level or of the Seventh chords level makes Custom based on it, and so does a key or mode outside the restriction in force.

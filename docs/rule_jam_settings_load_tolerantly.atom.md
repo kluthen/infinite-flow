@@ -1,7 +1,7 @@
 ---
 id: rule_jam_settings_load_tolerantly
 status: REVIEW
-version: 0.1
+version: 0.2
 priority: 1
 dependents:
   - [[module_jam_settings]]
@@ -19,7 +19,7 @@ layer: BUSINESS
 Keep every valid saved Jam choice when one saved value no longer makes sense.
 
 ## THE RULE / LOGIC
-Each of Jam's saved settings is checked on its own when the app loads: an unknown or invalid value takes that setting's first value, the one it starts from on a new device (drift Near, the lock off, every allowed rhythm change off, Gentle diatonic, Lift, Embellishments Rarely, a tempo inside 60 to 180 BPM), and every other saved setting still loads. Settings saved before v3.2 hold no Jam settings, which then start from their first values.
+Each of Jam's saved settings is checked on its own when the app loads: an unknown or invalid value takes that setting's first value, the one it starts from on a new device (drift Near, the lock off, every allowed rhythm change off, Gentle diatonic, Lift, Embellishments Rarely, the Seventh chords level Off, a tempo inside 60 to 180 BPM), and every other saved setting still loads. Settings saved before v3.2 hold no Jam settings, which then start from their first values. Jam settings saved before v3.3 hold no Seventh chords level, which then loads Off, every other Jam setting keeping its saved value.
 
 ## TECHNICAL INTERFACE
 Loading checks each saved Jam setting separately and replaces only an invalid one with its first value.
@@ -27,3 +27,4 @@ Loading checks each saved Jam setting separately and replaces only an invalid on
 ## EXPECTATION
 - An unknown or invalid saved Jam setting loads as its first value, and every other saved setting still loads.
 - With settings saved before v3.2, Jam's settings start from their first values.
+- An unknown or invalid saved Seventh chords level of Jam's loads as Off, and Jam settings saved before v3.3 load with it at Off, every other Jam setting kept.

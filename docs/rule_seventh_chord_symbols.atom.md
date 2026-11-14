@@ -1,6 +1,6 @@
 ---
 id: rule_seventh_chord_symbols
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 version: 0.1
 tags: [v3, release-v3.3, notation, chords]

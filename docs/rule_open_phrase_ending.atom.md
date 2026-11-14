@@ -3,7 +3,7 @@ id: rule_open_phrase_ending
 status: STABLE
 human_name: Open Phrase Ending
 type: RULE
-version: 0.5
+version: 0.6
 priority: 2
 layer: BUSINESS
 tags: phrase-ending,continuation
@@ -20,7 +20,7 @@ dependents:
 End every generated phrase with an open continuation rather than a closed tonic cadence.
 
 ## THE RULE / LOGIC
-The four-bar phrase ends open so the player can continue playing. Local dissonances, appoggiaturas, approaches and enclosures, diatonic or chromatic, resolve before the final sounding event, whichever preset or figure level brought them. When generated tonal motion ends on dominant, the final event is a note of the dominant triad (its root, third or fifth), never the dominant chord's seventh. With static tonic prolongation or modal material, the final event is a non-final tonic-area continuation such as scale degree 5, never an asserted tonic closure. Every chord this rule names is read as its triad, also when the phrase plays it as a seventh chord: a final chord's seventh is never the final event of a phrase generated without carry-in. In a session, a phrase generated with carry-in may instead end on a tense note (a scale tone outside the final chord's triad, the final chord's seventh included) whose resolution the next phrase generated with that carry-in makes on its first note. If no phrase generated with that carry-in follows (the session ends, or the next phrase is a standalone or repeated phrase), the tense note stays unresolved.
+The four-bar phrase ends open so the player can continue playing. Local dissonances, appoggiaturas, approaches and enclosures, diatonic or chromatic, resolve by the final sounding event, whichever preset or figure level brought them. When generated tonal motion ends on dominant, the final event is a note of the dominant triad (its root, third or fifth), never the dominant chord's seventh. With static tonic prolongation or modal material, the final event is a non-final tonic-area continuation such as scale degree 5, never an asserted tonic closure. Every chord this rule names is read as its triad, also when the phrase plays it as a seventh chord: a final chord's seventh is never the final event of a phrase generated without carry-in. In a session, a phrase generated with carry-in may instead end on a tense note (a scale tone outside the final chord's triad, the final chord's seventh included) whose resolution the next phrase generated with that carry-in makes on its first note. If no phrase generated with that carry-in follows (the session ends, or the next phrase is a standalone or repeated phrase), the tense note stays unresolved.
 
 ## TECHNICAL INTERFACE
 Generated phrase endings are rendered as part of the final measure.

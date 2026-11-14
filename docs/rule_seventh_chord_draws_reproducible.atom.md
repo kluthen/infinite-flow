@@ -1,6 +1,6 @@
 ---
 id: rule_seventh_chord_draws_reproducible
-status: DRAFT
+status: REVIEW
 human_name: Seventh Chord Draws Reproduce Everywhere
 dependents:
   - [[module_generation_request_construction]]

@@ -1,6 +1,6 @@
 ---
 id: rule_no_export_carries_seventh_chords_level
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

@@ -1,6 +1,6 @@
 ---
 id: rule_earlier_kept_sessions_read_at_off
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 tags: [v3, release-v3.3, storage, review, chords]
