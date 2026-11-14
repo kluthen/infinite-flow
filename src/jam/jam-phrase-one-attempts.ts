@@ -8,7 +8,6 @@
  * same controls. The note density steps down from phrase 1 on narrow windows, and only down. Each
  * attempt's seed comes from the caller. Pure; part of Jam's code (src/jam/), loaded on demand.
  */
-import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { resolveGeneratedNoteDensity } from '@/domain/controls/generated-note-density'
 import type { QuantizedDoodle } from '@/domain/doodle/quantized-doodle'
@@ -158,14 +157,15 @@ export interface JamAttempt {
  * Intent: the intent of attempt `index` on what the doodle gives: the controls read from the
  * doodle with the note density as it generates now (a Sixteenth as Eighth below the
  * tablet-landscape width or once stepped down), my instrument's profile as data when selected,
- * the Seventh chords level at Off (no Jam state holds one yet), and the caller's request id and
- * seed. Rung 1 carries the join and the block (and the pending
- * lock); rung 2 the block (and the pending lock) with the register read from the doodle; rung 3
- * neither. Asking rung 1 of a doodle with no join is a caller defect and throws.
+ * the attempt's own Seventh chords level (Jam's, which the doodle never sets), and the caller's
+ * request id and seed. Rung 1 carries the join and the block (and the pending lock); rung 2 the
+ * block (and the pending lock) with the register read from the doodle; rung 3 neither. Asking
+ * rung 1 of a doodle with no join is a caller defect and throws.
  */
 // @spec-link [[rule_jam_phrase_one_failure_ladder]]
 // @spec-link [[rule_session_density_only_steps_down]]
 // @spec-link [[rule_doodle_only_orders_candidates]]
+// @spec-link [[rule_jam_has_own_seventh_chords_level]]
 export function jamAttempt(
   attempts: DoodleAttempts,
   index: JamPhraseOneAttemptIndex,
@@ -187,7 +187,7 @@ export function jamAttempt(
     seed: seams.seed,
     controls: { ...chosen, noteDensity },
     figureLevels: settings.figureLevels,
-    chordFamilies: OFF_CHORD_FAMILIES,
+    chordFamilies: settings.chordFamilies,
     ...(mine ? { instrumentProfile: sessionInstrumentProfile(settings) } : {}),
     ...locked,
     ...steered,

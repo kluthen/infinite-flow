@@ -19,17 +19,15 @@ describe("the Jam sweep runner's levels and ladder", () => {
     expect(jamSweepChoices({ JAM_LEVELS: 'favored' }).levels).toEqual(['favored'])
   })
 
-  it('plays the real ladder at Off only, and refuses it with any level above Off', () => {
+  it('plays the real ladder at every level, as the double', () => {
     expect(jamSweepChoices({ JAM_LADDER: 'real', JAM_LEVELS: 'off' })).toMatchObject({
       ladder: 'real',
       levels: ['off'],
     })
-    expect(() => jamSweepChoices({ JAM_LADDER: 'real' })).toThrow(
-      /JAM_LADDER=real .*jam-phrase-one-attempts\.ts.* at Off until v3\.3 chunk 23/,
-    )
-    expect(() => jamSweepChoices({ JAM_LADDER: 'real', JAM_LEVELS: 'off,sometimes' })).toThrow(
-      /Sometimes/,
-    )
+    expect(jamSweepChoices({ JAM_LADDER: 'real' })).toMatchObject({
+      ladder: 'real',
+      levels: ['off', 'sometimes', 'favored', 'stronglyFavored'],
+    })
     expect(jamSweepChoices({ JAM_LADDER: 'baseline', JAM_LEVELS: 'all' }).levels).toHaveLength(4)
   })
 })

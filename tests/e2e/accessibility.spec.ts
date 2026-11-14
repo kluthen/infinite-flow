@@ -691,8 +691,10 @@ for (const controller of ['without', 'with'] as const) {
   }
 }
 
-// Jam's controls ("Shape your Jam"), the rhythm lock on so its allowed rhythm changes show.
+// Jam's controls ("Shape your Jam"), the rhythm lock on so its allowed rhythm changes show, and
+// Jam's own Seventh chords level at Always with its note.
 for (const theme of ['Light', 'Dark'] as const) {
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
   test(`has no detectable axe violations in Jam's controls, the rhythm lock on, ${theme} theme`, async ({
     page,
   }) => {
@@ -706,6 +708,11 @@ for (const theme of ['Light', 'Dark'] as const) {
     await expect(controls.locator('h2')).toHaveText('Shape your Jam')
     await radio(page, 'Rhythm lock', 'On').click()
     await expect(controls.locator('.field-dependent .toggle-button')).toHaveCount(5)
+    await radio(page, 'Seventh chords', 'Always').click()
+    await expect(radio(page, 'Seventh chords', 'Always')).toHaveAttribute('aria-checked', 'true')
+    await expect(
+      page.getByRole('radiogroup', { name: 'Seventh chords' }),
+    ).toHaveAccessibleDescription(/A preference, never a promise\.$/)
     await page.waitForFunction(() =>
       document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
     )

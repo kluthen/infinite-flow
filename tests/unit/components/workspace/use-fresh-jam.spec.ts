@@ -9,9 +9,11 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { effectScope, shallowRef, type EffectScope } from 'vue'
 
+import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
+import type { GenerationIntent } from '@/domain/generation/generation-intent'
 import { C_KEYBOARD_PROFILE } from '@/domain/profile/instrument-profiles'
 import * as jamMode from '@/jam/jam-mode'
-import { jamFirstValues } from '@/jam/jam-settings'
+import { jamFirstValues, type JamSettingsChange } from '@/jam/jam-settings'
 import type { JamStaffState } from '@/jam/jam-view-types'
 import type { KeptDoodleState } from '@/jam/use-kept-doodle'
 import type { AudioTime } from '@/session/session-types'
@@ -37,6 +39,8 @@ interface ShellJam {
   readonly fresh: WorkspaceFreshJam
   readonly jamShowing: { value: boolean }
   readonly changeTempo: (tempo: number) => void
+  /** Change Jam's settings as Jam's controls would. */
+  readonly changeJam: (change: JamSettingsChange) => void
   readonly staffState: { value: JamStaffState | null }
   /** Jam's kept doodle, which the shell's fresh Jam hands each ended Jam's part to. */
   readonly keptDoodle: KeptDoodleState
@@ -94,6 +98,9 @@ async function shellJam(script: GenerateScript = alwaysSucceed): Promise<ShellJa
     handed,
     changeTempo: (next) => {
       settings.value = { ...settings.value, tempo: next }
+    },
+    changeJam: (change) => {
+      settings.value = { ...settings.value, ...change }
     },
   }
 }
@@ -199,6 +206,30 @@ describe("the shell's fresh Jam", () => {
     })
     expect(run.fresh.cue.value).toBeNull()
     expect(run.fresh.noticeShown.value).toBe(false)
+  })
+
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  // @test-link [[req_jam_settings]]
+  it("asks every phrase of the Jam at Jam's own Seventh chords level as it started, never session mode's", async () => {
+    const asked: GenerationIntent[] = []
+    const run = await shellJam((intent) => {
+      asked.push(intent)
+      return alwaysSucceed(intent)
+    })
+    expect(run.rig.settings.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+    run.changeJam({ 'seventh-chords': 'stronglyFavored' })
+    const before = asked.length
+    run.fresh.start()
+    run.changeJam({ 'seventh-chords': 'favored' })
+    const ends = countInEnd(run)
+    await playOneMeasure(run, ends)
+    await playTo(run.rig, ends + 9 * MEASURE)
+
+    expect(run.rig.controller.state.phase).toBe('running')
+    const jamAsked = asked.slice(before)
+    expect(jamAsked.length).toBeGreaterThan(2)
+    for (const intent of jamAsked)
+      expect(intent.chordFamilies).toStrictEqual({ 'seventh-chords': 'stronglyFavored' })
   })
 
   // @test-link [[rule_jam_runs_as_session_from_phrase_one]]

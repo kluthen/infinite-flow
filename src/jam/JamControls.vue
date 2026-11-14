@@ -4,7 +4,8 @@
  * C5.16; the phrase-workspace handoff, Jam's controls): three groups. **Foundation**: Jam's tempo
  * (60 to 180 BPM in steps of 10, with `tap-tempo` after the stepper in the Tempo field and its
  * note under both, ./TapTempo.vue), written key and collection, the shared instrument (its range
- * summary and `instrument-actions` as in session mode), Jam's harmonic motion and tension, and one
+ * summary and `instrument-actions` as in session mode), Jam's harmonic motion, its own Seventh
+ * chords level (session mode's control and note, never session mode's level) and tension, and one
  * Embellishments level given to all seven figures. **Following your doodle**: the drift, and Jam's
  * own rhythm lock with its allowed rhythm changes under it. **From your doodle**: what the app read
  * from the doodle (./DoodleReadings.vue). No preset bar, no key and mode marks, no "During a
@@ -20,10 +21,13 @@ import RhythmLockField from '@/components/controls/RhythmLockField.vue'
 import SegmentedControl from '@/components/controls/SegmentedControl.vue'
 import TempoStepper from '@/components/controls/TempoStepper.vue'
 import {
+  SEVENTH_CHORDS_NOTE,
   collectionOptions,
   harmonicMotionOptions,
   instrumentChoiceOptions,
   profileRangeSummaryText,
+  seventhChordsLevelOfSegment,
+  seventhChordsOptions,
   tensionOptions,
   tonalCenterOptions,
 } from '@/components/controls/control-options'
@@ -84,6 +88,7 @@ const DRIFT_OPTIONS: readonly SegmentedControlOption[] = JAM_DRIFTS.map((drift) 
   label: drift,
 }))
 
+const seventhChordsNoteId = useId()
 const embellishmentsNoteId = useId()
 const driftNoteId = useId()
 
@@ -129,6 +134,16 @@ function handleHarmonicMotion(value: string): void {
   emit('change', {
     harmonicMotion: validateControlValue(HARMONIC_MOTIONS, value, 'Harmonic motion'),
   })
+}
+
+/**
+ * Intent: report a change of Jam's own Seventh chords level, the segment re-validated against the
+ * level ids; session mode's level is never touched.
+ */
+// @spec-link [[rule_jam_has_own_seventh_chords_level]]
+// @spec-link [[module_seventh_chords_level_options]]
+function handleSeventhChords(value: string): void {
+  emit('change', { 'seventh-chords': seventhChordsLevelOfSegment(value) })
 }
 
 /** Intent: report a change of Jam's tension, re-validated against the tension-arc catalog. */
@@ -249,6 +264,20 @@ const profileRangeSummary = computed(() =>
             :readonly="readonly"
             @update:model-value="handleHarmonicMotion"
           />
+        </div>
+        <!-- @spec-link [[rule_jam_has_own_seventh_chords_level]] -->
+        <!-- @spec-link [[module_seventh_chords_level_options]] -->
+        <div class="field-group" :class="{ 'is-readonly': readonly }">
+          <span class="field-label">Seventh chords</span>
+          <SegmentedControl
+            label="Seventh chords"
+            :options="seventhChordsOptions"
+            :model-value="settings['seventh-chords']"
+            :readonly="readonly"
+            :described-by="seventhChordsNoteId"
+            @update:model-value="handleSeventhChords"
+          />
+          <p :id="seventhChordsNoteId" class="field-note">{{ SEVENTH_CHORDS_NOTE }}</p>
         </div>
         <div class="field-group" :class="{ 'is-readonly': readonly }">
           <span class="field-label">Tension</span>

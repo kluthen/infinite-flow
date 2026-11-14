@@ -275,6 +275,27 @@ describe("the workspace's hold on Jam's own pre-generation queue", () => {
     expect(rig.failures).toEqual([])
   })
 
+  // @test-link [[rule_jam_setting_change_rewrites_kept_phrase_one]]
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  it("discards them for Jam's Seventh chords level, the doodle kept, and prepares again at the new level", async () => {
+    const rig = hostRig()
+    await keptAndLoaded(rig)
+    const kept = rig.keptDoodle.kept.value
+    await answerOne(rig)
+    const discarded = inFlight(rig)
+
+    rig.jamSettings.change({ 'seventh-chords': 'stronglyFavored' })
+
+    expect(discarded.signal.aborted).toBe(true)
+    await settle()
+    expect(rig.keptDoodle.kept.value).toBe(kept)
+    expect(inFlight(rig).intent.chordFamilies).toStrictEqual({
+      'seventh-chords': 'stronglyFavored',
+    })
+    expect(await takenThenResumed(rig)).toEqual([])
+    expect(rig.failures).toEqual([])
+  })
+
   // @test-link [[rule_pregeneration_discarded_on_change]]
   // @test-link [[rule_shared_setting_changed_in_jam_mode]]
   it("discards them for the shared instrument, my instrument's clef included", async () => {

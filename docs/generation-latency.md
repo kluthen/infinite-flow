@@ -1340,8 +1340,8 @@ with Bebop), the Jam sweep (`npm run measure:jam`, `JAM_LEVELS`) for a fresh Jam
 the level in its labels; the cost runner also prints, per setting, the share of the distinct
 intents' harmony events in their seventh form and of phrases fallen back to triads, and per tempo
 the phrases 2 to 6 by production and the failed joins by cause (spec D531). Every level is
-measurable; above Off, a fresh Jam's phrase 1 goes through the Jam sweep's double of the ladder
-(the real ladder builds it at Off until chunk 23 carries Jam's level).
+measurable, a fresh Jam's phrase 1 through the Jam sweep's double of the ladder or its real ladder
+alike: both build it at the case's level (the real ladder carries Jam's level since chunk 23).
 
 ### Off baseline (v3.3 chunk 4)
 
