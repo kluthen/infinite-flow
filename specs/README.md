@@ -72,10 +72,10 @@ Status: draft v0.93
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go. Rhythm ratios and the rhythm editor are v4; the chord-fit check, review
     tooling and the two controller-connection ideas are dropped (D211).
-- **Open:** 28 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
+- **Open:** 27 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
   O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
   (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
-  reopening fails), O230 (a stale replay-key wording in a STABLE atom), O234–O238 (v3.4's
+  reopening fails), O230 (a stale replay-key wording in a STABLE atom), O234 and O236–O238 (v3.4's
   structural review), O239–O246 (v3.4's lexicon page), O267 (a doodle note played before the
   doodle's first barline, v3.2 wave 6), O269 (a legato doodle read as Heavily varied, at v3.2
   H5) and O271 (a note start off the doodle's grid, at v3.2 H4); the last three after the `3.2.0`

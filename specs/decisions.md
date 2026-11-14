@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.136
+Status: draft v2.137
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -615,3 +615,19 @@ archived range D407–D509 that its archive notice lists.
   triad, as the validator does; the gate then covers the fix and chunk 21 starts from a consistent
   generator. Now in: [build plan v3.3, chunk 5](versions/v3/build-plan-v3.3.md#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search),
   [waves](versions/v3/build-plan-v3.3.md#waves).
+- **D536 (2026-11-14): the first-load budget counts all start-up JavaScript, 400 KiB (409,600 B);
+  closes O235.** The owner's ruling ("Count all startup JS") at wave 4's gate: the entry file,
+  330,428 B against D504's 327,680 B, grew mostly because chunk 17a's step 5 made the bundler fold
+  three chunks already loaded at start-up into it; all start-up JavaScript (the entry file and its
+  static imports, transitively, minified bytes on disk) rose only from 380,072 B to 385,440 B. The
+  total gates; each wave reports the entry file too. O235's proposal, the time until usable on a
+  phone, is not a gate; the v3.4 review may report it. Rejected: raising the entry budget, loading
+  the migration steps lazily. Now in: [Part D §D13](versions/v3/master-spec.md#d13-existing-code-and-risks),
+  [build plan v3.3, M4](versions/v3/build-plan-v3.3.md#m4--the-first-load-bundle),
+  [build workflow, wave gate](versions/v3/build-workflow.md#wave-gate).
+- **D537 (2026-11-14): `documentalist` restates `rule_earlier_kept_sessions_carried_over`'s figure
+  at the release gate, from the owner's reference-machine M3; no owner ruling.** Chunk 17's M3
+  reaches the 2 s wait at about 500 sessions of 105 kB bodies from v3.0 data (2,002 ms; 1,478 ms
+  from v3.1's), not the atom's "about 220 sessions of about 13 minutes"; the behaviour holds
+  (D376). An overrun at fewer sessions than the atom says goes to the owner. Now in:
+  [build plan v3.3, chunk 22](versions/v3/build-plan-v3.3.md#chunk-22--v33-release-gate).

@@ -1,13 +1,12 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v19 (2026-11-13): v18 with wave 4's chunk reports and spec D534–D535 written in: DP done,
-chunk 20 skipped (D534); ISS-019 fixed by chunk 5's second addendum in wave 4 (D535); chunks 13,
-14 and 17 say what holds; U1a done (ux D485: the top label is Always, and chunk 19 renames the old
-one in comments and tests); L1 open.
+Status: v20 (2026-11-14): v19 with spec D536–D537 written in: the first-load budget counts all
+start-up JavaScript, 400 KiB (M4, the start-up budget delta, chunks 1 and 22; D536); the release
+gate takes M3's deciding runs and restates the carry-over figure from them (M3, chunk 22; D537).
 
 The Seventh chords level (richer chords, optional), written from
-[master spec Part D](master-spec.md#part-d--v33) (v1.4, 2026-11-12, with spec D263–D275,
-D511–D519, D526 and D530; v1.2 approved by the owner on 2026-11-09: gate A0, spec D520) and the v3.3 design, frozen at its approval in
+[master spec Part D](master-spec.md#part-d--v33) (v1.5, 2026-11-14, with spec D263–D275,
+D511–D519, D526, D530 and D536; v1.2 approved by the owner on 2026-11-09: gate A0, spec D520) and the v3.3 design, frozen at its approval in
 [`ui_ux/versions/v3.3/`](../../../ui_ux/versions/v3.3/README.md) (ux D252–D264, refreshed by ux D477–D481; approved by the owner on
 2026-11-09: gate D0, ux D482):
 everything marked `[v3.3 new]`, `[v3.3 changed]` or with a `_v3.3 …:_` change-block line. Its
@@ -291,8 +290,9 @@ The [build workflow](build-workflow.md) holds for v3.3 with release name `v3.3`:
   assigns them: the harmony planner policy (chunks 2 and 12), the pitch planner validation note
   (chunks 5–7), the generator contract (`spec-writer`, from chunk 12's report, at wave 3's gate),
   the lexicon's "in Infinite Flow" lines (`documentalist`, at the release gate).
-- **Entry budget**: 320 KiB (327,680 B, spec D504), or the figure v3.2's release gate leaves
-  ([M4](#m4--the-first-load-bundle)); v3.2's wave 7 gate left the entry chunk at 311,455 B.
+- **Start-up budget** ([M4](#m4--the-first-load-bundle), spec D536): all JavaScript loaded at
+  start-up, 400 KiB (409,600 B); 385,440 B at wave 4's gate, the entry file 330,428 B of it. Each
+  wave gate reports the total and the entry file; the total gates, the entry file alone does not.
 - **Hand checks** go into a new v3.3 part of [`HARDWARE-CHECKLIST.md`](../../../HARDWARE-CHECKLIST.md),
   written by the chunk the [table](#hand-checks) names; the first of them opens the part.
 
@@ -386,7 +386,7 @@ passes, or the chunk stops.
 - **Run by:** chunk 17: the version 5 upgrade on 10, 100 and 500 v3.2 kept sessions (Jam sessions
   and player presets among them), and the start-up read on the same databases, cold and warm, with
   v3.2's tools (`npm run measure:kept-session-upgrade`, `npm run measure:startup-read`). The owner
-  repeats the deciding runs on the reference machine.
+  repeats the deciding runs on the reference machine, at the release gate at the latest (D537).
 - **Acceptance:** each, upgrade included, well under the start-up wait constant. The upgrade
   rewrites the player presets and kept bodies with the level at Off (D515), as v3.2's step 4
   rewrote kept sessions, so it should cost about what that step did.
@@ -394,14 +394,16 @@ passes, or the chunk stops.
 
 ### M4 — The first-load bundle
 
-- **What:** the entry chunk stays within its budget (320 KiB today, `entryChunkByteBudget` in
-  `scripts/verify-boundaries.mjs`, spec D504, or the figure v3.2's gate leaves; 311,455 B at v3.2's
-  wave 7 gate). The control and its options
-  add a few lines to the entry chunk; the seventh-chord generation code lives in the generation
-  worker's bundle and the notation changes in the VexFlow engraver chunk, whose budgets the same
-  script checks.
-- **Run by:** chunk 1 (the baseline on the v3.2 release); every wave gate; the release gate (`npm
-run verify:boundaries`, budget unchanged).
+- **What:** all JavaScript loaded at start-up, the entry file and every chunk it imports
+  statically, transitively, in minified bytes on disk, stays within 400 KiB (409,600 B, spec D536;
+  the budget in `scripts/verify-boundaries.mjs`), however the bundler groups it. 380,072 B at wave
+  3's gate, 385,440 B at wave 4's (the entry file 330,428 B), about 24 KB left for wave 5's control
+  and Jam's level. The control and its options add a few lines to the start-up code; the
+  seventh-chord generation code lives in the generation worker's bundle and the notation changes
+  in the VexFlow engraver chunk, whose budgets the same script checks.
+- **Run by:** chunk 1 (the baseline on the v3.2 release: the entry file, 311,455 B); every wave
+  gate, reporting the total and the entry file; the release gate (`npm run verify:boundaries`,
+  budget unchanged).
 - **Recorded:** the wave log and each wave's merge commit message; the release notes.
 
 ### Hand checks
@@ -492,7 +494,8 @@ Architecture capture: none
     before" rest on it.
   - The entry chunk's size after `npm run build` on the tag ([M4](#m4--the-first-load-bundle)).
     Recorded: 311,455 B on the `v3.2.0` tag (`f93e552d`) and on the chunk's branch, whose `src/`
-    is the tag's; 16,225 B under the 320 KiB budget (2026-11-10).
+    is the tag's; 16,225 B under the entry budget of the time, 320 KiB (2026-11-10; M4 counts all
+    start-up JavaScript since spec D536).
   - **After a 3.2.x fix** (spec D521, gate R0): if the fix changes a recorded value, the corpus is
     recorded again from the fix's tag, the change read as the fix's own, and the v3.3 chunks merged
     by then re-checked against it.
@@ -2165,7 +2168,13 @@ It runs the [build workflow's release gate](build-workflow.md#release-gate), plu
   built before the gate passes, D534).
 - The v3.2 corpus, every earlier corpus, the Vary settings draws, the backing and file corpus and
   the goldens re-run at Off.
-- `npm run verify:boundaries` with the entry budget unchanged (M4).
+- **M3's deciding runs** by the owner on the reference machine, if not run before. From them
+  `documentalist` restates the figure in STABLE `rule_earlier_kept_sessions_carried_over` ("from
+  about 220 sessions of about 13 minutes each"; chunk 17's M3: about 500 sessions of about 105 kB
+  bodies), the behaviour unchanged (D376); an overrun at fewer sessions than the atom says goes to
+  the owner (D537).
+- `npm run verify:boundaries` with the start-up budget unchanged (M4: all start-up JavaScript,
+  400 KiB, spec D536); the release notes give the total and the entry file.
 - Hand checks H1–H6 done.
 - `documentalist`'s post-task sync over every `release-v3.3` atom, promoting those the owner agrees
   to; every `changes-in-v3.3` atom revised; the contract's record checked (C1's wordings each

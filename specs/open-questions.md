@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.89
+Status: draft v0.90
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -219,17 +219,14 @@ version that upgrades the saved data.
 
 Opened 2026-10-21 by `spec-writer` with v3.4 (D389). The scoping draft is
 [structural-review.md](versions/v3/structural-review.md); none of these blocks v3.1, v3.2 or v3.3.
+D536 closed O235 (what the first-load budget measures) on 2026-11-14, at v3.3's wave 4 gate.
 
 - **O234 - What v3.4 delivers** _(D389)_: a report with ranked recommendations only, or also the
   refactors the owner takes, built as a v3.4 build plan before v4 starts? And is v3.4 a release with
   its own tag, or a milestone with no tag? Proposed: the report and the owner's rulings close the
   analysis; any refactor taken becomes a v3.4 build plan, approved separately; a tag (3.4.0) only if
   code ships.
-- **O235 - What the entry budget should measure, and its target** _(D359, D389, D504)_: the budget counts
-  the minified entry file on disk (327,680 B since D504), not the compressed bytes a browser downloads, nor the
-  time until the app is usable. Which matters most to the owner? Proposed: the time until the app is
-  usable, with the phone on a mobile connection as the hard case; the review reports all three and
-  proposes options; the 320 KiB budget (D504) stays until the owner rules.
+
 - **O236 - Is the endgame the same app, or another app using Infinite Flow's generator?**
   _(D389; [endgame](vision/endgame.md))_: the endgame calls Infinite Flow "the music factory" of a
   game. If the game is a separate app, a generation-core library has a second consumer and a split
@@ -267,7 +264,7 @@ structural review.
   files. The page may not keep a second, cleaned copy (D394). Show them as written, hide parts by
   a rule, or reword the lexicon itself? Proposed: show them as written in step one; the owner reads
   them on the built page, and if they jar, a docs-only pass rewords those lines in the lexicon.
-- **O242 - How the text reaches the page, and its download cost** _(D394, D359, O235)_: the app
+- **O242 - How the text reaches the page, and its download cost** _(D394, D359, D536)_: the app
   may not download anything while running (`verify:boundaries` forbids `fetch`), so the text goes
   into a built file; the service worker then downloads it for every visitor at install or update,
   page opened or not: about 300 KB, roughly 85–90 KB compressed. That is three times the 100 KiB
@@ -275,7 +272,7 @@ structural review.
   overflow makes a docs edit fail the build. Proposed: parse at build time and ship only the shown
   fields (Internal entries left out), in a file of its own with a named budget of 448 KiB, room for
   the lexicon to grow by half; the owner accepts the extra download; the structural review counts
-  it with the rest (O235).
+  it with the rest (its Q2).
 - **O243 - How the page is reached, and what kind of page it is** _(D393)_: the app has no router
   and no second page; everything else is the workspace and its sheets. Proposed: a "Lexicon" link
   in the footer beside "Your data", opening a full-screen view built like a sheet (loaded on
