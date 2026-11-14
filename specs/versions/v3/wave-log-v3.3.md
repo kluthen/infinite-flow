@@ -1003,3 +1003,9 @@ render:seventh-endings` command.
 The two agents over 300k: each `coding-executor` built a whole half of chunk 17 (17a's codecs and
 step 5, 17b's settings, saves, e2e and M3) in one context; a split per codec file would have kept
 them under it.
+
+- The owner, 2026-11-14: "merge and i'll clear the session". Merged into `main`, not pushed (the
+  owner didn't ask). Not answered yet, for wave 5's start: the six promotions, the optional
+  wordings and "Always" (kept unless the owner objects); L1 (H1) and H4 still with the owner. Next:
+  wave 5 (chunks 19 and 23; 21 only if L1 approves) in a fresh session; its sync applies A9's
+  settings half and A11 (CONTRACT 19.0.0).
