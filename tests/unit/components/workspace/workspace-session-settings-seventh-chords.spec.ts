@@ -6,7 +6,11 @@
 import { describe, expect, it } from 'vitest'
 
 import { chosenSessionSettings } from '@/components/workspace/workspace-session-lock-choices'
-import { OFF_CHORD_FAMILIES, type ChordFamilies } from '@/domain/chords/chord-families'
+import {
+  CHORD_FAMILY_LEVEL_IDS,
+  OFF_CHORD_FAMILIES,
+  type ChordFamilies,
+} from '@/domain/chords/chord-families'
 import { makeGenerationControls } from '@/domain/controls/generation-controls'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
@@ -59,7 +63,7 @@ describe("Start's chosen settings", () => {
 // @test-link [[req_jam_settings]]
 describe("a fresh Jam's settings", () => {
   // @test-link [[req_jam_settings]]
-  it('hold the Seventh chords level at Off', () => {
+  it('hold the Seventh chords level at Off at first', () => {
     const { settings } = freshJamSettings(
       {
         settings: jamFirstValues(CONTROLS),
@@ -70,5 +74,23 @@ describe("a fresh Jam's settings", () => {
     )
 
     expect(settings.chordFamilies).toEqual(OFF_CHORD_FAMILIES)
+  })
+
+  // @test-link [[req_jam_settings]]
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  it("hold Jam's own Seventh chords level, at every level", () => {
+    for (const level of CHORD_FAMILY_LEVEL_IDS) {
+      const { settings } = freshJamSettings(
+        {
+          settings: { ...jamFirstValues(CONTROLS), 'seventh-chords': level },
+          controls: CONTROLS,
+          figureLevels: NEUTRAL_FIGURE_LEVELS,
+        },
+        null,
+      )
+
+      expect(settings.chordFamilies, level).toStrictEqual({ 'seventh-chords': level })
+      expect(Object.isFrozen(settings.chordFamilies), level).toBe(true)
+    }
   })
 })

@@ -109,3 +109,22 @@ describe("the review's Jam in {answer}", () => {
     expect(jam.view.value?.settings).toMatchObject({ tonalCenter: 'D', collection: 'Dorian' })
   })
 })
+
+// @test-link [[module_jam_settings]]
+describe("Jam's Seventh chords level at Jam's Idle", () => {
+  // @test-link [[rule_jam_settings_saved_on_change]]
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  it('starts Off and saves a change as its one record, no session-mode record', async () => {
+    const { jam, batches, showJam } = jamSettingsRig()
+    await showJam()
+    expect(jam.view.value?.settings['seventh-chords']).toBe('off')
+
+    jam.change({ 'seventh-chords': 'favored' })
+
+    expect(batches.slice(1)).toEqual([{ 'jam.seventh-chords': 'favored' }])
+    expect(
+      batches.flatMap((batch) => Object.keys(batch)).every((key) => key.startsWith('jam.')),
+    ).toBe(true)
+    expect(jam.view.value?.settings['seventh-chords']).toBe('favored')
+  })
+})

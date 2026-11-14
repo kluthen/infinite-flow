@@ -6,6 +6,8 @@
 import { describe, expect, it } from 'vitest'
 
 import { OFF_CHORD_FAMILIES } from '@/domain/chords/chord-families'
+import { freshJamSettings } from '@/jam/fresh-jam-settings'
+import { jamFirstValues } from '@/jam/jam-settings'
 import { lockedBarsOfOutcome } from '@/session/rhythm-lock-session'
 import { jamPhraseOneSeed } from '@/session/session-seed-plan'
 import { DEFAULT_SESSION_SEED, sessionSettings } from '../session/session-harness'
@@ -15,6 +17,33 @@ import { engineOutputs, phraseOneRequests, runJam, type BeatNote } from './jam-p
 /** Intent: Jam's settings at 120 BPM with its rhythm lock on, a strict lock. */
 function lockedSettings() {
   return { ...sessionSettings({ tempo: 120 }), rhythmLockOn: true }
+}
+
+/**
+ * Intent: the settings and drift a fresh Jam starts under at 120 BPM, its rhythm lock on and its
+ * own Seventh chords level Strongly favored, made by Jam's code from Jam's settings.
+ */
+function stronglyFavoredJam() {
+  const { controls, figureLevels } = sessionSettings({ tempo: 120 })
+  return freshJamSettings(
+    {
+      settings: {
+        ...jamFirstValues(controls),
+        rhythmLockOn: true,
+        'seventh-chords': 'stronglyFavored',
+      },
+      controls,
+      figureLevels,
+    },
+    null,
+  )
+}
+
+/** Intent: phrase 1 fails on rungs 1 and 2 (retries 0 to 4), so rung 3 is asked; the rest succeed. */
+function ladderToRungThree(request: { readonly phraseNumber: number; readonly retry: number }) {
+  return request.phraseNumber === 1 && request.retry < 5
+    ? ({ after: 0.1, answer: 'search_limit_exceeded' } as const)
+    : ({ after: 0.1, answer: 'real' } as const)
 }
 
 // @test-link [[rule_locked_rhythm_is_phrase_one]]
@@ -74,10 +103,7 @@ describe('the Seventh chords level', () => {
       doodle: ONE_MEASURE,
       until: 20,
       settings: lockedSettings(),
-      generate: (request) =>
-        request.phraseNumber === 1 && request.retry < 5
-          ? { after: 0.1, answer: 'search_limit_exceeded' }
-          : { after: 0.1, answer: 'real' },
+      generate: ladderToRungThree,
     })
     const phraseOne = phraseOneRequests(run).map(({ request }) => request)
     const later = run.requests.filter(({ request }) => request.phraseNumber > 1)
@@ -89,6 +115,27 @@ describe('the Seventh chords level', () => {
     expect(later.length).toBeGreaterThan(0)
     for (const request of [...phraseOne, ...later.map((timed) => timed.request)])
       expect(request.intent.chordFamilies).toStrictEqual(OFF_CHORD_FAMILIES)
+  })
+
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  // @test-link [[rule_jam_phrase_one_failure_ladder]]
+  it("is Jam's own level on every rung of phrase 1's ladder and on every phrase after it", () => {
+    const jam = stronglyFavoredJam()
+    const run = runJam({
+      tempo: 120,
+      doodle: ONE_MEASURE,
+      until: 20,
+      settings: jam.settings,
+      drift: jam.drift,
+      generate: ladderToRungThree,
+    })
+    const phraseOne = phraseOneRequests(run).map(({ request }) => request)
+    const later = run.requests.filter(({ request }) => request.phraseNumber > 1)
+
+    expect(phraseOne.map((request) => request.retry)).toEqual([0, 1, 2, 3, 4, 5])
+    expect(later.length).toBeGreaterThan(0)
+    for (const request of [...phraseOne, ...later.map((timed) => timed.request)])
+      expect(request.intent.chordFamilies).toStrictEqual({ 'seventh-chords': 'stronglyFavored' })
   })
 })
 

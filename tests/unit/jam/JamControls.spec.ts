@@ -1,7 +1,8 @@
 /**
  * Jam's controls, "Shape your Jam": the title, copy and summary line; three groups, Foundation
  * (Tempo 60 to 180 in steps of 10, Written key, Collection, the shared instrument with its range
- * summary and actions, Harmonic motion, Tension, one Embellishments level), Following your doodle
+ * summary and actions, Harmonic motion, Jam's own Seventh chords level with session mode's options
+ * and note, Tension, one Embellishments level), Following your doodle
  * (Drift, Jam's own rhythm lock with its allowed rhythm changes under it) and From your doodle (the
  * readings, empty without a doodle); no preset bar, no key and mode marks, no "During a session"
  * options, no Arpeggio chaos. Each change is reported as a change of Jam's settings, the
@@ -11,6 +12,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import { SEVENTH_CHORDS_NOTE, seventhChordsOptions } from '@/components/controls/control-options'
 import { jamFirstValues, type JamSettings } from '@/jam/jam-settings'
 import type { JamControlsProps } from '@/jam/jam-view-types'
 import JamControls from '@/jam/JamControls.vue'
@@ -83,11 +85,57 @@ describe('JamControls', () => {
       'Collection',
       'Instrument profile',
       'Harmonic motion',
+      'Seventh chords',
       'Tension',
       'Embellishments',
       'Drift',
       'Rhythm lock',
     ])
+  })
+
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  // @test-link [[module_seventh_chords_level_options]]
+  it("offers Jam's own Seventh chords level after Harmonic motion, its note naming the radiogroup", async () => {
+    const wrapper = mountControls({ settings: { ...SETTINGS, 'seventh-chords': 'favored' } })
+    const foundation = wrapper.findAll('.control-group')[0]!
+    expect(foundation.findAll('.field-label').map((label) => label.text())).toEqual([
+      'Tempo',
+      'Written key',
+      'Collection',
+      'Instrument profile',
+      'Harmonic motion',
+      'Seventh chords',
+      'Tension',
+      'Embellishments',
+    ])
+    expect(segments(wrapper, 'Seventh chords')).toEqual({
+      labels: seventhChordsOptions.map((option) => option.label),
+      checked: seventhChordsOptions.find((option) => option.value === 'favored')!.label,
+    })
+    expect(segments(wrapper, 'Seventh chords').labels).toHaveLength(4)
+    const noteId = group(wrapper, 'Seventh chords').attributes('aria-describedby')
+    expect(noteId).toBeTruthy()
+    const note = wrapper.get(`#${noteId}`)
+    expect(note.classes()).toContain('field-note')
+    expect(note.text()).toBe(SEVENTH_CHORDS_NOTE)
+
+    await press(wrapper, 'Seventh chords', seventhChordsOptions.at(-1)!.label)
+    await press(wrapper, 'Seventh chords', seventhChordsOptions[0]!.label)
+    expect(wrapper.emitted('change')).toEqual([
+      [{ 'seventh-chords': 'stronglyFavored' }],
+      [{ 'seventh-chords': 'off' }],
+    ])
+  })
+
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  it('holds the Seventh chords level read-only when told, reporting no change', async () => {
+    const wrapper = mountControls({ readonly: true })
+    expect(group(wrapper, 'Seventh chords').attributes('aria-readonly')).toBe('true')
+    expect(group(wrapper, 'Seventh chords').element.closest('.field-group')?.classList).toContain(
+      'is-readonly',
+    )
+    await press(wrapper, 'Seventh chords', seventhChordsOptions.at(-1)!.label)
+    expect(wrapper.emitted('change')).toBeUndefined()
   })
 
   // @test-link [[req_jam_settings]]
@@ -109,6 +157,7 @@ describe('JamControls', () => {
     expect(segments(wrapper, 'Written key').checked).toBe('C')
     expect(segments(wrapper, 'Collection').checked).toBe('Dorian')
     expect(segments(wrapper, 'Harmonic motion').checked).toBe('Gentle diatonic')
+    expect(segments(wrapper, 'Seventh chords').checked).toBe('Off')
     expect(segments(wrapper, 'Tension').checked).toBe('Lift')
     expect(segments(wrapper, 'Embellishments').checked).toBe('Rarely')
     expect(segments(wrapper, 'Drift').checked).toBe('Near')

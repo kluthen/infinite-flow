@@ -256,6 +256,38 @@ describe("Jam mode's phrase 1 at Idle from the kept doodle", () => {
   })
 
   // @test-link [[rule_jam_setting_change_rewrites_kept_phrase_one]]
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  // @test-link [[rule_doodle_only_orders_candidates]]
+  it("writes phrase 1 again at once at Jam's new Seventh chords level, every rung, the doodle kept", async () => {
+    const rig = keptPhraseRig((intent) =>
+      intent.chordFamilies['seventh-chords'] === 'off' || intent.steering === undefined
+        ? 'real'
+        : 'search_limit_exceeded',
+    )
+    await keepDoodle(rig)
+    const kept = rig.keptDoodle.kept.value
+    const before = shown(rig.phrase)
+    rig.asked.length = 0
+    rig.operations.length = 0
+
+    rig.jamSettings.change({ 'seventh-chords': 'stronglyFavored' })
+    await settle()
+
+    expect(rig.operations).toEqual(['generating', 'notating', 'idle'])
+    const rungs = rig.asked.map((intent) =>
+      intent.carryIn !== undefined ? 1 : intent.steering !== undefined ? 2 : 3,
+    )
+    expect(rungs.filter((rung, index) => rung !== rungs[index - 1])).toEqual([1, 2, 3])
+    for (const intent of rig.asked)
+      expect(intent.chordFamilies).toStrictEqual({ 'seventh-chords': 'stronglyFavored' })
+    expect(shown(rig.phrase).intent.seed).not.toEqual(before.intent.seed)
+    expect(shown(rig.phrase).settings.chordFamilies).toStrictEqual({
+      'seventh-chords': 'stronglyFavored',
+    })
+    expect(rig.keptDoodle.kept.value).toBe(kept)
+  })
+
+  // @test-link [[rule_jam_setting_change_rewrites_kept_phrase_one]]
   it('writes nothing for the tempo, a window crossing or the suggestion declined', async () => {
     const rig = keptPhraseRig()
     await keepDoodle(rig)
@@ -397,5 +429,22 @@ describe("Jam mode's phrase 1 at Idle from the kept doodle", () => {
 
     expect(rig.asked).toHaveLength(2)
     expect(shown(rig.phrase).intent).toBe(rig.asked[1])
+  })
+
+  // @test-link [[rule_jam_has_own_seventh_chords_level]]
+  // @test-link [[rule_held_doodle_phrase_one_at_idle]]
+  it("writes phrase 1 again on writeAgain at Jam's Seventh chords level as it stands then", async () => {
+    const rig = keptPhraseRig()
+    await keepDoodle(rig)
+    rig.jamSettings.change({ 'seventh-chords': 'favored' })
+    await settle()
+    rig.asked.length = 0
+
+    rig.phrase.writeAgain()
+    await settle()
+
+    expect(rig.asked).toHaveLength(1)
+    expect(rig.asked[0]!.chordFamilies).toStrictEqual({ 'seventh-chords': 'favored' })
+    expect(shown(rig.phrase).settings.chordFamilies).toStrictEqual({ 'seventh-chords': 'favored' })
   })
 })

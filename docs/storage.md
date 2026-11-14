@@ -894,12 +894,20 @@ session reached is never saved.
 
 ### Jam's settings: the `jam` group
 
-Jam's own settings (master spec C5.16, C10.2) are nine records of a `jam` group in the same
+Jam's own settings (master spec C5.16, C10.2) are ten records of a `jam` group in the same
 `settings` store, beside session mode's: `jam.tempo`, `jam.tonalCenter`, `jam.collection`,
 `jam.harmonicMotion`, `jam.tension`, `jam.embellishments` (one figure level for all seven),
-`jam.drift`, `jam.rhythmLockOn` and `jam.allowedRhythmChanges`. They are new records of the same
-kind, at the settings' data version 1, with no upgrade step and no change of the database's data
-version. `src/storage/records/settings-record.ts` lists their keys (`JAM_SETTING_KEYS`) and the
+`jam.drift`, `jam.rhythmLockOn`, `jam.allowedRhythmChanges` and `jam.seventh-chords`. They are new
+records of the same kind, at the settings' data version 1, with no upgrade step and no change of
+the database's data version.
+
+`jam.seventh-chords` is Jam's own Seventh chords level, added in v3.3 and named by its chord
+family's capability name, never by a label; its value is the level's internal id (`off`,
+`sometimes`, `favored` or `stronglyFavored`). It comes like the others: no upgrade step and no
+change of data version. A store written before it has none and the level loads Off, as an absent,
+damaged, newer or unknown value does, every other Jam setting still loading. It is Jam's alone:
+Jam's code never reads or writes session mode's `chordFamilies.seventh-chords`, and session mode's
+decoding skips `jam.seventh-chords` as it skips the rest of the group. `src/storage/records/settings-record.ts` lists their keys (`JAM_SETTING_KEYS`) and the
 saver writes their values as given; session mode's decoding (`decodeSettings`) skips them, and an
 older app's skips them too, as records naming no setting it knows.
 
