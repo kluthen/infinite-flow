@@ -1178,48 +1178,51 @@ them under it.
 - Ends: at its last tagged agent (not merged yet)
 - Not counted: other top-level sessions active in the window, with no agent of this wave: 02e9534e, a1b1e74e
 
-
 ##### By role
-| role | agents | calls | tokens in | out | cost | share | max ctx |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| coding-executor | 4 | 237 | 20.2M | 116k | $8.36 | 33% | 177k |
-| coding-leader | 2 | 147 | 20.8M | 78k | $7.45 | 29% | 232k |
-| documentalist | 2 | 131 | 13.5M | 77k | $5.76 | 23% | 175k |
-| driver (top level) | 1 | 43 | 5.5M | 33k | $2.78 | 11% | 160k |
-| spec-writer | 1 | 31 | 2.2M | 22k | $1.26 | 5% | 93k |
+
+| role               | agents | calls | tokens in |  out |  cost | share | max ctx |
+| ------------------ | -----: | ----: | --------: | ---: | ----: | ----: | ------: |
+| coding-executor    |      4 |   237 |     20.2M | 116k | $8.36 |   33% |    177k |
+| coding-leader      |      2 |   147 |     20.8M |  78k | $7.45 |   29% |    232k |
+| documentalist      |      2 |   131 |     13.5M |  77k | $5.76 |   23% |    175k |
+| driver (top level) |      1 |    43 |      5.5M |  33k | $2.78 |   11% |    160k |
+| spec-writer        |      1 |    31 |      2.2M |  22k | $1.26 |    5% |     93k |
 
 ##### By chunk
-| chunk | agents | calls | tokens in | out | cost | share | max ctx |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| 19 | 2 | 136 | 19.6M | 73k | $6.75 | 26% | 232k |
-| 23 | 3 | 165 | 15.5M | 88k | $6.71 | 26% | 177k |
-| outside chunks |  |  |  |  | $12.15 | 47% |  |
+
+| chunk          | agents | calls | tokens in | out |   cost | share | max ctx |
+| -------------- | -----: | ----: | --------: | --: | -----: | ----: | ------: |
+| 19             |      2 |   136 |     19.6M | 73k |  $6.75 |   26% |    232k |
+| 23             |      3 |   165 |     15.5M | 88k |  $6.71 |   26% |    177k |
+| outside chunks |        |       |           |     | $12.15 |   47% |         |
 
 ##### By activity (tool calls)
-| activity | calls | share | writes | results |
-|---|---:|---:|---:|---:|
-| dispatch | 9 | 2% |  | 9k |
-| doc-get | 16 | 3% |  | 39k |
-| plan | 46 | 8% | 6 | 190k |
-| spec | 6 | 1% | 1 | 11k |
-| design | 1 | 0% |  | 1k |
-| intent | 62 | 11% | 10 | 177k |
-| other docs | 54 | 9% | 8 | 259k |
-| source | 180 | 31% | 13 | 536k |
-| checks | 87 | 15% |  | 77k |
-| git | 40 | 7% |  | 63k |
-| shell other | 71 | 12% | 5 | 122k |
-| skills | 5 | 1% |  | 174 |
-| other files | 2 | 0% |  | 102k |
-| other tools | 10 | 2% |  | 2k |
+
+| activity    | calls | share | writes | results |
+| ----------- | ----: | ----: | -----: | ------: |
+| dispatch    |     9 |    2% |        |      9k |
+| doc-get     |    16 |    3% |        |     39k |
+| plan        |    46 |    8% |      6 |    190k |
+| spec        |     6 |    1% |      1 |     11k |
+| design      |     1 |    0% |        |      1k |
+| intent      |    62 |   11% |     10 |    177k |
+| other docs  |    54 |    9% |      8 |    259k |
+| source      |   180 |   31% |     13 |    536k |
+| checks      |    87 |   15% |        |     77k |
+| git         |    40 |    7% |        |     63k |
+| shell other |    71 |   12% |      5 |    122k |
+| skills      |     5 |    1% |        |     174 |
+| other files |     2 |    0% |        |    102k |
+| other tools |    10 |    2% |        |      2k |
 
 ##### Largest contexts
-| agent | task | calls | max ctx | cost |
-|---|---:|---:|---:|---:|
-| coding-leader | v3.3 wave 5 chunk 19 | 116 | 232k | $6.03 |
-| coding-executor | Build chunk 23b generation/control | 104 | 177k | $4.18 |
-| documentalist | v3.3 wave 5 sync | 53 | 175k | $2.79 |
-| driver (top level) | driver session 500a86b2 | 43 | 160k | $2.78 |
-| documentalist | v3.3 wave 5 preflight | 78 | 141k | $2.97 |
+
+| agent              |                               task | calls | max ctx |  cost |
+| ------------------ | ---------------------------------: | ----: | ------: | ----: |
+| coding-leader      |               v3.3 wave 5 chunk 19 |   116 |    232k | $6.03 |
+| coding-executor    | Build chunk 23b generation/control |   104 |    177k | $4.18 |
+| documentalist      |                   v3.3 wave 5 sync |    53 |    175k | $2.79 |
+| driver (top level) |            driver session 500a86b2 |    43 |    160k | $2.78 |
+| documentalist      |              v3.3 wave 5 preflight |    78 |    141k | $2.97 |
 
 No agent over 300k tokens of context.
