@@ -9,6 +9,7 @@ import { computed, type ComputedRef } from 'vue'
 
 import type { GenerationSessionState } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import type { ChordFamilies } from '@/domain/chords/chord-families'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { FigureLevels } from '@/domain/figures/figure-levels'
 import type { PresetSelection } from '@/domain/presets/preset-selection'
@@ -27,12 +28,13 @@ export interface ShownSettingsDeps {
 
 /**
  * The settings the controls show, as `ControlPanel` takes them: the controls, the seven figure
- * levels and the preset selection (a preset, or Custom naming its base).
+ * levels, the Seventh chords level and the preset selection (a preset, or Custom naming its base).
  */
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
 export interface ShownSettings {
   readonly controls: GenerationControls
   readonly figureLevels: FigureLevels
+  readonly chordFamilies: ChordFamilies
   readonly selection: PresetSelection
 }
 
@@ -73,14 +75,15 @@ export function useShownSettings(deps: ShownSettingsDeps): ShownSettingsView {
   const shownSettings = computed((): ShownSettings => {
     const session = deps.controller()?.state.shownSettings ?? null
     if (session === null) {
-      const { controls, figureLevels, selection } = deps.idle()
-      return { controls, figureLevels, selection }
+      const { controls, figureLevels, chordFamilies, selection } = deps.idle()
+      return { controls, figureLevels, chordFamilies, selection }
     }
     const tempo = deps.controller()?.state.sessionTempo ?? null
     if (tempo === null) throw new Error('workspace shell: a session shows settings but no tempo')
     return {
       controls: { ...session.controls, tempo },
       figureLevels: session.figureLevels,
+      chordFamilies: session.chordFamilies,
       selection: session.selection,
     }
   })

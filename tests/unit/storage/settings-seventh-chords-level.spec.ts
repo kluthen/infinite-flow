@@ -175,7 +175,7 @@ describe('the preset selection judged with the level', () => {
 
   // @test-link [[rule_preset_load_values_win]]
   // @test-link [[req_seventh_chords_level]]
-  it('keeps a player preset holding Mostly selected with Mostly saved, and makes it Custom at another level', () => {
+  it('keeps a player preset holding Always selected with Always saved, and makes it Custom at another level', () => {
     const mostly = makePreset({
       id: 'player-mostly',
       name: 'Rich',

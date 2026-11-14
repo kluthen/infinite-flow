@@ -843,6 +843,7 @@ const controlPanelActions = useControlPanelActions(props.session)
         v-else
         :controls="shownSettings.controls"
         :figure-levels="shownSettings.figureLevels"
+        :chord-families="shownSettings.chordFamilies"
         :selection="shownSettings.selection"
         :presets="state.presets"
         :readonly="settingsReadonly"
@@ -866,6 +867,7 @@ const controlPanelActions = useControlPanelActions(props.session)
         @preset-action="presetSheet.act"
         @set-control="controlPanelActions.setControl"
         @set-figure-level="controlPanelActions.setFigureLevel"
+        @set-chord-family-level="controlPanelActions.setChordFamilyLevel"
         @select-instrument-profile="controlPanelActions.selectInstrumentProfile"
         @select-preset="controlPanelActions.selectPreset"
         @set-rising-tempo="handleSetRisingTempo"

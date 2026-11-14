@@ -11,7 +11,7 @@
  * phrase is written with from v3.3. Hand-written `ifk4.` keys (v3.2 chunk 12) for a locked phrase,
  * a changed phrase, a forced bend, a phrase with a steering block and a Jam's phrase 1 joining from
  * no phrase replay in the browser to the same phrase as the headless replay, which names the
- * lock's outcome. Hand-written `ifk5.` keys (v3.3 chunk 15, hand check H3) for a Mostly phrase, a
+ * lock's outcome. Hand-written `ifk5.` keys (v3.3 chunk 15, hand check H3) for an Always phrase, a
  * Sometimes phrase, a phrase above Off whose plan stays triads and a phrase joined after a carried
  * seventh chord do the same. With `INFINITE_FLOW_REPLAY_KEY`
  * holding a key (or a whole copied console line), one more test replays it in the browser and
@@ -524,11 +524,11 @@ test('hand-written ifk5 keys replay in the browser to the same phrase as the hea
   test.setTimeout(SLICE_TIMEOUT_MS)
   const replay = await loadHeadlessReplay()
   const mostlyKey = handKeyV5('sevenths-4242', 4242, 'stronglyFavored')
-  const mostly = headlessPhrase(replay, mostlyKey, 'the Mostly phrase')
+  const mostly = headlessPhrase(replay, mostlyKey, 'the Always phrase')
   const carried = mostly.carryOut?.carryIn
-  expect(carried?.finalHarmony?.seventh, 'the Mostly phrase carries a seventh').toBeDefined()
+  expect(carried?.finalHarmony?.seventh, 'the Always phrase carries a seventh').toBeDefined()
   const cases = [
-    { label: 'a Mostly phrase', key: mostlyKey, sevenths: [true, true, true, true] },
+    { label: 'an Always phrase', key: mostlyKey, sevenths: [true, true, true, true] },
     {
       label: 'a Sometimes phrase',
       key: handKeyV5('sevenths-4243', 4243, 'sometimes'),

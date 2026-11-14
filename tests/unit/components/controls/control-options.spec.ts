@@ -4,9 +4,14 @@ import {
   collectionOptions,
   controlSummaryText,
   keyAndModeMarks,
+  SEVENTH_CHORDS_NOTE,
+  seventhChordsLevelOfSegment,
+  seventhChordsOptions,
   tonalCenterOptions,
   withMarks,
 } from '@/components/controls/control-options'
+import { FIGURE_LEVEL_FIELDS } from '@/components/controls/figure-level-options'
+import { CHORD_FAMILY_LEVEL_IDS } from '@/domain/chords/chord-families'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import {
@@ -167,5 +172,57 @@ describe('withMarks', () => {
 
   it('returns the options unflagged when nothing is marked', () => {
     expect(withMarks(tonalCenterOptions(), [])).toEqual(tonalCenterOptions())
+  })
+})
+
+// @test-link [[module_seventh_chords_level_options]]
+describe('seventhChordsOptions', () => {
+  // @test-link [[req_seventh_chords_level]]
+  it('maps the four level ids, in increasing order, to Off, Sometimes, Often and Always', () => {
+    expect(seventhChordsOptions.map(({ value, label }) => [value, label])).toEqual([
+      ['off', 'Off'],
+      ['sometimes', 'Sometimes'],
+      ['favored', 'Often'],
+      ['stronglyFavored', 'Always'],
+    ])
+    expect(seventhChordsOptions.map((option) => option.value)).toEqual([...CHORD_FAMILY_LEVEL_IDS])
+  })
+
+  it("is the level's own list, never the figure levels' (Off, Rarely, Often, Very often)", () => {
+    const figureOptions = FIGURE_LEVEL_FIELDS[0]!.options
+    expect(figureOptions.map((option) => option.label)).toEqual([
+      'Off',
+      'Rarely',
+      'Often',
+      'Very often',
+    ])
+    expect(seventhChordsOptions).not.toBe(figureOptions)
+    expect(seventhChordsOptions.map((option) => option.label)).not.toEqual(
+      figureOptions.map((option) => option.label),
+    )
+  })
+
+  it('disables and marks no option', () => {
+    expect(seventhChordsOptions.some((option) => option.disabled === true)).toBe(false)
+    expect(seventhChordsOptions.some((option) => option.marked === true)).toBe(false)
+  })
+
+  it('words the note as the handoff does: a preference, never a promise', () => {
+    expect(SEVENTH_CHORDS_NOTE).toBe(
+      'How often a chord gets one more note stacked on top, as G7 (G, B, D, F) instead of G (G, B, D): a richer, jazzier sound. A preference, never a promise.',
+    )
+  })
+})
+
+// @test-link [[module_seventh_chords_level_options]]
+describe('seventhChordsLevelOfSegment', () => {
+  it('gives the level each segment stands for', () => {
+    for (const level of CHORD_FAMILY_LEVEL_IDS)
+      expect(seventhChordsLevelOfSegment(level)).toBe(level)
+  })
+
+  it('refuses a value that is no level, a label included', () => {
+    for (const value of ['Always', 'Often', 'asToday', 'off ', ''])
+      expect(() => seventhChordsLevelOfSegment(value)).toThrow(/Seventh chords has no level/)
   })
 })

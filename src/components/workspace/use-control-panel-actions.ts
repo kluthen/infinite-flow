@@ -1,11 +1,13 @@
 /**
  * The control panel's setting events, for the workspace shell: each one forwarded onto the
- * session's own action (a control, a figure level, the instrument profile, a preset). The panel
+ * session's own action (a control, a figure level, the Seventh chords level, the instrument
+ * profile, a preset). The panel
  * has already validated the event; the phrase on screen stays.
  */
 import type { SettableControlKey } from '@/components/controls/set-control-event'
 import type { GenerationSession } from '@/composables/use-generation-session'
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
+import type { ChordFamilyId, ChordFamilyLevel } from '@/domain/chords/chord-families'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { FigureId, FigureLevel } from '@/domain/figures/figure-levels'
 import type { PresetId } from '@/domain/presets/preset-selection'
@@ -19,6 +21,10 @@ export interface ControlPanelActions {
   readonly setFigureLevel: (payload: {
     readonly figure: FigureId
     readonly level: FigureLevel
+  }) => void
+  readonly setChordFamilyLevel: (payload: {
+    readonly family: ChordFamilyId
+    readonly level: ChordFamilyLevel
   }) => void
   readonly selectInstrumentProfile: (id: GenerationControls['instrumentProfileId']) => void
   readonly selectPreset: (id: PresetId) => void
@@ -50,6 +56,20 @@ export function useControlPanelActions(
     session.actions.setFigureLevel(payload.figure, payload.level)
   }
 
+  /**
+   * Intent: forward a Seventh chords level change onto the Idle session's one level action, the
+   * routing point: it makes Custom, saves the level and, through the queue's key, discards the
+   * pre-generated phrases; the phrase on screen stays.
+   */
+  // @spec-link [[module_seventh_chords_level_options]]
+  // @spec-link [[rule_custom_selection]]
+  function setChordFamilyLevel(payload: {
+    readonly family: ChordFamilyId
+    readonly level: ChordFamilyLevel
+  }): void {
+    session.actions.setChordFamilyLevel(payload.family, payload.level)
+  }
+
   /** Intent: forward an instrument-profile selection onto the session's dedicated action. */
   function selectInstrumentProfile(id: GenerationControls['instrumentProfileId']): void {
     void session.actions.selectInstrumentProfile(id)
@@ -61,5 +81,5 @@ export function useControlPanelActions(
     session.actions.selectPreset(id)
   }
 
-  return { setControl, setFigureLevel, selectInstrumentProfile, selectPreset }
+  return { setControl, setFigureLevel, setChordFamilyLevel, selectInstrumentProfile, selectPreset }
 }

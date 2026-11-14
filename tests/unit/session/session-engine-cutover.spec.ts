@@ -5,7 +5,7 @@
  * carry-in attempt is followed by the standalone attempt, and a phrase requested within the
  * reserve starts standalone. However it is reached, the standalone attempt has the request id it
  * would have had after three failed carry-in retries and the seed the session seed plan gives the
- * standalone rung. Mostly at 60 BPM (phrase 2's deadline at 4 s, its cutover at 2.925 s).
+ * standalone rung. Always at 60 BPM (phrase 2's deadline at 4 s, its cutover at 2.925 s).
  */
 
 import { describe, expect, it } from 'vitest'

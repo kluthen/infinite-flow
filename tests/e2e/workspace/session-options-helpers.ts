@@ -53,7 +53,7 @@ export const ALL_GROUPS_ON: Readonly<Record<VaryGroup, boolean>> = {
 
 /** The `Vary settings` note, as the phrase-workspace handoff words it for v3.2. */
 export const VARY_SETTINGS_NOTE =
-  'Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument or the tempo. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.'
+  'Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument, the tempo or Seventh chords. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.'
 
 /** Why `Vary settings` cannot be turned on while no move is possible. */
 export const UNAVAILABLE_NOTE =

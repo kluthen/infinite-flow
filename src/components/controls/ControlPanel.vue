@@ -5,11 +5,13 @@
  * session" group, each delegated to its own component. Props-in/events-out only -- no session import. This
  * component owns no control state itself; it only forwards each part's typed events upward
  * unchanged. The values it shows are the ones it is given: during a session, what the phrase now
- * sounding was generated with, the preset box and the figure levels included, while the preset bar's description line
- * and the key and mode marks keep what the session's start settings give.
+ * sounding was generated with, the preset box, the figure levels and the Seventh chords level
+ * included, while the preset bar's description line and the key and mode marks keep what the
+ * session's start settings give.
  */
 import { computed } from 'vue'
 
+import type { ChordFamilies, ChordFamilyId, ChordFamilyLevel } from '@/domain/chords/chord-families'
 import type { NoteDensityContext } from '@/domain/controls/generated-note-density'
 import type { GenerationControls } from '@/domain/controls/generation-controls'
 import type { FigureId, FigureLevel, FigureLevels } from '@/domain/figures/figure-levels'
@@ -32,6 +34,8 @@ const props = defineProps<{
   controls: GenerationControls
   /** The seven figure levels the Embellishments group shows. */
   figureLevels: FigureLevels
+  /** The chord families' levels the Foundation group's Seventh chords control shows. */
+  chordFamilies: ChordFamilies
   /** The preset selection: a preset, or Custom naming its base. */
   selection: PresetSelection
   /** The presets the session knows, which name the selection: the built-ins, then the player's. */
@@ -73,6 +77,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   'set-control': [payload: SetControlPayload]
   'set-figure-level': [payload: { readonly figure: FigureId; readonly level: FigureLevel }]
+  'set-chord-family-level': [
+    payload: { readonly family: ChordFamilyId; readonly level: ChordFamilyLevel },
+  ]
   'select-instrument-profile': [id: GenerationControls['instrumentProfileId']]
   'select-preset': [id: PresetId]
   'set-rising-tempo': [on: boolean]
@@ -157,6 +164,7 @@ const controlSummary = computed(() =>
     <div class="control-group-row">
       <FoundationControls
         :controls="controls"
+        :chord-families="chordFamilies"
         :selection="selection"
         :presets="presets"
         :readonly="readonly"
@@ -167,6 +175,7 @@ const controlSummary = computed(() =>
         @open-my-instrument="emit('open-my-instrument')"
         @set-control="forwardSetControl"
         @select-instrument-profile="forwardInstrumentProfile"
+        @set-chord-family-level="emit('set-chord-family-level', $event)"
       />
       <RhythmControls
         :controls="controls"

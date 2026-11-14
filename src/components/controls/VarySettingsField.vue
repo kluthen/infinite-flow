@@ -38,9 +38,10 @@ const emit = defineEmits<{
   'set-allowed-groups': [groups: AllowedGroups]
 }>()
 
-/** The `Vary settings` note, as the phrase-workspace handoff words it for v3.2. */
+/** The `Vary settings` note, as the phrase-workspace handoff words it for v3.3. */
+// @spec-link [[rule_vary_settings_never_moves_seventh_chords_level]]
 const VARY_SETTINGS_NOTE =
-  'Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument or the tempo. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.'
+  'Every 2 to 4 phrases, one setting from the groups below moves one step. Never the instrument, the tempo or Seventh chords. Keys and modes stay within what your preset is meant for. Your settings come back when the session ends.'
 
 /** Why `Vary settings` cannot be turned on, shown while no move is possible. */
 const VARY_SETTINGS_UNAVAILABLE_NOTE =

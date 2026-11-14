@@ -3,7 +3,7 @@
  * worker protocol and, from data version 5, the stored records hold for the Seventh chords level.
  * The ids name a family by its capability, never by a preset's or profile's name, and the level
  * ids are never the interface's labels: the interface maps them to its own words (`favored` to
- * Often, `stronglyFavored` to Mostly). Pure data and functions: no storage, interface, clock or
+ * Often, `stronglyFavored` to Always). Pure data and functions: no storage, interface, clock or
  * random source.
  */
 
