@@ -897,3 +897,109 @@ render:seventh-endings` command.
   equal wave 3's, so v3.2's figures at Off hold.
 - Engraver chunk 735,085 B (+920 B, chunk 14's suffix table; budget 800 KiB). Jam's chunk 61.18 kB.
 - Wave sync started with the tests done; the budget ruling follows it.
+
+### Wave 4 sync and report (2026-11-14)
+
+- Owner's ruling on the budget, 2026-11-14 (asked: raise the entry budget / count all start-up
+  JavaScript / lazy-load the migrations): **"Count all startup JS"**. `spec-writer` (773168dd):
+  **spec D536** (all JavaScript loaded at start-up, 400 KiB = 409,600 B; O235 closed), **D537**
+  (`rule_earlier_kept_sessions_carried_over`'s "about 220 sessions" figure restated by
+  `documentalist` at the release gate from the owner's M3 runs); plan v20, Part D v1.5, build
+  workflow v3. Built by a `coding-executor` (bc2177a2): `startupJavaScriptBytes` in
+  `verify-boundaries.mjs` over `module-graph.json`'s static imports; **385,440 B of 409,600 B in 18
+  chunks, entry file alone 330,428 B (reported, not gated)**. The gate is green.
+- `documentalist`'s wave sync (3ebe5cd7) and follow-up (d828b812): **CONTRACT 18.0.0**; C1 A5
+  (`rule_kept_session_content` 0.8), A6 (`entity_kept_session_record`, `module_kept_session_codec`,
+  `module_on_device_database` 0.8; size 4.150 MB of 4.25 MB), A7 (`entity_player_preset_record`
+  0.3, `rule_player_presets_saved_on_device` 0.2), A9's presets half (`rule_presets_load_tolerantly`
+  0.3). Revisions: `rule_generated_notes_musicxml_export` 0.8, `module_notation_layout_preflight`
+  1.2, `rule_session_history_keeps_timeline_and_inputs` 0.3, `module_profile_control_customization`
+  1.4 (interface only; the driver accepts the atom's minor step), `service_idle_generation_session`
+  0.12, `module_presets_and_kept_sessions_upgrade_step` 0.2, `module_pitch_search_context` 0.7.
+  Drift fixed: `module_kept_session_jam_upgrade_step` 0.4, `module_generative_profile_selection`
+  1.6; after D536, `module_kept_session_codec` 0.9 (step 5 loads the v4 reader at start-up) and
+  `module_jam_code_boundary` 0.4 (the first-load budget). The change set's line 848 says Always.
+  205 links, all above their targets. A9's settings half and A11 stay at wave 5 (pending, not
+  drift).
+- Promotion candidates put to the owner (DRAFT → REVIEW): `rule_no_export_carries_seventh_chords_level`,
+  `rule_seventh_chord_symbols`, `rule_earlier_kept_sessions_read_at_off`,
+  `module_presets_and_kept_sessions_upgrade_step`, `rule_seventh_chords_level_steps`,
+  `rule_seventh_chord_draws_reproducible`. Optional wordings put to the owner: "short of the final
+  note" in `rule_figures_resolve_onto_chord_tones`, `rule_embellishment_figures_defined`,
+  `rule_levels_govern_free_figures_only`; "by" for "before" in `rule_open_phrase_ending`.
+- `doc-ids compare main v3.3-w4`: 0 collisions.
+- Open at the wave's end: **L1** (the owner listens to H1's ten examples; chunk 21 and C2 depend on
+  it), H4 (the files), H5 and H6 (later), U1b and L2 (after wave 5), the owner's M3 and M2
+  reference-machine reruns (release gate at the latest, D537). DP done (D534, chunk 20 skipped),
+  U1a done (ux D485, Always). Wave 5: chunks 19 and 23, 21 only if L1 approves; its sync applies
+  A9's settings half and A11 (CONTRACT 19.0.0).
+- Report to the owner: chunks 13, 14, 17, 18 merged and chunk 5's second addendum (ISS-019), none
+  moved; gate green after the budget ruling; sweep at v3.2's figures; start-up JavaScript 385,440
+  B; CONTRACT 18.0.0; D534–D537, ux D485–D486 told. Merge into `main` on the owner's word.
+
+#### Wave 4 figures
+
+- Time: 2026-11-13 15:41 → 2026-11-14 08:07 (16h25)
+- Agents: 27 · tool calls: 1,763 · model turns: 1,739
+- Tokens in: 247.7M (fresh 4k, cache write 7.0M, cache read 240.7M) · out: 1.2M
+- Max context: 410k (coding-executor: Build chunk 17a codecs)
+- Cost: $110.02 at API list prices (checked 2026-11-12)
+- Ends: at its last tagged agent (not merged yet)
+- Not counted: other top-level sessions active in the window, with no agent of this wave: 26d9b31d, f1d82266
+
+##### By role
+
+| role               | agents | calls | tokens in |  out |   cost | share | max ctx |
+| ------------------ | -----: | ----: | --------: | ---: | -----: | ----: | ------: |
+| coding-executor    |     13 |   910 |    133.7M | 675k | $51.62 |   47% |    410k |
+| coding-leader      |      4 |   333 |     53.0M | 250k | $28.96 |   26% |    266k |
+| driver (top level) |      1 |    95 |     18.8M |  82k | $11.57 |   11% |    274k |
+| documentalist      |      4 |   202 |     22.7M | 105k |  $8.93 |    8% |    217k |
+| spec-writer        |      3 |   120 |     10.8M |  75k |  $5.16 |    5% |    161k |
+| codebase-explorer  |      1 |    75 |      7.0M |  28k |  $2.68 |    2% |    150k |
+| ux-writer          |      1 |    28 |      1.8M |  18k |  $1.10 |    1% |     81k |
+
+##### By chunk
+
+| chunk          | agents | calls | tokens in |  out |   cost | share | max ctx |
+| -------------- | -----: | ----: | --------: | ---: | -----: | ----: | ------: |
+| 5y             |      1 |    96 |     12.7M |  57k |  $5.55 |    5% |    208k |
+| 13             |      2 |    94 |      7.1M |  57k |  $4.09 |    4% |    115k |
+| 14             |      6 |   377 |     43.3M | 268k | $21.48 |   20% |    266k |
+| 17             |      3 |   444 |     97.1M | 353k | $33.10 |   30% |    410k |
+| 18             |      4 |   243 |     30.2M | 186k | $16.82 |   15% |    264k |
+| outside chunks |        |       |           |      | $28.99 |   26% |         |
+
+##### By activity (tool calls)
+
+| activity    | calls | share | writes | results |
+| ----------- | ----: | ----: | -----: | ------: |
+| dispatch    |    27 |    2% |        |     27k |
+| doc-get     |    39 |    2% |        |    137k |
+| plan        |    99 |    6% |     10 |    329k |
+| spec        |    32 |    2% |        |     76k |
+| design      |    10 |    1% |        |     51k |
+| intent      |    62 |    4% |      4 |    208k |
+| other docs  |   227 |   13% |     34 |    915k |
+| source      |   684 |   39% |     83 |    2.6M |
+| checks      |   334 |   19% |        |    421k |
+| git         |   101 |    6% |        |    203k |
+| shell other |   101 |    6% |      2 |    169k |
+| skills      |    11 |    1% |        |     385 |
+| other files |     9 |    1% |        |    218k |
+| other tools |    27 |    2% |        |      2k |
+
+##### Largest contexts
+
+| agent                             |                     task | calls | max ctx |   cost |
+| --------------------------------- | -----------------------: | ----: | ------: | -----: |
+| ! coding-executor                 |   Build chunk 17a codecs |   143 |    410k | $12.15 |
+| ! coding-executor                 | Build chunk 17b settings |   184 |    371k | $12.94 |
+| driver (top level)                |  driver session a1b1e74e |    95 |    274k | $11.57 |
+| coding-leader                     |     v3.3 wave 4 chunk 14 |    91 |    266k |  $9.41 |
+| coding-leader                     |     v3.3 wave 4 chunk 18 |    81 |    264k |  $9.34 |
+| (! = over 300k tokens of context) |
+
+The two agents over 300k: each `coding-executor` built a whole half of chunk 17 (17a's codecs and
+step 5, 17b's settings, saves, e2e and M3) in one context; a split per codec file would have kept
+them under it.
