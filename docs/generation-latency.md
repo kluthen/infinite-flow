@@ -1454,7 +1454,7 @@ phrase generated). The failed intents are `no_legal_pitch_plan` and `search_limi
 Off, except **Bebop at Strongly favored: 105 `result_validation_failed`**, all joined attempts: the
 search ends a joined phrase with a chromatic enclosure onto the final chord's seventh, which the
 validator reads as a tense note, not a chord tone, and refuses the phrase
-([ISS-019](../issues/Ref_20261113_figure_target_final_seventh_validator_refusal.md); Sometimes 30
+(ISS-019, resolved in e8441a11 by chunk 5's second addendum; Sometimes 30
 and Favored 68 with Bebop, 0 at Off). The ladder's next rung generates the phrase: none is lost.
 The slowest attempts are failed joins searching their whole allowance (Neutral 3.6 s above Off
 against 2.0 s at Off); no attempt generated on its own came near the 1.075 s reserve.
