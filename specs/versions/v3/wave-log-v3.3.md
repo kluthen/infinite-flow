@@ -1009,3 +1009,17 @@ them under it.
   wordings and "Always" (kept unless the owner objects); L1 (H1) and H4 still with the owner. Next:
   wave 5 (chunks 19 and 23; 21 only if L1 approves) in a fresh session; its sync applies A9's
   settings half and A11 (CONTRACT 19.0.0).
+
+## Wave 5
+
+### Wave 5 start (2026-11-14)
+
+- Wave 4 merged into `main` 37d7fcd3 (not pushed). Branch `v3.3-w5` cut from it, worktree
+  `/home/bastien/work/infinite_flow-v3.3-w5`. Chunks 19 and 23 (in-wave 19 → 23), κ = 1, order
+  19, 23. Every Depends on is merged (3, 9–17) or cleared (D0, U1a, C1). Chunk 21 is
+  **blocked (on L1)** from the start: it joins only if the owner's L1 approves the seventh as an
+  ending (C2 then gates its merge), otherwise it is recorded as skipped; the preflight covers it
+  so it can join without a second one. Chunk 20 skipped (DP, D534). Wordings wave 5's sync
+  applies: A9's settings half and A11 (`module_saved_data_loader`, only if the level sits outside
+  the controls), CONTRACT 19.0.0. Chunk 19 renames "Mostly" to "Always" in code comments and test
+  titles (ux D485).
