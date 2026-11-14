@@ -1058,3 +1058,26 @@ them under it.
   Revisions, two drift checks and "O310 open, needed before it starts"; a C2 row; the stale DP row
   gone. Driver: no gate row for O310 (chunk 21's Depends on tracks it beside L1).
 - Chunk 19 dispatched to a `coding-leader` (worktree `../infinite_flow-v3.3-c19`).
+
+### Chunk 19 merged (2026-11-14)
+
+- 7a5acb01 (9be41a69). Done when met: the control sends its level in the next request at Idle and
+  in the review mode, Off on a first visit and after Delete everything (e2e
+  `seventh-chords-control.spec.ts`, 13 tests, in the `test:e2e` list); `seventhChordsOptions` is
+  its own list (unit); a change makes Custom, restarts pre-generation, keeps the phrase, starts a
+  round under the too-many-notes notice, announces nothing; read-only in Loading and through a
+  session (the session's level shown from phrase 2 after "Start with this phrase"); wraps at phone,
+  tablet and desktop, keyboard as a figure level, axe clean in both themes; the Vary note and the
+  three descriptions; no "Mostly" left but the three invalid-value cases, no baseline re-recorded.
+  Related unit 411 files / 5,644 tests, 79 e2e + 1 skip (the replay hand check), static checks,
+  `atd:lint`/`atd:check`, `lint:health` clean.
+- For the sync: links on `module_seventh_chords_level_options`, `req_seventh_chords_level`,
+  `rule_custom_selection`, `rule_vary_settings_never_moves_seventh_chords_level`; Revisions as the
+  plan lists them.
+- For the gate: `HARDWARE-CHECKLIST.md`'s "Until chunk 19…" / "needs chunk 19" run conditions
+  (about lines 1000, 1007, 1014, 1124) are now stale (comment and doc only); the lexicon's "the
+  app's chords are triads" lines wait for the release gate (`documentalist`). H6 is ready for the
+  owner.
+- Figures: 2 agents, 136 tool calls, 19.6M tokens in / 73k out, max context 232k, $6.75 at API
+  prices.
+- Chunk 23 dispatched to a `coding-leader` (worktree `../infinite_flow-v3.3-c23`; 23a, 23b).

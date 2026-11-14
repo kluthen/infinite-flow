@@ -1894,7 +1894,7 @@ H1 written with L1's ten examples, open for the owner.
 
 ### Chunk 19 — The Seventh chords control
 
-Status: in progress
+Status: merged (w5, 7a5acb01)
 Wave: 5
 Depends on: 11, 16, 17, D0, U1a (for the labels); and every chunk a seventh passes through once
 the app can make one: 9 (the backing), 10 (the symbols), 13 (MusicXML), 14 (the staff), 15
@@ -1988,6 +1988,12 @@ settings store.
 - **Verification:** chunk checks; the accessibility checks of what it adds; H6.
 - **Split rule:** none needed (four source files; the old label's name is wording in a comment and
   in tests).
+
+Record: 7a5acb01 (9be41a69). No deviation from the spec or the design. The wiring also needed
+`use-shown-settings.ts` (passes `chordFamilies` on), `use-control-panel-actions.ts` and
+`WorkspaceShell.vue`; `control-options.ts` also exports `SEVENTH_CHORDS_NOTE` and
+`seventhChordsLevelOfSegment` for chunk 23; the new unit describe lives in
+`ControlPanel-seventh-chords.spec.ts` (the 10-atom limit).
 
 ### Chunk 20 — The finer fallback (conditional)
 
@@ -2084,7 +2090,7 @@ Architecture capture: none
 
 ### Chunk 23 — Jam's own Seventh chords level
 
-Status: planned
+Status: in progress
 Wave: 5
 Depends on: 3, 12, 16, 17, 19 (in-wave: chunk 19's capture, `module_seventh_chords_level_options`,
 fixes `seventhChordsOptions`), D0, U1a
