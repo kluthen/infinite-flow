@@ -1226,3 +1226,11 @@ them under it.
 | documentalist      |              v3.3 wave 5 preflight |    78 |    141k | $2.97 |
 
 No agent over 300k tokens of context.
+
+- The owner, 2026-11-14: "Merge and push"; chunk 21: "Close wave 5 without it". `spec-writer`'s
+  plan v22 (e97de4f4), **spec D538**: chunk 21 leaves wave 5, still blocked on L1 and O310, and
+  becomes its own conditional wave 6 (runs only if L1 approves the seventh, before the release
+  gate; a `documentalist` peek over its files once O310 is ruled, wave 5's preflight having
+  covered it; C2 at wave 6's sync, 20.0.0); otherwise it is recorded as skipped. Wave 5 merged
+  into `main` and pushed. Next: the release gate's preparations or wave 6 after L1, in a fresh
+  session; L1, O310, H2, H4–H6, L2, U1b and the M2/M3 reruns with the owner.
