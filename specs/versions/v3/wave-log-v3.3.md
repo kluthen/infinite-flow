@@ -1131,3 +1131,95 @@ them under it.
   (+1,598 B); engraver 735,085 B (unchanged); Jam's chunk 61,777 B (+0.59 kB), still out of the
   first load.
 - Wave sync dispatched to `documentalist`.
+
+### Wave 5 sync and report (2026-11-14)
+
+- `documentalist`'s wave sync (025312c0): **CONTRACT 19.0.0**. C1 A9's settings half
+  (`rule_settings_saved_on_change` 0.6, `rule_saved_settings_load_tolerantly` 0.5), A11
+  (`module_saved_data_loader` 0.10). Chunk 19's Revisions: `user_story_controlled_phrase_generation`
+  0.4, `module_seventh_chords_level_options` 0.2, `entity_phrase_carry_in` 0.11,
+  `module_profile_control_customization` 1.5 (interface clause only, no bump; the owner is told).
+  Chunk 23's: `req_jam_settings`, `rule_jam_settings_saved_on_change`, `rule_jam_settings_first_values`,
+  `rule_jam_settings_load_tolerantly`, `rule_jam_setting_change_rewrites_kept_phrase_one` 0.2,
+  `rule_held_doodle_phrase_one_at_idle` 0.4, `rule_doodle_only_orders_candidates` 0.3;
+  `module_jam_settings` stays 0.4 (the capture matches). Owner-approved: the six promotions to
+  REVIEW; "short of the final note" in the three figure rules; `rule_open_phrase_ending` 0.6 ("by
+  the final sounding event") under 19.0.0. Every link of chunks 19 and 23 checked, the moved one
+  included; no drift.
+- Findings, none changed: `rule_no_export_carries_seventh_chords_level` has test links only
+  (NO_IMPL; matters before STABLE); `entity_phrase_carry_in`'s "Nothing makes a carry-in from no
+  phrase until Jam's engine does" stale since v3.2 (later rewording); **for `spec-writer` at the
+  release gate**: the change set's part E lists `rule_jam_phrase_one_failure_ladder` under chunk
+  23, plan v21's Revisions don't (its wording still holds): add it to the release sync or drop it
+  from part E.
+- **ISS-020** filed (b4572b53, Medium): `npm run atd:check` (plain `atd check`) looks only at
+  uncommitted changes, so on a gate's committed tree it prints "No atoms found for the specified
+  scope" and passes without checking the wave. Not fixed in this wave (tooling; the sync checked
+  the wave's links). ISS-019's file removed in the same commit (resolved in e8441a11).
+- Promotion candidates for the release gate: `module_seventh_chords_level_options`,
+  `rule_jam_has_own_seventh_chords_level`, `req_seventh_chords_level`, `req_jam_settings`,
+  `rule_doodle_only_orders_candidates`.
+- `doc-ids compare main v3.3-w5`: 0 collisions.
+- Open at the wave's end: **chunk 21**, blocked on L1 (the owner hasn't listened to H1) and O310;
+  C2 after L1. H2 (both halves now), H4, H5, H6 with the owner; L2 and U1b; the owner's M2 and M3
+  reference-machine reruns (release gate at the latest, D537).
+- Report to the owner: chunks 19 and 23 merged, 21 still blocked; gate green on 5c3da0d4 (machine
+  loaded, e2e flakes re-run green; sweep's 3 Sixteenth-240 lines are the machine); start-up
+  JavaScript 387,038 B; CONTRACT 19.0.0; ISS-020. Merge into `main` on the owner's word; asked
+  what to do with chunk 21.
+
+#### Wave 5 figures
+
+- Time: 2026-11-14 08:17 → 2026-11-14 10:05 (1h47)
+- Agents: 10 · tool calls: 589 · model turns: 583
+- Tokens in: 62.2M (fresh 1k, cache write 1.3M, cache read 60.9M) · out: 326k
+- Max context: 232k (coding-leader: v3.3 wave 5 chunk 19)
+- Cost: $25.61 at API list prices (checked 2026-11-12)
+- Ends: at its last tagged agent (not merged yet)
+- Not counted: other top-level sessions active in the window, with no agent of this wave: 02e9534e, a1b1e74e
+
+
+##### By role
+| role | agents | calls | tokens in | out | cost | share | max ctx |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| coding-executor | 4 | 237 | 20.2M | 116k | $8.36 | 33% | 177k |
+| coding-leader | 2 | 147 | 20.8M | 78k | $7.45 | 29% | 232k |
+| documentalist | 2 | 131 | 13.5M | 77k | $5.76 | 23% | 175k |
+| driver (top level) | 1 | 43 | 5.5M | 33k | $2.78 | 11% | 160k |
+| spec-writer | 1 | 31 | 2.2M | 22k | $1.26 | 5% | 93k |
+
+##### By chunk
+| chunk | agents | calls | tokens in | out | cost | share | max ctx |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 19 | 2 | 136 | 19.6M | 73k | $6.75 | 26% | 232k |
+| 23 | 3 | 165 | 15.5M | 88k | $6.71 | 26% | 177k |
+| outside chunks |  |  |  |  | $12.15 | 47% |  |
+
+##### By activity (tool calls)
+| activity | calls | share | writes | results |
+|---|---:|---:|---:|---:|
+| dispatch | 9 | 2% |  | 9k |
+| doc-get | 16 | 3% |  | 39k |
+| plan | 46 | 8% | 6 | 190k |
+| spec | 6 | 1% | 1 | 11k |
+| design | 1 | 0% |  | 1k |
+| intent | 62 | 11% | 10 | 177k |
+| other docs | 54 | 9% | 8 | 259k |
+| source | 180 | 31% | 13 | 536k |
+| checks | 87 | 15% |  | 77k |
+| git | 40 | 7% |  | 63k |
+| shell other | 71 | 12% | 5 | 122k |
+| skills | 5 | 1% |  | 174 |
+| other files | 2 | 0% |  | 102k |
+| other tools | 10 | 2% |  | 2k |
+
+##### Largest contexts
+| agent | task | calls | max ctx | cost |
+|---|---:|---:|---:|---:|
+| coding-leader | v3.3 wave 5 chunk 19 | 116 | 232k | $6.03 |
+| coding-executor | Build chunk 23b generation/control | 104 | 177k | $4.18 |
+| documentalist | v3.3 wave 5 sync | 53 | 175k | $2.79 |
+| driver (top level) | driver session 500a86b2 | 43 | 160k | $2.78 |
+| documentalist | v3.3 wave 5 preflight | 78 | 141k | $2.97 |
+
+No agent over 300k tokens of context.
