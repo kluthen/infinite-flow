@@ -13,7 +13,7 @@ describe('ControlPanel, the Seventh chords control', () => {
   const SEVENTH_NOTE =
     'How often a chord gets one more note stacked on top, as G7 (G, B, D, F) instead of G (G, B, D): a richer, jazzier sound. A preference, never a promise.'
 
-  /** Intent: the panel's Seventh chords field, mounted with the level at `level`. */
+  /** The panel's Seventh chords field, mounted with the level at `level`. */
   function seventhField(
     level: 'off' | 'sometimes' | 'favored' | 'stronglyFavored' = 'off',
     readonly = false,

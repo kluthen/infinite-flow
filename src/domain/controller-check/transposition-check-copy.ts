@@ -18,13 +18,13 @@ export interface TranspositionCheckCopy {
   readonly profileSuggestion: string | null
 }
 
-/** Intent: "1 {unit}" in the singular, "{n} {unit}s" otherwise. */
+/** "1 {unit}" in the singular, "{n} {unit}s" otherwise. */
 function count(amount: number, unit: string): string {
   return amount === 1 ? `1 ${unit}` : `${amount} ${unit}s`
 }
 
 /**
- * Intent: word a non-zero semitone distance — semitones below an octave, whole octaves for a
+ * Word a non-zero semitone distance — semitones below an octave, whole octaves for a
  * multiple of 12, otherwise semitones with the octave-and-remainder breakdown in parentheses.
  */
 function distanceWording(offset: number): string {
@@ -37,7 +37,7 @@ function distanceWording(offset: number): string {
 }
 
 /**
- * Intent: how the result names the instrument checked: "the {profile} profile" for a built-in,
+ * How the result names the instrument checked: "the {profile} profile" for a built-in,
  * "your instrument, {name}," for my instrument, its name being the profile's display name.
  */
 // @spec-link [[rule_transposition_check_sets_my_instrument]]
@@ -46,7 +46,7 @@ function checkedName(profile: InstrumentProfile, beforeVerb: boolean): string {
   return `your instrument, ${profile.displayName}${beforeVerb ? ',' : ''}`
 }
 
-/** Intent: the result and suggestion lines for a controller that is `offset` semitones off. */
+/** The result and suggestion lines for a controller that is `offset` semitones off. */
 function mismatchLines(
   offset: number,
   setting: 'octave' | 'transpose',
@@ -62,7 +62,7 @@ function mismatchLines(
 }
 
 /**
- * Intent: turn a check report into the exact handoff copy for the current profile, adding the
+ * Turn a check report into the exact handoff copy for the current profile, adding the
  * other-profile line only when the report names a profile that would match as is. With my
  * instrument selected, the copy names it as "your instrument, {name},".
  */

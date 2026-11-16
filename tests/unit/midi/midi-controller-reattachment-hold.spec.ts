@@ -12,12 +12,12 @@ import { createControllerRig, KEYS_A, KEYS_A2 } from './midi-controller-rig'
 
 const C4 = makeConcertPitch(60)
 
-/** Intent: let every pending promise callback run. */
+/** Let every pending promise callback run. */
 function settled(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-/** Intent: a rig connected to KEYS_A, then KEYS_A unplugged, so the controller is away. */
+/** A rig connected to KEYS_A, then KEYS_A unplugged, so the controller is away. */
 async function awayFromKeys(reopensOnReplug = true) {
   const rig = createControllerRig({ devices: [KEYS_A], reopensOnReplug })
   await rig.controller.connect()

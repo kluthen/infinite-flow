@@ -57,7 +57,7 @@ export interface MidiControllerDeps {
 type AccessPhase = 'unsupported' | 'not-requested' | 'requesting' | 'denied' | 'granted'
 
 /**
- * Intent: create the MIDI controller, `unsupported` when the provider says this browser has no
+ * Create the MIDI controller, `unsupported` when the provider says this browser has no
  * Web MIDI, else `not-requested`. Nothing is requested until `connect()`.
  * - connect: requests access from `not-requested` or `denied`, then selects the only device
  *   present if nothing is selected yet; an existing selection is kept. While `requesting`, adopts
@@ -107,7 +107,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   let lastReported = changeKey(snapshot())
 
   /**
-   * Intent: derive the state from the access phase, the selection and the selected port. A selected
+   * Derive the state from the access phase, the selection and the selected port. A selected
    * port that is present but not open with no open in flight (its open failed) is `away`, like an
    * unplugged one: the controller is not attached, and the port's next input change retries. A
    * held reattachment keeps it `away` whatever the port reads.
@@ -127,14 +127,14 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     return Object.freeze({ kind: 'connected', device })
   }
 
-  /** Intent: the present inputs as device snapshots; none before access is granted. */
+  /** The present inputs as device snapshots; none before access is granted. */
   function devices(): readonly MidiDevice[] {
     if (access === undefined) return Object.freeze([])
     return Object.freeze(access.inputs().map(toDevice))
   }
 
   /**
-   * Intent: the current state, devices and remembered controller, as subscribers are told them. A
+   * The current state, devices and remembered controller, as subscribers are told them. A
    * connected device becomes the remembered controller here, as every change is read through it.
    */
   // @spec-link [[rule_last_controller_remembered]]
@@ -149,7 +149,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     })
   }
 
-  /** Intent: tell subscribers the current snapshot, only when it differs from the last one told. */
+  /** Tell subscribers the current snapshot, only when it differs from the last one told. */
   function report(): void {
     const change = snapshot()
     const key = changeKey(change)
@@ -158,14 +158,14 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     changeListeners.emit(change)
   }
 
-  /** Intent: hand tracker events to the note listeners, and return them. */
+  /** Hand tracker events to the note listeners, and return them. */
   function emitNotes(events: PlayedNoteEvents): PlayedNoteEvents {
     events.forEach((event) => noteListeners.emit(event))
     return events
   }
 
   /**
-   * Intent: end every held note at `at`, and report the ended notes. Message order beats clock
+   * End every held note at `at`, and report the ended notes. Message order beats clock
    * jitter: `at` (read from the audio clock directly) can be a few milliseconds behind the last time
    * mapped from this selection's messages, so the notes end at the later of the two, never before
    * an onset; a later `at` is kept as it is.
@@ -176,13 +176,13 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     return emitNotes(tracker.releaseAll(releaseAt))
   }
 
-  /** Intent: the browser's MIDI permission, as the provider reads it; never prompts, in any state. */
+  /** The browser's MIDI permission, as the provider reads it; never prompts, in any state. */
   // @spec-link [[rule_controller_connects_between_sessions]]
   function permission(): Promise<MidiPermissionState> {
     return provider.permission()
   }
 
-  /** Intent: the granted access, or a typed failure for a call that needs it before it exists. */
+  /** The granted access, or a typed failure for a call that needs it before it exists. */
   function grantedAccess(action: string): MidiAccessPort {
     if (access === undefined) {
       throw new MidiControllerError(`Cannot ${action}: MIDI access is ${phase}, not granted.`)
@@ -191,7 +191,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: connect a controller. While a request is in flight that the player abandoned (closed
+   * Connect a controller. While a request is in flight that the player abandoned (closed
    * the sheet while the browser asks), a new connect() adopts it rather than asking again: the
    * abandon is withdrawn, so the only device is picked on grant, and it settles with that request.
    */
@@ -214,7 +214,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: request MIDI access (the only place that does), then pick the only device. A connect()
+   * Request MIDI access (the only place that does), then pick the only device. A connect()
    * abandoned while its request was in flight records the outcome, then picks nothing.
    */
   async function requestAndPick(): Promise<void> {
@@ -237,7 +237,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: abandon the connect() whose request is in flight (the player closed the sheet while
+   * Abandon the connect() whose request is in flight (the player closed the sheet while
    * the browser asks). The request cannot be withdrawn from the browser, so the state stays
    * `requesting` until it is answered; only the device pick after it is dropped, unless a later
    * connect() adopts the request.
@@ -251,7 +251,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: ask the provider for access, `requesting` meanwhile. A rejected request is no state of
+   * Ask the provider for access, `requesting` meanwhile. A rejected request is no state of
    * its own: the stage goes back to `before` (reported), and the same error propagates, so a later
    * connect() can ask again.
    */
@@ -269,7 +269,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: with nothing selected, select the remembered controller when it is among the inputs,
+   * With nothing selected, select the remembered controller when it is among the inputs,
    * however many there are, else the only input present; otherwise just report.
    */
   // @spec-link [[rule_last_controller_remembered]]
@@ -289,7 +289,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: the load's reselection (see MidiController.reselect). Whatever the permission says,
+   * The load's reselection (see MidiController.reselect). Whatever the permission says,
    * `device` becomes the remembered controller; the request is made only when the permission reads
    * `granted` and nothing was requested meanwhile.
    */
@@ -317,7 +317,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     return reselectWhenAllowed(remembered)
   }
 
-  /** Intent: request access for the reselection only when the browser already allows it. */
+  /** Request access for the reselection only when the browser already allows it. */
   async function reselectWhenAllowed(device: MidiDevice): Promise<void> {
     if ((await provider.permission()) !== 'granted' || phase !== 'not-requested') return
     reselectedAtLoad = true
@@ -327,7 +327,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: the load's one request, which cannot prompt, then the remembered port selected if
+   * The load's one request, which cannot prompt, then the remembered port selected if
    * present, else awaited (away) until it appears. A refused request leaves the player to connect
    * (not-requested, or unsupported when the browser says so), unless a Connect controller click
    * adopted it, which then sees the refusal as its own (denied); a broken one goes back to
@@ -369,7 +369,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: select the present input with this id, replacing any selection. Notes still held on a
+   * Select the present input with this id, replacing any selection. Notes still held on a
    * previous device end now, on the audio clock. Listens to the port, then opens it. Throws while
    * the reattachment is held: a session started without a controller never gains one.
    */
@@ -395,7 +395,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: the player's Disconnect. Notes still held end now, on the audio clock, as on a device
+   * The player's Disconnect. Notes still held end now, on the audio clock, as on a device
    * switch; the selection clears, so the state is `choosing` or `no-device`. An open still in flight
    * no longer counts; the old port stays listened to but is never read (only the selected port is),
    * and its coming back changes only the device list. A held reattachment ends with the selection
@@ -420,7 +420,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: keep the away selected port from reattaching, for a session started without it: its
+   * Keep the away selected port from reattaching, for a session started without it: its
    * coming back only changes the device list, it is never opened nor read. Throws unless `away`
    * and not already held.
    */
@@ -436,7 +436,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: end the hold. The selected port present now reattaches as on a replug (reopened if
+   * End the hold. The selected port present now reattaches as on a replug (reopened if
    * the browser left it closed); absent, it stays `away` and reattaches when it comes back. Throws
    * when nothing is held.
    */
@@ -453,7 +453,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: open the selected port, `opening` meanwhile. Once the open settles, fulfilled or
+   * Open the selected port, `opening` meanwhile. Once the open settles, fulfilled or
    * rejected, it is no longer in flight, so a failed open leaves the port `away` and its next input
    * change retries; the rejection still propagates. An open that settles after a newer one started
    * changes nothing. A present port still not open once its open completed breaks the port's
@@ -480,7 +480,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     }
   }
 
-  /** Intent: attach the message listener to a port once; only the selected port is ever passed. */
+  /** Attach the message listener to a port once; only the selected port is ever passed. */
   function listenTo(port: MidiInputPort): void {
     if (listened.has(port)) return
     listened.add(port)
@@ -488,7 +488,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: follow one input change. The selected port reporting disconnected is lost: its held
+   * Follow one input change. The selected port reporting disconnected is lost: its held
    * notes end at the change's time. The selected port back is reattached unless that is held. Any
    * other port only changes the device list.
    */
@@ -508,7 +508,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: attach the awaited remembered controller when its port is present, as a device that
+   * Attach the awaited remembered controller when its port is present, as a device that
    * comes back within a page: selected, listened to and opened, with no player action (a failing
    * open leaves it `away` and rejects unhandled, as a reopen does).
    */
@@ -527,7 +527,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: reopen the selected port when it is back but not open, with no player action (a
+   * Reopen the selected port when it is back but not open, with no player action (a
    * failing reopen leaves it `away` and rejects unhandled: it is a broken port, never hidden; its
    * next input change tries again).
    */
@@ -539,7 +539,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: map a timestamp from the selected port onto the audio clock, never earlier than the
+   * Map a timestamp from the selected port onto the audio clock, never earlier than the
    * last time mapped from this selection. Web MIDI delivers a port's messages in order, so that
    * order is authoritative; two anchors read a few milliseconds apart can disagree (the output
    * timestamp moves once per audio callback, or one reading comes from a stopped clock and the next
@@ -555,7 +555,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: the audio clock's anchor; a defect when it is not running, which only a note read
+   * The audio clock's anchor; a defect when it is not running, which only a note read
    * while it runs (one that can be held) ever needs.
    */
   function runningAnchor(): ClockAnchor {
@@ -567,7 +567,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 
   /**
-   * Intent: one fresh anchor of the audio clock for this message, or null when it does not run.
+   * One fresh anchor of the audio clock for this message, or null when it does not run.
    * While it does not, a note-on is first told to the unclocked-note listeners, which may start it
    * (the starting note after the page's first click); a message it still cannot be placed for is
    * not read at all.
@@ -580,7 +580,7 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
     return clock.anchor()
   }
 
-  /** Intent: read a message from the selected, connected port into played and ended notes. */
+  /** Read a message from the selected, connected port into played and ended notes. */
   function onMessage(port: MidiInputPort, data: Uint8Array, timestampMs: number): void {
     if (selected?.id !== port.id || state().kind !== 'connected') return
     const message = parseMidiMessage(data)
@@ -614,12 +614,12 @@ export function createMidiController(deps: MidiControllerDeps): MidiController {
   }
 }
 
-/** Intent: a plain, frozen snapshot of a port's identity and display names. */
+/** A plain, frozen snapshot of a port's identity and display names. */
 function toDevice(port: MidiInputPort): MidiDevice {
   return Object.freeze({ id: port.id, name: port.name, manufacturer: port.manufacturer })
 }
 
-/** Intent: a comparable key of a snapshot, to report only real changes. */
+/** A comparable key of a snapshot, to report only real changes. */
 function changeKey(change: MidiControllerChange): string {
   return JSON.stringify(change)
 }
@@ -630,7 +630,7 @@ interface Listeners<T> {
   readonly emit: (value: T) => void
 }
 
-/** Intent: create an empty listener list; a listener added twice is called twice. */
+/** Create an empty listener list; a listener added twice is called twice. */
 function createListeners<T>(): Listeners<T> {
   const entries: { readonly listener: (value: T) => void }[] = []
   return {

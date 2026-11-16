@@ -24,7 +24,7 @@ const TEMPO = 60
 const PHRASE_SECONDS = 16
 const MS_PER_TICK = 1000 / 960
 
-/** Intent: a session of back-to-back 60 BPM phrases holding `notes`, each in its onset's phrase. */
+/** A session of back-to-back 60 BPM phrases holding `notes`, each in its onset's phrase. */
 function sessionOf(notes: readonly FixtureNote[]): readonly SessionHistoryRecord[] {
   const end = Math.max(...notes.map((note) => note.releaseAt))
   const count = Math.ceil((end + 1) / PHRASE_SECONDS)
@@ -41,7 +41,7 @@ function sessionOf(notes: readonly FixtureNote[]): readonly SessionHistoryRecord
   })
 }
 
-/** Intent: the played track's notes of a file: `pitch:velocity` sorted, and lengths in ms. */
+/** The played track's notes of a file: `pitch:velocity` sorted, and lengths in ms. */
 function fileNotes(bytes: Uint8Array) {
   const notes = notesOf(readSmf(bytes).tracks[1]!)
   return {
@@ -50,12 +50,12 @@ function fileNotes(bytes: Uint8Array) {
   }
 }
 
-/** Intent: `pitch:velocity` of every note, sorted, as `fileNotes` gives them. */
+/** `pitch:velocity` of every note, sorted, as `fileNotes` gives them. */
 function keysOf(notes: readonly FixtureNote[]): string[] {
   return notes.map((note) => `${note.pitch}:${note.velocity}`).sort()
 }
 
-/** Intent: a history over `records` as the export reads one. */
+/** A history over `records` as the export reads one. */
 function historyOf(records: readonly SessionHistoryRecord[]) {
   return { phrases: () => records, startedAt: SESSION_START_EPOCH_MS }
 }

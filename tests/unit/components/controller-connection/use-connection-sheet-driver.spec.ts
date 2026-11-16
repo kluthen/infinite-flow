@@ -23,7 +23,7 @@ import {
 enableAutoUnmount(afterEach)
 
 /**
- * Intent: mount a bare component driving the sheet over `rig` at `openAt` (making the click's
+ * Mount a bare component driving the sheet over `rig` at `openAt` (making the click's
  * connect attempt at Requesting access), recording every `onClosed` call and the controller's
  * state at that moment.
  */

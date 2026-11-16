@@ -20,7 +20,7 @@ import type {
 } from '../../rhythm/rhythm-types'
 
 /**
- * Intent: derive the deterministic unsigned tie key for one harmony candidate under one seed,
+ * Derive the deterministic unsigned tie key for one harmony candidate under one seed,
  * hashing the versioned tie-key domain string, the seed's documented string encoding, and the
  * candidate's stable identity.
  */
@@ -30,7 +30,7 @@ export function harmonyTieKey(seed: Seed, candidate: Pick<HarmonyCandidate, 'ide
 }
 
 /**
- * Intent: derive the deterministic unsigned tie key for one rhythm candidate under one seed,
+ * Derive the deterministic unsigned tie key for one rhythm candidate under one seed,
  * hashing the versioned tie-key domain string, the seed's documented string encoding, the
  * candidate's grammar version, and the candidate's stable identity.
  */
@@ -47,7 +47,7 @@ export function rhythmTieKey(
 }
 
 /**
- * Intent: sort items by an explicit unsigned tie key ascending, breaking a key collision by the
+ * Sort items by an explicit unsigned tie key ascending, breaking a key collision by the
  * canonical candidate index ascending. `keyOf` receives each item with its input position. Never
  * mutates the input array; returns a new array in the stably-determined order.
  */
@@ -67,7 +67,7 @@ function sortByTieKey<T>(
 }
 
 /**
- * Intent: rank a complete harmony candidate domain (or any subset) into the seeded search order
+ * Rank a complete harmony candidate domain (or any subset) into the seeded search order
  * for one seed, without loss or duplication. Every candidate is equal-ranked under current
  * policy, so order is the seeded tie key with a candidateIndex fallback on collision.
  */
@@ -99,7 +99,7 @@ export interface RankedRhythmCache {
 }
 
 /**
- * Intent: rank an already-materialized, complete rhythm candidate list into the seeded search
+ * Rank an already-materialized, complete rhythm candidate list into the seeded search
  * order for one seed (seeded tie key ascending, candidateIndex ascending on collision), and freeze
  * the result as a reusable RankedRhythmCache. Takes the candidate list as given, so a caller that
  * already holds a memoized canonical expansion can rank it for a new seed without re-expanding the
@@ -127,7 +127,7 @@ export function rankMaterializedRhythmCandidates(
 }
 
 /**
- * Intent: fully materialize a rhythm candidate domain's lazy iterator exactly once, then rank it
+ * Fully materialize a rhythm candidate domain's lazy iterator exactly once, then rank it
  * into the seeded search order via `rankMaterializedRhythmCandidates`. Kept for callers (and
  * existing tests) that still hold a raw `RhythmCandidateDomain` rather than an already-materialized
  * canonical candidate list.
@@ -145,7 +145,7 @@ export function materializeRankedRhythmCache(
 }
 
 /**
- * Intent: order rhythm candidates by a preference rank computed inside generation from the request
+ * Order rhythm candidates by a preference rank computed inside generation from the request
  * alone. `seeded` is a seeded rhythm order (seeded tie key, then candidateIndex), so ordering it
  * by rank, then by its seeded position, places each candidate by the tuple (preference rank,
  * seeded tie key, candidateIndex). Equal ranks give the seeded order back. An order, never a
@@ -165,7 +165,7 @@ export function orderRhythmByPreference(
 }
 
 /**
- * Intent: the ranked rhythm cache with its candidates in another order of the same domain (a
+ * The ranked rhythm cache with its candidates in another order of the same domain (a
  * preference order built from its seeded order), everything else kept. Throws unless the order
  * holds every candidate of the cache exactly once. Returns the cache itself when the order is its
  * own list.

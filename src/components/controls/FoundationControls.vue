@@ -85,7 +85,7 @@ const emit = defineEmits<{
 }>()
 
 /**
- * Intent: the "reached tempo" note: a past fact in plain words, with no comparison, no target and
+ * The "reached tempo" note: a past fact in plain words, with no comparison, no target and
  * nothing about how the player played; none when no session that ran rising tempo is the last.
  */
 // @spec-link [[rule_adaptive_tempo_resets_after_session]]
@@ -96,14 +96,14 @@ const reachedTempoNote = computed(() =>
     : `Last session reached ${props.lastSessionReachedTempo} BPM.`,
 )
 
-/** Intent: the name of the selected preset, or in Custom of its base; null when none is found. */
+/** The name of the selected preset, or in Custom of its base; null when none is found. */
 function presetNameOf(selection: PresetSelection): string | null {
   const id = selection.kind === 'preset' ? selection.presetId : selection.baseId
   return (id === null ? undefined : findPreset(props.presets, id))?.name ?? null
 }
 
 /**
- * Intent: the key and mode marks and their notes. With no session (Idle and the review mode),
+ * The key and mode marks and their notes. With no session (Idle and the review mode),
  * from the restriction in force for the shown selection, key and mode, naming the selected preset
  * or Custom's base. During a session, from the start settings only, their frozen restriction and
  * the preset named from their selection, so the marks keep what Start showed whatever the shown
@@ -142,12 +142,12 @@ const writtenKeyNoteId = useId()
 const collectionNoteId = useId()
 const seventhChordsNoteId = useId()
 
-/** Intent: report a tempo change, re-validating against the tempo catalog before it leaves. */
+/** Report a tempo change, re-validating against the tempo catalog before it leaves. */
 function handleTempo(value: number): void {
   emit('set-control', { key: 'tempo', value: normalizeTempo(value) })
 }
 
-/** Intent: report a written-key tonal-center change, re-validating against the pitch-class catalog. */
+/** Report a written-key tonal-center change, re-validating against the pitch-class catalog. */
 function handleTonalCenter(value: string): void {
   emit('set-control', {
     key: 'tonalCenter',
@@ -155,7 +155,7 @@ function handleTonalCenter(value: string): void {
   })
 }
 
-/** Intent: report a collection change, re-validating against the collection catalog. */
+/** Report a collection change, re-validating against the collection catalog. */
 function handleCollection(value: string): void {
   emit('set-control', {
     key: 'collection',
@@ -163,7 +163,7 @@ function handleCollection(value: string): void {
   })
 }
 
-/** Intent: report a harmonic-motion change, re-validating against its catalog. */
+/** Report a harmonic-motion change, re-validating against its catalog. */
 function handleHarmonicMotion(value: string): void {
   emit('set-control', {
     key: 'harmonicMotion',
@@ -172,7 +172,7 @@ function handleHarmonicMotion(value: string): void {
 }
 
 /**
- * Intent: report a Seventh chords level change for the seventh-chords family, re-validating the
+ * Report a Seventh chords level change for the seventh-chords family, re-validating the
  * segment against the level ids; the level action makes Custom, saves it and discards the
  * prepared phrases, and the phrase on screen stays.
  */
@@ -185,7 +185,7 @@ function handleSeventhChords(value: string): void {
   })
 }
 
-/** Intent: report a tension change, re-validating against the tension-arc catalog. */
+/** Report a tension change, re-validating against the tension-arc catalog. */
 function handleTension(value: string): void {
   emit('set-control', {
     key: 'tension',
@@ -204,7 +204,7 @@ const offeredInstrumentIds = computed<readonly InstrumentProfileId[]>(() =>
     : [...INSTRUMENT_PROFILE_IDS, MY_INSTRUMENT_ID],
 )
 
-/** Intent: report an instrument-profile switch by its validated stable identity, never a control value. */
+/** Report an instrument-profile switch by its validated stable identity, never a control value. */
 // @spec-link [[req_my_instrument]]
 function handleInstrumentProfile(value: string): void {
   emit(
@@ -213,12 +213,12 @@ function handleInstrumentProfile(value: string): void {
   )
 }
 
-/** Intent: the selected instrument's profile: my instrument's own, given as data, or a built-in's. */
+/** The selected instrument's profile: my instrument's own, given as data, or a built-in's. */
 // @spec-link [[req_my_instrument]]
 const activeInstrumentProfile = computed(() =>
   selectedInstrumentProfile(props.controls.instrumentProfileId, props.myInstrument),
 )
-/** Intent: the selected profile's active range plus its Low/Middle/High whole-phrase windows. */
+/** The selected profile's active range plus its Low/Middle/High whole-phrase windows. */
 const profileRangeSummary = computed(() => profileRangeSummaryText(activeInstrumentProfile.value))
 </script>
 

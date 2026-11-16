@@ -51,7 +51,7 @@ export interface WorkspaceSessionStart extends Omit<SessionStart, 'mutation'> {
 export type WorkspaceSessionStartWithoutPhraseOne = Omit<SessionStartWithoutPhraseOne, 'mutation'>
 
 /**
- * Intent: the engine's mutation flag for the player's choice and the session's start: off when
+ * The engine's mutation flag for the player's choice and the session's start: off when
  * the choice is off, or when the start settings have no legal move under the mutation context the
  * start state gives (a session started then runs without Vary settings); otherwise on with the
  * mutation seed the session seed plan derives from `sessionSeed`. Nothing is derived when the flag
@@ -71,7 +71,7 @@ export function mutationFlagFor(
 }
 
 /**
- * Intent: start a workspace session runner; one without phrase 1 runs with the flag off. Otherwise,
+ * Start a workspace session runner; one without phrase 1 runs with the flag off. Otherwise,
  * with the settings-mutation flag the player's choice
  * gives (its seed derived from the start's session seed), off when the start settings (with the
  * restriction in force at the start frozen in) have no legal move under the context the start

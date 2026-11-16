@@ -60,7 +60,7 @@ export interface RenderSummary {
 const DEMO_SEED = 7
 const DEMO_NEXT_SEED = 8
 
-/** Intent: a successful outcome's phrase as the renders take it, at its intent's tempo. */
+/** A successful outcome's phrase as the renders take it, at its intent's tempo. */
 export function renderPhraseOf(intent: GenerationIntent, outcome: GenerationOutcome): RenderPhrase {
   if (outcome.kind !== 'generation_success')
     throw new Error(`The phrase did not generate: ${outcome.code}.`)
@@ -72,18 +72,18 @@ export function renderPhraseOf(intent: GenerationIntent, outcome: GenerationOutc
   }
 }
 
-/** Intent: the phrase a replay key reproduces, with its intent. */
+/** The phrase a replay key reproduces, with its intent. */
 function phraseOfKey(key: string): { intent: GenerationIntent; phrase: RenderPhrase } {
   const { intent } = decodePhraseReplayKey(key)
   return { intent, phrase: renderPhraseOf(intent, generatePhrase(intent)) }
 }
 
-/** Intent: an ending source from a replay key. */
+/** An ending source from a replay key. */
 export function endingFromKey(key: string, name: string): RenderSource {
   return { kind: 'ending', name, phrase: phraseOfKey(key).phrase }
 }
 
-/** Intent: a landing source from two replay keys; the second must be a phrase joined to one. */
+/** A landing source from two replay keys; the second must be a phrase joined to one. */
 export function landingFromKeys(firstKey: string, secondKey: string, name: string): RenderSource {
   const second = phraseOfKey(secondKey)
   if (second.intent.carryIn === undefined)
@@ -91,13 +91,13 @@ export function landingFromKeys(firstKey: string, secondKey: string, name: strin
   return { kind: 'landing', name, first: phraseOfKey(firstKey).phrase, second: second.phrase }
 }
 
-/** Intent: a plan with the event at `index` in seventh form (hand-built from a generated plan). */
+/** A plan with the event at `index` in seventh form (hand-built from a generated plan). */
 function seventhAt(harmony: readonly HarmonyEvent[], index: number): readonly HarmonyEvent[] {
   return harmony.map((event, at) => (at === index ? withSeventh(event) : event))
 }
 
 /**
- * Intent: the hand-built demonstration, in C major: a phrase generated at Off (seed 7) whose final
+ * The hand-built demonstration, in C major: a phrase generated at Off (seed 7) whose final
  * event is set in seventh form by hand, as an ending; and that phrase with its next phrase (seed 8,
  * joined to it), the next phrase's opening tonic set in seventh form by hand, as a landing.
  */
@@ -126,7 +126,7 @@ export function demonstrationSources(): readonly RenderSource[] {
   ]
 }
 
-/** Intent: the MIDI bytes of some phrases back to back, each over its own backing. */
+/** The MIDI bytes of some phrases back to back, each over its own backing. */
 function midiOf(phrases: readonly RenderPhrase[]): Uint8Array {
   return encodeGeneratedNotesMidi({
     phrases: phrases.map((phrase, index) => ({
@@ -141,7 +141,7 @@ function midiOf(phrases: readonly RenderPhrase[]): Uint8Array {
   })
 }
 
-/** Intent: a source's name as a file-name slug. */
+/** A source's name as a file-name slug. */
 function slug(name: string): string {
   return name
     .toLowerCase()
@@ -149,13 +149,13 @@ function slug(name: string): string {
     .replace(/^-|-$/g, '')
 }
 
-/** Intent: a MIDI note number as a note name with sharps, middle C (60) being C4. */
+/** A MIDI note number as a note name with sharps, middle C (60) being C4. */
 export function noteName(midi: number): string {
   const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
   return `${names[midi % 12]}${Math.floor(midi / 12) - 1}`
 }
 
-/** Intent: one source's file, the phrases it plays in order, and the note it moved. */
+/** One source's file, the phrases it plays in order, and the note it moved. */
 function renderOne(
   source: RenderSource,
   index: number,
@@ -173,7 +173,7 @@ function renderOne(
   }
 }
 
-/** Intent: the Markdown index of the renders: what each file plays, and the note it moved. */
+/** The Markdown index of the renders: what each file plays, and the note it moved. */
 function indexMarkdown(summaries: readonly RenderSummary[]): string {
   const lines = summaries.map(({ file, kind, name, moved }) => {
     const order =
@@ -194,7 +194,7 @@ function indexMarkdown(summaries: readonly RenderSummary[]): string {
 }
 
 /**
- * Intent: the render files of some sources, in order, and their Markdown index. Crashes on an
+ * The render files of some sources, in order, and their Markdown index. Crashes on an
  * empty list and on any source whose move the spec does not allow (seventh-endings-rewrite.ts).
  */
 export function buildSeventhEndingRenders(sources: readonly RenderSource[]): {

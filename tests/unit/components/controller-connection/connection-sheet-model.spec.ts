@@ -30,7 +30,7 @@ import {
 
 type Action = Extract<SheetEvent, { kind: 'action' }>['action']
 
-/** Intent: dispatch one named action. */
+/** Dispatch one named action. */
 function act(model: SheetModel, action: Action) {
   return reduceSheet(model, { kind: 'action', action })
 }

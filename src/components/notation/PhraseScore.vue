@@ -130,7 +130,7 @@ let shownScore: {
 } | null = null
 
 /**
- * Intent: read the current layout inputs, or null before the root element exists: the measured
+ * Read the current layout inputs, or null before the root element exists: the measured
  * container width and viewport, with the shared system-position size when one is given.
  */
 function readLayoutInputs(): StaffLayoutInputs | null {
@@ -141,7 +141,7 @@ function readLayoutInputs(): StaffLayoutInputs | null {
   return units === null ? measured : { ...measured, systemPositionUnits: units }
 }
 
-/** Intent: report the layout inputs through `layout-inputs` when they differ from the last report. */
+/** Report the layout inputs through `layout-inputs` when they differ from the last report. */
 function reportLayoutInputs(inputs: StaffLayoutInputs): void {
   const key = JSON.stringify(inputs)
   if (key === lastReportedInputs) return
@@ -150,21 +150,21 @@ function reportLayoutInputs(inputs: StaffLayoutInputs): void {
 }
 
 /**
- * Intent: size both reserved positions for the viewport and the shared system-position size,
+ * Size both reserved positions for the viewport and the shared system-position size,
  * whatever the phrase (see `staffPositionBlockPx`).
  */
 function sizePositions(viewport: StaffViewport, systemPositionUnits: number | undefined): void {
   positionBlockPx.value = staffPositionBlockPx(viewport, systemPositionUnits)
 }
 
-/** Intent: show the hidden description of a phrase (null: none), describing each phrase once. */
+/** Show the hidden description of a phrase (null: none), describing each phrase once. */
 function describe(phrase: WrittenPhrase | null): void {
   if (phrase === describedPhrase) return
   describedPhrase = phrase
   description.value = phrase === null ? null : describeWrittenPhrase(phrase)
 }
 
-/** Intent: clear both positions, the staging hosts and the description together. */
+/** Clear both positions, the staging hosts and the description together. */
 function clearScore(): void {
   shownScore = null
   positions.clear()
@@ -172,7 +172,7 @@ function clearScore(): void {
 }
 
 /**
- * Intent: give the top system's SVG the phrase's accessible name and description, and hide the
+ * Give the top system's SVG the phrase's accessible name and description, and hide the
  * split layout's bottom system from assistive technology: the same description already covers
  * its measures, so the phrase is announced once.
  */
@@ -188,7 +188,7 @@ function labelSystems(svgs: readonly SVGSVGElement[], summary: string): void {
 }
 
 /**
- * Intent: draw the current overlay state onto the systems on screen. With no engraved phrase on
+ * Draw the current overlay state onto the systems on screen. With no engraved phrase on
  * screen, or while the score on screen is still the previous phrase or phrase number (the new
  * one's engraving is pending, as when both props change in the same tick), there is nothing to
  * draw on yet: the engraving that swaps in the current phrase calls this again, reading the state
@@ -201,7 +201,7 @@ function drawOverlays(): void {
   positions.drawOverlays(shownScore.svgs, shownScore.phraseNumber, props.overlays)
 }
 
-/** Intent: engrave the current phrase with the given inputs, swapping it in on success only. */
+/** Engrave the current phrase with the given inputs, swapping it in on success only. */
 function engrave(phrase: WrittenPhrase, inputs: StaffLayoutInputs): void {
   const top = topPositionEl.value
   const bottom = bottomPositionEl.value
@@ -248,7 +248,7 @@ function engrave(phrase: WrittenPhrase, inputs: StaffLayoutInputs): void {
 }
 
 /**
- * Intent: load the lazy VexFlow engraver module, with the staff drawing code it engraves into, and
+ * Load the lazy VexFlow engraver module, with the staff drawing code it engraves into, and
  * wait for its fonts exactly once, memoized in `engraverModule`, returning the typed failure
  * instead of emitting it (the caller emits only if its check is still the latest). A prior failed
  * attempt leaves `engraverModule` unset, so the load is retried (and `loadVexflowEngraver` and the
@@ -269,7 +269,7 @@ async function ensureEngraverReady(): Promise<NotationError | null> {
   }
 }
 
-/** Intent: the engraver module for a session engraving, or the typed failure of loading it. */
+/** The engraver module for a session engraving, or the typed failure of loading it. */
 async function sessionEngraver(): Promise<VexflowEngraverModule | NotationError> {
   const loadFailure = await ensureEngraverReady()
   if (loadFailure !== null) return loadFailure
@@ -303,7 +303,7 @@ const positions = createLoadingStaffDrawing(
 )
 
 /**
- * Intent: report the layout inputs if they changed and resize the positions for the current
+ * Report the layout inputs if they changed and resize the positions for the current
  * viewport, then engrave the phrase if it changed (`force`) or if the inputs it was last engraved
  * with did. With no phrase, clear the staff.
  * Only the latest check that got past the input comparison may engrave or report: an older one
@@ -353,7 +353,7 @@ async function checkLayout(force: boolean): Promise<void> {
   engrave(phrase, current)
 }
 
-/** Intent: coalesce bursts of resize/phrase-change triggers into one layout check per frame. */
+/** Coalesce bursts of resize/phrase-change triggers into one layout check per frame. */
 function scheduleCheck(force: boolean): void {
   forceNextCheck = forceNextCheck || force
   if (rafHandle !== null) cancelAnimationFrame(rafHandle)
@@ -365,7 +365,7 @@ function scheduleCheck(force: boolean): void {
   })
 }
 
-/** Intent: a resize or breakpoint signal: re-check, engraving only if an input really changed. */
+/** A resize or breakpoint signal: re-check, engraving only if an input really changed. */
 function handleViewportSignal(): void {
   scheduleCheck(false)
 }
@@ -388,7 +388,7 @@ onMounted(async () => {
 })
 
 /**
- * Intent: follow the session prop. Entering or leaving a session drops any engraving under way;
+ * Follow the session prop. Entering or leaving a session drops any engraving under way;
  * entering redraws only what Idle does not already show, leaving re-engraves the Idle phrase as
  * a forced check, which reports to Idle as usual.
  */
@@ -411,7 +411,7 @@ function followSession(next: SessionStaff | null, previous: SessionStaff | null)
 }
 
 /**
- * Intent: redraw the overlays on the score shown, the Idle phrase's or the session's; a session
+ * Redraw the overlays on the score shown, the Idle phrase's or the session's; a session
  * the staff has not entered yet draws them on entering.
  */
 function redrawOverlays(): void {

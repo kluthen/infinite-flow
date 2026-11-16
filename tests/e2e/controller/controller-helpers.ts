@@ -31,7 +31,7 @@ export const WIND: WorkspaceHarnessMidiDevice = {
 export const CONTINUE_WITHOUT = 'Continue without a controller'
 
 /**
- * Intent: collect every page error and every console error from now on; `expectNoPageErrors`
+ * Collect every page error and every console error from now on; `expectNoPageErrors`
  * fails the test on any. A crash in the sheet or the controller is a product defect, never noise,
  * including one Vue catches in an event handler and only logs to the console.
  */
@@ -45,7 +45,7 @@ export function watchPageErrors(page: Page): () => void {
 }
 
 /**
- * Intent: land on the workspace harness at `size` on the fake audio clock, with `midi` access
+ * Land on the workspace harness at `size` on the fake audio clock, with `midi` access
  * (the fake by default, or a browser without Web MIDI), once the session controller has loaded.
  */
 export async function gotoControllerHarness(
@@ -75,32 +75,32 @@ export async function gotoControllerHarness(
   await page.waitForFunction(() => window.__workspaceHarness?.session.loaded() === true)
 }
 
-/** Intent: the header's `controller-status` button, in whichever form it shows. */
+/** The header's `controller-status` button, in whichever form it shows. */
 export function controllerStatus(page: Page): Locator {
   return page.locator('.layout-header button.controller-status')
 }
 
-/** Intent: the connection sheet's dialog. */
+/** The connection sheet's dialog. */
 export function sheet(page: Page): Locator {
   return page.getByRole('dialog')
 }
 
-/** Intent: the sheet's always-present `Close` button. */
+/** The sheet's always-present `Close` button. */
 export function sheetClose(page: Page): Locator {
   return sheet(page).locator('.sheet-header .sheet-close')
 }
 
-/** Intent: one of the sheet's `sheet-actions` buttons, by its exact label. */
+/** One of the sheet's `sheet-actions` buttons, by its exact label. */
 export function sheetAction(page: Page, label: string): Locator {
   return sheet(page).locator('.sheet-actions').getByRole('button', { name: label, exact: true })
 }
 
-/** Intent: the picker's option for a device, by its exact visible label. */
+/** The picker's option for a device, by its exact visible label. */
 export function deviceOption(page: Page, label: string): Locator {
   return sheet(page).locator('.device-option').filter({ hasText: label })
 }
 
-/** Intent: click `controller-status` (any form) and wait for the sheet to show. */
+/** Click `controller-status` (any form) and wait for the sheet to show. */
 export async function clickControllerStatus(page: Page): Promise<void> {
   await controllerStatus(page).click()
   await expect(sheet(page)).toBeVisible()
@@ -115,7 +115,7 @@ export interface SheetShape {
 }
 
 /**
- * Intent: the visible texts of the sheet body's blocks, in order: its paragraphs and inline
+ * The visible texts of the sheet body's blocks, in order: its paragraphs and inline
  * alerts, an alert made of paragraphs (a check result) giving one text per paragraph.
  */
 export function sheetBodyTexts(page: Page): Promise<string[]> {
@@ -133,7 +133,7 @@ export function sheetBodyTexts(page: Page): Promise<string[]> {
     })
 }
 
-/** Intent: the sheet's action buttons, in markup order, with their primary flag. */
+/** The sheet's action buttons, in markup order, with their primary flag. */
 export function sheetActions(
   page: Page,
 ): Promise<{ readonly label: string; readonly primary: boolean }[]> {
@@ -148,7 +148,7 @@ export function sheetActions(
 }
 
 /**
- * Intent: assert the sheet shows exactly this state: title (also the dialog's name), body blocks,
+ * Assert the sheet shows exactly this state: title (also the dialog's name), body blocks,
  * actions (each a `btn`, none `btn-error`), and focus on `focus`.
  */
 export async function expectSheet(page: Page, shape: SheetShape, focus: Locator): Promise<void> {
@@ -163,7 +163,7 @@ export async function expectSheet(page: Page, shape: SheetShape, focus: Locator)
   await expect(focus).toBeFocused()
 }
 
-/** Intent: the header form `controller-status` shows: its words, badge, error tone and dot tone. */
+/** The header form `controller-status` shows: its words, badge, error tone and dot tone. */
 export async function statusForm(page: Page): Promise<{
   readonly text: string
   readonly badge: boolean
@@ -195,22 +195,22 @@ export const FORM = {
   disconnected: { text: 'Controller disconnected', badge: true, error: true, dot: 'is-error' },
 } as const
 
-/** Intent: the controller's state, read through the harness. */
+/** The controller's state, read through the harness. */
 export function midiState(page: Page): Promise<WorkspaceHarnessMidiState> {
   return page.evaluate(() => window.__workspaceHarness.midi.state())
 }
 
-/** Intent: plug a fake device in. */
+/** Plug a fake device in. */
 export function plug(page: Page, device: WorkspaceHarnessMidiDevice): Promise<void> {
   return page.evaluate((d) => window.__workspaceHarness.midi.plug(d), device)
 }
 
-/** Intent: unplug a fake device (stamped at audio time 0: no session runs). */
+/** Unplug a fake device (stamped at audio time 0: no session runs). */
 export function unplug(page: Page, device: WorkspaceHarnessMidiDevice): Promise<void> {
   return page.evaluate((id) => window.__workspaceHarness.midi.unplug(id, 0), device.id)
 }
 
-/** Intent: play one note (on, then off) on a fake device, stamped at audio time 0. */
+/** Play one note (on, then off) on a fake device, stamped at audio time 0. */
 export function play(page: Page, device: WorkspaceHarnessMidiDevice, pitch: number): Promise<void> {
   return page.evaluate(
     ([id, p]) => {
@@ -221,17 +221,17 @@ export function play(page: Page, device: WorkspaceHarnessMidiDevice, pitch: numb
   )
 }
 
-/** Intent: how many times MIDI access was requested since the page loaded. */
+/** How many times MIDI access was requested since the page loaded. */
 export function requestCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.midi.requestCount())
 }
 
-/** Intent: whether the page's audio is unlocked. */
+/** Whether the page's audio is unlocked. */
 export function audioUnlocked(page: Page): Promise<boolean> {
   return page.evaluate(() => window.__workspaceHarness.audio.isUnlocked())
 }
 
-/** Intent: choose an instrument profile through its radio, while no phrase is shown. */
+/** Choose an instrument profile through its radio, while no phrase is shown. */
 export async function chooseProfile(page: Page, name: string): Promise<void> {
   const option = page
     .getByRole('radiogroup', { name: 'Instrument profile' })
@@ -241,7 +241,7 @@ export async function chooseProfile(page: Page, name: string): Promise<void> {
 }
 
 /**
- * Intent: with `devices` plugged in first, click `Connect controller` and wait for the sheet to
+ * With `devices` plugged in first, click `Connect controller` and wait for the sheet to
  * have resolved past Requesting access.
  */
 export async function connectThroughSheet(
@@ -254,7 +254,7 @@ export async function connectThroughSheet(
 }
 
 /**
- * Intent: from a sheet at the check's Prompt for `device`, play `pitch`, Continue, and close with
+ * From a sheet at the check's Prompt for `device`, play `pitch`, Continue, and close with
  * Done: the device is connected and the sheet closed.
  */
 export async function finishCheck(

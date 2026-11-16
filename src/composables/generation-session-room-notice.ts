@@ -48,7 +48,7 @@ export interface RoomNoticeReactions {
 }
 
 /**
- * Intent: build the notice reactions and start listening for the staff's layout reports. Under the
+ * Build the notice reactions and start listening for the staff's layout reports. Under the
  * no-room cause, every report and every generation-setting change runs the room check, and room
  * regained clears the notice into a run with no score shown. Under the too-many-notes cause, a
  * wider container or a generation-setting change starts a round; a report that is not wider can
@@ -66,7 +66,7 @@ export function createRoomNoticeReactions<TResult>(
   let previousWidthPx: number | null = null
   let roomCheckSerial = 0
 
-  /** Intent: start a run, or show no phrase when the rhythm combination blocks generation. */
+  /** Start a run, or show no phrase when the rhythm combination blocks generation. */
   function runUnlessBlocked(start: 'keep_screen' | 'no_score'): void {
     if (deps.isBlocked()) {
       deps.showEmpty()
@@ -76,7 +76,7 @@ export function createRoomNoticeReactions<TResult>(
   }
 
   /**
-   * Intent: run the room check with the next phrase's key; no room gives the notice its no-room
+   * Run the room check with the next phrase's key; no room gives the notice its no-room
    * cause, room calls `onRoom` when there is one. A result is dropped when a later check, a run, or a change of the
    * notice has superseded it.
    */
@@ -98,17 +98,17 @@ export function createRoomNoticeReactions<TResult>(
     onRoom?.()
   }
 
-  /** Intent: the no-room notice clears into a new phrase, with no score shown meanwhile. */
+  /** The no-room notice clears into a new phrase, with no score shown meanwhile. */
   function clearNoRoom(): void {
     runUnlessBlocked('no_score')
   }
 
-  /** Intent: a round under the too-many-notes notice, with the notice kept. */
+  /** A round under the too-many-notes notice, with the notice kept. */
   function startRound(): void {
     runUnlessBlocked('keep_screen')
   }
 
-  /** Intent: react to one layout report; the reference width updates on every report. */
+  /** React to one layout report; the reference width updates on every report. */
   function handleLayoutInputs(inputs: StaffLayoutInputs): void {
     const wider = previousWidthPx !== null && inputs.containerWidthPx > previousWidthPx
     previousWidthPx = inputs.containerWidthPx
@@ -119,14 +119,14 @@ export function createRoomNoticeReactions<TResult>(
     }
   }
 
-  /** Intent: a generation-setting change starts a round, or re-checks the room under no room. */
+  /** A generation-setting change starts a round, or re-checks the room under no room. */
   function afterGenerationSettingChange(): void {
     if (state.roomNotice === 'notes_too_wide') startRound()
     else if (state.roomNotice === 'no_room') void checkRoomNow(clearNoRoom)
   }
 
   /**
-   * Intent: no room shows the notice and keeps any generation-failure banner; a phrase left too
+   * No room shows the notice and keeps any generation-failure banner; a phrase left too
    * wide is replaced by a run with no score shown, or gives way to no phrase when blocked.
    */
   function routeLayoutFailure(

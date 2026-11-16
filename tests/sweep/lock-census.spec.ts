@@ -330,7 +330,7 @@ describe('lock census: the tally', () => {
   )
   const SECOND = censusOfSession(EIGHT, RHYTHM_CHANGE_KINDS)
 
-  /** Intent: a tally fed both sessions and four draws, two of which drew and found no change. */
+  /** A tally fed both sessions and four draws, two of which drew and found no change. */
   function tally(): LockCensusTally {
     const result = new LockCensusTally()
     result.addSession(FIRST)

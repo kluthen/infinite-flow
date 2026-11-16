@@ -12,7 +12,7 @@ export interface SmfNoteOn {
   readonly velocity: number
 }
 
-/** Intent: the big-endian unsigned integer of `length` bytes at `at`. */
+/** The big-endian unsigned integer of `length` bytes at `at`. */
 function uint(bytes: Uint8Array, at: number, length: number): number {
   if (at + length > bytes.length) throw new Error('SMF: unexpected end of data.')
   let value = 0
@@ -20,7 +20,7 @@ function uint(bytes: Uint8Array, at: number, length: number): number {
   return value
 }
 
-/** Intent: the chunk name of four ASCII bytes at `at`. */
+/** The chunk name of four ASCII bytes at `at`. */
 function chunkName(bytes: Uint8Array, at: number): string {
   return String.fromCharCode(...bytes.subarray(at, at + 4))
 }
@@ -31,7 +31,7 @@ interface VarLength {
   readonly next: number
 }
 
-/** Intent: the variable-length quantity at `at` (at most four bytes, as the format allows). */
+/** The variable-length quantity at `at` (at most four bytes, as the format allows). */
 function varLength(bytes: Uint8Array, at: number): VarLength {
   let value = 0
   for (let position = at; position < at + 4; position += 1) {
@@ -42,7 +42,7 @@ function varLength(bytes: Uint8Array, at: number): VarLength {
   throw new Error('SMF: a variable-length quantity longer than four bytes.')
 }
 
-/** Intent: the note-ons of one track's event data, from `start` to `end`. */
+/** The note-ons of one track's event data, from `start` to `end`. */
 function trackNoteOns(bytes: Uint8Array, start: number, end: number): SmfNoteOn[] {
   const noteOns: SmfNoteOn[] = []
   let position = start
@@ -69,7 +69,7 @@ function trackNoteOns(bytes: Uint8Array, start: number, end: number): SmfNoteOn[
   return noteOns
 }
 
-/** Intent: every note-on of the file `bytes`, track by track in file order. */
+/** Every note-on of the file `bytes`, track by track in file order. */
 // @test-link [[req_played_notes_export]]
 export function smfNoteOns(bytes: Uint8Array): SmfNoteOn[] {
   if (chunkName(bytes, 0) !== 'MThd') throw new Error('SMF: no header chunk.')
@@ -94,13 +94,13 @@ export interface SmfMarker {
 /** The meta event type of a marker. */
 const MARKER = 0x06
 
-/** Intent: the position after the channel event whose data starts at `at` under `status`. */
+/** The position after the channel event whose data starts at `at` under `status`. */
 function afterChannelEvent(status: number, at: number): number {
   const kind = status & 0xf0
   return at + (kind === 0xc0 || kind === 0xd0 ? 1 : 2)
 }
 
-/** Intent: every marker of the file's first track, in file order, with its tick. */
+/** Every marker of the file's first track, in file order, with its tick. */
 export function smfMarkers(bytes: Uint8Array): SmfMarker[] {
   if (chunkName(bytes, 0) !== 'MThd') throw new Error('SMF: no header chunk.')
   const start = 8 + uint(bytes, 4, 4)

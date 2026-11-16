@@ -29,7 +29,7 @@ import { rewriteInOrder, type StoreRewrite } from './rewrite-each'
 const BODY_FROM_VERSION = 4
 
 /**
- * Intent: the data version 5 record of a stored data version 3 player preset record, v3.2's,
+ * The data version 5 record of a stored data version 3 player preset record, v3.2's,
  * stored under `key`, written by `appVersion`: every field as stored, the Seventh chords level at
  * Off; null for any record the preset codec cannot read at data version 3, which is then left as
  * it is. Never throws: any error gives null.
@@ -51,7 +51,7 @@ export function upgradedPresetV5(
 }
 
 /**
- * Intent: the data version 5 body of a stored data version 4 one, v3.2's, written by
+ * The data version 5 body of a stored data version 4 one, v3.2's, written by
  * `appVersion`: each phrase's intent with the Seventh chords level at Off, every phrase, favorite
  * mark and field as read, the doodle and the played-notes clock as read; null for any body not at
  * data version 4 or not readable by the data version 4 reader, which is then left as it is. Never
@@ -79,19 +79,19 @@ export function upgradedKeptBodyV5(
 }
 
 /**
- * Intent: the stores the step rewrites, in the order it walks them (the player presets first,
+ * The stores the step rewrites, in the order it walks them (the player presets first,
  * then the kept bodies), each record's rewrite written by `appVersion`.
  */
 function presetAndBodyRewrites(appVersion: string): readonly StoreRewrite[] {
   return [
     {
       store: 'presets',
-      /** Intent: the player preset record's data version 5 rewrite, null to leave it as it is. */
+      /** The player preset record's data version 5 rewrite, null to leave it as it is. */
       upgraded: (stored, key) => upgradedPresetV5(stored, key, appVersion),
     },
     {
       store: 'sessionBodies',
-      /** Intent: the body's data version 5 rewrite, null to leave it as it is. */
+      /** The body's data version 5 rewrite, null to leave it as it is. */
       upgraded: (stored) => upgradedKeptBodyV5(stored, appVersion),
     },
   ]

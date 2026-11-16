@@ -10,7 +10,7 @@ import { createMulberry32 } from './prng'
 import type { Seed } from './seed'
 
 /**
- * Intent: version the stream-label mixing scheme so a change to it (adding/renaming a label,
+ * Version the stream-label mixing scheme so a change to it (adding/renaming a label,
  * changing the mixing hash) is explicit and can be paired with a golden-fixture regeneration
  * rather than silently reproducing different sequences under the same registry identity.
  */
@@ -18,7 +18,7 @@ import type { Seed } from './seed'
 export const STREAM_REGISTRY_VERSION = 1
 
 /**
- * Intent: the closed, versioned registry of stream labels. Typed as a literal union (not
+ * The closed, versioned registry of stream labels. Typed as a literal union (not
  * `string`) so requesting an unregistered label is a compile-time error, not a runtime one.
  */
 // @spec-link [[module_named_stream_pseudorandomness]]
@@ -37,14 +37,14 @@ export type StreamLabel = (typeof STREAM_LABELS)[number]
 /** One named, independently-seeded pseudorandom stream. */
 export interface NamedStream {
   readonly label: StreamLabel
-  /** Intent: produce the next value from this stream as an unsigned 32-bit integer. */
+  /** Produce the next value from this stream as an unsigned 32-bit integer. */
   readonly next: () => number
-  /** Intent: produce the next value from this stream as a float in [0, 1). */
+  /** Produce the next value from this stream as a float in [0, 1). */
   readonly nextFloat: () => number
 }
 
 /**
- * Intent: mix a Seed with a versioned stream label into one 32-bit unsigned value used to seed
+ * Mix a Seed with a versioned stream label into one 32-bit unsigned value used to seed
  * that label's private Mulberry32 generator, so distinct labels under the same seed start from
  * distinct, deterministic states.
  */
@@ -54,7 +54,7 @@ function mixSeedWithLabel(seed: Seed, label: StreamLabel): number {
 }
 
 /**
- * Intent: derive the named, independent pseudorandom stream for a registered label under a
+ * Derive the named, independent pseudorandom stream for a registered label under a
  * seed. Each call returns a fresh generator with its own private state, closed over
  * independently of any other derived stream, so consuming values from one never shifts another.
  */
@@ -71,7 +71,7 @@ export function deriveNamedStream(seed: Seed, label: StreamLabel): NamedStream {
 }
 
 /**
- * Intent: version the indexed-stream mixing scheme on its own, so a change to it is explicit and
+ * Version the indexed-stream mixing scheme on its own, so a change to it is explicit and
  * never shifts the named streams above, nor they it.
  */
 // @spec-link [[module_named_stream_pseudorandomness]]
@@ -79,7 +79,7 @@ export function deriveNamedStream(seed: Seed, label: StreamLabel): NamedStream {
 export const INDEXED_STREAM_REGISTRY_VERSION = 1
 
 /**
- * Intent: the closed, versioned registry of indexed stream labels: streams drawn once per numbered
+ * The closed, versioned registry of indexed stream labels: streams drawn once per numbered
  * event of a session (mutation k), so the k-th one is known without replaying the ones before.
  */
 // @spec-link [[module_named_stream_pseudorandomness]]
@@ -95,9 +95,9 @@ export type IndexedStreamLabel = (typeof INDEXED_STREAM_LABELS)[number]
 export interface IndexedStream {
   readonly label: IndexedStreamLabel
   readonly index: number
-  /** Intent: produce the next value from this stream as an unsigned 32-bit integer. */
+  /** Produce the next value from this stream as an unsigned 32-bit integer. */
   readonly next: () => number
-  /** Intent: produce the next value from this stream as a float in [0, 1). */
+  /** Produce the next value from this stream as a float in [0, 1). */
   readonly nextFloat: () => number
 }
 
@@ -113,7 +113,7 @@ export class IndexedStreamError extends Error {
 }
 
 /**
- * Intent: derive the independent pseudorandom stream for a registered indexed label and a
+ * Derive the independent pseudorandom stream for a registered indexed label and a
  * non-negative integer index under a seed. The label and index are mixed with the seed the same
  * way a named stream's label is, so each (seed, label, index) starts from its own deterministic
  * state and no other stream's consumption shifts it. A non-integer or negative index is rejected.

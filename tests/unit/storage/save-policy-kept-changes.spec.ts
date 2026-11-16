@@ -20,7 +20,7 @@ import { freshFactory, sampleRecord } from './storage-test-doubles'
 /** The key of the kept session the changes name. */
 const KEY = 'session-1-5'
 
-/** Intent: a ready port over a fresh database holding one kept session's summary and played notes. */
+/** A ready port over a fresh database holding one kept session's summary and played notes. */
 async function portWithKeptSession(): Promise<StoragePort> {
   const port = await readyPort(freshFactory())
   await port.write('sessionSummaries', KEY, sampleRecord('kept'))
@@ -29,7 +29,7 @@ async function portWithKeptSession(): Promise<StoragePort> {
 }
 
 /**
- * Intent: a change that reads the session's summary by its key and every played-notes key, then,
+ * A change that reads the session's summary by its key and every played-notes key, then,
  * when the summary is stored, rewrites it and deletes its played notes; what it read is recorded.
  */
 function recordingChange(): { change: KeptChanges; seen: unknown[] } {
@@ -49,7 +49,7 @@ function recordingChange(): { change: KeptChanges; seen: unknown[] } {
   }
 }
 
-/** Intent: the stores and mode of every transaction opened on the database from now on. */
+/** The stores and mode of every transaction opened on the database from now on. */
 function recordTransactions(): () => string[] {
   const spy = vi.spyOn(IDBDatabase.prototype, 'transaction')
   return () =>

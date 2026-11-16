@@ -43,7 +43,7 @@ export type CanonicalRhythmDomain =
       readonly candidates: readonly RhythmCandidate[]
     }
 
-/** Intent: build the memo key string from a normalized rhythm-expansion input's identity fields. */
+/** Build the memo key string from a normalized rhythm-expansion input's identity fields. */
 // @spec-link [[module_rhythm_variety_grammar]]
 function memoKey(input: NormalizedRhythmExpansionInput): string {
   return `${input.grammarVersion}|${input.noteDensity}|${input.rhythmicVariety}|${input.silenceDensity}|${input.syncopation}|${input.tensionArc}`
@@ -83,7 +83,7 @@ type BuildState =
   | { readonly status: 'failed' }
 
 /**
- * Intent: advance one build by exactly one work step, which is at most one gesture unit of the
+ * Advance one build by exactly one work step, which is at most one gesture unit of the
  * planner's stepped build (the fast pass, then the exact re-run of a pass that found nothing); the
  * step that completes it returns the typed no-plan result as-is, or deep-freezes the complete
  * candidate list, in canonical iterator order, into the domain. Undefined while unfinished.
@@ -105,7 +105,7 @@ function advanceBuild(
 }
 
 /**
- * Intent: advance one build step by step until it completes (its domain) or `shouldYield()`
+ * Advance one build step by step until it completes (its domain) or `shouldYield()`
  * returns true between two steps (undefined).
  */
 // @spec-link [[entity_rhythm_candidate_domain]]
@@ -128,7 +128,7 @@ interface BuildJobHooks {
 }
 
 /**
- * Intent: create a build job for one normalized setting that advances step by step through
+ * Create a build job for one normalized setting that advances step by step through
  * `advanceBuild` and hands the finished entry to `hooks.onComplete` exactly once. A synchronous
  * build is this same job run once with `shouldYield = () => false`. A step that throws fails the
  * job for good (its partially built, now unusable builder is dropped, no entry is ever stored for
@@ -185,7 +185,7 @@ export interface CanonicalRhythmDomainMemo {
 }
 
 /**
- * Intent: create a fresh, empty canonical-rhythm-domain memo keyed by grammar version and the five
+ * Create a fresh, empty canonical-rhythm-domain memo keyed by grammar version and the five
  * rhythm-relevant controls of the NORMALIZED input. A lookup miss builds the domain exactly once
  * (or memoizes the typed no-plan result) and stores it, first finishing synchronously an
  * unfinished build job of the same setting; a hit returns the exact same frozen instance without
@@ -203,7 +203,7 @@ export function createCanonicalRhythmDomainMemo(
   const store = new Map<string, CanonicalRhythmDomain>()
   let pending: CanonicalRhythmDomainBuildJob | undefined
 
-  /** Intent: a build job for one setting whose end stores the entry and releases `pending`. */
+  /** A build job for one setting whose end stores the entry and releases `pending`. */
   function newJob(
     key: string,
     input: NormalizedRhythmExpansionInput,
@@ -221,7 +221,7 @@ export function createCanonicalRhythmDomainMemo(
     return job
   }
 
-  /** Intent: the stored entry of one key, which a just-completed build must have written. */
+  /** The stored entry of one key, which a just-completed build must have written. */
   function stored(key: string): CanonicalRhythmDomain {
     const domain = store.get(key)
     if (domain === undefined) throw new Error(`Canonical rhythm domain ${key} was not stored.`)
@@ -260,7 +260,7 @@ export function createCanonicalRhythmDomainMemo(
 }
 
 /**
- * Intent: the shared, module-level canonical-rhythm-domain memo instance `generatePhrase` reuses
+ * The shared, module-level canonical-rhythm-domain memo instance `generatePhrase` reuses
  * by default across every call in one process, so repeated generations/regenerations against the
  * same rhythm setting skip the expensive Step 6 enumeration.
  */

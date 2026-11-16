@@ -41,7 +41,7 @@ const JamViewStub = defineComponent({
 /** A phrase 1 shown, as the panel reads it: only its presence matters here. */
 const SHOWN = {} as KeptDoodlePhraseResult
 
-/** Intent: Jam's phrase 1 as the shell gives it: an Idle state the test changes, kept or not. */
+/** Jam's phrase 1 as the shell gives it: an Idle state the test changes, kept or not. */
 function keptPhrase(kept: boolean) {
   const state = shallowReactive<IdlePhraseState<KeptDoodlePhraseResult>>({
     latestIntent: null,
@@ -72,7 +72,7 @@ function keptPhrase(kept: boolean) {
   return { state, view }
 }
 
-/** Intent: mount the panel in Jam mode over a troubled session mode's Idle and Jam's phrase 1. */
+/** Mount the panel in Jam mode over a troubled session mode's Idle and Jam's phrase 1. */
 function mountPanel(
   phrase: ReturnType<typeof keptPhrase>,
   fake: FakeSessionController = createFakeSessionController(),
@@ -101,7 +101,7 @@ function mountPanel(
   return { wrapper, session: generation.state }
 }
 
-/** Intent: Jam's staff for the kept doodle: the viewport after the session's. */
+/** Jam's staff for the kept doodle: the viewport after the session's. */
 function keptStaff(wrapper: ReturnType<typeof mountPanel>['wrapper']) {
   return wrapper.findAll('.staff-viewport')[1]!
 }

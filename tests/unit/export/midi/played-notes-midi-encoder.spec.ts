@@ -26,12 +26,12 @@ const MARKER = 0x06
 const END_OF_TRACK = 0x2f
 const PHRASE_TICKS = 15360
 
-/** Intent: encode a played session and read the file back. */
+/** Encode a played session and read the file back. */
 function encodeAndRead(input: PlayedNotesMidiInput): SmfFile {
   return readSmf(encodePlayedNotesMidi(input))
 }
 
-/** Intent: the played track's notes as [channel, pitch, velocity, start tick, end tick]. */
+/** The played track's notes as [channel, pitch, velocity, start tick, end tick]. */
 function playedNotes(file: SmfFile): [number, number, number, number, number][] {
   return notesOf(file.tracks[1]!).map((note: SmfNote) => [
     note.channel,
@@ -42,19 +42,19 @@ function playedNotes(file: SmfFile): [number, number, number, number, number][] 
   ])
 }
 
-/** Intent: the tick of a track's end-of-track event, which must be its last event. */
+/** The tick of a track's end-of-track event, which must be its last event. */
 function endTick(track: readonly SmfEvent[]): number {
   const last = track[track.length - 1]!
   expect(last.kind === 'meta' && last.type === END_OF_TRACK).toBe(true)
   return last.tick
 }
 
-/** Intent: a two-phrase session at 120 BPM from 4 s, the given notes in phrase 2. */
+/** A two-phrase session at 120 BPM from 4 s, the given notes in phrase 2. */
 function inPhraseTwo(notes: readonly PlayedOffsets[]): PlayedNotesMidiInput {
   return playedSession(4, [120, 120], [[], notes])
 }
 
-/** Intent: `count` notes of one pitch, each attacked while every one before still sounds. */
+/** `count` notes of one pitch, each attacked while every one before still sounds. */
 function stackedAttacks(count: number): PlayedOffsets[] {
   return Array.from({ length: count }, (_, index) => ({
     pitch: 64,
@@ -210,7 +210,7 @@ describe('encodePlayedNotesMidi: channels', () => {
 const DOODLE_END_TICK = 2 * 3840
 
 /**
- * Intent: a Jam's session: a two-measure doodle at 96 BPM from its first barline at 1 s (so it
+ * A Jam's session: a two-measure doodle at 96 BPM from its first barline at 1 s (so it
  * ends at 6 s, a sixteenth note lasting 0.15625 s) holding `doodleNotes`, then two phrases at
  * 120 BPM from 6 s, phrase 1 holding one note half a second in.
  */

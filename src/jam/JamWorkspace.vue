@@ -40,7 +40,7 @@ const emit = defineEmits<{
 
 const jamStaff = ref<InstanceType<typeof JamStaff> | null>(null)
 
-/** Intent: what Jam's staff is drawn from, and nothing else of what the view is given. */
+/** What Jam's staff is drawn from, and nothing else of what the view is given. */
 const staffProps = computed<JamStaffProps>(() => ({
   tonalCenter: props.tonalCenter,
   collection: props.collection,
@@ -50,7 +50,7 @@ const staffProps = computed<JamStaffProps>(() => ({
 }))
 
 /**
- * Intent: Jam's Idle prewarm, with a trigger of its own for as long as Jam mode shows: posted on
+ * Jam's Idle prewarm, with a trigger of its own for as long as Jam mode shows: posted on
  * showing, then whenever what it reads changes the rhythm setting (the trigger dedupes the rest);
  * none while the prewarm policy is off.
  */
@@ -70,14 +70,14 @@ if (post !== null) {
   )
 }
 
-/** Intent: `Retry notation` in Jam mode: Jam's staff engraves the empty system again. */
+/** `Retry notation` in Jam mode: Jam's staff engraves the empty system again. */
 // @spec-link [[rule_jam_idle_shows_no_phrase]]
 function retryNotation(): void {
   if (jamStaff.value === null) throw new Error("Jam's view: its staff is not mounted.")
   jamStaff.value.retryNotation()
 }
 
-/** Intent: focus the staff's no-room sentence (a Jam ended into Needs more room). */
+/** Focus the staff's no-room sentence (a Jam ended into Needs more room). */
 // @spec-link [[rule_jam_ending_before_phrase_one]]
 function focusRoomNotice(): void {
   if (jamStaff.value === null) throw new Error("Jam's view: its staff is not mounted.")

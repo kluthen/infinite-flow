@@ -22,7 +22,7 @@ import { attachedComments, commentRanges, createFinding } from '../sources.mjs'
 const linkPattern = /@(spec|test)-link\s+\[\[([^\]\s]+)\]\]/gu
 
 /**
- * Intent: whether a repo-relative path lies outside the ATD scope (ATD_EXEMPT_PATHS): repo
+ * Whether a repo-relative path lies outside the ATD scope (ATD_EXEMPT_PATHS): repo
  * tooling, its specs, measurement harnesses, or a non-spec file of test plumbing.
  *
  * @param {string} path
@@ -39,7 +39,7 @@ export function isAtdScopeExempt(path) {
 }
 
 /**
- * Intent: the ATD rule: link presence, distinct-atom spread, @spec-link/@test-link by file
+ * The ATD rule: link presence, distinct-atom spread, @spec-link/@test-link by file
  * kind, phantom ids and unattached links, over script and template comments. A file outside the
  * ATD scope (isAtdScopeExempt) needs no link and has no spread limit; its links are still checked.
  *
@@ -62,7 +62,7 @@ export function checkAtd(source, context) {
 }
 
 /**
- * Intent: every ATD link of a file, from its script comments and its template comments, with its
+ * Every ATD link of a file, from its script comments and its template comments, with its
  * original line and attachment.
  *
  * @param {ParsedSource} source
@@ -82,7 +82,7 @@ function linksOf(source) {
 }
 
 /**
- * Intent: the links written in one raw comment, each at the original line it sits on.
+ * The links written in one raw comment, each at the original line it sits on.
  *
  * @param {string} text the comment's raw source
  * @param {number} firstLine the original line of the comment's first character
@@ -99,7 +99,7 @@ function linksInComment(text, firstLine, attached) {
 }
 
 /**
- * Intent: the block-relative start offsets of every comment attached to an attachable node of the
+ * The block-relative start offsets of every comment attached to an attachable node of the
  * block, at any depth of its syntax tree.
  *
  * @param {ScriptBlock} block
@@ -109,7 +109,7 @@ function attachedCommentStarts(block) {
   /** @type {Set<number>} */
   const starts = new Set()
   /**
-   * Intent: record the comments attached to `node` if it is attachable, then visit its children.
+   * Record the comments attached to `node` if it is attachable, then visit its children.
    *
    * @param {ts.Node} node
    */
@@ -124,7 +124,7 @@ function attachedCommentStarts(block) {
 }
 
 /**
- * Intent: whether an ATD link may document this node: a declaration (function, class, class
+ * Whether an ATD link may document this node: a declaration (function, class, class
  * member, interface, type alias, enum, module, variable statement, export assignment, any export
  * declaration: `export { ... }`, `export { ... } from`, `export * from`), an interface or
  * type-literal member, an enum member, an object property or method, a top-level call statement
@@ -146,7 +146,7 @@ function isAttachable(node) {
 }
 
 /**
- * Intent: whether a node is a declaration a link may document: function, class, class member,
+ * Whether a node is a declaration a link may document: function, class, class member,
  * interface, type alias, enum, module, variable statement or export assignment.
  *
  * @param {ts.Node} node
@@ -171,7 +171,7 @@ function isDeclaration(node) {
 }
 
 /**
- * Intent: whether a node is a member of an interface or a type literal: a property, method, call,
+ * Whether a node is a member of an interface or a type literal: a property, method, call,
  * construct or index signature.
  *
  * @param {ts.Node} node
@@ -188,7 +188,7 @@ function isMemberSignature(node) {
 }
 
 /**
- * Intent: whether an expression statement may carry a link: a test-framework call at any depth,
+ * Whether an expression statement may carry a link: a test-framework call at any depth,
  * or any call that is a direct statement of the block's source file once `void`, `await` and
  * parentheses are unwrapped.
  *
@@ -201,7 +201,7 @@ function isLinkableStatement(statement) {
 }
 
 /**
- * Intent: an expression with its `void`, `await` and parenthesis wrappers removed, at any nesting.
+ * An expression with its `void`, `await` and parenthesis wrappers removed, at any nesting.
  *
  * @param {ts.Expression} expression
  * @returns {ts.Expression}
@@ -219,7 +219,7 @@ function unwrapped(expression) {
 }
 
 /**
- * Intent: whether an expression (awaited or not) is a call whose root callee is a test-framework
+ * Whether an expression (awaited or not) is a call whose root callee is a test-framework
  * name, through property accesses and chained calls: `it(...)`, `it.each([...])(...)`,
  * `test.describe(...)`, `await test.step(...)`.
  *
@@ -243,7 +243,7 @@ function isTestFrameworkCall(expression) {
 }
 
 /**
- * Intent: whether a file without any link has nothing to link: a non-.vue file whose statements
+ * Whether a file without any link has nothing to link: a non-.vue file whose statements
  * are all imports, import-equals or `export ... from` re-exports (triple-slash directives are
  * comments, so a file of only those has no statement at all).
  *
@@ -263,7 +263,7 @@ function hasNothingToLink(source) {
 }
 
 /**
- * Intent: the distinct-atom spread finding of a file, at line 1: an error above
+ * The distinct-atom spread finding of a file, at line 1: an error above
  * ATD_ERROR_DISTINCT distinct ids, a warning above ATD_WARN_DISTINCT, nothing otherwise.
  *
  * @param {ParsedSource} source
@@ -285,7 +285,7 @@ function spreadFindings(source, links) {
 }
 
 /**
- * Intent: the findings of one link, at its line: a @spec-link in a test file (error), a
+ * The findings of one link, at its line: a @spec-link in a test file (error), a
  * @test-link in a source file (warning), a phantom id (error), an unattached link (error).
  *
  * @param {ParsedSource} source

@@ -17,7 +17,7 @@ export type VexflowEngraverModule = typeof import('./vexflow-engraver')
 
 let modulePromise: Promise<VexflowEngraverModule> | null = null
 
-/** Intent: turn any thrown value into a readable message, since a caught value need not be an Error. */
+/** Turn any thrown value into a readable message, since a caught value need not be an Error. */
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }

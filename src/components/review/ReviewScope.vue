@@ -26,7 +26,7 @@ const emit = defineEmits<{
 const noteId = useId()
 
 /**
- * Intent: the scope's two choices, `Favorites only` disabled and named by its note while the
+ * The scope's two choices, `Favorites only` disabled and named by its note while the
  * session has no favorite.
  */
 // @spec-link [[rule_favorites_only_export]]
@@ -38,7 +38,7 @@ const options = computed((): readonly SegmentedControlOption[] => {
   ]
 })
 
-/** Intent: ask the page for the picked scope, refusing a value the control does not offer. */
+/** Ask the page for the picked scope, refusing a value the control does not offer. */
 // @spec-link [[rule_favorites_only_export]]
 function select(value: string): void {
   if (value !== 'wholeSession' && value !== 'favoritesOnly') {

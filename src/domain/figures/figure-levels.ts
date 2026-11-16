@@ -8,7 +8,7 @@ import type { MusicalProfile } from '../controls/generation-controls'
 import { deepFreeze } from '../events/deep-freeze'
 
 /**
- * Intent: the seven figures' internal ids, in the fixed order every value, key and record listing
+ * The seven figures' internal ids, in the fixed order every value, key and record listing
  * them follows. Internal and never changed, since replay keys and stored records hold them.
  */
 // @spec-link [[module_figure_levels]]
@@ -23,12 +23,12 @@ export const FIGURE_IDS = deepFreeze([
   'chromaticEnclosure',
 ] as const)
 
-/** Intent: one figure's internal id. */
+/** One figure's internal id. */
 // @spec-link [[module_figure_levels]]
 export type FigureId = (typeof FIGURE_IDS)[number]
 
 /**
- * Intent: the four levels' internal ids, in increasing order. The interface's labels and the
+ * The four levels' internal ids, in increasing order. The interface's labels and the
  * spec's working names can change without touching them.
  */
 // @spec-link [[module_figure_levels]]
@@ -40,17 +40,17 @@ export const FIGURE_LEVEL_IDS = deepFreeze([
   'stronglyFavored',
 ] as const)
 
-/** Intent: one figure's level. */
+/** One figure's level. */
 // @spec-link [[module_figure_levels]]
 // @spec-link [[req_embellishment_figure_levels]]
 export type FigureLevel = (typeof FIGURE_LEVEL_IDS)[number]
 
-/** Intent: exactly one level for each of the seven figures, no more and no fewer. */
+/** Exactly one level for each of the seven figures, no more and no fewer. */
 // @spec-link [[module_figure_levels]]
 // @spec-link [[req_embellishment_figure_levels]]
 export type FigureLevels = { readonly [F in FigureId]: FigureLevel }
 
-/** Intent: Neutral's levels: passing, accented passing and neighbor tones as today, others off. */
+/** Neutral's levels: passing, accented passing and neighbor tones as today, others off. */
 // @spec-link [[module_figure_levels]]
 // @spec-link [[rule_neutral_and_jazz_figure_levels]]
 export const NEUTRAL_FIGURE_LEVELS: FigureLevels = deepFreeze({
@@ -63,7 +63,7 @@ export const NEUTRAL_FIGURE_LEVELS: FigureLevels = deepFreeze({
   chromaticEnclosure: 'off',
 })
 
-/** Intent: Jazz's levels: Neutral's, with the chromatic approach and enclosure as today. */
+/** Jazz's levels: Neutral's, with the chromatic approach and enclosure as today. */
 // @spec-link [[module_figure_levels]]
 // @spec-link [[rule_neutral_and_jazz_figure_levels]]
 export const JAZZ_FIGURE_LEVELS: FigureLevels = deepFreeze({
@@ -82,7 +82,7 @@ const LEVELS_BY_PROFILE: Readonly<Record<MusicalProfile, FigureLevels>> = deepFr
 })
 
 /**
- * Intent: the one mapping from a musical profile to levels, wherever a profile still stands for
+ * The one mapping from a musical profile to levels, wherever a profile still stands for
  * them. It takes the profile's name alone, since being customized never changed the figures, and
  * returns a fresh frozen copy, keys in FIGURE_IDS order.
  */
@@ -92,21 +92,21 @@ export function levelsForProfile(profile: MusicalProfile): FigureLevels {
   return copyLevels(LEVELS_BY_PROFILE[profile])
 }
 
-/** Intent: a fresh deep-frozen copy of levels, keys in FIGURE_IDS order. */
+/** A fresh deep-frozen copy of levels, keys in FIGURE_IDS order. */
 function copyLevels(levels: FigureLevels): FigureLevels {
   return deepFreeze(
     Object.fromEntries(FIGURE_IDS.map((figure) => [figure, levels[figure]])) as FigureLevels,
   )
 }
 
-/** Intent: whether the levels let the generator write the figure as a free figure: not off. */
+/** Whether the levels let the generator write the figure as a free figure: not off. */
 // @spec-link [[module_figure_levels]]
 export function allowsFreeFigure(levels: FigureLevels, figure: FigureId): boolean {
   return levels[figure] !== 'off'
 }
 
 /**
- * Intent: whether the levels let the generator write a note from outside the key and mode:
+ * Whether the levels let the generator write a note from outside the key and mode:
  * exactly when the chromatic approach or the chromatic enclosure is not off.
  */
 // @spec-link [[module_figure_levels]]
@@ -128,12 +128,12 @@ export class FigureLevelsError extends Error {
   }
 }
 
-/** Intent: whether a value is a plain, non-null, non-array object. */
+/** Whether a value is a plain, non-null, non-array object. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/** Intent: what a value that is not a plain object is, for a refusal's message. */
+/** What a value that is not a plain object is, for a refusal's message. */
 function describeNonObject(value: unknown): string {
   if (value === null) return 'null'
   if (Array.isArray(value)) return 'an array'
@@ -141,7 +141,7 @@ function describeNonObject(value: unknown): string {
 }
 
 /**
- * Intent: read an untrusted figure-levels value: a plain object holding exactly the seven figure
+ * Read an untrusted figure-levels value: a plain object holding exactly the seven figure
  * ids, each a known level. A non-object, a missing figure, an unknown or extra key, or an unknown
  * level throws a FigureLevelsError naming the cause; nothing is defaulted. Returns a fresh
  * deep-frozen value, keys in FIGURE_IDS order.

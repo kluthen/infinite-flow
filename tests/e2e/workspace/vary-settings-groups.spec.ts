@@ -77,13 +77,13 @@ function shownGroups(pressed: Readonly<Record<VaryGroup, boolean>>): string[] {
   return VARY_GROUPS.map(({ group, label }) => `${label}: ${pressed[group]}`)
 }
 
-/** Intent: every `generate` call's record since the page loaded. */
+/** Every `generate` call's record since the page loaded. */
 function requests(page: Page): Promise<readonly WorkspaceHarnessGenerationRequest[]> {
   return page.evaluate(() => window.__workspaceHarness.generationRequests())
 }
 
 /**
- * Intent: the settings the controls show from the count-in (the start settings) to just past
+ * The settings the controls show from the count-in (the start settings) to just past
  * phrase `last`'s start, phrase by phrase: index 0 the count-in's, index n - 1 phrase n's.
  */
 async function shownThrough(page: Page, last: number): Promise<WorkspaceHarnessSettings[]> {
@@ -99,7 +99,7 @@ async function shownThrough(page: Page, last: number): Promise<WorkspaceHarnessS
   return shown
 }
 
-/** Intent: the groups each phrase from 2 on moved, by phrase number (empty arrays left out). */
+/** The groups each phrase from 2 on moved, by phrase number (empty arrays left out). */
 function movesByPhrase(shown: readonly WorkspaceHarnessSettings[]): Record<number, VaryGroup[]> {
   const moves: Record<number, VaryGroup[]> = {}
   for (let index = 1; index < shown.length; index += 1) {
@@ -110,7 +110,7 @@ function movesByPhrase(shown: readonly WorkspaceHarnessSettings[]): Record<numbe
 }
 
 /**
- * Intent: on a loaded page with Vary settings on, make phrase 1 (seeded 7) the one a session with
+ * On a loaded page with Vary settings on, make phrase 1 (seeded 7) the one a session with
  * session seed `sessionSeed` starts from, and start it.
  */
 async function startSeeded(page: Page, sessionSeed: number): Promise<void> {
@@ -120,7 +120,7 @@ async function startSeeded(page: Page, sessionSeed: number): Promise<void> {
 }
 
 /**
- * Intent: with phrase 1 shown and Vary settings on, the lock on and every group but Rhythm off:
+ * With phrase 1 shown and Vary settings on, the lock on and every group but Rhythm off:
  * the choices that leave Vary settings no move.
  */
 async function leaveNoMove(page: Page): Promise<void> {
@@ -132,7 +132,7 @@ async function leaveNoMove(page: Page): Promise<void> {
   await expect.poll(async () => (await sessionChoices(page)).varySettingsAvailable).toBe(false)
 }
 
-/** Intent: Vary settings shows its unavailable state: `On` disabled and named, `Off` checked. */
+/** Vary settings shows its unavailable state: `On` disabled and named, `Off` checked. */
 async function expectUnavailable(page: Page): Promise<void> {
   await expect(radio(page, 'Vary settings', 'On')).toBeDisabled()
   expect(await checkedIn(page, 'Vary settings')).toBe('Off')
@@ -142,7 +142,7 @@ async function expectUnavailable(page: Page): Promise<void> {
   await expect(whatMayVaryList(page)).toBeVisible()
 }
 
-/** Intent: Vary settings shows the stored `On` again, enabled, with no unavailable note. */
+/** Vary settings shows the stored `On` again, enabled, with no unavailable note. */
 async function expectOnAgain(page: Page): Promise<void> {
   await expect(radio(page, 'Vary settings', 'On')).toBeEnabled()
   expect(await checkedIn(page, 'Vary settings')).toBe('On')

@@ -72,34 +72,34 @@ const BREAKPOINTS = [
 /** The session seed every phrase 1 of the pre-generation case is published with. */
 const SESSION_SEED = 4242
 
-/** Intent: the Seventh chords radiogroup. */
+/** The Seventh chords radiogroup. */
 function control(page: Page): Locator {
   return page.getByRole('radiogroup', { name: 'Seventh chords', exact: true })
 }
 
-/** Intent: the field-group holding the control. */
+/** The field-group holding the control. */
 function field(page: Page): Locator {
   return page.locator('.field-group').filter({ has: control(page) })
 }
 
-/** Intent: the checked segment's label. */
+/** The checked segment's label. */
 function checked(page: Page): Promise<string> {
   return control(page).locator('[role="radio"][aria-checked="true"]').innerText()
 }
 
-/** Intent: choose `label` and wait until the control shows it checked. */
+/** Choose `label` and wait until the control shows it checked. */
 async function choose(page: Page, label: string): Promise<void> {
   const segment = control(page).getByRole('radio', { name: label, exact: true })
   await segment.click()
   await expect(segment).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: how many `generate` calls the page has made. */
+/** How many `generate` calls the page has made. */
 async function requestCount(page: Page): Promise<number> {
   return (await generationRecords(page)).length
 }
 
-/** Intent: regenerate phrase 1 with `seed` and give the level its player request carried. */
+/** Regenerate phrase 1 with `seed` and give the level its player request carried. */
 async function regeneratedLevel(page: Page, seed: number): Promise<string | undefined> {
   const from = await requestCount(page)
   await queueSeeds(page, [seed])
@@ -109,11 +109,11 @@ async function regeneratedLevel(page: Page, seed: number): Promise<string | unde
   return records.at(-1)!.chordFamilies['seventh-chords']
 }
 
-/** Intent: the field's box and whether every segment and the note sit inside it, none cut. */
+/** The field's box and whether every segment and the note sit inside it, none cut. */
 function fieldFit(page: Page) {
   return field(page).evaluate((element) => {
     const box = element.getBoundingClientRect()
-    /** Intent: whether `child` lies within the field's inline extent. */
+    /** Whether `child` lies within the field's inline extent. */
     const inside = (child: Element) => {
       const inner = child.getBoundingClientRect()
       return inner.left >= box.left - 0.5 && inner.right <= box.right + 0.5
@@ -130,7 +130,7 @@ function fieldFit(page: Page) {
   })
 }
 
-/** Intent: axe finds nothing inside the foundation group, which holds the control. */
+/** Axe finds nothing inside the foundation group, which holds the control. */
 async function expectNoAxeViolations(page: Page, context: string): Promise<void> {
   await page.waitForFunction(() =>
     document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),

@@ -5,7 +5,7 @@
  */
 
 /**
- * Intent: the injected version, checked once at load: a build that injected no non-empty
+ * The injected version, checked once at load: a build that injected no non-empty
  * version fails loudly here instead of writing records nothing could tell apart.
  */
 function checkedAppVersion(version: unknown): string {

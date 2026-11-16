@@ -36,7 +36,7 @@ const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
 })
 
 /**
- * Intent: build one real cheap-to-search GenerationIntent, distinguished by requestId/seed,
+ * Build one real cheap-to-search GenerationIntent, distinguished by requestId/seed,
  * holding the given rhythm lock group and steering block, if any.
  */
 export function buildIntent(

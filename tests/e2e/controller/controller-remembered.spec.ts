@@ -36,17 +36,17 @@ function allowed(...devices: WorkspaceHarnessMidiDevice[]) {
   return { atLoad: { permission: 'granted' as const, devices } }
 }
 
-/** Intent: the raw records of the `controller` store, read through the app's port. */
+/** The raw records of the `controller` store, read through the app's port. */
 function controllerRecords(page: Page): Promise<unknown[]> {
   return page.evaluate(() => window.__workspaceHarness.storage.records('controller'))
 }
 
-/** Intent: how many writes, deletes and batches reached the app's port since the load. */
+/** How many writes, deletes and batches reached the app's port since the load. */
 function portChanges(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.storage.portChanges())
 }
 
-/** Intent: connect `device`, the only one plugged in, through the sheet, and close it. */
+/** Connect `device`, the only one plugged in, through the sheet, and close it. */
 async function connectOnly(page: Page): Promise<void> {
   await clickControllerStatus(page)
   await expect(sheet(page).locator('#sheet-title')).toHaveText('Check your controller')
@@ -54,14 +54,14 @@ async function connectOnly(page: Page): Promise<void> {
   await expect(sheet(page)).toBeHidden()
 }
 
-/** Intent: Disconnect the connected controller through its sheet. */
+/** Disconnect the connected controller through its sheet. */
 async function disconnect(page: Page): Promise<void> {
   await clickControllerStatus(page)
   await sheetAction(page, 'Disconnect').click()
   await expect(sheet(page)).toBeHidden()
 }
 
-/** Intent: a first visit that connects KEYS, the browser allowing MIDI access from then on. */
+/** A first visit that connects KEYS, the browser allowing MIDI access from then on. */
 async function rememberKeys(page: Page): Promise<void> {
   await gotoControllerHarness(page, allowed(KEYS))
   await connectOnly(page)

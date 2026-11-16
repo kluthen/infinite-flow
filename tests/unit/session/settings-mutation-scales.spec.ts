@@ -97,7 +97,7 @@ const PRESET_HELD: readonly MutableSetting[] = [
 /** The written key and the mode: a step of either never changes the selection. */
 const KEY_OR_MODE: readonly MutableSetting[] = ['tonalCenter', 'collection']
 
-/** Intent: whether a step marks Custom: a preset-held control's, or a figure level's. */
+/** Whether a step marks Custom: a preset-held control's, or a figure level's. */
 function marksCustom(setting: MutableSetting): boolean {
   return PRESET_HELD.includes(setting) || setting === 'figureLevels'
 }
@@ -228,7 +228,7 @@ describe('settings-mutation scales', () => {
   })
 })
 
-/** Intent: Neutral's levels with one figure at a level. */
+/** Neutral's levels with one figure at a level. */
 function levelsWith(figure: (typeof FIGURE_IDS)[number], level: FigureLevel): FigureLevels {
   return { ...NEUTRAL_FIGURE_LEVELS, [figure]: level }
 }

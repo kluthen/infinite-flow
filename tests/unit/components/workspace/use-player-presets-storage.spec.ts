@@ -71,7 +71,7 @@ const SAVED: SavedSettings = {
   presetSelection: { kind: 'custom', baseId: 'player-1' },
 }
 
-/** Intent: a port refusing every batch that touches the presets store while `refusing` says. */
+/** A port refusing every batch that touches the presets store while `refusing` says. */
 function refusingPresetWrites(real: StoragePort, refusing: () => boolean): StoragePort {
   return {
     ...real,
@@ -82,7 +82,7 @@ function refusingPresetWrites(real: StoragePort, refusing: () => boolean): Stora
   }
 }
 
-/** Intent: load the saved data of the database `factory` holds, as a page opening does. */
+/** Load the saved data of the database `factory` holds, as a page opening does. */
 function load(factory: IDBFactory): Promise<SavedDataLoad> {
   return loadSavedData({
     openPort: () => openStoragePort({ factory, appVersion: TEST_APP_VERSION }),
@@ -92,7 +92,7 @@ function load(factory: IDBFactory): Promise<SavedDataLoad> {
 }
 
 /**
- * Intent: a visit over a database seeded with `SAVED` and Late night: the session started from
+ * A visit over a database seeded with `SAVED` and Late night: the session started from
  * what the load read, saving its settings through the visit's saves, the composable over them,
  * and the storage manager's calls; preset writes refused while `refusePresets` is true.
  */
@@ -140,7 +140,7 @@ async function visit() {
   return { factory, flags, fit, presets, refused, persistCalls: () => manager.calls }
 }
 
-/** Intent: the requests for persistent storage the storage manager was made. */
+/** The requests for persistent storage the storage manager was made. */
 function persistRequests(calls: readonly string[]): readonly string[] {
   return calls.filter((call) => call === 'persist')
 }

@@ -39,7 +39,7 @@ const MARKER = '.rhythm-renders'
  */
 
 /**
- * Intent: the output folder, from `--out <dir>` or the default, crashing on any other argument.
+ * The output folder, from `--out <dir>` or the default, crashing on any other argument.
  * @param {readonly string[]} args
  * @returns {string}
  */
@@ -56,7 +56,7 @@ function parseOut(args) {
 }
 
 /**
- * Intent: crash unless the output folder is absent, empty or this script's own (marked), so
+ * Crash unless the output folder is absent, empty or this script's own (marked), so
  * nothing else is ever deleted; checked before the slow build.
  * @param {string} out
  */
@@ -68,7 +68,7 @@ function assertOwnOut(out) {
 }
 
 /**
- * Intent: replace the output folder by an empty one holding only the marker.
+ * Replace the output folder by an empty one holding only the marker.
  * @param {string} out
  */
 function resetOut(out) {
@@ -79,7 +79,7 @@ function resetOut(out) {
 }
 
 /**
- * Intent: narrow the loaded module to the one function this script calls, crashing if missing.
+ * Narrow the loaded module to the one function this script calls, crashing if missing.
  * @param {unknown} loaded
  * @returns {() => RenderBuild}
  */
@@ -91,7 +91,7 @@ function requireBuild(loaded) {
 }
 
 /**
- * Intent: print what was written: the sets with their letters, the locked rhythms and kinds.
+ * Print what was written: the sets with their letters, the locked rhythms and kinds.
  * @param {string} out
  * @param {RenderBuild} build
  */

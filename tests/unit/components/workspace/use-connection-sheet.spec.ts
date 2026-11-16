@@ -25,7 +25,7 @@ afterEach(() => {
   loader.mockReset()
 })
 
-/** Intent: the host over `rig`, between sessions, showing `form`. */
+/** The host over `rig`, between sessions, showing `form`. */
 function hostOver(rig: ControllerRig, form: ControllerStatusForm = { kind: 'connect' }) {
   return useConnectionSheet({
     midi: rig.controller,
@@ -39,7 +39,7 @@ function hostOver(rig: ControllerRig, form: ControllerStatusForm = { kind: 'conn
 }
 
 /**
- * Intent: run `act` and return the rejections left unhandled meanwhile. While a listener of the
+ * Run `act` and return the rejections left unhandled meanwhile. While a listener of the
  * test's own is on the process, Vitest treats an unhandled rejection as handled by the test
  * instead of failing the run; the listener is removed afterwards.
  */

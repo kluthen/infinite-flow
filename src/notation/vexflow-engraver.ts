@@ -153,7 +153,7 @@ export async function ensureNotationFonts(): Promise<void> {
   }
 }
 
-/** Intent: build one measure's StaveNote glyphs, with accidentals, dots and chord symbols attached. */
+/** Build one measure's StaveNote glyphs, with accidentals, dots and chord symbols attached. */
 function buildOneMeasureGlyphs(
   measure: WrittenMeasure,
   clef: InstrumentClef,
@@ -163,12 +163,12 @@ function buildOneMeasureGlyphs(
   return glyphs
 }
 
-/** Intent: build the four measures' StaveNote glyphs, with accidentals, dots and chord symbols attached. */
+/** Build the four measures' StaveNote glyphs, with accidentals, dots and chord symbols attached. */
 function buildMeasureGlyphs(phrase: WrittenPhrase): readonly (readonly StaveNote[])[] {
   return phrase.measures.map((measure) => buildOneMeasureGlyphs(measure, phrase.clef))
 }
 
-/** Intent: build one strict 4/4 Voice per measure, populated with that measure's glyphs. */
+/** Build one strict 4/4 Voice per measure, populated with that measure's glyphs. */
 function buildMeasureVoices(glyphs: readonly (readonly StaveNote[])[]): readonly Voice[] {
   return glyphs.map((measureGlyphs) => {
     const voice = new Voice({ numBeats: 4, beatValue: 4 }).setStrict(true)
@@ -178,7 +178,7 @@ function buildMeasureVoices(glyphs: readonly (readonly StaveNote[])[]): readonly
 }
 
 /**
- * Intent: build every measure's beams from the phrase's written beam groups. `new Beam(...)` calls
+ * Build every measure's beams from the phrase's written beam groups. `new Beam(...)` calls
  * `note.setBeam()` on every grouped note, which is what suppresses that note's individual flag; this
  * must therefore run before the notes are formatted or drawn, not after. Each beam keeps the stem
  * direction its notes were built with (decided by the written phrase), never recomputing one.
@@ -191,7 +191,7 @@ function buildPhraseBeams(
 }
 
 /**
- * Intent: how far one measure's chord symbols fall short of fitting (`planChordSymbolShortfall`)
+ * How far one measure's chord symbols fall short of fitting (`planChordSymbolShortfall`)
  * when the measure is drawn `width` units wide: on a scratch copy of its glyphs, beams and voice,
  * formatted on a scratch stave of that width as a measure inside a system is, each symbol from
  * where VexFlow starts drawing it over its note to that start plus its full width, the closing
@@ -219,7 +219,7 @@ function chordSymbolShortfall(phrase: WrittenPhrase, measureIndex: number, width
 }
 
 /**
- * Intent: measure each measure's minimum content width (raw units): its voice's, via a throwaway
+ * Measure each measure's minimum content width (raw units): its voice's, via a throwaway
  * Formatter; a measure carrying a seventh chord symbol is widened where its chord symbols need
  * more (`planMeasureMinWidth`), so each symbol's full width counts and two symbols of one measure
  * keep a staff space between them. A measure of triad symbols only keeps its voice's width, as in
@@ -240,7 +240,7 @@ function measureMinWidths(
   return [widths[0]!, widths[1]!, widths[2]!, widths[3]!]
 }
 
-/** Intent: flatten every measure's glyphs and tieToNext flags in phrase order, for cross-measure ties. */
+/** Flatten every measure's glyphs and tieToNext flags in phrase order, for cross-measure ties. */
 function flattenGlyphs(
   phrase: WrittenPhrase,
   glyphs: readonly (readonly StaveNote[])[],
@@ -257,7 +257,7 @@ function flattenGlyphs(
 type GlyphIdentities = readonly (readonly (ExpectedNoteIdentity | null)[])[]
 
 /**
- * Intent: pair each note glyph of one system's measures with where its parts were drawn and the
+ * Pair each note glyph of one system's measures with where its parts were drawn and the
  * attack it sounds as; rests are left out, since they carry no identity.
  */
 function systemNoteGlyphs(
@@ -279,13 +279,13 @@ function systemNoteGlyphs(
   )
 }
 
-/** Intent: turn any thrown value into a readable message, since a caught value need not be an Error. */
+/** Turn any thrown value into a readable message, since a caught value need not be an Error. */
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
 /**
- * Intent: pass a typed NotationError through, and wrap any other thrown value (a VexFlow
+ * Pass a typed NotationError through, and wrap any other thrown value (a VexFlow
  * `RuntimeError`, for example) as `notation_engraving_failed` with the original as `cause`.
  */
 function asNotationError(error: unknown): NotationError {
@@ -308,7 +308,7 @@ interface PhrasePlanning {
 }
 
 /**
- * Intent: plan the phrase's layout: build its glyphs, beams and voices, measure its leading and
+ * Plan the phrase's layout: build its glyphs, beams and voices, measure its leading and
  * measure widths, and run the layout planner with the shared system-position size. The one
  * planning path both drawing and the fit check take, so they can never disagree; it draws
  * nothing and touches no DOM.
@@ -338,7 +338,7 @@ function planPhraseLayout(
   return { glyphs, beams, voices, leadingWidth, outcome }
 }
 
-/** Intent: turn the planner's two layout failures into their distinct typed notation errors. */
+/** Turn the planner's two layout failures into their distinct typed notation errors. */
 function layoutFailureError(outcome: StaffNoRoom | StaffNotesTooWide): NotationError {
   if (outcome.kind === 'no_room') {
     return new NotationError(
@@ -357,7 +357,7 @@ function layoutFailureError(outcome: StaffNoRoom | StaffNotesTooWide): NotationE
 }
 
 /**
- * Intent: the half-open range, among the phrase's glyphs in phrase order, of the glyphs of the
+ * The half-open range, among the phrase's glyphs in phrase order, of the glyphs of the
  * given consecutive measures (the range a system's ties are built over).
  */
 function glyphRange(phrase: WrittenPhrase, measures: readonly number[]): readonly [number, number] {
@@ -461,7 +461,7 @@ function drawPhraseSystems(
   return { plan, systems }
 }
 
-/** Intent: the geometry every system of a phrase shares, from the phrase's plan. */
+/** The geometry every system of a phrase shares, from the phrase's plan. */
 function planGeometry(plan: SystemLayoutPlan): Omit<EngravedSystem, keyof DrawnSystem> {
   return {
     staffSpacePx: plan.staffSpacePx,
@@ -473,7 +473,7 @@ function planGeometry(plan: SystemLayoutPlan): Omit<EngravedSystem, keyof DrawnS
 }
 
 /**
- * Intent: clear the hosts, then draw into them; should drawing throw, clear them again rather than
+ * Clear the hosts, then draw into them; should drawing throw, clear them again rather than
  * leave partial notation, and rethrow it as a typed NotationError (`asNotationError`).
  */
 function drawIntoClearedHosts<T>(hosts: readonly HTMLElement[], draw: () => T): T {

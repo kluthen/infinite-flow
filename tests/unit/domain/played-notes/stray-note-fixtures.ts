@@ -30,7 +30,7 @@ const FIXTURE_DIR = join(process.cwd(), 'tests/fixtures/stray-notes')
 let fixtures: readonly StrayNoteFixture[] | null = null
 
 /**
- * Intent: the seconds of a tick of a file with one tempo, crashing on a file with a tempo change:
+ * The seconds of a tick of a file with one tempo, crashing on a file with a tempo change:
  * every v2.0 played-notes file of a session at one tempo has exactly one.
  */
 function secondsPerTick(path: string, division: number, track: Parameters<typeof tempoMap>[0]) {
@@ -41,7 +41,7 @@ function secondsPerTick(path: string, division: number, track: Parameters<typeof
   return only.microsecondsPerQuarter / division / 1e6
 }
 
-/** Intent: one recording's notes, from every track after the conductor track, in onset order. */
+/** One recording's notes, from every track after the conductor track, in onset order. */
 function readFixture(name: string): StrayNoteFixture {
   const path = join(FIXTURE_DIR, name)
   const smf = readSmf(new Uint8Array(readFileSync(path)))
@@ -60,7 +60,7 @@ function readFixture(name: string): StrayNoteFixture {
   return { name, notes }
 }
 
-/** Intent: the five M1 recordings, by file name order. */
+/** The five M1 recordings, by file name order. */
 export function strayNoteFixtures(): readonly StrayNoteFixture[] {
   fixtures ??= readdirSync(FIXTURE_DIR)
     .filter((name) => name.endsWith('.mid'))
@@ -70,7 +70,7 @@ export function strayNoteFixtures(): readonly StrayNoteFixture[] {
   return fixtures
 }
 
-/** Intent: a note's length in seconds. */
+/** A note's length in seconds. */
 export function lengthOf(note: Pick<FixtureNote, 'onsetAt' | 'releaseAt'>): number {
   return note.releaseAt - note.onsetAt
 }

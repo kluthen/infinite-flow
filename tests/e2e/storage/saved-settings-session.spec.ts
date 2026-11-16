@@ -63,17 +63,17 @@ const REGISTER_ON_PHRASE_3 = 25
 const JAZZ_DESCRIPTION =
   'Eighth notes and offbeats, now and then with a short note from outside the key. Also try raising Seventh chords, the usual chords of jazz.'
 
-/** Intent: whether a radio is the checked option of its group. */
+/** Whether a radio is the checked option of its group. */
 async function expectChecked(page: Page, group: string, option: string): Promise<void> {
   await expect(radio(page, group, option)).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: the tempo stepper. */
+/** The tempo stepper. */
 function tempoStepper(page: Page): Locator {
   return page.getByRole('spinbutton', { name: 'Tempo' })
 }
 
-/** Intent: the tempo field's notes (the reached-tempo note, when one shows). */
+/** The tempo field's notes (the reached-tempo note, when one shows). */
 function tempoFieldNotes(page: Page): Locator {
   return page
     .locator('.field-group')
@@ -82,7 +82,7 @@ function tempoFieldNotes(page: Page): Locator {
 }
 
 /**
- * Intent: make one more change, the theme `Dark`, and wait until it is stored: saves are written
+ * Make one more change, the theme `Dark`, and wait until it is stored: saves are written
  * in order, so every save made before it has landed too.
  */
 async function afterEarlierSaves(page: Page): Promise<void> {
@@ -90,7 +90,7 @@ async function afterEarlierSaves(page: Page): Promise<void> {
   await untilStored(page, { theme: 'Dark' })
 }
 
-/** Intent: run the session clock until phrase 3 sounds, phrases 1 and 2 at 90 BPM. */
+/** Run the session clock until phrase 3 sounds, phrases 1 and 2 at 90 BPM. */
 async function toPhraseThree(page: Page): Promise<void> {
   const { countInEndsAt } = await sessionTimeline(page)
   await clockTo(page, countInEndsAt + 7 * measure(90) + 0.1)
@@ -98,7 +98,7 @@ async function toPhraseThree(page: Page): Promise<void> {
 }
 
 /**
- * Intent: the controls a reload compares, without the ones a reload with no controller attached
+ * The controls a reload compares, without the ones a reload with no controller attached
  * shows otherwise (`Rising tempo`) and the theme a test changes to wait for the saves.
  */
 function comparedControls(shown: ShownControls) {
@@ -234,7 +234,7 @@ declare global {
 }
 
 /**
- * Intent: before any page script runs, wrap every IndexedDB object store write (`put`, `add`,
+ * Before any page script runs, wrap every IndexedDB object store write (`put`, `add`,
  * `delete`, `clear`) so each is recorded in `window.__writes` with the phase the test set in
  * `window.__phase` when it was made.
  */
@@ -262,7 +262,7 @@ async function installWriteSpy(page: Page): Promise<void> {
   })
 }
 
-/** Intent: mark the writes made from now on with `phase`. */
+/** Mark the writes made from now on with `phase`. */
 function setPhase(page: Page, phase: string): Promise<void> {
   return page.evaluate((value) => {
     window.__phase = value
@@ -270,7 +270,7 @@ function setPhase(page: Page, phase: string): Promise<void> {
 }
 
 /**
- * Intent: the writes the spy saw in `phase`, ordered by store and key, a kept session's key
+ * The writes the spy saw in `phase`, ordered by store and key, a kept session's key
  * written as its form, `session-{startedAt}-{sessionSeed}`.
  */
 async function writesIn(page: Page, phase: string): Promise<string[]> {

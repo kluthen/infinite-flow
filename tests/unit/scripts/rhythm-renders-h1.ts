@@ -50,13 +50,13 @@ export interface BandPick {
   readonly source: 'domain' | 'doodle'
 }
 
-/** Intent: one start, frozen. */
+/** One start, frozen. */
 function start(tick: number, kind: RhythmStart['kind']): RhythmStart {
   return Object.freeze({ tick, kind })
 }
 
 /**
- * Intent: the start list of one measure of a doodle (`measureIndex` from 0), as C5.9 defines it: a
+ * The start list of one measure of a doodle (`measureIndex` from 0), as C5.9 defines it: a
  * note start where each note starts, a rest start wherever a silence begins (where a note ends and
  * no note starts, and at tick 0 when the measure opens in silence). A note held across the barline
  * starts nothing more, so a measure under one held note holds no start.
@@ -78,7 +78,7 @@ export function doodleMeasureStarts(doodle: QuantizedDoodle, measureIndex: numbe
   return Object.freeze(list)
 }
 
-/** Intent: the pitches of the notes starting in one measure of a doodle, in order. */
+/** The pitches of the notes starting in one measure of a doodle, in order. */
 export function doodleMeasurePitches(
   doodle: QuantizedDoodle,
   measureIndex: number,
@@ -89,24 +89,24 @@ export function doodleMeasurePitches(
     .map((note) => note.pitch)
 }
 
-/** Intent: a start list read as heard (C8): a rest start right after another rest is dropped. */
+/** A start list read as heard (C8): a rest start right after another rest is dropped. */
 export function asHeard(starts: MeasureStarts): MeasureStarts {
   return Object.freeze(
     starts.filter((entry, index) => entry.kind === 'note' || starts[index - 1]?.kind !== 'rest'),
   )
 }
 
-/** Intent: a start list as compact text, e.g. `n0 n2 r6 n8`, used as its key and in the answers. */
+/** A start list as compact text, e.g. `n0 n2 r6 n8`, used as its key and in the answers. */
 export function startsKey(starts: MeasureStarts): string {
   return starts.map((entry) => `${entry.kind === 'note' ? 'n' : 'r'}${entry.tick}`).join(' ')
 }
 
-/** Intent: how many note starts a start list holds. */
+/** How many note starts a start list holds. */
 export function noteCount(starts: MeasureStarts): number {
   return starts.filter((entry) => entry.kind === 'note').length
 }
 
-/** Intent: a 32-bit FNV-1a hash of a text, the stable seeded order the picks break ties with. */
+/** A 32-bit FNV-1a hash of a text, the stable seeded order the picks break ties with. */
 export function seededHash(text: string): number {
   let hash = 0x811c9dc5
   for (let index = 0; index < text.length; index++) {
@@ -116,7 +116,7 @@ export function seededHash(text: string): number {
   return hash
 }
 
-/** Intent: a copy of a list in a stable order seeded by a label: by each item's hash, then name. */
+/** A copy of a list in a stable order seeded by a label: by each item's hash, then name. */
 export function seededShuffle<T>(
   items: readonly T[],
   label: string,
@@ -129,13 +129,13 @@ export function seededShuffle<T>(
   )
 }
 
-/** Intent: whether a measure opens with a tie continuation, which sounds as nothing on its own. */
+/** Whether a measure opens with a tie continuation, which sounds as nothing on its own. */
 function opensWithTie(bar: RhythmBar): boolean {
   return bar.events[0]?.tieContinuation === true
 }
 
 /**
- * Intent: every distinct measure (as heard) that the rhythm domain of some supported rhythm
+ * Every distinct measure (as heard) that the rhythm domain of some supported rhythm
  * setting writes, over all four tensions, in the order first met. A measure that opens with a tie
  * continuation is left out: played alone, its first beat would be a silence its start list does
  * not hold.
@@ -150,7 +150,7 @@ export function domainMeasurePool(): readonly PoolMeasure[] {
   return Object.freeze([...pool.values()])
 }
 
-/** Intent: every rhythm setting at every tension: 3 x 3 x 3 x 3 x 4 = 324, in catalog order. */
+/** Every rhythm setting at every tension: 3 x 3 x 3 x 3 x 4 = 324, in catalog order. */
 function everyRhythmSetting(): readonly RhythmExpansionInput[] {
   return NOTE_DENSITIES.flatMap((noteDensity) =>
     RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>
@@ -169,7 +169,7 @@ function everyRhythmSetting(): readonly RhythmExpansionInput[] {
   )
 }
 
-/** Intent: add a rhythm's measures to the pool, once per distinct start list as heard. */
+/** Add a rhythm's measures to the pool, once per distinct start list as heard. */
 function addBars(pool: Map<string, PoolMeasure>, bars: readonly RhythmBar[]): void {
   for (const bar of bars) {
     if (opensWithTie(bar)) continue
@@ -188,7 +188,7 @@ interface Scored {
   readonly order: number
 }
 
-/** Intent: order scored measures: nearest note count, then fewest edits, then seeded order. */
+/** Order scored measures: nearest note count, then fewest edits, then seeded order. */
 function byPreference(a: Scored, b: Scored): number {
   return (
     a.noteGap - b.noteGap ||
@@ -199,7 +199,7 @@ function byPreference(a: Scored, b: Scored): number {
 }
 
 /**
- * Intent: one candidate per band for a doodle measure. Among the pool measures in a band, the one
+ * One candidate per band for a doodle measure. Among the pool measures in a band, the one
  * whose note count is nearest the doodle's (so beyond is not trivially far), then with the fewest
  * edits, then first in an order seeded by `label`. When no pool measure is Same, the doodle's own
  * rhythm stands in for Same; a band left empty otherwise is absent from the result.

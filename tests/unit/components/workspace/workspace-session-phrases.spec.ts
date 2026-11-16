@@ -13,13 +13,13 @@ import { phraseOneFor, sessionSettings } from '../../session/session-harness'
 
 const SETTINGS = sessionSettings({ tempo: 90 })
 
-/** Intent: the session phrase `n`, a real phrase generated from its own seed. */
+/** The session phrase `n`, a real phrase generated from its own seed. */
 function sessionPhrase(n: number, seed = 100 + n): SessionPhrase {
   const { intent, outcome } = phraseOneFor(SETTINGS, { seed })
   return { phraseNumber: n, origin: 'carry-in', intent, outcome }
 }
 
-/** Intent: phrase steps over fakes that log every call, in one list, in call order. */
+/** Phrase steps over fakes that log every call, in one list, in call order. */
 function phrasesRig() {
   const calls: unknown[][] = []
   const scheduled: { at: number; action: () => void }[] = []

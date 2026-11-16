@@ -60,7 +60,7 @@ export interface H2Plan {
 /** The measures one change can touch: one measure, or a gesture measure and its answer. */
 const GROUPINGS: readonly (readonly BarIndex[])[] = [[0], [1], [2], [3], [0, 2], [1, 3]]
 
-/** Intent: the Pop song preset's rhythm settings, read from the app's built-in presets. */
+/** The Pop song preset's rhythm settings, read from the app's built-in presets. */
 export function popSongRhythmSetting(): H2Setting {
   const preset = builtInPreset('pop-song')
   const { noteDensity, rhythmicVariety, silenceDensity, syncopation, tension } = preset.controls
@@ -74,14 +74,14 @@ export function popSongRhythmSetting(): H2Setting {
   }
 }
 
-/** Intent: the whole rhythm domain of a setting, in domain order; crashes when it has none. */
+/** The whole rhythm domain of a setting, in domain order; crashes when it has none. */
 export function drainDomain(setting: RhythmExpansionInput): readonly RhythmCandidate[] {
   const result = makeRhythmCandidateDomain(setting)
   if (isNoLegalRhythmPlan(result)) throw new Error('The H2 setting has no rhythm domain.')
   return Object.freeze([...result.candidates()])
 }
 
-/** Intent: whether a change touches exactly the measures of a grouping. */
+/** Whether a change touches exactly the measures of a grouping. */
 function touchesExactly(change: RhythmChange, grouping: readonly BarIndex[]): boolean {
   return (
     change.measures.length === grouping.length &&
@@ -90,7 +90,7 @@ function touchesExactly(change: RhythmChange, grouping: readonly BarIndex[]): bo
 }
 
 /**
- * Intent: the candidate positions grouped by how their measures outside `grouping` are written.
+ * The candidate positions grouped by how their measures outside `grouping` are written.
  * Two candidates differing by a change confined to `grouping` always fall in one group.
  */
 function bucketsOutside(
@@ -107,7 +107,7 @@ function bucketsOutside(
   return [...buckets.values()]
 }
 
-/** Intent: whether a change pick is preferred to another: one measure first, then domain order. */
+/** Whether a change pick is preferred to another: one measure first, then domain order. */
 function preferred(next: ChangePick, held: ChangePick | undefined): boolean {
   if (held === undefined) return true
   const nextRepeated = next.change.form === 'repeated' ? 1 : 0
@@ -117,7 +117,7 @@ function preferred(next: ChangePick, held: ChangePick | undefined): boolean {
 }
 
 /**
- * Intent: for every candidate of a domain, the preferred change of each kind it offers among the
+ * For every candidate of a domain, the preferred change of each kind it offers among the
  * domain's other candidates. Only pairs written alike outside a grouping are compared, and a change
  * counts only for the grouping it touches.
  */
@@ -134,7 +134,7 @@ export function changesOffered(
 }
 
 /**
- * Intent: add to `into` the preferred change of each kind, touching exactly `grouping`, from the
+ * Add to `into` the preferred change of each kind, touching exactly `grouping`, from the
  * locked candidate to another candidate of its bucket.
  */
 function addBucketChanges(
@@ -153,7 +153,7 @@ function addBucketChanges(
   }
 }
 
-/** Intent: the kinds of `kinds` an offer holds, and how many of them in one measure. */
+/** The kinds of `kinds` an offer holds, and how many of them in one measure. */
 function coverage(
   offer: ReadonlyMap<RhythmChangeKind, ChangePick>,
   kinds: readonly RhythmChangeKind[],
@@ -169,7 +169,7 @@ function coverage(
 }
 
 /**
- * Intent: the position of the candidate whose offer covers the most of `kinds`, then the most
+ * The position of the candidate whose offer covers the most of `kinds`, then the most
  * kinds overall, then the most of `kinds` in one measure, then first in domain order.
  */
 function bestCover(
@@ -194,7 +194,7 @@ function bestCover(
 }
 
 /**
- * Intent: the H2 plan for a domain. The first locked rhythm offers the most kinds among the
+ * The H2 plan for a domain. The first locked rhythm offers the most kinds among the
  * domain's other candidates (all five if one does), then the most of them in one measure, then
  * comes first in domain order. While some kind is left that another locked rhythm offers, the next
  * locked rhythm is chosen the same way for the kinds left. Each locked rhythm holds the preferred

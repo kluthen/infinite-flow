@@ -74,12 +74,12 @@ interface Rig {
   >
 }
 
-/** Intent: let every pending promise settle. */
+/** Let every pending promise settle. */
 function flush(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-/** Intent: generate an Idle phrase and engrave it, as a mounted PhraseScore would. */
+/** Generate an Idle phrase and engrave it, as a mounted PhraseScore would. */
 async function generateAndEngrave(workspace: WorkspaceSession): Promise<void> {
   const running = workspace.session.actions.generate()
   await vi.waitFor(() => {
@@ -89,7 +89,7 @@ async function generateAndEngrave(workspace: WorkspaceSession): Promise<void> {
   expect(await running).toBe(true)
 }
 
-/** Intent: a workspace at Ready on the desktop window, its session controller built, not started. */
+/** A workspace at Ready on the desktop window, its session controller built, not started. */
 async function readyRig(): Promise<Rig> {
   const { rig: audioRig, transport } = transportRig()
   const browser = createFakeSessionBrowser()
@@ -129,7 +129,7 @@ async function readyRig(): Promise<Rig> {
   return { workspace, controller, browser, audioRig, generate }
 }
 
-/** Intent: start a session and move into its count-in. */
+/** Start a session and move into its count-in. */
 async function inCountIn(): Promise<Rig & { readonly phraseOne: unknown }> {
   const rig = await readyRig()
   const phraseOne = rig.workspace.session.state.result
@@ -140,7 +140,7 @@ async function inCountIn(): Promise<Rig & { readonly phraseOne: unknown }> {
   return { ...rig, phraseOne }
 }
 
-/** Intent: the Idle state's layout-related fields, to compare before and after. */
+/** The Idle state's layout-related fields, to compare before and after. */
 function idleView(workspace: WorkspaceSession) {
   const { result, resultEngraved, roomNotice, notationError, operation, retriesRunning } =
     workspace.session.state
@@ -234,7 +234,7 @@ describe('the workspace session: the Idle layout hand-off', () => {
   })
 })
 
-/** Intent: play the count-in through and half a beat of phrase 1, then Stop. */
+/** Play the count-in through and half a beat of phrase 1, then Stop. */
 async function stopOnceSounded(rig: Rig): Promise<void> {
   while (rig.controller.state.phase !== 'running') {
     rig.audioRig.advanceTo(rig.audioRig.now() + 0.25)
@@ -245,7 +245,7 @@ async function stopOnceSounded(rig: Rig): Promise<void> {
   rig.controller.stop()
 }
 
-/** Intent: let the fresh phrase's run reach its drawing, then engrave it as PhraseScore would. */
+/** Let the fresh phrase's run reach its drawing, then engrave it as PhraseScore would. */
 async function engraveFreshPhrase(workspace: WorkspaceSession): Promise<void> {
   await vi.waitFor(() => {
     if (workspace.session.state.operation !== 'notating') throw new Error('not drawing yet')
@@ -369,7 +369,7 @@ describe('the workspace session: the next phrase at a session end', () => {
 })
 
 /**
- * Intent: record the Idle operation each time the controller asks for a fresh phrase, the call
+ * Record the Idle operation each time the controller asks for a fresh phrase, the call
  * going on to the real action.
  */
 function recordFreshPhraseCalls(workspace: WorkspaceSession): string[] {

@@ -12,7 +12,7 @@ const MIDI_MIN = 0
 const MIDI_MAX = 127
 
 /**
- * Intent: pick the written note the check asks the player to play — the C nearest the middle of
+ * Pick the written note the check asks the player to play — the C nearest the middle of
  * the profile's written range (concert range shifted by the chromatic transposition), the lower
  * C on a tie. Crashes when that C is outside the written range rather than show an unplayable note.
  */
@@ -34,7 +34,7 @@ export function checkWrittenNote(profile: InstrumentProfile): number {
 }
 
 /**
- * Intent: the concert pitch a correctly set controller sends when the player plays the given
+ * The concert pitch a correctly set controller sends when the player plays the given
  * written note on this profile (written − chromatic transposition).
  */
 // @spec-link [[rule_controller_transposition_check]]
@@ -57,7 +57,7 @@ export type TranspositionCheckReport =
       readonly suggestedProfile: InstrumentProfile | null
     }
 
-/** Intent: reject a played pitch that is not a MIDI note number, loudly. */
+/** Reject a played pitch that is not a MIDI note number, loudly. */
 function assertMidiNote(playedPitch: number): void {
   if (!Number.isInteger(playedPitch) || playedPitch < MIDI_MIN || playedPitch > MIDI_MAX) {
     throw new RangeError(
@@ -67,7 +67,7 @@ function assertMidiNote(playedPitch: number): void {
 }
 
 /**
- * Intent: judge the note the controller sent against the check's written note. A non-octave
+ * Judge the note the controller sent against the check's written note. A non-octave
  * offset also names the other profile (from `profiles`, the profiles the check may suggest, passed
  * in so this module imports no profile table) whose chromatic transposition would make the played
  * note right as is — profile's chromatic minus the offset — or null when none does.

@@ -45,63 +45,63 @@ const SAVE_FAILED =
 /** How long a save, or a notice it raises, takes at most to land on this harness. */
 const SETTLE_MS = 300
 
-/** Intent: the notice row's notices. */
+/** The notice row's notices. */
 function notices(page: Page): Locator {
   return page.locator('.layout-workspace > .app-notice-row > .app-notice')
 }
 
-/** Intent: one of the notice's buttons, by its text. */
+/** One of the notice's buttons, by its text. */
 function noticeButton(page: Page, name: string): Locator {
   return notices(page).getByRole('button', { name, exact: true })
 }
 
-/** Intent: expect the one notice showing, with `text` and exactly the buttons `buttons`. */
+/** Expect the one notice showing, with `text` and exactly the buttons `buttons`. */
 async function expectNotice(page: Page, text: string, buttons: readonly string[]): Promise<void> {
   await expect(notices(page)).toHaveCount(1)
   await expect(notices(page).locator('p')).toHaveText(text)
   await expect(notices(page).getByRole('button')).toHaveText([...buttons])
 }
 
-/** Intent: expect no notice row at all, after giving a late save time to raise one. */
+/** Expect no notice row at all, after giving a late save time to raise one. */
 async function expectNoNotice(page: Page): Promise<void> {
   await page.waitForTimeout(SETTLE_MS)
   await expect(page.locator('.app-notice-row')).toHaveCount(0)
 }
 
-/** Intent: the changes that reached the storage port since the load (the write spy). */
+/** The changes that reached the storage port since the load (the write spy). */
 function portChanges(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.storage.portChanges())
 }
 
-/** Intent: the save policy's saving state. */
+/** The save policy's saving state. */
 function savingState(page: Page): Promise<string | null> {
   return page.evaluate(() => window.__workspaceHarness.storage.savingState())
 }
 
-/** Intent: open the database as a newer version of the app would, from this page. */
+/** Open the database as a newer version of the app would, from this page. */
 function openNewerVersion(page: Page): Promise<void> {
   return page.evaluate(() => window.__workspaceHarness.storage.openNewerVersion())
 }
 
-/** Intent: refuse the app's saves as `kind` from now on; null to let them through. */
+/** Refuse the app's saves as `kind` from now on; null to let them through. */
 function refuseSaves(page: Page, kind: 'quota' | 'other' | null): Promise<void> {
   return page.evaluate((refusal) => window.__workspaceHarness.storage.refuseSaves(refusal), kind)
 }
 
-/** Intent: open the harness at `search` (an injected read, say), the load ended and mounted. */
+/** Open the harness at `search` (an injected read, say), the load ended and mounted. */
 async function gotoWith(page: Page, search: string): Promise<void> {
   await page.goto(`${WORKSPACE_HARNESS_URL}${search}`)
   await harnessReady(page)
 }
 
-/** Intent: change the theme to `option`, a player's change that saves. */
+/** Change the theme to `option`, a player's change that saves. */
 async function pickTheme(page: Page, option: 'System' | 'Light' | 'Dark'): Promise<void> {
   await radio(page, 'Presentation theme', option).click()
   await expect(radio(page, 'Presentation theme', option)).toHaveAttribute('aria-checked', 'true')
 }
 
 /**
- * Intent: change the theme to whichever of Light and Dark it is not, and wait until the save's
+ * Change the theme to whichever of Light and Dark it is not, and wait until the save's
  * outcome has landed (refused or not).
  */
 async function changeTheme(page: Page): Promise<void> {
@@ -112,12 +112,12 @@ async function changeTheme(page: Page): Promise<void> {
   await page.waitForTimeout(SETTLE_MS)
 }
 
-/** Intent: mark the notice's element, to tell later whether it changed in place. */
+/** Mark the notice's element, to tell later whether it changed in place. */
 async function markNotice(page: Page): Promise<void> {
   await notices(page).evaluate((element) => element.setAttribute('data-test-mark', 'same'))
 }
 
-/** Intent: expect the marked notice element still to be the one showing. */
+/** Expect the marked notice element still to be the one showing. */
 async function expectSameNotice(page: Page): Promise<void> {
   await expect(notices(page)).toHaveAttribute('data-test-mark', 'same')
 }

@@ -25,7 +25,7 @@ const TEMPO = 120
 const ORIGIN = 12
 const SETTLE = VERY_SHORT_NOTE_SECONDS
 
-/** Intent: barline `k` of the grid, 0 at the count-in's end. */
+/** Barline `k` of the grid, 0 at the count-in's end. */
 function barline(k: number): number {
   return ORIGIN + 2 * k
 }
@@ -33,7 +33,7 @@ function barline(k: number): number {
 /** One scripted note: its pitch, onset and release (null: still held). */
 type ScriptNote = readonly [pitch: number, onsetAt: number, releaseAt: number | null]
 
-/** Intent: a script's note-on and note-off events, in time order (note-offs first on a tie). */
+/** A script's note-on and note-off events, in time order (note-offs first on a tie). */
 function eventsOf(script: readonly ScriptNote[]): PlayedNoteEvent[] {
   const timed: { at: number; order: number; event: PlayedNoteEvent }[] = []
   for (const [pitch, onsetAt, releaseAt] of script) {
@@ -50,7 +50,7 @@ function eventsOf(script: readonly ScriptNote[]): PlayedNoteEvent[] {
 }
 
 /**
- * Intent: a capture with every output it gave, played through `script` up to `until` and advanced
+ * A capture with every output it gave, played through `script` up to `until` and advanced
  * there.
  */
 function played(
@@ -68,19 +68,19 @@ function played(
   return { jam, outputs }
 }
 
-/** Intent: the outputs as kind and decision time, rounded to the microsecond. */
+/** The outputs as kind and decision time, rounded to the microsecond. */
 function timesOf(outputs: readonly JamCaptureOutput[]): [string, number][] {
   return outputs.map((output) => [output.kind, Math.round(output.at * 1e6) / 1e6])
 }
 
-/** Intent: the doodle the last doodle-ended output hands, failing when none ended. */
+/** The doodle the last doodle-ended output hands, failing when none ended. */
 function endedDoodle(outputs: readonly JamCaptureOutput[]) {
   const ended = outputs.filter((output) => output.kind === 'doodle-ended')
   expect(ended).toHaveLength(1)
   return ended[0]!
 }
 
-/** Intent: the doodle's notes as [start tick, length in ticks, pitch]. */
+/** The doodle's notes as [start tick, length in ticks, pitch]. */
 function ticksOf(output: {
   readonly end: {
     readonly doodle: {
@@ -92,7 +92,7 @@ function ticksOf(output: {
 }
 
 /**
- * Intent: a doodle of `measures` measures, one note a measure, each held across the next barline
+ * A doodle of `measures` measures, one note a measure, each held across the next barline
  * but the last, released halfway through its measure.
  */
 function heldAcross(measures: number): ScriptNote[] {

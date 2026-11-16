@@ -90,7 +90,7 @@ function densityMutations(
 
 const SEEDS: readonly Seed[] = Array.from({ length: 300 }, (_, index) => makeSeed(index * 7919))
 
-/** Intent: every chosen rhythm setting the four rhythm controls can form, note density outermost. */
+/** Every chosen rhythm setting the four rhythm controls can form, note density outermost. */
 function everyChosenRhythmSetting() {
   return NOTE_DENSITIES.flatMap((noteDensity) =>
     RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>
@@ -107,7 +107,7 @@ function everyChosenRhythmSetting() {
 }
 
 /**
- * Intent: from one supported starting setting, mutations k = 1 and k = 4 on the first three seeds
+ * From one supported starting setting, mutations k = 1 and k = 4 on the first three seeds
  * all land on a supported combination, and never on Sixteenth while it is unavailable.
  */
 function expectMutationsLandSupported(
@@ -209,7 +209,7 @@ describe('mutateSettings draw', () => {
       supported: false,
     }))
     const draws: number[] = []
-    /** Intent: keep every draw count the observer is told. */
+    /** Keep every draw count the observer is told. */
     const observe = (count: number) => draws.push(count)
     for (const seed of SEEDS.slice(0, 5)) {
       const drawn = drawMutation(none, seed, 1, observe)
@@ -324,7 +324,7 @@ const V30_DRAWS: {
   readonly rows: readonly RecordedDraw[]
 } = JSON.parse(readFileSync('tests/fixtures/vary-settings/v3.0-mutation-draws.json', 'utf8'))
 
-/** Intent: the v3.1 form of a recorded start: the preset's controls, levels and selection. */
+/** The v3.1 form of a recorded start: the preset's controls, levels and selection. */
 function recordedStart(start: 'neutral' | 'jazz'): SessionSettings {
   const preset = builtInPreset(start)
   const controls =
@@ -414,7 +414,7 @@ describe('mutateSettings figure step', () => {
 // @test-link [[rule_vary_settings_marks_custom]]
 // @test-link [[rule_mutation_marks_profile_customized]]
 describe('mutateSettings Custom mark', () => {
-  /** Intent: the drawn mutations k = 1 of these settings over many seeds. */
+  /** The drawn mutations k = 1 of these settings over many seeds. */
   function drawn(settings: SessionSettings): readonly SettingsMutationResult[] {
     return Array.from({ length: 600 }, (_, seed) => mutatedMove(settings, WIDE, makeSeed(seed), 1))
   }

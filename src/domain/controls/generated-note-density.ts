@@ -29,7 +29,7 @@ export interface NoteDensityContext {
 }
 
 /**
- * Intent: the note density a phrase is generated with. A chosen `Sixteenth` generates as `Eighth`
+ * The note density a phrase is generated with. A chosen `Sixteenth` generates as `Eighth`
  * while the window is below `bp-tablet-landscape` or once the session has stepped down; every
  * other chosen value, and a `Sixteenth` at or above the width in a session that has not stepped
  * down, generates as chosen. The result is never denser than the chosen value.
@@ -46,7 +46,7 @@ export function resolveGeneratedNoteDensity(
 }
 
 /**
- * Intent: the controls a phrase is generated from: the chosen controls with only the note density
+ * The controls a phrase is generated from: the chosen controls with only the note density
  * resolved. Returns the chosen controls object itself when the density is unchanged, and a new
  * immutable one otherwise; the chosen controls are never modified.
  */

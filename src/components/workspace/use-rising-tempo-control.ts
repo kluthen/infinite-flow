@@ -22,7 +22,7 @@ export interface RisingTempoControl {
 }
 
 /**
- * Intent: read the control's state from `controller` (null while its chunk loads, when the flag
+ * Read the control's state from `controller` (null while its chunk loads, when the flag
  * is off and unavailable, as at page load, and no session has ended). During a session, count-in
  * included, availability is whether that session has a controller, fixed at its start exactly
  * when a controller was attached then; otherwise it is whether one is attached now.

@@ -22,7 +22,7 @@ const SIXTEENTH_ONLY_BLOCKED = {
 } as const
 
 /**
- * Intent: a workspace below `bp-tablet-landscape` under the combination blocked from it up, whose
+ * A workspace below `bp-tablet-landscape` under the combination blocked from it up, whose
  * generate call number `heldCall` waits until the test calls `release`.
  */
 function heldWorkspace(heldCall: number) {
@@ -43,7 +43,7 @@ function heldWorkspace(heldCall: number) {
   return { workspace, release: () => release() }
 }
 
-/** Intent: mount the panel on the workspace, with no phrase pending (no attempt is ever drawn). */
+/** Mount the panel on the workspace, with no phrase pending (no attempt is ever drawn). */
 function mountPanel(workspace: TestWorkspace) {
   return mount(ScorePanel, {
     props: {
@@ -62,7 +62,7 @@ function mountPanel(workspace: TestWorkspace) {
   })
 }
 
-/** Intent: record every text a live region shows, in order, as a screen reader would hear them. */
+/** Record every text a live region shows, in order, as a screen reader would hear them. */
 function recordTexts(element: Element): string[] {
   const texts: string[] = []
   new MutationObserver(() => texts.push(element.textContent?.trim() ?? '')).observe(element, {

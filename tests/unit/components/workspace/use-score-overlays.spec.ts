@@ -25,7 +25,7 @@ const SECOND_NOTE: ExpectedNoteIdentity = {
 }
 const NOTHING = { startMarker: null, playheadMeasure: null, acknowledged: [] }
 
-/** Intent: a starting note at `identity` (a fresh object each call, as the controller recomputes it). */
+/** A starting note at `identity` (a fresh object each call, as the controller recomputes it). */
 function startingNoteAt(identity: ExpectedNoteIdentity): StartingNote {
   return { identity: { ...identity }, concertPitch: makeConcertPitch(60), label: 'C4' }
 }

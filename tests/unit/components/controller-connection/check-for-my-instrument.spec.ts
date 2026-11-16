@@ -18,7 +18,7 @@ import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { BB_TENOR_PROFILE, C_KEYBOARD_PROFILE } from '@/domain/profile/instrument-profiles'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
 
-/** Intent: the pitch a controller `offset` semitones off sends for the profile's check note. */
+/** The pitch a controller `offset` semitones off sends for the profile's check note. */
 function sent(profile: InstrumentProfile, offset: number): number {
   return expectedConcertPitch(profile, checkWrittenNote(profile)) + offset
 }
@@ -142,7 +142,7 @@ describe('useForMyInstrumentCopy', () => {
 // @test-link [[rule_transposition_check_sets_my_instrument]]
 // @test-link [[entity_my_instrument_record]]
 describe('changesSavedTransposition', () => {
-  /** Intent: the use a keyboard check `offset` semitones off offers over `saved`. */
+  /** The use a keyboard check `offset` semitones off offers over `saved`. */
   function useOver(offset: number, saved: typeof LOW_ALTO | null) {
     const use = useForMyInstrument(C_KEYBOARD_PROFILE, saved, sent(C_KEYBOARD_PROFILE, offset))
     if (use === null) throw new Error('no use offered')

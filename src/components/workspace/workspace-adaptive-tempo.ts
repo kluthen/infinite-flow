@@ -47,7 +47,7 @@ export interface ControllerPresenceEvent {
 }
 
 /**
- * Intent: whether a controller is attached: permission granted, one input selected, its port
+ * Whether a controller is attached: permission granted, one input selected, its port
  * present and open, which is exactly the MIDI controller's `connected` state.
  */
 // @spec-link [[req_adaptive_tempo]]
@@ -57,7 +57,7 @@ export function isControllerAttached(state: MidiControllerState): boolean {
 }
 
 /**
- * Intent: build the page's flag over the MIDI controller's state and the session's phase, both
+ * Build the page's flag over the MIDI controller's state and the session's phase, both
  * read reactively, starting from `initialOn`: the player's saved choice, loaded before the first
  * draw (off on a first visit). A loaded on is kept with no controller attached, as the player's
  * choice: it is only unavailable until a controller is attached. It changes only at Idle (a
@@ -82,7 +82,7 @@ export function createAdaptiveTempoFlag(
   const reached = shallowRef<number | null>(null)
 
   /**
-   * Intent: a session runs adaptive tempo when the flag is on and the session reads a controller,
+   * A session runs adaptive tempo when the flag is on and the session reads a controller,
    * fixed at its start; one started with the selected controller away, or none selected, has no
    * controller and so no adaptive tempo. The answer is kept for that session's end.
    */
@@ -94,7 +94,7 @@ export function createAdaptiveTempoFlag(
   }
 
   /**
-   * Intent: a session ended once phrase 1 had sounded, at `tempoReached`, the tempo of its last
+   * A session ended once phrase 1 had sounded, at `tempoReached`, the tempo of its last
    * phrase to start sounding: the reached tempo becomes it when that session ran adaptive tempo,
    * and none when it did not. A start and an end during the count-in never come here, so they
    * leave it as it is. Only the tempo is kept, never anything about the player's playing.
@@ -124,7 +124,7 @@ export function createAdaptiveTempoFlag(
 }
 
 /**
- * Intent: forward a session's controller going away (the loss that starts the 30-second
+ * Forward a session's controller going away (the loss that starts the 30-second
  * countdown) and coming back (its reattachment inside the window) to the engine, at the audio
  * clock's time now, so a phrase whose tempo is fixed while it is away does not rise and a phrase
  * that starts sounding while it is away does not count. Only a session started with a controller

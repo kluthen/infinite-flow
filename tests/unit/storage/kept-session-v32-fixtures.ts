@@ -45,7 +45,7 @@ const PHRASE_SECONDS = (4 * 4 * 60) / 90
 /** The audio-clock moment phrase 1 of each built session starts: off 0, so rebasing shows. */
 const PHRASE_ONE_AT = 7.25
 
-/** Intent: one generated phrase as a session history records it, at its place in the session. */
+/** One generated phrase as a session history records it, at its place in the session. */
 export function historyRecord(
   intent: GenerationIntent,
   outcome: SuccessfulOutcome,
@@ -64,7 +64,7 @@ export function historyRecord(
   }
 }
 
-/** Intent: the rhythm lock group on with these bars, these allowed changes, no tenser phrase. */
+/** The rhythm lock group on with these bars, these allowed changes, no tenser phrase. */
 function lockedOn(
   bars: readonly LockedRhythmMeasure[],
   allowedChanges: RequestRhythmLock['allowedChanges'],
@@ -76,7 +76,7 @@ function lockedOn(
   })
 }
 
-/** Intent: a lock test intent joined from the phrase before, with the given lock group. */
+/** A lock test intent joined from the phrase before, with the given lock group. */
 function joinedLockIntent(
   tension: 'Build' | 'Lift',
   seed: number,
@@ -101,18 +101,18 @@ interface Generated {
   readonly outcome: SuccessfulOutcome
 }
 
-/** Intent: generate an intent, which must succeed. */
+/** Generate an intent, which must succeed. */
 function generated(intent: GenerationIntent): Generated {
   return { intent, outcome: generateSuccess(intent) }
 }
 
-/** Intent: the carry-in a generated phrase hands forward as the given phrase number. */
+/** The carry-in a generated phrase hands forward as the given phrase number. */
 function carryInOf(phrase: Generated, phraseNumber: number): CarryIn {
   return deriveCarryIn({ intent: phrase.intent, outcome: phrase.outcome, phraseNumber })
 }
 
 /**
- * Intent: phrase 3 of the locked session: the first seed from 1 up whose rhythm change is drawn
+ * Phrase 3 of the locked session: the first seed from 1 up whose rhythm change is drawn
  * and whose phrase takes the changed rhythm, every change allowed.
  */
 function changedPhrase(bars: readonly LockedRhythmMeasure[], carryIn: CarryIn): Generated {
@@ -126,7 +126,7 @@ function changedPhrase(bars: readonly LockedRhythmMeasure[], carryIn: CarryIn): 
   throw new Error('Fixture setup: no seed made a rhythm change.')
 }
 
-/** Intent: locked bars written at Build that no rhythm of the Lift domain writes. */
+/** Locked bars written at Build that no rhythm of the Lift domain writes. */
 function buildOnlyBars(): readonly LockedRhythmMeasure[] {
   const lift = new Set(lockTestDomain('Lift').map((rhythm) => rhythmBarKey(rhythm.bars)))
   const buildOnly = lockTestDomain('Build').find((rhythm) => !lift.has(rhythmBarKey(rhythm.bars)))
@@ -135,7 +135,7 @@ function buildOnlyBars(): readonly LockedRhythmMeasure[] {
 }
 
 /**
- * Intent: the records of a four-phrase locked session on the C keyboard at 90 BPM: phrase 1 with
+ * The records of a four-phrase locked session on the C keyboard at 90 BPM: phrase 1 with
  * the lock on and nothing locked yet; phrase 2 kept on phrase 1's bars; phrase 3 with an allowed
  * rhythm change from them; phrase 4 at Lift on bars Lift cannot write, so its rhythm is a forced
  * bend; each phrase after the first joined from the one before.
@@ -161,7 +161,7 @@ export const NO_PHRASE_CARRY_IN: CarryIn = makeCarryIn({
   finalHarmony: null,
 })
 
-/** Intent: a Jam-style intent on the focused carry-in controls, with its steering block. */
+/** A Jam-style intent on the focused carry-in controls, with its steering block. */
 function jamIntent(seed: number, carryIn: CarryIn, steering: SteeringBlock): GenerationIntent {
   return makeCarryInGenerationIntent({
     requestId: makeRequestId(`kept-jam-${seed}`),
@@ -175,7 +175,7 @@ function jamIntent(seed: number, carryIn: CarryIn, steering: SteeringBlock): Gen
 }
 
 /**
- * Intent: the records of a two-phrase Jam-style session on the C keyboard at 90 BPM: phrase 1
+ * The records of a two-phrase Jam-style session on the C keyboard at 90 BPM: phrase 1
  * joined from no phrase (the doodle's join) beside its steering block, phrase 2 joined from
  * phrase 1, with a steering block too.
  */
@@ -202,13 +202,13 @@ export const KEPT_DOODLE: KeptDoodle = {
   captureTempo: 96,
 }
 
-/** Intent: a played note at an audio-clock onset, held for a quarter of a second. */
+/** A played note at an audio-clock onset, held for a quarter of a second. */
 function playedNote(midi: number, onsetAt: number): RecordedPlayedNote {
   return { pitch: makeConcertPitch(midi), velocity: 72, onsetAt, releaseAt: onsetAt + 0.25 }
 }
 
 /**
- * Intent: the records of the Jam-style session (see `jamSessionRecords`), each phrase holding two
+ * The records of the Jam-style session (see `jamSessionRecords`), each phrase holding two
  * played notes, at half a second and at two seconds and an eighth into it.
  */
 export function jamSessionRecordsWithPlayedNotes(): readonly SessionHistoryRecord[] {
@@ -238,7 +238,7 @@ export const RAW_DOODLE_NOTES: readonly RecordedPlayedNote[] = [
 ]
 
 /**
- * Intent: a fresh Jam's count-in and doodle before the Jam-style session's phrase 1, with the
+ * A fresh Jam's count-in and doodle before the Jam-style session's phrase 1, with the
  * notes played during it, `RAW_DOODLE_NOTES` unless given.
  */
 export function freshJam(

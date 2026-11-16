@@ -30,7 +30,7 @@ import { BASE_CONTROLS, buildIntent, carryInAfter, generateSuccess } from './car
 const MIDDLE_MIN = 54
 const MIDDLE_MAX = 66
 
-/** Intent: the input of a carry-in from no phrase at the given pitch inside the Middle window. */
+/** The input of a carry-in from no phrase at the given pitch inside the Middle window. */
 function noPhraseInput(midi = 60): NoPhraseCarryIn {
   return {
     origin: 'none',
@@ -44,7 +44,7 @@ function noPhraseInput(midi = 60): NoPhraseCarryIn {
   }
 }
 
-/** Intent: the same input with a part replaced by a value the form does not allow. */
+/** The same input with a part replaced by a value the form does not allow. */
 function withPart(part: Record<string, unknown>): CarryIn {
   return { ...noPhraseInput(), ...part } as unknown as CarryIn
 }
@@ -57,13 +57,13 @@ const V31_PHRASE_CARRY_IN_JSON =
   '"role":"open_arrival","endpoint":{"kind":"tonal_degree_five_chord_tone","degree":5}},' +
   '"phraseNumber":1}'
 
-/** Intent: the carry-in a real phrase 1 (C keyboard, Middle, seed 11) hands forward. */
+/** The carry-in a real phrase 1 (C keyboard, Middle, seed 11) hands forward. */
 function realPhraseCarryIn(): CarryIn {
   const intent = buildIntent({ seed: 11 })
   return carryInAfter(intent, generateSuccess(intent), 1)
 }
 
-/** Intent: the plain intent input of a Middle phrase receiving a carry-in. */
+/** The plain intent input of a Middle phrase receiving a carry-in. */
 function intentInput(carryIn: CarryIn) {
   return {
     requestId: makeRequestId('carry-in-origin-12'),

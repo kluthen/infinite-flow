@@ -21,7 +21,7 @@ import {
 import type { MostRecentSession, ReviewedSession } from './workspace-session-controller-types'
 
 /**
- * Intent: the most recent session after a reload: the kept session whose summary this version
+ * The most recent session after a reload: the kept session whose summary this version
  * reads, with the latest start, under its key; none when no summary is readable (one a newer
  * version wrote, or one that does not decode, is passed over).
  */
@@ -41,7 +41,7 @@ export function mostRecentKept(summaries: readonly StoredEntry[]): MostRecentSes
 }
 
 /**
- * Intent: a decoded Jam session's Jam part, in the reviewed session's shape, every time on its
+ * A decoded Jam session's Jam part, in the reviewed session's shape, every time on its
  * phrases' clock (phrase 1 starting at 0). A fresh Jam's (its body holds a played-notes clock, its
  * moments and the raw doodle notes moved by phrase 1's start on it): its doodle with its capture
  * tempo, its first barline, its end barline its measures later at its capture tempo, and its raw
@@ -92,7 +92,7 @@ function keptJamPart(jam: KeptJam, suggestionDeclined: boolean): ReviewedJamPart
 }
 
 /**
- * Intent: the session a decoded kept session's Review draws: its phrases and start, the
+ * The session a decoded kept session's Review draws: its phrases and start, the
  * instrument's name and the preset label its summary holds (never looked up by id or rebuilt from
  * the current settings), the tempo it reached, whether it
  * is pinned, the key it was read by, whether its played notes are kept, its favorite phrases and
@@ -140,7 +140,7 @@ export type KeptSessionRead =
 const DAMAGED: KeptSessionRead = Object.freeze({ kind: 'damaged' })
 const NOT_READ: KeptSessionRead = Object.freeze({ kind: 'not-read' })
 
-/** Intent: whether none of a kept session's records is stored: it was deleted meanwhile. */
+/** Whether none of a kept session's records is stored: it was deleted meanwhile. */
 function allAbsent(stored: StoredKeptSession): boolean {
   return (
     stored.summary === undefined && stored.body === undefined && stored.playedNotes === undefined
@@ -148,7 +148,7 @@ function allAbsent(stored: StoredKeptSession): boolean {
 }
 
 /**
- * Intent: read the kept session under `key` and give the session its Review draws; damaged when
+ * Read the kept session under `key` and give the session its Review draws; damaged when
  * this version reads its records as unreadable; not read when the device refuses the read, none
  * of its records is stored, or a newer version wrote them. Any other failure is a defect and
  * rejects.
@@ -181,13 +181,13 @@ const KEPT_SESSION_STORES: readonly StoreName[] = [
   'playedNotes',
 ]
 
-/** Intent: the deletion of the session under `key`: its summary, body and played notes. */
+/** The deletion of the session under `key`: its summary, body and played notes. */
 function deletionsOf(key: string): StorageChange[] {
   return KEPT_SESSION_STORES.map((store): StorageChange => ({ kind: 'delete', store, key }))
 }
 
 /**
- * Intent: the keys of the kept sessions whose summary is damaged, the codec reading it as
+ * The keys of the kept sessions whose summary is damaged, the codec reading it as
  * unreadable; a summary a newer version wrote is never damaged.
  */
 // @spec-link [[module_kept_session_save]]
@@ -211,7 +211,7 @@ export interface DamagedSessionsCleanUp {
 }
 
 /**
- * Intent: the load's clean-up of damaged kept sessions: at the change, the summaries read again,
+ * The load's clean-up of damaged kept sessions: at the change, the summaries read again,
  * and one batch deleting the summary, body and played notes of every kept session whose summary
  * is damaged then (one damaged since the load included); an empty batch when none is. What the
  * read found is kept, its latest read when the change reads again after a session.
@@ -238,7 +238,7 @@ export type DamagedSessionCodec = Pick<
 >
 
 /**
- * Intent: the batch that deletes the kept session under `key` once its opening found it damaged:
+ * The batch that deletes the kept session under `key` once its opening found it damaged:
  * its records read again at the change, and its summary, body and played notes deleted when they
  * still read as damaged; nothing when none is stored any more, or they now read otherwise.
  */

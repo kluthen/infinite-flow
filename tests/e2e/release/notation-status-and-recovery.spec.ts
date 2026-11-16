@@ -26,13 +26,13 @@ declare global {
   }
 }
 
-/** Intent: the persistent, visually hidden notation-status live region. */
+/** The persistent, visually hidden notation-status live region. */
 function notationStatusRegion(page: Page): Locator {
   return page.locator('.notation-status')
 }
 
 /**
- * Intent: attach a `MutationObserver` on `.staff-frame`'s `class` attribute before an action
+ * Attach a `MutationObserver` on `.staff-frame`'s `class` attribute before an action
  * starts, so every class-list value it takes on (including one that resolves before Playwright's
  * next poll) is captured to prove an ordinary generation never passes through `staff-error`.
  */
@@ -48,7 +48,7 @@ async function observeStaffFrameClasses(page: Page): Promise<void> {
   })
 }
 
-/** Intent: every class-list value `.staff-frame` has taken on since the last observe call. */
+/** Every class-list value `.staff-frame` has taken on since the last observe call. */
 async function readStaffFrameClassLog(page: Page): Promise<string[]> {
   return page.evaluate(() => window.__staffFrameClassLog ?? [])
 }

@@ -44,7 +44,7 @@ const HORN_IN_A = makeMyInstrument({
   transposition: { octaves: 0, semitones: 3, direction: 'lower' },
 })
 
-/** Intent: a real intent for a built-in or my instrument, with an optional carry-in. */
+/** A real intent for a built-in or my instrument, with an optional carry-in. */
 function intentWith(seed: number, mine: boolean, carryIn?: CarryIn): GenerationIntent {
   const input = {
     requestId: makeRequestId(`seventh-key-${seed}`),
@@ -62,14 +62,14 @@ function intentWith(seed: number, mine: boolean, carryIn?: CarryIn): GenerationI
     : makeCarryInGenerationIntent({ ...input, carryIn })
 }
 
-/** Intent: phrase 2's intent of the instrument, carrying phrase 1's (seed 11) carry-in. */
+/** Phrase 2's intent of the instrument, carrying phrase 1's (seed 11) carry-in. */
 function phraseTwoIntent(mine: boolean): GenerationIntent {
   const first = intentWith(11, mine)
   return intentWith(12, mine, carryInAfter(first, generateSuccess(first), 1))
 }
 
 /**
- * Intent: the seventh of the carried chord's own degree in the intent's concert collection, after
+ * The seventh of the carried chord's own degree in the intent's concert collection, after
  * checking the carry-in holding it is one the domain accepts.
  */
 function carriedSeventh(intent: GenerationIntent): ChordSeventh {
@@ -81,19 +81,19 @@ function carriedSeventh(intent: GenerationIntent): ChordSeventh {
   return seventh
 }
 
-/** Intent: unpadded base64url of raw bytes, for hand-built payloads. */
+/** Unpadded base64url of raw bytes, for hand-built payloads. */
 function base64Url(bytes: Uint8Array): string {
   let binary = ''
   for (const byte of bytes) binary += String.fromCharCode(byte)
   return btoa(binary).replace(/\+/gu, '-').replace(/\//gu, '_').replace(/=+$/u, '')
 }
 
-/** Intent: encode any JSON value as a key of the given version, bypassing the codec's encoder. */
+/** Encode any JSON value as a key of the given version, bypassing the codec's encoder. */
 function rawKey(version: string, payload: unknown): string {
   return `${version}.${base64Url(new TextEncoder().encode(JSON.stringify(payload)))}`
 }
 
-/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+/** The JSON payload of a key, read back without the codec's decoder. */
 function payloadOf(key: string): unknown[] {
   const payload = key
     .slice(key.indexOf('.') + 1)

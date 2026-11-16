@@ -25,7 +25,7 @@ const SAVE = {
   jam: null,
 } as const
 
-/** Intent: a session-mode session's closed history, two phrases on the tenor. */
+/** A session-mode session's closed history, two phrases on the tenor. */
 function history() {
   return recordedKeptSession('bb-tenor', 2)
 }
@@ -33,7 +33,7 @@ function history() {
 // @test-link [[module_kept_jam_session]]
 // @test-link [[rule_raw_doodle_notes_are_played_notes]]
 describe("a Jam session's played notes and decline in the Review", () => {
-  /** Intent: the reviewed fresh Jam, its phrases holding played notes or none, its raw notes given. */
+  /** The reviewed fresh Jam, its phrases holding played notes or none, its raw notes given. */
   function jamSession(playedInPhrases: boolean, raw = reviewedJamPart()) {
     return endedSession(jamHistory(playedInPhrases), 'not-pinned', SAVE, raw)
   }

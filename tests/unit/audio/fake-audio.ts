@@ -192,7 +192,7 @@ interface FakeTimer extends FakeWakeTimer {
 }
 
 /**
- * Intent: a wake-up timer that fires only when the fake clock steps. It throws on a start while
+ * A wake-up timer that fires only when the fake clock steps. It throws on a start while
  * started, on a stop while stopped, on a dispose while started, and on any start or dispose once
  * disposed, so an owner that loses track of it fails loudly.
  */
@@ -221,7 +221,7 @@ function createFakeTimer(): FakeTimer {
 }
 
 /**
- * Intent: the value one gain holds at `t`, Web Audio style: the value set with the latest `at`
+ * The value one gain holds at `t`, Web Audio style: the value set with the latest `at`
  * not after `t`, a later call winning a tie. Throws if the gain was never set by `t`, because a
  * click heard through an unset gain would mean the transport forgot to apply the mix.
  */
@@ -236,7 +236,7 @@ function gainValueAt(events: readonly FakeAudioEvent[], gain: MixGain, t: AudioT
 }
 
 /**
- * Intent: whether a sound (a click, a backing note or a guide note) is silenced by its bus's fade.
+ * Whether a sound (a click, a backing note or a guide note) is silenced by its bus's fade.
  * Simplification: any sound starting at or after the start of a fade on its bus counts as silent,
  * rather than sounding at a partial gain.
  */
@@ -248,7 +248,7 @@ function fadedOut(
 }
 
 /**
- * Intent: the clicks the player hears. A click sounds when the click volume is above zero at its
+ * The clicks the player hears. A click sounds when the click volume is above zero at its
  * time, its route is `count-in`, the click is forced on at its time (the latest force recorded on
  * its bus before it was scheduled ends after it) or the click is enabled at its time, and its bus
  * has not started fading by then (see `fadedOut`).
@@ -271,7 +271,7 @@ export function audibleClicksOf(events: readonly FakeAudioEvent[]): AudibleClick
 }
 
 /**
- * Intent: the backing notes the player hears. A note sounds when the backing on/off gain and the
+ * The backing notes the player hears. A note sounds when the backing on/off gain and the
  * backing volume are both above zero at its start, and its bus has not started fading by then
  * (see `fadedOut`).
  */
@@ -289,7 +289,7 @@ export function audibleBackingOf(events: readonly FakeAudioEvent[]): AudibleBack
 }
 
 /**
- * Intent: the guide notes the player hears start. A note sounds when its guide's on/off gain and
+ * The guide notes the player hears start. A note sounds when its guide's on/off gain and
  * volume are both above zero at its start, and its bus has not started fading by then (see
  * `fadedOut`). It does not judge a note switched off while it rings.
  */
@@ -315,7 +315,7 @@ export interface RecordedAudioOutput {
 }
 
 /**
- * Intent: wrap `inner` so every gain change, bus opening, scheduled click, backing note or guide
+ * Wrap `inner` so every gain change, bus opening, scheduled click, backing note or guide
  * note and fade is passed on
  * and then recorded as a `FakeAudioEvent`, stamped with `inner.now()` at the call. Buses are
  * numbered from 1 in opening order. A call the inner output rejects throws and is not recorded.
@@ -325,7 +325,7 @@ export function recordAudioOutput(inner: AudioOutput): RecordedAudioOutput {
   const log: FakeAudioEvent[] = []
   let busCount = 0
 
-  /** Intent: open one bus on `inner`, numbered in opening order, recording what it schedules. */
+  /** Open one bus on `inner`, numbered in opening order, recording what it schedules. */
   function openSessionBus(): SessionBus {
     const innerBus = inner.openSessionBus()
     busCount += 1
@@ -381,7 +381,7 @@ const SILENT_BUS: SessionBus = {
 }
 
 /**
- * Intent: build a fake audio rig whose clock starts at `startTime` and only moves when the test
+ * Build a fake audio rig whose clock starts at `startTime` and only moves when the test
  * advances it. The clock steps on the grid `startTime + k * WAKE_INTERVAL_SECONDS`, so long runs
  * do not drift; an advance that ends between two grid points takes a shorter last step. Its clock
  * anchor pairs the clock's time with a fake performance.now() timeline running
@@ -400,7 +400,7 @@ export function createFakeAudioRig(options: FakeAudioRigOptions = {}): FakeAudio
   const timer = createFakeTimer()
   const extraTimers: FakeTimer[] = []
 
-  /** Intent: the fake performance.now() time, in milliseconds, of audio time `audioTime`. */
+  /** The fake performance.now() time, in milliseconds, of audio time `audioTime`. */
   function performanceTimeAt(audioTime: AudioTime): number {
     return audioTime * MILLISECONDS_PER_SECOND + performanceOffsetMs
   }
@@ -415,7 +415,7 @@ export function createFakeAudioRig(options: FakeAudioRigOptions = {}): FakeAudio
   })
   const output = recorded.output
 
-  /** Intent: step the clock to `target`, one wake-up interval at a time, waking after each step. */
+  /** Step the clock to `target`, one wake-up interval at a time, waking after each step. */
   function advanceTo(target: AudioTime): void {
     if (!Number.isFinite(target)) throw new Error(`fake clock: target ${target} is not finite`)
     if (target < current)

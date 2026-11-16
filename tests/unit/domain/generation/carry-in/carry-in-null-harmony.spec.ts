@@ -37,18 +37,18 @@ const LEAPING_MAX_INTERVAL = 10
 /** Seeds of the phrase generated after the change. */
 const SEEDS = [21, 22, 23, 24] as const
 
-/** Intent: the real carry-in a C Ionian phrase 1 (C keyboard, Middle, seed 11) hands forward. */
+/** The real carry-in a C Ionian phrase 1 (C keyboard, Middle, seed 11) hands forward. */
 function ionianCarryIn(): PhraseCarryIn {
   const intent = buildIntent({ seed: 11, controls: C_IONIAN })
   return carryInAfter(intent, generateSuccess(intent), 1)
 }
 
-/** Intent: a carry-in with its harmonic part dropped, as a key or collection change leaves it. */
+/** A carry-in with its harmonic part dropped, as a key or collection change leaves it. */
 function withoutHarmony(carryIn: PhraseCarryIn): PhraseCarryIn {
   return makeCarryIn({ ...carryIn, finalHarmony: null })
 }
 
-/** Intent: a copy of a carry-in with its last pitch and leap state replaced, built unchecked. */
+/** A copy of a carry-in with its last pitch and leap state replaced, built unchecked. */
 function withLastPitch(
   carryIn: PhraseCarryIn,
   lastPitch: Partial<CarryIn['lastPitch']>,
@@ -56,7 +56,7 @@ function withLastPitch(
   return { ...carryIn, lastPitch: { ...carryIn.lastPitch, ...lastPitch } }
 }
 
-/** Intent: every MIDI value inside the carried window whose pitch class passes `keep`. */
+/** Every MIDI value inside the carried window whose pitch class passes `keep`. */
 function windowMidis(carryIn: CarryIn, keep: (pitchClass: number) => boolean): readonly number[] {
   const midis: number[] = []
   for (let midi = carryIn.registerWindow.minMidi; midi <= carryIn.registerWindow.maxMidi; midi++)
@@ -64,7 +64,7 @@ function windowMidis(carryIn: CarryIn, keep: (pitchClass: number) => boolean): r
   return midis
 }
 
-/** Intent: a pitch of the carried window off the old carried chord, at least a skip below the top. */
+/** A pitch of the carried window off the old carried chord, at least a skip below the top. */
 function offOldChord(carryIn: CarryIn): number {
   const chord = carryIn.finalHarmony!.triad.pitchClasses as readonly number[]
   const off = windowMidis(carryIn, (pc) => !chord.includes(pc)).find(
@@ -74,7 +74,7 @@ function offOldChord(carryIn: CarryIn): number {
   return off
 }
 
-/** Intent: the F# Dorian intent of the phrase after the change, receiving the given carry-in. */
+/** The F# Dorian intent of the phrase after the change, receiving the given carry-in. */
 function afterChange(seed: number, carryIn?: CarryIn): GenerationIntent {
   return buildIntent({
     seed,
@@ -85,7 +85,7 @@ function afterChange(seed: number, carryIn?: CarryIn): GenerationIntent {
 }
 
 /**
- * Intent: generate the F# Dorian phrase after the change for every seed, asserting each join: the
+ * Generate the F# Dorian phrase after the change for every seed, asserting each join: the
  * independent validator accepts it, the first interval keeps the interval cap, the carried window
  * is kept, beat 1 is a fresh attack and the same intent reproduces the same phrase. Returns the
  * first attack of every phrase.

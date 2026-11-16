@@ -97,7 +97,7 @@ interface FakePort {
 }
 
 /**
- * Intent: create a fake MIDI access provider with no device plugged in. Requests resolve granted
+ * Create a fake MIDI access provider with no device plugged in. Requests resolve granted
  * (one access object shared by every request) unless failed, denied, held or unsupported.
  */
 // @test-link [[req_midi_controller_input]]
@@ -120,26 +120,26 @@ export function createFakeMidiAccess(options: FakeMidiAccessOptions = {}): FakeM
     onInputStateChange: (listener) => stateListeners.push(listener),
   }
 
-  /** Intent: the fake port of a known id; an unknown id is a test bug. */
+  /** The fake port of a known id; an unknown id is a test bug. */
   function portOf(id: string): FakePort {
     const fake = ports.get(id)
     if (fake === undefined) throw new Error(`fake MIDI: no device with id "${id}"`)
     return fake
   }
 
-  /** Intent: tell every state-change listener that this port changed. */
+  /** Tell every state-change listener that this port changed. */
   function fireStateChange(fake: FakePort, timestampMs: number): void {
     ;[...stateListeners].forEach((listener) => listener(fake.port, timestampMs))
   }
 
-  /** Intent: finish an open: the port is open if its device is present, else pending. */
+  /** Finish an open: the port is open if its device is present, else pending. */
   function completeOpen(fake: FakePort): void {
     const before = fake.connection
     fake.connection = fake.state === 'connected' ? 'open' : 'pending'
     if (fake.connection !== before) fireStateChange(fake, now())
   }
 
-  /** Intent: build a fresh fake port, closed and present, for a device seen for the first time. */
+  /** Build a fresh fake port, closed and present, for a device seen for the first time. */
   function createPort(device: FakeMidiDevice): FakePort {
     const fake: FakePort = {
       port: {
@@ -163,7 +163,7 @@ export function createFakeMidiAccess(options: FakeMidiAccessOptions = {}): FakeM
   }
 
   /**
-   * Intent: count an open, then reject it when a failure is set (the port stays as it was, with no
+   * Count an open, then reject it when a failure is set (the port stays as it was, with no
    * state change, as a browser refusing an unavailable port does), complete it now, or keep it in
    * flight when a hold is set.
    */
@@ -186,7 +186,7 @@ export function createFakeMidiAccess(options: FakeMidiAccessOptions = {}): FakeM
     })
   }
 
-  /** Intent: deliver raw bytes to a port's listeners, which only an open, present port does. */
+  /** Deliver raw bytes to a port's listeners, which only an open, present port does. */
   function deliver(id: string, bytes: readonly number[], timestampMs: number): void {
     const fake = portOf(id)
     if (fake.state !== 'connected' || fake.connection !== 'open') {
@@ -197,7 +197,7 @@ export function createFakeMidiAccess(options: FakeMidiAccessOptions = {}): FakeM
   }
 
   /**
-   * Intent: resolve a request the way the fake is currently set up to answer it; the permission
+   * Resolve a request the way the fake is currently set up to answer it; the permission
    * then reads as answered, as a browser's does.
    */
   function answer(): MidiAccessRequest {

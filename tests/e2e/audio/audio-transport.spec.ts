@@ -31,7 +31,7 @@ const COUNT_IN_BEATS = 4
 const RUN_BEATS = COUNT_IN_BEATS + 8 * 4
 
 /**
- * Intent: advance the fake clock until the run's last click (beat `RUN_BEATS - 1`) is past, with
+ * Advance the fake clock until the run's last click (beat `RUN_BEATS - 1`) is past, with
  * the look-ahead window (0.2 s) still short of the next beat, so exactly `RUN_BEATS` clicks are
  * scheduled.
  */

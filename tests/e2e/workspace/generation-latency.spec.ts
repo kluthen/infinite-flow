@@ -79,7 +79,7 @@ type PrewarmMode = 'off' | 'on' | 'settled'
  */
 const PREWARM_SETTLE_MS = 3_000
 
-/** Intent: the pre-warm mode `LATENCY_PREWARM` asks for, `on` when unset; any other value throws. */
+/** The pre-warm mode `LATENCY_PREWARM` asks for, `on` when unset; any other value throws. */
 function prewarmModeFromEnv(value: string | undefined): PrewarmMode {
   if (value === undefined || value === 'on') return 'on'
   if (value === 'off' || value === 'settled') return value
@@ -88,12 +88,12 @@ function prewarmModeFromEnv(value: string | undefined): PrewarmMode {
 
 const PREWARM_MODE = prewarmModeFromEnv(process.env.LATENCY_PREWARM)
 
-/** Intent: load a fresh workspace page, with pre-warm disabled on the URL in `off` mode. */
+/** Load a fresh workspace page, with pre-warm disabled on the URL in `off` mode. */
 function gotoLatencyWorkspace(page: Page): Promise<void> {
   return gotoWorkspace(page, PREWARM_MODE === 'off' ? '?prewarm=off' : '')
 }
 
-/** Intent: once a setting is reached, wait for its pre-warm to finish in `settled` mode only. */
+/** Once a setting is reached, wait for its pre-warm to finish in `settled` mode only. */
 async function settlePrewarm(page: Page): Promise<void> {
   if (PREWARM_MODE === 'settled') {
     await page.waitForTimeout(PREWARM_SETTLE_MS)
@@ -104,7 +104,7 @@ async function settlePrewarm(page: Page): Promise<void> {
 test.describe.configure({ mode: 'default' })
 
 /**
- * Intent: the documented worst-case rhythm/tension setting, as radiogroup label -> option label
+ * The documented worst-case rhythm/tension setting, as radiogroup label -> option label
  * (`to`), with the one-step neighbour each setting-change scenario starts from (`from`).
  */
 const WORST_CASE_SETTING: readonly SettingChange[] = [
@@ -116,7 +116,7 @@ const WORST_CASE_SETTING: readonly SettingChange[] = [
 ]
 
 /**
- * Intent: the slowest rhythm/tension setting to generate in Node since the cold-generation
+ * The slowest rhythm/tension setting to generate in Node since the cold-generation
  * speed-up, as radiogroup label -> option label (`to`); it differs from the worst case only in
  * syncopation and tension, and each is measured in its own fresh page (so its own Worker).
  */
@@ -128,7 +128,7 @@ const STRAIGHT_EDGE_SETTING: readonly Pick<SettingChange, 'group' | 'to'>[] = [
   { group: 'Tension', to: 'Edge' },
 ]
 
-/** Intent: apply a rhythm/tension setting through the real controls, in the order listed. */
+/** Apply a rhythm/tension setting through the real controls, in the order listed. */
 async function selectSetting(
   page: Page,
   setting: readonly Pick<SettingChange, 'group' | 'to'>[],
@@ -138,17 +138,17 @@ async function selectSetting(
   }
 }
 
-/** Intent: apply the documented worst-case rhythm/tension setting through the real controls. */
+/** Apply the documented worst-case rhythm/tension setting through the real controls. */
 function selectWorstCaseSetting(page: Page): Promise<void> {
   return selectSetting(page, WORST_CASE_SETTING)
 }
 
-/** Intent: one timed generation cycle, click to "Phrase ready", within the test timeout. */
+/** One timed generation cycle, click to "Phrase ready", within the test timeout. */
 function timeGeneration(page: Page): Promise<PhraseReadyTiming> {
   return timePhraseReady(page, TEST_TIMEOUT_MS)
 }
 
-/** Intent: the compact console form of one timing, in-page first since it is the exact one. */
+/** The compact console form of one timing, in-page first since it is the exact one. */
 function formatTiming(timing: PhraseReadyTiming): string {
   return `${timing.inPageMs.toFixed(1)}ms in page (${timing.wallMs}ms wall)`
 }

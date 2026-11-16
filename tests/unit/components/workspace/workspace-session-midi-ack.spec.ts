@@ -19,19 +19,19 @@ import {
   VELOCITY,
 } from './session-controller-midi'
 
-/** Intent: phrase 1's expected notes in a session started now. */
+/** Phrase 1's expected notes in a session started now. */
 function phraseOneNotes(rig: ControllerRig): readonly ExpectedNote[] {
   return expectedNotesOf(rig, 1, rig.phraseOne.outcome.result.timeline)
 }
 
-/** Intent: an expected note at `index`, which the phrase must have. */
+/** An expected note at `index`, which the phrase must have. */
 function noteAt(notes: readonly ExpectedNote[], index: number): ExpectedNote {
   const note = notes[index]
   if (note === undefined) throw new Error(`the phrase has no expected note ${index}`)
   return note
 }
 
-/** Intent: a session started by its starting note, pressed and released at 5 s. */
+/** A session started by its starting note, pressed and released at 5 s. */
 async function startedByTheStartingNote(): Promise<ControllerRig> {
   const rig = controllerRig()
   await connectKeys(rig)

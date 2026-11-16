@@ -40,7 +40,7 @@ async function shownPhrase(page: Page) {
 }
 
 /**
- * Intent: assert a count-in end landed in Ready: phrase 1 still on screen with the same notes,
+ * Assert a count-in end landed in Ready: phrase 1 still on screen with the same notes,
  * `Start session` enabled and focused, the cue row empty, no Review, no notation error.
  */
 async function expectBackToReady(
@@ -60,7 +60,7 @@ async function expectBackToReady(
 }
 
 /**
- * Intent: assert a sounded end: the engine's history closed with every phrase that sounded and
+ * Assert a sounded end: the engine's history closed with every phrase that sounded and
  * the Review opened over it, `Close review` focused and the phrase action disabled; under it a
  * fresh phrase, never the played one, is generated (one more seed drawn at least, from
  * `seedsBefore`, read before the end). `Close review` then leaves `Start session` enabled and
@@ -101,7 +101,7 @@ async function expectSoundedEnd(
   expect(await shownPhrase(page)).toEqual(fresh)
 }
 
-/** Intent: land at `size`, make a phrase ready, start, and return the phrase shown. */
+/** Land at `size`, make a phrase ready, start, and return the phrase shown. */
 async function startFromReady(
   page: Page,
   size: { readonly width: number; readonly height: number } = DESKTOP,
@@ -114,7 +114,7 @@ async function startFromReady(
 }
 
 /**
- * Intent: assert a count-in Stop started no Idle generation: once the audio clock has moved on a
+ * Assert a count-in Stop started no Idle generation: once the audio clock has moved on a
  * little and the screen has settled, no seed was drawn since `seedsBefore` (read before the Stop;
  * every Idle generation draws one) and the Idle state runs no operation.
  */
@@ -177,12 +177,12 @@ test.describe('Stop', () => {
   })
 })
 
-/** Intent: hide the (fake) page the session listens to, as a tab switch does. */
+/** Hide the (fake) page the session listens to, as a tab switch does. */
 async function hidePage(page: Page): Promise<void> {
   await page.evaluate(() => window.__workspaceHarness.page.setHidden(true))
 }
 
-/** Intent: show the (fake) page again, as coming back to the tab does. */
+/** Show the (fake) page again, as coming back to the tab does. */
 async function showPage(page: Page): Promise<void> {
   await page.evaluate(() => window.__workspaceHarness.page.setHidden(false))
 }
@@ -220,7 +220,7 @@ test.describe('the page hidden', () => {
 })
 
 /**
- * Intent: what a browser toolbar showing or hiding sends a page: a window `resize` and a visual
+ * What a browser toolbar showing or hiding sends a page: a window `resize` and a visual
  * viewport `resize`, with the small viewport height unchanged. Headless Chromium has no dynamic
  * toolbar, so only the events are sent; the moving dynamic height is covered at unit level.
  */

@@ -60,12 +60,12 @@ export interface ReviewDoodleTools {
   readonly jamAgain: () => Promise<void>
 }
 
-/** Intent: the doodle section's controls over the showing Review and the workspace's Jam. */
+/** The doodle section's controls over the showing Review and the workspace's Jam. */
 // @spec-link [[req_key_and_mode_suggestion]]
 // @spec-link [[rule_jam_again_on_this_doodle]]
 // @spec-link [[rule_suggestion_shown_after_jam_only]]
 export function useReviewDoodleTools(deps: ReviewDoodleToolsDependencies): ReviewDoodleTools {
-  /** Intent: Jam's code once loaded; null before, or after it failed. */
+  /** Jam's code once loaded; null before, or after it failed. */
   const loaded = computed(() => {
     const code = deps.jamCode.value
     return code.state === 'loaded' ? code.module : null
@@ -84,13 +84,13 @@ export function useReviewDoodleTools(deps: ReviewDoodleToolsDependencies): Revie
     }
   })
 
-  /** Intent: Jam's code, which a suggestion's answer is only offered with. */
+  /** Jam's code, which a suggestion's answer is only offered with. */
   function requireLoaded() {
     if (loaded.value === null) throw new Error("review doodle: Jam's code is not loaded")
     return loaded.value
   }
 
-  /** Intent: the session controller; a press before it loads is a defect. */
+  /** The session controller; a press before it loads is a defect. */
   function requireController(): SessionController {
     const controller = deps.controller()
     if (controller === null) throw new Error('review doodle: no session controller yet')
@@ -98,7 +98,7 @@ export function useReviewDoodleTools(deps: ReviewDoodleToolsDependencies): Revie
   }
 
   /**
-   * Intent: `Jam in {answer}`: Jam's key and mode set and saved as Jam's, from a Review over
+   * `Jam in {answer}`: Jam's key and mode set and saved as Jam's, from a Review over
    * either mode; the row says so and takes focus itself.
    */
   // @spec-link [[rule_suggestion_use_it]]
@@ -107,7 +107,7 @@ export function useReviewDoodleTools(deps: ReviewDoodleToolsDependencies): Revie
   }
 
   /**
-   * Intent: `Keep {key} {mode}`: the suggestion declined for good, at once in memory, then saved
+   * `Keep {key} {mode}`: the suggestion declined for good, at once in memory, then saved
    * with the session (chunk 30's decline), and Jam's kept doodle declined too when it comes from
    * this session; once the row has left, focus on `Jam again on this
    * doodle` when it is enabled, else on `review-title`. Nothing is announced.
@@ -122,7 +122,7 @@ export function useReviewDoodleTools(deps: ReviewDoodleToolsDependencies): Revie
   }
 
   /**
-   * Intent: `Jam again on this doodle`: the review mode left onto Jam mode with the showing
+   * `Jam again on this doodle`: the review mode left onto Jam mode with the showing
    * Review's doodle kept, from its session.
    */
   // @spec-link [[rule_jam_again_on_this_doodle]]

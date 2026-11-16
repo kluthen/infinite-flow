@@ -75,7 +75,7 @@ const SEEDS: readonly Seed[] = [
   makeSeed(0xffffffff),
 ]
 
-/** Intent: materialize one setting's canonical candidate list through the real memo. */
+/** Materialize one setting's canonical candidate list through the real memo. */
 function materializedDomain(
   memo: CanonicalRhythmDomainMemo,
   input: RhythmExpansionInput,
@@ -87,7 +87,7 @@ function materializedDomain(
   return domain.candidates
 }
 
-/** Intent: the reference ranking, sorting by `rhythmTieKey` then candidateIndex. */
+/** The reference ranking, sorting by `rhythmTieKey` then candidateIndex. */
 function referenceRankedIndices(candidates: readonly RhythmCandidate[], seed: Seed): number[] {
   return candidates
     .map((candidate) => ({ candidate, key: rhythmTieKey(seed, candidate) }))
@@ -98,7 +98,7 @@ function referenceRankedIndices(candidates: readonly RhythmCandidate[], seed: Se
     .map((entry) => entry.candidate.candidateIndex)
 }
 
-/** Intent: count candidates whose batch key differs from the reference key under one seed. */
+/** Count candidates whose batch key differs from the reference key under one seed. */
 function keyMismatches(candidates: readonly RhythmCandidate[], seed: Seed): number {
   const keys = computeRhythmTieKeys(candidates, seed)
   return candidates.filter(
@@ -106,7 +106,7 @@ function keyMismatches(candidates: readonly RhythmCandidate[], seed: Seed): numb
   ).length
 }
 
-/** Intent: a small real candidate to clone with synthetic identities and indices. */
+/** A small real candidate to clone with synthetic identities and indices. */
 function baseCandidate(): RhythmCandidate {
   const result = makeRhythmCandidateDomain(SETTINGS[3]!)
   if (isNoLegalRhythmPlan(result)) throw new Error('Fixture setup: no legal rhythm plan.')
@@ -116,7 +116,7 @@ function baseCandidate(): RhythmCandidate {
 }
 
 /**
- * Intent: synthetic identities sharing prefixes shorter than, exactly at, and longer than 64-char
+ * Synthetic identities sharing prefixes shorter than, exactly at, and longer than 64-char
  * multiples (and around the 512-character coarse comparison block), including empty and short
  * identities, exact duplicates, identities that are a prefix of another at exactly 64, 128, 512
  * and 1024 characters, and a non-ASCII code unit.

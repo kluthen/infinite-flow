@@ -92,12 +92,12 @@ const emit = defineEmits<{
   'preset-action': [action: PresetActionKind]
 }>()
 
-/** Intent: forward a group's set-control event upward unchanged. */
+/** Forward a group's set-control event upward unchanged. */
 function forwardSetControl(payload: SetControlPayload): void {
   emit('set-control', payload)
 }
 
-/** Intent: forward the Embellishments group's level change upward unchanged. */
+/** Forward the Embellishments group's level change upward unchanged. */
 // @spec-link [[module_figure_level_options]]
 function forwardFigureLevel(payload: {
   readonly figure: FigureId
@@ -106,33 +106,33 @@ function forwardFigureLevel(payload: {
   emit('set-figure-level', payload)
 }
 
-/** Intent: forward the instrument-profile group's selection event upward unchanged. */
+/** Forward the instrument-profile group's selection event upward unchanged. */
 function forwardInstrumentProfile(id: GenerationControls['instrumentProfileId']): void {
   emit('select-instrument-profile', id)
 }
 
-/** Intent: forward the preset bar's choice upward unchanged. */
+/** Forward the preset bar's choice upward unchanged. */
 function forwardSelectPreset(id: PresetId): void {
   emit('select-preset', id)
 }
 
-/** Intent: forward the player's `Rising tempo` choice upward unchanged. */
+/** Forward the player's `Rising tempo` choice upward unchanged. */
 function forwardRisingTempo(on: boolean): void {
   emit('set-rising-tempo', on)
 }
 
-/** Intent: forward the player's `Tension across phrases` choice upward unchanged. */
+/** Forward the player's `Tension across phrases` choice upward unchanged. */
 function forwardTensionAcrossPhrases(on: boolean): void {
   emit('set-tension-across-phrases', on)
 }
 
-/** Intent: forward the player's `Vary settings` choice upward unchanged. */
+/** Forward the player's `Vary settings` choice upward unchanged. */
 function forwardVarySettings(on: boolean): void {
   emit('set-vary-settings', on)
 }
 
 /**
- * Intent: the muted control-summary line, restating the chosen tonal center, collection, preset
+ * The muted control-summary line, restating the chosen tonal center, collection, preset
  * label (Custom naming its base), tension arc and leapiness at a glance, recomputed on every relevant control change.
  */
 // @spec-link [[module_generation_control_catalog]]

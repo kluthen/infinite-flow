@@ -77,7 +77,7 @@ export interface WorkspaceFreshJam {
 }
 
 /**
- * Intent: the shell's fresh Jam over its seams. A start (whose conditions the caller has judged)
+ * The shell's fresh Jam over its seams. A start (whose conditions the caller has judged)
  * removes `jam-notice` and starts the Jam through Jam's code, under Jam's settings with my
  * instrument's profile when it is the instrument, drawn in the instrument's clef. An end that
  * carries a Jam part (a Jam's end with a review) hands it to Jam's kept doodle. Once the session
@@ -94,7 +94,7 @@ export function useFreshJam(seams: FreshJamSeams): WorkspaceFreshJam {
   const running = shallowRef<FreshJam | null>(null)
   const noticeShown = shallowRef(false)
 
-  /** Intent: start a fresh Jam: Jam's code and settings must be there, as `Start Jam` shows. */
+  /** Start a fresh Jam: Jam's code and settings must be there, as `Start Jam` shows. */
   function start(): void {
     const loaded = seams.jamModule()
     const source = seams.settings()
@@ -131,7 +131,7 @@ export function useFreshJam(seams: FreshJamSeams): WorkspaceFreshJam {
   })
 
   /**
-   * Intent: until phrase 1 enters, Jam's staff is the staff the Jam is shown on, so a window
+   * Until phrase 1 enters, Jam's staff is the staff the Jam is shown on, so a window
    * change that leaves it no room (or an engraving it cannot show) ends the Jam as the staff no
    * longer shown; from the read-in on, the session's own watchers judge phrase 1 in the held layout.
    */

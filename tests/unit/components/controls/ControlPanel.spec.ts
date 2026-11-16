@@ -97,7 +97,7 @@ describe('ControlPanel', () => {
   })
 
   it("selects the selected preset's own option in the preset box", () => {
-    /** Intent: the preset box's DOM value over `selection`. */
+    /** The preset box's DOM value over `selection`. */
     const shown = (selection: PresetSelection) =>
       (
         mountPanel(DEFAULT_GENERATION_CONTROLS, selection).get('select.preset-select')

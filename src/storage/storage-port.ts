@@ -42,7 +42,7 @@ export type StorageErrorKind = 'quota' | 'outdated' | 'other'
 export class StorageError extends Error {
   readonly kind: StorageErrorKind
 
-  /** Intent: a refusal of the given kind, keeping the browser's error as its cause if any. */
+  /** A refusal of the given kind, keeping the browser's error as its cause if any. */
   constructor(kind: StorageErrorKind, message: string, cause?: unknown) {
     super(`storage (${kind}): ${message}`, cause === undefined ? undefined : { cause })
     this.name = 'StorageError'
@@ -132,19 +132,19 @@ export interface StoragePort {
 /** The port's state, with `opening` before the open settles and `deleted` after delete everything. */
 type PortState = StoragePortStatus | 'opening' | 'deleted'
 
-/** Intent: whether a browser error reports a lack of space. */
+/** Whether a browser error reports a lack of space. */
 function isQuotaError(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'QuotaExceededError'
 }
 
-/** Intent: a refusal for whatever a storage operation threw, quota when it lacked space. */
+/** A refusal for whatever a storage operation threw, quota when it lacked space. */
 function asStorageError(error: unknown): StorageError {
   if (error instanceof StorageError) return error
   if (isQuotaError(error)) return new StorageError('quota', 'the browser lacks space', error)
   return new StorageError('other', 'the storage operation failed', error)
 }
 
-/** Intent: run a storage operation, its failure turned into a refusal of the right kind. */
+/** Run a storage operation, its failure turned into a refusal of the right kind. */
 async function refusingAs<T>(operation: () => Promise<T>): Promise<T> {
   try {
     return await operation()
@@ -153,7 +153,7 @@ async function refusingAs<T>(operation: () => Promise<T>): Promise<T> {
   }
 }
 
-/** Intent: throw unless `store` names one of the data stores: anything else is a caller defect. */
+/** Throw unless `store` names one of the data stores: anything else is a caller defect. */
 function assertDataStore(store: string): asserts store is StoreName {
   if (!(DATA_STORES as readonly string[]).includes(store)) {
     throw new Error(`storage port: "${store}" is not a data store`)
@@ -161,7 +161,7 @@ function assertDataStore(store: string): asserts store is StoreName {
 }
 
 /**
- * Intent: throw unless a change of a batch names a data store, a known kind and, for a write, a
+ * Throw unless a change of a batch names a data store, a known kind and, for a write, a
  * record with valid versions: anything else is a caller defect.
  */
 function assertChange(change: StorageChange, dataVersion: number): void {
@@ -174,7 +174,7 @@ function assertChange(change: StorageChange, dataVersion: number): void {
 }
 
 /**
- * Intent: open the port. Never rejects for a storage failure: a database that cannot be opened
+ * Open the port. Never rejects for a storage failure: a database that cannot be opened
  * gives an `unavailable` port, one a newer app wrote an `outdated` one. Rejects only for a defect:
  * an empty app version, migration steps with a gap, or a step that throws.
  */
@@ -192,7 +192,7 @@ export async function openStoragePort(options: StoragePortOptions): Promise<Stor
   let connection: IDBDatabase | null = null
   let reopening: Promise<IDBDatabase> | null = null
 
-  /** Intent: turn outdated for good, telling the listeners once if it happens after the open. */
+  /** Turn outdated for good, telling the listeners once if it happens after the open. */
   const becomeOutdated = (): void => {
     if (state !== 'ready' && state !== 'opening') return
     const afterOpen = state === 'ready'
@@ -200,7 +200,7 @@ export async function openStoragePort(options: StoragePortOptions): Promise<Stor
     if (afterOpen) for (const listener of [...listeners]) listener()
   }
 
-  /** Intent: forget a connection closed by a version change; the tab is outdated from now on. */
+  /** Forget a connection closed by a version change; the tab is outdated from now on. */
   const onVersionChange = (closed: IDBDatabase): void => {
     if (connection === closed) connection = null
     becomeOutdated()
@@ -224,14 +224,14 @@ export async function openStoragePort(options: StoragePortOptions): Promise<Stor
     state = 'unavailable'
   }
 
-  /** Intent: the refusal for a call on a port that was deleted or never opened. */
+  /** The refusal for a call on a port that was deleted or never opened. */
   const unusable = (): StorageError =>
     new StorageError(
       'other',
       state === 'deleted' ? 'the database was deleted' : 'the database is unavailable',
     )
 
-  /** Intent: a connection to read through, reopened without a version after a version change. */
+  /** A connection to read through, reopened without a version after a version change. */
   const readingConnection = async (): Promise<IDBDatabase> => {
     if (state === 'unavailable' || state === 'deleted') throw unusable()
     if (connection !== null) return connection
@@ -243,7 +243,7 @@ export async function openStoragePort(options: StoragePortOptions): Promise<Stor
   }
 
   /**
-   * Intent: change some stores in one transaction on a ready port; refused with `outdated` on an
+   * Change some stores in one transaction on a ready port; refused with `outdated` on an
    * outdated one, and when the transaction finds a newer data version in `meta`, the port then
    * turning outdated.
    */
@@ -261,7 +261,7 @@ export async function openStoragePort(options: StoragePortOptions): Promise<Stor
     throw new StorageError('outdated', 'a newer version of the app has written data')
   }
 
-  /** Intent: the storage manager, refused with `other` when there is none or after deletion. */
+  /** The storage manager, refused with `other` when there is none or after deletion. */
   const manager = (): StorageManagerLike => {
     if (state === 'deleted') throw unusable()
     if (storageManager === undefined) {
@@ -335,7 +335,7 @@ export async function openStoragePort(options: StoragePortOptions): Promise<Stor
 }
 
 /**
- * Intent: the browser's own IndexedDB factory and storage manager, for the app to open the port
+ * The browser's own IndexedDB factory and storage manager, for the app to open the port
  * with; the storage manager is absent in an insecure context.
  */
 // @spec-link [[module_on_device_database]]

@@ -8,7 +8,7 @@ import type { SessionHistory } from '@/session/session-history'
 import { recordedRecords } from '../review/review-fixtures'
 import { fakeReviewHistory } from './fake-session-controller'
 
-/** Intent: the recorded session as if played with my instrument named `name`. */
+/** The recorded session as if played with my instrument named `name`. */
 export function myInstrumentHistory(name = 'My tenor'): SessionHistory {
   const draft = myInstrumentDraftFromTemplate('bb-tenor')
   const profile = makeMyInstrument({ ...draft, name, clef: 'treble' }).profile

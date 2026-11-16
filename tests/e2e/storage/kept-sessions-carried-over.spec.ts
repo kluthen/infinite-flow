@@ -73,7 +73,7 @@ test.beforeEach(({ page }) => {
 test.afterEach(() => expectNoPageErrors())
 
 /**
- * Intent: from the Review shown, export the generated notes as MusicXML, then as MIDI: the two
+ * From the Review shown, export the generated notes as MusicXML, then as MIDI: the two
  * files, read back whole.
  */
 async function exportBoth(page: Page): Promise<{ musicXml: DownloadedFile; midi: DownloadedFile }> {
@@ -206,20 +206,20 @@ interface PlayedSession {
   readonly exported: { musicXml: DownloadedFile; midi: DownloadedFile }
 }
 
-/** Intent: from the Review shown, export MusicXML then MIDI, starting from MusicXML. */
+/** From the Review shown, export MusicXML then MIDI, starting from MusicXML. */
 async function exportFromMusicXml(page: Page): ReturnType<typeof exportBoth> {
   await pickFormat(page, 'MusicXML')
   return exportBoth(page)
 }
 
-/** Intent: the one kept session's stored values, as v3.2's bytes, once it is kept. */
+/** The one kept session's stored values, as v3.2's bytes, once it is kept. */
 async function keptAsV32(page: Page): Promise<StoredSession> {
   const [key] = await untilKept(page, 1)
   if (key === undefined) throw new Error('the session was not kept')
   return v32Session(await storedSession(page, key))
 }
 
-/** Intent: in `page`, a Jazz session played at Off, pinned, kept, and its Review's exports. */
+/** In `page`, a Jazz session played at Off, pinned, kept, and its Review's exports. */
 async function playedPinnedJazz(page: Page): Promise<PlayedSession> {
   await gotoStorageHarness(page)
   await playJazzSession(page, V32_JAZZ_STARTED_AT)
@@ -230,7 +230,7 @@ async function playedPinnedJazz(page: Page): Promise<PlayedSession> {
   return { template: await keptAsV32(page), exported }
 }
 
-/** Intent: in a fresh context, a Jam session played at Off and kept, and its Review's exports. */
+/** In a fresh context, a Jam session played at Off and kept, and its Review's exports. */
 async function playedJam(browser: Browser): Promise<PlayedSession> {
   const context = await browser.newContext()
   try {
@@ -249,7 +249,7 @@ async function playedJam(browser: Browser): Promise<PlayedSession> {
 }
 
 /**
- * Intent: open the harness afresh (the load no longer held), then the kept session started at
+ * Open the harness afresh (the load no longer held), then the kept session started at
  * `startedAt` from the list, its Review shown.
  */
 async function openFromList(page: Page, startedAt: number, phraseCount: number): Promise<void> {
@@ -260,7 +260,7 @@ async function openFromList(page: Page, startedAt: number, phraseCount: number):
   expect((await sessionState(page)).review).toEqual({ showing: true, phraseCount })
 }
 
-/** Intent: check the upgrade rewrote the copy under `key` of `played` as step 5 does, no more. */
+/** Check the upgrade rewrote the copy under `key` of `played` as step 5 does, no more. */
 async function expectCarriedToFive(page: Page, key: string, played: StoredSession): Promise<void> {
   const upgraded = await storedSession(page, key)
   expect(upgraded.summary).toEqual({ ...played.summary, sessionSeed: 0 })

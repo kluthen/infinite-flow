@@ -43,7 +43,7 @@ export interface ControllerRig {
   readonly at: (t: AudioTime) => number
 }
 
-/** Intent: plug the given devices into a fake access, then build a controller listening to it. */
+/** Plug the given devices into a fake access, then build a controller listening to it. */
 // @test-link [[req_midi_controller_input]]
 export function createControllerRig(options: ControllerRigOptions = {}): ControllerRig {
   const audio = createFakeAudioRig(

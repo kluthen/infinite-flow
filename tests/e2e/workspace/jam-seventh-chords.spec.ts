@@ -17,36 +17,36 @@ import { generationRecords } from './pregeneration-helpers'
 /** The words a staff's description gives a seventh chord's suffix, whichever its quality. */
 const SEVENTH_WORDS = /(major|minor|dominant|half-diminished) seventh/
 
-/** Intent: Jam's control section. */
+/** Jam's control section. */
 function jamControls(page: Page): Locator {
   return page.locator('section.control-section[aria-labelledby="jam-controls-heading"]')
 }
 
-/** Intent: the Seventh chords radiogroup shown now, Jam's in Jam mode, session mode's otherwise. */
+/** The Seventh chords radiogroup shown now, Jam's in Jam mode, session mode's otherwise. */
 function control(page: Page): Locator {
   return page.getByRole('radiogroup', { name: 'Seventh chords', exact: true })
 }
 
-/** Intent: the checked Seventh chords segment's label. */
+/** The checked Seventh chords segment's label. */
 function checked(page: Page): Promise<string> {
   return control(page).locator('[role="radio"][aria-checked="true"]').innerText()
 }
 
-/** Intent: choose `label` in the Seventh chords control shown and wait until it shows checked. */
+/** Choose `label` in the Seventh chords control shown and wait until it shows checked. */
 async function choose(page: Page, label: string): Promise<void> {
   const segment = control(page).getByRole('radio', { name: label, exact: true })
   await segment.click()
   await expect(segment).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: press `Jam` and wait until Jam's controls show. */
+/** Press `Jam` and wait until Jam's controls show. */
 async function enterJam(page: Page): Promise<void> {
   await modeSegment(page, 'Jam').click()
   await expectJamModeShows(page)
   await expect(jamControls(page).locator('h2')).toHaveText('Shape your Jam')
 }
 
-/** Intent: press `Session` and wait until session mode shows. */
+/** Press `Session` and wait until session mode shows. */
 async function leaveJam(page: Page): Promise<void> {
   await modeSegment(page, 'Session').click()
   await expectSessionModeShows(page)

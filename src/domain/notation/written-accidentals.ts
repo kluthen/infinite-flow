@@ -20,20 +20,20 @@ export interface AccidentalState {
   readonly entries: Map<string, Alter>
 }
 
-/** Intent: create the empty accidental state a measure starts with, before any note is seen. */
+/** Create the empty accidental state a measure starts with, before any note is seen. */
 // @spec-link [[module_notation_display_convention]]
 export function createAccidentalState(): AccidentalState {
   return { entries: new Map() }
 }
 
-/** Intent: the alteration the key signature implies for a letter before any measure override. */
+/** The alteration the key signature implies for a letter before any measure override. */
 function signatureAlterFor(letter: Letter, key: WrittenKey): Alter {
   if (!key.signature.letters.includes(letter)) return 0
   return key.signature.accidental === 'sharp' ? 1 : -1
 }
 
 /**
- * Intent: decide the displayed accidental (or none) for one written note glyph and advance the
+ * Decide the displayed accidental (or none) for one written note glyph and advance the
  * measure's accidental state accordingly. A tied continuation glyph always reports no accidental
  * and leaves the state untouched. Otherwise compares the glyph's alteration against the current
  * implied alteration for its exact letter+octave (falling back to the key signature the first

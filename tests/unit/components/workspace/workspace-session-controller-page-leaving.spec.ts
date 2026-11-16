@@ -25,7 +25,7 @@ import { readyPort } from '../../storage/save-policy-doubles'
 import { freshFactory, sampleRecord } from '../../storage/storage-test-doubles'
 import { controllerRig, flush, playTo, type ControllerRig } from './session-controller-rig'
 
-/** Intent: a rig whose session has sounded phrase 1 and is still running. */
+/** A rig whose session has sounded phrase 1 and is still running. */
 async function soundedRig(
   options: Parameters<typeof controllerRig>[2] = {},
 ): Promise<ControllerRig> {
@@ -35,13 +35,13 @@ async function soundedRig(
   return rig
 }
 
-/** Intent: long enough for the kept-session codec to load and a save asked for to settle. */
+/** Long enough for the kept-session codec to load and a save asked for to settle. */
 async function codecLoaded(): Promise<void> {
   await import('@/storage/records/kept-session-record')
   await flush()
 }
 
-/** Intent: the session that ended is held in memory as not saved, its Review showing. */
+/** The session that ended is held in memory as not saved, its Review showing. */
 function expectNotSaved(rig: ControllerRig): void {
   expect(rig.controller.state.review?.showing).toBe(true)
   expect(rig.controller.state.review?.keeping).toBe('not-saved')

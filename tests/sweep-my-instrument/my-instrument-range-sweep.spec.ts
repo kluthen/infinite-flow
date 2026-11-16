@@ -53,7 +53,7 @@ interface RangeTally {
   readonly failuresByCode: ReadonlyMap<GenerationFailureCode, number>
 }
 
-/** Intent: one generation of the range's my instrument with one rhythm setting and seed. */
+/** One generation of the range's my instrument with one rhythm setting and seed. */
 function generateOnce(
   rangeCase: RangeCase,
   rhythm: RhythmSetting,
@@ -86,7 +86,7 @@ function generateOnce(
   return generatePhrase(intent)
 }
 
-/** Intent: generate every supported rhythm setting with every sweep seed for one range case. */
+/** Generate every supported rhythm setting with every sweep seed for one range case. */
 function sweepRange(rangeCase: RangeCase, settings: readonly RhythmSetting[]): RangeTally {
   const failuresByCode = new Map<GenerationFailureCode, number>()
   let generations = 0
@@ -103,7 +103,7 @@ function sweepRange(rangeCase: RangeCase, settings: readonly RhythmSetting[]): R
   return { label: rangeCase.label, generations, failures, failuresByCode }
 }
 
-/** Intent: the printed table, one row per range case. */
+/** The printed table, one row per range case. */
 function tableLines(tallies: readonly RangeTally[]): string[] {
   const rows = tallies.map((tally) => {
     const share = ((100 * tally.failures) / tally.generations).toFixed(1)

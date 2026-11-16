@@ -44,7 +44,7 @@ interface DomainFacts {
   readonly mixedGroups: readonly string[]
 }
 
-/** Intent: a rhythm's written bars as a string built without the bar key, to check it against. */
+/** A rhythm's written bars as a string built without the bar key, to check it against. */
 function written(bars: readonly RhythmBar[]): string {
   return JSON.stringify(
     bars.map((bar) =>
@@ -58,7 +58,7 @@ function written(bars: readonly RhythmBar[]): string {
   )
 }
 
-/** Intent: drain one domain, or undefined when the setting has no rhythm at that tension. */
+/** Drain one domain, or undefined when the setting has no rhythm at that tension. */
 function drain(
   setting: (typeof SETTINGS)[number],
   tensionArc: TensionArc,
@@ -67,7 +67,7 @@ function drain(
   return isNoLegalRhythmPlan(result) ? undefined : Object.freeze([...result.candidates()])
 }
 
-/** Intent: keep the facts the spec checks of one keyed domain. */
+/** Keep the facts the spec checks of one keyed domain. */
 function factsOf(
   candidates: readonly RhythmCandidate[],
   keyed: BarsKeyedRhythmDomain,
@@ -101,12 +101,12 @@ interface DomainCensus {
 /** The measures one change can touch: one measure, or a gesture measure and its answer. */
 const GROUPINGS: readonly (readonly BarIndex[])[] = [[0], [1], [2], [3], [0, 2], [1, 3]]
 
-/** Intent: the census label of a kind in a form, with an optional detail. */
+/** The census label of a kind in a form, with an optional detail. */
 function censusLabel(kind: RhythmChangeKind, form: CensusForm, detail?: CensusDetail): string {
   return detail === undefined ? `${kind}/${form}` : `${kind}/${form}/${detail}`
 }
 
-/** Intent: the detail a change adds, read from the locked candidate's start lists. */
+/** The detail a change adds, read from the locked candidate's start lists. */
 function censusDetail(
   change: RhythmChange,
   locked: readonly MeasureStarts[],
@@ -118,7 +118,7 @@ function censusDetail(
   return start?.kind === 'note' ? 'note-to-rest' : 'rest-to-note'
 }
 
-/** Intent: every census label one change gives the locked candidate. */
+/** Every census label one change gives the locked candidate. */
 function labelsOf(change: RhythmChange, locked: readonly MeasureStarts[]): readonly string[] {
   const detail = censusDetail(change, locked)
   const labels = [censusLabel(change.kind, 'any'), censusLabel(change.kind, change.form)]
@@ -127,7 +127,7 @@ function labelsOf(change: RhythmChange, locked: readonly MeasureStarts[]): reado
 }
 
 /**
- * Intent: the candidate positions grouped by how their measures outside `grouping` are written.
+ * The candidate positions grouped by how their measures outside `grouping` are written.
  * Two candidates differing by a change confined to `grouping` always fall in one group.
  */
 function bucketsOutside(
@@ -144,7 +144,7 @@ function bucketsOutside(
   return [...buckets.values()]
 }
 
-/** Intent: whether a change touches exactly the measures of a grouping. */
+/** Whether a change touches exactly the measures of a grouping. */
 function touchesExactly(change: RhythmChange, grouping: readonly BarIndex[]): boolean {
   return (
     change.measures.length === grouping.length &&
@@ -153,7 +153,7 @@ function touchesExactly(change: RhythmChange, grouping: readonly BarIndex[]): bo
 }
 
 /**
- * Intent: add to `into` the census labels of every change, touching exactly `grouping`, from the
+ * Add to `into` the census labels of every change, touching exactly `grouping`, from the
  * locked candidate to another candidate of its bucket.
  */
 function addBucketLabels(
@@ -173,7 +173,7 @@ function addBucketLabels(
 }
 
 /**
- * Intent: count, per census label, the candidates of one domain that some other candidate of the
+ * Count, per census label, the candidates of one domain that some other candidate of the
  * domain differs from by one change carrying that label (each candidate once per label; twins
  * written alike each count). Only pairs written alike outside a grouping are compared, and a
  * change counts only for the grouping it touches, so each pair's change is counted once.
@@ -197,12 +197,12 @@ const facts = new Map<string, DomainFacts | undefined>()
 const censuses: DomainCensus[] = []
 let largest: readonly RhythmCandidate[] = []
 
-/** Intent: the census of the supported domains a filter keeps. */
+/** The census of the supported domains a filter keeps. */
 function domainsWhere(keep: (census: DomainCensus) => boolean): readonly DomainCensus[] {
   return censuses.filter(keep)
 }
 
-/** Intent: how many candidates of one domain carry a census label. */
+/** How many candidates of one domain carry a census label. */
 function countIn(
   census: DomainCensus,
   kind: RhythmChangeKind,
@@ -212,7 +212,7 @@ function countIn(
   return census.counts.get(censusLabel(kind, form, detail)) ?? 0
 }
 
-/** Intent: a census label's candidate count summed over domains. */
+/** A census label's candidate count summed over domains. */
 function pooled(
   domains: readonly DomainCensus[],
   kind: RhythmChangeKind,
@@ -222,7 +222,7 @@ function pooled(
   return domains.reduce((sum, census) => sum + countIn(census, kind, form, detail), 0)
 }
 
-/** Intent: every kind's pooled candidate count in one form, by kind. */
+/** Every kind's pooled candidate count in one form, by kind. */
 function pooledByKind(
   domains: readonly DomainCensus[],
   form: CensusForm,
@@ -232,7 +232,7 @@ function pooledByKind(
   ) as Record<RhythmChangeKind, number>
 }
 
-/** Intent: how many domains a pool holds and how many candidates they have together. */
+/** How many domains a pool holds and how many candidates they have together. */
 function totals(domains: readonly DomainCensus[]): { domains: number; candidates: number } {
   return {
     domains: domains.length,
@@ -240,12 +240,12 @@ function totals(domains: readonly DomainCensus[]): { domains: number; candidates
   }
 }
 
-/** Intent: a domain's name, setting and tension. */
+/** A domain's name, setting and tension. */
 function domainName(census: DomainCensus): string {
   return `${census.setting.name}/${census.tension}`
 }
 
-/** Intent: the facts of one setting at one tension. */
+/** The facts of one setting at one tension. */
 function at(name: string, tension: TensionArc): DomainFacts | undefined {
   if (!facts.has(`${name}/${tension}`)) throw new Error(`${name}/${tension} was not built`)
   return facts.get(`${name}/${tension}`)

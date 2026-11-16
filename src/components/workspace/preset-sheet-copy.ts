@@ -25,22 +25,22 @@ export const DELETE_FAILED_LINE = "That couldn't be deleted. Try again."
 export const KEY_AND_MODE_NOTE =
   'Which keys and modes this preset is meant for. Choosing it moves you inside them; nothing is ever blocked.'
 
-/** Intent: a name in typographic quotes, as the player wrote it. */
+/** A name in typographic quotes, as the player wrote it. */
 function quoted(name: string): string {
   return `“${name}”`
 }
 
-/** Intent: a restriction in words, the sheet's way: "only {key} {mode}" for one pair. */
+/** A restriction in words, the sheet's way: "only {key} {mode}" for one pair. */
 function inWords(restriction: KeyAndModeRestriction): string {
   return restrictionInWords(restriction, RESTRICTION_LABELS)
 }
 
-/** Intent: the words with their first letter capitalised, for an option's label. */
+/** The words with their first letter capitalised, for an option's label. */
 function capitalised(words: string): string {
   return `${words.charAt(0).toUpperCase()}${words.slice(1)}`
 }
 
-/** Intent: each mode's title, naming the preset acted on (none for Save as new). */
+/** Each mode's title, naming the preset acted on (none for Save as new). */
 // @spec-link [[rule_preset_management_actions]]
 export function presetSheetTitle(
   mode: 'save-as-new' | 'save-changes' | 'rename' | 'delete',
@@ -53,7 +53,7 @@ export function presetSheetTitle(
 }
 
 /**
- * Intent: a Key and mode option's label, one line of plain words: "As now: {restriction in
+ * A Key and mode option's label, one line of plain words: "As now: {restriction in
  * words}", "Only {key} {mode}" or "Any key and mode".
  */
 // @spec-link [[rule_saving_preset_asks_its_restriction]]
@@ -63,7 +63,7 @@ export function choiceLabel(choice: SaveRestrictionChoice): string {
 }
 
 /**
- * Intent: why Save changes asks: the current key and mode, which `current` holds alone, lie
+ * Why Save changes asks: the current key and mode, which `current` holds alone, lie
  * outside what the preset named `name` is meant for, `restriction`.
  */
 // @spec-link [[rule_save_changes_restriction]]
@@ -77,7 +77,7 @@ export function saveChangesReason(
 }
 
 /**
- * Intent: the refused name's one reason, the first that applies; null for an accepted name. A
+ * The refused name's one reason, the first that applies; null for an accepted name. A
  * name too long cannot be typed (the field stops at 40 characters), so meeting one is a defect.
  */
 // @spec-link [[rule_player_preset_names]]

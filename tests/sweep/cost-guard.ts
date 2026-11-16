@@ -73,7 +73,7 @@ export const PROFILE_SETTINGS: readonly CostSetting[] = MUSICAL_PROFILES.map((pr
   }),
 }))
 
-/** Intent: a profile's B5.3 levels with some figures at another level. */
+/** A profile's B5.3 levels with some figures at another level. */
 function levelsWith(
   base: FigureLevels,
   level: FigureLevel,
@@ -94,7 +94,7 @@ const DIATONIC_FIGURES: readonly FigureId[] = [
 ]
 
 /**
- * Intent: the setting giving every case the levels `figureLevels`, keeping its controls and its
+ * The setting giving every case the levels `figureLevels`, keeping its controls and its
  * profile's selection (Custom based on the preset of the profile's name).
  */
 function levelsSetting(label: string, figureLevels: FigureLevels): CostSetting {
@@ -127,7 +127,7 @@ export const FIGURE_LEVEL_SETTINGS: readonly CostSetting[] = [
 ]
 
 /**
- * Intent: the collection a case runs in under a preset: the case's own when the preset allows
+ * The collection a case runs in under a preset: the case's own when the preset allows
  * every mode, otherwise the allowed modes taken in turn over the case index, so each allowed mode
  * gets an even share of the sweep.
  */
@@ -137,7 +137,7 @@ function presetCollection(preset: Preset, sweepCase: SweepCase): Collection {
 }
 
 /**
- * Intent: a built-in preset chosen on every case, as the player gets it: its ten controls (so its
+ * A built-in preset chosen on every case, as the player gets it: its ten controls (so its
  * rhythm setting) and seven levels, the selection that preset, the case's mode moved into the
  * preset's modes (`presetCollection`), and its restriction in force for the session (none when it
  * allows every key and mode). The case keeps its seeds, key, instrument and session flags.
@@ -165,7 +165,7 @@ function builtInSetting(preset: Preset): CostSetting {
 }
 
 /**
- * Intent: a built-in preset's levels and restriction on every case, keeping the case's own rhythm
+ * A built-in preset's levels and restriction on every case, keeping the case's own rhythm
  * setting and other controls: the preset's levels across the whole sweep, the case's mode moved
  * into the preset's modes.
  */
@@ -208,7 +208,7 @@ export const COST_SETTINGS: readonly CostSetting[] = [
 ]
 
 /**
- * Intent: a setting at one Seventh chords level: the same change to each case, the case's session
+ * A setting at one Seventh chords level: the same change to each case, the case's session
  * then played at `level`, its label and the cases' labels naming the level.
  */
 export function atSeventhLevel(setting: CostSetting, level: ChordFamilyLevel): CostSetting {
@@ -223,7 +223,7 @@ export function atSeventhLevel(setting: CostSetting, level: ChordFamilyLevel): C
   }
 }
 
-/** Intent: the setting labelled `label` among `settings`, which must hold it. */
+/** The setting labelled `label` among `settings`, which must hold it. */
 function settingLabelled(settings: readonly CostSetting[], label: string): CostSetting {
   const found = settings.find((setting) => setting.label === label)
   if (found === undefined) throw new Error(`No cost setting is labelled "${label}".`)
@@ -245,13 +245,13 @@ export const SEVENTH_SETTINGS: readonly CostSetting[] = [
   atSeventhLevel(settingLabelled(BUILT_IN_SETTINGS, 'built-in Bebop'), 'stronglyFavored'),
 ]
 
-/** Intent: whether a setting plays at a Seventh chords level a run can measure. */
+/** Whether a setting plays at a Seventh chords level a run can measure. */
 function measurable(setting: CostSetting): boolean {
   return MEASURABLE_SEVENTH_LEVELS.includes(setting.seventhLevel ?? 'off')
 }
 
 /**
- * Intent: the labels of v3.3's settings no run can measure (seventh-levels.ts): none, every level
+ * The labels of v3.3's settings no run can measure (seventh-levels.ts): none, every level
  * being measurable.
  */
 export function unmeasurableSeventhSettings(): readonly string[] {
@@ -259,7 +259,7 @@ export function unmeasurableSeventhSettings(): readonly string[] {
 }
 
 /**
- * Intent: the settings a run measures, from a comma-separated list of labels (any case); none
+ * The settings a run measures, from a comma-separated list of labels (any case); none
  * given, the two profiles, as the runner measured first; `all`, v3.1's settings; `sevenths`,
  * v3.3's settings that can be measured (every one of them; any other is listed by
  * `unmeasurableSeventhSettings`). An unknown label fails, naming the known ones, and so does a
@@ -295,12 +295,12 @@ export class RecordingOutcomeCache extends OutcomeCache {
   private readonly measured: AttemptTime[] = []
   private handedOut: AttemptTime[] = []
 
-  /** Intent: a recording cache, sharing the measured intents' keys of its setting's caches. */
+  /** A recording cache, sharing the measured intents' keys of its setting's caches. */
   constructor(private readonly measuredKeys: Set<string> = new Set()) {
     super()
   }
 
-  /** Intent: the base cache's outcome of an intent, recorded as handed out and, once, measured. */
+  /** The base cache's outcome of an intent, recorded as handed out and, once, measured. */
   override of(intent: GenerationIntent): TimedOutcome {
     const timed = super.of(intent)
     const time = attemptTime(timed, intent)
@@ -316,13 +316,13 @@ export class RecordingOutcomeCache extends OutcomeCache {
     return timed
   }
 
-  /** Intent: the time and failure code of every distinct outcome measured so far, each once. */
+  /** The time and failure code of every distinct outcome measured so far, each once. */
   distinctIntents(): readonly AttemptTime[] {
     return [...this.measured]
   }
 
   /**
-   * Intent: the times of the attempts one finished run requested, in request order, and start
+   * The times of the attempts one finished run requested, in request order, and start
    * afresh for the next run. A run first asks for phrase 1 at Idle (one or more seeds), then one
    * outcome per requested attempt, so its attempts are the last outcomes handed out.
    */
@@ -347,7 +347,7 @@ export class RecordingOutcomeCache extends OutcomeCache {
 const MAX_CASES_PER_CACHE = 216
 
 /**
- * Intent: some cases grouped by note density, densities in order of first appearance, each group
+ * Some cases grouped by note density, densities in order of first appearance, each group
  * split, in order, into the fewest even parts of at most `MAX_CASES_PER_CACHE` cases.
  */
 export function byNoteDensity(cases: readonly SweepCase[]): readonly (readonly SweepCase[])[] {
@@ -366,7 +366,7 @@ export function byNoteDensity(cases: readonly SweepCase[]): readonly (readonly S
 }
 
 /**
- * Intent: play one density's cases (or a part of them) at every tempo, each attempt at its
+ * Play one density's cases (or a part of them) at every tempo, each attempt at its
  * measured cost, with one outcome cache of their own shared by the tempos (as the density sweep
  * specs share one), add each run to its tempo's tally, and return the time and failure code of
  * every distinct intent measured, not counting one already in `measuredKeys`. The cache, and every
@@ -415,7 +415,7 @@ export interface SettingFigures {
 }
 
 /**
- * Intent: play every case under one setting at every tempo, each attempt at its measured cost,
+ * Play every case under one setting at every tempo, each attempt at its measured cost,
  * density by density with one outcome cache per density shared by its tempos, and add up the
  * setting's figures. Density is part of every intent, so the densities' distinct intents add up to
  * the setting's.
@@ -454,12 +454,12 @@ export async function measureSetting(
   }
 }
 
-/** Intent: a share as a percentage with one decimal, its count over its total. */
+/** A share as a percentage with one decimal, its count over its total. */
 function shareText({ count, total, share }: Share): string {
   return `${share === null ? '-' : (share * 100).toFixed(1)} % (${count}/${total})`
 }
 
-/** Intent: the readable `COST-GUARD` summary of one setting's figures. */
+/** The readable `COST-GUARD` summary of one setting's figures. */
 export function settingSummaryLines(figures: SettingFigures): readonly string[] {
   const failed = Object.values(figures.distinctIntents.failuresByCode).reduce((a, b) => a + b, 0)
   const sevenths = figures.distinctIntents.sevenths

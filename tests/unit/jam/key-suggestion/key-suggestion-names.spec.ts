@@ -19,7 +19,7 @@ import {
 } from '@/jam/key-suggestion/key-suggestion-names'
 import { KEY_MODES } from '@/jam/key-suggestion/key-suggestion-scores'
 
-/** Intent: a built-in instrument's transposition, by id. */
+/** A built-in instrument's transposition, by id. */
 function transpositionOf(id: string) {
   const profile = findBuiltInInstrumentProfile(id)
   if (profile === undefined) throw new Error(`No built-in instrument ${id}.`)

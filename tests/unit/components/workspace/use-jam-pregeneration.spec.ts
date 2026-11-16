@@ -81,7 +81,7 @@ afterEach(() => {
 })
 
 /**
- * Intent: Jam mode at Idle, its code loaded only when the test says, with Jam's settings, a kept
+ * Jam mode at Idle, its code loaded only when the test says, with Jam's settings, a kept
  * doodle holder, phrase 1 over them, and the hold on Jam's queue, whose background attempts the
  * test answers.
  */
@@ -185,37 +185,37 @@ function hostRig() {
 
 type HostRig = ReturnType<typeof hostRig>
 
-/** Intent: let every writing and load asked for run through to its end. */
+/** Let every writing and load asked for run through to its end. */
 async function settle(): Promise<void> {
   for (let round = 0; round < 6; round += 1) await flushPromises()
 }
 
-/** Intent: Jam's code loaded and the fixture's doodle kept, phrase 1 written from it. */
+/** Jam's code loaded and the fixture's doodle kept, phrase 1 written from it. */
 async function keptAndLoaded(rig: HostRig): Promise<void> {
   rig.jamModule.value = JAM_MODULE
   rig.keptDoodle.keep(reviewedJamPart(), 'session-1')
   await settle()
 }
 
-/** Intent: a Jam part whose doodle is another doodle than the fixture's, though alike in notes. */
+/** A Jam part whose doodle is another doodle than the fixture's, though alike in notes. */
 function anotherDoodlesPart(): ReturnType<typeof reviewedJamPart> {
   const part = reviewedJamPart()
   return { ...part, doodle: { ...part.doodle, doodle: { ...part.doodle.doodle } } }
 }
 
-/** Intent: answer the background attempt in flight with its real outcome. */
+/** Answer the background attempt in flight with its real outcome. */
 async function answerOne(rig: HostRig): Promise<void> {
   inFlight(rig).resolve(realOutcomeFor(inFlight(rig).intent))
   await settle()
 }
 
-/** Intent: the phrase numbers a Jam started now would take, in the wide one-system layout. */
+/** The phrase numbers a Jam started now would take, in the wide one-system layout. */
 function taken(rig: HostRig): number[] {
   return rig.host.take('one-system').map((ready) => ready.phraseNumber)
 }
 
 /**
- * Intent: the phrase numbers a Jam started now would take, then the queue left to resume: a take
+ * The phrase numbers a Jam started now would take, then the queue left to resume: a take
  * aborts the attempt in flight and the queue picks up again only once the take's task is over.
  */
 async function takenThenResumed(rig: HostRig): Promise<number[]> {

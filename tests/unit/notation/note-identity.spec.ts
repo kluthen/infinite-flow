@@ -26,7 +26,7 @@ import {
 /** The C MIDI keyboard's active concert range, wide enough for every fixture pitch. */
 const KEYBOARD_CONCERT_RANGE = { minMidi: 48, maxMidi: 84 } as const
 
-/** Intent: one C major chord at every downbeat, plus any extra mid-measure chord changes given. */
+/** One C major chord at every downbeat, plus any extra mid-measure chord changes given. */
 function chords(extra: readonly ConcertChordSymbol[] = []): readonly ConcertChordSymbol[] {
   const downbeats = [0, 1, 2, 3].map((measureIndex) => ({
     measureIndex: measureIndex as MeasureIndex,
@@ -40,7 +40,7 @@ function chords(extra: readonly ConcertChordSymbol[] = []): readonly ConcertChor
   )
 }
 
-/** Intent: run a concert timeline through the real display transform, in concert C Major. */
+/** Run a concert timeline through the real display transform, in concert C Major. */
 function writtenOf(
   timeline: ConcertEventTimeline,
   extraChords: readonly ConcertChordSymbol[] = [],
@@ -55,12 +55,12 @@ function writtenOf(
   })
 }
 
-/** Intent: shorthand for an identity of phrase `phraseNumber`. */
+/** Shorthand for an identity of phrase `phraseNumber`. */
 function id(phraseNumber: number, measureIndex: number, eventIndex: number): ExpectedNoteIdentity {
   return { phraseNumber, measureIndex: measureIndex as MeasureIndex, eventIndex }
 }
 
-/** Intent: replace one measure of a phrase, keeping the other three. */
+/** Replace one measure of a phrase, keeping the other three. */
 function withMeasure(phrase: WrittenPhrase, index: number, measure: WrittenMeasure): WrittenPhrase {
   const measures = phrase.measures.map((existing, i) => (i === index ? measure : existing))
   return { ...phrase, measures: [measures[0]!, measures[1]!, measures[2]!, measures[3]!] }

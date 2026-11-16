@@ -23,7 +23,7 @@ const box = ref<HTMLElement | null>(null)
 const writtenMidi = computed(() => checkWrittenNote(props.profile))
 
 /**
- * Intent: once mounted, load the engraver and the notation fonts, then draw the check note, unless
+ * Once mounted, load the engraver and the notation fonts, then draw the check note, unless
  * the sheet left the check meanwhile.
  */
 // @spec-link [[rule_controller_transposition_check]]

@@ -58,7 +58,7 @@ export type MeasureEvent = NoteEvent | RestEvent
 
 const ZERO_DURATION = makeRational(0, 1)
 
-/** Intent: reject a non-positive event duration as a typed failure before construction proceeds. */
+/** Reject a non-positive event duration as a typed failure before construction proceeds. */
 function assertPositiveDuration(duration: Rational): void {
   if (compareRational(duration, ZERO_DURATION) <= 0) {
     throw new MeasureEventConstructionError(
@@ -75,7 +75,7 @@ interface NoteEventInput {
 }
 
 /**
- * Intent: construct an immutable, deep-frozen NoteEvent from already-validated inputs (a
+ * Construct an immutable, deep-frozen NoteEvent from already-validated inputs (a
  * Rational duration, a validated ConcertPitch, and tie-continuation intent). Rejects a
  * non-positive duration as a typed failure; never defaults or coerces.
  */
@@ -108,7 +108,7 @@ interface RestEventInput {
 }
 
 /**
- * Intent: construct an immutable, deep-frozen RestEvent from an already-validated Rational
+ * Construct an immutable, deep-frozen RestEvent from an already-validated Rational
  * duration. Rejects a non-positive duration as a typed failure; never defaults or coerces.
  */
 // @spec-link [[entity_concert_event_timeline]]

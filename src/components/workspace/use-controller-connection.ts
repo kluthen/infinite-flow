@@ -59,14 +59,14 @@ export interface ControllerConnection extends ConnectionSheetHost {
   readonly controllerStatus: ControllerStatusView
 }
 
-/** Intent: whether two remembered controllers are the same record: the same port and names. */
+/** Whether two remembered controllers are the same record: the same port and names. */
 function sameDevice(a: MidiDevice | null, b: MidiDevice | null): boolean {
   if (a === null || b === null) return a === b
   return a.id === b.id && a.name === b.name && a.manufacturer === b.manufacturer
 }
 
 /**
- * Intent: keep the saved remembered controller in step with the controller's: saved when a
+ * Keep the saved remembered controller in step with the controller's: saved when a
  * different device counts as connected, forgotten by the player's Disconnect; an unplug, or the
  * same device reattaching, saves nothing. Then reselect the loaded one; with nothing loaded, no
  * permission is read and nothing is requested. Follows `midi` for as long as the scope lives.
@@ -88,7 +88,7 @@ function useRememberedController(midi: MidiController, store: RememberedControll
 }
 
 /**
- * Intent: the controller's side over `deps`, for as long as the calling scope lives (a component's
+ * The controller's side over `deps`, for as long as the calling scope lives (a component's
  * setup): the status follows `midi`, the sheet starts closed, its chunk is warmed on mount, and
  * the remembered controller is reselected and kept saved.
  */
@@ -123,7 +123,7 @@ export function useControllerConnection(deps: ControllerConnectionDeps): Control
   })
 
   /**
-   * Intent: report the sheet's open flag to the workspace at once, synchronously, at every change:
+   * Report the sheet's open flag to the workspace at once, synchronously, at every change:
    * a MIDI note can arrive right after the click, and none may start a session while it is open.
    */
   // @spec-link [[rule_controller_connects_between_sessions]]

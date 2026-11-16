@@ -105,12 +105,12 @@ export interface PregenerationRigOptions {
   readonly rejectOnAbort?: boolean
 }
 
-/** Intent: let every pending promise and queued watcher settle. */
+/** Let every pending promise and queued watcher settle. */
 export function flush(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-/** Intent: a phrase 1 for `controls` at `seed`, as Idle publishes it. */
+/** A phrase 1 for `controls` at `seed`, as Idle publishes it. */
 export function idlePhraseFor(
   controls: GenerationControls,
   seed = 11,
@@ -136,7 +136,7 @@ export interface GatedGenerate {
 }
 
 /**
- * Intent: a generate seam whose calls wait until the test settles them; with `rejectOnAbort`, an
+ * A generate seam whose calls wait until the test settles them; with `rejectOnAbort`, an
  * aborted call rejects at once with the client's cancellation error, as the worker client does.
  */
 export function createGatedGenerate(rejectOnAbort = true): GatedGenerate {
@@ -166,7 +166,7 @@ export function createGatedGenerate(rejectOnAbort = true): GatedGenerate {
   }
 }
 
-/** Intent: the rig, at Idle with every start condition holding unless told otherwise. */
+/** The rig, at Idle with every start condition holding unless told otherwise. */
 export function pregenerationRig(options: PregenerationRigOptions = {}): PregenerationRig {
   const settings = sessionSettings({ tempo: 60, ...options.controls })
   const idle = shallowReactive<MutableGenerationSessionState<WorkspaceSessionResult>>({
@@ -243,7 +243,7 @@ export function pregenerationRig(options: PregenerationRigOptions = {}): Pregene
   }
 }
 
-/** Intent: the call in flight: the latest one, which must still be unsettled. */
+/** The call in flight: the latest one, which must still be unsettled. */
 export function inFlight(rig: Pick<PregenerationRig, 'calls'>): GenerateCall {
   const call = rig.calls.at(-1)
   expect(call, 'a background attempt is in flight').toBeDefined()
@@ -251,7 +251,7 @@ export function inFlight(rig: Pick<PregenerationRig, 'calls'>): GenerateCall {
   return call!
 }
 
-/** Intent: answer the call in flight with its intent's real outcome, then let everything settle. */
+/** Answer the call in flight with its intent's real outcome, then let everything settle. */
 export async function answer(rig: Pick<PregenerationRig, 'calls'>): Promise<void> {
   const call = inFlight(rig)
   call.resolve(realOutcomeFor(call.intent))
@@ -259,7 +259,7 @@ export async function answer(rig: Pick<PregenerationRig, 'calls'>): Promise<void
 }
 
 /**
- * Intent: answer every call with its real outcome until nothing is in flight; a queue that keeps
+ * Answer every call with its real outcome until nothing is in flight; a queue that keeps
  * asking past a generous bound fails the test.
  */
 export async function answerAll(rig: Pick<PregenerationRig, 'calls'>): Promise<void> {
@@ -271,7 +271,7 @@ export async function answerAll(rig: Pick<PregenerationRig, 'calls'>): Promise<v
 }
 
 /**
- * Intent: the phrase numbers Start would take now in the wide one-system layout; a take aborts
+ * The phrase numbers Start would take now in the wide one-system layout; a take aborts
  * the attempt in flight, so a test inspects the queue this way once nothing is in flight.
  */
 export function takenNumbers(rig: Pick<PregenerationRig, 'queue'>): number[] {

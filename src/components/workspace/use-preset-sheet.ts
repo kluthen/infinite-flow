@@ -82,7 +82,7 @@ export interface PresetSheetHost {
 }
 
 /**
- * Intent: the visit's saving state, read from its save policy once it arrives: off for a visit
+ * The visit's saving state, read from its save policy once it arrives: off for a visit
  * started from the defaults until then, on for one that read its data.
  */
 // @spec-link [[rule_presets_in_visits_that_save_nothing]]
@@ -108,7 +108,7 @@ function useSavingState(source: Pick<SavedDataLoad, 'outcome' | 'savePolicy'>) {
 }
 
 /**
- * Intent: host the preset actions and the sheet over the Idle session, the visit's saves and its
+ * Host the preset actions and the sheet over the Idle session, the visit's saves and its
  * saving state. Pressing an action during a session is a defect: every button is disabled then.
  */
 // @spec-link [[module_player_presets]]
@@ -144,7 +144,7 @@ export function usePresetSheet(deps: PresetSheetDeps): PresetSheetHost {
     { flush: 'sync', immediate: true },
   )
 
-  /** Intent: focus the button that opened the sheet if shown and enabled, else `preset-select`. */
+  /** Focus the button that opened the sheet if shown and enabled, else `preset-select`. */
   function focusAfterSheet(): void {
     const root = deps.root()
     if (root === null) throw new Error('preset sheet: the workspace is not mounted')
@@ -158,20 +158,20 @@ export function usePresetSheet(deps: PresetSheetDeps): PresetSheetHost {
     select.focus()
   }
 
-  /** Intent: close the sheet, then move focus once it has left. */
+  /** Close the sheet, then move focus once it has left. */
   function close(): void {
     opened.value = null
     void nextTick(focusAfterSheet)
   }
 
-  /** Intent: the player preset acted on; an action on none is a defect (its button is absent). */
+  /** The player preset acted on; an action on none is a defect (its button is absent). */
   function actedOn(): Preset {
     const preset = presets.actedOn.value
     if (preset === null) throw new Error('preset sheet: no player preset is acted on')
     return preset
   }
 
-  /** Intent: how the sheet opens for `action`, from the state at the press. */
+  /** How the sheet opens for `action`, from the state at the press. */
   function openingFor(action: PresetActionKind): PresetSheetOpening {
     if (action === 'save-as-new') {
       const choices = presets.saveAsNewChoices.value
@@ -186,7 +186,7 @@ export function usePresetSheet(deps: PresetSheetDeps): PresetSheetHost {
     return { mode: 'delete', preset: actedOn() }
   }
 
-  /** Intent: close the sheet once a save or a rename applied (a rename changing nothing too). */
+  /** Close the sheet once a save or a rename applied (a rename changing nothing too). */
   function closeOnce(outcome: PresetActionOutcome): void {
     if (outcome.status === 'applied' || outcome.status === 'unchanged') close()
   }

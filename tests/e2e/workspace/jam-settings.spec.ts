@@ -42,32 +42,32 @@ const NEXT_SESSION_SEED = 5353
 /** A landscape phone, below bp-tablet-landscape. */
 const LANDSCAPE_PHONE = { width: 844, height: 390 } as const
 
-/** Intent: press `Jam` and wait until Jam mode shows. */
+/** Press `Jam` and wait until Jam mode shows. */
 async function enterJam(page: Page): Promise<void> {
   await modeSegment(page, 'Jam').click()
   await expectJamModeShows(page)
   await expect(jamControls(page).locator('h2')).toHaveText('Shape your Jam')
 }
 
-/** Intent: press `Session` and wait until session mode shows. */
+/** Press `Session` and wait until session mode shows. */
 async function leaveJam(page: Page): Promise<void> {
   await modeSegment(page, 'Session').click()
   await expectSessionModeShows(page)
 }
 
-/** Intent: Jam's control section. */
+/** Jam's control section. */
 function jamControls(page: Page) {
   return page.locator('section.control-section[aria-labelledby="jam-controls-heading"]')
 }
 
-/** Intent: the segment `option` of the radiogroup named exactly `group`. */
+/** The segment `option` of the radiogroup named exactly `group`. */
 function segment(page: Page, group: string, option: string) {
   return page
     .getByRole('radiogroup', { name: group, exact: true })
     .getByRole('radio', { name: option, exact: true })
 }
 
-/** Intent: the checked segment's label of each named radiogroup, by its name. */
+/** The checked segment's label of each named radiogroup, by its name. */
 async function checked(page: Page, groups: readonly string[]): Promise<Record<string, string>> {
   const entries = await Promise.all(
     groups.map(async (group) => {
@@ -80,12 +80,12 @@ async function checked(page: Page, groups: readonly string[]): Promise<Record<st
   return Object.fromEntries(entries)
 }
 
-/** Intent: the tempo the stepper shows. */
+/** The tempo the stepper shows. */
 function tempo(page: Page) {
   return page.getByRole('spinbutton', { name: 'Tempo' })
 }
 
-/** Intent: every stored settings record of session mode's, by key. */
+/** Every stored settings record of session mode's, by key. */
 async function sessionModeRecords(page: Page): Promise<Record<string, unknown>> {
   const stored = await storedSettings(page)
   return Object.fromEntries(Object.entries(stored).filter(([key]) => !key.startsWith('jam.')))

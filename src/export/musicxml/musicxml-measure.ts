@@ -51,13 +51,13 @@ const CHORD_KIND_BY_SUFFIX: Readonly<Record<string, string>> = {
   'm7♭5': 'half-diminished',
 }
 
-/** Intent: a pitch step element pair (step, then alter when the letter is altered). */
+/** A pitch step element pair (step, then alter when the letter is altered). */
 function stepAndAlter(prefix: '' | 'root-' | 'bass-', pitch: SpelledPitchClass): XmlElement[] {
   const step = textElement(`${prefix}step`, pitch.letter)
   return pitch.alter === 0 ? [step] : [step, textElement(`${prefix}alter`, pitch.alter)]
 }
 
-/** Intent: one chord symbol as a harmony element: root, kind with its printed suffix, bass. */
+/** One chord symbol as a harmony element: root, kind with its printed suffix, bass. */
 // @spec-link [[rule_generated_notes_musicxml_export]]
 export function harmonyElement(chord: WrittenChordSymbol): XmlElement {
   const kind = CHORD_KIND_BY_SUFFIX[chord.suffix]
@@ -75,7 +75,7 @@ export function harmonyElement(chord: WrittenChordSymbol): XmlElement {
 }
 
 /**
- * Intent: the second beam level of one note in a beam group: sixteenths joined to a neighbouring
+ * The second beam level of one note in a beam group: sixteenths joined to a neighbouring
  * sixteenth get begin/continue/end, a lone sixteenth gets a hook pointing into the group.
  */
 function secondBeamLevel(group: readonly WrittenNote[], position: number): string | null {
@@ -89,7 +89,7 @@ function secondBeamLevel(group: readonly WrittenNote[], position: number): strin
   return position === 0 ? 'forward hook' : 'backward hook'
 }
 
-/** Intent: the beam elements of every beamed event in a measure, keyed by event index. */
+/** The beam elements of every beamed event in a measure, keyed by event index. */
 function beamsByEvent(measure: WrittenMeasure): ReadonlyMap<number, readonly XmlElement[]> {
   const beams = new Map<number, XmlElement[]>()
   for (const group of measure.beamGroups) {
@@ -115,7 +115,7 @@ function beamsByEvent(measure: WrittenMeasure): ReadonlyMap<number, readonly Xml
   return beams
 }
 
-/** Intent: the tie elements (sound) and tied notations (drawing) of one note, stop before start. */
+/** The tie elements (sound) and tied notations (drawing) of one note, stop before start. */
 function tieElements(note: WrittenNote): { ties: XmlElement[]; tied: XmlElement[] } {
   const types = [...(note.tieFromPrevious ? ['stop'] : []), ...(note.tieToNext ? ['start'] : [])]
   return {
@@ -124,7 +124,7 @@ function tieElements(note: WrittenNote): { ties: XmlElement[]; tied: XmlElement[
   }
 }
 
-/** Intent: one written note or rest as a note element, in the schema's child order. */
+/** One written note or rest as a note element, in the schema's child order. */
 // @spec-link [[rule_generated_notes_musicxml_export]]
 export function noteElement(event: WrittenEvent, beams: readonly XmlElement[]): XmlElement {
   const duration = textElement('duration', event.duration.ticks)
@@ -151,7 +151,7 @@ export function noteElement(event: WrittenEvent, beams: readonly XmlElement[]): 
 }
 
 /**
- * Intent: every note, rest and chord symbol of one written measure, in time order, each chord
+ * Every note, rest and chord symbol of one written measure, in time order, each chord
  * symbol right before the event that starts on its tick. Crashes early on a chord symbol that
  * starts on no event, which the written-phrase model rules out.
  */

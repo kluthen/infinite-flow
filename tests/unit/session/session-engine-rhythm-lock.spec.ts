@@ -42,7 +42,7 @@ interface LockCase {
   readonly phraseOneDensity?: 'Eighth'
 }
 
-/** Intent: the session seed of case `index`, spread over the 32 bits. */
+/** The session seed of case `index`, spread over the 32 bits. */
 function caseSeed(index: number): number {
   return Math.imul(0x9e37_79b1, index + 1) >>> 0
 }
@@ -59,7 +59,7 @@ const STRICT_CASES: readonly LockCase[] = [
   { tension: 'Edge', arc: true, seed: caseSeed(4) },
 ]
 
-/** Intent: a lock session of one case with these changes allowed, run until SOUNDED sounds. */
+/** A lock session of one case with these changes allowed, run until SOUNDED sounds. */
 function lockSession(
   lockCase: LockCase,
   allowed: readonly (typeof RHYTHM_CHANGE_KINDS)[number][],
@@ -76,12 +76,12 @@ function lockSession(
   return driver
 }
 
-/** Intent: the generated phrases a driver decided, repeats left out. */
+/** The generated phrases a driver decided, repeats left out. */
 function generatedPhrases(driver: SessionDriver): readonly SessionPhrase[] {
   return decidedPhrases(driver).filter((phrase) => phrase.origin !== 'repeat')
 }
 
-/** Intent: expect every request of a lock session to carry phrase 1's bars and its own flag. */
+/** Expect every request of a lock session to carry phrase 1's bars and its own flag. */
 function expectEveryRequestLocked(driver: SessionDriver, lockCase: LockCase): void {
   const locked = barsOf(driver.phraseOne.outcome)
   const allowed = driver.settings.allowedRhythmChanges

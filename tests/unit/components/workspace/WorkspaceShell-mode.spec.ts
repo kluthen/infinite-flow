@@ -101,7 +101,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: mount the shell over a test workspace at Idle, no session controller loaded. */
+/** Mount the shell over a test workspace at Idle, no session controller loaded. */
 function mountShell(saving = recordingSaveSettings()) {
   const workspace = createTestWorkspace()
   return mount(WorkspaceShell, {
@@ -129,27 +129,27 @@ function mountShell(saving = recordingSaveSettings()) {
 
 type ShellWrapper = ReturnType<typeof mountShell>
 
-/** Intent: the mode switch's segment named `label`. */
+/** The mode switch's segment named `label`. */
 function segment(wrapper: ShellWrapper, label: 'Session' | 'Jam') {
   const found = wrapper.findAll('.mode-switch .segment').find((each) => each.text() === label)
   if (found === undefined) throw new Error(`no ${label} segment`)
   return found
 }
 
-/** Intent: the latest load of Jam's code asked for. */
+/** The latest load of Jam's code asked for. */
 function lastLoad() {
   const load = loader.pending.at(-1)
   if (load === undefined) throw new Error('no load of Jam code was asked for')
   return load
 }
 
-/** Intent: the score title, which also names the staff frame. */
+/** The score title, which also names the staff frame. */
 function scoreTitle(wrapper: ShellWrapper): string {
   return wrapper.get('#score-panel-title').text()
 }
 
 /**
- * Intent: open the connection sheet from `controller-status`, let it load and render, and return
+ * Open the connection sheet from `controller-status`, let it load and render, and return
  * it, focus moved inside it as it opens.
  */
 async function openConnectionSheet(wrapper: ShellWrapper) {
@@ -160,7 +160,7 @@ async function openConnectionSheet(wrapper: ShellWrapper) {
   return sheet
 }
 
-/** Intent: the session's staff viewport, the score panel's first. */
+/** The session's staff viewport, the score panel's first. */
 function sessionStaff(wrapper: ShellWrapper) {
   return wrapper.get('.score-panel .staff-viewport:not(.jam-stub)')
 }
@@ -307,7 +307,7 @@ describe('WorkspaceShell and the workspace mode', () => {
       myInstrument: null,
       systemPositionUnits: 160,
     })
-    /** Intent: the header's phrase action, the first action slot. */
+    /** The header's phrase action, the first action slot. */
     const phraseAction = () => wrapper.get('.header-actions > button:not(.session-action)')
     expect(phraseAction().text()).toBe('Generate phrase')
 

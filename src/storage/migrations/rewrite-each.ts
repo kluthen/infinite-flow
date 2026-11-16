@@ -19,7 +19,7 @@ export interface StoreRewrite {
 }
 
 /**
- * Intent: write `next` over the record the cursor is on, and whether the write was requested; when
+ * Write `next` over the record the cursor is on, and whether the write was requested; when
  * it cannot even be requested (the value cannot be stored, say), the record is left as it is.
  * Never throws.
  */
@@ -35,7 +35,7 @@ function updateOrLeave(cursor: IDBCursorWithValue, next: unknown): boolean {
 }
 
 /**
- * Intent: walk every record of `store`, writing back the rewrite `upgraded` gives of each one,
+ * Walk every record of `store`, writing back the rewrite `upgraded` gives of each one,
  * from its value and its key, that has one and leaving the others as they are, then call `done`
  * when given. `upgraded` never throws, and neither does the write; a failing request is left to
  * abort the upgrade.
@@ -62,7 +62,7 @@ export function rewriteEach(
 }
 
 /**
- * Intent: walk the stores of `rewrites` one after the other, in order, inside `transaction`, each
+ * Walk the stores of `rewrites` one after the other, in order, inside `transaction`, each
  * with `rewriteEach`: a store's walk starts once the one before it has ended; call `done` once the
  * last has ended, every rewrite then requested.
  */

@@ -68,13 +68,13 @@ interface TimelineJson {
   }[]
 }
 
-/** Intent: how many events (notes and rests) a phrase's timeline holds. */
+/** How many events (notes and rests) a phrase's timeline holds. */
 function eventCount(timeline: string): number {
   const parsed = JSON.parse(timeline) as TimelineJson
   return parsed.measures.reduce((sum, measure) => sum + measure.events.length, 0)
 }
 
-/** Intent: the `data-note-id` of every note event of phrase `phraseNumber`'s timeline. */
+/** The `data-note-id` of every note event of phrase `phraseNumber`'s timeline. */
 function noteIdsOf(timeline: string, phraseNumber: number): string[] {
   const parsed = JSON.parse(timeline) as TimelineJson
   return parsed.measures.flatMap((measure) =>
@@ -84,7 +84,7 @@ function noteIdsOf(timeline: string, phraseNumber: number): string[] {
   )
 }
 
-/** Intent: the review items' titles and tempos, in list order. */
+/** The review items' titles and tempos, in list order. */
 async function listedPhrases(page: Page): Promise<string[][]> {
   return reviewItems(page)
     .locator('.review-phrase-header')
@@ -96,7 +96,7 @@ async function listedPhrases(page: Page): Promise<string[][]> {
     )
 }
 
-/** Intent: what one engraved review item draws: its stave notes and its notes' ids. */
+/** What one engraved review item draws: its stave notes and its notes' ids. */
 function drawnNotes(item: Locator): Promise<{ staveNotes: number; noteIds: string[] }> {
   return item.locator('.review-staff').evaluate((staff) => ({
     staveNotes: staff.querySelectorAll('g.vf-stavenote').length,
@@ -110,7 +110,7 @@ function drawnNotes(item: Locator): Promise<{ staveNotes: number; noteIds: strin
   }))
 }
 
-/** Intent: wait until each of the first `count` review items has its staff engraved. */
+/** Wait until each of the first `count` review items has its staff engraved. */
 async function untilEngraved(page: Page, count: number): Promise<void> {
   for (let index = 0; index < count; index += 1) {
     await expect(reviewItems(page).nth(index).locator('.review-staff svg').first()).toBeAttached({

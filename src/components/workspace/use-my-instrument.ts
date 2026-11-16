@@ -77,7 +77,7 @@ export interface MyInstrumentForm {
   readonly restoreSound: () => void
 }
 
-/** Intent: the form's starting values: the template's own, or the saved instrument's. */
+/** The form's starting values: the template's own, or the saved instrument's. */
 function startingValues(start: MyInstrumentFormStart): MyInstrumentInput {
   if (start.mode === 'editing') return start.saved
   const draft = myInstrumentDraftFromTemplate(start.template)
@@ -90,14 +90,14 @@ function startingValues(start: MyInstrumentFormStart): MyInstrumentInput {
   }
 }
 
-/** Intent: the name the form saves: its text without spaces at either end, or the default. */
+/** The name the form saves: its text without spaces at either end, or the default. */
 export function savedName(text: string): string {
   const trimmed = text.trim()
   return trimmed === '' ? DEFAULT_MY_INSTRUMENT_NAME : trimmed
 }
 
 /**
- * Intent: the sheet's form over `start`. Each range stepper's bounds keep the note it sounds, the
+ * The sheet's form over `start`. Each range stepper's bounds keep the note it sounds, the
  * written note moved by the transposition, inside the MIDI note range; the transposition's keep
  * both range notes sounding inside it.
  */
@@ -124,7 +124,7 @@ export function useMyInstrumentForm(start: MyInstrumentFormStart): MyInstrumentF
   }))
   const refusals = computed(() => rangeRefusalLines(range.value, clef.value))
 
-  /** Intent: what the form holds, as my instrument is built from it. */
+  /** What the form holds, as my instrument is built from it. */
   function input(): MyInstrumentInput {
     return {
       template: template.value,

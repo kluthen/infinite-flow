@@ -57,19 +57,19 @@ const SAVING_OFF_NOTICES: { readonly [F in Exclude<YourDataForm, 'overview'>]: s
     "Your saved data couldn't be read in this visit, so it isn't listed here. A newer version of the app has also saved data on this device, so nothing can be deleted until the page is reloaded. Reload the page to use the newer version.",
 }
 
-/** Intent: the notice of a form that saves nothing; none for the Overview. */
+/** The notice of a form that saves nothing; none for the Overview. */
 // @spec-link [[rule_outdated_tab_stops_saving]]
 // @spec-link [[rule_failed_read_offers_only_delete_everything]]
 export function savingOffNotice(form: YourDataForm): string | null {
   return form === 'overview' ? null : SAVING_OFF_NOTICES[form]
 }
 
-/** Intent: `count` with its noun, singular for one ("1 session", "3 favorite phrases"). */
+/** `count` with its noun, singular for one ("1 session", "3 favorite phrases"). */
 function counted(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}`
 }
 
-/** Intent: the My instrument section's two lines, for my instrument or none. */
+/** The My instrument section's two lines, for my instrument or none. */
 // @spec-link [[req_your_data]]
 export function myInstrumentLines(instrument: MyInstrument | null): readonly [string, string] {
   if (instrument === null) return ['None.', 'Make one with Create my instrument, in the controls.']
@@ -83,7 +83,7 @@ export function myInstrumentLines(instrument: MyInstrument | null): readonly [st
 }
 
 /**
- * Intent: the Presets section's two lines, from the player presets the preset box lists: how many,
+ * The Presets section's two lines, from the player presets the preset box lists: how many,
  * the singular for one, or none, with how to delete one or save one.
  */
 // @spec-link [[req_your_data]]
@@ -95,13 +95,13 @@ export function presetsLines(count: number): readonly [string, string] {
   ]
 }
 
-/** Intent: the accessible name of a Presets row's `Delete`, naming its preset. */
+/** The accessible name of a Presets row's `Delete`, naming its preset. */
 // @spec-link [[req_your_data]]
 export function presetDeleteLabel(name: string): string {
   return `Delete preset ${name}`
 }
 
-/** Intent: the words of a preset's confirmation, those of the preset sheet's Delete. */
+/** The words of a preset's confirmation, those of the preset sheet's Delete. */
 // @spec-link [[req_your_data]]
 // @spec-link [[rule_deleting_base_preset_leaves_custom]]
 export function presetConfirmationCopy(name: string): YourDataConfirmationCopy {
@@ -113,14 +113,14 @@ export function presetConfirmationCopy(name: string): YourDataConfirmationCopy {
   }
 }
 
-/** Intent: the Controller section's line, for the remembered controller's name or none. */
+/** The Controller section's line, for the remembered controller's name or none. */
 // @spec-link [[rule_last_controller_remembered]]
 export function controllerLine(deviceName: string | null): string {
   if (deviceName === null) return 'None remembered.'
   return `${deviceName}. It reconnects by itself when it's plugged in.`
 }
 
-/** Intent: the Sessions section's line, from the sessions the list shows. */
+/** The Sessions section's line, from the sessions the list shows. */
 // @spec-link [[req_your_data]]
 // @spec-link [[req_kept_session_list]]
 export function sessionsLine(count: number, pinned: number, favorites: number): string {
@@ -133,7 +133,7 @@ export function sessionsLine(count: number, pinned: number, favorites: number): 
   return `${counted(count, 'session', 'sessions')} kept: ${pins}, ${marks}.`
 }
 
-/** Intent: the Played notes section's line, from the sessions whose played notes are kept. */
+/** The Played notes section's line, from the sessions whose played notes are kept. */
 // @spec-link [[rule_kept_played_notes_deletable]]
 export function playedNotesLine(sessionCount: number): string {
   if (sessionCount === 0) return 'None kept.'
@@ -144,7 +144,7 @@ const KIB = 1024
 const MIB = 1024 * KIB
 
 /**
- * Intent: the Space used line: "Less than 1 KB", whole kilobytes, then megabytes with one decimal
+ * The Space used line: "Less than 1 KB", whole kilobytes, then megabytes with one decimal
  * under 10 MB and whole ones from 10 MB (binary units, 1 KB = 1024 bytes).
  */
 // @spec-link [[req_your_data]]
@@ -160,7 +160,7 @@ export function spaceLine(space: SpaceReading): string {
   return `About ${Math.round(megabytes)} MB`
 }
 
-/** Intent: the Protection line: being checked, protected, or not (also when the browser can't say). */
+/** The Protection line: being checked, protected, or not (also when the browser can't say). */
 // @spec-link [[rule_persistent_storage_requested]]
 export function protectionLine(protection: ProtectionReading): string {
   if (protection === 'checking') return 'Checking…'
@@ -173,7 +173,7 @@ export function protectionLine(protection: ProtectionReading): string {
 const DOODLES_STAY = ' Doodles stay as the app wrote them.'
 
 /**
- * Intent: the words of a confirmation but a preset's, `count` being the sessions it concerns (kept
+ * The words of a confirmation but a preset's, `count` being the sessions it concerns (kept
  * sessions, or sessions whose played notes are kept; unused for Delete everything); the two
  * played-notes deletions say the doodles stay when `jamKeepsPlayedNotes`, one of the sessions whose
  * played notes are kept being a Jam session.

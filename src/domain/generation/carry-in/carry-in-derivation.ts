@@ -22,7 +22,7 @@ export interface CarryInSource {
   readonly phraseNumber: number
 }
 
-/** Intent: the attack MIDI values of a timeline, in order; ties continue an attack. */
+/** The attack MIDI values of a timeline, in order; ties continue an attack. */
 function attackMidis(source: CarryInSource): readonly number[] {
   return source.outcome.result.timeline.measures.flatMap((measure) =>
     measure.events.flatMap((event) =>
@@ -32,7 +32,7 @@ function attackMidis(source: CarryInSource): readonly number[] {
 }
 
 /**
- * Intent: replay the phrase's sounding notes through the leap-state reducer, starting from the
+ * Replay the phrase's sounding notes through the leap-state reducer, starting from the
  * state its own carry-in gave it (or the empty state), and return the state after its last note.
  * Each note's chord-tone fact is read as the pitch search reads it: inside the phrase against its
  * event's chord tones, the seventh included in seventh form, so a run may pass through the
@@ -70,7 +70,7 @@ function finalMotionState(source: CarryInSource, midis: readonly number[]): Moti
 }
 
 /**
- * Intent: derive the carry-in of one successful phrase: its last sounding pitch with the interval
+ * Derive the carry-in of one successful phrase: its last sounding pitch with the interval
  * that arrived at it (from the carried pitch when the phrase sounded one note) and any recovery
  * still owed, its resolved register window, its final harmony event (with that event's seventh
  * when it has one) and endpoint class, and the ordinal it was given: always a carry-in from a

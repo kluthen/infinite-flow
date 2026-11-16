@@ -36,14 +36,14 @@ export class TapTempoError extends Error {
   }
 }
 
-/** Intent: the slowest and fastest of the tempo values; none at all is a caller defect. */
+/** The slowest and fastest of the tempo values; none at all is a caller defect. */
 function valueRange(values: readonly number[]): { readonly min: number; readonly max: number } {
   if (values.length === 0) throw new TapTempoError('Tap tempo needs at least one tempo value.')
   return { min: Math.min(...values), max: Math.max(...values) }
 }
 
 /**
- * Intent: the value nearest `bpm`, the slower of two equally near (within TIE_EPSILON), so a
+ * The value nearest `bpm`, the slower of two equally near (within TIE_EPSILON), so a
  * tempo beyond the values is kept at the nearest end of them.
  */
 // @spec-link [[rule_jam_tempo_from_taps]]
@@ -63,7 +63,7 @@ function nearestValue(bpm: number, values: readonly number[]): number {
 }
 
 /**
- * Intent: the tempo a run of taps sets, from its fourth tap on: the mean beat of its last four
+ * The tempo a run of taps sets, from its fourth tap on: the mean beat of its last four
  * taps (the time from the first of them to the last, divided by three) as BPM, rounded to the
  * nearest of `values` (a tie to the slower), so kept within their slowest and fastest. `taps` are
  * seconds in ascending order. Below four taps, null. Four taps at one instant (no span) give the
@@ -82,7 +82,7 @@ export function tempoFromTaps(taps: readonly number[], values: readonly number[]
 }
 
 /**
- * Intent: the field-note's words, as the design gives them: at rest, an invitation (naming the
+ * The field-note's words, as the design gives them: at rest, an invitation (naming the
  * controller only while one is connected); while counting, how many taps it takes; once set, the
  * tempo, or at the slowest or fastest of `values` that it is the limit.
  */

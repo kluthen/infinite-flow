@@ -91,7 +91,7 @@ export type JamPregenerationLoader = (
   seams: JamPregenerationSeams,
 ) => Promise<WorkspacePregeneration>
 
-/** Intent: `settings` at `tempo`: the tempo never affects generation, and a Jam starts at Jam's. */
+/** `settings` at `tempo`: the tempo never affects generation, and a Jam starts at Jam's. */
 function atTempo(settings: SessionSettings, tempo: number): SessionSettings {
   return settings.controls.tempo === tempo
     ? settings
@@ -99,7 +99,7 @@ function atTempo(settings: SessionSettings, tempo: number): SessionSettings {
 }
 
 /**
- * Intent: the start a Jam on the kept doodle takes from its phrase 1 at Idle, at Jam's `tempo`, and
+ * The start a Jam on the kept doodle takes from its phrase 1 at Idle, at Jam's `tempo`, and
  * Jam's queue plans from: phrase 1's settings (Jam's, with the controls read from the doodle,
  * those in effect from phrase 1 on, so phrase 2 joins phrase 1 with no change between them; with
  * Jam's lock on, the lock taken from phrase 1's written bars), phrase 1's intent, outcome and
@@ -125,7 +125,7 @@ export function keptDoodleSessionStart(
 }
 
 /**
- * Intent: whether Jam's queue may run: Jam mode shows with a doodle kept and its phrase 1 written
+ * Whether Jam's queue may run: Jam mode shows with a doodle kept and its phrase 1 written
  * and shown, nothing running or failed on it and no room notice, no session running, no review
  * showing and no rotate-device notice.
  */
@@ -152,7 +152,7 @@ export function jamPregenerationRunnable(
 }
 
 /**
- * Intent: build Jam's queue and start it; see the module comment. A disabled policy builds one
+ * Build Jam's queue and start it; see the module comment. A disabled policy builds one
  * that never runs, as session mode's. A layout re-check asked for while a session runs or Jam mode
  * does not show waits until the queue may run again.
  */

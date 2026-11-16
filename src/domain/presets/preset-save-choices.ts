@@ -25,7 +25,7 @@ import {
   type PresetSettings,
 } from './preset-selection'
 
-/** Intent: the three restriction choices a save can offer. */
+/** The three restriction choices a save can offer. */
 // @spec-link [[rule_saving_preset_asks_its_restriction]]
 export type SaveRestrictionChoiceKind = 'asNow' | 'onlyThisKeyAndMode' | 'anyKeyAndMode'
 
@@ -37,18 +37,18 @@ export interface SaveRestrictionChoice {
   readonly restriction: KeyAndModeRestriction
 }
 
-/** Intent: the "any key and mode" choice. */
+/** The "any key and mode" choice. */
 function anyChoice(): SaveRestrictionChoice {
   return { kind: 'anyKeyAndMode', restriction: ANY_KEY_AND_MODE }
 }
 
-/** Intent: the "only this key and mode" choice for the current written key and collection. */
+/** The "only this key and mode" choice for the current written key and collection. */
 function onlyChoice(key: PitchClass, mode: Collection): SaveRestrictionChoice {
   return { kind: 'onlyThisKeyAndMode', restriction: onlyKeyAndMode(key, mode) }
 }
 
 /**
- * Intent: the save-as-new restriction choices, the default first. "As now" is the restriction in
+ * The save-as-new restriction choices, the default first. "As now" is the restriction in
  * force, or any when none is; choices meaning the same restriction are one, in the default's
  * place, under the plainer kind: [any, only] when as now is any, [only, any] when as now is
  * exactly the current pair, otherwise [as now, only, any].
@@ -68,7 +68,7 @@ export function saveAsNewChoices(
   return deepFreeze([{ kind: 'asNow', restriction: asNow }, only, anyChoice()])
 }
 
-/** Intent: refuse an act the model never allows on a built-in preset. */
+/** Refuse an act the model never allows on a built-in preset. */
 function refuseBuiltIn(preset: Preset): void {
   if (preset.kind === 'builtIn') {
     throw new PresetModelError(`Changes are never saved into the built-in preset "${preset.id}".`)
@@ -76,7 +76,7 @@ function refuseBuiltIn(preset: Preset): void {
 }
 
 /**
- * Intent: whether saving changes into a player preset asks for its restriction: only when the
+ * Whether saving changes into a player preset asks for its restriction: only when the
  * written key or collection lies outside it, offering any (as now, none being in force) then only
  * this key and mode. Inside it nothing is asked and the preset keeps its restriction. Throws a
  * PresetModelError for a built-in preset.
@@ -95,7 +95,7 @@ export function saveChangesQuestion(
 }
 
 /**
- * Intent: a player preset with changes saved into it: same id, name and kind, the ten preset-held
+ * A player preset with changes saved into it: same id, name and kind, the ten preset-held
  * controls, the seven figure levels and the Seventh chords level from the settings, and the
  * restriction answered, or its own when none was asked (null). Throws a PresetModelError for a
  * built-in preset.
@@ -118,12 +118,12 @@ export function presetWithSavedChanges(
   })
 }
 
-/** Intent: where a new player preset's id comes from, injected by the caller. */
+/** Where a new player preset's id comes from, injected by the caller. */
 // @spec-link [[module_preset_model]]
 export type PresetIdSource = () => string
 
 /**
- * Intent: a new player preset holding the ten preset-held controls, the seven figure levels and
+ * A new player preset holding the ten preset-held controls, the seven figure levels and
  * the Seventh chords level from the settings, and the restriction chosen, under the name given
  * (already checked by the caller) and an id from `nextId`. Throws a PresetModelError while 50 or
  * more player presets are loaded, or when the id is empty, a built-in id or an existing preset's
@@ -158,7 +158,7 @@ export function presetForSaveAsNew(
   })
 }
 
-/** Intent: the selection after either save: the saved preset. */
+/** The selection after either save: the saved preset. */
 // @spec-link [[module_preset_model]]
 export function selectionOfSavedPreset(preset: Preset): PresetSelection {
   return deepFreeze({ kind: 'preset', presetId: preset.id })

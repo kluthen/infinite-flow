@@ -37,7 +37,7 @@ const PROBE_STYLE: Readonly<Record<string, string>> = {
   'pointer-events': 'none',
 }
 
-/** Intent: guard a probe reading is a finite positive size, naming it in the error. */
+/** Guard a probe reading is a finite positive size, naming it in the error. */
 function assertLaidOut(name: string, value: number): number {
   if (!Number.isFinite(value) || value <= 0) {
     throw new Error(`viewport probe: the ${name} reads ${value}; the probe is not laid out`)
@@ -46,7 +46,7 @@ function assertLaidOut(name: string, value: number): number {
 }
 
 /**
- * Intent: a probe in `doc`, added to its body on the first reading and kept for the page's
+ * A probe in `doc`, added to its body on the first reading and kept for the page's
  * lifetime, so later readings only measure. A reading that is not a positive size means the
  * probe is not laid out (no layout, or a detached body), which is a defect and throws.
  */
@@ -54,7 +54,7 @@ function assertLaidOut(name: string, value: number): number {
 export function createViewportProbe(doc: Document): ViewportProbe {
   let element: HTMLElement | null = null
 
-  /** Intent: the probe element, created and attached on first use. */
+  /** The probe element, created and attached on first use. */
   function probe(): HTMLElement {
     if (element !== null) return element
     const created = doc.createElement('div')
@@ -68,7 +68,7 @@ export function createViewportProbe(doc: Document): ViewportProbe {
     return created
   }
 
-  /** Intent: the computed style of the probe, from the document's own window. */
+  /** The computed style of the probe, from the document's own window. */
   function computedStyle(): CSSStyleDeclaration {
     const view = doc.defaultView
     if (view === null) throw new Error('viewport probe: the document has no window')
@@ -83,7 +83,7 @@ export function createViewportProbe(doc: Document): ViewportProbe {
 }
 
 /**
- * Intent: adapt a window and a probe to the window-shape port: a read takes the window's width and
+ * Adapt a window and a probe to the window-shape port: a read takes the window's width and
  * the probe's two readings now; a subscriber hears every `resize`, which the browser fires on
  * every viewport size change, a turned device included.
  */
@@ -104,7 +104,7 @@ export function createWindowShape(win: WindowShapeWindowLike, probe: ViewportPro
   }
 }
 
-/** Intent: the window shape of this browser tab. */
+/** The window shape of this browser tab. */
 // @spec-link [[rule_session_ends_when_staff_too_small]]
 export function createBrowserWindowShape(): WindowShape {
   return createWindowShape(window, createViewportProbe(document))

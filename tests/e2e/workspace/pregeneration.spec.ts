@@ -45,7 +45,7 @@ const SESSION_SEED = 4242
 /** The session seed a replaced phrase 1 is published with. */
 const NEXT_SESSION_SEED = 5353
 
-/** Intent: the phrase numbers the records' seeds belong to under `sessionSeed`, in order. */
+/** The phrase numbers the records' seeds belong to under `sessionSeed`, in order. */
 function phrasesOf(
   page: Page,
   sessionSeed: number,
@@ -54,7 +54,7 @@ function phrasesOf(
   return Promise.all(records.map((record) => phraseOfSeed(page, sessionSeed, record.seed)))
 }
 
-/** Intent: the record of the call with request id `requestId`. */
+/** The record of the call with request id `requestId`. */
 async function recordOf(page: Page, requestId: string): Promise<WorkspaceHarnessGenerationRequest> {
   const record = (await generationRecords(page)).find((entry) => entry.requestId === requestId)
   if (record === undefined) throw new Error(`no generate call ${requestId}`)
@@ -62,7 +62,7 @@ async function recordOf(page: Page, requestId: string): Promise<WorkspaceHarness
 }
 
 /**
- * Intent: wait until the session, started after call index `from`, has requested phrase 2 itself
+ * Wait until the session, started after call index `from`, has requested phrase 2 itself
  * (a call carrying a signal, no background attempt), and return that request.
  */
 async function sessionRequestForPhraseTwo(
@@ -80,7 +80,7 @@ async function sessionRequestForPhraseTwo(
   return request
 }
 
-/** Intent: wait until Idle shows a phrase 1 other than `timeline` and a session can start. */
+/** Wait until Idle shows a phrase 1 other than `timeline` and a session can start. */
 async function untilNewPhraseOne(page: Page, timeline: string | null): Promise<void> {
   await expect
     .poll(async () => (await harnessSnapshot(page)).timeline, { timeout: 30_000 })
@@ -89,7 +89,7 @@ async function untilNewPhraseOne(page: Page, timeline: string | null): Promise<v
   await expect(sessionAction(page)).toBeEnabled()
 }
 
-/** Intent: the page's other storage areas now: both Storage areas, Cache Storage and cookies. */
+/** The page's other storage areas now: both Storage areas, Cache Storage and cookies. */
 function otherStorageNow(page: Page) {
   return page.evaluate(async () => ({
     localStorage: Object.keys(localStorage),
@@ -186,7 +186,7 @@ interface KeyChange {
 }
 
 /**
- * Intent: start the session, through the stale-phrase prompt's `Start with this phrase` when
+ * Start the session, through the stale-phrase prompt's `Start with this phrase` when
  * phrase 1 is stale, and wait until the count-in shows.
  */
 async function startOnPhraseOne(page: Page, stale: boolean): Promise<void> {
@@ -199,7 +199,7 @@ async function startOnPhraseOne(page: Page, stale: boolean): Promise<void> {
   await expect(sessionAction(page)).toHaveText('Stop')
 }
 
-/** Intent: click `option` of the radiogroup `group`, then wait for the new phrase 1. */
+/** Click `option` of the radiogroup `group`, then wait for the new phrase 1. */
 async function switchAndRegenerate(page: Page, group: string, option: string): Promise<void> {
   const before = (await harnessSnapshot(page)).timeline
   await queueSeeds(page, [8])
@@ -222,9 +222,9 @@ const KEY_CHANGES: readonly KeyChange[] = [
   {
     name: 'a profile change',
     sessionSeed: SESSION_SEED,
-    /** Intent: choose Jazz in the preset box, which waits until the box shows it. */
+    /** Choose Jazz in the preset box, which waits until the box shows it. */
     apply: (page) => choosePreset(page, 'Jazz'),
-    /** Intent: the request carries Jazz's levels, the chromatic approach and enclosure as today. */
+    /** The request carries Jazz's levels, the chromatic approach and enclosure as today. */
     expectCarried: (request) => {
       expect(request.figureLevels.chromaticApproach).toBe('asToday')
       expect(request.figureLevels.chromaticEnclosure).toBe('asToday')
@@ -234,7 +234,7 @@ const KEY_CHANGES: readonly KeyChange[] = [
   {
     name: 'a Seventh chords level change',
     sessionSeed: SESSION_SEED,
-    /** Intent: set the level to Often through the routing point, as its control will. */
+    /** Set the level to Often through the routing point, as its control will. */
     apply: async (page) => {
       expect(
         await page.evaluate(() =>
@@ -248,9 +248,9 @@ const KEY_CHANGES: readonly KeyChange[] = [
   {
     name: 'a Reel choice',
     sessionSeed: SESSION_SEED,
-    /** Intent: choose Reel in the preset box, which moves C Ionian to C Mixolydian. */
+    /** Choose Reel in the preset box, which moves C Ionian to C Mixolydian. */
     apply: (page) => choosePreset(page, 'Reel'),
-    /** Intent: the request carries the mode Reel moved to, inside its restriction. */
+    /** The request carries the mode Reel moved to, inside its restriction. */
     expectCarried: (request) => expect(request.controls.collection).toBe('Mixolydian'),
     stale: true,
   },

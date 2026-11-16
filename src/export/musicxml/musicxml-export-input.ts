@@ -68,7 +68,7 @@ const PHRASE_KEYS: readonly string[] = ['number', 'writtenPhrase', 'tempo']
 const DOODLE_KEYS: readonly string[] = ['measureCount', 'writtenPhrase', 'tempo']
 const MAX_DOODLE_MEASURES = 4
 
-/** Intent: crash early unless `value` has exactly the named own keys, no more and no fewer. */
+/** Crash early unless `value` has exactly the named own keys, no more and no fewer. */
 function assertExactKeys(value: object, expected: readonly string[], what: string): void {
   const actual = Object.keys(value).sort()
   const wanted = [...expected].sort()
@@ -80,7 +80,7 @@ function assertExactKeys(value: object, expected: readonly string[], what: strin
 }
 
 /**
- * Intent: crash early unless the phrase's (or the doodle's, `name` saying which) written pitch
+ * Crash early unless the phrase's (or the doodle's, `name` saying which) written pitch
  * belongs to the session's instrument.
  */
 function assertSameTransposition(
@@ -102,7 +102,7 @@ function assertSameTransposition(
 }
 
 /**
- * Intent: crash early unless a Jam's doodle section has exactly its fields, 1 to 4 measures, a
+ * Crash early unless a Jam's doodle section has exactly its fields, 1 to 4 measures, a
  * positive whole-number tempo, and is written for the session's instrument.
  */
 // @spec-link [[rule_jam_exports_open_with_doodle]]
@@ -123,7 +123,7 @@ function assertDoodle(doodle: MusicXmlDoodleSection, instrument: InstrumentProfi
 }
 
 /**
- * Intent: reject an encoder input that breaks the contract: an extra field on the input or on a
+ * Reject an encoder input that breaks the contract: an extra field on the input or on a
  * phrase (a played-note list among them), an empty session, phrase numbers that are not whole
  * numbers from 1 up, each above the one before, a tempo that is not a positive whole number of beats per minute, or a phrase
  * written for another instrument's transposition; in a Jam's input, a doodle section that is not

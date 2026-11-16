@@ -89,7 +89,7 @@ const BUILT_IN_NAMES = [
 /** The confirmation's paragraphs, the preset sheet's Delete's. */
 const PRESET_PARAGRAPHS = ['Your settings stay as they are.', "This can't be undone."]
 
-/** Intent: seed the unreadable record, then `presets` with `selected` the selection, and reload. */
+/** Seed the unreadable record, then `presets` with `selected` the selection, and reload. */
 async function seedWithUnreadable(
   page: Page,
   presets: readonly WorkspaceHarnessPresetInput[],
@@ -102,7 +102,7 @@ async function seedWithUnreadable(
   await seedAndReload(page, presets, selected)
 }
 
-/** Intent: delete the preset named `name` from its Presets row, back on the Overview, on `Done`. */
+/** Delete the preset named `name` from its Presets row, back on the Overview, on `Done`. */
 async function deleteFromYourData(page: Page, name: string): Promise<void> {
   await presetDelete(page, name).click()
   await expect(yourDataSheet(page)).toHaveAccessibleName(`Delete the preset “${name}”?`)

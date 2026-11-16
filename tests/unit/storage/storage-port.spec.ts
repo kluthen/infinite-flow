@@ -19,7 +19,7 @@ import {
   withRawDatabase,
 } from './storage-test-doubles'
 
-/** Intent: assert that `operation` rejects with a storage error of the given kind. */
+/** Assert that `operation` rejects with a storage error of the given kind. */
 async function expectRefusal(operation: Promise<unknown>, kind: StorageErrorKind): Promise<void> {
   const error: unknown = await operation.then(
     () => undefined,
@@ -29,7 +29,7 @@ async function expectRefusal(operation: Promise<unknown>, kind: StorageErrorKind
   expect((error as StorageError).kind).toBe(kind)
 }
 
-/** Intent: a ready port over a fresh in-memory database. */
+/** A ready port over a fresh in-memory database. */
 async function readyPort(manager = recordingManager().manager) {
   const factory = freshFactory()
   const port = await openStoragePort({

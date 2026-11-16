@@ -25,7 +25,7 @@ export const fakeCheckNoteEngraver = {
 export const loadVexflowEngraver = vi.fn<() => Promise<FakeCheckNoteEngraverModule>>()
 
 /**
- * Intent: draw a bare staff SVG tagged with the written note and its clef, as the real drawing
+ * Draw a bare staff SVG tagged with the written note and its clef, as the real drawing
  * would fill it.
  */
 function drawFakeCheckNote(target: HTMLElement, writtenMidi: number, clef: InstrumentClef): void {
@@ -36,7 +36,7 @@ function drawFakeCheckNote(target: HTMLElement, writtenMidi: number, clef: Instr
   target.replaceChildren(svg)
 }
 
-/** Intent: put every spy back to its default (fonts ready, a fake drawing) with no calls. */
+/** Put every spy back to its default (fonts ready, a fake drawing) with no calls. */
 // @test-link [[rule_controller_transposition_check]]
 export function resetFakeCheckNoteEngraver(): void {
   fakeCheckNoteEngraver.ensureNotationFonts.mockReset().mockResolvedValue(undefined)

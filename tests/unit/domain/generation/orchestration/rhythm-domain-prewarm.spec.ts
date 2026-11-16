@@ -57,7 +57,7 @@ const SMALL_KEY = 'Quarter|Strict|Sparse|Straight|Settled'
 /** The memo-ranking golden's no-plan setting. */
 const NO_PLAN_KEY = 'Quarter|Strict|Sparse|Active displacement|Settled'
 
-/** Intent: a `shouldYield` that answers true after every `steps` calls, counting from creation. */
+/** A `shouldYield` that answers true after every `steps` calls, counting from creation. */
 function yieldEvery(steps: number): () => boolean {
   let calls = 0
   return () => {
@@ -66,21 +66,21 @@ function yieldEvery(steps: number): () => boolean {
   }
 }
 
-/** Intent: run a job's slices with one `shouldYield` until it completes; the slice count. */
+/** Run a job's slices with one `shouldYield` until it completes; the slice count. */
 function runToCompletion(job: CanonicalRhythmDomainBuildJob, shouldYield: () => boolean): number {
   let slices = 1
   while (!job.runSlice(shouldYield)) slices += 1
   return slices
 }
 
-/** Intent: begin the prewarm job of one setting's catalog intent, failing if none is begun. */
+/** Begin the prewarm job of one setting's catalog intent, failing if none is begun. */
 function beginPrewarm(setting: RhythmSetting, memo: CanonicalRhythmDomainMemo) {
   const job = beginRhythmDomainPrewarm(buildCatalogIntent(setting, 1), memo)
   if (job === undefined) throw new Error('Expected a prewarm job.')
   return job
 }
 
-/** Intent: a harmony-domain seam answering the typed no-plan result for any intent. */
+/** A harmony-domain seam answering the typed no-plan result for any intent. */
 function noHarmonyPlan(intent: GenerationIntent): NoLegalHarmonyPlan {
   const { tonalCenter, collection, harmonicMotion, tension } = intent.controls
   return {
@@ -94,7 +94,7 @@ function noHarmonyPlan(intent: GenerationIntent): NoLegalHarmonyPlan {
   }
 }
 
-/** Intent: the golden memo-list and ranking facts of one sampled setting. */
+/** The golden memo-list and ranking facts of one sampled setting. */
 function goldenFacts(key: string) {
   const { kind, count, candidatesHash, rankings } = MEMO_GOLDEN.settings[key]!
   return { facts: { kind, count, candidatesHash }, rankings }
@@ -210,13 +210,13 @@ describe('rhythm domain prewarm: job lifecycle', () => {
   })
 })
 
-/** Intent: the number of gestures a setting's derivation visits, skipped ones included. */
+/** The number of gestures a setting's derivation visits, skipped ones included. */
 function gestureCount(setting: RhythmSetting): number {
   const input = normalizeRhythmExpansionInput({ grammarVersion: 'rhythm-mvp-v2', ...setting })
   return [...enumerateGestureDerivations(input)].length
 }
 
-/** Intent: run a job to completion in one slice; its step count (one more than yield checks). */
+/** Run a job to completion in one slice; its step count (one more than yield checks). */
 function countSteps(job: CanonicalRhythmDomainBuildJob): number {
   let checks = 0
   expect(
@@ -268,7 +268,7 @@ describe('rhythm domain prewarm: one step is one gesture unit', () => {
 describe('rhythm domain prewarm: generation on a prewarmed memo', () => {
   const worstKey = WORST_SETTING_KEYS[0]!
 
-  /** Intent: the outcome hashes of seeds 1..3 generated in order on one memo. */
+  /** The outcome hashes of seeds 1..3 generated in order on one memo. */
   function seedHashes(memo: CanonicalRhythmDomainMemo): readonly string[] {
     return [1, 2, 3].map((seed) =>
       jsonHash(

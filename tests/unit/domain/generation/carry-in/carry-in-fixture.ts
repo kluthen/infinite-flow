@@ -49,7 +49,7 @@ export const BASE_CONTROLS: GenerationControls = makeGenerationControls({
 })
 
 /**
- * Intent: build one real intent for written controls, a seed and an optional carry-in, with the
+ * Build one real intent for written controls, a seed and an optional carry-in, with the
  * given figure levels, or else the given profile's (Neutral's by default), and the given Seventh
  * chords level, Off by default.
  */
@@ -76,7 +76,7 @@ export function buildIntent(options: {
     : makeCarryInGenerationIntent({ ...input, carryIn: options.carryIn })
 }
 
-/** Intent: generate a phrase that must succeed, failing the test loudly otherwise. */
+/** Generate a phrase that must succeed, failing the test loudly otherwise. */
 export function generateSuccess(intent: GenerationIntent): SuccessOutcome {
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success')
@@ -84,7 +84,7 @@ export function generateSuccess(intent: GenerationIntent): SuccessOutcome {
   return outcome
 }
 
-/** Intent: the carry-in a successful phrase hands forward as the given session ordinal. */
+/** The carry-in a successful phrase hands forward as the given session ordinal. */
 export function carryInAfter(
   intent: GenerationIntent,
   outcome: SuccessOutcome,
@@ -94,7 +94,7 @@ export function carryInAfter(
 }
 
 /**
- * Intent: a real intent for phrase 2 of a session whose key and collection changed after phrase 1:
+ * A real intent for phrase 2 of a session whose key and collection changed after phrase 1:
  * a C Ionian phrase 1 (seed 11) hands forward its carry-in with the harmony dropped (null), and an
  * F# Dorian intent with the given seed receives it.
  */
@@ -113,7 +113,7 @@ export function keyChangeIntent(seed: number, label = 'key-change'): GenerationI
   })
 }
 
-/** Intent: every chronological attack (non-tie-continuation note) MIDI pitch of a timeline. */
+/** Every chronological attack (non-tie-continuation note) MIDI pitch of a timeline. */
 export function attackMidis(measures: readonly Measure[]): readonly number[] {
   const midis: number[] = []
   for (const measure of measures)

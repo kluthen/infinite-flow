@@ -28,7 +28,7 @@ const SESSION_MODE: WorkspaceModeView = {
 const OPENING: WorkspaceModeView = { ...SESSION_MODE, checked: 'jam', opening: true }
 const JAM_MODE: WorkspaceModeView = { ...SESSION_MODE, mode: 'jam', checked: 'jam' }
 
-/** Intent: mount the header at Ready, Start enabled, over the mode `view` and Jam's staff state. */
+/** Mount the header at Ready, Start enabled, over the mode `view` and Jam's staff state. */
 function mountHeader(
   view: WorkspaceModeView,
   jamStaffState: JamStaffState | null = null,
@@ -50,12 +50,12 @@ function mountHeader(
   })
 }
 
-/** Intent: the phrase action, the header's first action slot. */
+/** The phrase action, the header's first action slot. */
 function phraseAction(wrapper: ReturnType<typeof mountHeader>) {
   return wrapper.get('.header-actions > button:not(.session-action)')
 }
 
-/** Intent: the session action, the header's second action slot. */
+/** The session action, the header's second action slot. */
 function sessionAction(wrapper: ReturnType<typeof mountHeader>) {
   return wrapper.get('.header-actions > button.session-action')
 }

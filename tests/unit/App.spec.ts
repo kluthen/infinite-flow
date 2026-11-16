@@ -35,7 +35,7 @@ let nextController: FakeSessionController | null = null
 let controllerLoad: { promise: Promise<void>; resolve: () => void } | null = null
 
 /**
- * Intent: a minimal idle-state session double so App.spec.ts never constructs the real
+ * A minimal idle-state session double so App.spec.ts never constructs the real
  * `createWorkspaceSession` factory, which would spin up a real browser `Worker` -- unavailable
  * and unwanted in jsdom. It starts from the given saved data's controls, figure levels, preset
  * selection and theme, as the real one does. `setTheme` genuinely mutates its own reactive presentation state,
@@ -138,7 +138,7 @@ function fakeWorkspaceSession(savedData: SavedDataLoad = fakeSavedData()) {
   }
 }
 
-/** Intent: hold the next controller load until the returned function is called. */
+/** Hold the next controller load until the returned function is called. */
 function holdControllerLoad(): () => void {
   let resolve!: () => void
   const promise = new Promise<void>((settle) => {
@@ -253,7 +253,7 @@ describe('App', () => {
   })
 })
 
-/** Intent: the checked segment's label in the radiogroup named `name`, or null. */
+/** The checked segment's label in the radiogroup named `name`, or null. */
 function checkedSegment(wrapper: ReturnType<typeof mount>, name: string): string | null {
   const segment = wrapper
     .get(`[role="radiogroup"][aria-label="${name}"]`)

@@ -26,7 +26,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: a saved my instrument's written range in its clef, treble unless named. */
+/** A saved my instrument's written range in its clef, treble unless named. */
 function rangeInClef(
   writtenRange: InstrumentMidiRange,
   clef: InstrumentClef = 'treble',
@@ -34,7 +34,7 @@ function rangeInClef(
   return { writtenRange, clef }
 }
 
-/** Intent: mount the shell with a saved my instrument's written range in its clef, or none. */
+/** Mount the shell with a saved my instrument's written range in its clef, or none. */
 function mountShell(savedMyInstrumentRangeInClef?: WrittenRangeInClef | null) {
   return mount(WorkspaceShell, {
     props: {
@@ -59,7 +59,7 @@ function mountShell(savedMyInstrumentRangeInClef?: WrittenRangeInClef | null) {
   })
 }
 
-/** Intent: the size the shell gives the score panel, and the one the panel gives the staff. */
+/** The size the shell gives the score panel, and the one the panel gives the staff. */
 function sizes(wrapper: ReturnType<typeof mountShell>) {
   return {
     scorePanel: wrapper.getComponent(ScorePanel).props('systemPositionUnits'),

@@ -8,7 +8,7 @@
 export type SheetCloseFocusTarget = 'session-action' | 'phrase-action' | 'controller-status'
 
 /**
- * Intent: the first enabled of the session action, then the phrase action, then
+ * The first enabled of the session action, then the phrase action, then
  * `controller-status`, the element that opened the sheet, which is always interactive outside a
  * session (both header actions are disabled while a phrase loads and under an unsupported rhythm).
  */

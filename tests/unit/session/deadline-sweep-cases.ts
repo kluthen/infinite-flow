@@ -69,7 +69,7 @@ export interface SweepCase {
   readonly seventhLevel?: ChordFamilyLevel
 }
 
-/** Intent: every rhythm setting of the 324-setting catalog that does not block generation. */
+/** Every rhythm setting of the 324-setting catalog that does not block generation. */
 export function supportedRhythmSettings(): readonly RhythmSetting[] {
   return allRhythmSettings().filter((setting) => !isRhythmSettingBlocked(setting, WIDE_WINDOW))
 }
@@ -93,7 +93,7 @@ export const NON_RHYTHM_DIMENSIONS = {
 } as const
 
 /**
- * Intent: the value one dimension takes in case `index`, round-robin with a per-dimension shift
+ * The value one dimension takes in case `index`, round-robin with a per-dimension shift
  * after each full turn, so every value appears within the first `values.length` cases and two
  * dimensions of the same size do not stay locked in the same pairs.
  */
@@ -103,7 +103,7 @@ function roundRobin<T>(values: readonly T[], index: number, shift: number): T {
 }
 
 /**
- * Intent: the sweep's cases, in a fixed order: each supported rhythm setting with each seed of the
+ * The sweep's cases, in a fixed order: each supported rhythm setting with each seed of the
  * seed matrix, and every other control and flag assigned round-robin over the case index.
  */
 export function sweepCases(): readonly SweepCase[] {
@@ -146,7 +146,7 @@ export function sweepCases(): readonly SweepCase[] {
 }
 
 /**
- * Intent: the chosen settings of a case at one tempo: the case's profile's figure levels, the
+ * The chosen settings of a case at one tempo: the case's profile's figure levels, the
  * selection Custom based on the preset of that name, unless the case sets its own levels,
  * selection and restriction in force, and the case's Seventh chords level (Off when unset).
  */

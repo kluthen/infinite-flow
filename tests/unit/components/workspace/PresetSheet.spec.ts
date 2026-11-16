@@ -38,7 +38,7 @@ const SAVE_AS_NEW_FROM_REEL: PresetSheetOpening = {
   choices: saveAsNewChoices({ kind: 'custom', baseId: 'reel' }, 'D', 'Dorian', PRESETS),
 }
 
-/** Intent: Save changes into Late night from G Ionian, outside its restriction. */
+/** Save changes into Late night from G Ionian, outside its restriction. */
 function saveChangesOpening(): PresetSheetOpening {
   const question = saveChangesQuestion(LATE_NIGHT, 'G', 'Ionian')
   if (!question.asks) throw new Error('Save changes from G Ionian must ask')
@@ -47,7 +47,7 @@ function saveChangesOpening(): PresetSheetOpening {
 
 let wrapper: VueWrapper | null = null
 
-/** Intent: the sheet mounted on the page, opened as `opening`, its deletion resolving `deletion`. */
+/** The sheet mounted on the page, opened as `opening`, its deletion resolving `deletion`. */
 function mountSheet(
   opening: PresetSheetOpening,
   deletion: () => Promise<PresetDeletionOutcome> = () => Promise.resolve('deleted'),
@@ -65,31 +65,31 @@ function mountSheet(
   return Object.assign(wrapper, { deletePreset })
 }
 
-/** Intent: the sheet's button whose text is `label`. */
+/** The sheet's button whose text is `label`. */
 function button(mounted: VueWrapper, label: string) {
   const found = mounted.findAll('button').find((candidate) => candidate.text() === label)
   if (found === undefined) throw new Error(`no "${label}" button`)
   return found
 }
 
-/** Intent: the name field. */
+/** The name field. */
 function nameField(mounted: VueWrapper): HTMLInputElement {
   return mounted.get('input.text-input').element as HTMLInputElement
 }
 
-/** Intent: type `text` into the name field, replacing what it holds. */
+/** Type `text` into the name field, replacing what it holds. */
 async function typeName(mounted: VueWrapper, text: string): Promise<void> {
   await mounted.get('input.text-input').setValue(text)
 }
 
-/** Intent: the Key and mode options' labels and checked states, in order. */
+/** The Key and mode options' labels and checked states, in order. */
 function choices(mounted: VueWrapper): string[] {
   return mounted
     .findAll('[role="radio"]')
     .map((option) => `${option.text()}${option.attributes('aria-checked') === 'true' ? ' *' : ''}`)
 }
 
-/** Intent: press a key on the document, as the player would anywhere in the page. */
+/** Press a key on the document, as the player would anywhere in the page. */
 function press(key: string, shiftKey = false): void {
   document.dispatchEvent(new KeyboardEvent('keydown', { key, shiftKey, bubbles: true }))
 }
@@ -204,7 +204,7 @@ describe('the preset sheet', () => {
   // @test-link [[rule_saving_preset_asks_its_restriction]]
   it('the Key and mode choice is one tab stop, the arrow keys checking and focusing the next option, wrapping', async () => {
     const sheet = mountSheet(SAVE_AS_NEW_FROM_REEL)
-    /** Intent: the options as rendered now. */
+    /** The options as rendered now. */
     const options = () => sheet.findAll('[role="radio"]')
     expect(options().map((option) => option.attributes('tabindex'))).toEqual(['0', '-1', '-1'])
 
@@ -310,7 +310,7 @@ describe('the preset sheet', () => {
 
   // @test-link [[rule_deleting_base_preset_leaves_custom]]
   it('a failed deletion keeps the confirmation with its error line; the way back is inert while it runs, and a retry clears the line', async () => {
-    /** Intent: settle the deletion running now with `outcome`. */
+    /** Settle the deletion running now with `outcome`. */
     let settle: (outcome: PresetDeletionOutcome) => void = () => {}
     const sheet = mountSheet(
       { mode: 'delete', preset: LATE_NIGHT },

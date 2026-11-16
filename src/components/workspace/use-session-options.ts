@@ -56,7 +56,7 @@ export interface SessionOptions {
   readonly setRisingTempo: (on: boolean) => void
 }
 
-/** Intent: the "During a session" options over `deps`; computed readings, no watcher. */
+/** The "During a session" options over `deps`; computed readings, no watcher. */
 // @spec-link [[req_settings_mutation_flag]]
 // @spec-link [[rule_first_phrase_waits_for_saved_settings]]
 // @spec-link [[req_multi_phrase_tension_arc]]
@@ -135,7 +135,7 @@ export function useSessionOptions(deps: SessionOptionsDeps): SessionOptions {
   const risingTempo = useRisingTempoControl(deps.controller)
 
   /**
-   * Intent: forward the player's `Rising tempo` choice to the controller, which holds it, and save
+   * Forward the player's `Rising tempo` choice to the controller, which holds it, and save
    * it once accepted; a change the controller refuses throws there and saves nothing.
    */
   // @spec-link [[req_adaptive_tempo]]
@@ -146,7 +146,7 @@ export function useSessionOptions(deps: SessionOptionsDeps): SessionOptions {
   }
 
   /**
-   * Intent: forward the player's `Tension across phrases` choice to the controller, which holds it,
+   * Forward the player's `Tension across phrases` choice to the controller, which holds it,
    * and save it once accepted; a change the controller refuses throws there and saves nothing.
    */
   // @spec-link [[req_multi_phrase_tension_arc]]
@@ -157,7 +157,7 @@ export function useSessionOptions(deps: SessionOptionsDeps): SessionOptions {
   }
 
   /**
-   * Intent: forward the player's `Vary settings` choice to the controller, which holds it, and save
+   * Forward the player's `Vary settings` choice to the controller, which holds it, and save
    * it once accepted; a change the controller refuses throws there and saves nothing.
    */
   // @spec-link [[req_settings_mutation_flag]]
@@ -168,7 +168,7 @@ export function useSessionOptions(deps: SessionOptionsDeps): SessionOptions {
   }
 
   /**
-   * Intent: forward the player's allowed groups to the controller, which holds them, and save them
+   * Forward the player's allowed groups to the controller, which holds them, and save them
    * once accepted; a change the controller refuses throws there and saves nothing.
    */
   // @spec-link [[rule_vary_settings_allowed_groups]]
@@ -179,7 +179,7 @@ export function useSessionOptions(deps: SessionOptionsDeps): SessionOptions {
   }
 
   /**
-   * Intent: forward the player's `Rhythm lock` choice to the controller, which holds it, and save
+   * Forward the player's `Rhythm lock` choice to the controller, which holds it, and save
    * it once accepted; a change the controller refuses throws there and saves nothing.
    */
   // @spec-link [[req_rhythm_lock]]
@@ -190,7 +190,7 @@ export function useSessionOptions(deps: SessionOptionsDeps): SessionOptions {
   }
 
   /**
-   * Intent: forward the player's allowed rhythm changes to the controller, which holds them, and
+   * Forward the player's allowed rhythm changes to the controller, which holds them, and
    * save them once accepted; a change the controller refuses throws there and saves nothing.
    */
   // @spec-link [[rule_allowed_rhythm_changes]]

@@ -45,7 +45,7 @@ interface NotePlace {
   readonly note: NoteEvent
 }
 
-/** Intent: every note event of a timeline in order, with the phrase beat it starts on. */
+/** Every note event of a timeline in order, with the phrase beat it starts on. */
 function notePlaces(timeline: ConcertEventTimeline): readonly NotePlace[] {
   return timeline.measures.flatMap((measure, measureIndex) => {
     let wholeNotes = 0
@@ -59,7 +59,7 @@ function notePlaces(timeline: ConcertEventTimeline): readonly NotePlace[] {
   })
 }
 
-/** Intent: the note places of the tie chain holding note `index`, its attack first. */
+/** The note places of the tie chain holding note `index`, its attack first. */
 function tieChain(places: readonly NotePlace[], index: number): readonly NotePlace[] {
   let head = index
   while (places[head]!.note.tieContinuation) {
@@ -71,13 +71,13 @@ function tieChain(places: readonly NotePlace[], index: number): readonly NotePla
   return places.slice(head, end)
 }
 
-/** Intent: the phrase beat a harmony event starts on. */
+/** The phrase beat a harmony event starts on. */
 function startOf(event: HarmonyEvent): number {
   return event.barIndex * 4 + event.startBeat
 }
 
 /**
- * Intent: the pitch of `pitchClass` nearest `from` inside the window, the lower of two at the same
+ * The pitch of `pitchClass` nearest `from` inside the window, the lower of two at the same
  * distance; crashes when the window holds none.
  */
 export function nearestOfPitchClass(
@@ -99,7 +99,7 @@ export function nearestOfPitchClass(
   return best
 }
 
-/** Intent: the timeline with every note of `chain` at `midi`, rebuilt through the constructors. */
+/** The timeline with every note of `chain` at `midi`, rebuilt through the constructors. */
 function withChainAt(
   timeline: ConcertEventTimeline,
   chain: readonly NotePlace[],
@@ -121,7 +121,7 @@ function withChainAt(
 }
 
 /**
- * Intent: the phrase with the tie chain of note `index` moved to the nearest pitch of the seventh
+ * The phrase with the tie chain of note `index` moved to the nearest pitch of the seventh
  * of `chord`, which must be in seventh form and sound under the chain's attack. Crashes when the
  * note is already on that pitch: there would be nothing to compare.
  */
@@ -148,7 +148,7 @@ function moveToSeventh(
 }
 
 /**
- * Intent: the phrase with its final note moved to its final chord's seventh, the nearest one inside
+ * The phrase with its final note moved to its final chord's seventh, the nearest one inside
  * its window: an ending on the seventh with no next phrase (D6.3's first example).
  */
 export function endingOnSeventh(phrase: RenderPhrase): MovedPhrase {
@@ -158,7 +158,7 @@ export function endingOnSeventh(phrase: RenderPhrase): MovedPhrase {
 }
 
 /**
- * Intent: a next phrase with its first note moved to the tonic chord's seventh, the nearest one
+ * A next phrase with its first note moved to the tonic chord's seventh, the nearest one
  * inside its window: a landing on the seventh (D6.3's second example). Its first chord must be the
  * tonic (degree 1), in seventh form.
  */

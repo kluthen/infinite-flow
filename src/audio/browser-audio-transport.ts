@@ -15,7 +15,7 @@ export interface BrowserAudioTransportOptions {
 }
 
 /**
- * Intent: build the app's audio transport on the real browser seams, its mix starting from the
+ * Build the app's audio transport on the real browser seams, its mix starting from the
  * loaded one. Building it creates nothing: no `AudioContext` exists until `unlock()` runs from a
  * player click (Start or "Connect controller"), the wake-up Worker starts with the first session,
  * and the design tokens and the loaded mix are read on first use.

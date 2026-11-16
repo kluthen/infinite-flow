@@ -26,7 +26,7 @@ export const DOODLE_NOT_LOADED =
   "Your doodle can't be shown: part of the app didn't load. Check that you're online, then open this session again."
 
 /**
- * Intent: from Jam mode's Idle, a fresh Jam with a doodle of `measures` measures (one note on each
+ * From Jam mode's Idle, a fresh Jam with a doodle of `measures` measures (one note on each
  * of its barlines), run until phrase 1 sounds, then Stopped: the Review shows. Returns the tempo
  * the doodle was played at, Jam's.
  */
@@ -46,7 +46,7 @@ export async function jamReviewed(page: Page, measures: number): Promise<number>
 }
 
 /**
- * Intent: a fresh Jam with a two-measure doodle, its raw doodle notes kept, reviewed then kept,
+ * A fresh Jam with a two-measure doodle, its raw doodle notes kept, reviewed then kept,
  * ready for the page to be reloaded in session mode with Jam's code not loaded in that visit.
  * Returns the tempo the doodle was played at.
  */
@@ -60,7 +60,7 @@ export async function keptJamAfterReload(page: Page): Promise<number> {
   return captureTempo
 }
 
-/** Intent: like `watchPageErrors`, but letting through console errors matching `allowed`. */
+/** Like `watchPageErrors`, but letting through console errors matching `allowed`. */
 export function watchPageErrorsBut(page: Page, allowed: RegExp): () => void {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))

@@ -59,7 +59,7 @@ const CORPUS: {
 /** The fewest landings any one session of the corpus holds. */
 const MIN_LANDINGS_PER_SESSION = 8
 
-/** Intent: the recorded rows of one session. */
+/** The recorded rows of one session. */
 function recordedRows(start: string, context: string, seed: number): DrawsRow[] {
   return CORPUS.rows.filter((row) => row[0] === start && row[1] === context && row[2] === seed)
 }

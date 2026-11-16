@@ -30,7 +30,7 @@ import {
 import type { ReviewedJamPart } from '@/components/workspace/session-jam-part'
 
 /**
- * Intent: the session the Review of the fresh Jam kept by its own save draws once read back, its
+ * The session the Review of the fresh Jam kept by its own save draws once read back, its
  * played notes kept or not, its suggestion declined or not.
  */
 async function readBack(

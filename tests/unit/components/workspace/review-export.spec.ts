@@ -32,20 +32,20 @@ import { recordedRecords } from '../review/review-fixtures'
 import { sevenPhraseHistory, sevenPhraseRecords } from '../../export/favorites-fixtures'
 import { SESSION_START_EPOCH_MS } from '../../session/session-harness'
 
-/** Intent: the recorded three-phrase session's history, started at the fixed test time. */
+/** The recorded three-phrase session's history, started at the fixed test time. */
 function history(startedAt = SESSION_START_EPOCH_MS): ExportableHistory {
   const records = recordedRecords()
   return { phrases: () => records, startedAt }
 }
 
-/** Intent: ports over the real lazy export code, recording every file handed to the browser. */
+/** Ports over the real lazy export code, recording every file handed to the browser. */
 function recordingPorts(load: ReviewExportPorts['load'] = loadGeneratedNotesExport) {
   const downloads: ExportFile[] = []
   const ports: ReviewExportPorts = { load, download: (file) => downloads.push(file) }
   return { ports, downloads }
 }
 
-/** Intent: the session start's local date and time as the file name carries them. */
+/** The session start's local date and time as the file name carries them. */
 function localStamp(epochMs: number): string {
   const start = new Date(epochMs)
   const two = (value: number) => String(value).padStart(2, '0')
@@ -184,7 +184,7 @@ describe('the Review export', () => {
 /** The played-notes export as it starts: very short notes left out. */
 const DEFAULT_REQUEST = { includeVeryShortNotes: false, scope: WHOLE_SESSION } as const
 
-/** Intent: the recorded session's history with every played note taken out. */
+/** The recorded session's history with every played note taken out. */
 function silentHistory(): ExportableHistory {
   const records = recordedRecords().map((record) => ({ ...record, playedNotes: [] }))
   return { phrases: () => records, startedAt: SESSION_START_EPOCH_MS }
@@ -254,13 +254,13 @@ describe('the Review played-notes export', () => {
   })
 })
 
-/** Intent: a history over `records`, started at the fixed test time. */
+/** A history over `records`, started at the fixed test time. */
 function historyOver(records: ReturnType<ExportableHistory['phrases']>): ExportableHistory {
   return { phrases: () => records, startedAt: SESSION_START_EPOCH_MS }
 }
 
 /**
- * Intent: the recorded session's history with every played note replaced by a very short note
+ * The recorded session's history with every played note replaced by a very short note
  * (12 ms) of `pitch`, at the same onset.
  */
 function veryShortHistory(pitch = 50): ExportableHistory {
@@ -315,13 +315,13 @@ describe('the Review played-notes export and very short notes', () => {
   })
 })
 
-/** Intent: the favorites-only scope of the given phrase numbers. */
+/** The favorites-only scope of the given phrase numbers. */
 function favoritesOnly(...favorites: number[]): ExportScope {
   return { kind: 'favoritesOnly', favorites }
 }
 
 /**
- * Intent: the seven-phrase session with a played note only in phrase 1 (a quarter second) and in
+ * The seven-phrase session with a played note only in phrase 1 (a quarter second) and in
  * phrase 3 (very short, 10 ms).
  */
 function notesInPhrasesOneAndThree() {
@@ -361,7 +361,7 @@ describe('the Review exports under the favorites-only scope', () => {
   // @test-link [[rule_played_notes_export_omits_stray_notes]]
   it('holds a played note only when a favorite phrase holds one, as the option reads it', () => {
     const records = notesInPhrasesOneAndThree()
-    /** Intent: the request with the option off, then on, under `scope`. */
+    /** The request with the option off, then on, under `scope`. */
     const off = (scope: ExportScope) => ({ includeVeryShortNotes: false, scope })
     const on = (scope: ExportScope) => ({ includeVeryShortNotes: true, scope })
 
@@ -377,7 +377,7 @@ describe('the Review exports under the favorites-only scope', () => {
   it('says why the played-notes file would hold no note, the favorites-only reasons first', () => {
     const records = notesInPhrasesOneAndThree()
     const veryShortOnly = sevenPhraseRecords([[], [], [[62, 1, 1.01]]])
-    /** Intent: the request with the option off, then on, under `scope`. */
+    /** The request with the option off, then on, under `scope`. */
     const off = (scope: ExportScope) => ({ includeVeryShortNotes: false, scope })
     const on = (scope: ExportScope) => ({ includeVeryShortNotes: true, scope })
 

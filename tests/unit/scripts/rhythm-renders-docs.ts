@@ -55,7 +55,7 @@ const GRID_LEGEND =
   'Grid: one character per sixteenth note, a space between beats: `x` a note starts, `-` the ' +
   'note goes on, `.` silence.'
 
-/** Intent: one measure as a grid of sixteenths: `x` note start, `-` held, `.` silence. */
+/** One measure as a grid of sixteenths: `x` note start, `-` held, `.` silence. */
 export function measureGrid(starts: MeasureStarts): string {
   const cells: string[] = []
   let current = '.'
@@ -68,14 +68,14 @@ export function measureGrid(starts: MeasureStarts): string {
   return cells.join('')
 }
 
-/** Intent: a tick of a measure in counting words: `beat 3`, `the "and" of beat 2`... */
+/** A tick of a measure in counting words: `beat 3`, `the "and" of beat 2`... */
 export function tickPlace(tick: number): string {
   const beat = Math.floor(tick / 4) + 1
   const syllable = ['', 'e', 'and', 'a'][tick % 4]!
   return syllable === '' ? `beat ${beat}` : `the "${syllable}" of beat ${beat}`
 }
 
-/** Intent: the measures of a change as words: `measure 3`, or `measures 2 and 4 (repeated)`. */
+/** The measures of a change as words: `measure 3`, or `measures 2 and 4 (repeated)`. */
 function measuresWords(pick: ChangePick): string {
   const numbers = pick.change.measures.map((measure) => measure + 1)
   return numbers.length === 1
@@ -83,7 +83,7 @@ function measuresWords(pick: ChangePick): string {
     : `measure ${numbers[0]} and again, the identical change, in measure ${numbers[1]}`
 }
 
-/** Intent: what exactly a change does, in counting words. */
+/** What exactly a change does, in counting words. */
 function changeDetail(lockedStarts: readonly MeasureStarts[], pick: ChangePick): string {
   const { kind, tick, delta, measures } = pick.change
   const place = tickPlace(tick)
@@ -100,7 +100,7 @@ function changeDetail(lockedStarts: readonly MeasureStarts[], pick: ChangePick):
     : `the rest on ${place} becomes a note`
 }
 
-/** Intent: the five doodle measures of H1 as a list, each with its doodle and its grid. */
+/** The five doodle measures of H1 as a list, each with its doodle and its grid. */
 function doodleList(sets: readonly H1Set[]): string {
   return sets
     .map(
@@ -111,12 +111,12 @@ function doodleList(sets: readonly H1Set[]): string {
     .join('\n')
 }
 
-/** Intent: the sentence naming the doodle measure a set plays. */
+/** The sentence naming the doodle measure a set plays. */
 function measureSentence(set: H1Set): string {
   return `This set is measure ${set.measure} of the doodle \`${set.doodle.name}\`.`
 }
 
-/** Intent: the top-level README of the folder; it never says which letter is which band. */
+/** The top-level README of the folder; it never says which letter is which band. */
 export function topReadme(sets: readonly H1Set[], plan: H2Plan, poolSize: number): string {
   const s = plan.setting
   return `# Rhythm renders for the v3.2 hand checks H1 and H2
@@ -191,7 +191,7 @@ The output is the same every time. The command deletes and rewrites only its own
 `
 }
 
-/** Intent: one H1 set's section of the answers. */
+/** One H1 set's section of the answers. */
 function setAnswers(set: H1Set): string {
   const rows = set.candidates.map(
     ({ letter, pick }) =>
@@ -216,7 +216,7 @@ ${rows.join('\n')}
 ${notes.length > 0 ? `\n${notes.join(' ')}\n` : ''}`
 }
 
-/** Intent: H1's answers: per set, each letter's band, edit count and start list. */
+/** H1's answers: per set, each letter's band, edit count and start list. */
 export function h1Answers(sets: readonly H1Set[]): string {
   const bands = (Object.keys(BAND_WORDS) as RhythmBand[])
     .map((band) => `- **${band}**: ${BAND_WORDS[band]}.`)
@@ -237,7 +237,7 @@ ${DETACHED_NOTE}
 ${sets.map(setAnswers).join('\n')}`
 }
 
-/** Intent: one H2 change's section: its kind, what it does and the measures it touches. */
+/** One H2 change's section: its kind, what it does and the measures it touches. */
 function changeSection(
   lockIndex: number,
   lockedStarts: readonly MeasureStarts[],
@@ -260,7 +260,7 @@ ${rows.join('\n')}
 `
 }
 
-/** Intent: H2's README: the locked rhythms, each change and the kinds no rhythm offers. */
+/** H2's README: the locked rhythms, each change and the kinds no rhythm offers. */
 export function h2Readme(plan: H2Plan): string {
   const locks = plan.locks.map((lock, index) => {
     const starts = rhythmStarts(lock.locked.bars)

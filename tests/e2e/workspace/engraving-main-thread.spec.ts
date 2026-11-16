@@ -83,7 +83,7 @@ const VIEWPORTS = [
 test.describe.configure({ mode: 'default' })
 
 /**
- * Intent: let the cycle's trailing frame work finish and its entries be delivered, stop the
+ * Let the cycle's trailing frame work finish and its entries be delivered, stop the
  * heartbeat, and summarize what the probes recorded between `start` and `end + TRAILING_WINDOW_MS`.
  */
 async function collectCycle(
@@ -125,7 +125,7 @@ async function collectCycle(
   }
 }
 
-/** Intent: one timed generation cycle (first Generate or a Regenerate) and its main-thread work. */
+/** One timed generation cycle (first Generate or a Regenerate) and its main-thread work. */
 async function measureGeneration(page: Page, label: string): Promise<CycleMeasurement> {
   await startHeartbeat(page)
   const timing = await timePhraseReady(page, CYCLE_TIMEOUT_MS)
@@ -133,7 +133,7 @@ async function measureGeneration(page: Page, label: string): Promise<CycleMeasur
 }
 
 /**
- * Intent: re-engrave the phrase on screen by changing only the viewport width, and measure that
+ * Re-engrave the phrase on screen by changing only the viewport width, and measure that
  * redraw's main-thread work; no generation is involved. The end is the moment the engraved staff
  * is swapped into the top system position's `staff-content` unit, the only one shown at desktop
  * widths.
@@ -166,7 +166,7 @@ async function measureResizeRedraw(
   return collectCycle(page, label, start, swappedAt)
 }
 
-/** Intent: the engraved staff's size and note count, read from the visible score. */
+/** The engraved staff's size and note count, read from the visible score. */
 async function readStaff(page: Page): Promise<{ width: number; height: number; notes: number }> {
   return page.evaluate(() => {
     const svg = document.querySelector('.phrase-score .staff-content svg.staff-svg')
@@ -180,13 +180,13 @@ async function readStaff(page: Page): Promise<{ width: number; height: number; n
   })
 }
 
-/** Intent: median, nearest-rank, of a numeric sample. */
+/** Median, nearest-rank, of a numeric sample. */
 function median(values: readonly number[]): number {
   const sorted = [...values].sort((left, right) => left - right)
   return sorted[Math.max(0, Math.ceil(sorted.length / 2) - 1)] ?? 0
 }
 
-/** Intent: the one-line max/median summary of one measured quantity over a set of cycles. */
+/** The one-line max/median summary of one measured quantity over a set of cycles. */
 function summaryLine(
   label: string,
   cycles: readonly CycleMeasurement[],
@@ -196,7 +196,7 @@ function summaryLine(
   return `  ${label}: max=${Math.max(...values).toFixed(1)} median=${median(values).toFixed(1)}`
 }
 
-/** Intent: print one viewport's report and its verdict against the scheduler window. */
+/** Print one viewport's report and its verdict against the scheduler window. */
 function printReport(report: ViewportReport): void {
   const { width, height } = report.viewport
   console.log(`\n=== Main-thread engraving at ${width}x${height} (${report.browserVersion}) ===`)

@@ -30,7 +30,7 @@ const WIDE: MutationContext = {
   resolvedRegister: 'Middle',
 }
 
-/** Intent: the flag on with a numeric mutation seed. */
+/** The flag on with a numeric mutation seed. */
 function mutationOn(seed: number): SettingsMutationFlag {
   return { kind: 'on', seed: makeSeed(seed) }
 }

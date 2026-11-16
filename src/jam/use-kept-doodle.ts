@@ -66,7 +66,7 @@ export interface KeptDoodleState {
 }
 
 /**
- * Intent: the readings Jam's controls take from `jam`'s doodle: the ones its Jam recorded, or, for
+ * The readings Jam's controls take from `jam`'s doodle: the ones its Jam recorded, or, for
  * a kept session read back, which holds none, the same reading made again from the quantized
  * doodle for the instrument's register windows, at no window width.
  */
@@ -81,7 +81,7 @@ function readingsOf(jam: ReviewedJamPart, deps: KeptDoodleDependencies): DoodleR
 }
 
 /**
- * Intent: `jam`'s key and mode suggestion: the one worked out at its doodle's end, or, for a kept
+ * `jam`'s key and mode suggestion: the one worked out at its doodle's end, or, for a kept
  * session read back, which holds none, worked out again from the doodle against Jam's key and mode
  * for the instrument's transposition, the same doodle giving the same answer.
  */
@@ -92,7 +92,7 @@ function suggestionOf(jam: ReviewedJamPart, deps: KeptDoodleDependencies): Doodl
 }
 
 /**
- * Intent: Jam mode's kept doodle, none at first and held in memory only. A keep replaces whatever
+ * Jam mode's kept doodle, none at first and held in memory only. A keep replaces whatever
  * was kept; a decline or a session moved while none is kept is a defect, and throws.
  */
 // @spec-link [[module_kept_doodle]]
@@ -101,7 +101,7 @@ function suggestionOf(jam: ReviewedJamPart, deps: KeptDoodleDependencies): Doodl
 export function useKeptDoodle(deps: KeptDoodleDependencies): KeptDoodleState {
   const kept = shallowRef<JamKeptDoodle | null>(null)
 
-  /** Intent: the doodle kept now; asking with none kept is a defect. */
+  /** The doodle kept now; asking with none kept is a defect. */
   function requireKept(what: string): JamKeptDoodle {
     if (kept.value === null) throw new Error(`kept doodle: ${what}, but no doodle is kept`)
     return kept.value

@@ -13,7 +13,7 @@ import { GenerationWorkerProtocolError } from '@/generation-worker/generation-wo
 import { buildIntent } from './client-intents'
 import { createFakeGenerationWorkerPort } from './fake-generation-worker-port'
 
-/** Intent: recursively sample every reachable plain object/array from `value` and assert it is frozen. */
+/** Recursively sample every reachable plain object/array from `value` and assert it is frozen. */
 function expectDeepFrozen(value: unknown): void {
   if (value === null || (typeof value !== 'object' && typeof value !== 'function')) return
   expect(Object.isFrozen(value)).toBe(true)
@@ -22,7 +22,7 @@ function expectDeepFrozen(value: unknown): void {
   }
 }
 
-/** Intent: a client over the one fake `port`, re-warming a replacement worker. */
+/** A client over the one fake `port`, re-warming a replacement worker. */
 function clientOver(port: GenerationWorkerPort): GenerationWorkerClient {
   return createGenerationWorkerClient(() => port, { prewarmEnabled: true })
 }

@@ -4,7 +4,7 @@
  */
 import { makeSeed, type Seed } from '@/domain/random/seed'
 
-/** Intent: a session-seed provider counting up from 1. */
+/** A session-seed provider counting up from 1. */
 export function countingSessionSeeds(): () => Seed {
   let counter = 0
   return () => makeSeed(++counter)

@@ -14,11 +14,11 @@ import {
 import { encodePhraseReplayKey } from '../../../src/generation-worker/phrase-replay-key'
 import { decodePhraseReplayKey } from '../../../src/generation-worker/phrase-replay-key-decode'
 
-/** Intent: the in-browser replay seams, their worker client created at the first replay. */
+/** The in-browser replay seams, their worker client created at the first replay. */
 export function createHarnessReplay(): WorkspaceHarnessReplayApi {
   let client: GenerationWorkerClient | null = null
 
-  /** Intent: the replay's own worker client, created once and never prewarming. */
+  /** The replay's own worker client, created once and never prewarming. */
   function replayClient(): GenerationWorkerClient {
     client ??= createGenerationWorkerClient(createBrowserGenerationWorker, {
       prewarmEnabled: false,

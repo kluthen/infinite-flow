@@ -16,7 +16,7 @@ import {
 /** The storage source tree, read from disk. */
 const STORAGE_DIRECTORY = fileURLToPath(new URL('../../../src/storage', import.meta.url))
 
-/** Intent: every file under a directory, at any depth. */
+/** Every file under a directory, at any depth. */
 function filesUnder(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name)

@@ -134,7 +134,7 @@ export const VARY_SETTINGS_DRAWS_V31_COLUMNS = [
   'settingsHash',
 ] as const
 
-/** Intent: the mutation context in effect on a phrase of a session run under `context`. */
+/** The mutation context in effect on a phrase of a session run under `context`. */
 export function contextOnPhrase(context: DrawsContext, phraseNumber: number): MutationContext {
   const from = context.steppedDownFromPhrase
   return {
@@ -144,13 +144,13 @@ export function contextOnPhrase(context: DrawsContext, phraseNumber: number): Mu
   }
 }
 
-/** Intent: the Vary settings mutation seed of the session with this session seed. */
+/** The Vary settings mutation seed of the session with this session seed. */
 export function mutationSeedOf(sessionSeed: number): Seed {
   return settingsMutationSeed(makeSeed(sessionSeed))
 }
 
 /**
- * Intent: the session's start settings after choosing `presetId` at Idle from C Ionian with
+ * The session's start settings after choosing `presetId` at Idle from C Ionian with
  * Neutral's controls, levels and selection, with the restriction in force frozen in as Start
  * freezes it against the built-in presets, every allowed group on and the rhythm lock off, which
  * is Vary settings as v3.1.0 ran it. A Seventh chords level, when given, replaces the preset's
@@ -185,7 +185,7 @@ export function startSettings(
 }
 
 /**
- * Intent: a value as canonical JSON: object keys sorted, keys holding undefined left out, arrays
+ * A value as canonical JSON: object keys sorted, keys holding undefined left out, arrays
  * kept in order, so equal values always give the same text.
  */
 export function canonicalJson(value: unknown): string {
@@ -232,7 +232,7 @@ const V310_FIGURE_KEYS = [
 /** A settings value projected onto v3.1.0's keys: plain data, compared as canonical JSON only. */
 export type V310Projection = Readonly<Record<string, unknown>>
 
-/** Intent: the listed keys of a value and nothing else; a listed key it lacks is a test bug. */
+/** The listed keys of a value and nothing else; a listed key it lacks is a test bug. */
 function onlyKeys(value: object, keys: readonly string[], what: string): V310Projection {
   const entries = Object.entries(value)
   return Object.fromEntries(
@@ -245,7 +245,7 @@ function onlyKeys(value: object, keys: readonly string[], what: string): V310Pro
 }
 
 /**
- * Intent: settings projected onto the keys `SessionSettings` had in v3.1.0, each with only its
+ * Settings projected onto the keys `SessionSettings` had in v3.1.0, each with only its
  * v3.1.0 keys, so a key added since never reaches the comparison:
  * - `controls`: tempo, tonalCenter, collection, harmonicMotion, tension, noteDensity,
  *   rhythmicVariety, syncopation, silenceDensity, contour, register, leapiness, arpeggioChaos,
@@ -297,7 +297,7 @@ export function projectOntoV310Keys(settings: SessionSettings): V310Projection {
 }
 
 /**
- * Intent: the first 16 hex digits of the SHA-256 of the canonical JSON of the settings projected
+ * The first 16 hex digits of the SHA-256 of the canonical JSON of the settings projected
  * onto v3.1.0's keys, which for settings v3.1.0 could hold is their full canonical JSON.
  */
 export function settingsHash(settings: SessionSettings): string {
@@ -305,7 +305,7 @@ export function settingsHash(settings: SessionSettings): string {
   return createHash('sha256').update(projected, 'utf8').digest('hex').slice(0, 16)
 }
 
-/** Intent: a selection as short text: `preset:<id>`, or `custom:<base id>` (empty: no base). */
+/** A selection as short text: `preset:<id>`, or `custom:<base id>` (empty: no base). */
 function selectionText(selection: PresetSelection): string {
   return selection.kind === 'preset'
     ? `preset:${selection.presetId}`
@@ -313,7 +313,7 @@ function selectionText(selection: PresetSelection): string {
 }
 
 /**
- * Intent: every landing of one seeded session, as rows: from the preset's start settings, phrase
+ * Every landing of one seeded session, as rows: from the preset's start settings, phrase
  * after phrase from 2 to the last, the session's mutation step lands the scheduled mutation under
  * the context on that phrase, and its settings are the next phrase's settings. Each landing's
  * draws are counted by drawing the same mutation again with an observer; crashes when that draw
@@ -363,7 +363,7 @@ export function sessionDrawRows(
   return rows
 }
 
-/** Intent: every session's rows: preset outermost, then context, then session seed. */
+/** Every session's rows: preset outermost, then context, then session seed. */
 export function everySessionDrawRow(): DrawsRow[] {
   return VARY_SETTINGS_DRAWS_V31_PRESETS.flatMap((presetId) =>
     VARY_SETTINGS_DRAWS_V31_CONTEXTS.flatMap((context) =>

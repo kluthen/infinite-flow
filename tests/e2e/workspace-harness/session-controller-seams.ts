@@ -27,7 +27,7 @@ import type { ReviewedPhrase, SessionHistory } from '../../../src/session/sessio
 import { slotKey, waitingMaterial } from '../../../src/session/rolling-display'
 import { changeSettings } from './session-runner-seam'
 
-/** Intent: a note identity as plain JSON. */
+/** A note identity as plain JSON. */
 function identityOf(identity: ExpectedNoteIdentity): WorkspaceHarnessNoteIdentity {
   return {
     phraseNumber: identity.phraseNumber,
@@ -37,7 +37,7 @@ function identityOf(identity: ExpectedNoteIdentity): WorkspaceHarnessNoteIdentit
 }
 
 /**
- * Intent: a closed history phrase by phrase as plain JSON: each phrase's number, start, concert
+ * A closed history phrase by phrase as plain JSON: each phrase's number, start, concert
  * timeline, acknowledgements and played notes.
  */
 function historyPhrasesOf(history: SessionHistory): WorkspaceHarnessHistoryPhrase[] {
@@ -55,7 +55,7 @@ function historyPhrasesOf(history: SessionHistory): WorkspaceHarnessHistoryPhras
   }))
 }
 
-/** Intent: the session staff as plain JSON: the playhead, the shown and the waiting slot keys. */
+/** The session staff as plain JSON: the playhead, the shown and the waiting slot keys. */
 function rollingDisplayOf(state: SessionControllerState) {
   const staff = state.sessionStaff
   if (staff === null || state.latestReady === null) {
@@ -72,7 +72,7 @@ function rollingDisplayOf(state: SessionControllerState) {
 }
 
 /**
- * Intent: a closed history read as `phraseCount` phrases: the real ones repeated in order, each
+ * A closed history read as `phraseCount` phrases: the real ones repeated in order, each
  * renumbered from 1, its phrase count and start the real history's otherwise.
  */
 function inflatedHistory(real: ReviewedHistory, phraseCount: number): ReviewedHistory {
@@ -88,7 +88,7 @@ function inflatedHistory(real: ReviewedHistory, phraseCount: number): ReviewedHi
 }
 
 /**
- * Intent: a view of the controller's state whose Review and most recent session, once
+ * A view of the controller's state whose Review and most recent session, once
  * `phraseCount()` is set, hold that many phrases; every read goes through the real (reactive)
  * state, so the app still tracks it. One inflated history per real one and count, and one view
  * per real Review or most recent session, so the app sees stable objects and the Review's history
@@ -100,7 +100,7 @@ function inflatingStateView(
 ): SessionControllerState {
   const histories = new WeakMap<ReviewedHistory, ReviewedHistory>()
   const views = new WeakMap<object, object>()
-  /** Intent: the one inflated history of `real` at `count` phrases. */
+  /** The one inflated history of `real` at `count` phrases. */
   const historyFor = (real: ReviewedHistory, count: number): ReviewedHistory => {
     let history = histories.get(real)
     if (history === undefined || history.phraseCount !== count) {
@@ -109,7 +109,7 @@ function inflatingStateView(
     }
     return history
   }
-  /** Intent: the one view of `real` (a Review or a session) with its history inflated. */
+  /** The one view of `real` (a Review or a session) with its history inflated. */
   const viewOf = <T extends { readonly history: ReviewedHistory }>(real: T, count: number): T => {
     const history = historyFor(real.history, count)
     const cached = views.get(real) as T | undefined
@@ -145,7 +145,7 @@ export interface HarnessSessionController {
   readonly api: WorkspaceHarnessSessionApi
 }
 
-/** Intent: the most recent session as plain JSON: held, with its count and keeping, or kept. */
+/** The most recent session as plain JSON: held, with its count and keeping, or kept. */
 function mostRecentOf(
   recent: MostRecentSession | null,
 ): WorkspaceHarnessSessionState['mostRecent'] {
@@ -156,7 +156,7 @@ function mostRecentOf(
 }
 
 /**
- * Intent: the controller's state as plain JSON, its last history reduced to its phrase count and
+ * The controller's state as plain JSON, its last history reduced to its phrase count and
  * its phrases' timelines, acknowledgements and played notes, and its session staff to the playhead
  * and slot keys.
  */
@@ -215,7 +215,7 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
 }
 
 /**
- * Intent: build the seam. `wrap` returns a factory that builds the controller with the
+ * Build the seam. `wrap` returns a factory that builds the controller with the
  * workspace's own, keeps it and hands the app the same controller with its state read through
  * the inflating view; the app calls it once, at setup.
  */
@@ -225,7 +225,7 @@ function snapshotOf(state: SessionControllerState): WorkspaceHarnessSessionState
 export function createHarnessSessionController(): HarnessSessionController {
   let controller: SessionController | null = null
 
-  /** Intent: the controller the app holds; reaching here before it loaded is a spec error. */
+  /** The controller the app holds; reaching here before it loaded is a spec error. */
   function controllerFor(call: string): SessionController {
     if (controller === null) {
       throw new Error(`Workspace harness: session.${call}() before the controller loaded`)

@@ -10,7 +10,7 @@ import { generateAndAwaitReady, gotoWorkspace } from './helpers'
 /** The reduced-motion CSS rule forces every animation/transition to `--duration-reduced` (1ms). */
 const REDUCED_MOTION_CEILING_MS = 2
 
-/** Intent: parse a computed CSS duration string (e.g. "0.24s, 0.16s") into milliseconds. */
+/** Parse a computed CSS duration string (e.g. "0.24s, 0.16s") into milliseconds. */
 function parseDurationsMs(value: string): number[] {
   return value.split(',').map((part) => {
     const trimmed = part.trim()

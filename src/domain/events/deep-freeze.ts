@@ -5,7 +5,7 @@
  */
 
 /**
- * Intent: freeze a plain object or array and every nested plain object/array reachable from it,
+ * Freeze a plain object or array and every nested plain object/array reachable from it,
  * so mutation attempts on any nested field fail rather than silently succeeding. Skips values
  * that are not plain objects/arrays (numbers, strings, booleans, branded primitives) since those
  * are already immutable in JavaScript.

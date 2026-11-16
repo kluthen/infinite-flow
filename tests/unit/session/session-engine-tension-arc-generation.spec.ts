@@ -36,7 +36,7 @@ const JOIN_PROVIDER_SEEDS = [3000, 4100, 5200, 6300, 7400, 8500, 9600, 10700] as
 /** Generous timeout for the tests that generate whole sessions for many seeds. */
 const SESSIONS_TIMEOUT_MS = 60_000
 
-/** Intent: the flag on with a numeric mutation seed. */
+/** The flag on with a numeric mutation seed. */
 function mutationOn(seed: number): SettingsMutationFlag {
   return { kind: 'on', seed: makeSeed(seed) }
 }
@@ -48,7 +48,7 @@ interface ArcRun {
   readonly firstSeed?: number
 }
 
-/** Intent: a fast session with the arc on, driven until phrase `SOUNDED` has started sounding. */
+/** A fast session with the arc on, driven until phrase `SOUNDED` has started sounding. */
 function arcSession({ tension, mutation, firstSeed }: ArcRun): SessionDriver {
   const settings = sessionSettings({ tempo: FAST_TEMPO, tension })
   const driver = new SessionDriver({
@@ -64,23 +64,23 @@ function arcSession({ tension, mutation, firstSeed }: ArcRun): SessionDriver {
   return driver
 }
 
-/** Intent: the chosen tension arc of the session for a mutation seed, cycling through all four. */
+/** The chosen tension arc of the session for a mutation seed, cycling through all four. */
 function tensionFor(seed: number): TensionArc {
   return TENSION_ARCS[seed % TENSION_ARCS.length]!
 }
 
-/** Intent: the tension arc in effect for a phrase, from the session's settings-changed outputs. */
+/** The tension arc in effect for a phrase, from the session's settings-changed outputs. */
 function tensionInEffect(driver: SessionDriver, phraseNumber: number): TensionArc {
   return settingsInEffect(driver, phraseNumber).controls.tension
 }
 
-/** Intent: the settings in effect for a phrase, from the session's settings-changed outputs. */
+/** The settings in effect for a phrase, from the session's settings-changed outputs. */
 function settingsInEffect(driver: SessionDriver, phraseNumber: number): SessionSettings {
   const changes = settingsChanges(driver).filter((change) => change.phraseNumber <= phraseNumber)
   return changes.at(-1)?.settings ?? driver.settings
 }
 
-/** Intent: the latest decided phrase of each number, phrase 1 the Idle one, by phrase number. */
+/** The latest decided phrase of each number, phrase 1 the Idle one, by phrase number. */
 function decidedPhrases(driver: SessionDriver): ReadonlyMap<number, SessionPhrase> {
   const decided = new Map<number, SessionPhrase>()
   for (const output of driver.all('phrase-sounding'))
@@ -214,7 +214,7 @@ interface JoinCounts {
   harmonyDropped: number
 }
 
-/** Intent: true when two phrases share their tonal center and collection. */
+/** True when two phrases share their tonal center and collection. */
 function sameKey(before: SessionPhrase, after: SessionPhrase): boolean {
   const { tonalCenter, collection } = before.intent.controls
   return (
@@ -224,7 +224,7 @@ function sameKey(before: SessionPhrase, after: SessionPhrase): boolean {
 }
 
 /**
- * Intent: check every carried-in phrase of a session: its result passes the generation-result
+ * Check every carried-in phrase of a session: its result passes the generation-result
  * validation, join included, and across a join whose tension arc changed, a carried harmony fits
  * the receiving intent, and one dropped with the key unchanged does not. Counts the joins into
  * `counts`.

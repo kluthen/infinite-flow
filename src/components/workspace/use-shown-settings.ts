@@ -48,7 +48,7 @@ export interface ShownSettingsView {
   readonly startSettings: ComputedRef<SessionSettings | null>
 }
 
-/** Intent: the controls' readings over `deps`, all computed from them. */
+/** The controls' readings over `deps`, all computed from them. */
 // @spec-link [[rule_session_settings_locked]]
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
 // @spec-link [[rule_mutation_reverts_at_session_end]]

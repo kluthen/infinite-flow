@@ -289,7 +289,7 @@ const reviewShowing = computed(
 )
 
 /**
- * Intent: a failed opening of Jam mode sends focus to its notice's `Try again`, unless a sheet is
+ * A failed opening of Jam mode sends focus to its notice's `Try again`, unless a sheet is
  * open as the wait ends: focus then stays in the sheet, the notice showing all the same.
  */
 // @spec-link [[module_workspace_mode]]
@@ -497,7 +497,7 @@ const presetSheet = usePresetSheet({
   root: () => layoutRoot.value,
 })
 let connectionSheetShown = false
-/** Intent: tell the workspace whether any of its sheets is open now. */
+/** Tell the workspace whether any of its sheets is open now. */
 function reportSheetsOpen(): void {
   const open =
     myInstrumentSheet.sheetOpen.value ||
@@ -542,7 +542,7 @@ const anySheetOpen = computed(
     presetSheet.sheetOpen.value,
 )
 
-/** Intent: the facts a fresh Jam's start is judged on, now. */
+/** The facts a fresh Jam's start is judged on, now. */
 function jamStartFacts(): FreshJamStartFacts {
   return {
     controllerLoaded: props.controller !== null,
@@ -570,7 +570,7 @@ const jamIdleCue = useJamIdleCue({
 })
 
 /**
- * Intent: Jam mode's starting note, played while a Jam could start (the home note, or the kept
+ * Jam mode's starting note, played while a Jam could start (the home note, or the kept
  * doodle's phrase 1's first note): the start `Start Jam` takes, its one instant jump included (ux
  * D452); focus stays where it is.
  */
@@ -592,28 +592,28 @@ defineExpose({
   connectionSheetOpen,
 })
 
-/** Intent: the loaded controller; a session action reaching here before it loads is a defect. */
+/** The loaded controller; a session action reaching here before it loads is a defect. */
 function requireController(): SessionController {
   if (props.controller === null)
     throw new Error('workspace shell: the session controller is not loaded')
   return props.controller
 }
 
-/** Intent: one element of the mounted workspace, found by its class; it must be there. */
+/** One element of the mounted workspace, found by its class; it must be there. */
 function workspacePart(selector: string): Element {
   const element = layoutRoot.value?.querySelector(selector) ?? null
   if (element === null) throw new Error(`workspace shell: ${selector} is not mounted`)
   return element
 }
 
-/** Intent: what precedes a start inside its click: the volume popover closed, a late landing cleared. */
+/** What precedes a start inside its click: the volume popover closed, a late landing cleared. */
 function prepareStart(): void {
   mixPopover.closeForSessionStart()
   workspaceFocus.clearLateRoomNotice()
 }
 
 /**
- * Intent: the Start click, synchronously: close the volume popover, start the session (which
+ * The Start click, synchronously: close the volume popover, start the session (which
  * unlocks the audio and asks for the screen locks inside this click), then make the start's one
  * instant jump for the layout the session holds. Focus stays on the session action. With a stale
  * phrase 1 nothing starts: the controller opens the stale-phrase prompt instead.
@@ -629,7 +629,7 @@ function handleStartSession(): void {
 }
 
 /**
- * Intent: the start's one instant jump, for the layout the session just started holds, to the
+ * The start's one instant jump, for the layout the session just started holds, to the
  * staff in sight at the start: session mode's, or in Jam mode Jam's own (its empty staff, or with a
  * doodle kept the staff showing its phrase 1).
  */
@@ -647,14 +647,14 @@ function jumpAfterStart(): void {
   jumpForSessionStart(props.jumpView, parts, layout)
 }
 
-/** Intent: `Stop`, from the header or the phone's compact one. */
+/** `Stop`, from the header or the phone's compact one. */
 // @spec-link [[rule_stop_ends_session]]
 function handleStopSession(): void {
   requireController().stop()
 }
 
 /**
- * Intent: the mounted header and score panel the focus moves reach. Their refs are only null once
+ * The mounted header and score panel the focus moves reach. Their refs are only null once
  * the shell unmounts, and the focus watchers stop before that (see `useWorkspaceFocus`), so a
  * missing one here is a defect.
  */
@@ -717,47 +717,47 @@ const jamBar = useJamPortsAndBar({
   header: () => focusParts().header,
 })
 
-/** Intent: a change of one of Jam's settings at Idle: saved by Jam's code; `jam-notice` goes. */
+/** A change of one of Jam's settings at Idle: saved by Jam's code; `jam-notice` goes. */
 // @spec-link [[module_workspace_mode]]
 function handleJamSettingChange(change: JamSettingsChange): void {
   freshJam.settingChanged()
   jamSettings.change(change)
 }
 
-/** Intent: the instrument changed from Jam's controls: a change of a Jam setting too. */
+/** The instrument changed from Jam's controls: a change of a Jam setting too. */
 function handleJamInstrumentChange(id: InstrumentProfileId): void {
   freshJam.settingChanged()
   controlPanelActions.selectInstrumentProfile(id)
 }
 
-/** Intent: the header's `Retry notation` in Jam mode: Jam's staff engraves its empty system again. */
+/** The header's `Retry notation` in Jam mode: Jam's staff engraves its empty system again. */
 // @spec-link [[module_workspace_mode]]
 function handleRetryJamNotation(): void {
   if (scorePanel.value === null) throw new Error('workspace shell: the score panel is not mounted')
   scorePanel.value.retryJamNotation()
 }
 
-/** Intent: the mounted notice row; asking for it while it shows no notice is a defect. */
+/** The mounted notice row; asking for it while it shows no notice is a defect. */
 function requireNoticeRow(): InstanceType<typeof AppNoticeRow> {
   if (noticeRow.value === null) throw new Error('workspace shell: the notice row is not shown')
   return noticeRow.value
 }
 
-/** Intent: Jam's load-failure notice's `Dismiss`: the notice goes, focus to the fallback. */
+/** Jam's load-failure notice's `Dismiss`: the notice goes, focus to the fallback. */
 // @spec-link [[module_workspace_mode]]
 function handleDismissJamFailure(): void {
   workspaceMode.dismissFailure()
   focusFallback()
 }
 
-/** Intent: `Dismiss`: remove the notice, and move focus to the workspace's fallback. */
+/** `Dismiss`: remove the notice, and move focus to the workspace's fallback. */
 // @spec-link [[rule_failed_save_never_disturbs_session]]
 function handleDismissAppNotice(): void {
   dismissAppNotice()
   focusFallback()
 }
 
-/** Intent: an Idle operation starting settles the end's landing: no late notice takes focus. */
+/** An Idle operation starting settles the end's landing: no late notice takes focus. */
 watch(
   () => state.value.operation,
   (operation) => {

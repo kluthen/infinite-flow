@@ -13,14 +13,14 @@ import {
 } from '../../../src/domain/controls/generation-controls'
 import { describeKeySuggestion } from '../../unit/jam/key-suggestion/key-suggestion-golden-case'
 
-/** Intent: one of the given values, or a refusal naming the case. */
+/** One of the given values, or a refusal naming the case. */
 function oneOf<T extends string>(values: readonly T[], value: string, label: string): T {
   const found = values.find((each) => each === value)
   if (found === undefined) throw new Error(`Key suggestion case ${label}: no such value ${value}.`)
   return found
 }
 
-/** Intent: the in-browser key and mode suggestion seams. */
+/** The in-browser key and mode suggestion seams. */
 export function createHarnessKeySuggestion(): WorkspaceHarnessKeySuggestionApi {
   return {
     describe: (cases) =>

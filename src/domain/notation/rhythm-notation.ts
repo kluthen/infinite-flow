@@ -50,7 +50,7 @@ interface GlyphPlacement {
 }
 
 /**
- * Intent: reject a forced boundary tick list that is not every entry an integer in 0..15 (a
+ * Reject a forced boundary tick list that is not every entry an integer in 0..15 (a
  * chord-symbol start tick must land inside the bar), as a typed failure before segmentation runs.
  */
 function assertForcedBoundaries(forcedBoundaryTicks: readonly number[]): void {
@@ -64,7 +64,7 @@ function assertForcedBoundaries(forcedBoundaryTicks: readonly number[]): void {
 }
 
 /**
- * Intent: report whether a glyph starting at `position` satisfies the first-release metric
+ * Report whether a glyph starting at `position` satisfies the first-release metric
  * alignment table (whole/dotted-half only from beat 1, half/dotted-quarter never crossing the
  * half-bar, quarter/dotted-eighth on the beat, eighth on the half-beat, sixteenth anywhere).
  */
@@ -87,7 +87,7 @@ function isMetricallyAligned(entry: NotatedDuration, position: number): boolean 
 }
 
 /**
- * Intent: report whether placing a glyph over `[position, position + ticks)` would cross a
+ * Report whether placing a glyph over `[position, position + ticks)` would cross a
  * forced boundary tick (a chord-symbol start strictly inside the glyph), which is forbidden
  * because a harmony change must always land on a glyph start.
  */
@@ -100,7 +100,7 @@ function crossesForcedBoundary(
 }
 
 /**
- * Intent: pick the largest notatable glyph that starts at `position`, ends at or before `end`,
+ * Pick the largest notatable glyph that starts at `position`, ends at or before `end`,
  * satisfies the metric alignment table, and does not cross a forced boundary tick. The sixteenth
  * glyph is always eligible (its interval is empty, so no boundary can lie strictly inside it),
  * which guarantees this never falls through without a result.
@@ -123,7 +123,7 @@ function pickGlyph(
 }
 
 /**
- * Intent: greedily split one event's `[start, end)` tick range into the fewest largest-first
+ * Greedily split one event's `[start, end)` tick range into the fewest largest-first
  * notatable glyphs allowed by the metric alignment table and the forced boundary ticks.
  */
 function splitRange(
@@ -142,7 +142,7 @@ function splitRange(
 }
 
 /**
- * Intent: crash early on an event list whose tie-continuation notes are not resolvable purely
+ * Crash early on an event list whose tie-continuation notes are not resolvable purely
  * within this measure: a continuation that is not the measure's first event but follows a rest
  * (no preceding note to tie from), or whose pitch differs from the preceding note's pitch.
  */
@@ -168,7 +168,7 @@ function assertTieContinuationsResolvable(events: readonly MeasureEvent[]): void
 }
 
 /**
- * Intent: decide whether the last glyph segment of `events[eventIndex]` ties into what follows —
+ * Decide whether the last glyph segment of `events[eventIndex]` ties into what follows —
  * the next event in this measure when it is a tie-continuation note, otherwise whether the next
  * measure is declared to start with a tie continuation.
  */
@@ -185,7 +185,7 @@ function tiesIntoWhatFollows(
 }
 
 /**
- * Intent: split every event of one already-validated 4/4 measure into notatable glyph segments,
+ * Split every event of one already-validated 4/4 measure into notatable glyph segments,
  * carrying tie flags across a within-event split, across events, and (for the measure's final
  * event) into the next measure. Crashes early as a typed NotationInputError on an invalid forced
  * boundary list, an unresolvable tie continuation, or an event list that does not tile 16 ticks.
@@ -253,7 +253,7 @@ export function segmentMeasure(
 }
 
 /**
- * Intent: report whether a rhythm segment is eligible to join a beam run: a note glyph valued
+ * Report whether a rhythm segment is eligible to join a beam run: a note glyph valued
  * eighth or sixteenth (dotted included).
  */
 function isBeamable(segment: RhythmSegment): boolean {
@@ -264,7 +264,7 @@ function isBeamable(segment: RhythmSegment): boolean {
 }
 
 /**
- * Intent: group consecutive beamable segments (eighth/sixteenth note glyphs, dotted included)
+ * Group consecutive beamable segments (eighth/sixteenth note glyphs, dotted included)
  * that start in the same quarter beat into beam runs of two or more; a rest, a longer note, or a
  * beat-boundary crossing breaks a run, and a run of a single segment is not reported.
  */

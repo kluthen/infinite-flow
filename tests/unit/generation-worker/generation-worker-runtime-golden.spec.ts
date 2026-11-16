@@ -51,7 +51,7 @@ interface GoldenRig {
 }
 
 /**
- * Intent: a rig whose memo is a fresh real memo, observed so the test can hold the jobs it
+ * A rig whose memo is a fresh real memo, observed so the test can hold the jobs it
  * begins, and whose scheduler throws on a second outstanding slice.
  */
 function createGoldenRig(): GoldenRig {
@@ -80,14 +80,14 @@ function createGoldenRig(): GoldenRig {
   return { runtime, memo, slices, jobs }
 }
 
-/** Intent: run the one scheduled slice, failing when none is scheduled. */
+/** Run the one scheduled slice, failing when none is scheduled. */
 function runSlice(rig: GoldenRig): void {
   const run = rig.slices.shift()
   if (run === undefined) throw new Error('no slice scheduled')
   run()
 }
 
-/** Intent: run slices until none is scheduled; the number run. */
+/** Run slices until none is scheduled; the number run. */
 function drainSlices(rig: GoldenRig): number {
   let count = 0
   while (rig.slices.length > 0) {
@@ -97,13 +97,13 @@ function drainSlices(rig: GoldenRig): number {
   return count
 }
 
-/** Intent: post a prewarm for one setting's seed-1 catalog intent across a cloning boundary. */
+/** Post a prewarm for one setting's seed-1 catalog intent across a cloning boundary. */
 function prewarm(rig: GoldenRig, key: string): void {
   const intent = buildCatalogIntent(parseSettingKey(key), 1)
   expect(rig.runtime.handleMessage(structuredClone({ type: 'prewarm', intent }))).toBeUndefined()
 }
 
-/** Intent: generate one setting's catalog intent for `seed`; the outcome's strong hash. */
+/** Generate one setting's catalog intent for `seed`; the outcome's strong hash. */
 function generateHash(rig: GoldenRig, key: string, seed: number, id: number): string {
   const intent = buildCatalogIntent(parseSettingKey(key), seed)
   const response = rig.runtime.handleMessage(structuredClone({ type: 'generate', id, intent }))
@@ -111,12 +111,12 @@ function generateHash(rig: GoldenRig, key: string, seed: number, id: number): st
   return jsonHash(response.outcome)
 }
 
-/** Intent: the catalog golden hash of one setting and seed. */
+/** The catalog golden hash of one setting and seed. */
 function goldenHash(key: string, seed: number): string {
   return CATALOG_GOLDEN.settings[key]![CATALOG_GOLDEN.seeds.indexOf(seed)]!
 }
 
-/** Intent: the memo-ranking golden's list facts of one setting. */
+/** The memo-ranking golden's list facts of one setting. */
 function goldenListFacts(key: string) {
   const { kind, count, candidatesHash } = MEMO_GOLDEN.settings[key]!
   return { kind, count, candidatesHash }

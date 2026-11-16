@@ -51,7 +51,7 @@ export interface MyInstrumentConfirmations {
   readonly back: () => void
 }
 
-/** Intent: the sheet's confirmations over `deps`. */
+/** The sheet's confirmations over `deps`. */
 // @spec-link [[entity_my_instrument_record]]
 // @spec-link [[rule_outdated_tab_stops_saving]]
 export function useMyInstrumentConfirmations(
@@ -63,7 +63,7 @@ export function useMyInstrumentConfirmations(
   const counted = shallowRef<MyInstrumentSessionCount | null>(null)
   let pending: MyInstrument | null = null
 
-  /** Intent: show `next`, counting the sessions now, focus on its Cancel. */
+  /** Show `next`, counting the sessions now, focus on its Cancel. */
   const open = (next: Exclude<MyInstrumentSheetStep, 'form'>): void => {
     counted.value = deps.sessions()
     failed.value = false
@@ -71,7 +71,7 @@ export function useMyInstrumentConfirmations(
     deps.focus('cancel')
   }
 
-  /** Intent: back to the form, focus on `target`. */
+  /** Back to the form, focus on `target`. */
   const toForm = (target: MyInstrumentSheetFocus): void => {
     step.value = 'form'
     counted.value = null
@@ -80,7 +80,7 @@ export function useMyInstrumentConfirmations(
     deps.focus(target)
   }
 
-  /** Intent: saving is off: back to the form, erasing nothing, its sound back to the saved one. */
+  /** Saving is off: back to the form, erasing nothing, its sound back to the saved one. */
   const savingOff = (): void => {
     deps.restoreSound()
     toForm('save')

@@ -46,7 +46,7 @@ export interface ProfileSwitchDependencies<TResult> {
 }
 
 /**
- * Intent: build the `selectInstrumentProfile` session action. Rejects outside idle; a same-id
+ * Build the `selectInstrumentProfile` session action. Rejects outside idle; a same-id
  * reselection is a no-op. The switch sets the instrument control only: it is outside the routing
  * point and never touches the preset selection, so it never makes Custom. An applied switch saves
  * the instrument at once, before any fit run it starts. Under the no-room notice the switch only
@@ -81,7 +81,7 @@ export function createSelectInstrumentProfileAction<TResult>(
 }
 
 /**
- * Intent: what an applied switch does to the phrase, the instrument already changed: while
+ * What an applied switch does to the phrase, the instrument already changed: while
  * switches are held (Jam mode shows), nothing yet, the switch owed to session mode's return;
  * nothing under the no-room notice or with no phrase shown; otherwise the phrase is cleared under
  * a rhythm combination that blocks generation, or regenerated with a fresh seed through the fit
@@ -109,7 +109,7 @@ async function phraseAfterSwitch<TResult>(
 }
 
 /**
- * Intent: build the action that replaces the phrase as an instrument switch does, the instrument
+ * Build the action that replaces the phrase as an instrument switch does, the instrument
  * unchanged: what saving a change to the selected my instrument's range or transposition does.
  * Rejected outside idle.
  */
@@ -125,7 +125,7 @@ export function createReplacePhraseAction<TResult>(
 }
 
 /**
- * Intent: build the action that holds session mode's instrument switches while Jam mode opens or
+ * Build the action that holds session mode's instrument switches while Jam mode opens or
  * shows, and releases them on returning: an owed switch is then applied as one made in session
  * mode, by the same rules as `selectInstrumentProfile`'s (written again, or cleared under a
  * blocked rhythm combination, or nothing under the no-room notice or with no phrase). A release

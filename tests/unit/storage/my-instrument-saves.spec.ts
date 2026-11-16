@@ -29,7 +29,7 @@ const LOW_TENOR = makeMyInstrument({
 })
 
 /**
- * Intent: the visit's saves over a loaded recording policy whose kept changes resolve `outcome`,
+ * The visit's saves over a loaded recording policy whose kept changes resolve `outcome`,
  * and the calls it records.
  */
 async function loadedSaves(outcome: KeptChangeOutcome = { status: 'saved' }) {
@@ -67,7 +67,7 @@ function sessionDeletes(key: string): StorageChange[] {
 const TWO_SESSIONS: KeptChanges = () =>
   Promise.resolve([...sessionDeletes('s1'), ...sessionDeletes('s2')])
 
-/** Intent: the batch of the one kept change the policy was asked for, with its refusal. */
+/** The batch of the one kept change the policy was asked for, with its refusal. */
 async function keptBatch(calls: readonly PolicyCall[]) {
   const kept = calls.filter((call) => call.method === 'changeKept')
   expect(kept).toHaveLength(1)

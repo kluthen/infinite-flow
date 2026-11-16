@@ -24,7 +24,7 @@ const button = ref<HTMLButtonElement | null>(null)
 
 const expanded = computed(() => props.popover.state.openedBy === props.opener)
 
-/** Intent: whether this anchor holds the popover: open from here, or closed and this is the toolbar's. */
+/** Whether this anchor holds the popover: open from here, or closed and this is the toolbar's. */
 // @spec-link [[req_session_audio_mix]]
 const holdsPopover = computed(
   () => expanded.value || (props.opener === 'toolbar' && props.popover.state.openedBy === null),
@@ -33,18 +33,18 @@ const holdsPopover = computed(
 /** Whether this opener had the popover open when the current pointer press began. */
 let openAtPress = false
 
-/** Intent: register this opener's button, which focus returns to when the popover closes. */
+/** Register this opener's button, which focus returns to when the popover closes. */
 // @spec-link [[req_session_audio_mix]]
 onMounted(() => {
   if (button.value === null) throw new Error('mix volume: the Volume button did not render')
   props.popover.attachOpener(props.opener, button.value)
 })
 
-/** Intent: forget this opener as it leaves the page, closing a popover it opened. */
+/** Forget this opener as it leaves the page, closing a popover it opened. */
 onBeforeUnmount(() => props.popover.detachOpener(props.opener))
 
 /**
- * Intent: note whether the popover was open from here when a pointer press began, before the
+ * Note whether the popover was open from here when a pointer press began, before the
  * press's focus move out of the popover (Tab out) closes it, so that the click ends closed.
  */
 function notePress(): void {
@@ -52,7 +52,7 @@ function notePress(): void {
 }
 
 /**
- * Intent: open or close the popover from this `Volume`. A pointer click (`detail` above 0) acts on
+ * Open or close the popover from this `Volume`. A pointer click (`detail` above 0) acts on
  * the state at its press; a keyboard activation on the state now.
  */
 // @spec-link [[req_session_audio_mix]]

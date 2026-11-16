@@ -42,7 +42,7 @@ interface SteeredPort {
   readonly holdNext: () => { readonly reached: Promise<void>; readonly release: () => void }
 }
 
-/** Intent: wrap a real port so its batches can be refused or held back. */
+/** Wrap a real port so its batches can be refused or held back. */
 function steeredPort(real: StoragePort): SteeredPort {
   let refused: (changes: readonly StorageChange[]) => boolean = () => false
   let held: { readonly reach: () => void; readonly gate: Promise<void> } | null = null
@@ -79,7 +79,7 @@ function steeredPort(real: StoragePort): SteeredPort {
   }
 }
 
-/** Intent: whether a batch is my instrument's: it changes the instrument store. */
+/** Whether a batch is my instrument's: it changes the instrument store. */
 function isInstrumentBatch(changes: readonly StorageChange[]): boolean {
   return changes.some((change) => change.store === 'instrument')
 }
@@ -92,7 +92,7 @@ interface Visit {
   readonly real: StoragePort
 }
 
-/** Intent: a controller whose session saves and kept changes go through real visit saves. */
+/** A controller whose session saves and kept changes go through real visit saves. */
 async function visit(): Promise<Visit> {
   const real = await readyPort(freshFactory())
   const steered = steeredPort(real)
@@ -104,7 +104,7 @@ async function visit(): Promise<Visit> {
   return { rig, saves, steered, real }
 }
 
-/** Intent: play a two-phrase session with my instrument selected at Idle, then Stop. */
+/** Play a two-phrase session with my instrument selected at Idle, then Stop. */
 async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
   const controls = makeGenerationControls({
     ...BASE_CONTROLS,
@@ -139,7 +139,7 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
   await flush()
 }
 
-/** Intent: a session of my instrument played whose own save the port refused; its key. */
+/** A session of my instrument played whose own save the port refused; its key. */
 async function refusedSession({ rig, steered }: Visit): Promise<string> {
   steered.refuse(() => true)
   await playedWithMyInstrument(rig)
@@ -152,7 +152,7 @@ async function refusedSession({ rig, steered }: Visit): Promise<string> {
   return recent.session.key
 }
 
-/** Intent: the session stores holding a record under `key`. */
+/** The session stores holding a record under `key`. */
 async function storesHolding(port: StoragePort, key: string): Promise<string[]> {
   const stores = ['sessionSummaries', 'sessionBodies', 'playedNotes'] as const
   const keys = await Promise.all(stores.map((store) => port.readKeys(store)))

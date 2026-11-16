@@ -101,7 +101,7 @@ export interface EarlierVersionSeeds {
   ) => Promise<void>
 }
 
-/** Intent: every object key anywhere in a value, nested objects and arrays included. */
+/** Every object key anywhere in a value, nested objects and arrays included. */
 function allKeys(value: unknown, into: Set<string> = new Set()): Set<string> {
   if (Array.isArray(value)) {
     for (const item of value) allKeys(item, into)
@@ -115,12 +115,12 @@ function allKeys(value: unknown, into: Set<string> = new Set()): Set<string> {
 }
 
 /**
- * Intent: refuse a kept session template that is not data version 4's bytes, as v3.2 wrote them:
+ * Refuse a kept session template that is not data version 4's bytes, as v3.2 wrote them:
  * its session-wide record and body at data version 4, its body holding no seventh chord and no
  * Seventh chords level, which no v3.2 body held.
  */
 function checkVersionFourSession(template: WorkspaceHarnessEarlierSession): void {
-  /** Intent: the data version a seeded record holds, whatever it is. */
+  /** The data version a seeded record holds, whatever it is. */
   const versionOf = (record: unknown): unknown => (record as { dataVersion?: unknown }).dataVersion
   if (
     versionOf(template.summary) !== V32_KEPT_DATA_VERSION ||
@@ -135,7 +135,7 @@ function checkVersionFourSession(template: WorkspaceHarnessEarlierSession): void
 }
 
 /**
- * Intent: a settings record as v3.2 wrote it: encoded by the settings codec at v3.2's app version,
+ * A settings record as v3.2 wrote it: encoded by the settings codec at v3.2's app version,
  * whose shapes v3.2 shared; a key naming no setting v3.2 had, the Seventh chords level's
  * included, throws.
  */
@@ -154,7 +154,7 @@ function versionFourSetting(key: string, value: unknown): StorageChange {
 }
 
 /**
- * Intent: a player preset's record as v3.2 wrote it: built by the preset model (which refuses an
+ * A player preset's record as v3.2 wrote it: built by the preset model (which refuses an
  * invalid one), encoded by the preset codec at v3.2's app version, then the same fields in the
  * same order without the Seventh chords level, at data version 3. A preset given a level throws:
  * v3.2 stored none.
@@ -173,7 +173,7 @@ function versionFourPreset(input: WorkspaceHarnessPresetInput): StorageChange {
   return { kind: 'write', store: 'presets', key: preset.id, record }
 }
 
-/** Intent: a raw seeded value as a stored record; throws when it is not an object. */
+/** A raw seeded value as a stored record; throws when it is not an object. */
 function seededRecord(value: unknown, what: string): RecordVersions {
   if (typeof value !== 'object' || value === null) {
     throw new Error(`Workspace harness: the seeded ${what} is not a record`)
@@ -183,7 +183,7 @@ function seededRecord(value: unknown, what: string): RecordVersions {
 }
 
 /**
- * Intent: the writes of copy `index` of an earlier version's kept session: its session-wide record
+ * The writes of copy `index` of an earlier version's kept session: its session-wide record
  * started `index` minutes after the template's, its session seed `index`, under
  * `session-{startedAt}-{sessionSeed}`; its body, and its played notes when given, as they are.
  */
@@ -221,7 +221,7 @@ function earlierCopy(template: WorkspaceHarnessEarlierSession, index: number): S
 }
 
 /**
- * Intent: the earlier versions' seeds: each writes through a port opened as that version's tab
+ * The earlier versions' seeds: each writes through a port opened as that version's tab
  * opens the database (once, on the first seed, and shared by the seeds of that version), keeping
  * that port open: `count` copies of a kept session, in batches, or settings records or v3.2's
  * player presets, each under its own key, in one batch. Each throws when `allowed()` is false (the
@@ -233,7 +233,7 @@ export function createEarlierVersionSeeds(allowed: () => boolean): EarlierVersio
   // The earlier tab's port, kept open; the upgrade closes it.
   let earlier: { readonly tab: EarlierTab; readonly port: StoragePort } | null = null
 
-  /** Intent: `tab`'s port, opened on its first seed; throws once seeding is over. */
+  /** `tab`'s port, opened on its first seed; throws once seeding is over. */
   async function openedEarlierPort(tab: EarlierTab, seed: string): Promise<StoragePort> {
     if (!allowed()) {
       throw new Error(`Workspace harness: ${seed} runs only while the load is held`)
@@ -255,7 +255,7 @@ export function createEarlierVersionSeeds(allowed: () => boolean): EarlierVersio
     return earlier.port
   }
 
-  /** Intent: write `count` copies of `template` through `tab`'s port, in batches. */
+  /** Write `count` copies of `template` through `tab`'s port, in batches. */
   async function seedSessions(
     tab: EarlierTab,
     seed: string,
@@ -276,7 +276,7 @@ export function createEarlierVersionSeeds(allowed: () => boolean): EarlierVersio
     }
   }
 
-  /** Intent: write `changes` in one batch through v3.2's port. */
+  /** Write `changes` in one batch through v3.2's port. */
   async function seedVersionFour(seed: string, changes: readonly StorageChange[]): Promise<void> {
     const port = await openedEarlierPort(V32_TAB, seed)
     await port.apply(changes)

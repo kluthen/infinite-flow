@@ -9,13 +9,13 @@ import type { SessionControllerState } from './workspace-session-controller-type
 /** The controller's state the links are decided from. */
 type LinkFacts = Pick<SessionControllerState, 'phase' | 'review' | 'listShowing'>
 
-/** Intent: whether the cue row may hold a link now: at Idle, the review mode not showing. */
+/** Whether the cue row may hold a link now: at Idle, the review mode not showing. */
 function linksMayShow(state: LinkFacts): boolean {
   return state.phase === 'idle' && state.review?.showing !== true && !state.listShowing
 }
 
 /**
- * Intent: whether `review-link` shows: at Idle, while a most recent session exists and the review
+ * Whether `review-link` shows: at Idle, while a most recent session exists and the review
  * mode does not show. A start removes it; the most recent session stays, so it returns at the end.
  */
 // @spec-link [[req_last_session_review]]
@@ -26,7 +26,7 @@ export function reviewLinkShown(state: LinkFacts & Pick<SessionControllerState, 
 }
 
 /**
- * Intent: whether `sessions-link` ("All sessions") shows: at Idle, while the session list has at
+ * Whether `sessions-link` ("All sessions") shows: at Idle, while the session list has at
  * least one row (a session saved by a newer version has one; one whose summary cannot be read has
  * none) and the review mode does not show.
  */

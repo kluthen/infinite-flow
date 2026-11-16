@@ -37,7 +37,7 @@ const EDGE = lockTestDomain('Edge')
 const SEED = makeSeed(11)
 
 /**
- * Intent: phrase seeds as a session derives them (the session seed plan), over many sessions and
+ * Phrase seeds as a session derives them (the session seed plan), over many sessions and
  * phrases: the seeds the draw sees in use.
  */
 function sessionPhraseSeeds(sessions: number, phrases: number): readonly Seed[] {
@@ -48,7 +48,7 @@ function sessionPhraseSeeds(sessions: number, phrases: number): readonly Seed[] 
   return seeds
 }
 
-/** Intent: the oracle: every candidate one allowed change from the locked bars, by a full scan. */
+/** The oracle: every candidate one allowed change from the locked bars, by a full scan. */
 function scannedCandidates(
   domain: readonly RhythmCandidate[],
   locked: RhythmCandidate,
@@ -62,7 +62,7 @@ function scannedCandidates(
   return found
 }
 
-/** Intent: one candidate per bar key of a domain, in domain order. */
+/** One candidate per bar key of a domain, in domain order. */
 function distinctBars(domain: readonly RhythmCandidate[]): readonly RhythmCandidate[] {
   const seen = new Set<string>()
   return domain.filter((candidate) => {
@@ -73,7 +73,7 @@ function distinctBars(domain: readonly RhythmCandidate[]): readonly RhythmCandid
   })
 }
 
-/** Intent: the Sixteenth, Strict, Straight domain of one silence and tension, if it has a plan. */
+/** The Sixteenth, Strict, Straight domain of one silence and tension, if it has a plan. */
 function strictStraightSixteenth(
   silenceDensity: SilenceDensity,
   tensionArc: TensionArc,
@@ -89,7 +89,7 @@ function strictStraightSixteenth(
   return Object.freeze([...result.candidates()])
 }
 
-/** Intent: every kind a domain's locked rhythms find, over each distinct bar key as the lock. */
+/** Every kind a domain's locked rhythms find, over each distinct bar key as the lock. */
 function kindsFound(domain: readonly RhythmCandidate[]): ReadonlySet<RhythmChangeKind> {
   const kinds = new Set<RhythmChangeKind>()
   const seeded = seededOrder(domain, SEED)
@@ -280,7 +280,7 @@ describe('the known limit: Strict variety, Straight syncopation, Sixteenth', () 
   })
 })
 
-/** Intent: a locked rhythm of the Build domain with candidates for every allowed kind together. */
+/** A locked rhythm of the Build domain with candidates for every allowed kind together. */
 function lockedWithChanges(): readonly LockedRhythmMeasure[] {
   const locked = distinctBars(BUILD).find(
     (candidate) => scannedCandidates(BUILD, candidate, RHYTHM_CHANGE_KINDS).size > 0,
@@ -289,7 +289,7 @@ function lockedWithChanges(): readonly LockedRhythmMeasure[] {
   return lockedBarsOf(locked)
 }
 
-/** Intent: the first session phrase seed for which the normal draw says `drawn`. */
+/** The first session phrase seed for which the normal draw says `drawn`. */
 function seedWhere(drawn: boolean): Seed {
   const seed = sessionPhraseSeeds(4, 20).find((each) => isRhythmChangeDrawn(each, false) === drawn)
   if (seed === undefined) throw new Error('Fixture setup: no such seed.')

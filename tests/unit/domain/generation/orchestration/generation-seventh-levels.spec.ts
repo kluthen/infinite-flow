@@ -38,24 +38,24 @@ import {
 
 const LEVELS_ABOVE_OFF: readonly ChordFamilyLevel[] = ['sometimes', 'favored', 'stronglyFavored']
 
-/** Intent: the chord families with the seventh chords at `level`. */
+/** The chord families with the seventh chords at `level`. */
 function familiesAt(level: ChordFamilyLevel): ChordFamilies {
   return parseChordFamilies({ 'seventh-chords': level })
 }
 
-/** Intent: the same intent at another Seventh chords level. */
+/** The same intent at another Seventh chords level. */
 function atLevel(intent: GenerationIntent, level: ChordFamilyLevel): GenerationIntent {
   return { ...intent, chordFamilies: familiesAt(level) }
 }
 
-/** Intent: the intent's harmony domain, which must have plans. */
+/** The intent's harmony domain, which must have plans. */
 function domainOf(intent: GenerationIntent): HarmonyCandidateDomain {
   const domain = buildHarmonyDomain(intent)
   if (domain.kind !== 'harmony_candidate_domain') throw new Error('Fixture: no harmony plan.')
   return domain
 }
 
-/** Intent: a phrase 2 intent receiving phrase 1's carry-in, at Off. */
+/** A phrase 2 intent receiving phrase 1's carry-in, at Off. */
 function carryInIntent(seed: number): GenerationIntent {
   const first = buildIntent({ seed, label: 'seventh-levels' })
   const carryIn = carryInAfter(first, generateSuccess(first), 1)
@@ -152,7 +152,7 @@ interface Instruments {
 
 const NO_PLAN: PitchPlanResult = { kind: 'no_legal_pitch_plan', fuelUsed: 0 }
 
-/** Intent: search collaborators under which no seventh form has a solution, counting the run. */
+/** Search collaborators under which no seventh form has a solution, counting the run. */
 function deadSevenths(): { readonly deps: WindowSearchDeps; readonly seen: Instruments } {
   const seen: Instruments = { seventhPlansTried: 0, validated: 0, refused: 0 }
   return {
@@ -174,7 +174,7 @@ function deadSevenths(): { readonly deps: WindowSearchDeps; readonly seen: Instr
   }
 }
 
-/** Intent: the outcome, which must be a phrase. */
+/** The outcome, which must be a phrase. */
 function success(outcome: ReturnType<typeof generatePhrase>): SuccessOutcome {
   if (outcome.kind !== 'generation_success') throw new Error(`Expected a phrase: ${outcome.code}.`)
   return outcome

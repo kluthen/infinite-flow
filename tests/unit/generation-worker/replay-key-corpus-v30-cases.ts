@@ -116,19 +116,19 @@ const INSTRUMENTS: readonly CorpusInstrument[] = [
 /** The seeds the standalone cases rotate through. */
 const SEEDS = [1, 7, 42] as const
 
-/** Intent: the value of a catalog at an index, wrapping around; crashes on an empty catalog. */
+/** The value of a catalog at an index, wrapping around; crashes on an empty catalog. */
 function pick<T>(values: readonly T[], index: number): T {
   const value = values[index % values.length]
   if (value === undefined) throw new Error('Corpus rotation picked from an empty catalog.')
   return value
 }
 
-/** Intent: the label fragment naming an instrument and a profile selection. */
+/** The label fragment naming an instrument and a profile selection. */
 function selectionLabel(instrument: CorpusInstrument, profile: ProfileSelection): string {
   return `${instrument.label}-${profile.musicalProfile}-${profile.isCustom ? 'custom' : 'preset'}`
 }
 
-/** Intent: build one real intent, with or without a carry-in, from written controls and a seed. */
+/** Build one real intent, with or without a carry-in, from written controls and a seed. */
 function corpusIntent(options: {
   readonly label: string
   readonly controls: Omit<GenerationControls, 'instrumentProfileId'>
@@ -157,7 +157,7 @@ function corpusIntent(options: {
 }
 
 /**
- * Intent: the carry-in a phrase hands forward as the given phrase number. The phrase must
+ * The carry-in a phrase hands forward as the given phrase number. The phrase must
  * generate successfully; a failure means the corpus was built on an unusable case and crashes.
  */
 function carryInFrom(label: string, intent: GenerationIntent, phraseNumber: number): CarryIn {
@@ -169,7 +169,7 @@ function carryInFrom(label: string, intent: GenerationIntent, phraseNumber: numb
 }
 
 /**
- * Intent: the non-instrument controls of the standalone case at collection index `c`, instrument
+ * The non-instrument controls of the standalone case at collection index `c`, instrument
  * index `i` and profile index `p`. Over the nine collections of one (profile, instrument) pair,
  * `c + i` walks every tension, `c + 2i + p` every leapiness and `c + i + p` every arpeggio chaos;
  * note density cycles quarter, eighth, sixteenth with `c`, and rhythmic variety changes with each
@@ -207,7 +207,7 @@ function standaloneControls(
   return { ...controls, syncopation: suggestion.to }
 }
 
-/** Intent: every standalone case: profile selection × instrument × collection, each phrase 1. */
+/** Every standalone case: profile selection × instrument × collection, each phrase 1. */
 function standaloneCases(): readonly ReplayKeyCorpusV30Case[] {
   return PROFILES.flatMap((profile, p) =>
     INSTRUMENTS.flatMap((instrument, i) =>
@@ -243,7 +243,7 @@ const CARRY_IN_CONTROLS: Omit<GenerationControls, 'instrumentProfileId'> = {
 }
 
 /**
- * Intent: a three-phrase chain per instrument for Neutral preset and Jazz custom, each instrument
+ * A three-phrase chain per instrument for Neutral preset and Jazz custom, each instrument
  * in its own collection: phrase 1 (not a case), phrase 2 receiving phrase 1's carry-in, phrase 3
  * receiving phrase 2's.
  */
@@ -280,7 +280,7 @@ function chainCases(): readonly ReplayKeyCorpusV30Case[] {
 }
 
 /**
- * Intent: per instrument for Neutral custom and Jazz preset, a phrase 2 in F# Dorian receiving the
+ * Per instrument for Neutral custom and Jazz preset, a phrase 2 in F# Dorian receiving the
  * carry-in of a C Ionian phrase 1 with its final harmony dropped (null), as a session does when
  * the key changes between phrases.
  */
@@ -311,7 +311,7 @@ function nullHarmonyCases(): readonly ReplayKeyCorpusV30Case[] {
   )
 }
 
-/** Intent: every case of the v3.0 corpus, in a fixed order. */
+/** Every case of the v3.0 corpus, in a fixed order. */
 export function replayKeyCorpusV30Cases(): readonly ReplayKeyCorpusV30Case[] {
   return [...standaloneCases(), ...chainCases(), ...nullHarmonyCases()]
 }

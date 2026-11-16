@@ -8,7 +8,7 @@
 import { deepFreeze } from './deep-freeze'
 import { type Measure } from './measure'
 
-/** Intent: the fixed number of measures in a first-release generated phrase. */
+/** The fixed number of measures in a first-release generated phrase. */
 export const PHRASE_MEASURE_COUNT = 4
 
 /** Typed failure for a timeline that does not carry exactly four ordered measures 0-3. */
@@ -29,7 +29,7 @@ export interface ConcertEventTimeline {
 }
 
 /**
- * Intent: construct an immutable, deep-frozen ConcertEventTimeline from an already-constructed
+ * Construct an immutable, deep-frozen ConcertEventTimeline from an already-constructed
  * list of measures. Rejects any count other than four and any measure whose index does not match
  * its position (0, 1, 2, 3 in order) as a typed TimelineStructureViolation; never truncates,
  * pads, or reorders.

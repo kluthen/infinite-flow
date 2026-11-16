@@ -42,7 +42,7 @@ import {
   type RestrictionHalf,
 } from './key-and-mode-restriction'
 
-/** Intent: the ten controls every preset holds, in the order presets list them. */
+/** The ten controls every preset holds, in the order presets list them. */
 // @spec-link [[module_preset_model]]
 // @spec-link [[rule_preset_contents]]
 export const PRESET_HELD_CONTROL_KEYS = deepFreeze([
@@ -58,19 +58,19 @@ export const PRESET_HELD_CONTROL_KEYS = deepFreeze([
   'arpeggioChaos',
 ] as const satisfies readonly (keyof GenerationControls)[])
 
-/** Intent: one of the ten preset-held controls. */
+/** One of the ten preset-held controls. */
 // @spec-link [[rule_preset_contents]]
 export type PresetHeldControlKey = (typeof PRESET_HELD_CONTROL_KEYS)[number]
 
-/** Intent: the values of the ten preset-held controls. */
+/** The values of the ten preset-held controls. */
 // @spec-link [[rule_preset_contents]]
 export type PresetHeldControls = Pick<GenerationControls, PresetHeldControlKey>
 
-/** Intent: a preset is the project's (built-in) or the player's own. */
+/** A preset is the project's (built-in) or the player's own. */
 // @spec-link [[module_preset_model]]
 export type PresetKind = 'builtIn' | 'player'
 
-/** Intent: a preset's fixed identifier, never derived from its name. */
+/** A preset's fixed identifier, never derived from its name. */
 // @spec-link [[module_preset_model]]
 export type PresetId = string
 
@@ -125,7 +125,7 @@ const HELD_CONTROL_CATALOGS: {
 })
 
 /**
- * Intent: run one field's validation, turning its own refusal into a PresetModelError naming the
+ * Run one field's validation, turning its own refusal into a PresetModelError naming the
  * field; any other error is not a refusal and goes through unchanged.
  */
 function readField<T>(field: string, read: () => T): T {
@@ -142,18 +142,18 @@ function readField<T>(field: string, read: () => T): T {
   }
 }
 
-/** Intent: whether a value is a plain, non-null, non-array object. */
+/** Whether a value is a plain, non-null, non-array object. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/** Intent: read one preset-held control's value against its catalog. */
+/** Read one preset-held control's value against its catalog. */
 function readHeldControl(controls: Record<string, unknown>, key: PresetHeldControlKey): string {
   const { values, name } = HELD_CONTROL_CATALOGS[key]
   return readField('controls', () => validateControlValue<string>(values, controls[key], name))
 }
 
-/** Intent: read the ten preset-held controls, in order, dropping every other key. */
+/** Read the ten preset-held controls, in order, dropping every other key. */
 function readHeldControls(value: unknown): PresetHeldControls {
   if (!isPlainObject(value)) throw new PresetModelError("A preset's controls must be an object.")
   return Object.fromEntries(
@@ -161,7 +161,7 @@ function readHeldControls(value: unknown): PresetHeldControls {
   ) as unknown as PresetHeldControls
 }
 
-/** Intent: read a non-empty string field of a preset. */
+/** Read a non-empty string field of a preset. */
 function readText(value: unknown, field: string): string {
   if (typeof value !== 'string' || value.length === 0) {
     throw new PresetModelError(`A preset's ${field} must be a non-empty string.`)
@@ -170,7 +170,7 @@ function readText(value: unknown, field: string): string {
 }
 
 /**
- * Intent: build a preset from its seven fields: every control checked against its catalog, the
+ * Build a preset from its seven fields: every control checked against its catalog, the
  * figure levels, the Seventh chords level and the restriction parsed, id and name non-empty
  * strings, the kind known. A refusal throws a PresetModelError; nothing is defaulted. Returns a
  * fresh deep-frozen preset holding exactly those seven fields, the level by value, no other key
@@ -215,19 +215,19 @@ export interface PresetSettings {
   readonly chordFamilies: ChordFamilies
 }
 
-/** Intent: the preset with an id, or undefined when none has it. */
+/** The preset with an id, or undefined when none has it. */
 // @spec-link [[module_preset_model]]
 export function findPreset(presets: readonly Preset[], id: PresetId): Preset | undefined {
   return presets.find((preset) => preset.id === id)
 }
 
-/** Intent: the current value kept when the half allows it, otherwise the half's first entry. */
+/** The current value kept when the half allows it, otherwise the half's first entry. */
 function keptOrFirst<T>(half: RestrictionHalf<T>, current: T): T {
   return half === 'any' || half.includes(current) ? current : half[0]
 }
 
 /**
- * Intent: choose a preset. The ten preset-held controls, the seven figure levels and the Seventh
+ * Choose a preset. The ten preset-held controls, the seven figure levels and the Seventh
  * chords level take its values; each half of its restriction separately keeps the current written
  * key (collection) when it allows it, otherwise sets the half's first entry; the tempo and the
  * instrument never change, and the selection becomes that preset. Choosing the preset already
@@ -274,7 +274,7 @@ export type SettingChange =
   | { readonly kind: 'notPresetHeld' }
 
 /**
- * Intent: the selection after a change of setting, never comparing values. Custom stays Custom
+ * The selection after a change of setting, never comparing values. Custom stays Custom
  * with the same base. With a preset selected, a preset-held control, a figure level or the Seventh
  * chords level makes Custom based on it, and so does a key and mode outside its restriction; a key
  * and mode inside it, or a setting no preset holds, change nothing. A selected id no preset has
@@ -307,7 +307,7 @@ export function selectionAfterChange(
 }
 
 /**
- * Intent: the restriction in force, worked out and never stored: the selected preset's, or in
+ * The restriction in force, worked out and never stored: the selected preset's, or in
  * Custom its base's, while the written key and the collection are both inside it; otherwise null.
  * Custom with no base, or an id no preset has, has none.
  */
@@ -325,7 +325,7 @@ export function restrictionInForce(
 }
 
 /**
- * Intent: the selection after a preset is deleted: Custom with no base when it was the selected
+ * The selection after a preset is deleted: Custom with no base when it was the selected
  * preset or Custom's base, otherwise the same selection. Settings are never touched by deleting.
  */
 // @spec-link [[rule_deleting_base_preset_leaves_custom]]

@@ -80,7 +80,7 @@ const EXPECTED_ARCS: Readonly<Record<TensionArc, readonly TensionArc[]>> = {
 /** The four tension arcs, calmest first. */
 const CHOSEN_ARCS = ['Settled', 'Lift', 'Build', 'Edge'] as const
 
-/** Intent: a fast driver for a chosen tension arc, the arc on or off (or left to its default). */
+/** A fast driver for a chosen tension arc, the arc on or off (or left to its default). */
 function arcDriver(tension: TensionArc, multiPhraseTensionArc?: boolean): SessionDriver {
   const settings = sessionSettings({ tempo: FAST_TEMPO, tension })
   return new SessionDriver({
@@ -91,7 +91,7 @@ function arcDriver(tension: TensionArc, multiPhraseTensionArc?: boolean): Sessio
   })
 }
 
-/** Intent: every generated (neither Idle nor repeat) phrase a driver readied, in order. */
+/** Every generated (neither Idle nor repeat) phrase a driver readied, in order. */
 function generatedPhrases(driver: SessionDriver): readonly SessionPhrase[] {
   return driver
     .all('phrase-ready')
@@ -99,7 +99,7 @@ function generatedPhrases(driver: SessionDriver): readonly SessionPhrase[] {
     .filter((phrase) => phrase.origin !== 'repeat')
 }
 
-/** Intent: run phrase 2 through the count-in, then phrases 2 to `last` sounding and answered. */
+/** Run phrase 2 through the count-in, then phrases 2 to `last` sounding and answered. */
 function driveUntilAnswered(driver: SessionDriver, last: number): void {
   driver.settle(0.5)
   driver.tick(1)

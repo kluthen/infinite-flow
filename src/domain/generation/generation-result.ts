@@ -19,7 +19,7 @@ export interface GenerationResult {
 }
 
 /**
- * Intent: construct an immutable, deep-frozen GenerationResult from an already-validated request
+ * Construct an immutable, deep-frozen GenerationResult from an already-validated request
  * identity, seed, and already-constructed ConcertEventTimeline. The timeline itself was already
  * deep-frozen by makeConcertEventTimeline; this freezes the enclosing result envelope.
  */

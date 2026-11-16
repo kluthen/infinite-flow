@@ -16,7 +16,7 @@ import type { AudioTime } from './audio-ports'
 import type { BackingVoice, ScheduledBackingNote } from './sound-roles'
 import { beatAt, type ClickPlan } from './click-track'
 
-/** Intent: throw unless `phraseNumber` counts a phrase: a whole number from 1. */
+/** Throw unless `phraseNumber` counts a phrase: a whole number from 1. */
 function assertPhraseNumber(phraseNumber: number): void {
   if (!Number.isInteger(phraseNumber) || phraseNumber < 1) {
     throw new Error(`backing track: phrase ${phraseNumber} is not a whole number from 1`)
@@ -24,7 +24,7 @@ function assertPhraseNumber(phraseNumber: number): void {
 }
 
 /**
- * Intent: throw unless `phraseOneBeat` can be phrase 1's first beat: a whole session beat on a
+ * Throw unless `phraseOneBeat` can be phrase 1's first beat: a whole session beat on a
  * barline at or after the count-in's end.
  */
 // @spec-link [[module_session_transport_tempo_map]]
@@ -42,7 +42,7 @@ function assertPhraseOneBeat(plan: ClickPlan, phraseOneBeat: number): void {
 }
 
 /**
- * Intent: the session beat phrase `phraseNumber` starts on: phrase 1 on `phraseOneBeat` (by
+ * The session beat phrase `phraseNumber` starts on: phrase 1 on `phraseOneBeat` (by
  * default just after the count-in; in a session started without phrase 1, the barline it was
  * handed over at), each next one four measures later. Throws on a phrase number that is not a
  * whole number from 1, and on a phrase 1 beat that is not a barline at or after the count-in's end.
@@ -61,7 +61,7 @@ export function phraseFirstBeat(
 }
 
 /**
- * Intent: when phrase `phraseNumber` (from 1) starts sounding: phrase 1 on `phraseOneBeat` (by
+ * When phrase `phraseNumber` (from 1) starts sounding: phrase 1 on `phraseOneBeat` (by
  * default when the count-in ends), each next one four measures later, at the tempo map's tempos, so
  * it depends only on the tempos of the phrases before it. Throws as `phraseFirstBeat` does.
  */
@@ -77,7 +77,7 @@ export function phraseStartsAt(
 }
 
 /**
- * Intent: a whole-note time as a count of quarter-note beats. Throws off a whole beat, which the
+ * A whole-note time as a count of quarter-note beats. Throws off a whole beat, which the
  * backing renderer never produces, rather than placing a note between two clicks.
  */
 function wholeBeats(time: Rational): number {
@@ -89,7 +89,7 @@ function wholeBeats(time: Rational): number {
 }
 
 /**
- * Intent: one rendered note of `voice` on the session's beat grid, from its phrase's first beat.
+ * One rendered note of `voice` on the session's beat grid, from its phrase's first beat.
  */
 function placeNote(
   plan: ClickPlan,
@@ -107,7 +107,7 @@ function placeNote(
 }
 
 /**
- * Intent: throw unless the tempo is constant across the phrase starting on `firstBeat`: no tempo
+ * Throw unless the tempo is constant across the phrase starting on `firstBeat`: no tempo
  * change of the plan falls after its first beat and before the next phrase's.
  */
 // @spec-link [[module_session_transport_tempo_map]]
@@ -122,7 +122,7 @@ function assertOneTempoAcross(plan: ClickPlan, phraseNumber: number, firstBeat: 
 }
 
 /**
- * Intent: phrase `phraseNumber`'s rendered backing as notes on the audio clock, ordered by start
+ * Phrase `phraseNumber`'s rendered backing as notes on the audio clock, ordered by start
  * (the bass before the chord on a shared beat). Each start and end is the time of its session
  * beat, computed exactly as that beat's click, so the notes start and last at the tempo in effect
  * for the phrase; phrase 1 starts on `phraseOneBeat`, as in `phraseFirstBeat`. Throws on a phrase
@@ -150,7 +150,7 @@ export function scheduleBacking(
 }
 
 /**
- * Intent: the queued notes with `from <= at < to`, in queue order. The window is half-open, like
+ * The queued notes with `from <= at < to`, in queue order. The window is half-open, like
  * the click track's, so consecutive windows never repeat or drop a note. Throws on a backwards
  * window.
  */

@@ -43,7 +43,7 @@ export type SessionStartBlocker =
   | 'room_notice'
 
 /**
- * Intent: the first start condition that does not hold, or null when a session may start: no
+ * The first start condition that does not hold, or null when a session may start: no
  * session running, the Review not showing, a phrase shown, no Idle generation running (generate,
  * regenerate or fit retries), no notation error, no failure banner, a supported rhythm
  * combination, and the staff shown (no rotate-device notice, no room notice).
@@ -63,7 +63,7 @@ export function sessionStartBlocker(facts: SessionStartFacts): SessionStartBlock
   return null
 }
 
-/** Intent: whether a session may start now; MIDI state never enters the judgement. */
+/** Whether a session may start now; MIDI state never enters the judgement. */
 // @spec-link [[rule_session_start_conditions]]
 // @spec-link [[rule_midi_never_blocks_session]]
 export function canStartSession(facts: SessionStartFacts): boolean {

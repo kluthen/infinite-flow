@@ -35,7 +35,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: mount the shell over `session` and `controller` (null while it loads). */
+/** Mount the shell over `session` and `controller` (null while it loads). */
 function mountShell(
   session: GenerationSession<WorkspaceSessionResult>,
   controller: SessionController | null,
@@ -64,12 +64,12 @@ function mountShell(
 
 type Shell = ReturnType<typeof mountShell>
 
-/** Intent: the Seventh chords radiogroup. */
+/** The Seventh chords radiogroup. */
 function group(wrapper: Shell) {
   return wrapper.get('[role="radiogroup"][aria-label="Seventh chords"]')
 }
 
-/** Intent: the checked Seventh chords segment's label. */
+/** The checked Seventh chords segment's label. */
 function checked(wrapper: Shell): string | undefined {
   return group(wrapper)
     .findAll('[role="radio"]')
@@ -77,7 +77,7 @@ function checked(wrapper: Shell): string | undefined {
     ?.text()
 }
 
-/** Intent: a running session showing a phrase generated at Sometimes. */
+/** A running session showing a phrase generated at Sometimes. */
 async function startSession(wrapper: Shell, fake: FakeSessionController) {
   await wrapper.get('.header-actions > button.session-action').trigger('click')
   fake.state.shownSettings = {

@@ -9,7 +9,7 @@ import { WORKSPACE_HARNESS_URL } from '../release/harness-helpers'
 
 type MidiSpyWindow = Window & { __midiSpy: { installed: boolean; requests: number } }
 
-/** Intent: land on the workspace harness in these MIDI and audio modes, with its MIDI API ready. */
+/** Land on the workspace harness in these MIDI and audio modes, with its MIDI API ready. */
 export async function gotoMidiHarness(
   page: Page,
   midi: WorkspaceHarnessMidiMode = 'fake',
@@ -20,7 +20,7 @@ export async function gotoMidiHarness(
 }
 
 /**
- * Intent: before any page script runs, wrap `navigator.requestMIDIAccess` so every call is
+ * Before any page script runs, wrap `navigator.requestMIDIAccess` so every call is
  * counted. `installed` proves the spy was armed rather than passing because the browser lacked it.
  */
 // @test-link [[rule_controller_connects_between_sessions]]
@@ -38,39 +38,39 @@ export async function installMidiRequestSpy(page: Page): Promise<void> {
   })
 }
 
-/** Intent: the MIDI request spy's reading, from the page. */
+/** The MIDI request spy's reading, from the page. */
 export function readMidiRequestSpy(
   page: Page,
 ): Promise<{ readonly installed: boolean; readonly requests: number }> {
   return page.evaluate(() => ({ ...(window as unknown as MidiSpyWindow).__midiSpy }))
 }
 
-/** Intent: the "Connect controller" click's work: unlock the audio, then connect the controller. */
+/** The "Connect controller" click's work: unlock the audio, then connect the controller. */
 export function connectMidi(page: Page): Promise<void> {
   return page.evaluate(() => window.__workspaceHarness.midi.connect())
 }
 
-/** Intent: select the present input with this id. */
+/** Select the present input with this id. */
 export function selectDevice(page: Page, id: string): Promise<void> {
   return page.evaluate((deviceId) => window.__workspaceHarness.midi.select(deviceId), id)
 }
 
-/** Intent: the controller's state. */
+/** The controller's state. */
 export function midiState(page: Page): Promise<WorkspaceHarnessMidiState> {
   return page.evaluate(() => window.__workspaceHarness.midi.state())
 }
 
-/** Intent: the MIDI inputs present, as the controller lists them. */
+/** The MIDI inputs present, as the controller lists them. */
 export function midiDevices(page: Page): Promise<readonly WorkspaceHarnessMidiDevice[]> {
   return page.evaluate(() => window.__workspaceHarness.midi.devices())
 }
 
-/** Intent: plug a fake device in. */
+/** Plug a fake device in. */
 export function plugDevice(page: Page, device: WorkspaceHarnessMidiDevice): Promise<void> {
   return page.evaluate((d) => window.__workspaceHarness.midi.plug(d), device)
 }
 
-/** Intent: unplug a fake device at audio time `at`. */
+/** Unplug a fake device at audio time `at`. */
 export function unplugDevice(page: Page, id: string, at: number): Promise<void> {
   return page.evaluate(([deviceId, t]) => window.__workspaceHarness.midi.unplug(deviceId, t), [
     id,
@@ -78,7 +78,7 @@ export function unplugDevice(page: Page, id: string, at: number): Promise<void> 
   ] as const)
 }
 
-/** Intent: play a note-on on a fake device at audio time `at`, on `channel` (default 0). */
+/** Play a note-on on a fake device at audio time `at`, on `channel` (default 0). */
 export function noteOn(
   page: Page,
   id: string,
@@ -92,7 +92,7 @@ export function noteOn(
   )
 }
 
-/** Intent: play a note-off on a fake device at audio time `at`, on `channel` (default 0). */
+/** Play a note-off on a fake device at audio time `at`, on `channel` (default 0). */
 export function noteOff(
   page: Page,
   id: string,
@@ -105,7 +105,7 @@ export function noteOff(
   )
 }
 
-/** Intent: send raw message bytes from a fake device at audio time `at`. */
+/** Send raw message bytes from a fake device at audio time `at`. */
 export function sendBytes(
   page: Page,
   id: string,
@@ -118,22 +118,22 @@ export function sendBytes(
   )
 }
 
-/** Intent: how many times MIDI access was requested since the page loaded. */
+/** How many times MIDI access was requested since the page loaded. */
 export function requestCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.midi.requestCount())
 }
 
-/** Intent: every note the controller reported played, in order. */
+/** Every note the controller reported played, in order. */
 export function playedNotes(page: Page): Promise<readonly WorkspaceHarnessPlayedNote[]> {
   return page.evaluate(() => window.__workspaceHarness.midi.playedNotes())
 }
 
-/** Intent: every note the controller reported ended, in order. */
+/** Every note the controller reported ended, in order. */
 export function endedNotes(page: Page): Promise<readonly WorkspaceHarnessEndedNote[]> {
   return page.evaluate(() => window.__workspaceHarness.midi.endedNotes())
 }
 
-/** Intent: the controller's state kinds since the page loaded, in order. */
+/** The controller's state kinds since the page loaded, in order. */
 export function stateLog(page: Page): Promise<readonly WorkspaceHarnessMidiStateKind[]> {
   return page.evaluate(() => window.__workspaceHarness.midi.stateLog())
 }

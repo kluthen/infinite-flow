@@ -127,7 +127,7 @@ type PolicyCall = (policy: SavePolicy) => void
 const SETTING_KEY_SET: ReadonlySet<string> = new Set([...SETTING_KEYS, ...JAM_SETTING_KEYS])
 
 /**
- * Intent: the batch of record writes for one change of the player's, one per setting. A key that
+ * The batch of record writes for one change of the player's, one per setting. A key that
  * names no setting is a defect and throws.
  */
 function settingWrites(changes: SettingChanges, appVersion: string): StorageChange[] {
@@ -140,7 +140,7 @@ function settingWrites(changes: SettingChanges, appVersion: string): StorageChan
 }
 
 /**
- * Intent: the visit's saves over the policy the loader hands over. Every call reaches the policy
+ * The visit's saves over the policy the loader hands over. Every call reaches the policy
  * in the order made: queued until the policy loads and run in order then, at once after that. A
  * policy that fails to load is a defect and surfaces as a rejection, never swallowed. A save's
  * outcome is not awaited: the policy never rejects for a refusal, and reports it itself.
@@ -154,7 +154,7 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
   let loaded: SavePolicy | null = null
   let running = false
 
-  /** Intent: run the waiting calls in order; a call made meanwhile joins the end of the line. */
+  /** Run the waiting calls in order; a call made meanwhile joins the end of the line. */
   const runPending = (target: SavePolicy): void => {
     running = true
     try {
@@ -164,7 +164,7 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     }
   }
 
-  /** Intent: put a call in line, and run the line at once when the policy has loaded. */
+  /** Put a call in line, and run the line at once when the policy has loaded. */
   const submit = (call: PolicyCall): void => {
     pending.push(call)
     if (loaded !== null && !running) runPending(loaded)
@@ -175,7 +175,7 @@ export function createVisitSaves(policy: Promise<SavePolicy>, appVersion: string
     runPending(resolved)
   })
 
-  /** Intent: call the policy in line, resolving what its call resolves (a defect rejects). */
+  /** Call the policy in line, resolving what its call resolves (a defect rejects). */
   const resolved = <T>(call: (target: SavePolicy) => Promise<T>): Promise<T> =>
     new Promise((resolve, reject) => {
       submit((target) => {
@@ -233,7 +233,7 @@ interface ControlChoices {
 
 const CONTROL_PREFIX = 'controls.'
 
-/** Intent: whether two preset selections are the same: the same kind naming the same preset. */
+/** Whether two preset selections are the same: the same kind naming the same preset. */
 // @spec-link [[rule_settings_saved_on_change]]
 export function sameSelection(left: PresetSelection, right: PresetSelection): boolean {
   if (left.kind === 'preset') return right.kind === 'preset' && right.presetId === left.presetId
@@ -241,7 +241,7 @@ export function sameSelection(left: PresetSelection, right: PresetSelection): bo
 }
 
 /**
- * Intent: the settings a player's control change changed: each control whose value differs, each
+ * The settings a player's control change changed: each control whose value differs, each
  * figure level and chord family level (the Seventh chords level) that differs, and the preset
  * selection when it differs, so a preset choice saves the level with the selection. For the
  * player's change handlers only, never for a watcher of control values.

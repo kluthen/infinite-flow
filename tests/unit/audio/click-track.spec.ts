@@ -20,7 +20,7 @@ import {
 /** A count-in plus eight 4/4 bars: 36 beats. */
 const SCRIPT_BEATS = 36
 
-/** Intent: the clicks of a whole script, collected by splitting it at `boundaries`. */
+/** The clicks of a whole script, collected by splitting it at `boundaries`. */
 function clicksOverWindows(plan: ClickPlan, boundaries: readonly number[]): ScheduledClick[] {
   const clicks: ScheduledClick[] = []
   for (let i = 1; i < boundaries.length; i += 1) {
@@ -29,12 +29,12 @@ function clicksOverWindows(plan: ClickPlan, boundaries: readonly number[]): Sche
   return clicks
 }
 
-/** Intent: the end of the script (just before beat 36) for a plan. */
+/** The end of the script (just before beat 36) for a plan. */
 function scriptEnd(plan: ClickPlan): number {
   return plan.startAt + (SCRIPT_BEATS - 0.5) * (60 / plan.tempo)
 }
 
-/** Intent: check a click list is the exact 36-beat script at a tempo. */
+/** Check a click list is the exact 36-beat script at a tempo. */
 function expectScript(clicks: readonly ScheduledClick[], startAt: number, tempo: number): void {
   expect(clicks).toHaveLength(SCRIPT_BEATS)
   clicks.forEach((click, k) => {
@@ -108,12 +108,12 @@ describe('click track', () => {
 /** Beats per four-measure phrase in 4/4. */
 const PHRASE_BEATS = 16
 
-/** Intent: the first beat of phrase `n` (from 1): after the four count-in beats. */
+/** The first beat of phrase `n` (from 1): after the four count-in beats. */
 function phraseBeat(n: number): number {
   return 4 + (n - 1) * PHRASE_BEATS
 }
 
-/** Intent: a plan started at `startAt` and `tempos[0]`, phrase n + 1 at `tempos[n]`. */
+/** A plan started at `startAt` and `tempos[0]`, phrase n + 1 at `tempos[n]`. */
 function phrasePlan(startAt: number, tempos: readonly number[]): ClickPlan {
   let plan = createClickPlan(startAt, tempos[0]!)
   tempos.slice(1).forEach((tempo, index) => {
@@ -123,7 +123,7 @@ function phrasePlan(startAt: number, tempos: readonly number[]): ClickPlan {
 }
 
 /**
- * Intent: the closed-form time of beat `k` for a plan built by `phrasePlan`: the count-in at the
+ * The closed-form time of beat `k` for a plan built by `phrasePlan`: the count-in at the
  * starting tempo, then whole phrases at their own tempo, then the part phrase `k` falls in.
  */
 function closedFormBeat(startAt: number, tempos: readonly number[], k: number): number {

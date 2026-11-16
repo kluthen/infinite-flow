@@ -35,7 +35,7 @@ export type DoodleJoin =
   | { readonly kind: 'none'; readonly reason: NoDoodleJoinReason }
 
 /**
- * Intent: phrase 1's join from the doodle's last note, for the selected instrument and the
+ * Phrase 1's join from the doodle's last note, for the selected instrument and the
  * register the doodle reads (readDoodleRegister, for the same doodle and instrument). None when
  * the last note lies outside the instrument's range, or when the register reading carries no
  * window (no window holds the note). Otherwise the carry-in from no phrase: the note's concert

@@ -18,7 +18,7 @@ export const UNKNOWN_BUILD_COMMIT = 'unknown'
 const COMMIT_ID = /^[0-9a-f]{4,40}$/
 
 /**
- * Intent: the short id of the commit HEAD points at in the git checkout around `cwd`, or null when
+ * The short id of the commit HEAD points at in the git checkout around `cwd`, or null when
  * git or a checkout is not there (git's own error is not printed: the caller reports it).
  *
  * @param {string} cwd
@@ -38,7 +38,7 @@ function gitShortCommit(cwd) {
 }
 
 /**
- * Intent: the short id of the commit this build comes from: the id `git archive` wrote into
+ * The short id of the commit this build comes from: the id `git archive` wrote into
  * scripts/build-commit.txt, else HEAD's id from git, else `unknown`, with a warning, so a build
  * without either still runs and says honestly that it cannot tell. Throws when the file is missing:
  * it is part of the repository, like package.json.
@@ -61,7 +61,7 @@ export function buildCommit({
 }
 
 /**
- * Intent: the build-time `define` entries that inject the app's package version as the constant
+ * The build-time `define` entries that inject the app's package version as the constant
  * `__APP_VERSION__`, read from package.json, so every record the app stores names the version
  * that wrote it, and the short id of the commit the build comes from as `__APP_COMMIT__` (see
  * buildCommit), which the header shows beside the version. Throws when package.json holds no

@@ -14,7 +14,7 @@ import type { FitCandidate } from '@/session/session-runner'
 import type { StaffFitPlanner } from './workspace-session-controller-seams'
 
 /**
- * Intent: the written phrase of a session phrase, as the staff engraves it, in `clef`, the clef of
+ * The written phrase of a session phrase, as the staff engraves it, in `clef`, the clef of
  * the instrument it is played with (my instrument's own, or treble for a built-in).
  */
 // @spec-link [[module_session_display_fit]]
@@ -27,7 +27,7 @@ export function writtenPhraseOf(
 }
 
 /**
- * Intent: whether `phrase` fits the `heldLayout` in the window's budget at `inputs`, with the
+ * Whether `phrase` fits the `heldLayout` in the window's budget at `inputs`, with the
  * shared system-position size they carry, drawing nothing.
  */
 // @spec-link [[module_session_display_fit]]

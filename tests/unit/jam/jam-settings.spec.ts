@@ -86,23 +86,23 @@ const CHANGED: JamSettings = {
   'seventh-chords': 'favored',
 }
 
-/** Intent: one well-formed stored record of a Jam setting. */
+/** One well-formed stored record of a Jam setting. */
 function jamRecord(field: keyof JamSettings, value: unknown): Record<string, unknown> {
   return { key: `jam.${field}`, dataVersion: 1, appVersion: TEST_APP_VERSION, value }
 }
 
-/** Intent: a saver that records every batch it is given, and writes nothing. */
+/** A saver that records every batch it is given, and writes nothing. */
 function recordingSaver(): { save: (changes: SettingChanges) => void; batches: SettingChanges[] } {
   const batches: SettingChanges[] = []
   return { save: (changes) => batches.push(changes), batches }
 }
 
-/** Intent: the load's dependencies over `openPort`, whose start-up wait never ends. */
+/** The load's dependencies over `openPort`, whose start-up wait never ends. */
 function dependencies(openPort: () => Promise<StoragePort>): SavedDataLoadDependencies {
   return { openPort, startupWait: () => new Promise<void>(() => {}), mixDesign: () => MIX_DESIGN }
 }
 
-/** Intent: the settings store's records by key, as stored. */
+/** The settings store's records by key, as stored. */
 async function storedSettings(port: StoragePort): Promise<Map<string, unknown>> {
   const records = (await port.readAll('settings')) as { key: string }[]
   return new Map(records.map((record) => [record.key, record]))
@@ -404,7 +404,7 @@ describe("Jam's settings: Jam's own Seventh chords level", () => {
   /** Session mode's own level's record key. */
   const SESSION_LEVEL_KEY = 'chordFamilies.seventh-chords'
 
-  /** Intent: a port over a fresh store, the visit's saver over it, and the factory to reload. */
+  /** A port over a fresh store, the visit's saver over it, and the factory to reload. */
   async function savingVisit() {
     const factory = freshFactory()
     const port = await readyPort(factory)
@@ -412,7 +412,7 @@ describe("Jam's settings: Jam's own Seventh chords level", () => {
     return { factory, port, saveSettings: saves.saveSettings }
   }
 
-  /** Intent: the value of the stored record under `key`, or undefined when there is none. */
+  /** The value of the stored record under `key`, or undefined when there is none. */
   async function storedValue(port: StoragePort, key: string): Promise<unknown> {
     return ((await storedSettings(port)).get(key) as { value: unknown } | undefined)?.value
   }

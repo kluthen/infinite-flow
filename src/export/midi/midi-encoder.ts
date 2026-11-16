@@ -39,7 +39,7 @@ const GENERATED_VELOCITY = 96
 const BACKING_VELOCITY = 72
 
 /**
- * Intent: encode a session's generated notes (every phrase, or the favorites only) as one type 1
+ * Encode a session's generated notes (every phrase, or the favorites only) as one type 1
  * Standard MIDI File, a Jam's opening with its doodle. Validates the
  * input first and crashes with a MidiExportError on any breach; never takes or writes a played
  * note, and writes the backing track only when the input carries the backing, never under the

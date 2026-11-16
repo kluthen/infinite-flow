@@ -69,7 +69,7 @@ let unmounted = false
 const staffStyle = computed(() => reviewStaffStyle(props.reservation, props.playedNotesShown))
 
 /**
- * Intent: the doodle's lanes while Played notes is on, none otherwise: its raw notes over its own
+ * The doodle's lanes while Played notes is on, none otherwise: its raw notes over its own
  * measures, drawn from the kept engraving, so the switch turned on later draws them at once; a note
  * still sounding at the doodle's last barline stops at it. Blank while nothing is engraved.
  */
@@ -91,7 +91,7 @@ const lanes = computed((): PlayedNotesLaneView[] => {
   })
 })
 
-/** Intent: the reserved positions, top first, each with its lane, if one is rendered. */
+/** The reserved positions, top first, each with its lane, if one is rendered. */
 const positionSlots = computed(() =>
   Array.from({ length: props.reservation?.positionCount ?? 0 }, (_, index) => ({
     position: index === 0 ? 'top' : 'bottom',
@@ -103,21 +103,21 @@ onBeforeUnmount(() => {
   unmounted = true
 })
 
-/** Intent: the reserved positions rendered in the staff now, top first. */
+/** The reserved positions rendered in the staff now, top first. */
 function renderedPositions(): HTMLElement[] {
   const staff = staffEl.value
   if (staff === null) return []
   return Array.from(staff.querySelectorAll<HTMLElement>(':scope > [data-system-position]'))
 }
 
-/** Intent: blank every reserved position and its lane. */
+/** Blank every reserved position and its lane. */
 function clearPositions(): void {
   laneSource.value = null
   renderedPositions().forEach((host) => host.replaceChildren())
 }
 
 /**
- * Intent: draw the quantized doodle into a new `staff-content` in each reserved position, laid out
+ * Draw the quantized doodle into a new `staff-content` in each reserved position, laid out
  * as a phrase's four-measure system at the staff's width and cut at the doodle's last barline; the
  * split layout's bottom system, unreserved for a short doodle, is drawn nowhere. The top system's
  * SVG is named for the doodle, a bottom one hidden. A layout failure shows the "wider window" note,
@@ -176,14 +176,14 @@ async function engrave(engraver: ReviewEngraver): Promise<ReviewEngravingOutcome
   }
 }
 
-/** Intent: show the "couldn't be drawn" note without drawing (the engraver failed to load). */
+/** Show the "couldn't be drawn" note without drawing (the engraver failed to load). */
 // @spec-link [[rule_review_opens_with_doodle]]
 function showFailure(): void {
   clearPositions()
   note.value = 'failed'
 }
 
-/** Intent: remove the engraving or note, leaving the reserved space blank. */
+/** Remove the engraving or note, leaving the reserved space blank. */
 function release(): void {
   clearPositions()
   note.value = null

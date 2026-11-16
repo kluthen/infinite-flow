@@ -37,7 +37,7 @@ export interface AdaptiveTempoSchedule {
 }
 
 /**
- * Intent: the schedule at a session's start, at the starting tempo with the controller attached
+ * The schedule at a session's start, at the starting tempo with the controller attached
  * and nothing counted. It runs only when the start says adaptive tempo runs, which the caller
  * decides from the page's flag and the session having a controller at its start.
  */
@@ -53,7 +53,7 @@ export function startAdaptiveTempo(startingTempo: number, runs: boolean): Adapti
 }
 
 /**
- * Intent: the controller going away or reconnecting. An event that does not change its presence
+ * The controller going away or reconnecting. An event that does not change its presence
  * (away twice, back while attached) is a caller bug and throws.
  */
 // @spec-link [[rule_adaptive_tempo_flat_schedule]]
@@ -72,7 +72,7 @@ export function controllerPresence(
 }
 
 /**
- * Intent: a phrase starts sounding: it counts toward the next rise only when the schedule runs
+ * A phrase starts sounding: it counts toward the next rise only when the schedule runs
  * and the controller is attached.
  */
 // @spec-link [[rule_adaptive_tempo_flat_schedule]]
@@ -82,7 +82,7 @@ export function phraseStartedSounding(schedule: AdaptiveTempoSchedule): Adaptive
 }
 
 /**
- * Intent: fix the next phrase's tempo, the returned schedule's `tempo`. It rises by 5 BPM, never
+ * Fix the next phrase's tempo, the returned schedule's `tempo`. It rises by 5 BPM, never
  * past 240 BPM, and the count restarts at 0, only when the schedule runs, two counted phrases
  * have started since the last rise, the controller is attached and the ceiling is not reached;
  * otherwise it stays as the phrase before's, and a due rise waits for the next fixing.

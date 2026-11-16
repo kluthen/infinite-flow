@@ -25,12 +25,12 @@ export type FakeIdleState = {
   ]: GenerationSessionState<WorkspaceSessionResult>[K]
 }
 
-/** Intent: Ready: a phrase engraved on the staff, nothing running. */
+/** Ready: a phrase engraved on the staff, nothing running. */
 export function readyState(): Partial<FakeIdleState> {
   return { result: buildWorkspaceSessionResult(), resultEngraved: true }
 }
 
-/** Intent: a session double at Empty unless `overrides` say otherwise; its state is shallowly reactive. */
+/** A session double at Empty unless `overrides` say otherwise; its state is shallowly reactive. */
 // @test-link [[service_idle_generation_session]]
 export function fakeGenerationSession(overrides: Partial<FakeIdleState> = {}): {
   readonly session: GenerationSession<WorkspaceSessionResult>

@@ -33,12 +33,12 @@ interface CancelRig {
 }
 
 /**
- * Intent: a client whose first worker never answers and whose replacements answer for real,
+ * A client whose first worker never answers and whose replacements answer for real,
  * re-warming a replacement only when `prewarmEnabled`.
  */
 function cancelRig(prewarmEnabled: boolean): CancelRig {
   const ports: FakeGenerationWorkerPort[] = []
-  /** Intent: make the next worker, silent if it is the first, and keep it for the test. */
+  /** Make the next worker, silent if it is the first, and keep it for the test. */
   const createPort = (): FakeGenerationWorkerPort => {
     const port = createFakeGenerationWorkerPort(ports.length === 0 ? null : undefined)
     ports.push(port)
@@ -47,7 +47,7 @@ function cancelRig(prewarmEnabled: boolean): CancelRig {
   return { client: createGenerationWorkerClient(createPort, { prewarmEnabled }), ports }
 }
 
-/** Intent: let every queued microtask and promise continuation run. */
+/** Let every queued microtask and promise continuation run. */
 function settle(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }

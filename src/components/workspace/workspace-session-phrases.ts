@@ -51,7 +51,7 @@ export interface SessionPhrases {
 }
 
 /**
- * Intent: one running session's phrase steps from phrase 2 on. Each readied phrase is kept by its
+ * One running session's phrase steps from phrase 2 on. Each readied phrase is kept by its
  * number, the latest one readied under it, until its tempo schedules it. Every caller bug throws
  * before anything changes.
  */
@@ -64,7 +64,7 @@ export function createSessionPhrases(deps: SessionPhrasesDependencies): SessionP
   let nextReady = 2
   let nextTempo = 2
 
-  /** Intent: show the next readied phrase as read-ahead and keep it for its tempo. */
+  /** Show the next readied phrase as read-ahead and keep it for its tempo. */
   // @spec-link [[module_session_phrase_steps]]
   function phraseReady(phrase: SessionPhrase): void {
     const { phraseNumber } = phrase
@@ -79,7 +79,7 @@ export function createSessionPhrases(deps: SessionPhrasesDependencies): SessionP
   }
 
   /**
-   * Intent: the engine fixed the kept phrase's tempo: queue its backing and guide notes (from its
+   * The engine fixed the kept phrase's tempo: queue its backing and guide notes (from its
    * harmony and timeline) at that tempo first (from
    * then on the transport knows when it starts), then add its expected notes at that tempo, give
    * the display's playhead its tempo, and schedule its starting to sound at its transport start.
@@ -111,7 +111,7 @@ export function createSessionPhrases(deps: SessionPhrasesDependencies): SessionP
   }
 
   /**
-   * Intent: the engine discarded the latest readied phrase for a settings change, before its tempo
+   * The engine discarded the latest readied phrase for a settings change, before its tempo
    * was fixed: drop it, take it back from the display, and ready that number again next. Nothing
    * of it reached the audio, the acknowledgement or the agenda, which act only at its tempo.
    */

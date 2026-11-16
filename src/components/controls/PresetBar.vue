@@ -66,13 +66,13 @@ const shownValue = computed(() =>
   props.selection.kind === 'preset' ? props.selection.presetId : '',
 )
 
-/** Intent: the description line, from the description selection, never the one the box shows. */
+/** The description line, from the description selection, never the one the box shows. */
 // @spec-link [[module_preset_bar_model]]
 // @spec-link [[rule_vary_settings_marks_custom]]
 // @spec-link [[rule_automatic_change_updates_controls_quietly]]
 const description = computed(() => presetDescription(props.descriptionSelection, props.presets))
 
-/** Intent: put the box's DOM value back to what the props say. */
+/** Put the box's DOM value back to what the props say. */
 function showProps(): void {
   if (select.value !== null) select.value.value = shownValue.value
 }
@@ -81,7 +81,7 @@ function showProps(): void {
 watch(shownValue, showProps, { flush: 'post' })
 
 /**
- * Intent: report the player's choice by its validated preset id. Read-only, the change is refused
+ * Report the player's choice by its validated preset id. Read-only, the change is refused
  * and reverted at once. Either way the box shows its props again after the parent has answered,
  * so it never keeps a value the parent did not take. Applying the preset is the parent's.
  */

@@ -70,7 +70,7 @@ function bannerText(seconds: number): string {
   return `Controller disconnected — plug it back in to keep playing. Session ends in ${seconds} s.`
 }
 
-/** Intent: assert the banner shows `seconds` left, the header the disconnected badge. */
+/** Assert the banner shows `seconds` left, the header the disconnected badge. */
 async function expectLost(page: Page, seconds: number): Promise<void> {
   await expect(disconnectBanner(page)).toHaveText(bannerText(seconds))
   await expect(disconnectBanner(page).locator('.session-alert-countdown')).toHaveText(
@@ -82,7 +82,7 @@ async function expectLost(page: Page, seconds: number): Promise<void> {
   await expect(sheet(page)).toHaveCount(0)
 }
 
-/** Intent: assert the banner is gone and the header shows the connected badge again. */
+/** Assert the banner is gone and the header shows the connected badge again. */
 async function expectBack(page: Page): Promise<void> {
   await expect(disconnectBanner(page)).toHaveCount(0)
   expect((await sessionState(page)).controllerLost).toBeNull()
@@ -90,21 +90,21 @@ async function expectBack(page: Page): Promise<void> {
   await expect(controllerStatus(page)).toBeDisabled()
 }
 
-/** Intent: on a fresh page with the keyboard connected, a phrase ready to start from. */
+/** On a fresh page with the keyboard connected, a phrase ready to start from. */
 async function readyWithKeys(page: Page): Promise<void> {
   await gotoSessionHarness(page)
   await connectDevice(page, KEYS)
   await readyToStart(page)
 }
 
-/** Intent: the running session's phrase grid: when phrase 1 starts, and how long a phrase lasts. */
+/** The running session's phrase grid: when phrase 1 starts, and how long a phrase lasts. */
 async function phraseGrid(page: Page): Promise<{ origin: number; length: number }> {
   const origin = await phraseStartsAt(page, 1)
   return { origin, length: (await phraseStartsAt(page, 2)) - origin }
 }
 
 /**
- * Intent: assert the session still plays at its tempo: every phrase begun so far started on
+ * Assert the session still plays at its tempo: every phrase begun so far started on
  * `grid`, every click sounded since `since` falls on phrase 1's beat grid with no beat missing,
  * and every phrase begun since then opened with its backing on its first beat.
  */
@@ -139,7 +139,7 @@ async function expectAtTempo(
 }
 
 /**
- * Intent: assert the session has ended into the Review with the lost controller still selected
+ * Assert the session has ended into the Review with the lost controller still selected
  * and away: no banner, the no-controller badge, no connection sheet.
  */
 async function expectAwayInReview(page: Page): Promise<void> {
@@ -153,7 +153,7 @@ async function expectAwayInReview(page: Page): Promise<void> {
 }
 
 /**
- * Intent: assert the same device, plugged back in, reattached by itself in the Review: connected,
+ * Assert the same device, plugged back in, reattached by itself in the Review: connected,
  * no connection sheet, the Review still showing and no session started.
  */
 async function expectReattachedInReview(page: Page): Promise<void> {

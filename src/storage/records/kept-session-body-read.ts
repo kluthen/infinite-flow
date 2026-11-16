@@ -65,7 +65,7 @@ const PHRASE_V4: PhraseReaders = {
 }
 
 /**
- * Intent: a stored doodle entry: exactly the quantized doodle, read through the doodle's own
+ * A stored doodle entry: exactly the quantized doodle, read through the doodle's own
  * parser, and its capture tempo, a finite number above 0.
  */
 function parseKeptDoodle(value: unknown): KeptDoodle {
@@ -78,7 +78,7 @@ function parseKeptDoodle(value: unknown): KeptDoodle {
 }
 
 /**
- * Intent: a stored played-notes clock: exactly its keys, each a finite number of at least 0,
+ * A stored played-notes clock: exactly its keys, each a finite number of at least 0,
  * phrase 1's start after the doodle's first barline.
  */
 function parsePlayedNotesClock(value: unknown): KeptPlayedNotesClock {
@@ -96,7 +96,7 @@ function parsePlayedNotesClock(value: unknown): KeptPlayedNotesClock {
 }
 
 /**
- * Intent: a stored body's Jam parts: its doodle when it holds one, and its played-notes clock when
+ * A stored body's Jam parts: its doodle when it holds one, and its played-notes clock when
  * it holds one, only beside a doodle; or a refusal.
  */
 function parseJamParts(record: Record<string, unknown>): KeptBodyJamParts {
@@ -108,7 +108,7 @@ function parseJamParts(record: Record<string, unknown>): KeptBodyJamParts {
 }
 
 /**
- * Intent: a body holding Jam parts read back, its phrases through `readers`: exactly its keys
+ * A body holding Jam parts read back, its phrases through `readers`: exactly its keys
  * (the doodle only for a Jam session, the clock only beside it), its phrases, and its Jam parts.
  */
 function parseBodyOfShape(value: unknown, readers: PhraseReaders): ParsedKeptBody {
@@ -121,7 +121,7 @@ function parseBodyOfShape(value: unknown, readers: PhraseReaders): ParsedKeptBod
 }
 
 /**
- * Intent: read a current (data version 5) body back into its phrases, in sounding order, its
+ * Read a current (data version 5) body back into its phrases, in sounding order, its
  * doodle and its played-notes clock: exactly its keys (the doodle only for a Jam session, the
  * clock only beside it), at least one phrase, each through the domain's parsers (request,
  * timeline, harmony with the seventh each event holds, intent with its figure levels, its Seventh
@@ -140,7 +140,7 @@ export function parseKeptSessionBody(value: unknown): ParsedKeptBody {
 }
 
 /**
- * Intent: read a data version 4 body, v3.2's, back into its phrases, doodle and played-notes
+ * Read a data version 4 body, v3.2's, back into its phrases, doodle and played-notes
  * clock, as the upgrade step to data version 5 reads it: as `parseKeptSessionBody` reads a
  * current body, but each intent with v3.2's keys (a `chordFamilies` key refused as an unknown
  * field) read at Off, and every chord a triad: a seventh in a harmony event, or a carried seventh

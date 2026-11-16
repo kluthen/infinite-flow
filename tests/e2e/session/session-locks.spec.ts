@@ -31,7 +31,7 @@ interface ControlLook {
   readonly valueBackground: string
 }
 
-/** Intent: how every musical control looks now: each radiogroup of the control section, and tempo. */
+/** How every musical control looks now: each radiogroup of the control section, and tempo. */
 function controlLooks(page: Page): Promise<ControlLook[]> {
   return page
     .locator('.control-section [role="radiogroup"], .control-section [role="spinbutton"]')
@@ -59,7 +59,7 @@ function controlLooks(page: Page): Promise<ControlLook[]> {
     )
 }
 
-/** Intent: the colours of a look, without its read-only marks. */
+/** The colours of a look, without its read-only marks. */
 function coloursOf(look: ControlLook) {
   const { label, color, backgroundColor, opacity, valueColor, valueBackground } = look
   return { label, color, backgroundColor, opacity, valueColor, valueBackground }
@@ -117,7 +117,7 @@ test('a session locks every musical control at full contrast; theme, mix and Sto
   expect(after.every((look) => look.ariaReadonly === null)).toBe(true)
 })
 
-/** Intent: the wake lock's and the orientation lock's request/release/held counters. */
+/** The wake lock's and the orientation lock's request/release/held counters. */
 async function lockCounts(page: Page) {
   return page.evaluate(() => {
     const { wake, orientation } = window.__workspaceHarness.screenLocks

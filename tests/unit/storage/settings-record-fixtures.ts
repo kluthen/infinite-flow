@@ -102,7 +102,7 @@ export const NON_DEFAULT: SavedSettings = {
   keepPlayedNotes: true,
 }
 
-/** Intent: read one setting's value out of a full set, by its record key. */
+/** Read one setting's value out of a full set, by its record key. */
 export function settingAt(settings: SavedSettings, key: SettingKey): unknown {
   const [group, field] = key.split('.') as [string, string | undefined]
   const top = (settings as unknown as Record<string, unknown>)[group]
@@ -111,12 +111,12 @@ export function settingAt(settings: SavedSettings, key: SettingKey): unknown {
 
 export type RawRecord = Record<string, unknown>
 
-/** Intent: the encoded records of a full set, as plain mutable copies a test may corrupt. */
+/** The encoded records of a full set, as plain mutable copies a test may corrupt. */
 export function rawRecords(settings: SavedSettings): RawRecord[] {
   return encodeSettings(settings, APP_VERSION).map((record) => ({ ...record }))
 }
 
-/** Intent: replace the record of `key` in `records` with what `change` makes of a copy of it. */
+/** Replace the record of `key` in `records` with what `change` makes of a copy of it. */
 export function corrupt(
   records: readonly unknown[],
   key: SettingKey,

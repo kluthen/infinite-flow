@@ -89,14 +89,14 @@ interface TimingRow {
   readonly warmMs: readonly number[]
 }
 
-/** Intent: open the harness in `page` and wait until the load has ended and the app mounted. */
+/** Open the harness in `page` and wait until the load has ended and the app mounted. */
 async function openHarness(page: Page): Promise<void> {
   await page.goto(WORKSPACE_HARNESS_URL)
   await page.waitForFunction(() => typeof window.__workspaceHarness !== 'undefined')
 }
 
 /**
- * Intent: the last load's duration, after checking it read the saved data, listed it all and read
+ * The last load's duration, after checking it read the saved data, listed it all and read
  * every settings record back as stored.
  */
 async function lastLoadMs(page: Page, presets: number, sessions: number): Promise<number> {
@@ -114,7 +114,7 @@ async function lastLoadMs(page: Page, presets: number, sessions: number): Promis
   return report.loadMs
 }
 
-/** Intent: seed `presets` through the harness on `page`; nothing when there are none. */
+/** Seed `presets` through the harness on `page`; nothing when there are none. */
 async function seedPlayerPresets(
   page: Page,
   presets: readonly WorkspaceHarnessPresetInput[],
@@ -124,7 +124,7 @@ async function seedPlayerPresets(
 }
 
 /**
- * Intent: seed a fresh browser profile with the settings, `presets` player presets and
+ * Seed a fresh browser profile with the settings, `presets` player presets and
  * `sessions` kept sessions. Up to the limit the presets are written from one tab; those above it
  * from a second tab, as two tabs saving at once can leave more than the limit.
  */
@@ -155,7 +155,7 @@ async function seedProfile(
   await context.close()
 }
 
-/** Intent: time the cold load after a browser start on `profile`, then the warm reloads. */
+/** Time the cold load after a browser start on `profile`, then the warm reloads. */
 async function timeProfile(profile: string, presets: number, sessions: number): Promise<TimingRow> {
   const context = await chromium.launchPersistentContext(profile)
   const page = await context.newPage()
@@ -171,12 +171,12 @@ async function timeProfile(profile: string, presets: number, sessions: number): 
   return { presets, sessions, coldMs, warmMs }
 }
 
-/** Intent: one figure, rounded to a tenth of a millisecond. */
+/** One figure, rounded to a tenth of a millisecond. */
 function ms(value: number): string {
   return value.toFixed(1)
 }
 
-/** Intent: the title of the table of a read seeded with `data`. */
+/** The title of the table of a read seeded with `data`. */
 function tableTitle(data: ReadData): string {
   if (data.withLevels) {
     return 'Half of the kept sessions Jam sessions, the Seventh chords level saved and held by each player preset:'
@@ -184,7 +184,7 @@ function tableTitle(data: ReadData): string {
   return data.halfJam ? 'Half of the kept sessions Jam sessions:' : 'No Jam session:'
 }
 
-/** Intent: time every pair of counts on a fresh profile each, seeded with `data`; print the table. */
+/** Time every pair of counts on a fresh profile each, seeded with `data`; print the table. */
 async function timeEveryPair(data: ReadData): Promise<void> {
   const rows: TimingRow[] = []
   for (const presets of PRESET_COUNTS) {

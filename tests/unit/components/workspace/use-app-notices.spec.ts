@@ -29,7 +29,7 @@ import {
 } from '../../storage/save-policy-doubles'
 import { freshFactory, sampleRecord } from '../../storage/storage-test-doubles'
 
-/** Intent: the notices over `policy` and `outcome`, in their own effect scope, with a session flag. */
+/** The notices over `policy` and `outcome`, in their own effect scope, with a session flag. */
 function notices(
   outcome: LoadOutcome,
   policy: Promise<SavePolicy>,
@@ -55,14 +55,14 @@ function notices(
   }
 }
 
-/** Intent: a ready policy whose saves can be refused on demand, and the factory behind it. */
+/** A ready policy whose saves can be refused on demand, and the factory behind it. */
 async function refusable() {
   const factory = freshFactory()
   const { port, refuse } = refusingPort(await filledPort(factory))
   return { factory, refuse, policy: createSavePolicy(port) }
 }
 
-/** Intent: let the policy's promise and its listeners settle. */
+/** Let the policy's promise and its listeners settle. */
 async function settle(): Promise<void> {
   for (let turn = 0; turn < 5; turn++) await nextTick()
 }
@@ -248,12 +248,12 @@ describe('during a session', () => {
 
 const APOLOGY_ONE = "Sorry: a kept session was damaged and couldn't be read, so it was deleted."
 
-/** Intent: the apology's text for `n` sessions, several. */
+/** The apology's text for `n` sessions, several. */
 function apologyFor(n: number): string {
   return `Sorry: ${String(n)} kept sessions were damaged and couldn't be read, so they were deleted.`
 }
 
-/** Intent: notices over a ready refusable policy and a damaged sessions' reports channel. */
+/** Notices over a ready refusable policy and a damaged sessions' reports channel. */
 async function withReports(outcome: LoadOutcome = 'saved-data-read') {
   const ready = await refusable()
   const reports = createDamagedSessionReports()
@@ -370,13 +370,13 @@ describe('the deletions of damaged kept sessions', () => {
   })
 })
 
-/** Intent: the notices over a refusable ready policy, hearing the presets' refused saves. */
+/** The notices over a refusable ready policy, hearing the presets' refused saves. */
 async function withPresetRefusals() {
   const ready = await refusable()
   const refused = createRefusedPresetSaves()
   const row = notices('saved-data-read', Promise.resolve(ready.policy), undefined, refused)
   await settle()
-  /** Intent: a preset's save refused by the policy with `kind`, then told by its name. */
+  /** A preset's save refused by the policy with `kind`, then told by its name. */
   const refusePresetSave = async (name: string, kind: 'quota' | 'other') => {
     ready.refuse(kind)
     await ready.policy.write('presets', 'player-1', sampleRecord(name))
@@ -385,7 +385,7 @@ async function withPresetRefusals() {
   return { ...ready, refused, row, refusePresetSave }
 }
 
-/** Intent: the preset wording of the save-problem notice for the preset named `name`. */
+/** The preset wording of the save-problem notice for the preset named `name`. */
 function presetNotSaved(name: string): string {
   return `Your preset “${name}” couldn't be saved on this device. You can use it until this page closes.`
 }

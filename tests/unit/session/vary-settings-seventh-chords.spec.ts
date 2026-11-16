@@ -63,7 +63,7 @@ const RECORDED_ROWS: readonly DrawsRow[] = (
   }
 ).rows
 
-/** Intent: the settings with the level replaced, nothing else changed. */
+/** The settings with the level replaced, nothing else changed. */
 function atLevel(settings: SessionSettings, chordFamilies: ChordFamilies): SessionSettings {
   return { ...settings, chordFamilies }
 }

@@ -30,7 +30,7 @@ export interface JamIdlePrewarmInputs {
 export type JamIdlePrewarm = (inputs: JamIdlePrewarmInputs) => void
 
 /**
- * Intent: Jam's Idle prewarm over the prewarm port, with a rhythm prewarm trigger of its own: each
+ * Jam's Idle prewarm over the prewarm port, with a rhythm prewarm trigger of its own: each
  * call builds the controls of the first-visit rhythm values with Jam's tension, my instrument's
  * profile as data while it is selected, and posts one prewarm when that rhythm setting differs from
  * the last this trigger posted (the first call always posts).

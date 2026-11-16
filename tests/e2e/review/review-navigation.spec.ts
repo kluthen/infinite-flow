@@ -46,13 +46,13 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: scroll the page down by `y` px, instantly, and check it moved. */
+/** Scroll the page down by `y` px, instantly, and check it moved. */
 async function scrollDown(page: Page, y = 200): Promise<void> {
   await page.evaluate((top) => window.scrollTo({ top, behavior: 'instant' }), y)
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
 }
 
-/** Intent: the page's scroll offset. */
+/** The page's scroll offset. */
 function scrollY(page: Page): Promise<number> {
   return page.evaluate(() => window.scrollY)
 }
@@ -124,7 +124,7 @@ test.describe('leaving and reopening the Review', () => {
 })
 
 /**
- * Intent: what each engraved review item draws, as markup, once every item is engraved; the
+ * What each engraved review item draws, as markup, once every item is engraved; the
  * engraver's own element ids, numbered by a page-wide counter, are left out.
  */
 async function reviewNotation(page: Page, count: number): Promise<string[]> {
@@ -142,7 +142,7 @@ async function reviewNotation(page: Page, count: number): Promise<string[]> {
   )
 }
 
-/** Intent: the generated-notes export as MusicXML and as MIDI, from the Review showing. */
+/** The generated-notes export as MusicXML and as MIDI, from the Review showing. */
 async function exportBoth(
   page: Page,
   downloads: Downloads,
@@ -157,7 +157,7 @@ async function exportBoth(
 }
 
 /**
- * Intent: before any page script runs, count each transaction the page opens over the kept
+ * Before any page script runs, count each transaction the page opens over the kept
  * sessions' bodies in `window.__bodyReads`.
  */
 async function countBodyReads(page: Page): Promise<void> {
@@ -178,7 +178,7 @@ async function countBodyReads(page: Page): Promise<void> {
   })
 }
 
-/** Intent: how many read transactions over the kept sessions' bodies the page has opened. */
+/** How many read transactions over the kept sessions' bodies the page has opened. */
 function bodyReads(page: Page): Promise<number> {
   return page.evaluate(() => (window as unknown as { __bodyReads: number }).__bodyReads)
 }

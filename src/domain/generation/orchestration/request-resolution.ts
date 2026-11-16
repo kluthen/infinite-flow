@@ -28,7 +28,7 @@ export class RequestResolutionError extends Error {
 }
 
 /**
- * Intent: build one resolved core GenerationRequest for one candidate register window, carrying
+ * Build one resolved core GenerationRequest for one candidate register window, carrying
  * the intent's carry-in, rhythm lock group and steering block unchanged when it has them.
  */
 // @spec-link [[entity_request_rhythm_lock]]
@@ -49,7 +49,7 @@ function buildCoreRequest(intent: GenerationIntent, id: RegisterId): GenerationR
   })
 }
 
-/** Intent: the register whose window is the carried window, refusing a window none resolves to. */
+/** The register whose window is the carried window, refusing a window none resolves to. */
 function carriedRegister(intent: GenerationIntent, carryIn: CarryIn): RegisterId {
   const { minMidi, maxMidi } = carryIn.registerWindow
   const candidate = intent.registerIntent.candidates.find(
@@ -63,7 +63,7 @@ function carriedRegister(intent: GenerationIntent, carryIn: CarryIn): RegisterId
 }
 
 /**
- * Intent: true when generation must search every Varying window and choose among them: a Varying
+ * True when generation must search every Varying window and choose among them: a Varying
  * intent without carry-in. With a carry-in the window was resolved for the session's phrase 1 and
  * is reused as it is.
  */
@@ -73,7 +73,7 @@ export function searchesVaryingWindows(intent: GenerationIntent): boolean {
 }
 
 /**
- * Intent: resolve a GenerationIntent into the complete, immutable list of core requests it
+ * Resolve a GenerationIntent into the complete, immutable list of core requests it
  * covers. With a carry-in, exactly one request for the carried window (the window resolved for
  * the session's phrase 1, for Varying too). Otherwise a fixed register (Low/Middle/High) resolves
  * to exactly one request for that register, and Varying to one request per resolved candidate
@@ -92,7 +92,7 @@ export function resolveCoreRequests(intent: GenerationIntent): readonly Generati
   return deepFreeze([buildCoreRequest(intent, intent.registerIntent.requestedRegister)])
 }
 
-/** Intent: derive the generation-affecting register intent used for register tie-key derivation. */
+/** Derive the generation-affecting register intent used for register tie-key derivation. */
 function toGenerationAffectingRegisterIntent(
   intent: GenerationIntent,
 ): GenerationAffectingRegisterIntent {
@@ -103,7 +103,7 @@ function toGenerationAffectingRegisterIntent(
   }
 }
 
-/** Intent: reject a successful-register set that is empty, unknown to the intent, or duplicated. */
+/** Reject a successful-register set that is empty, unknown to the intent, or duplicated. */
 function assertValidSuccessfulRegisters(
   successful: readonly RegisterId[],
   candidateIds: readonly RegisterId[],
@@ -126,7 +126,7 @@ function assertValidSuccessfulRegisters(
 }
 
 /**
- * Intent: choose one register among a set of successfully-searched candidate windows, by the
+ * Choose one register among a set of successfully-searched candidate windows, by the
  * lowest unsigned register tie key for the intent's seed and generation-affecting register
  * intent, falling back to the canonical register index (Low=0, Middle=1, High=2) only on a key
  * collision. Accepts an injectable, defaulted key function so a collision can be constructed

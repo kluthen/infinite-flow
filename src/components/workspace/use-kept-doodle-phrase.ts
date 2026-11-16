@@ -154,7 +154,7 @@ export interface WorkspaceKeptDoodlePhrase {
 }
 
 /**
- * Intent: Jam's settings and drift phrase 1 is written under, from Jam's settings and the shared
+ * Jam's settings and drift phrase 1 is written under, from Jam's settings and the shared
  * instrument, as a fresh Jam's (my instrument's profile when it is the instrument).
  */
 // @spec-link [[req_jam_settings]]
@@ -172,7 +172,7 @@ function jamPhraseOneSettings(
 }
 
 /**
- * Intent: everything phrase 1 is written from but the doodle, as one comparable value: every Jam
+ * Everything phrase 1 is written from but the doodle, as one comparable value: every Jam
  * setting but the tempo, and the shared instrument (my instrument's profile and clef while it is
  * the one). Null before Jam's settings exist. Jam's pre-generation queue is keyed on it too.
  */
@@ -191,7 +191,7 @@ export function writtenFrom(
   return JSON.stringify({ ...source.settings, tempo: null, instrumentProfileId, mine })
 }
 
-/** Intent: a failed attempt as the ladder reads it: its generation failure's code, or a crash. */
+/** A failed attempt as the ladder reads it: its generation failure's code, or a crash. */
 function attemptResultOf(error: Error): PhraseOneAttemptResult {
   return error instanceof GenerationFailedError
     ? { kind: 'generation-failure', code: error.code }
@@ -199,7 +199,7 @@ function attemptResultOf(error: Error): PhraseOneAttemptResult {
 }
 
 /**
- * Intent: Jam's phrase 1 at Idle over its seams; see the module comment. Its staff is the one
+ * Jam's phrase 1 at Idle over its seams; see the module comment. Its staff is the one
  * shown while Jam mode shows; leaving Jam mode lets the doodle go, so nothing is written outside
  * it, and the staff gone, the next writing waits for its layout.
  */
@@ -208,7 +208,7 @@ function attemptResultOf(error: Error): PhraseOneAttemptResult {
 // @spec-link [[rule_shared_setting_changed_in_jam_mode]]
 // @spec-link [[rule_suggestion_use_it]]
 export function useKeptDoodlePhrase(seams: KeptDoodlePhraseSeams): WorkspaceKeptDoodlePhrase {
-  /** Intent: what phrase 1 is generated with; writing it with none given is a defect. */
+  /** What phrase 1 is generated with; writing it with none given is a defect. */
   function generation(): KeptDoodleGeneration {
     if (seams.generation === null) throw new Error('kept doodle phrase: no generation was given')
     return seams.generation
@@ -224,7 +224,7 @@ export function useKeptDoodlePhrase(seams: KeptDoodlePhraseSeams): WorkspaceKept
     return { kept, jam: jamPhraseOneSettings(loaded, source, seams.instrument()) }
   })
 
-  /** Intent: one writing's climb from the kept doodle, under Jam's settings now. */
+  /** One writing's climb from the kept doodle, under Jam's settings now. */
   function climb(): FitRunClimb {
     const loaded = seams.jamModule()
     const now = inputs.value
@@ -246,7 +246,7 @@ export function useKeptDoodlePhrase(seams: KeptDoodlePhraseSeams): WorkspaceKept
     }
   }
 
-  /** Intent: generate one attempt; a failed generation is a typed failure, with its code. */
+  /** Generate one attempt; a failed generation is a typed failure, with its code. */
   async function generate(intent: GenerationIntent): Promise<KeptDoodleGeneratedPhrase> {
     const attempt = attempts.get(intent)
     if (attempt === undefined) throw new Error('kept doodle phrase: an intent no attempt built')
@@ -256,7 +256,7 @@ export function useKeptDoodlePhrase(seams: KeptDoodlePhraseSeams): WorkspaceKept
     return { outcome, intent, settings, step, steering }
   }
 
-  /** Intent: the key signature phrase 1 is written in: Jam's written key and collection. */
+  /** The key signature phrase 1 is written in: Jam's written key and collection. */
   function keySignature(): StaffKeySignature {
     const source = seams.settings()
     if (source === null) throw new Error("kept doodle phrase: no key before Jam's settings exist")

@@ -28,7 +28,7 @@ import {
 } from './workspace-session-controller-types'
 
 /**
- * Intent: the session a session end gives its Review: its closed history, the instrument's name
+ * The session a session end gives its Review: its closed history, the instrument's name
  * from phrase 1's own intent (the profile the session was played with, my instrument's included,
  * never looked up by id), the preset label of the preset selection the session started with
  * (its history's, never the current settings'), named from the presets the session knew, which
@@ -72,7 +72,7 @@ export function endedSession(
 }
 
 /**
- * Intent: whether a session holds played notes to keep: a played note in a phrase of its history
+ * Whether a session holds played notes to keep: a played note in a phrase of its history
  * or, in a fresh Jam, a raw doodle note.
  */
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
@@ -84,7 +84,7 @@ export function holdsPlayedNote(session: Pick<ReviewedSession, 'history' | 'jam'
 }
 
 /**
- * Intent: whether `Keep my played notes` turned on keeps a session's played notes after its save:
+ * Whether `Keep my played notes` turned on keeps a session's played notes after its save:
  * they are still in memory, not kept yet, and the session is kept on the device.
  */
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
@@ -93,14 +93,14 @@ export function mayKeepPlayedNotes(session: ReviewedSession): boolean {
   return !session.playedNotesKept && session.keeping !== 'not-saved' && holdsPlayedNote(session)
 }
 
-/** Intent: the session with its played notes kept on the device, its history unchanged. */
+/** The session with its played notes kept on the device, its history unchanged. */
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
 export function withPlayedNotesKept(session: ReviewedSession): ReviewedSession {
   return Object.freeze({ ...session, playedNotesKept: true })
 }
 
 /**
- * Intent: the session once its played notes are deleted, from memory too: a history of the same
+ * The session once its played notes are deleted, from memory too: a history of the same
  * phrases, each holding no played note, its played notes no longer kept, and, for a Jam, its Jam
  * part holding no raw doodle note, its quantized doodle and everything else kept.
  */
@@ -124,7 +124,7 @@ export function withoutPlayedNotes(session: ReviewedSession): ReviewedSession {
 }
 
 /**
- * Intent: a Jam session with its key and mode suggestion declined (`Keep mine`), every other fact
+ * A Jam session with its key and mode suggestion declined (`Keep mine`), every other fact
  * as held; a session that is no Jam has no suggestion to decline and throws.
  */
 // @spec-link [[module_kept_session_changes]]
@@ -137,13 +137,13 @@ export function withSuggestionDeclined(session: ReviewedSession): ReviewedSessio
   return Object.freeze({ ...session, jam: declinedJamPart(jam) })
 }
 
-/** Intent: the Review a session end opens over `session`, showing. */
+/** The Review a session end opens over `session`, showing. */
 // @spec-link [[req_last_session_review]]
 export function openedReview(session: ReviewedSession): SessionReview {
   return Object.freeze({ ...session, showing: true })
 }
 
-/** Intent: the Review `Close review` leaves: kept, not showing; closing one not showing throws. */
+/** The Review `Close review` leaves: kept, not showing; closing one not showing throws. */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_new_session_discards_review]]
 export function closedReview(review: SessionReview | null): SessionReview {
@@ -154,7 +154,7 @@ export function closedReview(review: SessionReview | null): SessionReview {
 }
 
 /**
- * Intent: check that `Review last session` may show the most recent session now and give it:
+ * Check that `Review last session` may show the most recent session now and give it:
  * with none, a Review already showing, a session running, or its read already under way, the
  * request is out of turn and throws.
  */
@@ -178,7 +178,7 @@ export function assertReviewMayShow(
   return mostRecent
 }
 
-/** Intent: the Review `Review last session` shows over the most recent session, showing. */
+/** The Review `Review last session` shows over the most recent session, showing. */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_kept_session_review]]
 export function shownReview(session: ReviewedSession): SessionReview {
@@ -186,7 +186,7 @@ export function shownReview(session: ReviewedSession): SessionReview {
 }
 
 /**
- * Intent: how the session is kept once its own save's outcome is known: still not pinned once
+ * How the session is kept once its own save's outcome is known: still not pinned once
  * saved (the same value), not saved once the save was refused, skipped with saving off or
  * abandoned as the page went away.
  */

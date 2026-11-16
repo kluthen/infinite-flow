@@ -26,7 +26,7 @@ const LOADED_MIX: AudioMix = {
   rhythmGuideVolume: 0.3,
 }
 
-/** Intent: a transport on a fresh fake rig, starting from the mix `loadedMix` gives. */
+/** A transport on a fresh fake rig, starting from the mix `loadedMix` gives. */
 function transportFrom(loadedMix: () => AudioMix): {
   readonly rig: FakeAudioRig
   readonly transport: AudioTransport

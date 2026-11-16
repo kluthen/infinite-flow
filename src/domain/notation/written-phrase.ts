@@ -34,13 +34,13 @@ import {
   type WrittenRest,
 } from './written-phrase-types'
 
-/** Intent: normalize any integer pitch class into the closed 0..11 PitchClassNumber range. */
+/** Normalize any integer pitch class into the closed 0..11 PitchClassNumber range. */
 function pcMod12(value: number): PitchClassNumber {
   return (((value % 12) + 12) % 12) as PitchClassNumber
 }
 
 /**
- * Intent: crash early unless a measure's tie-continuation opening is resolvable across the
+ * Crash early unless a measure's tie-continuation opening is resolvable across the
  * barline: measure 0 may never open with a tie continuation, and any later measure's opening tie
  * continuation must follow a note of the same concert pitch at the end of the previous measure.
  */
@@ -65,7 +65,7 @@ function assertCrossMeasureTieResolvable(
   }
 }
 
-/** Intent: report whether the measure right after `measureIndex` opens with a tie continuation. */
+/** Report whether the measure right after `measureIndex` opens with a tie continuation. */
 function nextMeasureStartsWithTie(
   timeline: ConcertEventTimeline,
   measureIndex: MeasureIndex,
@@ -75,7 +75,7 @@ function nextMeasureStartsWithTie(
   return nextFirstEvent.kind === 'note' && nextFirstEvent.tieContinuation
 }
 
-/** Intent: the chord-symbol start ticks of one measure, the forced rhythm-segmentation boundaries. */
+/** The chord-symbol start ticks of one measure, the forced rhythm-segmentation boundaries. */
 function forcedBoundariesFor(
   chords: readonly ConcertChordSymbol[],
   measureIndex: MeasureIndex,
@@ -86,7 +86,7 @@ function forcedBoundariesFor(
 }
 
 /**
- * Intent: render one measure's rhythm segments into written glyphs, spelling each note's written
+ * Render one measure's rhythm segments into written glyphs, spelling each note's written
  * pitch in the display key and deciding its displayed accidental from fresh per-measure state;
  * stem directions are decided afterwards, once the measure's beam groups are known.
  */
@@ -134,7 +134,7 @@ function buildWrittenEvents(
 }
 
 /**
- * Intent: respell one concert chord symbol's root and optional bass in the display key; its
+ * Respell one concert chord symbol's root and optional bass in the display key; its
  * suffix (a triad's or a seventh chord's) passes through unchanged.
  */
 // @spec-link [[rule_seventh_chord_symbols]]
@@ -153,7 +153,7 @@ function respellChord(
 }
 
 /**
- * Intent: crash early unless every chord symbol in a rendered measure lands on an actual glyph
+ * Crash early unless every chord symbol in a rendered measure lands on an actual glyph
  * start tick, the placement guarantee `WrittenMeasure` documents.
  */
 function assertChordsAlignToGlyphs(
@@ -173,7 +173,7 @@ function assertChordsAlignToGlyphs(
 }
 
 /**
- * Intent: render one measure of the phrase into its written glyphs (stem directions included,
+ * Render one measure of the phrase into its written glyphs (stem directions included,
  * measured from the middle line of the input's clef), beam groups, and chords.
  */
 function buildWrittenMeasure(
@@ -205,7 +205,7 @@ function buildWrittenMeasure(
 }
 
 /**
- * Intent: transform one explicit NotationPhraseInput into the WrittenPhrase for the active
+ * Transform one explicit NotationPhraseInput into the WrittenPhrase for the active
  * instrument profile's own written pitch. Pure: reads only its inputs, never mutates the input
  * timeline or chords, and returns a brand-new deep-frozen value every call. There is no
  * independently selectable display convention: `input.tonalContext.tonalCenter` is already the

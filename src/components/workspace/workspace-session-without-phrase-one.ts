@@ -98,7 +98,7 @@ export interface SessionBeginningWithoutPhraseOne {
 }
 
 /**
- * Intent: the rest of a start without phrase 1, once the transport runs with its click forced on:
+ * The rest of a start without phrase 1, once the transport runs with its click forced on:
  * make `session` the running one, in its count-in phase until phrase 1 sounds; begin its MIDI
  * handling with no phrase 1, every note going to the caller's port too; show its count-in row;
  * start the wake-ups; start the runner from the session seed drawn at Start (none of session
@@ -209,7 +209,7 @@ export function beginSessionWithoutPhraseOne(
 }
 
 /**
- * Intent: build one controller's start without phrase 1 over its core, sides and ends: refused,
+ * Build one controller's start without phrase 1 over its core, sides and ends: refused,
  * touching nothing, while a session runs or no controller is connected (the code that runs it
  * judges its own start conditions first); otherwise, inside the Start click or the home note's
  * MIDI callback, it discards the kept Review, unlocks the audio, holds the player's saves until

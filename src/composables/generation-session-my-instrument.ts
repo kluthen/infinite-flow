@@ -81,7 +81,7 @@ export interface MyInstrumentActions {
   ) => Promise<MyInstrumentChangeOutcome>
 }
 
-/** Intent: whether two my instruments sound the same: the same written range and transposition. */
+/** Whether two my instruments sound the same: the same written range and transposition. */
 function soundsTheSame(before: MyInstrument, after: MyInstrument): boolean {
   return (
     before.writtenRange.minMidi === after.writtenRange.minMidi &&
@@ -92,7 +92,7 @@ function soundsTheSame(before: MyInstrument, after: MyInstrument): boolean {
   )
 }
 
-/** Intent: whether saving `after` over `before` changes nothing the player sees or hears. */
+/** Whether saving `after` over `before` changes nothing the player sees or hears. */
 function sameMyInstrument(before: MyInstrument, after: MyInstrument): boolean {
   return (
     soundsTheSame(before, after) &&
@@ -102,14 +102,14 @@ function sameMyInstrument(before: MyInstrument, after: MyInstrument): boolean {
   )
 }
 
-/** Intent: a batch's outcome as an action resolves it: saved (or nothing to change), or why not. */
+/** A batch's outcome as an action resolves it: saved (or nothing to change), or why not. */
 function batchOutcome(outcome: KeptChangeOutcome): 'saved' | 'refused' | 'saving-off' {
   if (outcome.status === 'refused' || outcome.status === 'saving-off') return outcome.status
   return 'saved'
 }
 
 /**
- * Intent: build the actions on my instrument. Saving a new one saves it and selects it, an
+ * Build the actions on my instrument. Saving a new one saves it and selects it, an
  * instrument switch; saving one and selecting it (the transposition check's way) also selects one
  * that exists but is not selected. Saving a change saves it; while it is selected, a change of range or
  * transposition replaces the phrase as a switch does, and a change of clef alone redraws the
@@ -128,7 +128,7 @@ export function createMyInstrumentActions<TResult>(
 ): MyInstrumentActions {
   const { state } = deps
 
-  /** Intent: resolve once no generation is under way at Idle. */
+  /** Resolve once no generation is under way at Idle. */
   function whenIdle(): Promise<void> {
     if (state.operation === 'idle') return Promise.resolve()
     return new Promise((resolve) => {
@@ -143,7 +143,7 @@ export function createMyInstrumentActions<TResult>(
     })
   }
 
-  /** Intent: what a saved change does to the phrase of the selected my instrument. */
+  /** What a saved change does to the phrase of the selected my instrument. */
   async function afterChange(
     before: MyInstrument,
     after: MyInstrument,
@@ -159,7 +159,7 @@ export function createMyInstrumentActions<TResult>(
   }
 
   /**
-   * Intent: write `instrument`'s record over `before`: in one batch erasing `sessions` when it
+   * Write `instrument`'s record over `before`: in one batch erasing `sessions` when it
    * changes the range or transposition of a my instrument that has kept sessions, the counted
    * sessions leaving memory once it is saved; else the plain write. Resolves `saved` once memory
    * may change, else why it may not.
@@ -182,7 +182,7 @@ export function createMyInstrumentActions<TResult>(
     return outcome
   }
 
-  /** Intent: save my instrument, made or changed (see the factory's intent). */
+  /** Save my instrument, made or changed (see the factory's intent). */
   async function saveMyInstrument(
     instrument: MyInstrument,
     sessions: MyInstrumentSessions,
@@ -201,7 +201,7 @@ export function createMyInstrumentActions<TResult>(
   }
 
   /**
-   * Intent: save my instrument and make it the selection. A new one, or the selected one, is saved
+   * Save my instrument and make it the selection. A new one, or the selected one, is saved
    * as `saveMyInstrument` saves it; one that exists but is not selected has its record written
    * (unless nothing in it changed; in the batch erasing `sessions` when its range or
    * transposition changed while it has kept sessions), then, once written, is selected, a switch
@@ -226,7 +226,7 @@ export function createMyInstrumentActions<TResult>(
   }
 
   /**
-   * Intent: delete my instrument and `sessions` in one batch (see the factory's intent). Once it
+   * Delete my instrument and `sessions` in one batch (see the factory's intent). Once it
    * is saved, the sessions leave memory and my instrument goes, its template selected first while
    * it was selected. Saving off deletes it for the visit only when it has no session to erase.
    */

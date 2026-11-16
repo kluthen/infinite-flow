@@ -31,13 +31,13 @@ const NEUTRAL: PresetSelection = { kind: 'preset', presetId: 'neutral' }
 const JAZZ: PresetSelection = { kind: 'preset', presetId: 'jazz' }
 const CUSTOM_JAZZ: PresetSelection = { kind: 'custom', baseId: 'jazz' }
 
-/** Intent: the densities of every request made so far for one phrase. */
+/** The densities of every request made so far for one phrase. */
 function densitiesOf(driver: SessionDriver, phraseNumber: number): readonly string[] {
   return driver.requests(phraseNumber).map((request) => request.intent.controls.noteDensity)
 }
 
 /**
- * Intent: let phrase 2 be repeated at its deadline and let phrase 1 then phrase 2 start sounding,
+ * Let phrase 2 be repeated at its deadline and let phrase 1 then phrase 2 start sounding,
  * so phrase 3 is requested (60 BPM: a 4 s measure, phrase 2 sounds at 20).
  */
 function reachPhraseThree(driver: SessionDriver): void {
@@ -46,7 +46,7 @@ function reachPhraseThree(driver: SessionDriver): void {
   driver.sounding(20, 2)
 }
 
-/** Intent: a driver at 60 BPM with a chosen density, a window reading and phrase 1's density. */
+/** A driver at 60 BPM with a chosen density, a window reading and phrase 1's density. */
 function densityDriver(options: {
   readonly chosen: GenerationControls['noteDensity']
   readonly below: boolean
@@ -316,7 +316,7 @@ describe("the settings' allowed groups and rhythm lock state", () => {
       [['note_rest', 'split_note'], /split_note is out of order/],
     ]
     for (const [allowedRhythmChanges, message] of invalid) {
-      /** Intent: freeze the settings with this invalid list of allowed changes. */
+      /** Freeze the settings with this invalid list of allowed changes. */
       const freeze = () =>
         freezeSessionSettings({
           ...settings,

@@ -39,14 +39,14 @@ export interface KeptPlayedNotes {
 
 const DONE: KeepPlayedNotesSwitch = Object.freeze({ kind: 'done' })
 
-/** Intent: what a deletion's outcome is to the player: a refusal, saving off, or deleted. */
+/** What a deletion's outcome is to the player: a refusal, saving off, or deleted. */
 function deletionOf(outcome: KeptChangeOutcome): PlayedNotesDeletion {
   if (outcome.status === 'refused') return 'refused'
   return outcome.status === 'saving-off' ? 'saving-off' : 'deleted'
 }
 
 /**
- * Intent: the controller's `Keep my played notes` over its core, starting from the saved choice:
+ * The controller's `Keep my played notes` over its core, starting from the saved choice:
  * the setting, its switch and the deletions, each at Idle only.
  */
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
@@ -61,20 +61,20 @@ export function createKeptPlayedNotes(
   const kept = core.deps.keptSessions
   const setting = shallowRef(saved)
 
-  /** Intent: throw unless at Idle, where the Review and its switch are. */
+  /** Throw unless at Idle, where the Review and its switch are. */
   const assertIdle = (action: string): void => {
     if (state.phase !== 'idle')
       throw new SessionControllerError(`session controller: ${action} during a session`)
   }
 
-  /** Intent: throw unless at Idle with saving on: no deletion is offered while saving is off. */
+  /** Throw unless at Idle with saving on: no deletion is offered while saving is off. */
   const assertDeletable = (action: string): void => {
     assertIdle(action)
     if (kept.savingOff())
       throw new SessionControllerError(`session controller: ${action} while saving is off`)
   }
 
-  /** Intent: the session held under `key`, in the Review or as the most recent one; null if none. */
+  /** The session held under `key`, in the Review or as the most recent one; null if none. */
   const heldSession = (key: string): ReviewedSession | null => {
     if (state.review?.key === key) return state.review
     const recent = state.mostRecent
@@ -82,7 +82,7 @@ export function createKeptPlayedNotes(
   }
 
   /**
-   * Intent: hold `next` in place of the session under its key, in the most recent session and in
+   * Hold `next` in place of the session under its key, in the most recent session and in
    * the Review (which keeps whether it shows), so both draw the very same history; its row says
    * whether its played notes are kept.
    */
@@ -97,7 +97,7 @@ export function createKeptPlayedNotes(
   }
 
   /**
-   * Intent: keep the most recent session's played notes, still in memory, once it is kept; a
+   * Keep the most recent session's played notes, still in memory, once it is kept; a
    * fresh Jam's raw doodle notes with them.
    */
   // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
@@ -111,7 +111,7 @@ export function createKeptPlayedNotes(
     await keepSessionPlayedNotes(kept.changes, session.key, session.history, fresh)
   }
 
-  /** Intent: turn the setting; on, keep the most recent session's; off, count what is kept. */
+  /** Turn the setting; on, keep the most recent session's; off, count what is kept. */
   // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
   // @spec-link [[rule_kept_played_notes_deletable]]
   const set = async (on: boolean): Promise<KeepPlayedNotesSwitch> => {
@@ -127,7 +127,7 @@ export function createKeptPlayedNotes(
     return Object.freeze({ kind: 'confirm-deletion', sessionCount: counted.value })
   }
 
-  /** Intent: delete the played notes of the session the Review shows. */
+  /** Delete the played notes of the session the Review shows. */
   // @spec-link [[rule_kept_played_notes_deletable]]
   const deleteShown = async (): Promise<PlayedNotesDeletion> => {
     assertDeletable('Delete played notes')
@@ -145,7 +145,7 @@ export function createKeptPlayedNotes(
     return deletion
   }
 
-  /** Intent: delete every kept played note, and from memory those a held session kept. */
+  /** Delete every kept played note, and from memory those a held session kept. */
   // @spec-link [[rule_kept_played_notes_deletable]]
   const deleteEvery = async (): Promise<PlayedNotesDeletion> => {
     assertDeletable('Delete every kept played note')

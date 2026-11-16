@@ -20,13 +20,13 @@ export interface SessionRowText {
   readonly note: string | null
 }
 
-/** Intent: a count of a thing, singular for one: "1 phrase", "3 phrases". */
+/** A count of a thing, singular for one: "1 phrase", "3 phrases". */
 function counted(count: number, one: string, many: string): string {
   return `${count} ${count === 1 ? one : many}`
 }
 
 /**
- * Intent: a session's length as the row writes it: whole minutes rounded to the nearest, "{m}
+ * A session's length as the row writes it: whole minutes rounded to the nearest, "{m}
  * min", or "Under 1 min" below 30 seconds.
  */
 // @spec-link [[req_kept_session_list]]
@@ -36,7 +36,7 @@ export function sessionLengthText(seconds: number): string {
 }
 
 /**
- * Intent: the detail line, or null when one of its facts cannot be read: "{length} · {n} phrases
+ * The detail line, or null when one of its facts cannot be read: "{length} · {n} phrases
  * · {instrument} · {preset}", or, for a Jam session, "Jam · {length} · {n} phrases ·
  * {instrument}", with no preset part (the session still keeps its preset label).
  */
@@ -60,7 +60,7 @@ function detailLine(facts: NewerKeptSummaryFacts): string | null {
   return (isJam ? ['Jam', ...shared] : [...shared, presetLabel]).join(' · ')
 }
 
-/** Intent: the status line, or null when one of its facts cannot be read. */
+/** The status line, or null when one of its facts cannot be read. */
 // @spec-link [[rule_pinned_session_kept]]
 // @spec-link [[req_favorite_phrases]]
 function statusLine(facts: NewerKeptSummaryFacts): string | null {
@@ -73,7 +73,7 @@ function statusLine(facts: NewerKeptSummaryFacts): string | null {
   return [favorites, ...(playedNotesKept ? ['Played notes kept'] : []), keeping].join(' · ')
 }
 
-/** Intent: the comment on one line, its line breaks as spaces; null with none. */
+/** The comment on one line, its line breaks as spaces; null with none. */
 // @spec-link [[rule_session_comment]]
 function commentLine(comment: string | undefined): string | null {
   if (comment === undefined || comment === '') return null
@@ -81,7 +81,7 @@ function commentLine(comment: string | undefined): string | null {
 }
 
 /**
- * Intent: the text of `row`: its title (" · Last session" when `mostRecent`), its two lines, and
+ * The text of `row`: its title (" · Last session" when `mostRecent`), its two lines, and
  * either its comment or its note: the newer version's, or the failed opening's, which offers the
  * deletion only while saving is on.
  */

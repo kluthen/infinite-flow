@@ -80,14 +80,14 @@ export interface SessionDisplay {
   readonly stop: () => void
 }
 
-/** Intent: whether two playhead readings are the same position. */
+/** Whether two playhead readings are the same position. */
 function samePosition(a: PlayheadPosition | null, b: PlayheadPosition | null): boolean {
   if (a === null || b === null) return a === b
   return a.phraseNumber === b.phraseNumber && a.measureIndex === b.measureIndex
 }
 
 /**
- * Intent: build one session's display and publish its first staff at once: phrase 1, the very
+ * Build one session's display and publish its first staff at once: phrase 1, the very
  * phrase Idle shows, in the held layout, with no playhead (the count-in); then start the frame loop.
  */
 // @spec-link [[module_session_rolling_display]]
@@ -110,7 +110,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
   let frame: number | null = null
   let stopped = false
 
-  /** Intent: the written phrase of a phrase the plan places; one never readied is a defect. */
+  /** The written phrase of a phrase the plan places; one never readied is a defect. */
   function phraseOf(phraseNumber: number): WrittenPhrase {
     const phrase = readied.get(phraseNumber)
     if (phrase === undefined) {
@@ -119,12 +119,12 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
     return phrase
   }
 
-  /** Intent: a position's content with the written phrase to engrave it from. */
+  /** A position's content with the written phrase to engrave it from. */
   function systemOf(slot: SystemSlot | null): SessionSystem | null {
     return slot === null ? null : { ...slot, phrase: phraseOf(slot.phraseNumber) }
   }
 
-  /** Intent: hand the screen the staff the plan gives now. */
+  /** Hand the screen the staff the plan gives now. */
   function publish(): void {
     const systems = systemsAt(heldLayout, playhead, latestReady)
     const staff: SessionStaff = Object.freeze({
@@ -136,7 +136,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
     deps.publish(staff, latestReady)
   }
 
-  /** Intent: forget the phrases the playhead has left behind; never one at or ahead of it. */
+  /** Forget the phrases the playhead has left behind; never one at or ahead of it. */
   function prune(): void {
     if (playhead === null) return
     for (const phraseNumber of readied.keys()) {
@@ -145,7 +145,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
   }
 
   /**
-   * Intent: one frame: read the playhead on heard time and, only when its position changed,
+   * One frame: read the playhead on heard time and, only when its position changed,
    * prune and publish; then ask for the next frame. An error ends the loop and goes to `fail`.
    */
   // @spec-link [[rule_playhead_follows_audio_clock]]
@@ -166,21 +166,21 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
     if (!stopped) frame = frames.request(onFrame)
   }
 
-  /** Intent: the staff's latest layout inputs; a check before the staff ever reported is a defect. */
+  /** The staff's latest layout inputs; a check before the staff ever reported is a defect. */
   function requireInputs(): StaffLayoutInputs {
     const inputs = deps.latestInputs()
     if (inputs === null) throw new Error('session display: the staff never reported its layout')
     return inputs
   }
 
-  /** Intent: whether `phrase` fits the held layout in the window's budget at `inputs`. */
+  /** Whether `phrase` fits the held layout in the window's budget at `inputs`. */
   // @spec-link [[rule_session_layout_fixed_at_start]]
   function fits(plan: StaffFitPlanner, phrase: WrittenPhrase, inputs: StaffLayoutInputs): boolean {
     return fitsHeldLayout(plan, phrase, heldLayout, inputs)
   }
 
   /**
-   * Intent: the runner's fit check: the attempt's written phrase against the held viewport at the
+   * The runner's fit check: the attempt's written phrase against the held viewport at the
    * layout inputs current once the planner is ready; notes too wide or no room is a failed attempt.
    */
   // @spec-link [[module_session_display_fit]]
@@ -193,7 +193,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
   }
 
   /**
-   * Intent: whether every phrase shown or waiting, as the display stands once the planner is
+   * Whether every phrase shown or waiting, as the display stands once the planner is
    * ready, fits the held viewport at `inputs`.
    */
   // @spec-link [[module_session_display_fit]]
@@ -204,7 +204,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
     return material.every((phraseNumber) => fits(plan, phraseOf(phraseNumber), inputs))
   }
 
-  /** Intent: take the next readied phrase and publish the staff it may change. */
+  /** Take the next readied phrase and publish the staff it may change. */
   // @spec-link [[module_session_rolling_display]]
   function phraseReady(phrase: SessionPhrase): void {
     if (phrase.phraseNumber !== latestReady + 1) {
@@ -218,7 +218,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
   }
 
   /**
-   * Intent: take the next phrase's tempo: a phrase at a tempo other than the one before starts a
+   * Take the next phrase's tempo: a phrase at a tempo other than the one before starts a
    * new segment of the playhead's tempo map at the transport's start of that phrase, as the click
    * plan's own tempo segment does; at the same tempo the segment before runs on.
    */
@@ -242,7 +242,7 @@ export function createSessionDisplay(deps: SessionDisplayDependencies): SessionD
   }
 
   /**
-   * Intent: take back the latest readied phrase the engine discarded for a settings change. The
+   * Take back the latest readied phrase the engine discarded for a settings change. The
    * engine discards only a phrase none of which is on screen and whose tempo is not fixed yet, so
    * anything else is a defect and throws before anything changes. Nothing on screen changes; the
    * staff is published again for the waiting material it drops.

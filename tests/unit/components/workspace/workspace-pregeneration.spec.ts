@@ -27,14 +27,14 @@ import {
   type PregenerationRig,
 } from './pregeneration-rig'
 
-/** Intent: the number of the phrase a carry-in comes from; the queue only hands on such ones. */
+/** The number of the phrase a carry-in comes from; the queue only hands on such ones. */
 function carriedPhraseNumber(carryIn: CarryIn | undefined): number | undefined {
   if (carryIn !== undefined && !isPhraseCarryIn(carryIn))
     throw new Error('The queue handed on a carry-in from no phrase.')
   return carryIn?.phraseNumber
 }
 
-/** Intent: the phrase and carry-in source of the attempt in flight. */
+/** The phrase and carry-in source of the attempt in flight. */
 function inFlightPlace(rig: PregenerationRig): { phrase: number | undefined; standalone: boolean } {
   const { carryIn } = inFlight(rig).intent
   return { phrase: carriedPhraseNumber(carryIn), standalone: carryIn === undefined }

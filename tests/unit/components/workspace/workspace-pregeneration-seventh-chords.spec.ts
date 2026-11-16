@@ -15,7 +15,7 @@ import { expectDiscarded, expectKept, presetRig, settingsOf } from './pregenerat
 
 const FAVORED: ChordFamilies = { 'seventh-chords': 'favored' }
 
-/** Intent: a player preset holding Neutral's values and any key and mode, at the given level. */
+/** A player preset holding Neutral's values and any key and mode, at the given level. */
 function neutralAtLevel(id: string, name: string, chordFamilies: ChordFamilies): Preset {
   return makePreset({ ...builtInPreset('neutral'), id, name, chordFamilies, kind: 'player' })
 }

@@ -90,7 +90,7 @@ const START_KINDS: readonly string[] = ['note', 'rest']
 const DIRECTIONS: readonly string[] = ['up', 'down', 'same']
 const CONTEXT = 'SteeringBlock'
 
-/** Intent: refuse a value that is not one of the allowed values of the named field. */
+/** Refuse a value that is not one of the allowed values of the named field. */
 function requireOneOf(value: unknown, allowed: readonly string[], field: string): void {
   if (typeof value !== 'string' || !allowed.includes(value))
     throw new SteeringBlockError(
@@ -98,21 +98,21 @@ function requireOneOf(value: unknown, allowed: readonly string[], field: string)
     )
 }
 
-/** Intent: refuse a value of the named field that is not an array. */
+/** Refuse a value of the named field that is not an array. */
 function requireArray(value: unknown, field: string): readonly unknown[] {
   if (!Array.isArray(value))
     throw new SteeringBlockError(`${field} must be an array, got ${JSON.stringify(value)}.`)
   return value
 }
 
-/** Intent: refuse a value of the named field that is not a non-null object. */
+/** Refuse a value of the named field that is not a non-null object. */
 function requireObject(value: unknown, field: string): Record<string, unknown> {
   if (typeof value !== 'object' || value === null)
     throw new SteeringBlockError(`${field} must be an object, got ${JSON.stringify(value)}.`)
   return value as Record<string, unknown>
 }
 
-/** Intent: a validated copy of one measure's starts: whole ticks in the measure, increasing. */
+/** A validated copy of one measure's starts: whole ticks in the measure, increasing. */
 function copyMeasure(measure: unknown, field: string): SteeringStart[] {
   let previousTick = -1
   return requireArray(measure, field).map((entry, index) => {
@@ -132,7 +132,7 @@ function copyMeasure(measure: unknown, field: string): SteeringStart[] {
   })
 }
 
-/** Intent: a validated copy of one move: a same-note move has no size, up and down have one. */
+/** A validated copy of one move: a same-note move has no size, up and down have one. */
 function copyMove(entry: unknown, field: string): MelodicMove {
   const move = requireObject(entry, field)
   requireOneOf(move.direction, DIRECTIONS, `${field}.direction`)
@@ -151,7 +151,7 @@ function copyMove(entry: unknown, field: string): MelodicMove {
 }
 
 /**
- * Intent: build one immutable steering block, a fresh deep-frozen copy of the input in field
+ * Build one immutable steering block, a fresh deep-frozen copy of the input in field
  * order, refusing as a SteeringBlockError naming the field and value: a measure count other than
  * four, a start tick that is not a whole number in the measure or does not increase within it, an
  * unknown start kind, band, strength, move direction or size, a size on a same-note move, an up or
@@ -187,7 +187,7 @@ export function makeSteeringBlock(input: SteeringBlock): SteeringBlock {
   })
 }
 
-/** Intent: narrow an untrusted value to a plain record holding exactly the expected keys. */
+/** Narrow an untrusted value to a plain record holding exactly the expected keys. */
 function exactRecord(
   input: unknown,
   keys: readonly string[],
@@ -204,7 +204,7 @@ function exactRecord(
   return record
 }
 
-/** Intent: parse one untrusted measure of starts, each holding exactly a tick and a kind. */
+/** Parse one untrusted measure of starts, each holding exactly a tick and a kind. */
 function parseMeasure(input: unknown, field: string): readonly SteeringStart[] {
   return requireArray(input, field).map((start, index) => {
     const record = exactRecord(start, ['tick', 'kind'], `${field}[${index}]`)
@@ -212,7 +212,7 @@ function parseMeasure(input: unknown, field: string): readonly SteeringStart[] {
   })
 }
 
-/** Intent: parse one untrusted move: exactly a direction, plus a size unless it is the same note. */
+/** Parse one untrusted move: exactly a direction, plus a size unless it is the same note. */
 function parseMove(input: unknown, field: string): MelodicMove {
   const direction = requireObject(input, field).direction
   const record = exactRecord(
@@ -224,7 +224,7 @@ function parseMove(input: unknown, field: string): MelodicMove {
 }
 
 /**
- * Intent: parse an untrusted value (a structured clone, which drops freezing) into a steering
+ * Parse an untrusted value (a structured clone, which drops freezing) into a steering
  * block, refusing any missing or extra field at every level and any non-array list, then
  * re-validating it through `makeSteeringBlock`. Every refusal is a SteeringBlockError.
  */

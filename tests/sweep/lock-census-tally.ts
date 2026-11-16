@@ -98,22 +98,22 @@ const MAX_MISMATCH_LINES = 10
 /** The classes a tension tally counts. */
 const CLASSIFIED: ReadonlySet<CensusClass['kind']> = new Set(['kept', 'change', 'bend'])
 
-/** Intent: a ratio, or null when its denominator is zero. */
+/** A ratio, or null when its denominator is zero. */
 function ratio(numerator: number, denominator: number): number | null {
   return denominator === 0 ? null : numerator / denominator
 }
 
-/** Intent: a share as a percentage to one decimal, or a dash when it is null. */
+/** A share as a percentage to one decimal, or a dash when it is null. */
 function percent(share: number | null): string {
   return `${share === null ? '-' : (share * 100).toFixed(1)} %`
 }
 
-/** Intent: one share per change kind, as `kind 12.5 %`, comma-separated. */
+/** One share per change kind, as `kind 12.5 %`, comma-separated. */
 function kindShares(record: Readonly<Record<RhythmChangeKind, number | null>>): string {
   return RHYTHM_CHANGE_KINDS.map((kind) => `${kind} ${percent(record[kind])}`).join(', ')
 }
 
-/** Intent: add one classified phrase, bent or not, to a bucket of a phrases-and-bends tally. */
+/** Add one classified phrase, bent or not, to a bucket of a phrases-and-bends tally. */
 function addBend(
   tally: Map<string, { phrases: number; bends: number }>,
   key: string,
@@ -125,12 +125,12 @@ function addBend(
   tally.set(key, bucket)
 }
 
-/** Intent: a phrases-and-bends bucket with its bend rate. */
+/** A phrases-and-bends bucket with its bend rate. */
 function bendRate({ phrases, bends }: { phrases: number; bends: number }): BendRate {
   return { phrases, bends, bendRate: ratio(bends, phrases) }
 }
 
-/** Intent: eligible phrases and those that drew, with the share. */
+/** Eligible phrases and those that drew, with the share. */
 function drawnShare(eligible: number, drew: number): DrawnShare {
   return { eligible, drew, share: ratio(drew, eligible) }
 }
@@ -149,7 +149,7 @@ export class LockCensusTally {
   private mismatchCount = 0
   private readonly firstMismatches: string[] = []
 
-  /** Intent: add one session's census: its counts, its tensions and tension steps, its mismatches. */
+  /** Add one session's census: its counts, its tensions and tension steps, its mismatches. */
   addSession(census: SessionLockCensus): void {
     const { counts } = census
     this.sessions += 1
@@ -161,7 +161,7 @@ export class LockCensusTally {
         this.firstMismatches.push(`session ${this.sessions}, ${line}`)
   }
 
-  /** Intent: add a classified phrase to its tension, and to its tension step when it has one. */
+  /** Add a classified phrase to its tension, and to its tension step when it has one. */
   private addTensions(entry: CensusEntry): void {
     if (!CLASSIFIED.has(entry.lockClass.kind)) return
     const bent = entry.lockClass.kind === 'bend'
@@ -173,7 +173,7 @@ export class LockCensusTally {
   }
 
   /**
-   * Intent: add one draw's availability, read against the allowed list it was drawn with, and,
+   * Add one draw's availability, read against the allowed list it was drawn with, and,
    * when given what the phrase drew, a draw with no change available as no candidate (no allowed
    * kind available) or candidates failed (some existed, none made a phrase). Throws on an empty
    * list: with nothing allowed the lock is strict and no draw happens.
@@ -195,14 +195,14 @@ export class LockCensusTally {
     else this.noCandidate += 1
   }
 
-  /** Intent: the figures so far: counts, shares of the phrases and draws, tensions, mismatches. */
+  /** The figures so far: counts, shares of the phrases and draws, tensions, mismatches. */
   figures(): LockCensusFigures {
     const { counts } = this
     const changed = RHYTHM_CHANGE_KINDS.reduce((sum, kind) => sum + counts.changesByKind[kind], 0)
     const classified = counts.kept + changed + counts.bends
-    /** Intent: a count's share of the classified phrases. */
+    /** A count's share of the classified phrases. */
     const share = (count: number): number | null => ratio(count, classified)
-    /** Intent: a count and its share of the phrases that drew. */
+    /** A count and its share of the phrases that drew. */
     const ofDrew = (count: number): CountShare => ({ count, share: ratio(count, counts.drew) })
     return {
       sessions: this.sessions,
@@ -258,7 +258,7 @@ export class LockCensusTally {
     }
   }
 
-  /** Intent: the readable summary of the figures, every line prefixed `LOCK-CENSUS [label]`. */
+  /** The readable summary of the figures, every line prefixed `LOCK-CENSUS [label]`. */
   lines(label: string): string[] {
     const figures = this.figures()
     const { counts, shares, noCandidate, drawn, noChange } = figures

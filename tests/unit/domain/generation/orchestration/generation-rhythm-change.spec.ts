@@ -21,14 +21,14 @@ import { lockTestIntent, type LockTestRhythmControls } from './rhythm-lock-searc
 
 type Success = Extract<GenerationOutcome, { kind: 'generation_success' }>
 
-/** Intent: generate and require a success. */
+/** Generate and require a success. */
 function succeed(intent: GenerationIntent): Success {
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') throw new Error(`Expected a phrase: ${outcome.code}`)
   return outcome
 }
 
-/** Intent: the rhythm lock group on with these bars, these allowed changes and the tenser flag. */
+/** The rhythm lock group on with these bars, these allowed changes and the tenser flag. */
 function lockWith(
   bars: readonly LockedRhythmMeasure[],
   allowedChanges: readonly RhythmChangeKind[],
@@ -37,12 +37,12 @@ function lockWith(
   return makeRequestRhythmLock({ state: { kind: 'locked', bars }, allowedChanges, tenserPhrase })
 }
 
-/** Intent: locked bars as written measures, to measure a change from. */
+/** Locked bars as written measures, to measure a change from. */
 function written(bars: readonly LockedRhythmMeasure[]): readonly WrittenMeasure[] {
   return bars.map((events, barIndex) => ({ barIndex, events }))
 }
 
-/** Intent: phrase seeds as a session derives them, over twenty sessions and two phrases each. */
+/** Phrase seeds as a session derives them, over twenty sessions and two phrases each. */
 function sessionPhraseSeeds(): readonly Seed[] {
   const seeds: Seed[] = []
   for (let session = 0; session < 20; session += 1)
@@ -60,12 +60,12 @@ const LOCKED_BARS = lockedBarsOf(
 const LOCKED = written(LOCKED_BARS)
 const LOCKED_KEY = rhythmBarKey(LOCKED)
 
-/** Intent: a Build intent locked on LOCKED_BARS. */
+/** A Build intent locked on LOCKED_BARS. */
 function buildIntent(seed: Seed, rhythmLock: RequestRhythmLock): GenerationIntent {
   return lockTestIntent({ tension: 'Build', seed, rhythmLock })
 }
 
-/** Intent: whether a provenance holds the rhythm change record at all. */
+/** Whether a provenance holds the rhythm change record at all. */
 function hasRecord(outcome: Success): boolean {
   return Object.hasOwn(outcome.provenance, 'rhythmChange')
 }

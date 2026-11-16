@@ -9,7 +9,7 @@ import { NO_SCORE_OVERLAYS, type ScoreOverlays } from '@/notation/score-overlay-
 import type { SessionController } from './workspace-session-controller-types'
 
 /**
- * Intent: what PhraseScore marks on the score: the start marker over the starting note while one
+ * What PhraseScore marks on the score: the start marker over the starting note while one
  * would start a session, and the running session's acknowledged notes (the session staff draws
  * its own playhead band, so none here); nothing while the controller is null (still loading). The
  * previous object is kept while neither changes, a new starting note with the same identity

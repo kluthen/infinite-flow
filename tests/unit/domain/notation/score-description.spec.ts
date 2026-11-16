@@ -19,7 +19,7 @@ import {
   type WrittenRest,
 } from '@/domain/notation/written-phrase-types'
 
-/** Intent: build a frozen quarter-note glyph at a given tick/pitch, with optional tie/accidental. */
+/** Build a frozen quarter-note glyph at a given tick/pitch, with optional tie/accidental. */
 function note(
   startTick: number,
   letter: WrittenNote['pitch']['letter'],
@@ -41,7 +41,7 @@ function note(
   })
 }
 
-/** Intent: build a frozen rest glyph. */
+/** Build a frozen rest glyph. */
 function rest(
   startTick: number,
   overrides: Partial<Omit<WrittenRest, 'kind' | 'startTick'>> = {},
@@ -55,7 +55,7 @@ function rest(
   })
 }
 
-/** Intent: build a frozen chord symbol; `text` is unused by the description but required by type. */
+/** Build a frozen chord symbol; `text` is unused by the description but required by type. */
 function chord(
   startTick: number,
   root: WrittenChordSymbol['root'],
@@ -65,7 +65,7 @@ function chord(
   return deepFreeze({ startTick, root, suffix, bass, text: `${root.letter}${suffix}` })
 }
 
-/** Intent: build a frozen written measure filling all four beats with the given events/chords. */
+/** Build a frozen written measure filling all four beats with the given events/chords. */
 function measure(
   index: 0 | 1 | 2 | 3,
   events: readonly WrittenEvent[],
@@ -108,7 +108,7 @@ const F_AEOLIAN_1_FLAT_KEY: WrittenKey = deepFreeze({
   },
 })
 
-/** Intent: build a frozen four-measure written phrase; every measure defaults to four rests. */
+/** Build a frozen four-measure written phrase; every measure defaults to four rests. */
 function phrase(
   overrides: Partial<Pick<WrittenPhrase, 'key' | 'measures' | 'clef'>> = {},
 ): WrittenPhrase {

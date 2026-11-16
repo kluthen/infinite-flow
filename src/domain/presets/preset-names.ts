@@ -7,15 +7,15 @@
 import { deepFreeze } from '../events/deep-freeze'
 import type { Preset, PresetId } from './preset-selection'
 
-/** Intent: the longest name, in UTF-16 code units after trimming, matching the input's maxlength. */
+/** The longest name, in UTF-16 code units after trimming, matching the input's maxlength. */
 // @spec-link [[rule_player_preset_names]]
 export const PRESET_NAME_MAX_LENGTH = 40
 
-/** Intent: the most player presets kept before a new save is refused. */
+/** The most player presets kept before a new save is refused. */
 // @spec-link [[rule_player_preset_limit]]
 export const PLAYER_PRESET_LIMIT = 50
 
-/** Intent: the name the app uses for an unsaved selection, refused in any letter case. */
+/** The name the app uses for an unsaved selection, refused in any letter case. */
 // @spec-link [[rule_player_preset_names]]
 export const RESERVED_PRESET_NAME = 'Custom'
 
@@ -29,13 +29,13 @@ export type PresetNameCheck =
   | { readonly ok: false; readonly reason: 'reserved' }
   | { readonly ok: false; readonly reason: 'taken'; readonly existingName: string }
 
-/** Intent: a name as compared for uniqueness: trimmed, ignoring case. */
+/** A name as compared for uniqueness: trimmed, ignoring case. */
 function comparable(name: string): string {
   return name.trim().toLowerCase()
 }
 
 /**
- * Intent: check a typed name, trimmed at both ends, giving the first reason that applies: empty;
+ * Check a typed name, trimmed at both ends, giving the first reason that applies: empty;
  * too long (over 40 code units); reserved ("Custom" in any case); taken (another preset's name,
  * trimmed and ignoring case, built-ins included, the preset being renamed excepted), naming that
  * preset as it writes it. An accepted name is given trimmed.
@@ -50,7 +50,7 @@ export function checkPresetName(
   return deepFreeze(nameCheck(typed.trim(), presets, renamingId))
 }
 
-/** Intent: the check of an already trimmed name, the first reason that applies. */
+/** The check of an already trimmed name, the first reason that applies. */
 function nameCheck(
   name: string,
   presets: readonly Preset[],
@@ -69,7 +69,7 @@ function nameCheck(
 }
 
 /**
- * Intent: the name a new preset is offered: "My preset", else "My preset 2", "My preset 3" and so
+ * The name a new preset is offered: "My preset", else "My preset 2", "My preset 3" and so
  * on, the first no preset has, ignoring case and the spaces around existing names.
  */
 // @spec-link [[rule_player_preset_names]]
@@ -82,7 +82,7 @@ export function suggestedPresetName(presets: readonly Preset[]): string {
   return `${base} ${number}`
 }
 
-/** Intent: whether saving a new player preset is refused: 50 or more player presets loaded. */
+/** Whether saving a new player preset is refused: 50 or more player presets loaded. */
 // @spec-link [[module_preset_model]]
 // @spec-link [[rule_player_preset_limit]]
 export function isPlayerPresetLimitReached(presets: readonly Preset[]): boolean {

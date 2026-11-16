@@ -32,12 +32,12 @@ import {
 /** Generous timeout for the tests that generate whole sessions for many seeds. */
 const SESSIONS_TIMEOUT_MS = 60_000
 
-/** Intent: the flag on with a numeric mutation seed. */
+/** The flag on with a numeric mutation seed. */
 function mutationOn(seed: number): SettingsMutationFlag {
   return { kind: 'on', seed: makeSeed(seed) }
 }
 
-/** Intent: the scheduled mutation phrases of a seed, up to and including a last phrase. */
+/** The scheduled mutation phrases of a seed, up to and including a last phrase. */
 function scheduledPhrases(seed: number, lastPhrase: number): readonly number[] {
   const phrases: number[] = []
   for (let k = 1; mutationPhrase(makeSeed(seed), k) <= lastPhrase; k += 1)
@@ -153,7 +153,7 @@ describe('mutations landing on their scheduled phrases', () => {
 // @test-link [[rule_mutation_sixteenth_blocked_after_step_down]]
 // @test-link [[rule_density_mutation_steps_from_generated_density]]
 describe('a note-density mutation after a step-down', () => {
-  /** Intent: a session that chose Sixteenth, stepped down while narrow, then widened again. */
+  /** A session that chose Sixteenth, stepped down while narrow, then widened again. */
   function steppedDownDriver(seed: number): ReturnType<typeof fastDriver> {
     const settings = sessionSettings({ tempo: FAST_TEMPO, noteDensity: 'Sixteenth' })
     const viewport = fakeViewport(true)

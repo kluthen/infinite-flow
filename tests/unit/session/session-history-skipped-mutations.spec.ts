@@ -10,12 +10,12 @@ import { SessionHistoryError, createSessionHistory } from '@/session/session-his
 import type { SessionOutput } from '@/session/session-types'
 import { DEFAULT_SESSION_SEED, fixedWallClock, sessionSettings } from './session-harness'
 
-/** Intent: an empty history for a session on the harness settings. */
+/** An empty history for a session on the harness settings. */
 function emptyHistory() {
   return createSessionHistory(sessionSettings(), fixedWallClock, DEFAULT_SESSION_SEED, 'treble')
 }
 
-/** Intent: the skip of mutation `mutationNumber` on phrase `phraseNumber`. */
+/** The skip of mutation `mutationNumber` on phrase `phraseNumber`. */
 function skipped(phraseNumber: number, mutationNumber: number): SessionOutput {
   return { kind: 'mutation-skipped', phraseNumber, mutationNumber }
 }

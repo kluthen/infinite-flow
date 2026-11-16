@@ -19,7 +19,7 @@ import {
 } from './fake-session-controller'
 import { fakeGenerationSession, readyState, type FakeIdleState } from './fake-generation-session'
 
-/** Intent: mount the header over `session` and `fake`, attached so focus can move. */
+/** Mount the header over `session` and `fake`, attached so focus can move. */
 function mountHeader(
   session: GenerationSession<WorkspaceSessionResult>,
   fake: FakeSessionController,
@@ -30,7 +30,7 @@ function mountHeader(
   })
 }
 
-/** Intent: a fake controller whose Review shows, as right after a session end. */
+/** A fake controller whose Review shows, as right after a session end. */
 function showingReview(): FakeSessionController {
   return createFakeSessionController({
     canStart: false,
@@ -39,12 +39,12 @@ function showingReview(): FakeSessionController {
   })
 }
 
-/** Intent: the phrase action, the header's first action slot. */
+/** The phrase action, the header's first action slot. */
 function phraseAction(wrapper: ReturnType<typeof mountHeader>) {
   return wrapper.get('.header-actions > button:not(.session-action)')
 }
 
-/** Intent: the session action, the header's second action slot. */
+/** The session action, the header's second action slot. */
 function sessionAction(wrapper: ReturnType<typeof mountHeader>) {
   return wrapper.get('.header-actions > button.session-action')
 }

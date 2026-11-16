@@ -46,7 +46,7 @@ interface Run {
 }
 
 /**
- * Intent: play `pitch` at `onset`, which is still to come, hold it for HOLD seconds, then release
+ * Play `pitch` at `onset`, which is still to come, hold it for HOLD seconds, then release
  * it; snapshots what the screen acknowledged right after the press.
  */
 async function playNote(
@@ -64,7 +64,7 @@ async function playNote(
 }
 
 /**
- * Intent: the first `count` expected notes to play, in order, each leaving room after the previous
+ * The first `count` expected notes to play, in order, each leaving room after the previous
  * one for its own hold and a wrong note's.
  */
 function playable(notes: readonly ExpectedNote[], count: number): readonly ExpectedNote[] {
@@ -80,7 +80,7 @@ function playable(notes: readonly ExpectedNote[], count: number): readonly Expec
 }
 
 /**
- * Intent: play one session on a fresh rig with the guides switched as `mode` says, the keyboard's
+ * Play one session on a fresh rig with the guides switched as `mode` says, the keyboard's
  * notes the same in every mode: expected notes of phrase 1 at their onsets, a wrong pitch between
  * two of them, the first expected note of phrase 2; then play past phrase 2's start, Stop.
  */
@@ -129,7 +129,7 @@ async function run(mode: GuideMode): Promise<Run> {
   return { rig, acknowledged, history, batch: save([]) }
 }
 
-/** Intent: what a run's history holds per phrase: acknowledgements, played notes, outcome. */
+/** What a run's history holds per phrase: acknowledgements, played notes, outcome. */
 function phrasesOf(history: SessionHistory): unknown {
   return history.phrases().map((phrase) => ({
     acknowledgements: phrase.acknowledgements,
@@ -138,7 +138,7 @@ function phrasesOf(history: SessionHistory): unknown {
   }))
 }
 
-/** Intent: a run's four exports, as file names and plain byte lists for an exact comparison. */
+/** A run's four exports, as file names and plain byte lists for an exact comparison. */
 function exportsOf(history: ExportableHistory): unknown {
   const files: Record<string, ExportFile> = {
     midi: buildGeneratedNotesFile(history, { format: 'midi', backingTrack: false }),
@@ -154,7 +154,7 @@ function exportsOf(history: ExportableHistory): unknown {
   )
 }
 
-/** Intent: expect `run` to acknowledge, record and keep exactly what `off` did. */
+/** Expect `run` to acknowledge, record and keep exactly what `off` did. */
 function expectSameSession(run: Run, off: Run): void {
   expect(run.acknowledged).toEqual(off.acknowledged)
   expect(phrasesOf(run.history)).toEqual(phrasesOf(off.history))

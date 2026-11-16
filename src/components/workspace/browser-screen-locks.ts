@@ -96,13 +96,13 @@ interface HeldLock {
   readonly release: () => void
 }
 
-/** Intent: the name of a browser rejection (a DOMException's or an Error's), for diagnostics. */
+/** The name of a browser rejection (a DOMException's or an Error's), for diagnostics. */
 function rejectionName(error: unknown): string {
   return error instanceof Error || error instanceof DOMException ? error.name : String(error)
 }
 
 /**
- * Intent: ask the browser for one lock and turn every answer into a value. The ask runs before the
+ * Ask the browser for one lock and turn every answer into a value. The ask runs before the
  * first await, so it happens inside the caller's click. A refused lock changes nothing about the
  * session and shows nothing (rule_screen_wake_lock_during_session,
  * rule_landscape_lock_during_session), so a rejection, or an ask that throws, becomes a `refused`
@@ -121,7 +121,7 @@ async function askBrowser<H>(mechanism: LockMechanism<H>): Promise<BrowserAnswer
 }
 
 /**
- * Intent: the request/release lifecycle shared by both locks. A request opens an attempt and asks
+ * The request/release lifecycle shared by both locks. A request opens an attempt and asks
  * the browser; a second request before a release is a caller defect and throws. A release closes
  * the attempt: it gives a held lock back, aborts a pending one, and marks it so the lock the
  * browser grants late is given back on arrival (an orientation lock only when no newer request
@@ -135,7 +135,7 @@ function createHeldLock<H>(name: string, mechanism: LockMechanism<H>): HeldLock 
   let current: LockAttempt<H> | null = null
 
   /**
-   * Intent: settle an attempt with the browser's answer, watching a held lock for a drop and giving
+   * Settle an attempt with the browser's answer, watching a held lock for a drop and giving
    * back a lock granted too late.
    */
   // @spec-link [[rule_screen_wake_lock_during_session]]
@@ -153,7 +153,7 @@ function createHeldLock<H>(name: string, mechanism: LockMechanism<H>): HeldLock 
   }
 
   /**
-   * Intent: the browser dropped the attempt's held lock on its own. Nothing is held any more; the
+   * The browser dropped the attempt's held lock on its own. Nothing is held any more; the
    * lock is asked for again, silently, when the mechanism says so, and the answer settles the same
    * attempt (its outcome shows nothing).
    */
@@ -166,7 +166,7 @@ function createHeldLock<H>(name: string, mechanism: LockMechanism<H>): HeldLock 
     void askBrowser(mechanism).then((answer) => settle(attempt, answer))
   }
 
-  /** Intent: stop watching an attempt's held lock for a drop. */
+  /** Stop watching an attempt's held lock for a drop. */
   // @spec-link [[rule_screen_wake_lock_during_session]]
   function stopWatching(attempt: LockAttempt<H>): void {
     attempt.unwatch?.()
@@ -202,7 +202,7 @@ function createHeldLock<H>(name: string, mechanism: LockMechanism<H>): HeldLock 
 }
 
 /**
- * Intent: the screen wake lock over `navigator.wakeLock` (production passes the real navigator and
+ * The screen wake lock over `navigator.wakeLock` (production passes the real navigator and
  * document). A pending request cannot be cancelled, so a sentinel granted after the release is
  * released on arrival; each sentinel is independent. A sentinel the browser drops on its own
  * (its `release` event without the app releasing it) is asked for again while the page is visible.
@@ -229,7 +229,7 @@ export function createWebScreenWakeLock(
 }
 
 /**
- * Intent: the landscape orientation lock over `screen.orientation` (production passes the real
+ * The landscape orientation lock over `screen.orientation` (production passes the real
  * screen). Without `orientation` or its `lock` the lock is unsupported; an unlock while a lock is
  * pending calls the browser's `unlock()` at once, which aborts that lock in the browser.
  */
@@ -237,7 +237,7 @@ export function createWebScreenWakeLock(
 export function createWebOrientationLock(screenPort: OrientationScreenLike): OrientationLock {
   const orientation = screenPort.orientation
 
-  /** Intent: the browser's unlock, or nothing without one. */
+  /** The browser's unlock, or nothing without one. */
   function unlockBrowser(): void {
     orientation?.unlock?.()
   }
@@ -254,13 +254,13 @@ export function createWebOrientationLock(screenPort: OrientationScreenLike): Ori
   return { lock: held.request, unlock: held.release }
 }
 
-/** Intent: the screen wake lock of this browser tab. */
+/** The screen wake lock of this browser tab. */
 // @spec-link [[rule_screen_wake_lock_during_session]]
 export function createBrowserScreenWakeLock(): ScreenWakeLock {
   return createWebScreenWakeLock(navigator, document)
 }
 
-/** Intent: the landscape orientation lock of this browser tab. */
+/** The landscape orientation lock of this browser tab. */
 // @spec-link [[rule_landscape_lock_during_session]]
 export function createBrowserOrientationLock(): OrientationLock {
   return createWebOrientationLock(screen)

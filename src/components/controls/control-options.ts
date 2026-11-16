@@ -36,7 +36,7 @@ import type { Preset, PresetSelection } from '@/domain/presets/preset-selection'
 import { ADOPTED_INSTRUMENT_PROFILES, MY_INSTRUMENT_ID } from '@/domain/profile/instrument-profiles'
 import type { SegmentedControlOption } from './segmented-control-option'
 
-/** Intent: build the twelve tonal-center options with their sharp/flat enharmonic labels. */
+/** Build the twelve tonal-center options with their sharp/flat enharmonic labels. */
 // @spec-link [[module_generation_control_catalog]]
 export function tonalCenterOptions(): readonly SegmentedControlOption[] {
   const labels: Readonly<Record<(typeof PITCH_CLASSES)[number], string>> = {
@@ -56,14 +56,14 @@ export function tonalCenterOptions(): readonly SegmentedControlOption[] {
   return PITCH_CLASSES.map((value) => ({ value, label: labels[value] }))
 }
 
-/** Intent: build the nine-collection options; every catalog value is already its own label. */
+/** Build the nine-collection options; every catalog value is already its own label. */
 // @spec-link [[module_generation_control_catalog]]
 export function collectionOptions(): readonly SegmentedControlOption[] {
   return COLLECTIONS.map((value) => ({ value, label: value }))
 }
 
 /**
- * Intent: build the instrument-profile options from the single declarative profile table
+ * Build the instrument-profile options from the single declarative profile table
  * (`ADOPTED_INSTRUMENT_PROFILES`), reading each option's player-facing label straight off the
  * profile's own `displayName` rather than a hand-maintained parallel id-to-label map -- so adding a
  * profile to that table needs no edit here.
@@ -78,7 +78,7 @@ export function instrumentProfileOptions(): readonly SegmentedControlOption[] {
 }
 
 /**
- * Intent: the instrument control's options: the three built-in profiles, then, while my
+ * The instrument control's options: the three built-in profiles, then, while my
  * instrument exists, a fourth labelled with its name, its value the fixed `my-instrument` id.
  */
 // @spec-link [[req_my_instrument]]
@@ -91,7 +91,7 @@ export function instrumentChoiceOptions(
 }
 
 /**
- * Intent: a profile's range summary, as the instrument control and the My instrument sheet show
+ * A profile's range summary, as the instrument control and the My instrument sheet show
  * it: its active concert range and its Low, Middle and High whole-phrase windows, derived from it.
  */
 // @spec-link [[req_my_instrument]]
@@ -106,19 +106,19 @@ export function profileRangeSummaryText(profile: InstrumentProfile): string {
   return `Active range ${range.minMidi}-${range.maxMidi}. Whole-phrase windows: Low ${windowOf('Low')}, Middle ${windowOf('Middle')}, High ${windowOf('High')}.`
 }
 
-/** Intent: build the harmonic-motion options; every catalog value is already its own label. */
+/** Build the harmonic-motion options; every catalog value is already its own label. */
 // @spec-link [[module_generation_control_catalog]]
 export function harmonicMotionOptions(): readonly SegmentedControlOption[] {
   return HARMONIC_MOTIONS.map((value) => ({ value, label: value }))
 }
 
-/** Intent: build the tension-arc options; every catalog value is already its own label. */
+/** Build the tension-arc options; every catalog value is already its own label. */
 // @spec-link [[module_generation_control_catalog]]
 export function tensionOptions(): readonly SegmentedControlOption[] {
   return TENSION_ARCS.map((value) => ({ value, label: value }))
 }
 
-/** Intent: build the note-density options with their fuller rhythmic-value labels. */
+/** Build the note-density options with their fuller rhythmic-value labels. */
 // @spec-link [[module_generation_control_catalog]]
 export function noteDensityOptions(): readonly SegmentedControlOption[] {
   const labels: Readonly<Record<(typeof NOTE_DENSITIES)[number], string>> = {
@@ -129,19 +129,19 @@ export function noteDensityOptions(): readonly SegmentedControlOption[] {
   return NOTE_DENSITIES.map((value) => ({ value, label: labels[value] }))
 }
 
-/** Intent: build the rhythmic-variety options; every catalog value is already its own label. */
+/** Build the rhythmic-variety options; every catalog value is already its own label. */
 // @spec-link [[module_generation_control_catalog]]
 export function rhythmicVarietyOptions(): readonly SegmentedControlOption[] {
   return RHYTHMIC_VARIETIES.map((value) => ({ value, label: value }))
 }
 
-/** Intent: build the syncopation options; every catalog value is already its own label. */
+/** Build the syncopation options; every catalog value is already its own label. */
 // @spec-link [[module_generation_control_catalog]]
 export function syncopationOptions(): readonly SegmentedControlOption[] {
   return SYNCOPATIONS.map((value) => ({ value, label: value }))
 }
 
-/** Intent: build the silence-density options, spelling out the conversational middle value. */
+/** Build the silence-density options, spelling out the conversational middle value. */
 // @spec-link [[module_generation_control_catalog]]
 export function silenceDensityOptions(): readonly SegmentedControlOption[] {
   const labels: Readonly<Record<(typeof SILENCE_DENSITIES)[number], string>> = {
@@ -152,31 +152,31 @@ export function silenceDensityOptions(): readonly SegmentedControlOption[] {
   return SILENCE_DENSITIES.map((value) => ({ value, label: labels[value] }))
 }
 
-/** Intent: build the contour options; every catalog value is already its own label. */
+/** Build the contour options; every catalog value is already its own label. */
 // @spec-link [[module_generation_control_catalog]]
 export function contourOptions(): readonly SegmentedControlOption[] {
   return CONTOURS.map((value) => ({ value, label: value }))
 }
 
-/** Intent: build the register options; every catalog value is already its own label. */
+/** Build the register options; every catalog value is already its own label. */
 // @spec-link [[module_generation_control_catalog]]
 export function registerOptions(): readonly SegmentedControlOption[] {
   return REGISTER_CHOICES.map((value) => ({ value, label: value }))
 }
 
-/** Intent: build the leapiness options; every catalog value is already its own label. */
+/** Build the leapiness options; every catalog value is already its own label. */
 // @spec-link [[module_generation_control_catalog]]
 export function leapinessOptions(): readonly SegmentedControlOption[] {
   return LEAPINESS_VALUES.map((value) => ({ value, label: value }))
 }
 
-/** Intent: build the arpeggio-chaos options; every catalog value is already its own label. */
+/** Build the arpeggio-chaos options; every catalog value is already its own label. */
 // @spec-link [[module_generation_control_catalog]]
 export function arpeggioChaosOptions(): readonly SegmentedControlOption[] {
   return ARPEGGIO_CHAOS_VALUES.map((value) => ({ value, label: value }))
 }
 
-/** Intent: find one option's display label by its catalog value, or fail fast if none exists. */
+/** Find one option's display label by its catalog value, or fail fast if none exists. */
 function labelFor(options: readonly SegmentedControlOption[], value: string): string {
   const found = options.find((option) => option.value === value)
   if (found === undefined) {
@@ -186,7 +186,7 @@ function labelFor(options: readonly SegmentedControlOption[], value: string): st
 }
 
 /**
- * Intent: the muted `control-summary` copy per D25 -- tonal center and collection labels
+ * The muted `control-summary` copy per D25 -- tonal center and collection labels
  * separated by a plain space, then the preset label of the selection, named from the presets the
  * session knows (the preset's name, or `Custom, based on {name}` naming Custom's base, or `Custom`
  * alone with none), tension arc, and leapiness, each segment separated by ` · `.
@@ -221,7 +221,7 @@ export interface KeyAndModeMarks {
 }
 
 /**
- * Intent: one control's marks from one half of a restriction: "any" marks nothing and gives no
+ * One control's marks from one half of a restriction: "any" marks nothing and gives no
  * note; a list marks exactly its values and gives the note naming the preset and the list, in the
  * control's own labels, `what` naming what any value of the control is ("key", "mode").
  */
@@ -240,7 +240,7 @@ function halfMarks(
 }
 
 /**
- * Intent: the key and mode marks, a pure function of a restriction, or none, and the name of the
+ * The key and mode marks, a pure function of a restriction, or none, and the name of the
  * preset the notes name. The keys half marks Written key and the modes half Collection: a list
  * marks exactly its values, with that control's note; "any", or no restriction, marks nothing and
  * gives no note. It never disables an option and decides nothing else about the controls.
@@ -258,7 +258,7 @@ export function keyAndModeMarks(
 }
 
 /**
- * Intent: a control's options with the segmented control's `marked` flag on the marked values,
+ * A control's options with the segmented control's `marked` flag on the marked values,
  * every option kept and none disabled; with nothing marked, the options as they are.
  */
 // @spec-link [[module_key_and_mode_marks]]
@@ -282,7 +282,7 @@ const SEVENTH_CHORDS_LABELS: Readonly<Record<ChordFamilyLevel, string>> = deepFr
 })
 
 /**
- * Intent: the Seventh chords level's option model, shared by session mode's control and Jam's:
+ * The Seventh chords level's option model, shared by session mode's control and Jam's:
  * its four levels in increasing order, each valued by its level id and labelled for the player
  * (Off, Sometimes, Often, Always). Its own list, never the figure levels' (Off, Rarely, Often,
  * Very often); no option is ever disabled.
@@ -292,13 +292,13 @@ export const seventhChordsOptions: readonly SegmentedControlOption[] = deepFreez
   CHORD_FAMILY_LEVEL_IDS.map((level) => ({ value: level, label: SEVENTH_CHORDS_LABELS[level] })),
 )
 
-/** Intent: the Seventh chords control's note: what the level does, a preference, never a promise. */
+/** The Seventh chords control's note: what the level does, a preference, never a promise. */
 // @spec-link [[module_seventh_chords_level_options]]
 export const SEVENTH_CHORDS_NOTE =
   'How often a chord gets one more note stacked on top, as G7 (G, B, D, F) instead of G (G, B, D): a richer, jazzier sound. A preference, never a promise.'
 
 /**
- * Intent: the level a segment of the Seventh chords control stands for. A value that is no level
+ * The level a segment of the Seventh chords control stands for. A value that is no level
  * is a defect, refused.
  */
 // @spec-link [[module_seventh_chords_level_options]]

@@ -20,7 +20,7 @@ import { notUsed, PAGE_STAYS, recordingPolicy } from './recording-save-policy'
 
 const APP_VERSION = '3.0.0-test'
 
-/** Intent: a promise of `policy` the test resolves when it chooses. */
+/** A promise of `policy` the test resolves when it chooses. */
 function pendingPolicy(policy: SavePolicy): {
   readonly promise: Promise<SavePolicy>
   readonly resolve: () => void
@@ -32,12 +32,12 @@ function pendingPolicy(policy: SavePolicy): {
   return { promise, resolve: () => resolve(policy) }
 }
 
-/** Intent: let every pending promise callback run. */
+/** Let every pending promise callback run. */
 function flushPromises(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-/** Intent: the batch one saved setting change is written as. */
+/** The batch one saved setting change is written as. */
 function settingWrite(key: string, value: unknown): StorageChange {
   return {
     kind: 'write',
@@ -52,7 +52,7 @@ function settingWrite(key: string, value: unknown): StorageChange {
   } as StorageChange
 }
 
-/** Intent: visit saves over a policy already resolved and flushed. */
+/** Visit saves over a policy already resolved and flushed. */
 async function resolvedSaves() {
   const { policy, calls } = recordingPolicy()
   const saves = createVisitSaves(Promise.resolve(policy), APP_VERSION)
@@ -195,7 +195,7 @@ describe('the order calls reach the policy in', () => {
     const { policy, calls } = recordingPolicy()
     const pending = pendingPolicy(policy)
     const saves = createVisitSaves(pending.promise, APP_VERSION)
-    /** Intent: the session save's changes, whatever was read. */
+    /** The session save's changes, whatever was read. */
     const changes = () => [settingWrite('theme', 'Dark')]
 
     saves.hold()
@@ -260,11 +260,11 @@ describe('the changes to kept sessions', () => {
     const { policy, calls } = recordingPolicy()
     const pending = pendingPolicy(policy)
     const saves = createVisitSaves(pending.promise, APP_VERSION)
-    /** Intent: the session save's changes, whatever was read. */
+    /** The session save's changes, whatever was read. */
     const changes = () => [settingWrite('theme', 'Dark')]
-    /** Intent: a change that changes nothing. */
+    /** A change that changes nothing. */
     const change = () => Promise.resolve([])
-    /** Intent: a read that reads nothing. */
+    /** A read that reads nothing. */
     const read = () => Promise.resolve(0)
 
     const saved = saves.saveSession(changes, PAGE_STAYS)

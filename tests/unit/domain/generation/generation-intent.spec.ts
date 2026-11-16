@@ -242,7 +242,7 @@ const MY_INSTRUMENT_CONTROLS = {
   instrumentProfileId: 'my-instrument',
 } as const
 
-/** Intent: the my-instrument intent input with the given supplied profile, if any. */
+/** The my-instrument intent input with the given supplied profile, if any. */
 function myInstrumentInput(instrumentProfile?: InstrumentProfile) {
   return {
     requestId: makeRequestId('request-mine'),
@@ -404,7 +404,7 @@ const GIVEN_LEVELS: FigureLevels = {
 // @test-link [[module_generation_request_construction]]
 // @test-link [[module_figure_levels]]
 describe('GenerationIntent: the figure levels given as levels', () => {
-  /** Intent: an intent built from levels no musical profile gives. */
+  /** An intent built from levels no musical profile gives. */
   function levelsIntent(): ReturnType<typeof createGenerationIntent> {
     return createGenerationIntent({
       requestId: makeRequestId('request-given-levels'),
@@ -434,7 +434,7 @@ describe('GenerationIntent: the figure levels given as levels', () => {
   })
 })
 
-/** Intent: the plain intent input every v3.2 request-input test builds on. */
+/** The plain intent input every v3.2 request-input test builds on. */
 function plainInput() {
   return {
     requestId: makeRequestId('request-v32-inputs'),
@@ -544,14 +544,14 @@ describe('GenerationIntent: the rhythm lock group and the steering block', () =>
   })
 })
 
-/** Intent: the same intent as one built before v3.3: every field but the Seventh chords level. */
+/** The same intent as one built before v3.3: every field but the Seventh chords level. */
 function intentBeforeTheLevel(intent: GenerationIntent): GenerationIntent {
   const { chordFamilies, ...earlier } = intent
   void chordFamilies
   return earlier as GenerationIntent
 }
 
-/** Intent: a plain intent input whose Seventh chords level is missing, as an untyped caller sends it. */
+/** A plain intent input whose Seventh chords level is missing, as an untyped caller sends it. */
 function inputWithoutTheLevel(): Parameters<typeof makeGenerationIntent>[0] {
   const input = plainInput()
   Reflect.deleteProperty(input, 'chordFamilies')

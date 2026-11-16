@@ -15,7 +15,7 @@ import {
   tempoFromTaps,
 } from '@/jam/tap-tempo'
 
-/** Intent: `count` taps a steady `beat` seconds apart, from `start`. */
+/** `count` taps a steady `beat` seconds apart, from `start`. */
 function steadyTaps(beat: number, count = 4, start = 0): number[] {
   return Array.from({ length: count }, (_, index) => start + index * beat)
 }

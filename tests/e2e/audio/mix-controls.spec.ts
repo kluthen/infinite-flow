@@ -42,33 +42,33 @@ const SLIDER_NAMES = [
   'Rhythm guide volume',
 ] as const
 
-/** Intent: the toolbar toggle named `name` (its accessible name is the name alone). */
+/** The toolbar toggle named `name` (its accessible name is the name alone). */
 function toggleButton(page: Page, name: ToggleName): Locator {
   return page.locator('.score-toolbar').getByRole('button', { name, exact: true })
 }
 
-/** Intent: the toolbar's `Volume` button. */
+/** The toolbar's `Volume` button. */
 function volumeButton(page: Page): Locator {
   return page.locator('.score-toolbar').getByRole('button', { name: 'Volume', exact: true })
 }
 
-/** Intent: the volume popover. */
+/** The volume popover. */
 function popover(page: Page): Locator {
   return page.locator('#mix-volume-popover')
 }
 
-/** Intent: the slider labelled `name`. */
+/** The slider labelled `name`. */
 function slider(page: Page, name: (typeof SLIDER_NAMES)[number]): Locator {
   return page.getByRole('slider', { name, exact: true })
 }
 
-/** Intent: open the popover with a click on the toolbar's `Volume`, and wait for it to show. */
+/** Open the popover with a click on the toolbar's `Volume`, and wait for it to show. */
 async function openPopover(page: Page): Promise<void> {
   await volumeButton(page).click()
   await expect(popover(page)).toBeVisible()
 }
 
-/** Intent: land on the harness at `size`, its audio API ready. */
+/** Land on the harness at `size`, its audio API ready. */
 async function gotoAt(page: Page, size: { width: number; height: number }): Promise<void> {
   await page.setViewportSize(size)
   await gotoAudioHarness(page)

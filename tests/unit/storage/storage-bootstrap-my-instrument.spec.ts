@@ -46,12 +46,12 @@ const TENOR_IN_BASS: MyInstrumentInput = {
   transposition: { octaves: 1, semitones: 2, direction: 'lower' },
 }
 
-/** Intent: the dependencies of a load over `openPort`, whose start-up wait never ends. */
+/** The dependencies of a load over `openPort`, whose start-up wait never ends. */
 function dependencies(openPort: () => Promise<StoragePort>): SavedDataLoadDependencies {
   return { openPort, startupWait: () => new Promise<void>(() => {}), mixDesign: () => MIX_DESIGN }
 }
 
-/** Intent: a port over a fresh database holding `record` as my instrument, and my instrument selected. */
+/** A port over a fresh database holding `record` as my instrument, and my instrument selected. */
 async function seeded(record: RecordVersions): Promise<IDBFactory> {
   const factory = freshFactory()
   const port = await readyPort(factory)

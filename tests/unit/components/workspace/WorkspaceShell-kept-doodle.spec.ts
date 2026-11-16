@@ -60,11 +60,11 @@ vi.mock('@/components/workspace/load-jam-mode', () => ({
 const JamWorkspaceStub = {
   name: 'JamWorkspaceStub',
   emits: ['staff-state', 'left'],
-  /** Intent: say the empty system shows, as Jam's staff does once engraved. */
+  /** Say the empty system shows, as Jam's staff does once engraved. */
   mounted(this: { $emit: (event: 'staff-state', state: 'shown') => void }) {
     this.$emit('staff-state', 'shown')
   },
-  /** Intent: the view's own staff viewport, empty. */
+  /** The view's own staff viewport, empty. */
   render: () => h('div', { class: 'staff-viewport jam-stub' }),
 }
 
@@ -126,7 +126,7 @@ afterEach(() => {
 })
 
 /**
- * Intent: mount the shell at Idle over a test workspace, a fake controller and real generation, a
+ * Mount the shell at Idle over a test workspace, a fake controller and real generation, a
  * MIDI controller connected when `midi` is given.
  */
 function mountShell(midi = createControllerRig().controller) {
@@ -177,12 +177,12 @@ function mountShell(midi = createControllerRig().controller) {
 
 type Shell = ReturnType<typeof mountShell>
 
-/** Intent: settle every writing asked for. */
+/** Settle every writing asked for. */
 async function settle(): Promise<void> {
   for (let round = 0; round < 6; round += 1) await flushPromises()
 }
 
-/** Intent: press a mode switch segment and let the mode show. */
+/** Press a mode switch segment and let the mode show. */
 async function select(shell: Shell, label: 'Session' | 'Jam'): Promise<void> {
   const segment = shell.wrapper
     .findAll('.mode-switch .segment')
@@ -191,7 +191,7 @@ async function select(shell: Shell, label: 'Session' | 'Jam'): Promise<void> {
   await settle()
 }
 
-/** Intent: end a Jam with a review in Jam mode: its doodle kept, and phrase 1 written from it. */
+/** End a Jam with a review in Jam mode: its doodle kept, and phrase 1 written from it. */
 async function endJamWithReview(shell: Shell, part = reviewedJamPart()): Promise<void> {
   shell.fake.state.lastEnd = {
     cause: 'stop',
@@ -202,12 +202,12 @@ async function endJamWithReview(shell: Shell, part = reviewedJamPart()): Promise
   await settle()
 }
 
-/** Intent: Jam's staff for the kept doodle: the score panel's second viewport. */
+/** Jam's staff for the kept doodle: the score panel's second viewport. */
 function keptStaff(shell: Shell) {
   return shell.wrapper.findAll('.score-panel .staff-viewport')[1]!
 }
 
-/** Intent: the header's phrase action. */
+/** The header's phrase action. */
 function phraseAction(shell: Shell) {
   return shell.wrapper.get('.header-actions > button:not(.session-action)')
 }
@@ -269,7 +269,7 @@ describe('WorkspaceShell and the kept doodle at Idle', () => {
   })
 })
 
-/** Intent: the shell mounted with a MIDI controller connected, in Jam mode, `part`'s doodle kept. */
+/** The shell mounted with a MIDI controller connected, in Jam mode, `part`'s doodle kept. */
 async function connectedWithDoodle(part = reviewedJamPart()): Promise<Shell> {
   const rig = createControllerRig({ devices: [KEYS_A] })
   await rig.controller.connect()
@@ -279,7 +279,7 @@ async function connectedWithDoodle(part = reviewedJamPart()): Promise<Shell> {
   return shell
 }
 
-/** Intent: the header's session action, `Start Jam` in Jam mode. */
+/** The header's session action, `Start Jam` in Jam mode. */
 function sessionAction(shell: Shell) {
   return shell.wrapper.get('.header-actions > button.session-action')
 }
@@ -347,7 +347,7 @@ const BAR_SENTENCE =
   'Jamming again on your doodle: phrase 1 continues it. Leaving Jam mode lets it go.'
 
 /**
- * Intent: a fresh Jam's part whose doodle is the worked example, which against the test
+ * A fresh Jam's part whose doodle is the worked example, which against the test
  * workspace's C Ionian sounds like E Aeolian (written for its instrument).
  */
 function dMinorPart() {
@@ -355,12 +355,12 @@ function dMinorPart() {
   return { ...part, doodle: { ...part.doodle, doodle: beatsDoodle(WORKED_EXAMPLE) } }
 }
 
-/** Intent: the kept doodle's bar, rendered or not. */
+/** The kept doodle's bar, rendered or not. */
 function jamBar(shell: Shell) {
   return shell.wrapper.find('.jam-bar')
 }
 
-/** Intent: the bar's button with these words. */
+/** The bar's button with these words. */
 function barButton(shell: Shell, words: string) {
   const button = jamBar(shell)
     .findAll('button')

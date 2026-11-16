@@ -50,13 +50,13 @@ const FRESH = {
   presets: BUILT_IN_PRESETS,
 } as const
 
-/** Intent: a kept session's summary as stored, pinned or not, under `key`. */
+/** A kept session's summary as stored, pinned or not, under `key`. */
 function keptSummary(history: SessionHistory, key: string, pinned: boolean): StoredEntry {
   const { summary } = codec.encodeKeptSession(history, { ...FRESH, pinned }, APP_VERSION)
   return { key, value: structuredClone(summary) }
 }
 
-/** Intent: each change of a batch as `kind store key`, in order. */
+/** Each change of a batch as `kind store key`, in order. */
 function described(changes: ReturnType<SessionChanges>): string[] {
   return changes.map((change) => `${change.kind} ${change.store} ${change.key}`)
 }
@@ -202,7 +202,7 @@ describe('saving the session that ended', () => {
     const asked: SessionChanges[] = []
     const checks: PageGoingAway[] = []
     const saves = {
-      /** Intent: record the changes and the page check asked with, and resolve the refusal. */
+      /** Record the changes and the page check asked with, and resolve the refusal. */
       saveSession: (changes: SessionChanges, pageGoingAway: PageGoingAway) => {
         asked.push(changes)
         checks.push(pageGoingAway)
@@ -232,7 +232,7 @@ describe('saving the session that ended', () => {
         value: { dataVersion: codec.KEPT_SESSION_SUMMARY_DATA_VERSION + 1, appVersion: '3.2.0' },
       },
     ]
-    /** Intent: saves that build the batch from `kept`, then resolve `outcome`. */
+    /** Saves that build the batch from `kept`, then resolve `outcome`. */
     const savesResolving = (outcome: SessionSaveOutcome) => ({
       saveSession: (changes: SessionChanges) => {
         changes(kept)
@@ -256,7 +256,7 @@ describe('saving the session that ended', () => {
     const page = createFakePageLeaving()
     const asked: SessionChanges[] = []
     const saves = {
-      /** Intent: record the changes asked for, and resolve as saved. */
+      /** Record the changes asked for, and resolve as saved. */
       saveSession: (changes: SessionChanges) => {
         asked.push(changes)
         return Promise.resolve({ status: 'saved' } as const)
@@ -281,7 +281,7 @@ describe('saving the session that ended', () => {
     const page = createFakePageLeaving()
     const asked: SessionChanges[] = []
     const saves = {
-      /** Intent: record the changes asked for, and resolve as saved. */
+      /** Record the changes asked for, and resolve as saved. */
       saveSession: (changes: SessionChanges) => {
         asked.push(changes)
         return Promise.resolve({ status: 'saved' } as const)
@@ -325,7 +325,7 @@ describe("the retry of a refused session's save", () => {
     const held = { pinned: false, favorites: [], comment: 'Again.', suggestionDeclined: false }
     const asked: SessionChanges[] = []
     const saves = {
-      /** Intent: record the changes asked for, and resolve as saved. */
+      /** Record the changes asked for, and resolve as saved. */
       saveSession: (changes: SessionChanges) => {
         asked.push(changes)
         return Promise.resolve({ status: 'saved' } as const)

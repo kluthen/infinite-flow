@@ -78,7 +78,7 @@ interface LevelSpread {
  */
 const FIGURE_OFFSETS = [0, 1, 2, 3, 0, 2, 2] as const
 
-/** Intent: the levels of spread `s`: figure `f` at level `(s + offset of f) mod 4`. */
+/** The levels of spread `s`: figure `f` at level `(s + offset of f) mod 4`. */
 function spreadLevels(s: number): FigureLevels {
   return Object.fromEntries(
     FIGURE_IDS.map((figure, f) => [figure, pick(FIGURE_LEVEL_IDS, s + FIGURE_OFFSETS[f]!)]),
@@ -138,14 +138,14 @@ const INSTRUMENTS: readonly CorpusInstrument[] = [
 /** The seeds the standalone and preset cases rotate through. */
 const SEEDS = [1, 7, 42] as const
 
-/** Intent: the value of a catalog at an index, wrapping around; crashes on an empty catalog. */
+/** The value of a catalog at an index, wrapping around; crashes on an empty catalog. */
 function pick<T>(values: readonly T[], index: number): T {
   const value = values[index % values.length]
   if (value === undefined) throw new Error('Corpus rotation picked from an empty catalog.')
   return value
 }
 
-/** Intent: build one real intent, with or without a carry-in, from written controls and a seed. */
+/** Build one real intent, with or without a carry-in, from written controls and a seed. */
 function corpusIntent(options: {
   readonly label: string
   readonly controls: Omit<GenerationControls, 'instrumentProfileId'>
@@ -174,7 +174,7 @@ function corpusIntent(options: {
 }
 
 /**
- * Intent: the carry-in a phrase hands forward as the given phrase number. The phrase must
+ * The carry-in a phrase hands forward as the given phrase number. The phrase must
  * generate successfully; a failure means the corpus was built on an unusable case and crashes.
  */
 function carryInFrom(label: string, intent: GenerationIntent, phraseNumber: number): CarryIn {
@@ -186,7 +186,7 @@ function carryInFrom(label: string, intent: GenerationIntent, phraseNumber: numb
 }
 
 /**
- * Intent: the controls with a rhythm setting the workspace blocks (no legal four-bar plan, under
+ * The controls with a rhythm setting the workspace blocks (no legal four-bar plan, under
  * any seed) replaced by the workspace's suggested change, which is always a lighter syncopation;
  * controls the workspace allows come back unchanged.
  */
@@ -209,7 +209,7 @@ interface HeldSettings {
 }
 
 /**
- * Intent: every preset case: built-in preset × instrument, each phrase 1. The player holds a
+ * Every preset case: built-in preset × instrument, each phrase 1. The player holds a
  * rotating tempo, written key and mode, then chooses the preset: its ten controls and seven levels
  * replace the held ones, and a mode its restriction does not allow moves to the restriction's
  * first. A built-in preset never holds a blocked rhythm setting; one would crash the corpus.
@@ -252,7 +252,7 @@ function presetCases(): readonly ReplayKeyCorpusV31Case[] {
 }
 
 /**
- * Intent: the non-instrument controls of the standalone case at collection index `c`, instrument
+ * The non-instrument controls of the standalone case at collection index `c`, instrument
  * index `i` and spread index `s`. Over the nine collections of one (spread, instrument) pair,
  * `c + i` walks every tension, `c + 2i + s` every leapiness and `c + i + s` every arpeggio chaos;
  * note density cycles quarter, eighth, sixteenth with `c`, and rhythmic variety changes with each
@@ -284,7 +284,7 @@ function standaloneControls(
   })
 }
 
-/** Intent: every standalone case: level spread × instrument × collection, each phrase 1. */
+/** Every standalone case: level spread × instrument × collection, each phrase 1. */
 function standaloneCases(): readonly ReplayKeyCorpusV31Case[] {
   return SPREADS.flatMap((spread, s) =>
     INSTRUMENTS.flatMap((instrument, i) =>
@@ -320,7 +320,7 @@ const CARRY_IN_CONTROLS: Omit<GenerationControls, 'instrumentProfileId'> = {
 }
 
 /**
- * Intent: a three-phrase chain per instrument for spreads 0 and 3, each instrument in its own
+ * A three-phrase chain per instrument for spreads 0 and 3, each instrument in its own
  * collection: phrase 1 (not a case), phrase 2 receiving phrase 1's carry-in, phrase 3 receiving
  * phrase 2's.
  */
@@ -358,7 +358,7 @@ function chainCases(): readonly ReplayKeyCorpusV31Case[] {
 }
 
 /**
- * Intent: per instrument for spreads 1 and 2, a phrase 2 in F# Dorian receiving the carry-in of a
+ * Per instrument for spreads 1 and 2, a phrase 2 in F# Dorian receiving the carry-in of a
  * C Ionian phrase 1 with its final harmony dropped (null), as a session does when the key changes
  * between phrases.
  */
@@ -390,7 +390,7 @@ function nullHarmonyCases(): readonly ReplayKeyCorpusV31Case[] {
   )
 }
 
-/** Intent: every case of the v3.1 corpus, in a fixed order. */
+/** Every case of the v3.1 corpus, in a fixed order. */
 export function replayKeyCorpusV31Cases(): readonly ReplayKeyCorpusV31Case[] {
   return [...presetCases(), ...standaloneCases(), ...chainCases(), ...nullHarmonyCases()]
 }

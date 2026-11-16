@@ -22,7 +22,7 @@ export const V31_APP_VERSION = '3.1.0'
 const V3_1_MIGRATIONS = PRODUCTION_MIGRATIONS.slice(0, 3)
 
 /**
- * Intent: a stored body as v3.1 wrote it: the same keys in the same order, at data version 2, its
+ * A stored body as v3.1 wrote it: the same keys in the same order, at data version 2, its
  * intents without the Seventh chords level. Throws for a body holding a doodle, a seventh chord or
  * a level above Off, which no v3.1 body held.
  */
@@ -35,7 +35,7 @@ export function v2Body(body: unknown): unknown {
 }
 
 /**
- * Intent: a stored session-wide record as v3.1 wrote it: the same keys in the same order, at data
+ * A stored session-wide record as v3.1 wrote it: the same keys in the same order, at data
  * version 2, without the Jam mark. Throws for a Jam's record, which no v3.1 record was.
  */
 export function v2Summary(summary: unknown): unknown {
@@ -49,7 +49,7 @@ export function v2Summary(summary: unknown): unknown {
 }
 
 /**
- * Intent: the stored values a session's records had when v3.1 kept them: its body and its
+ * The stored values a session's records had when v3.1 kept them: its body and its
  * session-wide record at data version 2, its played notes as encoded, their shape unchanged since
  * v3.1.
  */
@@ -64,7 +64,7 @@ export const REQUEST_GROUPS = {
   steering: SAMPLE_STEERING,
 } as const
 
-/** Intent: a stored body whose phrase at `index` has its request given the v3.2 group named. */
+/** A stored body whose phrase at `index` has its request given the v3.2 group named. */
 export function withRequestGroup(
   body: unknown,
   index: number,
@@ -73,13 +73,13 @@ export function withRequestGroup(
   return edited(body, ['phrases', index, 'request', group], structuredClone(REQUEST_GROUPS[group]))
 }
 
-/** Intent: a port over the factory's database at data version 3, as a v3.1 tab opens it. */
+/** A port over the factory's database at data version 3, as a v3.1 tab opens it. */
 export function openV31Port(factory: IDBFactory): Promise<StoragePort> {
   return openStoragePort({ factory, appVersion: V31_APP_VERSION, migrations: V3_1_MIGRATIONS })
 }
 
 /**
- * Intent: create the database at data version 3 through a v3.1 tab's port and apply `changes` in
+ * Create the database at data version 3 through a v3.1 tab's port and apply `changes` in
  * one batch; the port is returned still open, as a v3.1 tab left open.
  */
 export async function seedVersion3(

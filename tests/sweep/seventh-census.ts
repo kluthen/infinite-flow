@@ -62,23 +62,23 @@ export interface FailedSeventhCensus {
   readonly mode: Collection
 }
 
-/** Intent: an event's form: its seventh's quality in seventh form, `triad` otherwise. */
+/** An event's form: its seventh's quality in seventh form, `triad` otherwise. */
 export function formOf(event: Pick<HarmonyEvent, 'seventh'>): EventForm {
   return event.seventh === undefined ? 'triad' : event.seventh.quality
 }
 
-/** Intent: the phrase beat an event starts on, from its bar and its start beat. */
+/** The phrase beat an event starts on, from its bar and its start beat. */
 function startOf(event: HarmonyEvent): number {
   return event.barIndex * 4 + event.startBeat
 }
 
-/** Intent: true when two events sound the same chord in the same form. */
+/** True when two events sound the same chord in the same form. */
 function sameChord(left: HarmonyEvent, right: HarmonyEvent): boolean {
   return left.triad.degree === right.triad.degree && formOf(left) === formOf(right)
 }
 
 /**
- * Intent: crash unless the events tile the phrase, each starting where the one before ends and the
+ * Crash unless the events tile the phrase, each starting where the one before ends and the
  * last ending on beat 16, and no two neighbours sound the same chord in the same form: a chord
  * held across a barline is one event, never two.
  */
@@ -99,7 +99,7 @@ function assertSerializedPlan(events: readonly HarmonyEvent[]): void {
 }
 
 /**
- * Intent: the census of one winning chord plan, generated at `level` in `mode`, whose draw gave
+ * The census of one winning chord plan, generated at `level` in `mode`, whose draw gave
  * `drawnSevenths` events their seventh form first. It crashes on a plan that does not tile the
  * phrase, on a draw at Off (Off consumes none), and on a plan holding more seventh-form events than
  * were drawn. The plan is a fallback when its draw gave at least one seventh and it holds none.
@@ -138,7 +138,7 @@ export function classifyPlan(
 }
 
 /**
- * Intent: how many events of a generated phrase's winning plan its draw gave their seventh form
+ * How many events of a generated phrase's winning plan its draw gave their seventh form
  * first, read from the generator's own draw (`isSeventhDrawn`, from the level, the seed and each
  * event's start), so a fallback is classified as the generator made it. At Off, none: Off makes no
  * draw.
@@ -153,7 +153,7 @@ export function drawnSeventhsOf(
   ).length
 }
 
-/** Intent: the census of one generation outcome, or its failure code, with its level and mode. */
+/** The census of one generation outcome, or its failure code, with its level and mode. */
 export function seventhCensusOf(
   intent: GenerationIntent,
   outcome: GenerationOutcome,

@@ -57,7 +57,7 @@ import {
 type AttemptAsked = Extract<PhraseOneEvent, { readonly kind: 'phrase-one-attempt' }>
 
 /**
- * Intent: a stub of Jam's capture over a doodle already quantized: its one decision, at 0, ends
+ * A stub of Jam's capture over a doodle already quantized: its one decision, at 0, ends
  * the doodle by length at its end barline (0); phrase 1 ready at a moment is shown at the first
  * barline at or after it, never before measure 1 (the generation measure's end), and sounds one
  * measure later. Played notes are not its concern.
@@ -95,12 +95,12 @@ function quantizedDoodleCapture(doodle: DoodlePhraseOne): JamCapture {
   }
 }
 
-/** Intent: whether a session event's retry number is one of the ladder's six attempt indices. */
+/** Whether a session event's retry number is one of the ladder's six attempt indices. */
 function isAttemptIndex(retry: number): retry is JamPhraseOneAttemptIndex {
   return Number.isInteger(retry) && retry >= 0 && retry <= STANDALONE_ATTEMPT
 }
 
-/** Intent: the attempt the ladder asks for among its outputs, if it asks for one. */
+/** The attempt the ladder asks for among its outputs, if it asks for one. */
 function attemptAsked(outputs: readonly JamPhraseOneOutput[]): AttemptAsked | undefined {
   for (const output of outputs)
     if (output.kind === 'session-event' && output.event.kind === 'phrase-one-attempt')
@@ -108,7 +108,7 @@ function attemptAsked(outputs: readonly JamPhraseOneOutput[]): AttemptAsked | un
   return undefined
 }
 
-/** Intent: whether the ladder hands attempt `attemptId` over as phrase 1 among its outputs. */
+/** Whether the ladder hands attempt `attemptId` over as phrase 1 among its outputs. */
 function handsOver(outputs: readonly JamPhraseOneOutput[], attemptId: number): boolean {
   return outputs.some(
     (output) =>
@@ -118,19 +118,19 @@ function handsOver(outputs: readonly JamPhraseOneOutput[], attemptId: number): b
   )
 }
 
-/** Intent: whether the Jam ends among the ladder's outputs, phrase 1 never having come. */
+/** Whether the Jam ends among the ladder's outputs, phrase 1 never having come. */
 function endsWithout(outputs: readonly JamPhraseOneOutput[]): boolean {
   return outputs.some((output) => output.kind === 'no-phrase-one')
 }
 
-/** Intent: the session's request for an attempt asked, as the engine shapes it for phrase 1. */
+/** The session's request for an attempt asked, as the engine shapes it for phrase 1. */
 function requestOf(asked: AttemptAsked, attemptId: number): SessionOutput {
   const { step, retry, intent, deadline } = asked
   return { kind: 'request-generation', attemptId, phraseNumber: 1, step, retry, intent, deadline }
 }
 
 /**
- * Intent: an attempt's outcome to the ladder at `at`: a generated phrase is fit-checked, then
+ * An attempt's outcome to the ladder at `at`: a generated phrase is fit-checked, then
  * fits; a failure is the result with its code.
  */
 function deliver(
@@ -140,7 +140,7 @@ function deliver(
   outcome: GenerationOutcome,
   at: AudioTime,
 ): readonly JamPhraseOneOutput[] {
-  /** Intent: the attempt's result to the ladder. */
+  /** The attempt's result to the ladder. */
   const result = (value: PhraseOneAttemptResult): readonly JamPhraseOneOutput[] =>
     ladder.session({ kind: 'phrase-one-attempt-result', attemptId, result: value }, at)
   if (outcome.kind !== 'generation_success')
@@ -153,7 +153,7 @@ function deliver(
   return [...checked, ...result({ kind: 'fits' })]
 }
 
-/** Intent: the record of an attempt the generator ran, cancelled at `cancelledAt` when cut. */
+/** The record of an attempt the generator ran, cancelled at `cancelledAt` when cut. */
 function attemptRecord(
   asked: AttemptAsked,
   index: JamPhraseOneAttemptIndex,
@@ -177,7 +177,7 @@ function attemptRecord(
 }
 
 /**
- * Intent: the real ladder over one Jam's doodle, its request ids counted, each attempt's seed the
+ * The real ladder over one Jam's doodle, its request ids counted, each attempt's seed the
  * session seed plan's (C11), at the tablet-landscape width or wider; the sweep's deadline and
  * reserve checked against the ladder's own.
  */

@@ -24,7 +24,7 @@ export type NoteTuple = readonly [
 /** The pitch a note takes when its tuple names none. */
 const DEFAULT_PITCH = 60
 
-/** Intent: a quantized doodle of `measureCount` measures from note tuples, through the app's constructor. */
+/** A quantized doodle of `measureCount` measures from note tuples, through the app's constructor. */
 export function doodleOf(
   measureCount: DoodleMeasureCount,
   notes: readonly NoteTuple[],
@@ -39,7 +39,7 @@ export function doodleOf(
   })
 }
 
-/** Intent: a doodle of one note per given start, each lasting until the next start or `end`. */
+/** A doodle of one note per given start, each lasting until the next start or `end`. */
 export function legatoDoodle(
   measureCount: DoodleMeasureCount,
   starts: readonly number[],
@@ -55,7 +55,7 @@ export function legatoDoodle(
 }
 
 /**
- * Intent: a doodle of notes every `step` ticks, left silent over each given silence [from, to),
+ * A doodle of notes every `step` ticks, left silent over each given silence [from, to),
  * with a note starting at each silence's end; each note lasts until the next note or silence.
  */
 export function doodleWithSilences(
@@ -64,7 +64,7 @@ export function doodleWithSilences(
   silences: readonly (readonly [from: number, to: number])[],
 ): QuantizedDoodle {
   const end = measureCount * 16
-  /** Intent: whether a tick lies inside one of the given silences. */
+  /** Whether a tick lies inside one of the given silences. */
   const silent = (tick: number): boolean => silences.some(([from, to]) => tick >= from && tick < to)
   const grid = Array.from({ length: end / step }, (_, index) => index * step)
   const starts = [...new Set([...grid, ...silences.map(([, to]) => to)])]
@@ -91,14 +91,14 @@ export interface NonIntegerOperations {
 const INTEGER_MATH = new Set(['abs', 'max', 'min'])
 
 /**
- * Intent: every division, decimal or exponent literal and Math access other than abs, max and min
+ * Every division, decimal or exponent literal and Math access other than abs, max and min
  * in the source file at `url` (resolved from the repository's test directory).
  */
 export function nonIntegerOperations(url: URL): NonIntegerOperations {
   const path = fileURLToPath(url)
   const source = ts.createSourceFile(path, readFileSync(path, 'utf8'), ts.ScriptTarget.Latest)
   const found: NonIntegerOperations = { divisions: [], decimalLiterals: [], mathCalls: [] }
-  /** Intent: record what `node` holds, then walk its children. */
+  /** Record what `node` holds, then walk its children. */
   const visit = (node: ts.Node): void => {
     if (
       ts.isBinaryExpression(node) &&

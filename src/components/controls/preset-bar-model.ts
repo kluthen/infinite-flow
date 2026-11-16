@@ -90,12 +90,12 @@ const BUILT_IN_DESCRIPTIONS: Readonly<Record<BuiltInPresetId, string>> = deepFre
 
 const NO_BASE_DESCRIPTION = 'Your own settings. Save them as a preset to keep them under a name.'
 
-/** Intent: a preset as the box's option. */
+/** A preset as the box's option. */
 function optionOf(preset: Preset): PresetBarOption {
   return { value: preset.id, label: preset.name }
 }
 
-/** Intent: the built-in with a fixed id among `presets`; one missing is a defect and throws. */
+/** The built-in with a fixed id among `presets`; one missing is a defect and throws. */
 function requireBuiltIn(presets: readonly Preset[], id: BuiltInPresetId): Preset {
   const preset = findPreset(presets, id)
   if (preset === undefined) throw new Error(`preset bar: no built-in preset has the id "${id}"`)
@@ -103,7 +103,7 @@ function requireBuiltIn(presets: readonly Preset[], id: BuiltInPresetId): Preset
 }
 
 /**
- * Intent: the player presets in the box's Your presets order: alphabetical ignoring case, duplicate
+ * The player presets in the box's Your presets order: alphabetical ignoring case, duplicate
  * names kept in their given order (a stable sort), every built-in left out. Your data lists them so.
  */
 // @spec-link [[module_preset_bar_model]]
@@ -115,7 +115,7 @@ export function playerPresetsInBoxOrder(presets: readonly Preset[]): readonly Pr
 }
 
 /**
- * Intent: the box's groups in order: Practice and Styles, their built-ins placed by fixed id,
+ * The box's groups in order: Practice and Styles, their built-ins placed by fixed id,
  * never by name; then Your presets, every player preset alphabetical ignoring case, duplicate
  * names kept in their given order (a stable sort), the group absent while there are none.
  */
@@ -136,7 +136,7 @@ export function presetBarGroups(presets: readonly Preset[]): readonly PresetBarG
 }
 
 /**
- * Intent: the Custom option's label, only in Custom: the preset label, "Custom, based on {name}"
+ * The Custom option's label, only in Custom: the preset label, "Custom, based on {name}"
  * or "Custom" alone with no base or a base no preset has; null outside Custom.
  */
 // @spec-link [[module_preset_bar_model]]
@@ -149,7 +149,7 @@ export function presetBarCustomOption(
   return selection.kind === 'custom' ? presetLabel(selection, presets) : null
 }
 
-/** Intent: the box's full text, for its `title`: the Custom label, or the selected preset's name. */
+/** The box's full text, for its `title`: the Custom label, or the selected preset's name. */
 // @spec-link [[module_preset_bar_model]]
 // @spec-link [[rule_custom_names_its_base]]
 export function presetBarFullText(selection: PresetSelection, presets: readonly Preset[]): string {
@@ -166,21 +166,21 @@ export const RESTRICTION_LABELS: RestrictionLabels = {
   mode: (mode) => labelOf(collectionOptions(), mode),
 }
 
-/** Intent: the label of one option by its value; a value no option has is a defect and throws. */
+/** The label of one option by its value; a value no option has is a defect and throws. */
 function labelOf(options: readonly { value: string; label: string }[], value: string): string {
   const found = options.find((option) => option.value === value)
   if (found === undefined) throw new Error(`preset bar: no option has the value "${value}"`)
   return found.label
 }
 
-/** Intent: a player preset's description: "Your preset.", then what its restriction is meant for. */
+/** A player preset's description: "Your preset.", then what its restriction is meant for. */
 function playerDescription(preset: Preset): string {
   if (isAnyKeyAndMode(preset.restriction)) return 'Your preset.'
   const meantFor = restrictionInWords(preset.restriction, RESTRICTION_LABELS, { only: false })
   return `Your preset. Meant for ${meantFor}.`
 }
 
-/** Intent: Custom's description, by its base: a built-in, a player preset, or none found. */
+/** Custom's description, by its base: a built-in, a player preset, or none found. */
 function customDescription(baseId: PresetId | null, presets: readonly Preset[]): string {
   const base = baseId === null ? undefined : findPreset(presets, baseId)
   if (base === undefined) return NO_BASE_DESCRIPTION
@@ -189,7 +189,7 @@ function customDescription(baseId: PresetId | null, presets: readonly Preset[]):
 }
 
 /**
- * Intent: the description line's text for a selection: a built-in's own sentence by its id; a
+ * The description line's text for a selection: a built-in's own sentence by its id; a
  * player preset's "Your preset." and, unless its restriction is any, what it is meant for;
  * Custom's by its base. During a session the caller passes the start settings' selection, so the
  * line keeps its text. A selected id no preset has is a defect and throws.

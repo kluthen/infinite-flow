@@ -57,7 +57,7 @@ export const BLUESY: readonly BeatNote[] = [
 const TICKS_PER_BEAT = 4
 
 /**
- * Intent: a doodle of the given notes played back to back from `offsetTick`; an offset of one
+ * A doodle of the given notes played back to back from `offsetTick`; an offset of one
  * tick starts no note on beat 1 or 3, as the research note's figures (without the strong-beat
  * weight) assume.
  */
@@ -73,7 +73,7 @@ export function beatsDoodle(notes: readonly BeatNote[], offsetTick = 0): Quantiz
   return makeQuantizedDoodle({ measureCount, notes: placed })
 }
 
-/** Intent: a doodle from `[start, length, pitch]` tuples, in as few measures as it needs. */
+/** A doodle from `[start, length, pitch]` tuples, in as few measures as it needs. */
 export function tickDoodle(
   notes: readonly (readonly [startTick: number, lengthTicks: number, pitch: number])[],
 ): QuantizedDoodle {
@@ -84,7 +84,7 @@ export function tickDoodle(
   })
 }
 
-/** Intent: a pair's name as the tests write it, its home note in concert pitch: "D Dorian". */
+/** A pair's name as the tests write it, its home note in concert pitch: "D Dorian". */
 export function pairName(pair: KeyModePair): string {
   return `${PITCH_CLASSES[pair.homeNote]} ${pair.mode}`
 }

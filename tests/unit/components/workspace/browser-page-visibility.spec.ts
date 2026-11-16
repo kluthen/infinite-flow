@@ -21,7 +21,7 @@ interface StandInDocument extends VisibilityDocumentLike {
   readonly listenerCount: () => number
 }
 
-/** Intent: a visible stand-in document that fires `visibilitychange` on every change. */
+/** A visible stand-in document that fires `visibilitychange` on every change. */
 function standInDocument(): StandInDocument {
   let state: DocumentVisibilityState = 'visible'
   const listeners = new Set<() => void>()
@@ -81,7 +81,7 @@ interface StandInWindow extends PageHideTargetLike {
   readonly pageshow: (persisted: boolean) => void
 }
 
-/** Intent: a stand-in window calling its `pagehide` and `pageshow` listeners in order. */
+/** A stand-in window calling its `pagehide` and `pageshow` listeners in order. */
 function standInWindow(): StandInWindow {
   type Listener = (event: { readonly persisted: boolean }) => void
   const hides: Listener[] = []

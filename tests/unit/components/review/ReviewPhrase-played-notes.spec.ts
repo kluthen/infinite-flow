@@ -46,12 +46,12 @@ interface PhraseOptions {
   readonly pitchScale?: PlayedNotesPitchScale | null
 }
 
-/** Intent: the session's first recorded phrase (240 BPM: one beat is 0.25 s). */
+/** The session's first recorded phrase (240 BPM: one beat is 0.25 s). */
 function firstRecord(): SessionHistoryRecord {
   return recordedRecords()[0]!
 }
 
-/** Intent: the first record holding the given played notes, `[onset, release]` in beats. */
+/** The first record holding the given played notes, `[onset, release]` in beats. */
 function recordPlaying(
   notes: readonly (readonly [number, number, number?])[],
 ): SessionHistoryRecord {
@@ -66,7 +66,7 @@ function recordPlaying(
   return { ...record, playedNotes }
 }
 
-/** Intent: mount one phrase, attached to the document; the lanes are on unless asked otherwise. */
+/** Mount one phrase, attached to the document; the lanes are on unless asked otherwise. */
 function mountPhrase(options: PhraseOptions = {}) {
   const record = options.record ?? firstRecord()
   const split = options.split ?? false
@@ -87,30 +87,30 @@ function mountPhrase(options: PhraseOptions = {}) {
   return wrapper
 }
 
-/** Intent: the mounted phrase's exposed API. */
+/** The mounted phrase's exposed API. */
 function api(wrapper: VueWrapper): InstanceType<typeof ReviewPhrase> {
   return wrapper.vm as unknown as InstanceType<typeof ReviewPhrase>
 }
 
-/** Intent: engrave the mounted phrase on the fake engraver. */
+/** Engrave the mounted phrase on the fake engraver. */
 async function engrave(wrapper: VueWrapper): Promise<void> {
   await api(wrapper).engrave(fakePhraseEngraver)
   await wrapper.vm.$nextTick()
 }
 
-/** Intent: the lanes, top first. */
+/** The lanes, top first. */
 function lanes(wrapper: VueWrapper): HTMLElement[] {
   return Array.from(
     (wrapper.element as Element).querySelectorAll<HTMLElement>('.played-notes-lane'),
   )
 }
 
-/** Intent: the review staff's inline block size. */
+/** The review staff's inline block size. */
 function staffBlockSize(wrapper: VueWrapper): string {
   return (wrapper.get('.review-staff').element as HTMLElement).style.getPropertyValue('block-size')
 }
 
-/** Intent: the lanes the geometry draws for the last engraving, for this record. */
+/** The lanes the geometry draws for the last engraving, for this record. */
 function expectedLanes(record: SessionHistoryRecord, scale: PlayedNotesPitchScale) {
   const call = fakePhraseEngraver.engraveWrittenPhrase.mock.calls.at(-1)!
   const result = fakePhraseEngraver.engraveWrittenPhrase.mock.results.at(-1)!
@@ -118,7 +118,7 @@ function expectedLanes(record: SessionHistoryRecord, scale: PlayedNotesPitchScal
   return playedNotesLanes({ record, phrase: call[1], anchors: result.value.measureAnchors, scale })
 }
 
-/** Intent: an element's inline style property names, in order. */
+/** An element's inline style property names, in order. */
 function styleNames(element: HTMLElement): string[] {
   return Array.from({ length: element.style.length }, (_, i) => element.style.item(i))
 }

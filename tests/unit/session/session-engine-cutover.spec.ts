@@ -29,14 +29,14 @@ import { SHAPED, requestIn, settingsWith, threeRequested } from './settings-chan
 const DEADLINE = 4
 const CUTOVER = cutoverAt(DEADLINE)
 
-/** Intent: a driver at a tempo (60 BPM by default) started at 0. */
+/** A driver at a tempo (60 BPM by default) started at 0. */
 function driverAt(tempo = 60): SessionDriver {
   const settings = sessionSettings({ tempo })
   return new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
 }
 
 /**
- * Intent: phrase 2's standalone request in a 60 BPM reference session whose four carry-in
+ * Phrase 2's standalone request in a 60 BPM reference session whose four carry-in
  * attempts all failed before the cutover, so every carry-in retry ran.
  */
 function standaloneAfterThreeRetries(): GenerationRequestOutput {
@@ -48,7 +48,7 @@ function standaloneAfterThreeRetries(): GenerationRequestOutput {
 }
 
 /**
- * Intent: check a request is phrase 2's standalone attempt, built as the reference's is, with the
+ * Check a request is phrase 2's standalone attempt, built as the reference's is, with the
  * standalone rung's planned seed.
  */
 function expectReferenceStandalone(request: GenerationRequestOutput): void {
@@ -60,7 +60,7 @@ function expectReferenceStandalone(request: GenerationRequestOutput): void {
   expect(withoutTempo(request.intent)).toEqual(withoutTempo(reference.intent))
 }
 
-/** Intent: the cutover's outputs for a carry-in attempt: its cancellation, then the standalone request. */
+/** The cutover's outputs for a carry-in attempt: its cancellation, then the standalone request. */
 function expectCutover(outputs: readonly SessionOutput[], cancelled: number): void {
   expect(kinds(outputs)).toEqual(['cancel-generation', 'request-generation'])
   expect(outputs[0]).toEqual({ kind: 'cancel-generation', attemptId: cancelled })
@@ -253,7 +253,7 @@ describe('a phrase requested within the standalone reserve', () => {
 
 // @test-link [[rule_session_generation_failure_ladder]]
 describe('determinism of the time-aware ladder', () => {
-  /** Intent: run one event list with a cutover, a late result and a failed fit; its outputs. */
+  /** Run one event list with a cutover, a late result and a failed fit; its outputs. */
   function run(): readonly SessionOutput[] {
     const driver = driverAt()
     driver.fail(0.5)

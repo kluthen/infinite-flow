@@ -49,7 +49,7 @@ test.beforeEach(({ page }) => {
 test.afterEach(() => expectNoPageErrors())
 
 /**
- * Intent: wait until every phrase of the Review holds its engraving, bringing each into view in
+ * Wait until every phrase of the Review holds its engraving, bringing each into view in
  * turn (a short phone window engraves only the phrases near it), then back to the top.
  */
 async function expectAllEngraved(page: Page, phraseCount: number): Promise<void> {
@@ -63,14 +63,14 @@ async function expectAllEngraved(page: Page, phraseCount: number): Promise<void>
   await reviewItems(page).first().scrollIntoViewIfNeeded()
 }
 
-/** Intent: the played notes the history holds per phrase, in phrase order. */
+/** The played notes the history holds per phrase, in phrase order. */
 async function playedNotesPerPhrase(page: Page) {
   const phrases = (await sessionState(page)).lastHistoryPhrases
   if (phrases === null) throw new Error('No session history.')
   return phrases
 }
 
-/** Intent: every system position's markup, phrase by phrase, top first. */
+/** Every system position's markup, phrase by phrase, top first. */
 function staffMarkup(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     Array.from(
@@ -94,7 +94,7 @@ interface MeasuredLane {
   readonly bars: readonly { readonly left: number; readonly right: number; readonly bg: string }[]
 }
 
-/** Intent: measure every lane of phrase `index` (0-based) against the position above it. */
+/** Measure every lane of phrase `index` (0-based) against the position above it. */
 function measureLanes(page: Page, index: number): Promise<MeasuredLane[]> {
   return page.evaluate((itemIndex) => {
     const item = document.querySelectorAll('.review-panel .review-phrase')[itemIndex]
@@ -130,7 +130,7 @@ function measureLanes(page: Page, index: number): Promise<MeasuredLane[]> {
 }
 
 /**
- * Intent: the screen x of phrase 1's played notes' bars (in record order) and of the noteheads
+ * The screen x of phrase 1's played notes' bars (in record order) and of the noteheads
  * of the written notes they were played on, keyed `<phrase>:<measure>:<event>`.
  */
 function barsAndNoteheads(page: Page, keys: readonly string[]) {
@@ -158,7 +158,7 @@ function barsAndNoteheads(page: Page, keys: readonly string[]) {
   }, keys)
 }
 
-/** Intent: the elements of the page (the Review's included) whose overflow-anchor is none. */
+/** The elements of the page (the Review's included) whose overflow-anchor is none. */
 function scrollAnchoringOff(page: Page): Promise<string[]> {
   return page.evaluate(() =>
     [
@@ -285,7 +285,7 @@ test.describe('the Review played-notes lanes', () => {
 })
 
 /**
- * Intent: `Export played notes` is disabled, named by its field note giving the very-short reason,
+ * `Export played notes` is disabled, named by its field note giving the very-short reason,
  * while `Include very short notes` is off.
  */
 async function expectDisabledForVeryShortNotes(page: Page): Promise<void> {

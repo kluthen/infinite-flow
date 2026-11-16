@@ -44,7 +44,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: mount the shell over `session` and `fake`, its page scroll a spy. */
+/** Mount the shell over `session` and `fake`, its page scroll a spy. */
 function mountShell(
   session: GenerationSession<WorkspaceSessionResult>,
   fake: FakeSessionController,
@@ -76,7 +76,7 @@ function mountShell(
 }
 
 /**
- * Intent: a fake controller whose Review shows, as right after a session end; `afterClose` is the
+ * A fake controller whose Review shows, as right after a session end; `afterClose` is the
  * start blocker the idle state leaves once it closes (null: Start session enabled).
  */
 function showingReview(
@@ -96,12 +96,12 @@ function showingReview(
   return fake
 }
 
-/** Intent: the header's session action. */
+/** The header's session action. */
 function sessionAction(wrapper: ReturnType<typeof mountShell>['wrapper']) {
   return wrapper.get<HTMLButtonElement>('.header-actions > button.session-action')
 }
 
-/** Intent: the header's phrase action. */
+/** The header's phrase action. */
 function phraseAction(wrapper: ReturnType<typeof mountShell>['wrapper']) {
   return wrapper.get('.header-actions > button:not(.session-action)')
 }

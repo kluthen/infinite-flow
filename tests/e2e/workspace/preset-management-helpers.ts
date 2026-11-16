@@ -57,7 +57,7 @@ export const EARLY_MORNING: WorkspaceHarnessPresetInput = {
   kind: 'player',
 }
 
-/** Intent: `count` player presets, `p1`... named "Preset 01"..., Neutral's values, anywhere. */
+/** `count` player presets, `p1`... named "Preset 01"..., Neutral's values, anywhere. */
 export function manyPresets(count: number): WorkspaceHarnessPresetInput[] {
   return Array.from({ length: count }, (_, index) => ({
     ...EARLY_MORNING,
@@ -66,7 +66,7 @@ export function manyPresets(count: number): WorkspaceHarnessPresetInput[] {
   }))
 }
 
-/** Intent: the settings records that hold a preset's ten controls and seven levels, as saved. */
+/** The settings records that hold a preset's ten controls and seven levels, as saved. */
 function savedValuesOf(preset: WorkspaceHarnessPresetInput): Record<string, unknown> {
   return {
     ...Object.fromEntries(
@@ -78,7 +78,7 @@ function savedValuesOf(preset: WorkspaceHarnessPresetInput): Record<string, unkn
   }
 }
 
-/** Intent: seed player preset records for the next load, through the harness's preset codec. */
+/** Seed player preset records for the next load, through the harness's preset codec. */
 export function seedPresets(
   page: Page,
   presets: readonly WorkspaceHarnessPresetInput[],
@@ -87,7 +87,7 @@ export function seedPresets(
 }
 
 /**
- * Intent: seed `presets` and the settings that keep `selected` the selection (its values, so the
+ * Seed `presets` and the settings that keep `selected` the selection (its values, so the
  * load does not make it Custom), or Custom with no base for null, then reload so the load reads
  * them.
  */
@@ -108,49 +108,49 @@ export async function seedAndReload(
   await reloadHarness(page)
 }
 
-/** Intent: the preset bar's actions row. */
+/** The preset bar's actions row. */
 export function presetActions(page: Page): Locator {
   return page.locator('.preset-bar .preset-actions')
 }
 
-/** Intent: one button of the actions row, by its exact label. */
+/** One button of the actions row, by its exact label. */
 export function actionButton(page: Page, label: string): Locator {
   return presetActions(page).getByRole('button', { name: label, exact: true })
 }
 
-/** Intent: expect the actions row to hold exactly `labels`, in order. */
+/** Expect the actions row to hold exactly `labels`, in order. */
 export async function expectActions(page: Page, labels: readonly string[]): Promise<void> {
   await expect(presetActions(page).getByRole('button')).toHaveText([...labels])
 }
 
-/** Intent: the preset sheet's dialog. */
+/** The preset sheet's dialog. */
 export function presetSheet(page: Page): Locator {
   return page.getByRole('dialog')
 }
 
-/** Intent: the open preset sheet's name field. */
+/** The open preset sheet's name field. */
 export function nameField(page: Page): Locator {
   return presetSheet(page).getByRole('textbox', { name: 'Name', exact: true })
 }
 
-/** Intent: the open preset sheet's refused-name reason. */
+/** The open preset sheet's refused-name reason. */
 export function nameAlert(page: Page): Locator {
   return presetSheet(page).locator('.name-alert')
 }
 
-/** Intent: one of the sheet's `sheet-actions` buttons, by its exact label. */
+/** One of the sheet's `sheet-actions` buttons, by its exact label. */
 export function sheetButton(page: Page, label: string): Locator {
   return presetSheet(page)
     .locator('.sheet-actions')
     .getByRole('button', { name: label, exact: true })
 }
 
-/** Intent: the open sheet's Key and mode options. */
+/** The open sheet's Key and mode options. */
 export function keyAndModeOptions(page: Page): Locator {
   return presetSheet(page).getByRole('radiogroup', { name: 'Key and mode' }).getByRole('radio')
 }
 
-/** Intent: the Key and mode options' labels, the checked one marked with " *". */
+/** The Key and mode options' labels, the checked one marked with " *". */
 export function shownChoices(page: Page): Promise<string[]> {
   return keyAndModeOptions(page).evaluateAll((options) =>
     options.map(
@@ -160,13 +160,13 @@ export function shownChoices(page: Page): Promise<string[]> {
   )
 }
 
-/** Intent: press an action of the row that opens the sheet, and wait for it, titled `title`. */
+/** Press an action of the row that opens the sheet, and wait for it, titled `title`. */
 export async function openSheet(page: Page, action: string, title: string): Promise<void> {
   await actionButton(page, action).click()
   await expect(presetSheet(page)).toHaveAccessibleName(title)
 }
 
-/** Intent: Save as new under `name` with the default choice, the sheet closed and `name` shown. */
+/** Save as new under `name` with the default choice, the sheet closed and `name` shown. */
 export async function saveAsNew(page: Page, name: string): Promise<void> {
   await openSheet(page, 'Save as new preset', 'Save as a new preset')
   await nameField(page).fill(name)
@@ -175,14 +175,14 @@ export async function saveAsNew(page: Page, name: string): Promise<void> {
   await expect(presetBox(page)).toHaveAttribute('title', name.trim())
 }
 
-/** Intent: the names the box lists under Your presets, in order. */
+/** The names the box lists under Your presets, in order. */
 export function yourPresetNames(page: Page): Promise<string[]> {
   return presetBox(page)
     .locator('optgroup[label="Your presets"] > option')
     .evaluateAll((options) => options.map((option) => option.textContent?.trim() ?? ''))
 }
 
-/** Intent: every preset record stored, by key, read through the harness's seam. */
+/** Every preset record stored, by key, read through the harness's seam. */
 export async function presetRecords(page: Page): Promise<Record<string, Record<string, unknown>>> {
   const records = await page.evaluate(() =>
     window.__workspaceHarness.storage.keyedRecords('presets'),
@@ -192,7 +192,7 @@ export async function presetRecords(page: Page): Promise<Record<string, Record<s
   )
 }
 
-/** Intent: the one stored preset record named `name`; none or several is a failure. */
+/** The one stored preset record named `name`; none or several is a failure. */
 export async function presetRecordNamed(
   page: Page,
   name: string,
@@ -210,7 +210,7 @@ export const PLAYER_ROW = ['Save as new preset', 'Rename preset', 'Delete preset
 export const LIMIT_NOTE =
   'You have 50 presets of your own, the most the app keeps. Delete one, here or in Your data, to save a new one.'
 
-/** Intent: axe finds nothing inside `selector`, with every transition settled. */
+/** Axe finds nothing inside `selector`, with every transition settled. */
 export async function expectNoAxeViolations(
   page: Page,
   selector: string,
@@ -226,12 +226,12 @@ export async function expectNoAxeViolations(
   ).toEqual([])
 }
 
-/** Intent: the selection the session holds now. */
+/** The selection the session holds now. */
 export async function selection(page: Page): Promise<WorkspaceHarnessPresetSelection> {
   return (await harnessSnapshot(page)).selection
 }
 
-/** Intent: whether the name field's whole text is selected, so typing replaces it. */
+/** Whether the name field's whole text is selected, so typing replaces it. */
 export function nameSelected(page: Page): Promise<boolean> {
   return nameField(page).evaluate((input) => {
     const field = input as HTMLInputElement

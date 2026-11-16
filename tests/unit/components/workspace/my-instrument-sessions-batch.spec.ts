@@ -40,7 +40,7 @@ const WIDER = makeMyInstrument({ ...LOW_TENOR, writtenRange: { minMidi: 40, maxM
 const MINE = ['mine-pinned', 'mine-notes', 'mine-recent'] as const
 const TENOR = 'tenor-1'
 
-/** Intent: the writes that keep `history` under `key`, its played notes kept. */
+/** The writes that keep `history` under `key`, its played notes kept. */
 function keptRecords(history: SessionHistory, key: string): StorageChange[] {
   const records = encodeKeptSession(
     history,
@@ -56,7 +56,7 @@ function keptRecords(history: SessionHistory, key: string): StorageChange[] {
   return changes
 }
 
-/** Intent: a port holding my instrument, its three sessions and the tenor's one. */
+/** A port holding my instrument, its three sessions and the tenor's one. */
 async function seededPort(): Promise<StoragePort> {
   const port = await readyPort(freshFactory())
   const mine = recordedKeptSession('bb-tenor', 2)
@@ -73,7 +73,7 @@ async function seededPort(): Promise<StoragePort> {
   return port
 }
 
-/** Intent: the keys each kept-session store and the instrument store hold. */
+/** The keys each kept-session store and the instrument store hold. */
 async function keysOf(port: StoragePort) {
   const stores = ['instrument', 'sessionSummaries', 'sessionBodies', 'playedNotes'] as const
   const keys = await Promise.all(stores.map((store) => port.readKeys(store)))

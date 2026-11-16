@@ -45,7 +45,7 @@ const LAYOUTS = [
 ] as const satisfies readonly { layout: Layout; size: typeof DESKTOP | typeof PHONE }[]
 
 /**
- * Intent: land at `size`, with the page URL's `search` if any, make a phrase ready and start a
+ * Land at `size`, with the page URL's `search` if any, make a phrase ready and start a
  * session in `layout`.
  */
 async function startIn(
@@ -62,7 +62,7 @@ async function startIn(
 }
 
 /**
- * Intent: assert one barline's reading: the playhead on the measure, both positions as the plan
+ * Assert one barline's reading: the playhead on the measure, both positions as the plan
  * gives them for what is readied, the one band in the playhead's measure of its own system, and
  * at least one measure on screen ahead of it.
  */
@@ -90,7 +90,7 @@ function expectBarline(
 }
 
 /**
- * Intent: from a session in its count-in with phrase 2 readied, move barline by barline through
+ * From a session in its count-in with phrase 2 readied, move barline by barline through
  * phrases 1 to `phrases`, waiting at each phrase's first barline for the next phrase to be readied
  * (it is requested as that phrase starts sounding), and hand each settled reading to `check`
  * along with the reading of the barline before.

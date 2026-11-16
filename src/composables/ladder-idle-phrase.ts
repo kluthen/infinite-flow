@@ -82,7 +82,7 @@ export interface LadderIdlePhrase<TResult> {
   readonly dispose: () => void
 }
 
-/** Intent: the state of a phrase 1 at Idle before anything is written: idle, nothing shown. */
+/** The state of a phrase 1 at Idle before anything is written: idle, nothing shown. */
 function emptyState<TResult>(): IdlePhraseState<TResult> {
   return {
     latestIntent: null,
@@ -98,7 +98,7 @@ function emptyState<TResult>(): IdlePhraseState<TResult> {
 }
 
 /**
- * Intent: a phrase 1 at Idle written by climbing `options.ladder`. No rhythm combination ever
+ * A phrase 1 at Idle written by climbing `options.ladder`. No rhythm combination ever
  * blocks it (its controls show no rhythm control), so it never gives way to Empty. A writing asked
  * for while a phrase is drawn, or before the staff has reported its layout, is owed, the latest
  * one asked for replacing any owed before it, and runs as soon as both allow.
@@ -110,7 +110,7 @@ export function createLadderIdlePhrase<TResult, TGenerated>(
   options: LadderIdlePhraseOptions<TResult, TGenerated>,
 ): LadderIdlePhrase<TResult> {
   const state = shallowReactive<IdlePhraseState<TResult>>(emptyState())
-  /** Intent: no rhythm combination blocks it: its controls show no rhythm control. */
+  /** No rhythm combination blocks it: its controls show no rhythm control. */
   const notBlocked = (): boolean => false
 
   const notation = createNotationActions<TResult>({
@@ -150,7 +150,7 @@ export function createLadderIdlePhrase<TResult, TGenerated>(
   /** The writing or clearing asked for while it could not run yet; null with none. */
   let owed: { readonly writes: boolean; readonly act: () => void } | null = null
 
-  /** Intent: do `act` now if nothing holds it, else owe it, replacing whatever was owed. */
+  /** Do `act` now if nothing holds it, else owe it, replacing whatever was owed. */
   function whenFree(writes: boolean, act: () => void): void {
     if (state.operation === 'notating' || (writes && !laidOut)) owed = { writes, act }
     else {
@@ -159,7 +159,7 @@ export function createLadderIdlePhrase<TResult, TGenerated>(
     }
   }
 
-  /** Intent: the owed act, once a drawing has ended and, for a writing, the staff is laid out. */
+  /** The owed act, once a drawing has ended and, for a writing, the staff is laid out. */
   function payOwed(): void {
     if (owed === null || state.operation === 'notating' || (owed.writes && !laidOut)) return
     const { act } = owed
@@ -167,7 +167,7 @@ export function createLadderIdlePhrase<TResult, TGenerated>(
     act()
   }
 
-  /** Intent: one fit run, its outcome left to the state. */
+  /** One fit run, its outcome left to the state. */
   function runFrom(start: FitRunStart): void {
     void fitRunner.run(start)
   }

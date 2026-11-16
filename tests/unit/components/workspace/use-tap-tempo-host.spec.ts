@@ -33,7 +33,7 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-/** Intent: the host, Jam's code loaded and Jam mode showing at 100 BPM unless told. */
+/** The host, Jam's code loaded and Jam mode showing at 100 BPM unless told. */
 function host(loaded = true): Host {
   const jamModule = shallowRef<JamModeModule | null>(loaded ? jamMode : null)
   const jamShowing = shallowRef(loaded)
@@ -71,7 +71,7 @@ function host(loaded = true): Host {
   }
 }
 
-/** Intent: four presses of `tap-tempo` half a second apart on the audio clock: 120 BPM. */
+/** Four presses of `tap-tempo` half a second apart on the audio clock: 120 BPM. */
 function tapTo120(made: Host): void {
   for (let tap = 0; tap < 4; tap += 1) {
     if (tap > 0) made.clock.value += 0.5

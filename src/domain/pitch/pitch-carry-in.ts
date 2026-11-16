@@ -23,7 +23,7 @@ export const BEFORE_JOIN_POSITION = -1
 const WIDE = 3
 
 /**
- * Intent: the motion state a phrase's pitch search starts from: the empty first-release state
+ * The motion state a phrase's pitch search starts from: the empty first-release state
  * without carry-in, or, with one, the carried pitch as prior note with its open chain and any owed
  * recovery due on the first note. The note before the carried pitch is represented only by its
  * pitch and its place before the join; whether it was a chord tone is unknown and never read,

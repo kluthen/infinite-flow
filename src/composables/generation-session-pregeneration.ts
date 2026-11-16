@@ -18,7 +18,7 @@ export interface PregenerationSlot {
   readonly yieldToPlayer: () => void
 }
 
-/** Intent: an empty slot, holding at most one background attempt's abort at a time. */
+/** An empty slot, holding at most one background attempt's abort at a time. */
 // @spec-link [[module_idle_pregeneration_queue]]
 export function createPregenerationSlot(): PregenerationSlot {
   let held: (() => void) | null = null
@@ -39,7 +39,7 @@ export function createPregenerationSlot(): PregenerationSlot {
 }
 
 /**
- * Intent: the Idle flow's generate seam over `generate`: each player request first yields to the
+ * The Idle flow's generate seam over `generate`: each player request first yields to the
  * player, synchronously, aborting the background attempt in flight, then posts with no signal, so
  * it is never cancelled and never waits behind background work.
  */

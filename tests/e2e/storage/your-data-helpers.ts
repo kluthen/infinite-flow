@@ -56,7 +56,7 @@ export interface StorageStub {
 }
 
 /**
- * Intent: from the next load on, the browser's storage manager reports `stub`: an estimate whose
+ * From the next load on, the browser's storage manager reports `stub`: an estimate whose
  * IndexedDB part is `databaseBytes` (beside a larger offline copy, which the sheet must not count),
  * and `persisted()`; `setStorageStub` changes it in the page later.
  */
@@ -75,68 +75,68 @@ export async function stubStorageManager(page: Page, stub: StorageStub): Promise
   }, stub)
 }
 
-/** Intent: change what the stubbed storage manager reports, in the page. */
+/** Change what the stubbed storage manager reports, in the page. */
 export function setStorageStub(page: Page, stub: StorageStub): Promise<void> {
   return page.evaluate((next) => {
     ;(window as unknown as { __storageStub: StorageStub }).__storageStub = next
   }, stub)
 }
 
-/** Intent: the Your data sheet. */
+/** The Your data sheet. */
 export function yourDataSheet(page: Page): Locator {
   return page.getByRole('dialog')
 }
 
-/** Intent: the footer's `Your data`. */
+/** The footer's `Your data`. */
 export function footerYourData(page: Page): Locator {
   return page.locator('.layout-footer').getByRole('button', { name: 'Your data', exact: true })
 }
 
-/** Intent: the session list header's `Your data`. */
+/** The session list header's `Your data`. */
 export function listYourData(page: Page): Locator {
   return page.locator('.sessions-header').getByRole('button', { name: 'Your data', exact: true })
 }
 
-/** Intent: open the sheet from `opener`; it shows its Overview, focus on `Done`. */
+/** Open the sheet from `opener`; it shows its Overview, focus on `Done`. */
 export async function openYourData(page: Page, opener: Locator = footerYourData(page)) {
   await opener.click()
   await expect(yourDataSheet(page)).toHaveAccessibleName('Your data')
   await expect(sheetButton(page, 'Done')).toBeFocused()
 }
 
-/** Intent: the sheet's button named `name`, anywhere in it. */
+/** The sheet's button named `name`, anywhere in it. */
 export function sheetButton(page: Page, name: string): Locator {
   return yourDataSheet(page).getByRole('button', { name, exact: true })
 }
 
-/** Intent: the sheet's section headed `heading`. */
+/** The sheet's section headed `heading`. */
 export function section(page: Page, heading: string): Locator {
   return yourDataSheet(page)
     .locator('.sheet-section')
     .filter({ has: page.getByRole('heading', { name: heading, exact: true }) })
 }
 
-/** Intent: the plain lines of the section headed `heading`, hints included, in order. */
+/** The plain lines of the section headed `heading`, hints included, in order. */
 export function sectionLines(page: Page, heading: string): Promise<string[]> {
   return section(page, heading).locator('p').allInnerTexts()
 }
 
-/** Intent: the headings of the sheet's sections, in order. */
+/** The headings of the sheet's sections, in order. */
 export function sectionHeadings(page: Page): Promise<string[]> {
   return yourDataSheet(page).locator('.sheet-section > h3').allInnerTexts()
 }
 
-/** Intent: the names the Presets section lists, one per row, in order. */
+/** The names the Presets section lists, one per row, in order. */
 export function presetRowNames(page: Page): Promise<string[]> {
   return section(page, 'Presets').locator('.sheet-list-row > span').allInnerTexts()
 }
 
-/** Intent: the `Delete` of the Presets row of the preset named `name`, by its accessible name. */
+/** The `Delete` of the Presets row of the preset named `name`, by its accessible name. */
 export function presetDelete(page: Page, name: string): Locator {
   return sheetButton(page, `Delete preset ${name}`)
 }
 
-/** Intent: the sheet's buttons' names, in order. */
+/** The sheet's buttons' names, in order. */
 export function sheetButtons(page: Page): Promise<string[]> {
   return yourDataSheet(page)
     .getByRole('button')
@@ -145,7 +145,7 @@ export function sheetButtons(page: Page): Promise<string[]> {
     )
 }
 
-/** Intent: open the Confirmation of `button`; its title is `title`, focus on its way back. */
+/** Open the Confirmation of `button`; its title is `title`, focus on its way back. */
 export async function askConfirmation(
   page: Page,
   button: string,
@@ -161,12 +161,12 @@ export async function askConfirmation(
   ).toBeFocused()
 }
 
-/** Intent: the open Confirmation's confirming action. */
+/** The open Confirmation's confirming action. */
 export function confirmingAction(page: Page): Locator {
   return yourDataSheet(page).locator('.sheet-actions .btn-error')
 }
 
-/** Intent: the keys a kept-session store holds, through the harness's seam. */
+/** The keys a kept-session store holds, through the harness's seam. */
 export async function storedKeys(
   page: Page,
   store: (typeof KEPT_STORES)[number],
@@ -178,13 +178,13 @@ export async function storedKeys(
   return records.map((record) => record.key)
 }
 
-/** Intent: the keys the three kept-session stores hold, by store. */
+/** The keys the three kept-session stores hold, by store. */
 export async function keptKeys(page: Page): Promise<Record<string, string[]>> {
   const keys = await Promise.all(KEPT_STORES.map((store) => storedKeys(page, store)))
   return Object.fromEntries(KEPT_STORES.map((store, index) => [store, keys[index] ?? []]))
 }
 
-/** Intent: the save policy's saving state. */
+/** The save policy's saving state. */
 export function savingState(page: Page): Promise<string | null> {
   return page.evaluate(() => window.__workspaceHarness.storage.savingState())
 }
@@ -201,17 +201,17 @@ export const LOW_TENOR = {
 /** The session list's empty state. */
 export const EMPTY_LIST = 'No sessions are kept. Your next session will be kept here.'
 
-/** Intent: the keys of the kept sessions stored now. */
+/** The keys of the kept sessions stored now. */
 export function summaryKeys(page: Page): Promise<string[]> {
   return storedKeys(page, 'sessionSummaries')
 }
 
-/** Intent: the most recent session as the controller holds it. */
+/** The most recent session as the controller holds it. */
 export async function mostRecent(page: Page): Promise<unknown> {
   return (await sessionState(page)).mostRecent
 }
 
-/** Intent: close the sheet with `Done`; focus returns to `opener`. */
+/** Close the sheet with `Done`; focus returns to `opener`. */
 export async function closeWithDone(page: Page, opener = footerYourData(page)): Promise<void> {
   await sheetButton(page, 'Done').click()
   await expect(yourDataSheet(page)).toHaveCount(0)

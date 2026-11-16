@@ -68,27 +68,27 @@ const SETTLE_MS = 300
 const STORAGE_FULL =
   "This device has no room left for the app's data, so something couldn't be saved. Deleting sessions you no longer need frees space."
 
-/** Intent: the notice row's notices. */
+/** The notice row's notices. */
 function notices(page: Page): Locator {
   return page.locator('.layout-workspace > .app-notice-row > .app-notice')
 }
 
-/** Intent: the changes that reached the storage port since the load (the write spy). */
+/** The changes that reached the storage port since the load (the write spy). */
 function portChanges(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.storage.portChanges())
 }
 
-/** Intent: the save policy's saving state. */
+/** The save policy's saving state. */
 function savingState(page: Page): Promise<string | null> {
   return page.evaluate(() => window.__workspaceHarness.storage.savingState())
 }
 
-/** Intent: the selection the session holds now. */
+/** The selection the session holds now. */
 async function selection(page: Page): Promise<WorkspaceHarnessPresetSelection> {
   return (await harnessSnapshot(page)).selection
 }
 
-/** Intent: the id of the player preset selected now; another selection is a failure. */
+/** The id of the player preset selected now; another selection is a failure. */
 async function selectedId(page: Page): Promise<string> {
   const now = await selection(page)
   if (now.kind !== 'preset') throw new Error(`no preset is selected: ${JSON.stringify(now)}`)
@@ -281,7 +281,7 @@ test('a Save changes first in the visit asks for persistent storage once', async
   await expect.poll(() => persistCalls(page)).toBe(1)
 })
 
-/** Intent: in a visit that saves nothing: a preset made and renamed is usable; nothing is written. */
+/** In a visit that saves nothing: a preset made and renamed is usable; nothing is written. */
 async function expectPresetsLastForThePage(page: Page): Promise<void> {
   const stored = await databaseRecords(page)
   const changes = await portChanges(page)

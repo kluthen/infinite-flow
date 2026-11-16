@@ -7,7 +7,7 @@
 import type { GenerationWorkerPort } from './generation-worker-client'
 
 /**
- * Intent: create one real module Worker running ./generation.worker.ts as a GenerationWorkerPort;
+ * Create one real module Worker running ./generation.worker.ts as a GenerationWorkerPort;
  * the workspace's generation worker client calls it as its worker factory.
  */
 // @spec-link [[service_workspace_session_runner_factory]]

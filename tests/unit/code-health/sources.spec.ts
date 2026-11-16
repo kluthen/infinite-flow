@@ -16,7 +16,7 @@ import {
   parseSource,
 } from '../../../scripts/code-health/sources.mjs'
 
-/** Intent: the `index`-th top-level statement of the `blockIndex`-th script block of a file. */
+/** The `index`-th top-level statement of the `blockIndex`-th script block of a file. */
 function statementOf(path: string, text: string, blockIndex: number, index: number) {
   const block = parseSource(path, text).blocks[blockIndex]
   const statement = block?.sourceFile.statements[index]

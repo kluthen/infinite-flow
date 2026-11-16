@@ -39,7 +39,7 @@ export interface SessionLockAndGroups {
 }
 
 /**
- * Intent: a frozen copy of the allowed rhythm changes; a list that is not known kinds, each once,
+ * A frozen copy of the allowed rhythm changes; a list that is not known kinds, each once,
  * in RHYTHM_CHANGE_KINDS order, is a caller defect and throws.
  */
 function checkedRhythmChanges(kinds: readonly RhythmChangeKind[]): readonly RhythmChangeKind[] {
@@ -53,7 +53,7 @@ function checkedRhythmChanges(kinds: readonly RhythmChangeKind[]): readonly Rhyt
   return deepFreeze([...kinds])
 }
 
-/** Intent: a frozen copy of the allowed groups; anything but the six, each a boolean, throws. */
+/** A frozen copy of the allowed groups; anything but the six, each a boolean, throws. */
 function checkedGroups(groups: AllowedGroups): AllowedGroups {
   const keys = Object.keys(groups)
   const exact =
@@ -67,7 +67,7 @@ function checkedGroups(groups: AllowedGroups): AllowedGroups {
 }
 
 /**
- * Intent: build the page's three choices over the session's phase, read reactively, starting from
+ * Build the page's three choices over the session's phase, read reactively, starting from
  * `saved`: the player's saved choices, loaded before the first draw (the lock off, no change
  * allowed and all six groups allowed on a first visit or for an unreadable record). They are held
  * in memory for the controller's life, the page's, kept from one session to the next, and never
@@ -87,7 +87,7 @@ export function createSessionLockAndGroups(
   const allowedRhythmChanges = shallowRef(checkedRhythmChanges(saved.allowedRhythmChanges))
   const allowedGroups = shallowRef(checkedGroups(saved.allowedGroups))
 
-  /** Intent: refuse a change during the count-in or a running session. */
+  /** Refuse a change during the count-in or a running session. */
   function requireIdle(choice: string): void {
     if (phase() !== 'idle')
       throw new SessionControllerError(`${choice}: it cannot change during a session`)
@@ -117,7 +117,7 @@ export function createSessionLockAndGroups(
 }
 
 /**
- * Intent: the settings a session started now would take: the Idle controls, figure levels,
+ * The settings a session started now would take: the Idle controls, figure levels,
  * Seventh chords level and preset selection with the three choices, my instrument's profile taken
  * from phrase 1's intent,
  * which embeds it, and the restriction in force frozen in from the presets Idle knows. Start and

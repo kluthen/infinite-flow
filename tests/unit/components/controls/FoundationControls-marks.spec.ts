@@ -25,7 +25,7 @@ const REEL: PresetSelection = { kind: 'preset', presetId: 'reel' }
 const REEL_NOTE =
   'Reel is meant for Mixolydian or Dorian, marked. Any mode works; another one makes your settings Custom.'
 
-/** Intent: the foundation group showing `key` and `mode` with `selection`, and the start settings. */
+/** The foundation group showing `key` and `mode` with `selection`, and the start settings. */
 function mountGroup(
   selection: PresetSelection,
   key: PitchClass,
@@ -53,12 +53,12 @@ function mountGroup(
 
 type Group = ReturnType<typeof mountGroup>
 
-/** Intent: one control's radiogroup, by its label. */
+/** One control's radiogroup, by its label. */
 function radiogroup(wrapper: Group, label: 'Written key' | 'Collection') {
   return wrapper.get(`[role="radiogroup"][aria-label="${label}"]`)
 }
 
-/** Intent: the values (segment labels) of one control's marked segments. */
+/** The values (segment labels) of one control's marked segments. */
 function marked(wrapper: Group, label: 'Written key' | 'Collection'): string[] {
   return radiogroup(wrapper, label)
     .findAll('[role="radio"]')
@@ -66,14 +66,14 @@ function marked(wrapper: Group, label: 'Written key' | 'Collection'): string[] {
     .map((radio) => radio.text())
 }
 
-/** Intent: the note one control's radiogroup names, or null when it names none. */
+/** The note one control's radiogroup names, or null when it names none. */
 function note(wrapper: Group, label: 'Written key' | 'Collection'): string | null {
   const id = radiogroup(wrapper, label).attributes('aria-describedby')
   if (id === undefined) return null
   return wrapper.get(`[id="${id}"]`).text()
 }
 
-/** Intent: the texts of the group's notes but the Seventh chords note, which always shows. */
+/** The texts of the group's notes but the Seventh chords note, which always shows. */
 function markNotes(wrapper: Group): string[] {
   return wrapper
     .findAll('.field-note')
@@ -81,7 +81,7 @@ function markNotes(wrapper: Group): string[] {
     .filter((text) => text !== SEVENTH_CHORDS_NOTE)
 }
 
-/** Intent: the Written key and Collection marks and notes, for one comparison. */
+/** The Written key and Collection marks and notes, for one comparison. */
 function marksOf(wrapper: Group) {
   return {
     writtenKey: { marked: marked(wrapper, 'Written key'), note: note(wrapper, 'Written key') },

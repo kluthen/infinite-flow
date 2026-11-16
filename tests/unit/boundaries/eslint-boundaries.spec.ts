@@ -44,7 +44,7 @@ beforeAll(() => {
   })
 })
 
-/** Intent: lint `code` as though it were the authored file at `src/<relativePath>`. */
+/** Lint `code` as though it were the authored file at `src/<relativePath>`. */
 async function lintAsSource(relativePath: string, code: string): Promise<Linter.LintMessage[]> {
   const [result] = await eslint.lintText(code, {
     filePath: join(repositoryRoot, 'src', relativePath),
@@ -53,14 +53,14 @@ async function lintAsSource(relativePath: string, code: string): Promise<Linter.
   return result.messages
 }
 
-/** Intent: lint one fixture file at its mirrored `src/` path. */
+/** Lint one fixture file at its mirrored `src/` path. */
 async function lintFixture(relativePath: string): Promise<Linter.LintMessage[]> {
   const code = await readFile(new URL(relativePath, fixtureSourceRoot), 'utf8')
   return lintAsSource(relativePath, code)
 }
 
 /**
- * Intent: assert that every message is a boundary-rule error carrying the expected explanation, and
+ * Assert that every message is a boundary-rule error carrying the expected explanation, and
  * that there are exactly `count` of them (so a parse error or an unrelated rule cannot pass).
  */
 function expectBoundaryErrors(
@@ -238,7 +238,7 @@ describe('eslint.config.js keeps src/session/ and src/export/ from importing src
     "import { openStoragePort } from '../storage/database'",
   ]
 
-  /** Intent: lint a probe file that makes `importStatement` and re-exports what it imported. */
+  /** Lint a probe file that makes `importStatement` and re-exports what it imported. */
   async function lintImport(
     relativePath: string,
     importStatement: string,
@@ -246,7 +246,7 @@ describe('eslint.config.js keeps src/session/ and src/export/ from importing src
     return lintAsSource(relativePath, `${importStatement}\nexport const probe = openStoragePort\n`)
   }
 
-  /** Intent: assert exactly one no-restricted-imports error carrying the expected explanation. */
+  /** Assert exactly one no-restricted-imports error carrying the expected explanation. */
   function expectRestrictedImport(messages: Linter.LintMessage[], explanation: RegExp): void {
     expect(messages).toHaveLength(1)
     const [message] = messages
@@ -308,7 +308,7 @@ describe("eslint.config.js keeps Jam's code (src/jam/) behind its loader", () =>
     "import { quantizeDoodle as probed } from '../jam/doodle-quantizer'",
   ]
 
-  /** Intent: lint a probe file that makes `importStatement` and re-exports what it imported. */
+  /** Lint a probe file that makes `importStatement` and re-exports what it imported. */
   async function lintImport(
     relativePath: string,
     importStatement: string,
@@ -316,7 +316,7 @@ describe("eslint.config.js keeps Jam's code (src/jam/) behind its loader", () =>
     return lintAsSource(relativePath, `${importStatement}\nexport const probe = probed\n`)
   }
 
-  /** Intent: assert exactly one typescript-eslint no-restricted-imports error for src/jam/. */
+  /** Assert exactly one typescript-eslint no-restricted-imports error for src/jam/. */
   function expectRestrictedJamImport(messages: Linter.LintMessage[]): void {
     expect(messages).toHaveLength(1)
     const [message] = messages

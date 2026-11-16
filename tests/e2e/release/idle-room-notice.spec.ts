@@ -39,7 +39,7 @@ const PHONE = { width: 740, height: 360 }
 /** Below bp-tablet-landscape and too short for the split staff at the legibility floor. */
 const TOO_SHORT = { width: 740, height: 260 }
 
-/** Intent: wait for the session to show the notice with this cause, then to idle. */
+/** Wait for the session to show the notice with this cause, then to idle. */
 async function awaitNotice(page: Page, cause: 'no_room' | 'notes_too_wide'): Promise<void> {
   await expect
     .poll(async () => (await harnessSnapshot(page)).roomNotice, { timeout: 30_000 })
@@ -49,7 +49,7 @@ async function awaitNotice(page: Page, cause: 'no_room' | 'notes_too_wide'): Pro
   await expect(roomNotice(page)).toBeVisible()
 }
 
-/** Intent: assert the no-room notice shows the sentence for the current breakpoint only. */
+/** Assert the no-room notice shows the sentence for the current breakpoint only. */
 async function expectNoRoomSentence(page: Page, sentence: string): Promise<void> {
   expect(await roomNoticeSentence(page)).toBe(sentence)
   await expect(page.locator('.notation-status')).toHaveText(sentence)
@@ -61,7 +61,7 @@ async function expectNoRoomSentence(page: Page, sentence: string): Promise<void>
   await expect(roomNotice(page).locator(hidden)).toBeHidden()
 }
 
-/** Intent: wait for a new phrase with this seed, drawn after the notice cleared by itself. */
+/** Wait for a new phrase with this seed, drawn after the notice cleared by itself. */
 async function awaitNewPhrase(page: Page, seed: number): Promise<void> {
   await expect.poll(async () => (await harnessSnapshot(page)).seed, { timeout: 30_000 }).toBe(seed)
   await awaitIdle(page)

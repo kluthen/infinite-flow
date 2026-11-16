@@ -23,7 +23,7 @@ import type {
 import { COLLECTIONS, HARMONIC_MOTIONS, TENSION_ARCS } from '@/domain/controls/generation-controls'
 import { seventhOf } from './seventh-chord-fixtures'
 
-/** Intent: the structural domain for one harmony setting, which must not be empty. */
+/** The structural domain for one harmony setting, which must not be empty. */
 function domainFor(input: Partial<HarmonyPlannerInput>): HarmonyCandidateDomain {
   const domain = makeHarmonyCandidateDomain({
     tonalCenter: 'C',
@@ -36,14 +36,14 @@ function domainFor(input: Partial<HarmonyPlannerInput>): HarmonyCandidateDomain 
   return domain
 }
 
-/** Intent: the carried harmony a phrase planned from `candidate` hands forward. */
+/** The carried harmony a phrase planned from `candidate` hands forward. */
 function carriedFrom(candidate: HarmonyCandidate): CarriedHarmony {
   const final = candidate.events.at(-1)!
   return { triad: final.triad, role: final.role, endpoint: candidate.endpoint }
 }
 
 /**
- * Intent: after each chord a candidate of `domain` ends on, every candidate of `domain` is kept in
+ * After each chord a candidate of `domain` ends on, every candidate of `domain` is kept in
  * order and follows that carried chord from a tonic opening.
  */
 function expectEveryCandidateFollowsItsOwnEndings(domain: HarmonyCandidateDomain): void {
@@ -92,7 +92,7 @@ describe('harmony starting from the carried chord', () => {
   })
 })
 
-/** Intent: the carried chord with the seventh of its own degree in the domain's collection. */
+/** The carried chord with the seventh of its own degree in the domain's collection. */
 function asSeventhChord(carried: CarriedHarmony, domain: HarmonyCandidateDomain): CarriedHarmony {
   return { ...carried, seventh: seventhOf(carried.triad.degree, domain.collection) }
 }

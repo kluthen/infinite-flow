@@ -33,7 +33,7 @@ afterEach(() => {
   mounted = null
 })
 
-/** Intent: mount the prompt the controller shows, opened by `opener`, naming `changed`. */
+/** Mount the prompt the controller shows, opened by `opener`, naming `changed`. */
 function mountPrompt(
   changed: readonly StaleSetting[] = ['tonalCenter'],
   opener: Prompt['opener'] = 'start',
@@ -54,12 +54,12 @@ function mountPrompt(
   return { wrapper, fake, ...spies }
 }
 
-/** Intent: the sheet's paragraphs, in order. */
+/** The sheet's paragraphs, in order. */
 function paragraphs(wrapper: VueWrapper): string[] {
   return wrapper.findAll('.sheet-body p').map((p) => p.text())
 }
 
-/** Intent: the button labelled `label`. */
+/** The button labelled `label`. */
 function button(wrapper: VueWrapper, label: string): HTMLButtonElement {
   const found = wrapper.findAll('button').find((entry) => entry.text() === label)
   if (found === undefined) throw new Error(`no ${label} button`)

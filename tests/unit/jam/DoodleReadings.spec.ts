@@ -27,19 +27,19 @@ function readings(overrides: Partial<Readings> = {}): Readings {
   }
 }
 
-/** Intent: mount the list with these readings at a wide window unless told narrow. */
+/** Mount the list with these readings at a wide window unless told narrow. */
 function mountReadings(shown: Readings | null, belowTabletLandscape = false) {
   return mount(DoodleReadings, { props: { readings: shown, belowTabletLandscape } })
 }
 
-/** Intent: each line as "name: value", in the order shown. */
+/** Each line as "name: value", in the order shown. */
 function lines(wrapper: ReturnType<typeof mountReadings>): string[] {
   return wrapper
     .findAll('.doodle-readings > div')
     .map((row) => `${row.get('dt').text()}: ${row.get('dd').text()}`)
 }
 
-/** Intent: the rhythmic variety line's value. */
+/** The rhythmic variety line's value. */
 function varietyLine(wrapper: ReturnType<typeof mountReadings>): string {
   const row = wrapper
     .findAll('.doodle-readings > div')

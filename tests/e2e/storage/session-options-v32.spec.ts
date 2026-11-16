@@ -66,12 +66,12 @@ const DEFAULTS = {
 /** The session seed phrase 1 is published with in the pre-generation cases. */
 const SESSION_SEED = 4242
 
-/** Intent: how many writes, deletes and batches have reached the app's storage port. */
+/** How many writes, deletes and batches have reached the app's storage port. */
 function portChanges(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.storage.portChanges())
 }
 
-/** Intent: the three v3.2 choices the controller holds now. */
+/** The three v3.2 choices the controller holds now. */
 async function v32Choices(
   page: Page,
 ): Promise<Pick<SessionOptionChoices, 'rhythmLockOn' | 'allowedRhythmChanges' | 'allowedGroups'>> {
@@ -80,7 +80,7 @@ async function v32Choices(
 }
 
 /**
- * Intent: make one change through the controls and assert it writes exactly one batch to the
+ * Make one change through the controls and assert it writes exactly one batch to the
  * store, holding `key` set to `value` and changing no other record.
  */
 async function expectWritesOnly(
@@ -102,7 +102,7 @@ async function expectWritesOnly(
 }
 
 /**
- * Intent: try to activate a read-only control both ways a player's click could reach it: a real
+ * Try to activate a read-only control both ways a player's click could reach it: a real
  * click at its place (forced, as the read-only group takes the pointer there) and a click event
  * dispatched on the control itself.
  */
@@ -335,25 +335,25 @@ interface DiscardCase {
 const DISCARD_CASES: readonly DiscardCase[] = [
   {
     name: 'the lock turned on',
-    /** Intent: nothing to set first: the lock starts off. */
+    /** Nothing to set first: the lock starts off. */
     prepare: async () => undefined,
-    /** Intent: turn the lock on. */
+    /** Turn the lock on. */
     apply: (page) => setRhythmLock(page, true),
     lockGroup: { state: 'locked', allowedChanges: [], tenserPhrase: false },
   },
   {
     name: 'an allowed change turned on',
-    /** Intent: turn the lock on, so its toggles show. */
+    /** Turn the lock on, so its toggles show. */
     prepare: (page) => setRhythmLock(page, true),
-    /** Intent: allow `Move a note`. */
+    /** Allow `Move a note`. */
     apply: (page) => flipChange(page, 'Move a note'),
     lockGroup: { state: 'locked', allowedChanges: ['move_note_start'], tenserPhrase: false },
   },
   {
     name: 'a group turned off',
-    /** Intent: turn Vary settings on, so its groups show. */
+    /** Turn Vary settings on, so its groups show. */
     prepare: (page) => setVarySettings(page, true),
-    /** Intent: turn the Harmony group off. */
+    /** Turn the Harmony group off. */
     apply: (page) => flipGroup(page, 'Harmony'),
     lockGroup: null,
   },

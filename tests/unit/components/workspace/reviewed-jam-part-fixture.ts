@@ -37,7 +37,7 @@ const DOODLE_CONTROLS = readDoodleControls(
   ),
 )
 
-/** Intent: a fresh Jam's Jam part, its raw doodle notes `RAW_DOODLE_NOTES` unless given. */
+/** A fresh Jam's Jam part, its raw doodle notes `RAW_DOODLE_NOTES` unless given. */
 export function reviewedJamPart(
   rawDoodleNotes: readonly RecordedPlayedNote[] = RAW_DOODLE_NOTES,
 ): ReviewedJamPart {
@@ -57,7 +57,7 @@ export function reviewedJamPart(
 }
 
 /**
- * Intent: the history of the Jam-style session as its save and review read it, its phrases
+ * The history of the Jam-style session as its save and review read it, its phrases
  * holding played notes or none, played on the C keyboard.
  */
 export function jamHistory(playedInPhrases: boolean): ReturnType<typeof historyOf> & {
@@ -76,7 +76,7 @@ export function jamHistory(playedInPhrases: boolean): ReturnType<typeof historyO
 }
 
 /**
- * Intent: the Jam part a Jam on the fixture's doodle, kept, gives at its end, its phrase 1
+ * The Jam part a Jam on the fixture's doodle, kept, gives at its end, its phrase 1
  * starting at `phraseOneAt` on the audio clock, its suggestion declined or not.
  */
 export function keptDoodleJamPart(

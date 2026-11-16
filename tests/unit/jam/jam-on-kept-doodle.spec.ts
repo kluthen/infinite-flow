@@ -23,19 +23,19 @@ import { lift, press, unplugKeys } from '../components/workspace/session-control
 import { loadDoodleSet } from './doodle-set'
 import { keptDoodleJamRig, type KeptDoodleJamRig } from './kept-doodle-jam-rig'
 
-/** Intent: the time phrase `n` starts sounding, from the count-in's end of the Jam started. */
+/** The time phrase `n` starts sounding, from the count-in's end of the Jam started. */
 function phraseStart(run: KeptDoodleJamRig, n: number): number {
   return countInEnd(run) + (n - 1) * 4
 }
 
-/** Intent: the count-in's end of the Jam started on the rig: its runner's start plus a measure. */
+/** The count-in's end of the Jam started on the rig: its runner's start plus a measure. */
 function countInEnd(run: KeptDoodleJamRig): number {
   const input = run.rig.runnerInputs[0]
   if (input === undefined) throw new Error('no Jam on the kept doodle was started')
   return input.start.at + 1
 }
 
-/** Intent: every phrase intent the Jam asked for or was handed, phrase 2 on. */
+/** Every phrase intent the Jam asked for or was handed, phrase 2 on. */
 function laterIntents(run: KeptDoodleJamRig) {
   return [
     ...outputsOf(run.rig, 'request-generation').map((request) => request.intent),

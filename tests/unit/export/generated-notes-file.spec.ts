@@ -65,7 +65,7 @@ const EVERY_REQUEST: readonly GeneratedNotesRequest[] = [
 const TICKS_PER_WHOLE_NOTE = 3840
 const TICKS_PER_PHRASE = 4 * TICKS_PER_WHOLE_NOTE
 
-/** Intent: a real session of `phraseCount` phrases recorded through the session runner. */
+/** A real session of `phraseCount` phrases recorded through the session runner. */
 function recordedSession(
   instrumentProfileId: InstrumentProfileId,
   seed: number,
@@ -81,7 +81,7 @@ function recordedSession(
   })
 }
 
-/** Intent: a backing note's tick span in the file, from its phrase's position and its own times. */
+/** A backing note's tick span in the file, from its phrase's position and its own times. */
 function expectedBackingNotes(records: readonly SessionHistoryRecord[]) {
   return records.flatMap((record, position) => {
     const { bass, chords } = renderBacking(
@@ -98,7 +98,7 @@ function expectedBackingNotes(records: readonly SessionHistoryRecord[]) {
   })
 }
 
-/** Intent: the recorded phrase with every harmony event in seventh form, its collection's seventh. */
+/** The recorded phrase with every harmony event in seventh form, its collection's seventh. */
 function inSeventhForm(record: SessionHistoryRecord): SessionHistoryRecord {
   const { tonalCenter, collection } = record.intent.controls
   const harmonyCollection = makeHarmonyCollection(tonalCenter, collection)
@@ -113,7 +113,7 @@ function inSeventhForm(record: SessionHistoryRecord): SessionHistoryRecord {
   }
 }
 
-/** Intent: the harmony event of a phrase holding a beat counted from the phrase's start. */
+/** The harmony event of a phrase holding a beat counted from the phrase's start. */
 function eventHolding(events: readonly HarmonyEvent[], beat: number): HarmonyEvent {
   const found = events.find((event) => {
     const start = event.barIndex * 4 + event.startBeat
@@ -123,7 +123,7 @@ function eventHolding(events: readonly HarmonyEvent[], beat: number): HarmonyEve
   return found
 }
 
-/** Intent: a list of tick spans in one canonical order, for comparing as sets. */
+/** A list of tick spans in one canonical order, for comparing as sets. */
 function sortedSpans(spans: readonly { pitch: number; startTick: number; endTick: number }[]) {
   return [...spans].sort(
     (a, b) => a.startTick - b.startTick || a.pitch - b.pitch || a.endTick - b.endTick,
@@ -257,7 +257,7 @@ describe('the backing track of recorded sessions', () => {
 const PLAYED_ONSETS: readonly number[] = [1.25, 2.5, 5.1, 6, 9.2]
 
 /**
- * Intent: a real three-phrase session at 240 BPM (a 1 s measure: phrase 1 from 1 s, phrase 2 from
+ * A real three-phrase session at 240 BPM (a 1 s measure: phrase 1 from 1 s, phrase 2 from
  * 5 s, phrase 3 from 9 s, Stop at 10 s), its outputs fed in order into a fresh history, with the
  * given played notes recorded before the end.
  */
@@ -288,7 +288,7 @@ function historyOfDriver(
   return history
 }
 
-/** Intent: the outputs of a three-phrase session at 240 BPM, each phrase accepted in time. */
+/** The outputs of a three-phrase session at 240 BPM, each phrase accepted in time. */
 function threePhraseDriver(): SessionDriver {
   const settings = sessionSettings({ tempo: 240, instrumentProfileId: 'eb-alto' })
   const driver = new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
@@ -351,17 +351,17 @@ const DISTINCTIVE_RAW_NOTES = [
   { pitch: makeConcertPitch(98), velocity: 17, onsetAt: 2.25, releaseAt: 2.5 },
 ]
 
-/** Intent: whether `bytes` holds `first` directly followed by `second` anywhere. */
+/** Whether `bytes` holds `first` directly followed by `second` anywhere. */
 function holdsBytePair(bytes: Uint8Array, first: number, second: number): boolean {
   return bytes.some((byte, index) => byte === first && bytes[index + 1] === second)
 }
 
-/** Intent: the doodle section of the Jam-style session, from its Jam part's doodle. */
+/** The doodle section of the Jam-style session, from its Jam part's doodle. */
 function jamDoodleSection(doodle: SessionDoodle = reviewedJamPart().doodle): ExportDoodleSection {
   return exportDoodleSection(doodle, jamHistory(false).phrases()[0]!)
 }
 
-/** Intent: a scope's name in an assertion message. */
+/** A scope's name in an assertion message. */
 function scopeName(scope: ExportScope): string {
   return scope.kind === 'wholeSession' ? 'whole session' : 'favorites only'
 }
@@ -557,7 +557,7 @@ describe('generatedNotesFileName', () => {
   })
 })
 
-/** Intent: the records of the three-phrase session, without played notes. */
+/** The records of the three-phrase session, without played notes. */
 function threeRecords(): readonly SessionHistoryRecord[] {
   const driver = threePhraseDriver()
   return historyOfDriver(driver.log, driver, []).phrases()

@@ -49,7 +49,7 @@ export interface SessionEnds {
 }
 
 /**
- * Intent: undo everything a start set up: no more wake-ups or scheduled events, the audio
+ * Undo everything a start set up: no more wake-ups or scheduled events, the audio
  * faded out (unless the transport already ended its own session), both locks released, the
  * display's frame loop stopped and the staff left to Idle, the session state back to Idle, the
  * player's saves the start held released (each end and each undone start tears down once), the
@@ -90,7 +90,7 @@ function tearDown(core: SessionControllerCore, session: ActiveSession | null): v
 }
 
 /**
- * Intent: build the ends of one controller's sessions over its core; an end once phrase 1 has
+ * Build the ends of one controller's sessions over its core; an end once phrase 1 has
  * sounded hands the tempo reached to the adaptive-tempo flag, its save keeps the played notes as
  * `Keep my played notes` says then, and a save the device refused hands its session's history on
  * for the retry. A save that succeeds adds the session's row to `rows` and removes those of the
@@ -109,7 +109,7 @@ export function createSessionEnds(
   let hearsInterruptions = false
 
   /**
-   * Intent: end the running session for `cause`, the one path every end takes: the notes still
+   * End the running session for `cause`, the one path every end takes: the notes still
    * held end now and are recorded, the engine gets `end` (its `ended` output closes the history),
    * then the session is torn down and summed up, a Jam that sounded phrase 1 with its Jam part and
    * the key minted for its save, before anything else of its end. Once phrase 1 has sounded, the
@@ -197,7 +197,7 @@ export function createSessionEnds(
   }
 
   /**
-   * Intent: once the save of `ended` resolves, keep that session as its outcome says, in the most
+   * Once the save of `ended` resolves, keep that session as its outcome says, in the most
    * recent session and in the Review while it draws that session (each found by the session's
    * key, as a change made since may have replaced them); a later session that has taken its place
    * since is left alone.
@@ -216,7 +216,7 @@ export function createSessionEnds(
   }
 
   /**
-   * Intent: surface a programming error loudly, as the workspace does with any unexpected error
+   * Surface a programming error loudly, as the workspace does with any unexpected error
    * (it propagates, uncaught): end `session` first if it is still the running one, so nothing keeps
    * sounding, then throw. A late error from an earlier session never ends a later one.
    */
@@ -237,7 +237,7 @@ export function createSessionEnds(
   }
 
   /**
-   * Intent: undo a start that threw part-way, then throw its error on: a runner already built gets
+   * Undo a start that threw part-way, then throw its error on: a runner already built gets
    * `end`, so its pending answers change nothing, and everything acquired is torn down as at any
    * end; no end summary is recorded, as the session never fully started. A failure while undoing
    * is thrown together with the start's.
@@ -265,13 +265,13 @@ export function createSessionEnds(
     throw error
   }
 
-  /** Intent: end `session` for `cause` if it is still the running one; a later cause does nothing. */
+  /** End `session` for `cause` if it is still the running one; a later cause does nothing. */
   function endIfRunning(session: ActiveSession, cause: SessionEndCause): void {
     if (core.active === session) end(cause)
   }
 
   /**
-   * Intent: listen, once for the controller's life, for the browser interrupting the audio (the
+   * Listen, once for the controller's life, for the browser interrupting the audio (the
    * transport has no way to stop listening): it ends whichever session runs then, like Stop.
    */
   // @spec-link [[rule_stop_ends_session]]

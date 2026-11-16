@@ -27,7 +27,7 @@ export class ConcertPitchError extends Error {
 }
 
 /**
- * Intent: validate a raw number as a plausible integer MIDI pitch in [0, 127] and brand it as a
+ * Validate a raw number as a plausible integer MIDI pitch in [0, 127] and brand it as a
  * ConcertPitch. This is the only way to obtain a ConcertPitch from a plain number; out-of-range
  * or non-integer input is rejected loudly rather than clamped, wrapped, or coerced.
  */
@@ -45,7 +45,7 @@ export function makeConcertPitch(value: number): ConcertPitch {
 }
 
 /**
- * Intent: parse an untrusted boundary value into a ConcertPitch. Rejects any non-number input
+ * Parse an untrusted boundary value into a ConcertPitch. Rejects any non-number input
  * (including null/undefined/strings) as a typed failure before delegating range validation to
  * makeConcertPitch, never coercing a string or nullish value into a number.
  */

@@ -45,7 +45,7 @@ const CONTEXT: MutationContext = mutationContextAtStart(phraseOneFor(ONLY_RHYTHM
 const APP_VERSION = '3.2.0-test'
 
 /**
- * Intent: the first mutation seed whose first two mutations, drawn from the unlocked settings,
+ * The first mutation seed whose first two mutations, drawn from the unlocked settings,
  * differ, so a second mutation drawn from the first one's stream would show.
  */
 function seedWithDistinctFirstMoves(): number {
@@ -58,7 +58,7 @@ function seedWithDistinctFirstMoves(): number {
 }
 
 /**
- * Intent: a fast session started on ONLY_RHYTHM with Vary settings on: the rhythm lock turned on
+ * A fast session started on ONLY_RHYTHM with Vary settings on: the rhythm lock turned on
  * in the count-in (in effect from phrase 3), turned off again once phrase `unlockAfter` sounds,
  * every phrase answered with its real outcome, run until phrase `lastSounding` sounds, then ended.
  */
@@ -82,7 +82,7 @@ function lockedSession(seed: number, unlockAfter: number, lastSounding: number):
   return driver
 }
 
-/** Intent: a history of the session fed `outputs` in order, as the session controller feeds it. */
+/** A history of the session fed `outputs` in order, as the session controller feeds it. */
 function historyOf(driver: SessionDriver, outputs: readonly SessionOutput[]) {
   const history = createSessionHistory(
     driver.settings,

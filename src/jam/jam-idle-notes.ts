@@ -67,7 +67,7 @@ export interface JamKeptPhraseOne {
 export type JamNoteMeaning = 'start' | 'tap' | 'ignored'
 
 /**
- * Intent: how far the instrument writes above concert pitch, in semitones (written = concert +
+ * How far the instrument writes above concert pitch, in semitones (written = concert +
  * this): my instrument's own transposition when it is selected, else the built-in profile's. A
  * selection naming an instrument that does not exist is a caller defect and throws.
  */
@@ -84,7 +84,7 @@ function writtenAboveConcert(instrument: JamInstrument): number {
 }
 
 /**
- * Intent: the written MIDI number of pitch class `pitchClass` nearest `middle`, the lower of the
+ * The written MIDI number of pitch class `pitchClass` nearest `middle`, the lower of the
  * two when both are equally near.
  */
 function nearestOfPitchClass(pitchClass: number, middle: number): number {
@@ -95,7 +95,7 @@ function nearestOfPitchClass(pitchClass: number, middle: number): number {
 }
 
 /**
- * Intent: the home note of Jam's written key and collection for an instrument: the key's tonic, in
+ * The home note of Jam's written key and collection for an instrument: the key's tonic, in
  * the instrument's written pitch, in the octave nearest the middle of its written range (the lower
  * of two equally near), spelled as the key signature spells it, with its octave number, and its
  * exact concert pitch under the instrument's transposition, my instrument's included.
@@ -170,7 +170,7 @@ export interface JamIdleNotes {
 }
 
 /**
- * Intent: the starting note of phrase 1 written from the kept doodle: its first attacked note, at
+ * The starting note of phrase 1 written from the kept doodle: its first attacked note, at
  * its concert pitch, named as the staff spells it, and the note the start marker points at.
  */
 // @spec-link [[module_jam_idle_notes]]
@@ -186,7 +186,7 @@ function keptPhraseOneStartingNote(phrase: JamKeptPhraseOne): JamStartingNote {
 }
 
 /**
- * Intent: Jam's Idle note routing over its readings. While a Jam could start, the starting note
+ * Jam's Idle note routing over its readings. While a Jam could start, the starting note
  * is the home note with no doodle kept, and with one its phrase 1's first note (none while that
  * phrase 1 is not shown); else none. A played note means `start` only at that note's exact concert
  * pitch, octave included, while it is named and the page has had its first click, tap or key
@@ -205,7 +205,7 @@ export function createJamIdleNotes(deps: JamIdleNotesDependencies): JamIdleNotes
   /** The notes played as taps that have not ended yet, by pitch and onset. */
   const pendingTaps: { readonly pitch: number; readonly onsetAt: AudioTime }[] = []
 
-  /** Intent: the home note, or the kept doodle's phrase 1's first note, while a Jam could start. */
+  /** The home note, or the kept doodle's phrase 1's first note, while a Jam could start. */
   function startingNote(): JamStartingNote | null {
     if (deps.tapListening()) return null
     if (!deps.canStart()) return null
@@ -216,13 +216,13 @@ export function createJamIdleNotes(deps: JamIdleNotesDependencies): JamIdleNotes
     return jamHomeNote(deps.writtenKey(), deps.collection(), deps.instrument())
   }
 
-  /** Intent: whether a named starting note waits for the page's first click, tap or key press. */
+  /** Whether a named starting note waits for the page's first click, tap or key press. */
   function awaitsClick(): boolean {
     return deps.pageAwaitsClick() && startingNote() !== null
   }
 
   /**
-   * Intent: `tap` for every note while tap-in listens; else `start` for the named starting note's
+   * `tap` for every note while tap-in listens; else `start` for the named starting note's
    * exact concert pitch, once the page was used.
    */
   function meaningOf(concertPitch: number): JamNoteMeaning {
@@ -233,7 +233,7 @@ export function createJamIdleNotes(deps: JamIdleNotesDependencies): JamIdleNotes
   }
 
   /**
-   * Intent: remember a note played as a tap; when it ends, forget it and, unless it is very short
+   * Remember a note played as a tap; when it ends, forget it and, unless it is very short
    * or listening has ended, tap at its onset.
    */
   // @spec-link [[rule_jam_tap_in_listening]]

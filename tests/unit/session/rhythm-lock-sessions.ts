@@ -18,7 +18,7 @@ import { lockedBarsOf } from '../domain/rhythm/rhythm-lock-fixture'
 import { FAST_TEMPO } from './scripted-session'
 import { fixedWallClock, sessionSettings, type SessionDriver } from './session-harness'
 
-/** Intent: chosen settings at the fast tempo with the rhythm lock on and these changes allowed. */
+/** Chosen settings at the fast tempo with the rhythm lock on and these changes allowed. */
 export function lockSettings(
   allowedRhythmChanges: readonly RhythmChangeKind[],
   overrides: Partial<GenerationControls> = {},
@@ -30,12 +30,12 @@ export function lockSettings(
   }
 }
 
-/** Intent: an outcome's written bars, as a request's locked bars hold them. */
+/** An outcome's written bars, as a request's locked bars hold them. */
 export function barsOf(outcome: SuccessfulOutcome): readonly LockedRhythmMeasure[] {
   return lockedBarsOf(outcome.provenance.rhythm)
 }
 
-/** Intent: the lock group a request is expected to carry, as a plain value. */
+/** The lock group a request is expected to carry, as a plain value. */
 export function expectedGroup(
   bars: readonly LockedRhythmMeasure[],
   allowedChanges: readonly RhythmChangeKind[],
@@ -45,7 +45,7 @@ export function expectedGroup(
 }
 
 /**
- * Intent: the tenser flag by the rule: Tension across phrases on, the second phrase of a group of
+ * The tenser flag by the rule: Tension across phrases on, the second phrase of a group of
  * four (2, 6, 10...), and the tension in effect below Edge.
  */
 export function expectedTenser(
@@ -56,12 +56,12 @@ export function expectedTenser(
   return tensionAcrossPhrases && (phraseNumber - 1) % 4 === 1 && tensionInEffect !== 'Edge'
 }
 
-/** Intent: every phrase a driver decided (no settings change discards one in these runs). */
+/** Every phrase a driver decided (no settings change discards one in these runs). */
 export function decidedPhrases(driver: SessionDriver): readonly SessionPhrase[] {
   return driver.all('phrase-ready').map((output) => output.phrase)
 }
 
-/** Intent: the session history the driver's outputs record. */
+/** The session history the driver's outputs record. */
 export function historyOf(driver: SessionDriver): SessionHistory {
   const history = createSessionHistory(
     driver.settings,

@@ -82,7 +82,7 @@ export interface JamBarSeams {
 }
 
 /**
- * Intent: the kept doodle's bar while Jam's code has loaded and a doodle is kept; null otherwise,
+ * The kept doodle's bar while Jam's code has loaded and a doodle is kept; null otherwise,
  * so it leaves as the doodle is let go.
  */
 // @spec-link [[module_kept_doodle]]
@@ -92,7 +92,7 @@ export interface JamBarSeams {
 export function useJamBar(seams: JamBarSeams): ComputedRef<JamBarView | null> {
   const { keptDoodle, ports } = seams
 
-  /** Intent: `New doodle`: the doodle let go; focus to `Start Jam`, else `controller-status`. */
+  /** `New doodle`: the doodle let go; focus to `Start Jam`, else `controller-status`. */
   // @spec-link [[rule_held_doodle_dropped_on_change]]
   function newDoodle(): void {
     keptDoodle.letGo()
@@ -103,7 +103,7 @@ export function useJamBar(seams: JamBarSeams): ComputedRef<JamBarView | null> {
     })
   }
 
-  /** Intent: `Jam in {answer}`: Jam's key and mode set as the review's sets them; doodle kept. */
+  /** `Jam in {answer}`: Jam's key and mode set as the review's sets them; doodle kept. */
   // @spec-link [[rule_suggestion_use_it]]
   function useAnswer(answer: JamKeyAndMode): void {
     const loaded = seams.jamModule()
@@ -111,7 +111,7 @@ export function useJamBar(seams: JamBarSeams): ComputedRef<JamBarView | null> {
     ports.useAnswer(loaded, answer)
   }
 
-  /** Intent: `Keep {key} {mode}`: declined for good, on the doodle and its kept session. */
+  /** `Keep {key} {mode}`: declined for good, on the doodle and its kept session. */
   // @spec-link [[rule_suggestion_keep_mine]]
   function keep(): void {
     const kept = keptDoodle.kept.value
@@ -157,7 +157,7 @@ export interface JamPortsAndBarSeams
 }
 
 /**
- * Intent: the workspace's Jam ports over the kept doodle, provided to a Jam session's Review
+ * The workspace's Jam ports over the kept doodle, provided to a Jam session's Review
  * (`REVIEW_JAM_PORTS`), and the kept doodle's bar over the same ports. Called in a setup.
  */
 // @spec-link [[module_kept_doodle]]

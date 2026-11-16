@@ -26,12 +26,12 @@ export class PhraseAssemblyError extends Error {
   }
 }
 
-/** Intent: a fresh note attack is a note event whose tieContinuation is not literally true. */
+/** A fresh note attack is a note event whose tieContinuation is not literally true. */
 function isFreshAttack(event: RhythmEvent): boolean {
   return event.kind === 'note' && event.tieContinuation !== true
 }
 
-/** Intent: count the fresh (non-tie-continuation) note attacks across every bar of a rhythm. */
+/** Count the fresh (non-tie-continuation) note attacks across every bar of a rhythm. */
 function countFreshAttacks(rhythm: RhythmCandidate): number {
   return rhythm.bars.reduce((total, bar) => total + bar.events.filter(isFreshAttack).length, 0)
 }
@@ -42,7 +42,7 @@ interface WalkState {
   lastAttackMidi: number | undefined
 }
 
-/** Intent: translate one rhythm event into its measure event, consuming attackMidis as it walks. */
+/** Translate one rhythm event into its measure event, consuming attackMidis as it walks. */
 function translateEvent(
   event: RhythmEvent,
   attackMidis: readonly number[],
@@ -73,14 +73,14 @@ function translateEvent(
   return makeNoteEvent({ duration, pitch: makeConcertPitch(midi), tieContinuation: false })
 }
 
-/** Intent: translate one rhythm bar into its tiling measure, walking events in order. */
+/** Translate one rhythm bar into its tiling measure, walking events in order. */
 function translateBar(bar: RhythmBar, attackMidis: readonly number[], state: WalkState) {
   const events = bar.events.map((event) => translateEvent(event, attackMidis, state))
   return makeMeasure(bar.barIndex, events)
 }
 
 /**
- * Intent: assemble the final immutable GenerationResult from a resolved request, a chosen rhythm
+ * Assemble the final immutable GenerationResult from a resolved request, a chosen rhythm
  * candidate, and a flat list of synthesized attack MIDI pitches, walking rhythm.bars in order.
  * Rejects an attackMidis length that does not exactly equal the rhythm's fresh note-attack count,
  * and rejects a tie continuation with no preceding attack, each as a typed PhraseAssemblyError.

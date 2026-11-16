@@ -31,12 +31,12 @@ import {
 /** The starting tempo of most tests: 100 BPM, a 2.4 s measure. */
 const T = 100
 
-/** Intent: a driver at the starting tempo `tempo`, adaptive tempo on unless told otherwise. */
+/** A driver at the starting tempo `tempo`, adaptive tempo on unless told otherwise. */
 function adaptive(tempo = T, adaptiveTempo = true): SessionDriver {
   return tempoDriver({ tempo, adaptiveTempo, display: fakeDisplay(false) })
 }
 
-/** Intent: the tempos a driven session gave phrases 1 to `count`, with the script's controller. */
+/** The tempos a driven session gave phrases 1 to `count`, with the script's controller. */
 function scheduleOf(
   controller: readonly ControllerStep[],
   count = 7,
@@ -130,7 +130,7 @@ const PROPERTY_TEMPOS = [60, 120, 200, 230, 240] as const
 /** How many phrases each property session sounds. */
 const PROPERTY_SOUNDED = 16
 
-/** Intent: a phrase-number predicate true for every `n`th phrase number, at `remainder`. */
+/** A phrase-number predicate true for every `n`th phrase number, at `remainder`. */
 function everyNth(n: number, remainder: number): (phraseNumber: number) => boolean {
   return (phraseNumber) => phraseNumber % n === remainder
 }
@@ -171,7 +171,7 @@ interface PropertyCounts {
 }
 
 /**
- * Intent: check one session's tempo map: phrase 1 at the starting tempo, each later phrase at the
+ * Check one session's tempo map: phrase 1 at the starting tempo, each later phrase at the
  * tempo before or 5 BPM above it and never above 240 BPM, each phrase sounding at its fixed tempo;
  * adds its rises, repeats and whether it ended at 240 BPM to `counts`.
  */
@@ -346,7 +346,7 @@ describe('when a phrase’s tempo is fixed', () => {
 // @test-link [[rule_session_change_applies_at_phrase_boundary]]
 // @test-link [[module_session_settings_change]]
 describe('the settings-change discard guard after a rise', () => {
-  /** Intent: a 60 BPM adaptive session with phrase 3 (at 65 BPM) sounding, phrase 4 undecided. */
+  /** A 60 BPM adaptive session with phrase 3 (at 65 BPM) sounding, phrase 4 undecided. */
   function fourRequested(): { readonly driver: SessionDriver; readonly deadline: number } {
     const driver = adaptive(60)
     driveTempoSession(driver, 2)

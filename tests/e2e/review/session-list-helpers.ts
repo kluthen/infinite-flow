@@ -25,49 +25,49 @@ export const FAILED_NOTE = "This session couldn't be opened. Try again, or delet
 /** The list's empty state, saving on. */
 export const EMPTY = 'No sessions are kept. Your next session will be kept here.'
 
-/** Intent: the session list, in the Review's place. */
+/** The session list, in the Review's place. */
 export function sessionsPanel(page: Page): Locator {
   return page.locator('.score-panel section.sessions-panel')
 }
 
-/** Intent: the list's title, "All sessions". */
+/** The list's title, "All sessions". */
 export function listTitle(page: Page): Locator {
   return sessionsPanel(page).locator('h2.review-title')
 }
 
-/** Intent: the list's rows, newest first. */
+/** The list's rows, newest first. */
 export function rows(page: Page): Locator {
   return sessionsPanel(page).locator('ol.session-list > li.session-row')
 }
 
-/** Intent: the row whose title starts with `date`. */
+/** The row whose title starts with `date`. */
 export function rowOf(page: Page, date: string): Locator {
   return rows(page).filter({
     has: page.locator('button.session-row-open', { hasText: date }),
   })
 }
 
-/** Intent: the title button of the row of `date`. */
+/** The title button of the row of `date`. */
 export function rowOpen(page: Page, date: string): Locator {
   return rowOf(page, date).locator('button.session-row-open')
 }
 
-/** Intent: the row action of `date` named `verb` (`Pin`, `Unpin` or `Delete`) by its label. */
+/** The row action of `date` named `verb` (`Pin`, `Unpin` or `Delete`) by its label. */
 export function rowAction(page: Page, date: string, verb: 'Pin' | 'Unpin' | 'Delete'): Locator {
   return rowOf(page, date).getByRole('button', { name: `${verb} session ${date}`, exact: true })
 }
 
-/** Intent: the cue row's `sessions-link`, "All sessions". */
+/** The cue row's `sessions-link`, "All sessions". */
 export function sessionsLink(page: Page): Locator {
   return cueRow(page).locator('button.sessions-link')
 }
 
-/** Intent: the Review's `All sessions`, its first row. */
+/** The Review's `All sessions`, its first row. */
 export function allSessions(page: Page): Locator {
   return reviewPanel(page).locator('.review-nav').getByRole('button', { name: 'All sessions' })
 }
 
-/** Intent: the session date the page writes for a start, with the browser's locale and zone. */
+/** The session date the page writes for a start, with the browser's locale and zone. */
 export function sessionDateOf(page: Page, startedAt: number): Promise<string> {
   return page.evaluate(
     (at) =>
@@ -83,9 +83,9 @@ export function sessionDateOf(page: Page, startedAt: number): Promise<string> {
   )
 }
 
-/** Intent: the key of the kept session that started at `startedAt`, once it is stored. */
+/** The key of the kept session that started at `startedAt`, once it is stored. */
 export async function keyStartedAt(page: Page, startedAt: number): Promise<string> {
-  /** Intent: the key stored with that start, if any yet. */
+  /** The key stored with that start, if any yet. */
   const find = async (): Promise<string | undefined> =>
     (await keyedRecords(page, 'sessionSummaries')).find(
       ({ value }) => (value as { startedAt?: unknown }).startedAt === startedAt,
@@ -95,7 +95,7 @@ export async function keyStartedAt(page: Page, startedAt: number): Promise<strin
 }
 
 /**
- * Intent: leave the review mode if it shows, then play a two-phrase session started at
+ * Leave the review mode if it shows, then play a two-phrase session started at
  * `startedAt` on the wall clock, then Stop: the Review shows.
  */
 export async function sessionAt(page: Page, startedAt: number): Promise<void> {
@@ -108,13 +108,13 @@ export async function sessionAt(page: Page, startedAt: number): Promise<void> {
   await playSession(page)
 }
 
-/** Intent: show the list from the cue row; focus lands on its title. */
+/** Show the list from the cue row; focus lands on its title. */
 export async function showListFromCueRow(page: Page): Promise<void> {
   await sessionsLink(page).click()
   await expect(listTitle(page)).toBeFocused()
 }
 
-/** Intent: refuse (or stop refusing) each read of a kept session's body, through the seam. */
+/** Refuse (or stop refusing) each read of a kept session's body, through the seam. */
 export function refuseKeptReads(page: Page, on: boolean): Promise<void> {
   return page.evaluate(
     (value) => window.__workspaceHarness.storage.refuseKeptSessionReads(value),
@@ -122,7 +122,7 @@ export function refuseKeptReads(page: Page, on: boolean): Promise<void> {
   )
 }
 
-/** Intent: copy the kept session under `from` under `key`, started at `startedAt`, maybe newer. */
+/** Copy the kept session under `from` under `key`, started at `startedAt`, maybe newer. */
 export function seedCopy(
   page: Page,
   from: string,
@@ -144,11 +144,11 @@ export interface ShownRow {
   readonly actions: readonly string[]
 }
 
-/** Intent: what every row of the list shows, in order. */
+/** What every row of the list shows, in order. */
 export function shownRows(page: Page): Promise<ShownRow[]> {
   return rows(page).evaluateAll((items) =>
     items.map((item) => {
-      /** Intent: an element's text, trimmed. */
+      /** An element's text, trimmed. */
       const text = (element: Element): string => (element.textContent ?? '').trim()
       const open = item.querySelector<HTMLButtonElement>('button.session-row-open')
       return {
@@ -175,14 +175,14 @@ export interface StoredSummary {
   readonly comment: string
 }
 
-/** Intent: the session-wide record stored under `key`. */
+/** The session-wide record stored under `key`. */
 export async function storedSummary(page: Page, key: string): Promise<StoredSummary> {
   const record = (await keyedRecords(page, 'sessionSummaries')).find((entry) => entry.key === key)
   if (record === undefined) throw new Error(`no session-wide record under "${key}"`)
   return record.value as StoredSummary
 }
 
-/** Intent: the detail and status lines the design writes for `summary`, as `shownRows` gives them. */
+/** The detail and status lines the design writes for `summary`, as `shownRows` gives them. */
 export function expectedLines(summary: StoredSummary): string[] {
   const { lengthSeconds, phraseCount, favoritesCount } = summary
   const length = lengthSeconds < 30 ? 'Under 1 min' : `${Math.round(lengthSeconds / 60)} min`
@@ -201,7 +201,7 @@ export function expectedLines(summary: StoredSummary): string[] {
   ]
 }
 
-/** Intent: the two actions of a row this version reads, as `shownRows` gives them. */
+/** The two actions of a row this version reads, as `shownRows` gives them. */
 export function expectedActions(date: string, pinned: boolean): string[] {
   const pin = pinned ? 'Unpin' : 'Pin'
   return [`${pin} [${pin} session ${date}]`, `Delete [Delete session ${date}]`]

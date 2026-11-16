@@ -32,7 +32,7 @@ export interface Deferred<T> {
   readonly reject: (reason?: unknown) => void
 }
 
-/** Intent: build a promise whose settlement the test controls. */
+/** Build a promise whose settlement the test controls. */
 export function createDeferred<T>(): Deferred<T> {
   let resolve: (value: T) => void = () => undefined
   let reject: (reason?: unknown) => void = () => undefined
@@ -62,7 +62,7 @@ export interface FitSessionOptions {
   readonly prewarm?: PostPrewarm
 }
 
-/** Intent: build one fit session and the fakes and log that observe it. */
+/** Build one fit session and the fakes and log that observe it. */
 export function createFitSession(options: FitSessionOptions = {}) {
   const viewport = createFakeViewportWidth(options.belowTabletLandscape ?? false)
   const staff = createFakeStaffFit<GenerationIntent>()
@@ -133,7 +133,7 @@ export function createFitSession(options: FitSessionOptions = {}) {
   }
 }
 
-/** Intent: let every already-settled promise continuation run, so fire-and-forget work lands. */
+/** Let every already-settled promise continuation run, so fire-and-forget work lands. */
 export async function flushAsync(): Promise<void> {
   await new Promise<void>((resolve) => setTimeout(resolve, 0))
 }

@@ -28,7 +28,7 @@ import {
 } from './session-helpers'
 
 /**
- * Intent: assert `Start session` is shown and disabled, and the controller refuses a start. The
+ * Assert `Start session` is shown and disabled, and the controller refuses a start. The
  * controller names the first condition that fails, in its own order: a notation error or the room
  * notice also leaves no engraved phrase, which it names first.
  */

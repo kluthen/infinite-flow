@@ -59,12 +59,12 @@ export interface ControlVariation {
   readonly musicalProfile?: MusicalProfile
 }
 
-/** Intent: the stable `density|variety|silence|syncopation|tension` key of one rhythm setting. */
+/** The stable `density|variety|silence|syncopation|tension` key of one rhythm setting. */
 export function settingKey(setting: RhythmSetting): string {
   return `${setting.noteDensity}|${setting.rhythmicVariety}|${setting.silenceDensity}|${setting.syncopation}|${setting.tensionArc}`
 }
 
-/** Intent: parse a `settingKey` string back into its rhythm setting. */
+/** Parse a `settingKey` string back into its rhythm setting. */
 export function parseSettingKey(key: string): RhythmSetting {
   const [noteDensity, rhythmicVariety, silenceDensity, syncopation, tensionArc] = key.split('|')
   return {
@@ -76,7 +76,7 @@ export function parseSettingKey(key: string): RhythmSetting {
   }
 }
 
-/** Intent: every one of the 324 rhythm settings, in the latency harness's fixed nesting order. */
+/** Every one of the 324 rhythm settings, in the latency harness's fixed nesting order. */
 export function allRhythmSettings(): readonly RhythmSetting[] {
   return NOTE_DENSITIES.flatMap((noteDensity) =>
     RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>
@@ -105,7 +105,7 @@ export const WORST_SETTING_KEYS: readonly string[] = [
   'Sixteenth|Heavily varied|Sparse|Straight|Build',
 ]
 
-/** Intent: the latency harness's control policy for one rhythm setting, with optional overrides. */
+/** The latency harness's control policy for one rhythm setting, with optional overrides. */
 export function buildControls(
   setting: RhythmSetting,
   overrides: Partial<GenerationControls> = {},
@@ -129,12 +129,12 @@ export function buildControls(
   })
 }
 
-/** Intent: the real intent for one catalog setting and seed, harness controls and Neutral profile. */
+/** The real intent for one catalog setting and seed, harness controls and Neutral profile. */
 export function buildCatalogIntent(setting: RhythmSetting, seed: number): GenerationIntent {
   return buildVariationIntent(setting, { name: 'catalog', controls: {} }, seed)
 }
 
-/** Intent: the real intent for one rhythm setting under one non-rhythm control variation. */
+/** The real intent for one rhythm setting under one non-rhythm control variation. */
 export function buildVariationIntent(
   setting: RhythmSetting,
   variation: ControlVariation,
@@ -227,22 +227,22 @@ export const MEMO_SETTING_KEYS: readonly string[] = [
 /** Seeds of the ranking sample. */
 export const RANKING_SEEDS: readonly number[] = Array.from({ length: 20 }, (_, index) => index + 1)
 
-/** Intent: the strong hash of a text: sha256 hex truncated to 16 characters. */
+/** The strong hash of a text: sha256 hex truncated to 16 characters. */
 export function strongHash(text: string): string {
   return createHash('sha256').update(text, 'utf8').digest('hex').slice(0, 16)
 }
 
-/** Intent: the strong hash of one value's `JSON.stringify` serialization. */
+/** The strong hash of one value's `JSON.stringify` serialization. */
 export function jsonHash(value: unknown): string {
   return strongHash(JSON.stringify(value))
 }
 
-/** Intent: the absolute path of one golden file next to this fixture module. */
+/** The absolute path of one golden file next to this fixture module. */
 export function goldenPath(fileName: string): string {
   return fileURLToPath(new URL(`./${fileName}`, import.meta.url))
 }
 
-/** Intent: read and parse one checked-in golden file next to this fixture module. */
+/** Read and parse one checked-in golden file next to this fixture module. */
 export function readGolden<T>(fileName: string): T {
   return JSON.parse(readFileSync(goldenPath(fileName), 'utf8')) as T
 }
@@ -281,7 +281,7 @@ export interface MemoGolden {
 }
 
 /**
- * Intent: the catalog hashes of one setting: seeds 1..10 generated in order on one fresh memo, so
+ * The catalog hashes of one setting: seeds 1..10 generated in order on one fresh memo, so
  * seed 1 is the cold call and every later seed a warm one.
  */
 export function catalogHashes(setting: RhythmSetting): readonly string[] {
@@ -291,13 +291,13 @@ export function catalogHashes(setting: RhythmSetting): readonly string[] {
   )
 }
 
-/** Intent: the carry-in chain key of one setting and first-phrase seed. */
+/** The carry-in chain key of one setting and first-phrase seed. */
 export function chainKey(key: string, seed: number): string {
   return `${key}#${seed}`
 }
 
 /**
- * Intent: the outcome hashes of a three-phrase chain on one setting: phrase 1 without carry-in,
+ * The outcome hashes of a three-phrase chain on one setting: phrase 1 without carry-in,
  * phrases 2 and 3 each carrying in from the phrase before, seeds `seed`, `seed + 100`, `seed + 200`.
  */
 export function carryInChainHashes(setting: RhythmSetting, seed: number): readonly string[] {
@@ -321,12 +321,12 @@ export function carryInChainHashes(setting: RhythmSetting, seed: number): readon
   return hashes
 }
 
-/** Intent: the variation case key of one control variation and setting. */
+/** The variation case key of one control variation and setting. */
 export function variationKey(variation: ControlVariation, key: string): string {
   return `${variation.name}#${key}`
 }
 
-/** Intent: the outcome hashes of one setting under one variation, seeds 1..3 on one fresh memo. */
+/** The outcome hashes of one setting under one variation, seeds 1..3 on one fresh memo. */
 export function variationHashes(
   setting: RhythmSetting,
   variation: ControlVariation,
@@ -339,13 +339,13 @@ export function variationHashes(
   )
 }
 
-/** Intent: a fresh memo's canonical rhythm domain for one setting (a cold lookup). */
+/** A fresh memo's canonical rhythm domain for one setting (a cold lookup). */
 export function freshCanonicalDomain(setting: RhythmSetting): CanonicalRhythmDomain {
   return createCanonicalRhythmDomainMemo().lookup(setting)
 }
 
 /**
- * Intent: the memo-list facts of one canonical domain: its kind, candidate count and the hash of
+ * The memo-list facts of one canonical domain: its kind, candidate count and the hash of
  * its materialized candidate list in canonical order (or of the typed no-plan result).
  */
 export function domainFacts(domain: CanonicalRhythmDomain): Omit<MemoGoldenEntry, 'rankings'> {
@@ -359,7 +359,7 @@ export function domainFacts(domain: CanonicalRhythmDomain): Omit<MemoGoldenEntry
 }
 
 /**
- * Intent: the ranking facts of one canonical domain: for seeds 1..20, the seeded order as
+ * The ranking facts of one canonical domain: for seeds 1..20, the seeded order as
  * candidateIndex values (hash of the whole sequence plus its first five); none for a no-plan.
  */
 export function rankingFacts(domain: CanonicalRhythmDomain): MemoGoldenEntry['rankings'] {
@@ -375,7 +375,7 @@ export function rankingFacts(domain: CanonicalRhythmDomain): MemoGoldenEntry['ra
   })
 }
 
-/** Intent: the full memo and ranking golden entry of one setting, from one cold lookup. */
+/** The full memo and ranking golden entry of one setting, from one cold lookup. */
 export function memoEntry(setting: RhythmSetting): MemoGoldenEntry {
   const domain = freshCanonicalDomain(setting)
   return { ...domainFacts(domain), rankings: rankingFacts(domain) }

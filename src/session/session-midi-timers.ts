@@ -34,7 +34,7 @@ export class SessionMidiTimerError extends Error {
 }
 
 /**
- * Intent: the silence deadline after the latest activity (the latest played note, or the
+ * The silence deadline after the latest activity (the latest played note, or the
  * reconnection): the session ends once the audio clock is strictly past it.
  */
 // @spec-link [[rule_silence_timeout_ends_session]]
@@ -45,7 +45,7 @@ export function silenceDeadline(lastActivityAt: AudioTime): AudioTime {
 }
 
 /**
- * Intent: whether more than 30 s have passed without a note since the latest activity, judged
+ * Whether more than 30 s have passed without a note since the latest activity, judged
  * against silenceDeadline itself so a timer scheduled on the deadline and this check agree.
  */
 // @spec-link [[rule_silence_timeout_ends_session]]
@@ -56,7 +56,7 @@ export function silenceExpired(lastActivityAt: AudioTime, now: AudioTime): boole
 }
 
 /**
- * Intent: the whole seconds the disconnect banner shows: 30 at the loss, one less at each second
+ * The whole seconds the disconnect banner shows: 30 at the loss, one less at each second
  * edge (`lostAt + 1`, `lostAt + 2`, …), 1 in the last second, and 0 once the window has run out.
  */
 // @spec-link [[rule_controller_loss_mid_session]]
@@ -67,7 +67,7 @@ export function countdownSecondsLeft(lostAt: AudioTime, now: AudioTime): number 
   return RECONNECTION_WINDOW_SECONDS - secondEdgesPassed(lostAt, now)
 }
 
-/** Intent: whether the reconnection window has run out: 30 s or more since the loss. */
+/** Whether the reconnection window has run out: 30 s or more since the loss. */
 // @spec-link [[rule_controller_reconnection_window]]
 // @spec-link [[module_session_controller_loss]]
 export function reconnectionExpired(lostAt: AudioTime, now: AudioTime): boolean {
@@ -76,7 +76,7 @@ export function reconnectionExpired(lostAt: AudioTime, now: AudioTime): boolean 
 }
 
 /**
- * Intent: when the countdown next changes: the next second edge after `now`, the last one being
+ * When the countdown next changes: the next second edge after `now`, the last one being
  * the end of the window. Throws once the window has run out, since nothing changes after it.
  */
 // @spec-link [[rule_controller_loss_mid_session]]
@@ -93,7 +93,7 @@ export function nextCountdownChangeAt(lostAt: AudioTime, now: AudioTime): AudioT
 }
 
 /**
- * Intent: in a session started without phrase 1, whether a note played at `onsetAt` arms the
+ * In a session started without phrase 1, whether a note played at `onsetAt` arms the
  * silence timer: only a note played from phrase 1 on, once the time phrase 1 sounds is known
  * (`phraseOneAt`, null before); the starting note and every note before phrase 1 arm nothing.
  */
@@ -110,7 +110,7 @@ export function noteArmsSilenceBeforePhraseOne(
 }
 
 /**
- * Intent: in a session started without phrase 1, whether a controller lost at `lostAt` ends it at
+ * In a session started without phrase 1, whether a controller lost at `lostAt` ends it at
  * once: any loss before phrase 1 sounds (`phraseOneAt`, null while not known yet) does; from phrase
  * 1 on, the reconnection window applies.
  */
@@ -126,13 +126,13 @@ export function lossEndsAtOnceBeforePhraseOne(
   return lostAt < phraseOneAt
 }
 
-/** Intent: the audio-clock time of the k-th second edge after a loss, always computed alike. */
+/** The audio-clock time of the k-th second edge after a loss, always computed alike. */
 function secondEdge(lostAt: AudioTime, k: number): AudioTime {
   return lostAt + k
 }
 
 /**
- * Intent: how many of the 30 second edges `now` has reached, comparing against secondEdge itself
+ * How many of the 30 second edges `now` has reached, comparing against secondEdge itself
  * (not a rounded difference) so that at a time nextCountdownChangeAt returned, the count has
  * moved on, whatever floating-point rounding the subtraction would bring.
  */
@@ -143,14 +143,14 @@ function secondEdgesPassed(lostAt: AudioTime, now: AudioTime): number {
   return passed
 }
 
-/** Intent: reject a time that is not a finite number of audio-clock seconds. */
+/** Reject a time that is not a finite number of audio-clock seconds. */
 function assertFinite(name: string, at: AudioTime): void {
   if (!Number.isFinite(at)) {
     throw new SessionMidiTimerError(`The ${name} time must be a finite number, got ${at}.`)
   }
 }
 
-/** Intent: reject non-finite times and a `now` earlier than the reference it is measured from. */
+/** Reject non-finite times and a `now` earlier than the reference it is measured from. */
 function assertOrdered(name: string, reference: AudioTime, now: AudioTime): void {
   assertFinite(name, reference)
   assertFinite('current', now)

@@ -29,7 +29,7 @@ import { cutoverAt, standaloneDue } from './session-timing'
 import type { AudioTime, SessionOutput } from './session-types'
 
 /**
- * Intent: the cancellation of a look-ahead's attempt the engine is dropping, when that attempt is
+ * The cancellation of a look-ahead's attempt the engine is dropping, when that attempt is
  * still generating, so a later request never waits behind it on the generator. An attempt in its
  * fit check, whose generation is done, or no attempt at all, gives none.
  */
@@ -42,7 +42,7 @@ export function cancelDropped(lookAhead: LookAhead | undefined): readonly Sessio
 }
 
 /**
- * Intent: request one rung for the look-ahead phrase at `at`: build its intent now from the
+ * Request one rung for the look-ahead phrase at `at`: build its intent now from the
  * look-ahead's basis (the window read now, the step-down memory updated) with the planned seed of
  * that phrase's rung and the look-ahead's rhythm lock group, give it the next attempt id, and make
  * it the attempt in flight, remembering whether it carries the re-lock group. A carry-in
@@ -94,7 +94,7 @@ function requestRung(
 }
 
 /**
- * Intent: request a rung reached by skipping others: the request ids of the `skipped` rungs are
+ * Request a rung reached by skipping others: the request ids of the `skipped` rungs are
  * drawn and discarded first, so the rung requested is built as if they had failed; its seed is its
  * own rung's whatever was skipped.
  */
@@ -110,7 +110,7 @@ function requestAfterSkip(
 }
 
 /**
- * Intent: request the look-ahead phrase's first attempt at `at`: the first carry-in rung, or the
+ * Request the look-ahead phrase's first attempt at `at`: the first carry-in rung, or the
  * standalone rung when the standalone attempt is already due, built with the request id it would
  * have had after three failed carry-in retries and the standalone rung's planned seed.
  */
@@ -121,7 +121,7 @@ export function requestFirstRung(context: EngineContext, state: EngineState, at:
 }
 
 /**
- * Intent: after an attempt failed at `at`, request the rung its failure leads to (the standalone
+ * After an attempt failed at `at`, request the rung its failure leads to (the standalone
  * one for a carry-in attempt once the standalone attempt is due), or wait for the deadline once
  * the ladder is exhausted. Rungs skipped on the way create no attempt, but their request ids are
  * drawn and discarded first.
@@ -143,7 +143,7 @@ export function climb(
 }
 
 /**
- * Intent: at `at`, once an event is handled, cut the look-ahead's carry-in attempt over when it is
+ * At `at`, once an event is handled, cut the look-ahead's carry-in attempt over when it is
  * still generating and the standalone attempt is due: cancel it where it runs, then request the
  * standalone attempt at once, with the request id it would have had after three failed carry-in
  * retries and the standalone rung's planned seed. Anything else (no look-ahead, an attempt in its

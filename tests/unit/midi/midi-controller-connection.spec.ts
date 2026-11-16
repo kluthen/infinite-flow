@@ -9,7 +9,7 @@ import { MidiControllerError } from '@/midi/midi-controller-state'
 
 import { createControllerRig, KEYS_A, KEYS_A2, PAD_B } from './midi-controller-rig'
 
-/** Intent: let every pending promise callback run. */
+/** Let every pending promise callback run. */
 function settled(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }

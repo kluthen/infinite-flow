@@ -44,7 +44,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: the notes the controller reported played since the page loaded. */
+/** The notes the controller reported played since the page loaded. */
 function playedCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.midi.playedNotes().length)
 }

@@ -70,7 +70,7 @@ describe('sessionStartJumpDelta below bp-tablet-landscape (split layout)', () =>
 
 // @test-link [[service_session_start]]
 describe('jumpForSessionStart', () => {
-  /** Intent: an element whose bounding box has this top and bottom. */
+  /** An element whose bounding box has this top and bottom. */
   function boxed(top: number, bottom: number): HTMLElement {
     const element = document.createElement('div')
     element.getBoundingClientRect = () => ({ top, bottom }) as DOMRect

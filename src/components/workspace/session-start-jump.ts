@@ -35,7 +35,7 @@ export interface SessionJumpParts {
 }
 
 /**
- * Intent: how far to scroll the page (positive: down), 0 for no jump, for the layout the session
+ * How far to scroll the page (positive: down), 0 for no jump, for the layout the session
  * holds. Below bp-tablet-landscape the cue row is never scrolled above the viewport, whatever the
  * staff's height (the phone scale rule guarantees both fit together).
  */
@@ -54,7 +54,7 @@ export function sessionStartJumpDelta(layout: StaffLayout, geometry: SessionJump
   return 0
 }
 
-/** Intent: measure the page and make the start's one jump, instantly; no scroll when none is needed. */
+/** Measure the page and make the start's one jump, instantly; no scroll when none is needed. */
 // @spec-link [[service_session_start]]
 export function jumpForSessionStart(
   view: SessionJumpView,
@@ -76,7 +76,7 @@ export function jumpForSessionStart(
 export type StartStaff = 'session' | 'jam-empty' | 'jam-kept-doodle'
 
 /**
- * Intent: the staff viewport of the mounted workspace `root` a start's jump brings into place:
+ * The staff viewport of the mounted workspace `root` a start's jump brings into place:
  * session mode's, the first in DOM order; Jam's empty staff's, the one showing `staff-jam`; or, with
  * a doodle kept, the one in sight, Jam's staff showing phrase 1 written from it. It must be there.
  */

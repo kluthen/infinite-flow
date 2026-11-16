@@ -32,26 +32,26 @@ export type V1Shape = 'v3.0' | 'chunk 4' | 'chunk 8'
 /** A stored intent, as a plain record. */
 type StoredIntent = Record<string, unknown>
 
-/** Intent: a stored intent as v3.0 kept it: a profile selection in place of its levels. */
+/** A stored intent as v3.0 kept it: a profile selection in place of its levels. */
 export function v30Intent(intent: StoredIntent, selection: ProfileSelection): StoredIntent {
   const { figureLevels, ...rest } = intent
   void figureLevels
   return { ...rest, musicalProfile: { ...selection } }
 }
 
-/** Intent: a stored intent as chunk 4's code kept it: its levels and a profile selection. */
+/** A stored intent as chunk 4's code kept it: its levels and a profile selection. */
 export function chunk4Intent(intent: StoredIntent, selection: ProfileSelection): StoredIntent {
   return { ...intent, musicalProfile: { ...selection } }
 }
 
-/** Intent: the stored intent of every phrase of a stored body. */
+/** The stored intent of every phrase of a stored body. */
 export function storedIntents(body: unknown): readonly StoredIntent[] {
   return (body as { phrases: readonly { intent: StoredIntent }[] }).phrases.map(
     (phrase) => phrase.intent,
   )
 }
 
-/** Intent: a stored copy of a body with every phrase's intent edited by `reshape`. */
+/** A stored copy of a body with every phrase's intent edited by `reshape`. */
 export function reshapedBody(
   body: unknown,
   reshape: (intent: StoredIntent, index: number) => StoredIntent,
@@ -64,7 +64,7 @@ export function reshapedBody(
 }
 
 /**
- * Intent: a stored session-wide record as data version 1 held it: v3.1's record (no Jam mark) with
+ * A stored session-wide record as data version 1 held it: v3.1's record (no Jam mark) with
  * its musical profile selection in place of its preset label, at the same key position, at data
  * version 1.
  */
@@ -79,7 +79,7 @@ export function v1Summary(summary: unknown, selection: ProfileSelection): unknow
 }
 
 /**
- * Intent: a stored body at data version 1, every phrase's intent without the Seventh chords level,
+ * A stored body at data version 1, every phrase's intent without the Seventh chords level,
  * which data version 1 never held, and edited by `reshape`. Throws for a body holding a seventh
  * chord or a level above Off.
  */
@@ -100,7 +100,7 @@ const V1_INTENTS: Readonly<
 }
 
 /**
- * Intent: the stored values a session's records had when data version 1 kept them in `shape`, the
+ * The stored values a session's records had when data version 1 kept them in `shape`, the
  * session's musical profile `selection` in its session-wide record (and in its phrases' intents
  * for the v3.0 and chunk 4 shapes); the played notes, whose shape never changed, as encoded.
  */
@@ -123,9 +123,9 @@ export interface KeyedSession {
   readonly stored: StoredKeptSession
 }
 
-/** Intent: the writes storing a session's values under its key, its played notes when present. */
+/** The writes storing a session's values under its key, its played notes when present. */
 export function sessionWrites({ key, stored }: KeyedSession): StorageChange[] {
-  /** Intent: the write of one of the session's values to its store, under the session's key. */
+  /** The write of one of the session's values to its store, under the session's key. */
   const write = (store: StoreName, value: unknown): StorageChange => ({
     kind: 'write',
     store,
@@ -137,7 +137,7 @@ export function sessionWrites({ key, stored }: KeyedSession): StorageChange[] {
   return writes
 }
 
-/** Intent: a port over the factory's database at data version 1, as a v3.0 tab opens it. */
+/** A port over the factory's database at data version 1, as a v3.0 tab opens it. */
 export function openV30Port(factory: IDBFactory): Promise<StoragePort> {
   return openStoragePort({
     factory,
@@ -147,7 +147,7 @@ export function openV30Port(factory: IDBFactory): Promise<StoragePort> {
 }
 
 /**
- * Intent: create the database at data version 1 through a v3.0 tab's port and apply `changes` in
+ * Create the database at data version 1 through a v3.0 tab's port and apply `changes` in
  * one batch; the port is returned still open, as a v3.0 tab left open.
  */
 export async function seedVersion1(
@@ -162,7 +162,7 @@ export async function seedVersion1(
 }
 
 /**
- * Intent: store values straight into a store of the existing database, bypassing the port, so
+ * Store values straight into a store of the existing database, bypassing the port, so
  * values no port would write (no envelope, no object at all) can be stored.
  */
 export async function seedRaw(
@@ -176,7 +176,7 @@ export async function seedRaw(
 }
 
 /**
- * Intent: the database opened with every production migration, at the code's data version, as the
+ * The database opened with every production migration, at the code's data version, as the
  * upgrading tab runs them: a session kept at data version 1 reaches the current shapes through
  * step 2, then step 4, its body then through step 5.
  */
@@ -185,7 +185,7 @@ export function openUpgraded(factory: IDBFactory): Promise<StoragePort> {
 }
 
 /**
- * Intent: the database opened with the production migrations up to the step to data version 2
+ * The database opened with the production migrations up to the step to data version 2
  * only, as the v3.1 tab of that step ran them, so what step 2 alone writes can be read.
  */
 export function openAtVersion2(factory: IDBFactory): Promise<StoragePort> {
@@ -196,7 +196,7 @@ export function openAtVersion2(factory: IDBFactory): Promise<StoragePort> {
   })
 }
 
-/** Intent: a session's stored values, read raw; `playedNotes` undefined when none is stored. */
+/** A session's stored values, read raw; `playedNotes` undefined when none is stored. */
 export function rawSession(factory: IDBFactory, key: string): Promise<StoredKeptSession> {
   return withRawDatabase(factory, async (database) => ({
     summary: await rawGet(database, 'sessionSummaries', key),
@@ -205,7 +205,7 @@ export function rawSession(factory: IDBFactory, key: string): Promise<StoredKept
   }))
 }
 
-/** Intent: the stored database's version and its `meta` record, read raw. */
+/** The stored database's version and its `meta` record, read raw. */
 export function databaseState(
   factory: IDBFactory,
 ): Promise<{ readonly version: number; readonly meta: unknown }> {

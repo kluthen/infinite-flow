@@ -51,7 +51,7 @@ export interface ReviewJamPorts {
 export const REVIEW_JAM_PORTS: InjectionKey<ReviewJamPorts> = Symbol('review-jam-ports')
 
 /**
- * Intent: the workspace's Jam ports, injected at setup and read when a Jam session's Review needs
+ * The workspace's Jam ports, injected at setup and read when a Jam session's Review needs
  * them; that read throws when nothing provided them.
  */
 // @spec-link [[req_key_and_mode_suggestion]]
@@ -89,7 +89,7 @@ export interface WorkspaceReviewJamDependencies {
 }
 
 /**
- * Intent: the workspace's Jam ports. `Jam in {answer}` changes Jam's key and mode as a change at
+ * The workspace's Jam ports. `Jam in {answer}` changes Jam's key and mode as a change at
  * Jam's Idle does, or makes Jam's settings first, saving no first values; session mode's key and
  * mode are never touched. `Jam again on this doodle` keeps the reviewed session's doodle in place
  * of any kept one and does what `Close review` does over Jam mode; over session mode, Jam mode
@@ -103,7 +103,7 @@ export interface WorkspaceReviewJamDependencies {
 // @spec-link [[rule_suggestion_keep_mine]]
 // @spec-link [[module_kept_doodle]]
 export function workspaceReviewJamPorts(deps: WorkspaceReviewJamDependencies): ReviewJamPorts {
-  /** Intent: keep `reviewed`'s doodle, unless the kept doodle already comes from its session. */
+  /** Keep `reviewed`'s doodle, unless the kept doodle already comes from its session. */
   function keep(reviewed: ReviewedJamSession): void {
     if (deps.keptDoodleSession() === reviewed.sessionKey) return
     deps.keepDoodle(reviewed.jam, reviewed.sessionKey)

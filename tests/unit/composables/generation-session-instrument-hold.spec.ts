@@ -35,7 +35,7 @@ const MINE_SELECTED = makeGenerationControls({
   instrumentProfileId: 'my-instrument',
 })
 
-/** Intent: a session on fakes started with `myInstrument` and `controls`, recording its intents. */
+/** A session on fakes started with `myInstrument` and `controls`, recording its intents. */
 function session(controls = MINE_SELECTED, myInstrument: MyInstrument | null = LOW_TENOR) {
   let counter = 0
   const prewarm = vi.fn<(intent: GenerationIntent) => void>()
@@ -94,7 +94,7 @@ const NO_SESSIONS: MyInstrumentSessions = {
   stay: () => undefined,
 }
 
-/** Intent: a session with a phrase on screen and its switches held, its records cleared. */
+/** A session with a phrase on screen and its switches held, its records cleared. */
 async function heldWithPhrase(controls = MINE_SELECTED) {
   const rig = session(controls, LOW_TENOR)
   await rig.created.actions.generate()

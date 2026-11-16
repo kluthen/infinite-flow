@@ -127,7 +127,7 @@ const SPREADS: readonly ControlSpread[] = [
   },
 ]
 
-/** Intent: build one real intent, with or without a carry-in, from written controls and a seed. */
+/** Build one real intent, with or without a carry-in, from written controls and a seed. */
 function corpusIntent(options: {
   readonly label: string
   readonly controls: GenerationControls
@@ -148,7 +148,7 @@ function corpusIntent(options: {
 }
 
 /**
- * Intent: the carry-in a phrase hands forward as the given phrase number. The phrase must
+ * The carry-in a phrase hands forward as the given phrase number. The phrase must
  * generate successfully; a failure means the corpus was built on an unusable case and crashes.
  */
 function carryInFrom(intent: GenerationIntent, phraseNumber: number): CarryIn {
@@ -159,7 +159,7 @@ function carryInFrom(intent: GenerationIntent, phraseNumber: number): CarryIn {
   return deriveCarryIn({ intent, outcome, phraseNumber })
 }
 
-/** Intent: every standalone case: instrument × profile × spread × seed, each as phrase 1. */
+/** Every standalone case: instrument × profile × spread × seed, each as phrase 1. */
 function standaloneCases(): readonly ReplayKeyCorpusCase[] {
   return INSTRUMENTS.flatMap((instrumentProfileId) =>
     PROFILES.flatMap((profile) =>
@@ -179,7 +179,7 @@ function standaloneCases(): readonly ReplayKeyCorpusCase[] {
 }
 
 /**
- * Intent: a three-phrase chain per instrument and profile on the eighths spread: phrase 1
+ * A three-phrase chain per instrument and profile on the eighths spread: phrase 1
  * standalone (not a case: the standalone cases cover it), phrase 2 receiving phrase 1's carry-in,
  * phrase 3 receiving phrase 2's.
  */
@@ -213,7 +213,7 @@ function chainCases(): readonly ReplayKeyCorpusCase[] {
 }
 
 /**
- * Intent: per instrument, a phrase 2 in F# Dorian receiving the carry-in of a C Ionian phrase 1
+ * Per instrument, a phrase 2 in F# Dorian receiving the carry-in of a C Ionian phrase 1
  * with its final harmony dropped (null), as a session does when the key changes between phrases.
  */
 function nullHarmonyCases(): readonly ReplayKeyCorpusCase[] {
@@ -244,7 +244,7 @@ function nullHarmonyCases(): readonly ReplayKeyCorpusCase[] {
   })
 }
 
-/** Intent: every case of the corpus, in a fixed order. */
+/** Every case of the corpus, in a fixed order. */
 export function replayKeyCorpusCases(): readonly ReplayKeyCorpusCase[] {
   return [...standaloneCases(), ...chainCases(), ...nullHarmonyCases()]
 }

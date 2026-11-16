@@ -23,7 +23,7 @@ import {
 import { buildIntent, carryInAfter, generateSuccess } from './carry-in-fixture'
 
 /**
- * Intent: the golden case's intent exactly as the golden spec builds it: the recorded concert
+ * The golden case's intent exactly as the golden spec builds it: the recorded concert
  * tonal center is passed as the written center that converts back onto it.
  */
 function goldenIntent(goldenCase: GoldenCase) {
@@ -44,7 +44,7 @@ const FAST_CASES = GENERATION_OUTCOME_GOLDEN_V3.filter(
   (goldenCase) => goldenCase.controls.rhythmicVariety !== 'Heavily varied',
 )
 
-/** Intent: generate a three-phrase chain with carry-in, touching the shared memo and caches. */
+/** Generate a three-phrase chain with carry-in, touching the shared memo and caches. */
 function generateSessionWithCarryIn(): void {
   let intent = buildIntent({ seed: 5, label: 'leak' })
   let outcome = generateSuccess(intent)

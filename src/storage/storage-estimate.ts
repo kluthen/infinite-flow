@@ -4,7 +4,7 @@
  * sheet, never with the app's first load. Pure: no browser API.
  */
 
-/** Intent: the space the app's database uses, from the browser's estimate; null if it can't say. */
+/** The space the app's database uses, from the browser's estimate; null if it can't say. */
 // @spec-link [[req_your_data]]
 export function databaseBytes(estimate: StorageEstimate): number | null {
   const details = (estimate as { readonly usageDetails?: Record<string, number> }).usageDetails

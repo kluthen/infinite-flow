@@ -5,31 +5,31 @@ import { analyzeSource } from '../../../scripts/code-health/analyze.mjs'
 import { checkDocs } from '../../../scripts/code-health/rules/docs.mjs'
 import { parseSource } from '../../../scripts/code-health/sources.mjs'
 
-/** Intent: the docs findings of one file, as `LEVEL line message` strings in source order. */
+/** The docs findings of one file, as `LEVEL line message` strings in source order. */
 function docsOf(path: string, text: string): string[] {
   return checkDocs(parseSource(path, text))
     .sort((left, right) => left.line - right.line)
     .map((finding) => `${finding.level} ${finding.line} ${finding.message}`)
 }
 
-/** Intent: the docs findings of a TypeScript source file under src/. */
+/** The docs findings of a TypeScript source file under src/. */
 function docsOfModule(text: string): string[] {
   return docsOf('src/module.ts', text)
 }
 
-/** Intent: the expected text of a missing-doc finding on a non-exported function. */
+/** The expected text of a missing-doc finding on a non-exported function. */
 function warn(line: number, name: string): string {
-  return `WARN ${line} docs: missing intent comment on function ${name}`
+  return `WARN ${line} docs: missing doc comment on function ${name}`
 }
 
-/** Intent: the expected text of a missing-doc finding on an exported function. */
+/** The expected text of a missing-doc finding on an exported function. */
 function error(line: number, name: string): string {
-  return `ERROR ${line} docs: missing intent comment on exported function ${name}`
+  return `ERROR ${line} docs: missing doc comment on exported function ${name}`
 }
 
 describe('docs rule: function kinds', () => {
   it('reports undocumented function declarations and accepts documented ones', () => {
-    const text = `/** Intent: adds one. */
+    const text = `/** Adds one. */
 function documented(value: number) {
   return value + 1
 }
@@ -42,7 +42,7 @@ function bare() {
   })
 
   it('lets a doc on the first overload signature cover the implementation', () => {
-    const documented = `/** Intent: the value as text. */
+    const documented = `/** The value as text. */
 export function format(value: number): string
 export function format(value: string): string
 export function format(value: number | string): string {
@@ -71,7 +71,7 @@ export function format(value: number | string): string {
   set value(next: number) {
     this.count = next
   }
-  /** Intent: back to zero. */
+  /** Back to zero. */
   reset() {
     this.count = 0
   }
@@ -90,7 +90,7 @@ let expression = function () {
   return 2
 }
 var wrapped = (async (value: number) => value) as (value: number) => Promise<number>
-/** Intent: three. */
+/** Three. */
 const documented = () => 3
 `
     expect(docsOfModule(text)).toEqual([
@@ -106,7 +106,7 @@ const documented = () => 3
   onStop() {
     return 2
   },
-  /** Intent: pauses. */
+  /** Pauses. */
   onPause: function () {
     return 3
   },
@@ -175,7 +175,7 @@ function directives() {}
   })
 
   it('does not count a comment separated from the function by a blank line', () => {
-    const text = `/** Intent: a file header, not a doc. */
+    const text = `/** A file header, not a doc. */
 
 export function detached() {}
 `
@@ -184,7 +184,7 @@ export function detached() {}
 
   it('accepts a JSDoc followed by an ATD link, and JSDoc tag lines with prose', () => {
     const text = `/**
- * Intent: parses the input.
+ * Parses the input.
  */
 // @spec-link [[some_atom]]
 export function parse() {}
@@ -219,7 +219,7 @@ export function described(x: string) {
 
 describe('docs rule: exemptions', () => {
   it('exempts anonymous inline callbacks', () => {
-    const text = `/** Intent: doubled values. */
+    const text = `/** Doubled values. */
 export function doubled(values: number[]) {
   return values.map((value) => value * 2).filter(function (value) {
     return value > 0
@@ -265,7 +265,7 @@ interface Shape {
 }
 `
     expect(docsOf('src/types.d.ts', declarations)).toEqual([])
-    const abstract = `/** Intent: a shape. */
+    const abstract = `/** A shape. */
 export abstract class Shape {
   abstract area(): number
 }
@@ -276,14 +276,14 @@ export abstract class Shape {
 
 describe('docs rule: members of typed object literals', () => {
   it('exempts members of a returned literal and of an arrow expression body', () => {
-    const text = `/** Intent: a fake clock. */
+    const text = `/** A fake clock. */
 export function createClock(): Clock {
   return {
     now: () => 0,
     tick() {},
   }
 }
-/** Intent: a fake timer. */
+/** A fake timer. */
 export const createTimer = (): Timer => ({ start: () => 1, stop() {} })
 `
     expect(docsOfModule(text)).toEqual([])
@@ -306,10 +306,10 @@ const legacy = <Writer>{ write() {} }
 
   it('exempts members of a literal initializing an annotated variable, property or parameter', () => {
     const text = `const ports: Ports = { play: () => {}, stop() {} }
-/** Intent: a player. */
+/** A player. */
 class Player {
   private ports: Ports = { play: () => {} }
-  /** Intent: starts with the given ports. */
+  /** Starts with the given ports. */
   start(ports: Ports = { stop() {} }) {}
 }
 `
@@ -364,7 +364,7 @@ export function helper() {}
   })
 
   it('is suppressed by @lint-ignore-documentation and @lint-ignore-all', () => {
-    /** Intent: the docs findings of a file analyzed with every rule and its bypass tokens. */
+    /** The docs findings of a file analyzed with every rule and its bypass tokens. */
     const analyzedDocs = (text: string) =>
       analyzeSource({ path: 'src/module.ts', text, atomIds: new Set() }).filter(
         (finding) => finding.rule === 'docs',

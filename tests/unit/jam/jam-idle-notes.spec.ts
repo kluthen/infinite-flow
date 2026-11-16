@@ -46,7 +46,7 @@ interface HomeNoteCase {
   readonly concertPitch: number
 }
 
-/** Intent: the three built-ins' home notes for one key: written MIDI on the keyboard and saxes. */
+/** The three built-ins' home notes for one key: written MIDI on the keyboard and saxes. */
 function forEachBuiltIn(
   key: string,
   writtenKey: PitchClass,
@@ -169,7 +169,7 @@ describe('jamHomeNote', () => {
   })
 })
 
-/** Intent: Jam's Idle note routing in G major on the keyboard, the conditions set by the test. */
+/** Jam's Idle note routing in G major on the keyboard, the conditions set by the test. */
 function routing(conditions: { canStart: boolean; pageAwaitsClick: boolean }) {
   const deps: JamIdleNotesDependencies = {
     writtenKey: () => 'G',
@@ -238,7 +238,7 @@ function keptPhraseOne(): JamKeptPhraseOne {
   return { timeline: outcome.result.timeline, written }
 }
 
-/** Intent: phrase 1's first attacked note, read from its timeline: its pitch and where it is. */
+/** Phrase 1's first attacked note, read from its timeline: its pitch and where it is. */
 function firstNoteOf(phrase: JamKeptPhraseOne) {
   for (const measure of phrase.timeline.measures) {
     const eventIndex = measure.events.findIndex((event) => event.kind === 'note')
@@ -249,7 +249,7 @@ function firstNoteOf(phrase: JamKeptPhraseOne) {
   throw new Error('phrase 1 has no note')
 }
 
-/** Intent: Jam's Idle note routing with a doodle kept, its phrase 1 shown or not, as the test sets. */
+/** Jam's Idle note routing with a doodle kept, its phrase 1 shown or not, as the test sets. */
 function keptRouting(conditions: { canStart: boolean; phrase: JamKeptPhraseOne | null }) {
   return createJamIdleNotes({
     writtenKey: () => 'G',
@@ -310,7 +310,7 @@ interface ListeningConditions {
   phrase: JamKeptPhraseOne | null
 }
 
-/** Intent: Jam's Idle note routing in G major on the keyboard, able to start, its taps kept. */
+/** Jam's Idle note routing in G major on the keyboard, able to start, its taps kept. */
 function listeningRouting(conditions: ListeningConditions) {
   const tap = vi.fn<(at: number) => void>()
   const notes = createJamIdleNotes({
@@ -327,12 +327,12 @@ function listeningRouting(conditions: ListeningConditions) {
   return { notes, tap }
 }
 
-/** Intent: the tracker's `played` event for `pitch` at `onsetAt`. */
+/** The tracker's `played` event for `pitch` at `onsetAt`. */
 function played(pitch: number, onsetAt: number): PlayedNoteEvent {
   return { kind: 'played', note: { pitch: makeConcertPitch(pitch), velocity: 90, onsetAt } }
 }
 
-/** Intent: the tracker's `ended` event for `pitch` from `onsetAt` to `releaseAt`. */
+/** The tracker's `ended` event for `pitch` from `onsetAt` to `releaseAt`. */
 function ended(pitch: number, onsetAt: number, releaseAt: number): PlayedNoteEvent {
   return {
     kind: 'ended',

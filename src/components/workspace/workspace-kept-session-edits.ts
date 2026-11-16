@@ -58,14 +58,14 @@ export interface KeptSessionEdits {
   readonly resumeRetries: (keys: readonly string[]) => void
 }
 
-/** Intent: how a session with the pin `pinned` is kept, a session not saved staying so. */
+/** How a session with the pin `pinned` is kept, a session not saved staying so. */
 function keepingOf(keeping: SessionKeeping, pinned: boolean): SessionKeeping {
   if (keeping === 'not-saved') return keeping
   return pinned ? 'pinned' : 'not-pinned'
 }
 
 /**
- * Intent: the session with phrase `phraseNumber` marked a favorite or not; marking pins it, and
+ * The session with phrase `phraseNumber` marked a favorite or not; marking pins it, and
  * removing the last favorite leaves the pin as it is.
  */
 // @spec-link [[req_favorite_phrases]]
@@ -88,14 +88,14 @@ function withFavorite(
   })
 }
 
-/** Intent: the session pinned or unpinned, its keeping saying so unless it is not saved. */
+/** The session pinned or unpinned, its keeping saying so unless it is not saved. */
 // @spec-link [[rule_pinned_session_kept]]
 function withPinned(session: ReviewedSession, pinned: boolean): ReviewedSession {
   return Object.freeze({ ...session, pinned, keeping: keepingOf(session.keeping, pinned) })
 }
 
 /**
- * Intent: build the Review's changes over the controller's core and the list's rows: each at Idle
+ * Build the Review's changes over the controller's core and the list's rows: each at Idle
  * only, applied in memory at once, then saved when made.
  */
 // @spec-link [[module_kept_session_changes]]
@@ -124,20 +124,20 @@ export function createKeptSessionEdits(
   /** The sessions whose retry such a batch held back, to run again if it is refused. */
   const heldBack = new Set<string>()
 
-  /** Intent: the session held under `key`, in the Review or as the most recent one; null if none. */
+  /** The session held under `key`, in the Review or as the most recent one; null if none. */
   const findHeld = (key: string): ReviewedSession | null => {
     if (state.review?.key === key) return state.review
     const recent = state.mostRecent
     return recent?.kind === 'held' && recent.session.key === key ? recent.session : null
   }
 
-  /** Intent: throw unless at Idle, where every change is made. */
+  /** Throw unless at Idle, where every change is made. */
   const assertIdle = (action: string): void => {
     if (state.phase !== 'idle')
       throw new SessionControllerError(`session controller: ${action} during a session`)
   }
 
-  /** Intent: the session held under `key`, at Idle; throws out of turn or with none held. */
+  /** The session held under `key`, at Idle; throws out of turn or with none held. */
   const heldAtIdle = (key: string, action: string): ReviewedSession => {
     assertIdle(action)
     const session = findHeld(key)
@@ -147,7 +147,7 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: the row this version reads of the kept session under `key`, not held in memory;
+   * The row this version reads of the kept session under `key`, not held in memory;
    * throws when there is none (none at all, or one a newer version wrote).
    */
   // @spec-link [[module_kept_session_reach]]
@@ -162,7 +162,7 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: hold `next` in place of the session under its key, in the most recent session and in
+   * Hold `next` in place of the session under its key, in the most recent session and in
    * the Review (which keeps whether it shows), so both draw the very same history.
    */
   const replaceHeld = (next: ReviewedSession): void => {
@@ -180,7 +180,7 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: run the session's own save again for the session under `key`, with its facts as they
+   * Run the session's own save again for the session under `key`, with its facts as they
    * are now (a Jam's Jam part and its decline included); once saved, its keep line takes its pinned or not-pinned wording, and the damaged kept
    * sessions its batch deleted are told. A failed retry changes nothing shown. Nothing to retry without the history of a refused save.
    * It stops before its transaction, writing nothing, once its session has left memory, and while
@@ -193,7 +193,7 @@ export function createKeptSessionEdits(
     if (pending === null || pending.key !== session.key) return
     const { key, playedNotesKept, pinned, favorites, comment, jam } = session
     const saves = rows.savingThrough(core.deps.saveHold, () => findHeld(key))
-    /** Intent: whether the retry stops: its session left memory, or a batch erasing it holds it. */
+    /** Whether the retry stops: its session left memory, or a batch erasing it holds it. */
     const stopped = (): boolean => {
       if (unsaved !== pending) return true
       if (!erasing.has(key)) return false
@@ -219,7 +219,7 @@ export function createKeptSessionEdits(
     }
   }
 
-  /** Intent: run the retry of `session`'s own save as the retry under way. */
+  /** Run the retry of `session`'s own save as the retry under way. */
   const retried = (session: ReviewedSession): Promise<void> => {
     const run = retry(session).finally(() => {
       if (retrying === run) retrying = null
@@ -229,7 +229,7 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: save a change made in memory to the session under `key` once any retry under way is
+   * Save a change made in memory to the session under `key` once any retry under way is
    * over: through `change` while the session is kept on the device, by a retry of its own save
    * while it is not, and not at all while saving is off or once the session left memory.
    */
@@ -246,7 +246,7 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: run again, once any retry under way is over, the retry of the session under `key`
+   * Run again, once any retry under way is over, the retry of the session under `key`
    * that a refused batch held back, while it is still held in memory, not saved, and saving is on.
    */
   // @spec-link [[rule_failed_save_never_disturbs_session]]
@@ -257,7 +257,7 @@ export function createKeptSessionEdits(
     await retried(session)
   }
 
-  /** Intent: mark or unmark a favorite, at once in memory, then save it. */
+  /** Mark or unmark a favorite, at once in memory, then save it. */
   // @spec-link [[req_favorite_phrases]]
   // @spec-link [[rule_favorite_pins_session]]
   // @spec-link [[rule_persistent_storage_requested]]
@@ -274,7 +274,7 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: pin or unpin a kept session not held in memory, by its row: the row at once, then
+   * Pin or unpin a kept session not held in memory, by its row: the row at once, then
    * saved through the change path, which reads its session-wide record only; nothing is saved
    * while saving is off, and a refusal is told by the notice row, the row staying as changed.
    */
@@ -290,7 +290,7 @@ export function createKeptSessionEdits(
     return changeKeptPinned(kept.changes, key, pinned).then(() => undefined)
   }
 
-  /** Intent: pin or unpin, at once in memory, then save it. */
+  /** Pin or unpin, at once in memory, then save it. */
   // @spec-link [[rule_pinned_session_kept]]
   // @spec-link [[rule_persistent_storage_requested]]
   const setPinned = (key: string, pinned: boolean): Promise<void> => {
@@ -303,7 +303,7 @@ export function createKeptSessionEdits(
     return saved(key, () => changeKeptPinned(kept.changes, key, pinned))
   }
 
-  /** Intent: set the comment, trimmed, at once in memory, then save it unless unchanged. */
+  /** Set the comment, trimmed, at once in memory, then save it unless unchanged. */
   // @spec-link [[rule_session_comment]]
   const setComment = (key: string, text: string): Promise<void> => {
     const session = heldAtIdle(key, 'the comment changed')
@@ -318,7 +318,7 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: `Keep mine` on a kept Jam session not held in memory (the one Jam's kept doodle comes
+   * `Keep mine` on a kept Jam session not held in memory (the one Jam's kept doodle comes
    * from, its Review long closed), by its row: the row at once, then saved through the change path,
    * which reads its session-wide record only; nothing is saved while saving is off, the row holding
    * it for the visit. Declined already, nothing.
@@ -339,7 +339,7 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: `Keep mine`: decline the suggestion of the Jam session under `key`, at once in
+   * `Keep mine`: decline the suggestion of the Jam session under `key`, at once in
    * memory, then save it, as a pin is: a refusal holds it in memory for the visit, a retry of a
    * refused save carries it, and nothing is saved while saving is off; a session not held, by its
    * row. Declined already, nothing.
@@ -355,7 +355,7 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: drop the session under `key` from memory: the Review, which the session list replaces
+   * Drop the session under `key` from memory: the Review, which the session list replaces
    * when it showed, and the most recent session.
    */
   const forget = (key: string): void => {
@@ -370,7 +370,7 @@ export function createKeptSessionEdits(
   }
 
   /**
-   * Intent: `Delete session`: from the device (one batch), then from memory and its row; a
+   * `Delete session`: from the device (one batch), then from memory and its row; a
    * session held in memory only because its save failed, from memory alone; one not held, by its
    * row, its body never read; once deleted, the deletion is recorded as the player's last one. A
    * refusal, or saving turned off meanwhile, leaves it as it was.

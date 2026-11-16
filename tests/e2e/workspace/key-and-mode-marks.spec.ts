@@ -44,19 +44,19 @@ const BUILT_IN_MODES = [
   { name: 'Modal (Dorian)', modes: ['Dorian'], other: 'Locrian' },
 ] as const
 
-/** Intent: the named key or mode radiogroup. */
+/** The named key or mode radiogroup. */
 function group(page: Page, label: 'Written key' | 'Collection'): Locator {
   return page.getByRole('radiogroup', { name: label, exact: true })
 }
 
-/** Intent: the labels of a group's marked segments, in the control's order. */
+/** The labels of a group's marked segments, in the control's order. */
 async function markedLabels(page: Page, label: 'Written key' | 'Collection'): Promise<string[]> {
   const texts = await group(page, label).locator('[role="radio"].is-marked').allInnerTexts()
   return texts.map((text) => text.trim())
 }
 
 /**
- * Intent: the group shows exactly `marked` marked and, when `note` is given, names a
+ * The group shows exactly `marked` marked and, when `note` is given, names a
  * `field-note` reading exactly `note` with its `aria-describedby`; with `note` null, nothing is
  * marked and the group names no description at all.
  */
@@ -80,18 +80,18 @@ async function expectMarks(
   await expect(radiogroup).toHaveAccessibleDescription(note)
 }
 
-/** Intent: Reel's marks: Mixolydian and Dorian on Collection with Reel's note, none on Written key. */
+/** Reel's marks: Mixolydian and Dorian on Collection with Reel's note, none on Written key. */
 async function expectReelMarks(page: Page): Promise<void> {
   await expectMarks(page, 'Collection', ['Dorian', 'Mixolydian'], REEL_NOTE)
   await expectMarks(page, 'Written key', [], null)
 }
 
-/** Intent: the field holding the named key or mode radiogroup, with its notes. */
+/** The field holding the named key or mode radiogroup, with its notes. */
 function field(page: Page, label: 'Written key' | 'Collection'): Locator {
   return page.locator('.field-group').filter({ has: group(page, label) })
 }
 
-/** Intent: no marks and no note on either control. */
+/** No marks and no note on either control. */
 async function expectNoMarks(page: Page): Promise<void> {
   await expectMarks(page, 'Collection', [], null)
   await expectMarks(page, 'Written key', [], null)
@@ -103,12 +103,12 @@ async function expectNoMarks(page: Page): Promise<void> {
   }
 }
 
-/** Intent: one radio is the checked option of its group. */
+/** One radio is the checked option of its group. */
 async function expectChecked(page: Page, label: string, option: string): Promise<void> {
   await expect(radio(page, label, option)).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: the box shows Reel with its description line. */
+/** The box shows Reel with its description line. */
 async function expectReelShown(page: Page): Promise<void> {
   await expectPresetShown(page, 'Reel')
   await expect(presetDescription(page)).toHaveText(REEL_DESCRIPTION)
@@ -123,7 +123,7 @@ interface MarkBox {
 }
 
 /**
- * Intent: a segment's `::after` as computed, with `--segment-mark-size` resolved to pixels by a
+ * A segment's `::after` as computed, with `--segment-mark-size` resolved to pixels by a
  * probe sized with it, removed at once.
  */
 function markBox(segment: Locator): Promise<MarkBox> {

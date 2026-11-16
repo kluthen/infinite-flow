@@ -44,14 +44,14 @@ const NARROWER_PHONE = { width: 700, height: 360 }
 /** A wider landscape phone, still below bp-tablet-landscape. */
 const WIDER_PHONE = { width: 800, height: 360 }
 
-/** Intent: wait for the drawn phrase to be the one with this seed, then for the session to idle. */
+/** Wait for the drawn phrase to be the one with this seed, then for the session to idle. */
 async function awaitDrawnSeed(page: Page, seed: number): Promise<void> {
   await expect.poll(async () => (await harnessSnapshot(page)).seed, { timeout: 30_000 }).toBe(seed)
   await awaitIdle(page)
   await expect(page.locator('.staff-frame')).toHaveClass(/staff-ready/)
 }
 
-/** Intent: assert one run announced "Generating phrase" once and "Phrase ready" once. */
+/** Assert one run announced "Generating phrase" once and "Phrase ready" once. */
 async function expectOneLoadingThenReady(page: Page): Promise<void> {
   await expect(statusRegion(page)).toHaveText('Phrase ready')
   expect(await announcedCount(page, '.generation-status', 'Generating phrase')).toBe(1)

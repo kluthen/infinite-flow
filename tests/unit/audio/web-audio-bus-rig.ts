@@ -6,10 +6,10 @@
 import { createWebAudioOutput } from '@/audio/web-audio-output'
 import { createFakeWebAudioContext, mixNode } from './fake-web-audio-context'
 
-/** Intent: middle C's frequency in equal temperament, A4 = 440 Hz. */
+/** Middle C's frequency in equal temperament, A4 = 440 Hz. */
 export const MIDDLE_C_HZ = 440 * 2 ** ((60 - 69) / 12)
 
-/** Intent: a fresh output on a fake context, with its eight mix gains found. */
+/** A fresh output on a fake context, with its eight mix gains found. */
 export function setUp() {
   const fake = createFakeWebAudioContext()
   const output = createWebAudioOutput(fake.port, fake.performanceNow)

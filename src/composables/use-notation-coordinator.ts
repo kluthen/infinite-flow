@@ -89,20 +89,20 @@ interface AwaitingRequest {
 }
 
 /**
- * Intent: the trailing size argument of a planning call: the shared system-position size the
+ * The trailing size argument of a planning call: the shared system-position size the
  * inputs carry, or none, leaving the engraver's built-in default, when they carry none.
  */
 function sizeArgument(inputs: StaffLayoutInputs): [] | [number] {
   return inputs.systemPositionUnits === undefined ? [] : [inputs.systemPositionUnits]
 }
 
-/** Intent: build one coordinator instance for one workspace session's PhraseScore lifetime. */
+/** Build one coordinator instance for one workspace session's PhraseScore lifetime. */
 export function createNotationCoordinator(
   reporter: NotationCoordinatorSessionReporter,
   clefs: NotationCoordinatorClefs,
 ): NotationCoordinator {
   /**
-   * Intent: the written phrase a result is drawn as: its profile's own written pitch, in the clef
+   * The written phrase a result is drawn as: its profile's own written pitch, in the clef
    * of the instrument its intent names, which the written phrase carries.
    */
   // @spec-link [[module_idle_fit_round]]
@@ -121,7 +121,7 @@ export function createNotationCoordinator(
   let hasPublishedPhrase = false
   let awaiting: AwaitingRequest | null = null
 
-  /** Intent: compute the written phrase and await PhraseScore's next settlement of it. */
+  /** Compute the written phrase and await PhraseScore's next settlement of it. */
   function notate(result: WorkspaceSessionResult): Promise<void> {
     if (awaiting !== null) {
       throw new NotationCoordinatorUsageError(
@@ -136,7 +136,7 @@ export function createNotationCoordinator(
     })
   }
 
-  /** Intent: drop the presented phrase for a session transition that discards it without redrawing. */
+  /** Drop the presented phrase for a session transition that discards it without redrawing. */
   function clearPresentedPhrase(): void {
     if (awaiting !== null) {
       throw new NotationCoordinatorUsageError(
@@ -148,7 +148,7 @@ export function createNotationCoordinator(
   }
 
   /**
-   * Intent: settle a pending notate() request on success, or report an outside-operation recovery.
+   * Settle a pending notate() request on success, or report an outside-operation recovery.
    * With no phrase ever published (or one since cleared) there is no mounted PhraseScore to have
    * redrawn anything, so there is nothing to report.
    */
@@ -165,7 +165,7 @@ export function createNotationCoordinator(
   }
 
   /**
-   * Intent: settle a pending notate() request on failure, or report an outside-operation failure,
+   * Settle a pending notate() request on failure, or report an outside-operation failure,
    * under the same no-published-phrase guard as `handleEngraved`.
    */
   // @spec-link [[service_idle_generation_session]]
@@ -185,7 +185,7 @@ export function createNotationCoordinator(
   const layoutListeners = new Set<(inputs: StaffLayoutInputs) => void>()
 
   /**
-   * Intent: keep the reported inputs as the latest, then tell every subscriber; stored first, so a
+   * Keep the reported inputs as the latest, then tell every subscriber; stored first, so a
    * check a subscriber starts in reaction already plans with them.
    */
   // @spec-link [[module_idle_fit_round]]
@@ -194,7 +194,7 @@ export function createNotationCoordinator(
     for (const listener of [...layoutListeners]) listener(inputs)
   }
 
-  /** Intent: add a layout-report listener; the returned function removes it. */
+  /** Add a layout-report listener; the returned function removes it. */
   // @spec-link [[module_idle_fit_round]]
   function subscribeToLayout(listener: (inputs: StaffLayoutInputs) => void): () => void {
     layoutListeners.add(listener)
@@ -204,7 +204,7 @@ export function createNotationCoordinator(
   }
 
   /**
-   * Intent: the latest layout inputs, or the retryable failure a check meets before `PhraseScore`
+   * The latest layout inputs, or the retryable failure a check meets before `PhraseScore`
    * has measured any. There are no default inputs: a check against a guessed width could let a
    * phrase through that the staff then cannot draw.
    */
@@ -221,7 +221,7 @@ export function createNotationCoordinator(
   }
 
   /**
-   * Intent: the engraver module with its notation fonts ready, since the planning measures the
+   * The engraver module with its notation fonts ready, since the planning measures the
    * chord symbols' text as the drawing does. A load or font failure is the loader's or the font
    * wait's own NotationError, unchanged; the next check tries again.
    */
@@ -233,7 +233,7 @@ export function createNotationCoordinator(
   }
 
   /**
-   * Intent: check, drawing nothing, whether the result's written phrase fits the staff at the
+   * Check, drawing nothing, whether the result's written phrase fits the staff at the
    * layout inputs current once the engraver is ready.
    */
   // @spec-link [[module_idle_fit_round]]
@@ -252,7 +252,7 @@ export function createNotationCoordinator(
   }
 
   /**
-   * Intent: check, whatever the notes, whether the staff has room with this key signature, in the
+   * Check, whatever the notes, whether the staff has room with this key signature, in the
    * selected instrument's clef, at the layout inputs current once the engraver is ready.
    */
   // @spec-link [[module_idle_fit_round]]

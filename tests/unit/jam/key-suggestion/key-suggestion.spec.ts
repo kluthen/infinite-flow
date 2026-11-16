@@ -30,7 +30,7 @@ import {
   WORKED_EXAMPLE,
 } from './key-suggestion-doodles'
 
-/** Intent: a built-in instrument profile, by id. */
+/** A built-in instrument profile, by id. */
 function instrument(id: string) {
   const profile = findBuiltInInstrumentProfile(id)
   if (profile === undefined) throw new Error(`No built-in instrument ${id}.`)
@@ -40,7 +40,7 @@ function instrument(id: string) {
 const C_KEYBOARD = instrument('c-keyboard')
 const TENOR = instrument('bb-tenor')
 
-/** Intent: the answer for a doodle under Jam's written key and Collection, on an instrument. */
+/** The answer for a doodle under Jam's written key and Collection, on an instrument. */
 function answer(
   doodle: QuantizedDoodle,
   tonalCenter: PitchClass,
@@ -50,7 +50,7 @@ function answer(
   return suggestKeyAndMode(doodle, { tonalCenter, collection }, profile)
 }
 
-/** Intent: a suggested answer as "D Minor", or the answer's kind. */
+/** A suggested answer as "D Minor", or the answer's kind. */
 function said(suggestion: KeySuggestion): string {
   return suggestion.kind === 'suggested'
     ? `${suggestion.tonalCenter} ${suggestion.collection}`

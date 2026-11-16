@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest'
 import { controllerRig, type ControllerRig } from './session-controller-rig'
 import { connectKeys, KEYS, lift, press, rigStartingNote } from './session-controller-midi'
 
-/** Intent: KEYS reattached at load, as remembered, MIDI access already allowed; audio locked. */
+/** KEYS reattached at load, as remembered, MIDI access already allowed; audio locked. */
 async function reattachKeys(rig: ControllerRig): Promise<void> {
   rig.midiAccess.setPermission('granted')
   rig.midiAccess.plug(KEYS, rig.audioRig.performanceTimeAt(rig.audioRig.now()))

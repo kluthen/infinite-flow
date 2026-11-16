@@ -27,7 +27,7 @@ import {
   gridMeasure,
 } from './fixture-parts'
 
-/** Intent: build the three-sharp A major written key. */
+/** Build the three-sharp A major written key. */
 function keyAMajor(): WrittenKey {
   const scale: readonly SpelledPitchClass[] = [
     { letter: 'A', alter: 0 },
@@ -151,7 +151,7 @@ const GRID_CHORDS: readonly [MeasureChords, MeasureChords, MeasureChords, Measur
 /** The written sign of a root's alteration in a chord symbol's text. */
 const ALTER_SIGN: Readonly<Record<number, string>> = { [-1]: '♭', 0: '', 1: '♯' }
 
-/** Intent: the written chord symbol of one grid chord at a tick, as a seventh chord or a triad. */
+/** The written chord symbol of one grid chord at a tick, as a seventh chord or a triad. */
 function gridChordSymbol(
   chord: GridChord,
   startTick: number,
@@ -170,7 +170,7 @@ function gridChordSymbol(
 }
 
 /**
- * Intent: build a chord-grid fixture: every measure a full grid of `value` notes (the A major
+ * Build a chord-grid fixture: every measure a full grid of `value` notes (the A major
  * sixteenth, eighth or quarter run, no displayed accidental), its two chords at beats 1 and 3
  * (ticks 0 and 8), written as `symbols`.
  */
@@ -180,7 +180,7 @@ export function buildChordGridPhrase(
 ): WrittenPhrase {
   const { duration, run } = GRID_VALUES[value]
   const noAccidentals = run.map(() => null)
-  /** Intent: build measure `index` of the grid with its two chords. */
+  /** Build measure `index` of the grid with its two chords. */
   const measure = (index: 0 | 1 | 2 | 3): WrittenMeasure => {
     const [first, third] = GRID_CHORDS[index]
     return gridMeasure(index, duration, run, noAccidentals, [

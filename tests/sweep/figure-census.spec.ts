@@ -32,7 +32,7 @@ const EVERY_FIGURE = [
   [67, 69, 67, 64, 60, 64, 67, 72],
 ].flat()
 
-/** Intent: the census of a hand-written phrase through the census's own facts path. */
+/** The census of a hand-written phrase through the census's own facts path. */
 function census(midis: readonly number[], overrides: Parameters<typeof context>[0]): PhraseCensus {
   return censusOfContext(context(overrides), midis)
 }

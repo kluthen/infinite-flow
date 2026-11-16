@@ -36,7 +36,7 @@ export type SavesCall =
   | { readonly method: 'deletePreset'; readonly id: PresetId }
 
 /**
- * Intent: preset saves recording each call and resolving `outcome` (saved unless set), or, while
+ * Preset saves recording each call and resolving `outcome` (saved unless set), or, while
  * `pending` holds a deferred, that deferred's outcome.
  */
 export function fakePresetSaves() {
@@ -45,7 +45,7 @@ export function fakePresetSaves() {
     outcome: 'saved',
     pending: null,
   }
-  /** Intent: the outcome the next call resolves. */
+  /** The outcome the next call resolves. */
   const respond = (): Promise<SaveOutcome> =>
     control.pending?.promise ?? Promise.resolve(control.outcome)
   const saves: PresetSaves = {
@@ -110,7 +110,7 @@ export interface RigStart {
 }
 
 /**
- * Intent: the composable over a real Idle session started from `start` (Late night and Warm-up
+ * The composable over a real Idle session started from `start` (Late night and Warm-up
  * kept, Late night selected in D Dorian unless said otherwise), fake preset saves, a controller
  * phase and a saving state the test sets, ids `new-1`, `new-2`... and the refused saves told.
  */
@@ -143,12 +143,12 @@ export function rig(start: RigStart = {}) {
   return { ...fit, state: fit.session.state, phase, savingOff, fake, refused, presets }
 }
 
-/** Intent: the ten preset-held controls of a set of controls. */
+/** The ten preset-held controls of a set of controls. */
 export function heldControls(controls: GenerationControls): Record<string, unknown> {
   return Object.fromEntries(PRESET_HELD_CONTROL_KEYS.map((key) => [key, controls[key]]))
 }
 
-/** Intent: `count` player presets, `p1`... named "Preset 1"..., Neutral's values. */
+/** `count` player presets, `p1`... named "Preset 1"..., Neutral's values. */
 export function manyPresets(count: number): Preset[] {
   return Array.from({ length: count }, (_, index) =>
     makePreset({ ...WARM_UP, id: `p${String(index + 1)}`, name: `Preset ${String(index + 1)}` }),

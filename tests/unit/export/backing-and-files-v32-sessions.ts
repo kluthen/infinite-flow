@@ -63,7 +63,7 @@ export interface CorpusSession {
   readonly doodle?: CorpusDoodle
 }
 
-/** Intent: the labels of an instrument's levels1 chain, phrases 1 to 3. */
+/** The labels of an instrument's levels1 chain, phrases 1 to 3. */
 function chainLabels(instrument: string): readonly string[] {
   return [1, 2, 3].map((phrase) => `${instrument}-levels1-chain-p${phrase}`)
 }
@@ -112,7 +112,7 @@ export interface SessionFile {
   readonly bytes: Uint8Array
 }
 
-/** Intent: every stored replay key of the phrase corpus, by label. */
+/** Every stored replay key of the phrase corpus, by label. */
 function corpusKeys(): ReadonlyMap<string, string> {
   const corpus = JSON.parse(readFileSync(PHRASE_CORPUS_PATH, 'utf8')) as {
     readonly cases: readonly { readonly label: string; readonly key: string }[]
@@ -120,7 +120,7 @@ function corpusKeys(): ReadonlyMap<string, string> {
   return new Map(corpus.cases.map((corpusCase) => [corpusCase.label, corpusCase.key]))
 }
 
-/** Intent: one phrase of a session, regenerated from its key and recorded as the history does. */
+/** One phrase of a session, regenerated from its key and recorded as the history does. */
 function recordedPhrase(
   keys: ReadonlyMap<string, string>,
   label: string,
@@ -145,7 +145,7 @@ function recordedPhrase(
   }
 }
 
-/** Intent: a Jam session's doodle section, written for its phrase 1, or null for any other. */
+/** A Jam session's doodle section, written for its phrase 1, or null for any other. */
 function doodleSection(
   session: CorpusSession,
   phraseOne: ReviewedPhrase,
@@ -165,14 +165,14 @@ function doodleSection(
   )
 }
 
-/** Intent: a rendered backing note as one readable line: pitch, start and length in whole notes. */
+/** A rendered backing note as one readable line: pitch, start and length in whole notes. */
 function noteText(note: BackingNote): string {
   const { start, duration } = note
   return `${note.pitch} at ${start.numerator}/${start.denominator} for ${duration.numerator}/${duration.denominator}`
 }
 
 /**
- * Intent: the backing's rendered notes of every phrase, as the audio transport renders them in
+ * The backing's rendered notes of every phrase, as the audio transport renders them in
  * 4/4: a JSON text, one phrase per entry, its bass and its chords one note per line.
  */
 function backingText(records: readonly ReviewedPhrase[]): string {
@@ -194,7 +194,7 @@ const FILE_REQUESTS: readonly (readonly [string, GeneratedNotesRequest])[] = [
 ]
 
 /**
- * Intent: the four files of one session, rendered and encoded now from the phrase corpus's keys:
+ * The four files of one session, rendered and encoded now from the phrase corpus's keys:
  * `<name>.backing.json`, `<name>.musicxml`, `<name>.mid` and `<name>-with-backing.mid`.
  */
 export function corpusSessionFiles(session: CorpusSession): readonly SessionFile[] {
@@ -203,7 +203,7 @@ export function corpusSessionFiles(session: CorpusSession): readonly SessionFile
     recordedPhrase(keys, label, index, session.clef),
   )
   const history: ExportableHistory = {
-    /** Intent: the session's recorded phrases, in order. */
+    /** The session's recorded phrases, in order. */
     phrases: () => records,
     startedAt: STARTED_AT_MS,
   }

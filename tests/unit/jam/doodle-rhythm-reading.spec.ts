@@ -165,7 +165,7 @@ describe('the syncopation read from a doodle', () => {
 
   // @test-link [[rule_doodle_syncopation_reading]]
   it('is Occasional offbeats while 2 × syncopated measures ≤ M, Active displacement above', () => {
-    /** Intent: an Eighth doodle of `measureCount` measures, the first `syncopated` pushing beat 2. */
+    /** An Eighth doodle of `measureCount` measures, the first `syncopated` pushing beat 2. */
     const pushed = (measureCount: 2 | 3 | 4, syncopated: number) =>
       doodleOf(
         measureCount,
@@ -280,7 +280,7 @@ describe('the silence density read from a doodle', () => {
     ['Quarter', 4, QUARTER_SILENCES],
     ['Eighth', 2, EIGHTH_SILENCES],
   ] as const)('under %s', (density, step, silences) => {
-    /** Intent: the four-measure doodle whose rests total `rest` ticks under this density. */
+    /** The four-measure doodle whose rests total `rest` ticks under this density. */
     const withRest = (rest: number) => doodleWithSilences(4, step, silences[rest]!)
 
     // @test-link [[rule_doodle_silence_density_reading]]

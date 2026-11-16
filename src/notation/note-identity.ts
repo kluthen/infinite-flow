@@ -18,7 +18,7 @@ export class NoteIdentityError extends Error {
 }
 
 /**
- * Intent: resolve every written glyph, measure by measure in `measure.events` order, to the
+ * Resolve every written glyph, measure by measure in `measure.events` order, to the
  * identity of the attack it sounds as. A fresh attack takes its measure's index and its source
  * event index (its index among the measure's concert events, rests included); a glyph tied from
  * the previous glyph (a split inside the measure, or a tie continuation across a barline, whatever
@@ -61,7 +61,7 @@ export function resolveGlyphIdentities(
 }
 
 /**
- * Intent: the string an identity is written as on the engraved score's tagged parts,
+ * The string an identity is written as on the engraved score's tagged parts,
  * `<phraseNumber>:<measureIndex>:<eventIndex>`.
  */
 // @spec-link [[module_notation_note_identity_overlays]]

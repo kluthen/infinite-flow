@@ -53,7 +53,7 @@ export interface WorkspaceKeptDoodleJam {
 }
 
 /**
- * Intent: whether an ended session was a Jam on the kept doodle that reached phrase 1: its end
+ * Whether an ended session was a Jam on the kept doodle that reached phrase 1: its end
  * hands a Jam part with no count-in its played notes count from.
  */
 // @spec-link [[rule_jam_on_held_doodle_skips_capture]]
@@ -62,7 +62,7 @@ function endedJamOnKeptDoodle(end: SessionEndSummary | null): boolean {
 }
 
 /**
- * Intent: the shell's Jam on the kept doodle over its seams. A start with no doodle kept is a
+ * The shell's Jam on the kept doodle over its seams. A start with no doodle kept is a
  * fresh Jam's. With one, a start (whose conditions the caller has judged: a controller connected
  * and phrase 1 shown with nothing running, failed or noticed on it) hands the controller phrase 1
  * with its written phrase, Jam's tempo, Jam's queue's take and the kept doodle (its suggestion,
@@ -73,7 +73,7 @@ function endedJamOnKeptDoodle(end: SessionEndSummary | null): boolean {
 // @spec-link [[rule_session_end_generates_next_phrase_one]]
 // @spec-link [[module_kept_doodle]]
 export function useKeptDoodleJam(seams: KeptDoodleJamSeams): WorkspaceKeptDoodleJam {
-  /** Intent: start a Jam on the kept doodle: its phrase 1 written and Jam's tempo must be there. */
+  /** Start a Jam on the kept doodle: its phrase 1 written and Jam's tempo must be there. */
   function startOnKeptDoodle(kept: JamKeptDoodle): void {
     const phraseOne = seams.phrase.state.result
     const written = seams.phrase.written.value

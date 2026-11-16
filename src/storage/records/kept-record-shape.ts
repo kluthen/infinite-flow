@@ -15,7 +15,7 @@ export class KeptRecordError extends Error {
   }
 }
 
-/** Intent: whether a value is a plain object, as a stored record or object value is. */
+/** Whether a value is a plain object, as a stored record or object value is. */
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
   const prototype: unknown = Object.getPrototypeOf(value)
@@ -23,7 +23,7 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Intent: a stored plain object holding exactly the given fields, the optional ones present or
+ * A stored plain object holding exactly the given fields, the optional ones present or
  * not, and no other; anything else is refused.
  */
 export function exactRecord(
@@ -44,7 +44,7 @@ export function exactRecord(
 }
 
 /**
- * Intent: whether every index of an array holds an entry. A stored array with a hole is refused:
+ * Whether every index of an array holds an entry. A stored array with a hole is refused:
  * the array methods the readers map it with skip a hole, so it would be read as a shorter list.
  */
 function isDense(value: readonly unknown[]): boolean {
@@ -52,7 +52,7 @@ function isDense(value: readonly unknown[]): boolean {
   return true
 }
 
-/** Intent: a stored array with at least one entry and no hole. */
+/** A stored array with at least one entry and no hole. */
 export function nonEmptyArray(value: unknown, context: string): readonly unknown[] {
   if (!Array.isArray(value) || value.length === 0)
     throw new KeptRecordError(`${context} must be a non-empty array.`)
@@ -60,21 +60,21 @@ export function nonEmptyArray(value: unknown, context: string): readonly unknown
   return value
 }
 
-/** Intent: a stored array, empty or not, with no hole. */
+/** A stored array, empty or not, with no hole. */
 export function anyArray(value: unknown, context: string): readonly unknown[] {
   if (!Array.isArray(value)) throw new KeptRecordError(`${context} must be an array.`)
   if (!isDense(value)) throw new KeptRecordError(`${context} must have no hole.`)
   return value
 }
 
-/** Intent: a stored whole number within an inclusive range. */
+/** A stored whole number within an inclusive range. */
 export function integerIn(value: unknown, min: number, max: number, context: string): number {
   if (typeof value !== 'number' || !Number.isInteger(value) || value < min || value > max)
     throw new KeptRecordError(`${context} must be a whole number from ${min} to ${max}.`)
   return value
 }
 
-/** Intent: a stored value that is exactly one of the given numbers. */
+/** A stored value that is exactly one of the given numbers. */
 export function oneOfNumbers<T extends number>(
   value: unknown,
   allowed: readonly T[],
@@ -85,7 +85,7 @@ export function oneOfNumbers<T extends number>(
   return value as T
 }
 
-/** Intent: a stored string holding more than blanks. */
+/** A stored string holding more than blanks. */
 export function nonEmptyString(value: unknown, context: string): string {
   if (typeof value !== 'string' || value.trim().length === 0)
     throw new KeptRecordError(`${context} must be a non-empty string.`)
@@ -98,28 +98,28 @@ export function nonEmptyString(value: unknown, context: string): string {
  */
 export type Catalog<T extends string> = Readonly<Record<T, true>>
 
-/** Intent: a stored value that names a member of a closed set. */
+/** A stored value that names a member of a closed set. */
 export function member<T extends string>(catalog: Catalog<T>, value: unknown, context: string): T {
   if (typeof value !== 'string' || !Object.hasOwn(catalog, value))
     throw new KeptRecordError(`${context} has an unknown value ${JSON.stringify(value)}.`)
   return value as T
 }
 
-/** Intent: a stored finite number no lower than `min`. */
+/** A stored finite number no lower than `min`. */
 export function finiteAtLeast(value: unknown, min: number, context: string): number {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < min)
     throw new KeptRecordError(`${context} must be a finite number of at least ${min}.`)
   return value
 }
 
-/** Intent: a stored finite number above zero, such as a tempo or a length. */
+/** A stored finite number above zero, such as a tempo or a length. */
 export function positiveFinite(value: unknown, context: string): number {
   if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0)
     throw new KeptRecordError(`${context} must be a finite number above 0.`)
   return value
 }
 
-/** Intent: a stored boolean, never a truthy or falsy stand-in. */
+/** A stored boolean, never a truthy or falsy stand-in. */
 export function booleanValue(value: unknown, context: string): boolean {
   if (typeof value !== 'boolean') throw new KeptRecordError(`${context} must be a boolean.`)
   return value

@@ -169,7 +169,7 @@ export interface SavePolicy extends VisitRequests {
 // @spec-link [[module_save_policy]]
 export type SaveFailureListener = (kind: SaveFailureKind, startsRun: boolean) => void
 
-/** Intent: the saving state a visit starts in, from the state the port opened in. */
+/** The saving state a visit starts in, from the state the port opened in. */
 function initialState(status: StoragePortStatus): SavingState {
   if (status === 'ready') return 'on'
   return status === 'outdated' ? 'off-outdated' : 'off-unreadable'
@@ -179,13 +179,13 @@ const SESSION_SAVED: SessionSaveOutcome = Object.freeze({ status: 'saved' })
 const SESSION_SAVING_OFF: SessionSaveOutcome = Object.freeze({ status: 'saving-off' })
 const SESSION_ABANDONED: SessionSaveOutcome = Object.freeze({ status: 'abandoned' })
 
-/** Intent: the key a held change is coalesced under: its store and its record's key. */
+/** The key a held change is coalesced under: its store and its record's key. */
 function recordKey(change: StorageChange): string {
   return `${change.store}\u0000${change.key}`
 }
 
 /**
- * Intent: the part of the policy that holds the saves of a session and lets the protection
+ * The part of the policy that holds the saves of a session and lets the protection
  * request wait for its end.
  */
 function createHold() {
@@ -195,14 +195,14 @@ function createHold() {
 
   return {
     queue,
-    /** Intent: whether a session holds the saves. */
+    /** Whether a session holds the saves. */
     isHeld: () => held,
-    /** Intent: start holding; holding twice is a defect. */
+    /** Start holding; holding twice is a defect. */
     start: () => {
       if (held) throw new Error('save policy: hold() while already holding')
       held = true
     },
-    /** Intent: stop holding and hand back what was held, latest change per record. */
+    /** Stop holding and hand back what was held, latest change per record. */
     stop: (): StorageChange[] => {
       if (!held) throw new Error('save policy: release() without hold()')
       held = false
@@ -210,17 +210,17 @@ function createHold() {
       queue.clear()
       return changes
     },
-    /** Intent: queue a change in place of any earlier one to the same record. */
+    /** Queue a change in place of any earlier one to the same record. */
     keep: (change: StorageChange) => {
       const key = recordKey(change)
       queue.delete(key)
       queue.set(key, change)
     },
-    /** Intent: let what waits for the session's end go on. */
+    /** Let what waits for the session's end go on. */
     wakeWaiting: () => {
       for (const wake of waiting.splice(0)) wake()
     },
-    /** Intent: resolve once no session holds the saves. */
+    /** Resolve once no session holds the saves. */
     whenNotHeld: async () => {
       while (held) await new Promise<void>((resolve) => waiting.push(resolve))
     },
@@ -228,7 +228,7 @@ function createHold() {
 }
 
 /**
- * Intent: the save policy over `port`, starting in the saving state the port opened in and
+ * The save policy over `port`, starting in the saving state the port opened in and
  * turning off-outdated when the port reports a newer version of the app later in the visit.
  */
 // @spec-link [[rule_no_save_during_session]]
@@ -247,7 +247,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
   // The latest session save, which the next one waits for.
   let sessionSaves: Promise<unknown> = Promise.resolve()
 
-  /** Intent: turn saving off for the visit, dropping what is held; outdated is final. */
+  /** Turn saving off for the visit, dropping what is held; outdated is final. */
   const turnOff = (next: Exclude<SavingState, 'on'>): void => {
     if (saving === next || saving === 'off-outdated') return
     saving = next
@@ -257,7 +257,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
   port.onOutdated(() => turnOff('off-outdated'))
 
   /**
-   * Intent: what a refusal of the port becomes: skipped and saving off for an outdated one,
+   * What a refusal of the port becomes: skipped and saving off for an outdated one,
    * failed for the others, reported unless the last one reported in its run had the same kind.
    */
   const refused = (kind: StorageErrorKind): SaveOutcome => {
@@ -273,7 +273,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
     return 'failed'
   }
 
-  /** Intent: run a change of the port, never rejecting for a refusal; a defect goes through. */
+  /** Run a change of the port, never rejecting for a refusal; a defect goes through. */
   const attempt = async (change: () => Promise<void>): Promise<SaveOutcome> => {
     try {
       await change()
@@ -285,7 +285,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
     return 'saved'
   }
 
-  /** Intent: skip changes while off, hold them during a session, apply them otherwise. */
+  /** Skip changes while off, hold them during a session, apply them otherwise. */
   const submit = async (
     changes: readonly StorageChange[],
     apply: () => Promise<void>,
@@ -297,7 +297,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
   }
 
   /**
-   * Intent: the kept sessions' summaries with their keys, read at the save; none when the port
+   * The kept sessions' summaries with their keys, read at the save; none when the port
    * refuses the read, so a refused read deletes nothing. A defect goes through.
    */
   const keptSummaries = async (): Promise<readonly StoredEntry[]> => {
@@ -310,7 +310,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
   }
 
   /**
-   * Intent: apply the session's changes and say what became of them: a refusal as outdated turns
+   * Apply the session's changes and say what became of them: a refusal as outdated turns
    * saving off, one for lack of space is told to the failure listener as any refusal is, and any
    * other is the caller's alone, leaving the run of refusals as it was.
    */
@@ -332,7 +332,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
   }
 
   /**
-   * Intent: the session's save, once no session holds the saves and no flush is being applied:
+   * The session's save, once no session holds the saves and no flush is being applied:
    * the summaries read, then the changes applied. A session started meanwhile makes it wait for
    * that session's end and read again; saving off makes it read and apply nothing; the page going
    * away, checked before each of its transactions, stops it there, abandoned.
@@ -374,7 +374,7 @@ export function createSavePolicy(port: StoragePort): SavePolicy {
     },
   })
 
-  /** Intent: run `task` in the line of the session saves, after every one asked for before it. */
+  /** Run `task` in the line of the session saves, after every one asked for before it. */
   const inLine = <T>(task: () => Promise<T>): Promise<T> => {
     // A defect of one rejects every later one too: it surfaces, never swallowed.
     const queued = sessionSaves.then(task)

@@ -39,7 +39,7 @@ const PLAYED_SECTION: PlayedNotesDoodleSection = {
 /** The generated-notes request every test asks for. */
 const MIDI_REQUEST = { format: 'midi', backingTrack: true, scope: 'wholeSession' } as const
 
-/** Intent: Jam's code loaded, its two section builders mocked. */
+/** Jam's code loaded, its two section builders mocked. */
 function loadedJamCode() {
   const exportDoodleSection = vi.fn(() => GENERATED_SECTION)
   const exportPlayedDoodleSection = vi.fn(() => PLAYED_SECTION)
@@ -51,7 +51,7 @@ function loadedJamCode() {
 }
 
 /**
- * Intent: a showing Review of the recorded session, a Jam's (its Jam part the fixture's, the doodle
+ * A showing Review of the recorded session, a Jam's (its Jam part the fixture's, the doodle
  * played) unless `isJam` is false, the area over it, and the export's builders mocked.
  */
 function jamRig(isJam = true) {
@@ -72,12 +72,12 @@ function jamRig(isJam = true) {
   }
 }
 
-/** Intent: let every settled promise's handlers run. */
+/** Let every settled promise's handlers run. */
 async function settle(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-/** Intent: whether `promise` has settled yet, after letting pending handlers run. */
+/** Whether `promise` has settled yet, after letting pending handlers run. */
 async function hasSettled(promise: Promise<unknown>): Promise<boolean> {
   let settled = false
   void promise.then(

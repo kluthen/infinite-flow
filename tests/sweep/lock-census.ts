@@ -152,20 +152,20 @@ const MEASURE_COUNT = 4
  */
 const CHANGE_SPANS: ReadonlySet<number> = new Set([0b0001, 0b0010, 0b0100, 0b1000, 0b0101, 0b1010])
 
-/** Intent: reject a rhythm that is not four measures, which only a caller bug can pass. */
+/** Reject a rhythm that is not four measures, which only a caller bug can pass. */
 function requireFourMeasures(bars: readonly RhythmBar[], what: string): void {
   if (bars.length !== MEASURE_COUNT)
     throw new Error(`${what} has ${bars.length} measures; the rhythm lock compares four.`)
 }
 
-/** Intent: reject an allowed list naming anything but the five change kinds. */
+/** Reject an allowed list naming anything but the five change kinds. */
 export function requireKnownKinds(allowed: readonly RhythmChangeKind[]): void {
   for (const kind of allowed)
     if (!RHYTHM_CHANGE_KINDS.includes(kind))
       throw new Error(`Unknown rhythm change kind "${String(kind)}" in an allowed list.`)
 }
 
-/** Intent: a record holding, under every change kind, the value computed for that kind. */
+/** A record holding, under every change kind, the value computed for that kind. */
 export function perKind<T>(value: (kind: RhythmChangeKind) => T): Record<RhythmChangeKind, T> {
   return Object.fromEntries(RHYTHM_CHANGE_KINDS.map((kind) => [kind, value(kind)])) as Record<
     RhythmChangeKind,
@@ -173,7 +173,7 @@ export function perKind<T>(value: (kind: RhythmChangeKind) => T): Record<RhythmC
   >
 }
 
-/** Intent: a record holding, under every bend reason, the value computed for that reason. */
+/** A record holding, under every bend reason, the value computed for that reason. */
 export function perReason<T>(value: (reason: BendReason) => T): Record<BendReason, T> {
   return Object.fromEntries(BEND_REASONS.map((reason) => [reason, value(reason)])) as Record<
     BendReason,
@@ -182,7 +182,7 @@ export function perReason<T>(value: (reason: BendReason) => T): Record<BendReaso
 }
 
 /**
- * Intent: how one phrase's bars meet the locked rhythm. Equal bar keys are `kept`; exactly one
+ * How one phrase's bars meet the locked rhythm. Equal bar keys are `kept`; exactly one
  * change (C7.3) of an allowed kind is a `change`; anything else is a `bend` at the total edits
  * between the start lists: `tie-only` when the starts are equal (written with other ties, distance
  * 0), `disallowed-change` for a single change of a kind the list leaves out, else `other`.
@@ -203,7 +203,7 @@ export function classifyLockedPhrase(
   return { kind: 'bend', distance, reason: distance === 0 ? 'tie-only' : 'other' }
 }
 
-/** Intent: reject a session whose phrases are not numbered 1, 2, 3 ... with no re-lock first. */
+/** Reject a session whose phrases are not numbered 1, 2, 3 ... with no re-lock first. */
 function requireSession(phrases: readonly CensusPhrase[]): void {
   if (phrases[0]?.phraseNumber !== 1)
     throw new Error('A session census starts at phrase 1, the locked rhythm.')
@@ -216,19 +216,19 @@ function requireSession(phrases: readonly CensusPhrase[]): void {
   })
 }
 
-/** Intent: whether a phrase's record names a change kind (not "no change available"). */
+/** Whether a phrase's record names a change kind (not "no change available"). */
 function isChangeKind(record: RhythmChangeRecord | undefined): record is RhythmChangeKind {
   return record !== undefined && record !== 'no_change_available'
 }
 
-/** Intent: the bars' reading in words, for a mismatch line. */
+/** The bars' reading in words, for a mismatch line. */
 function barsInWords(reading: PhraseLockClass): string {
   if (reading.kind === 'kept') return 'the locked bars'
   if (reading.kind === 'change') return `one ${reading.change.kind} change`
   return `a ${reading.reason} bend at distance ${reading.distance}`
 }
 
-/** Intent: a `locked_bars` phrase: kept; its record names no kind and its bars are the locked ones. */
+/** A `locked_bars` phrase: kept; its record names no kind and its bars are the locked ones. */
 function readKept(entry: CensusPhrase, bars: PhraseLockClass, problems: string[]): CensusClass {
   if (isChangeKind(entry.rhythmChange))
     problems.push(`locked_bars recorded beside the change kind ${entry.rhythmChange}`)
@@ -237,7 +237,7 @@ function readKept(entry: CensusPhrase, bars: PhraseLockClass, problems: string[]
 }
 
 /**
- * Intent: a `rhythm_change` phrase: changed by the kind its record names, which the allowed list
+ * A `rhythm_change` phrase: changed by the kind its record names, which the allowed list
  * holds and the bars read as exactly one change of; with no kind recorded it is `unreadable`.
  */
 function readChange(
@@ -258,7 +258,7 @@ function readChange(
 }
 
 /**
- * Intent: a `forced_bend` phrase: a bend with its bars' distance and reason, `one-allowed-change`
+ * A `forced_bend` phrase: a bend with its bars' distance and reason, `one-allowed-change`
  * when they read as one allowed change; bars reading as the locked ones, or a kind recorded, is a
  * mismatch.
  */
@@ -286,7 +286,7 @@ interface PhraseReading {
 }
 
 /**
- * Intent: one phrase's class: phrase 1 is `locked` (holding no lock outcome), a repeat `repeat`, a
+ * One phrase's class: phrase 1 is `locked` (holding no lock outcome), a repeat `repeat`, a
  * marked phrase `relock`, any other by the lock outcome its provenance records, cross-checked
  * against its bars read from the locked rhythm in effect.
  */
@@ -327,7 +327,7 @@ interface PhraseDraw {
 }
 
 /**
- * Intent: what a phrase drew. A repeat carries the repeated phrase's record, so draws nothing of
+ * What a phrase drew. A repeat carries the repeated phrase's record, so draws nothing of
  * its own; a phrase could draw from phrase 2 on, unless it re-locks or nothing is allowed, and a
  * record of a draw on a phrase that could not draw is a mismatch.
  */
@@ -383,14 +383,14 @@ export const SCALAR_COUNTS = [
   'noChangeAvailable',
 ] as const
 
-/** Intent: add one session's counts to running counts. */
+/** Add one session's counts to running counts. */
 export function addCounts(into: RunningCounts, from: LockCounts): void {
   for (const key of SCALAR_COUNTS) into[key] += from[key]
   for (const kind of RHYTHM_CHANGE_KINDS) into.changesByKind[kind] += from.changesByKind[kind]
   for (const reason of BEND_REASONS) into.bendsByReason[reason] += from.bendsByReason[reason]
 }
 
-/** Intent: counts at zero. */
+/** Counts at zero. */
 export function emptyCounts(): RunningCounts {
   return {
     kept: 0,
@@ -407,7 +407,7 @@ export function emptyCounts(): RunningCounts {
   }
 }
 
-/** Intent: count one phrase's class, and its draw when it could draw. */
+/** Count one phrase's class, and its draw when it could draw. */
 function countPhrase(
   counts: RunningCounts,
   lockClass: CensusClass,
@@ -432,7 +432,7 @@ function countPhrase(
 }
 
 /**
- * Intent: the census of one session. Phrase 1's bars are the locked rhythm; a phrase marked as
+ * The census of one session. Phrase 1's bars are the locked rhythm; a phrase marked as
  * re-locking is `relock` and its bars are the locked rhythm from the next phrase on; a repeat is
  * counted only; every other phrase is classed by its provenance's lock outcome and cross-checked
  * against the locked rhythm of its moment. Each phrase whose record and bars disagree, or whose
@@ -475,7 +475,7 @@ export function censusOfSession(
 /** Measure keys by bars, for frozen bars only, so a domain is keyed once across many draws. */
 const measureKeysByBars = new WeakMap<readonly RhythmBar[], readonly string[]>()
 
-/** Intent: the measure keys of a rhythm, cached when its bars are frozen (and so cannot change). */
+/** The measure keys of a rhythm, cached when its bars are frozen (and so cannot change). */
 function measureKeysOf(bars: readonly RhythmBar[]): readonly string[] {
   const cached = measureKeysByBars.get(bars)
   if (cached) return cached
@@ -486,7 +486,7 @@ function measureKeysOf(bars: readonly RhythmBar[]): readonly string[] {
 }
 
 /**
- * Intent: per kind, whether some candidate differs from the locked bars by exactly one change of
+ * Per kind, whether some candidate differs from the locked bars by exactly one change of
  * that kind. One change leaves at least two measures written as locked, so a candidate is first
  * screened by which measures differ (one, or a gesture measure and its answer) and identical bars
  * are compared once; only the survivors go through the full change test. The scan is linear in the

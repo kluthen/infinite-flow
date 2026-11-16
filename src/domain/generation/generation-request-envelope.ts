@@ -27,7 +27,7 @@ export class GenerationRequestError extends Error {
 }
 
 /**
- * Intent: validate a raw string as a non-empty, bounded-length request identity and brand it as
+ * Validate a raw string as a non-empty, bounded-length request identity and brand it as
  * a RequestId. Rejects an empty/whitespace-only string or one exceeding the documented maximum
  * length as a typed failure rather than truncating or padding.
  */
@@ -44,7 +44,7 @@ export function makeRequestId(value: string): RequestId {
   return value as RequestId
 }
 
-/** Intent: parse an untrusted boundary value into a RequestId, rejecting any non-string input. */
+/** Parse an untrusted boundary value into a RequestId, rejecting any non-string input. */
 // @spec-link [[module_generation_request_envelope]]
 export function parseRequestId(input: unknown): RequestId {
   if (typeof input !== 'string') {
@@ -63,12 +63,12 @@ export interface Meter {
   readonly beatUnit: 4
 }
 
-/** Intent: the single first-release meter value, frozen once at module load. */
+/** The single first-release meter value, frozen once at module load. */
 // @spec-link [[module_generation_request_envelope]]
 export const FOUR_FOUR_METER: Meter = deepFreeze({ beatsPerMeasure: 4, beatUnit: 4 })
 
 /**
- * Intent: parse an untrusted boundary value into the first-release Meter. Rejects anything other
+ * Parse an untrusted boundary value into the first-release Meter. Rejects anything other
  * than the exact documented 4/4 shape (wrong field values, missing fields, extra fields) as a
  * typed failure rather than defaulting to 4/4.
  */
@@ -92,5 +92,5 @@ export function parseMeter(input: unknown): Meter {
   return FOUR_FOUR_METER
 }
 
-/** Intent: the single first-release requested measure count. */
+/** The single first-release requested measure count. */
 export const PHRASE_MEASURE_COUNT = 4

@@ -19,7 +19,7 @@ import {
 } from './fake-session-controller'
 import { reviewAreaRig } from './review-area-rig'
 
-/** Intent: the recorded session with every played note made very short (12 ms). */
+/** The recorded session with every played note made very short (12 ms). */
 function veryShortRecords(): SessionHistoryRecord[] {
   return recordedRecords().map((record) => ({
     ...record,

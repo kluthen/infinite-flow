@@ -64,7 +64,7 @@ beforeAll(async () => {
   mine = await recordedMyInstrumentSession(HORN, 2)
 })
 
-/** Intent: the stored summary of `history` started at `startedAt`, kept under `key`. */
+/** The stored summary of `history` started at `startedAt`, kept under `key`. */
 function summaryAt(history: SessionHistory, key: string, startedAt: number): StoredEntry {
   const shifted = { ...history, phrases: () => history.phrases(), startedAt }
   const facts = {
@@ -78,7 +78,7 @@ function summaryAt(history: SessionHistory, key: string, startedAt: number): Sto
   return { key, value: records.summary as never }
 }
 
-/** Intent: three kept sessions of my instrument and two of the tenor, as a reload loads them. */
+/** Three kept sessions of my instrument and two of the tenor, as a reload loads them. */
 function loaded(): StoredEntry[] {
   return [
     summaryAt(mine, 'mine-1', 1_000),
@@ -89,7 +89,7 @@ function loaded(): StoredEntry[] {
   ]
 }
 
-/** Intent: a reader over `summaries`, as the device holds them, for the count's deletes. */
+/** A reader over `summaries`, as the device holds them, for the count's deletes. */
 function readerOver(summaries: readonly StoredEntry[]): KeptRecordsReader {
   const byKey = new Map(summaries.map(({ key, value }) => [key, value]))
   return {
@@ -100,7 +100,7 @@ function readerOver(summaries: readonly StoredEntry[]): KeptRecordsReader {
   }
 }
 
-/** Intent: the keys the deletes name, once each. */
+/** The keys the deletes name, once each. */
 function deletedKeys(batch: readonly StorageChange[]): string[] {
   return [...new Set(batch.map((change) => change.key))].sort()
 }
@@ -117,7 +117,7 @@ afterEach(() => {
   scope = null
 })
 
-/** Intent: a rig over `summaries` whose sessions' own saves resolve `outcome`. */
+/** A rig over `summaries` whose sessions' own saves resolve `outcome`. */
 function rigOver(
   summaries: readonly StoredEntry[],
   outcome: SessionSaveOutcome = { status: 'saved' },
@@ -134,7 +134,7 @@ function rigOver(
   })
 }
 
-/** Intent: play a two-phrase session with my instrument selected at Idle, then Stop. */
+/** Play a two-phrase session with my instrument selected at Idle, then Stop. */
 async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
   const controls = makeGenerationControls({
     ...BASE_CONTROLS,
@@ -169,7 +169,7 @@ async function playedWithMyInstrument(rig: ControllerRig): Promise<void> {
   await flush()
 }
 
-/** Intent: the keys of the controller's rows, sorted. */
+/** The keys of the controller's rows, sorted. */
 function rowKeys(rig: ControllerRig): string[] {
   return rig.controller.state.keptRows.map((row) => row.key).sort()
 }
@@ -306,7 +306,7 @@ const WIDER = makeMyInstrument({ ...HORN, writtenRange: { minMidi: 36, maxMidi: 
 const RENAMED = makeMyInstrument({ ...HORN, name: 'My other horn' })
 const BASS_CLEF = makeMyInstrument({ ...RENAMED, clef: 'bass' })
 
-/** Intent: a generation session with my instrument selected and a phrase shown, batches saved. */
+/** A generation session with my instrument selected and a phrase shown, batches saved. */
 async function generationSession() {
   let counter = 0
   const created = createGenerationSession({
@@ -351,7 +351,7 @@ interface JamWorkspace {
 }
 
 /**
- * Intent: Jam mode showing, Jam's code loaded, over the controller holding `mine-1` (my
+ * Jam mode showing, Jam's code loaded, over the controller holding `mine-1` (my
  * instrument's) and `tenor-1`, with the doodle kept from the session under `sessionKey`.
  */
 async function jamWorkspace(sessionKey: string): Promise<JamWorkspace> {

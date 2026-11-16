@@ -46,12 +46,12 @@ import {
 /** The tempo of most sessions here: a 4 s measure, so phrase 2's carry-in rung goes first. */
 const SLOW = 60
 
-/** Intent: the moment phrase N (1 or more) starts sounding in a session started at 0. */
+/** The moment phrase N (1 or more) starts sounding in a session started at 0. */
 function soundingAt(phraseNumber: number, tempo = SLOW): number {
   return measureSeconds(tempo) * (1 + 4 * (phraseNumber - 1))
 }
 
-/** Intent: the phrase record a spent ready phrase is decided as, with no settings change. */
+/** The phrase record a spent ready phrase is decided as, with no settings change. */
 function spent(ready: ReadyPhrase): unknown {
   return {
     phraseNumber: ready.phraseNumber,
@@ -61,7 +61,7 @@ function spent(ready: ReadyPhrase): unknown {
   }
 }
 
-/** Intent: the ready phrases a plan makes for a session's settings and mutation flag. */
+/** The ready phrases a plan makes for a session's settings and mutation flag. */
 function readyFor(
   settings: SessionSettings,
   mutation?: SettingsMutationFlag,
@@ -182,7 +182,7 @@ describe('a session refusing ready phrases', () => {
     const settings = sessionSettings({ tempo: SLOW, noteDensity: 'Sixteenth' })
     const ready = readyFor(settings)
     expect(ready).toHaveLength(4)
-    /** Intent: a narrow-window driver, with or without the ready phrases made wide. */
+    /** A narrow-window driver, with or without the ready phrases made wide. */
     const narrow = (readyPhrases?: readonly ReadyPhrase[]) =>
       new SessionDriver({
         settings,
@@ -259,12 +259,12 @@ const EVERY_CHANGE = lockSettings(RHYTHM_CHANGE_KINDS, { tempo: SLOW, tension: '
 const NO_CHANGE = lockSettings([], { tempo: SLOW, tension: 'Lift' })
 const ONE_KIND = lockSettings(['merge_notes'], { tempo: SLOW, tension: 'Lift' })
 
-/** Intent: the ready phrases a plan makes under these settings, Tension across phrases on. */
+/** The ready phrases a plan makes under these settings, Tension across phrases on. */
 function lockReadyFor(settings: SessionSettings): readonly ReadyPhrase[] {
   return plannedReadyPhrases(planSeams(), planStart({ settings, multiPhraseTensionArc: true }))
 }
 
-/** Intent: a session started under these settings, Tension across phrases on. */
+/** A session started under these settings, Tension across phrases on. */
 function lockDriver(
   settings: SessionSettings,
   readyPhrases?: readonly ReadyPhrase[],

@@ -21,7 +21,7 @@ type ToolOptions = Partial<typeof SESSION_TOOL_PROPS>
 
 const mounted: VueWrapper[] = []
 
-/** Intent: mount the panel of a three-phrase session, attached so focus can be checked. */
+/** Mount the panel of a three-phrase session, attached so focus can be checked. */
 function mountPanel(options: ToolOptions = {}) {
   const wrapper = mount(ReviewPanel, {
     props: {
@@ -52,12 +52,12 @@ function mountPanel(options: ToolOptions = {}) {
   return wrapper
 }
 
-/** Intent: the session tools' buttons, by their label. */
+/** The session tools' buttons, by their label. */
 function toolButtons(wrapper: VueWrapper): string[] {
   return wrapper.findAll('.review-header > .review-session-tools > button').map((b) => b.text())
 }
 
-/** Intent: the comment row's button labelled `label`. */
+/** The comment row's button labelled `label`. */
 function commentButton(wrapper: VueWrapper, label: string) {
   const button = wrapper
     .findAll<HTMLButtonElement>('.review-comment button')

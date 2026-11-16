@@ -26,7 +26,7 @@ import { measuredSession, runShortfalls } from './deadline-sweep-measured'
 export const M4_TEMPO = 240
 
 /**
- * Intent: an Idle attempt's result: its real outcome, cached per intent, and, for a success, the
+ * An Idle attempt's result: its real outcome, cached per intent, and, for a success, the
  * sweep session's fit check.
  */
 async function idleResult(
@@ -42,7 +42,7 @@ async function idleResult(
 }
 
 /**
- * Intent: the Idle phase: a fresh pre-generation plan stepped until it stops; `made` is told the
+ * The Idle phase: a fresh pre-generation plan stepped until it stops; `made` is told the
  * phrases it made ready.
  */
 function idlePhaseOf(
@@ -71,7 +71,7 @@ export interface PregenerationCase {
 }
 
 /**
- * Intent: play one case at M4's tempo: the Idle phase, then the measured session started with its
+ * Play one case at M4's tempo: the Idle phase, then the measured session started with its
  * ready phrases.
  */
 export async function pregeneratedCase(
@@ -90,7 +90,7 @@ export async function pregeneratedCase(
   }
 }
 
-/** Intent: a share as a percentage with one decimal. */
+/** A share as a percentage with one decimal. */
 function percent(count: number, of: number): string {
   return of === 0 ? '-' : `${((100 * count) / of).toFixed(1)} %`
 }
@@ -106,7 +106,7 @@ export class PregenerationTally {
   private refused = 0
   private shortfalls = 0
 
-  /** Intent: count one case. */
+  /** Count one case. */
   add(result: PregenerationCase): void {
     this.cases++
     if (result.phraseTwoOrigin === 'carry-in') this.phraseTwoCarryIn++
@@ -115,7 +115,7 @@ export class PregenerationTally {
     this.shortfalls += result.shortfalls.length
   }
 
-  /** Intent: the counts as one `SWEEP-M4` line under a label, with v2's 0 % beside the share. */
+  /** The counts as one `SWEEP-M4` line under a label, with v2's 0 % beside the share. */
   line(label: string): string {
     const held = this.shortfalls === 0 ? 'every deadline met, no repeat' : 'DEADLINE MISSED'
     return (

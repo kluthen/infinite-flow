@@ -22,7 +22,7 @@ const SIXTEENTH_ONLY_BLOCKED = {
   syncopation: 'Active displacement',
 } as const
 
-/** Intent: a session whose `generate` seam records and returns every intent it receives. */
+/** A session whose `generate` seam records and returns every intent it receives. */
 function densitySession(initiallyBelowTabletLandscape: boolean) {
   const viewport = createFakeViewportWidth(initiallyBelowTabletLandscape)
   const intents: GenerationIntent[] = []

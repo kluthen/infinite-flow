@@ -35,7 +35,7 @@ export class SeedParseError extends Error {
 }
 
 /**
- * Intent: validate a raw number as a 32-bit unsigned integer and brand it as a Seed. This is
+ * Validate a raw number as a 32-bit unsigned integer and brand it as a Seed. This is
  * the only way to obtain a Seed from a plain number; out-of-range or non-integer input is
  * rejected loudly rather than clamped, wrapped, or coerced.
  */
@@ -58,7 +58,7 @@ export function makeSeed(value: number): Seed {
 const SEED_ENCODING_PREFIX = 'seed1-'
 const SEED_ENCODING_PATTERN = /^seed1-([0-9a-f]{8})$/u
 
-/** Intent: render a Seed as its stable, documented, versioned string encoding. */
+/** Render a Seed as its stable, documented, versioned string encoding. */
 // @spec-link [[module_named_stream_pseudorandomness]]
 export function encodeSeed(seed: Seed): string {
   const unsigned = seed >>> 0
@@ -66,7 +66,7 @@ export function encodeSeed(seed: Seed): string {
 }
 
 /**
- * Intent: parse the documented seed string encoding back into a Seed, exactly inverting
+ * Parse the documented seed string encoding back into a Seed, exactly inverting
  * encodeSeed. Rejects any string that does not match the versioned encoding as a typed failure.
  */
 // @spec-link [[module_named_stream_pseudorandomness]]

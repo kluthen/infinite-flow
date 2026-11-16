@@ -59,7 +59,7 @@ interface SnappedNote {
 }
 
 /**
- * Intent: the one conversion of an audio-clock time, in seconds, to whole microseconds; a time
+ * The one conversion of an audio-clock time, in seconds, to whole microseconds; a time
  * that is not finite, or too large to stay an exact integer, is refused.
  */
 function toMicroseconds(seconds: number, what: string): number {
@@ -74,7 +74,7 @@ function toMicroseconds(seconds: number, what: string): number {
 }
 
 /**
- * Intent: exact integer division rounded toward minus infinity: the remainder is taken first, so
+ * Exact integer division rounded toward minus infinity: the remainder is taken first, so
  * the one division left divides exactly. Both operands must be safe integers, the divisor positive.
  */
 function floorDiv(dividend: number, divisor: number): number {
@@ -85,7 +85,7 @@ function floorDiv(dividend: number, divisor: number): number {
   return (dividend - remainder) / divisor
 }
 
-/** Intent: the capture tempo, refused unless it is a positive whole number of BPM. */
+/** The capture tempo, refused unless it is a positive whole number of BPM. */
 function checkedTempo(tempoBpm: number): number {
   if (!Number.isSafeInteger(tempoBpm) || tempoBpm <= 0) {
     throw new Error(`Doodle capture tempo must be a positive whole number of BPM, got ${tempoBpm}.`)
@@ -94,7 +94,7 @@ function checkedTempo(tempoBpm: number): number {
 }
 
 /**
- * Intent: the grid tick nearest a time, both in microseconds, a tie going to the later tick. A tick
+ * The grid tick nearest a time, both in microseconds, a tie going to the later tick. A tick
  * lasts 15_000_000 / tempo microseconds, so the nearest tick is floor((2 t tempo + 15_000_000) /
  * 30_000_000), t the time from the origin.
  */
@@ -107,7 +107,7 @@ function tickAtMicroseconds(atMicros: number, originMicros: number, tempoBpm: nu
 }
 
 /**
- * Intent: the grid tick (relative to the grid origin, negative in the count-in) nearest a time on
+ * The grid tick (relative to the grid origin, negative in the count-in) nearest a time on
  * the audio clock, a tie going to the later tick.
  */
 // @spec-link [[module_doodle_quantizer]]
@@ -122,7 +122,7 @@ export function snappedTickOf(at: number, grid: DoodleGrid): number {
 }
 
 /**
- * Intent: the grid measure index a snapped start tick falls in (16 ticks a measure; a negative
+ * The grid measure index a snapped start tick falls in (16 ticks a measure; a negative
  * tick gives a negative measure, the count-in). A tick that is not a whole number is refused.
  */
 // @spec-link [[module_doodle_quantizer]]
@@ -134,7 +134,7 @@ export function doodleMeasureOf(snappedStart: number): number {
   return floorDiv(snappedStart, TICKS_PER_BAR)
 }
 
-/** Intent: refuse a raw note whose times are not finite or that releases before its onset. */
+/** Refuse a raw note whose times are not finite or that releases before its onset. */
 function checkRawNote(note: RawDoodleNote, position: number): void {
   if (!Number.isFinite(note.onsetAt) || !Number.isFinite(note.releaseAt)) {
     throw new Error(
@@ -151,7 +151,7 @@ function checkRawNote(note: RawDoodleNote, position: number): void {
 }
 
 /**
- * Intent: order snapped notes by start, then the longer first, then the higher first: on one
+ * Order snapped notes by start, then the longer first, then the higher first: on one
  * tick, the note that stays comes first, and equal notes are identical, so any input order gives
  * the same result.
  */
@@ -164,7 +164,7 @@ function lineOrder(first: SnappedNote, second: SnappedNote): number {
 }
 
 /**
- * Intent: one line from notes inside the doodle: notes on one tick keep the longer, then the
+ * One line from notes inside the doodle: notes on one tick keep the longer, then the
  * higher; then a later start ends the earlier note.
  */
 function oneLine(notes: readonly SnappedNote[]): SnappedNote[] {
@@ -179,7 +179,7 @@ function oneLine(notes: readonly SnappedNote[]): SnappedNote[] {
 }
 
 /**
- * Intent: the capture's raw notes as one quantized doodle. In order: very short notes are left
+ * The capture's raw notes as one quantized doodle. In order: very short notes are left
  * out (so one never starts, extends or shapes the doodle); each start and end snaps to the nearest
  * tick, a note keeping at least one tick; notes snapped before the grid origin (the count-in) and
  * notes starting at or after the end barline are dropped; the doodle starts at the measure holding

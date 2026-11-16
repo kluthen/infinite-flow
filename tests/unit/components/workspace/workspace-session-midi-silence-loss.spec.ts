@@ -25,7 +25,7 @@ import {
   unplugKeys,
 } from './session-controller-midi'
 
-/** Intent: a session started by its starting note, pressed and released at 5 s. */
+/** A session started by its starting note, pressed and released at 5 s. */
 async function startedByTheStartingNote(): Promise<ControllerRig> {
   const rig = controllerRig()
   await connectKeys(rig)
@@ -36,7 +36,7 @@ async function startedByTheStartingNote(): Promise<ControllerRig> {
   return rig
 }
 
-/** Intent: tap one note (not the starting note's pitch) now. */
+/** Tap one note (not the starting note's pitch) now. */
 function tap(rig: ControllerRig): void {
   const pitch = rigStartingNote(rig).concertPitch + 1
   press(rig, pitch)
@@ -44,7 +44,7 @@ function tap(rig: ControllerRig): void {
 }
 
 /**
- * Intent: in phrase 1, the first note whose window stays open at least 150 ms after its onset (room
+ * In phrase 1, the first note whose window stays open at least 150 ms after its onset (room
  * to replug inside it), with the note after it.
  */
 function noteWithAnOpenWindow(rig: ControllerRig): {

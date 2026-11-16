@@ -43,7 +43,7 @@ import {
 import { JAM_PHRASE_COUNT, SESSION_PHRASE_COUNT } from './jam-sweep'
 
 /**
- * Intent: the report's note on what was played under a ladder choice: a Jam steered by its doodle
+ * The report's note on what was played under a ladder choice: a Jam steered by its doodle
  * with phrase 1 through the double of Jam's ladder or chunk 18's real one, or the baseline's runs.
  */
 function populationNote(ladder: JamSweepChoices['ladder']): string {
@@ -101,7 +101,7 @@ describe('Jam sweep runner (M1, M5)', () => {
     }
     const outPath = process.env.JAM_OUT
     if (outPath !== undefined) writeFileSync(outPath, JSON.stringify(report, null, 2))
-    /** Intent: how many runs a case makes in a mode: a Jam once per doodle, a session once. */
+    /** How many runs a case makes in a mode: a Jam once per doodle, a session once. */
     const doodleRuns = (mode: string): number => (mode === 'jam' ? doodles.length : 1)
     expect(figures.map((configuration) => configuration.runs)).toEqual(
       keys.map((key) => cases.length * doodleRuns(key.mode)),

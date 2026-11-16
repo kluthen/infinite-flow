@@ -17,7 +17,7 @@ import type { ReviewedHistory } from '@/components/workspace/workspace-session-c
 import { controllerRig, playTo, RIG_TEMPO, type ControllerRig } from './session-controller-rig'
 import { connectKeys, lift, press, rigStartingNote } from './session-controller-midi'
 
-/** Intent: a rig whose first session sounded `phrases` phrases, then ended by Stop. */
+/** A rig whose first session sounded `phrases` phrases, then ended by Stop. */
 async function afterSoundedEnd(phrases = 1): Promise<ControllerRig> {
   const rig = controllerRig()
   rig.controller.start()
@@ -27,14 +27,14 @@ async function afterSoundedEnd(phrases = 1): Promise<ControllerRig> {
   return rig
 }
 
-/** Intent: the instrument's name a history's phrase 1 was generated with. */
+/** The instrument's name a history's phrase 1 was generated with. */
 function nameOf(history: ReviewedHistory | null): string {
   const first = history?.phrases()[0]
   if (first === undefined) throw new Error('the history holds no phrase')
   return first.intent.instrumentProfile.displayName
 }
 
-/** Intent: a rig whose first session ended by Stop during its count-in. */
+/** A rig whose first session ended by Stop during its count-in. */
 async function afterCountInEnd(rig: ControllerRig = controllerRig()): Promise<ControllerRig> {
   rig.controller.start()
   await playTo(rig, rig.audioRig.now() + 0.4)

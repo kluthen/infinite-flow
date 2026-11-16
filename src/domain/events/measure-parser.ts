@@ -22,7 +22,7 @@ export class MeasureParseError extends Error {
 const MEASURE_ALLOWED_KEYS = new Set(['measureIndex', 'events'])
 
 /**
- * Intent: parse one untrusted measure record: a numeric measureIndex and an array of untrusted
+ * Parse one untrusted measure record: a numeric measureIndex and an array of untrusted
  * events. Rejects a non-object input, unexpected extra fields (e.g. later-step harmonic-role
  * vocabulary), a non-numeric index, a non-array events field, any individual event that fails
  * ./measure-event-parser.ts, and a well-formed event list that still fails to tile the measure

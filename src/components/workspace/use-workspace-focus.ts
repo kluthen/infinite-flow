@@ -50,7 +50,7 @@ export interface WorkspaceFocus {
 }
 
 /**
- * Intent: the focus watchers over `deps`, registered in the calling component's setup after any
+ * The focus watchers over `deps`, registered in the calling component's setup after any
  * other watcher of a session's end, and stopped before it unmounts.
  */
 // @spec-link [[rule_stop_ends_session]]
@@ -65,7 +65,7 @@ export function useWorkspaceFocus(deps: WorkspaceFocusDeps): WorkspaceFocus {
   let lateRoomNoticeFrom: Element | null = null
 
   /**
-   * Intent: move focus where the session's end sends it, once the Idle rules have applied and the
+   * Move focus where the session's end sends it, once the Idle rules have applied and the
    * screen shows the state they reached (called after the render, so the Idle state read here is
    * the one on screen), in Jam mode as a Jam's end sends it; after a window end, remember where it
    * went, for a room notice that lands late.
@@ -82,7 +82,7 @@ export function useWorkspaceFocus(deps: WorkspaceFocusDeps): WorkspaceFocus {
   }
 
   /**
-   * Intent: at every session end, close a volume popover the compact `Volume` opened, then, once
+   * At every session end, close a volume popover the compact `Volume` opened, then, once
    * the screen has rendered the Idle state it ends in (a post-flush watcher), move focus.
    */
   // @spec-link [[rule_stop_ends_session]]
@@ -96,13 +96,13 @@ export function useWorkspaceFocus(deps: WorkspaceFocusDeps): WorkspaceFocus {
     { flush: 'post' },
   )
 
-  /** Intent: Jam's staff shows Needs more room, as a notice the late-landing watch can see. */
+  /** Jam's staff shows Needs more room, as a notice the late-landing watch can see. */
   function jamRoomNotice(): 'no-room' | null {
     return deps.jamStaffState() === 'no-room' ? 'no-room' : null
   }
 
   /**
-   * Intent: when Needs more room lands, rendered, after a window end's focus move (in Jam mode,
+   * When Needs more room lands, rendered, after a window end's focus move (in Jam mode,
    * on Jam's staff), move focus once
    * to `room-notice`, unless the player has moved it since (it is still where the end put it, or
    * lost to the page because the notice disabled that button).
@@ -123,7 +123,7 @@ export function useWorkspaceFocus(deps: WorkspaceFocusDeps): WorkspaceFocus {
   )
 
   /**
-   * Intent: once the connection sheet has closed, by any path, and the page has rendered without
+   * Once the connection sheet has closed, by any path, and the page has rendered without
    * it, move focus to the first enabled of the session action, the phrase action and
    * `controller-status`.
    */
@@ -138,7 +138,7 @@ export function useWorkspaceFocus(deps: WorkspaceFocusDeps): WorkspaceFocus {
   )
 
   /**
-   * Intent: a session that ends, a room notice that lands, or a sheet that closes while the shell
+   * A session that ends, a room notice that lands, or a sheet that closes while the shell
    * unmounts moves no focus: the page it would go to is going away. The focus watchers stop here,
    * while the header and score panel are still mounted (Vue would stop them a step later anyway;
    * stopping them here makes it explicit), so none ever runs without them.
@@ -149,7 +149,7 @@ export function useWorkspaceFocus(deps: WorkspaceFocusDeps): WorkspaceFocus {
     stopSheetCloseFocusWatch()
   })
 
-  /** Intent: forget the late room notice still awaited, so it takes no focus when it lands. */
+  /** Forget the late room notice still awaited, so it takes no focus when it lands. */
   function clearLateRoomNotice(): void {
     lateRoomNoticeFrom = null
   }

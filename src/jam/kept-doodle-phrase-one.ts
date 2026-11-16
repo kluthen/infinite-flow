@@ -54,7 +54,7 @@ export interface KeptDoodleClimb {
 }
 
 /**
- * Intent: the climb of one writing of phrase 1 from `doodle` under Jam's settings and drift as
+ * The climb of one writing of phrase 1 from `doodle` under Jam's settings and drift as
  * they are now: what the doodle gives every attempt read once, the first attempt rung 1's, or rung
  * 2's with no join; each failure moving on by `attemptAfter`, nothing ever being due at Idle.
  */

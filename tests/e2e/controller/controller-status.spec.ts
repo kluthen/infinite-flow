@@ -66,7 +66,7 @@ const BADGE_SETUPS = {
   },
 } as const
 
-/** Intent: wait until no CSS transition runs, so computed colours are the settled ones. */
+/** Wait until no CSS transition runs, so computed colours are the settled ones. */
 async function settled(page: Page): Promise<void> {
   await page.mouse.move(1, 1)
   await page.waitForFunction(() =>
@@ -74,7 +74,7 @@ async function settled(page: Page): Promise<void> {
   )
 }
 
-/** Intent: the computed look of `controller-status`, its label and its dot. */
+/** The computed look of `controller-status`, its label and its dot. */
 function statusLook(page: Page): Promise<Record<string, string>> {
   return controllerStatus(page).evaluate((button) => {
     const look = (element: Element | null, prefix: string): Record<string, string> => {
@@ -96,7 +96,7 @@ function statusLook(page: Page): Promise<Record<string, string>> {
   })
 }
 
-/** Intent: assert a click on the disabled `controller-status` opens nothing. */
+/** Assert a click on the disabled `controller-status` opens nothing. */
 async function expectStatusOnly(page: Page): Promise<void> {
   await expect(controllerStatus(page)).toBeDisabled()
   await controllerStatus(page).click({ force: true })
@@ -306,7 +306,7 @@ const HEADER_PARTS = [
   '.header-actions > button.session-action',
 ] as const
 
-/** Intent: the boxes of `controller-status` and of every other header part, rounded to 0.1 px. */
+/** The boxes of `controller-status` and of every other header part, rounded to 0.1 px. */
 async function headerBoxes(page: Page): Promise<{ status: number[]; others: number[][] }> {
   const box = async (selector: string): Promise<number[]> => {
     const b = await page.locator(`.layout-header ${selector}`).boundingBox()

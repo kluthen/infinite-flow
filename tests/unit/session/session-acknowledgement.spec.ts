@@ -33,12 +33,12 @@ const CORRECTION: LatencyCorrection = {
   connectionLatencySeconds: 0.0125,
 }
 
-/** Intent: shorthand for an identity. */
+/** Shorthand for an identity. */
 function id(phraseNumber: number, measureIndex: number, eventIndex: number): ExpectedNoteIdentity {
   return { phraseNumber, measureIndex: measureIndex as MeasureIndex, eventIndex }
 }
 
-/** Intent: a tracker with phrase 1 added, and phrase 2 too when asked. */
+/** A tracker with phrase 1 added, and phrase 2 too when asked. */
 function tracker(
   correction: LatencyCorrection = NO_CORRECTION,
   withPhraseTwo = false,
@@ -49,7 +49,7 @@ function tracker(
   return acknowledgement
 }
 
-/** Intent: play a pitch at an audio-clock time. */
+/** Play a pitch at an audio-clock time. */
 function play(
   acknowledgement: SessionAcknowledgement,
   pitch: number,
@@ -153,7 +153,7 @@ describe('session acknowledgement: windows over the session sequence', () => {
 /** Whole notes C4 D4 E4 F4 from 1 s: onsets 1, 3, 5 and 7 s; C4's window is [0.85, 2.85] s. */
 const WHOLES = phraseFromBars(['w', 'w', 'w', 'w'], [60, 62, 64, 65])
 
-/** Intent: a tracker holding the whole-note phrase as phrase 1. */
+/** A tracker holding the whole-note phrase as phrase 1. */
 function wholesTracker(): SessionAcknowledgement {
   const acknowledgement = createSessionAcknowledgement({ correction: NO_CORRECTION })
   acknowledgement.addPhrase(1, WHOLES, PHRASE_ONE_AT, TEMPO)
@@ -250,7 +250,7 @@ const SLOW_TEMPO = 90
 const RISEN_TEMPO = 95
 const RISEN_PHRASE_TWO_AT = PHRASE_ONE_AT + (16 * 60) / SLOW_TEMPO
 
-/** Intent: a tracker holding phrase 1 at 90 BPM and phrase 2 at 95 BPM, right after it. */
+/** A tracker holding phrase 1 at 90 BPM and phrase 2 at 95 BPM, right after it. */
 function risenTracker(): SessionAcknowledgement {
   const acknowledgement = createSessionAcknowledgement({ correction: NO_CORRECTION })
   acknowledgement.addPhrase(1, PHRASE_ONE, PHRASE_ONE_AT, SLOW_TEMPO)

@@ -56,7 +56,7 @@ export interface SeventhCensusSetting {
 }
 
 /**
- * Intent: the settings of the census at some levels, level by level: each musical profile's
+ * The settings of the census at some levels, level by level: each musical profile's
  * defaults (Neutral, then Jazz) at that level. A level not measurable fails.
  */
 export function censusSettings(
@@ -73,7 +73,7 @@ export function censusSettings(
 }
 
 /**
- * Intent: the seed of one census phrase (spec D533), from its sweep case's index, its mode's index
+ * The seed of one census phrase (spec D533), from its sweep case's index, its mode's index
  * in COLLECTIONS and its profile's index in MUSICAL_PROFILES, numbered from 1: case by case, then
  * mode by mode, then profile by profile. It reads neither the level, so a phrase has the same seed
  * at the four levels, nor the cases kept, so a case limit changes no seed.
@@ -89,7 +89,7 @@ export function censusSeed(
 }
 
 /**
- * Intent: the census population of some sweep cases under one setting: each case under each of
+ * The census population of some sweep cases under one setting: each case under each of
  * the nine modes (Major, Minor and the seven modes), at the census tempo, with the case's controls,
  * the setting's profile and level, and a seed of its own (`censusSeed`), not the case's seed.
  */
@@ -125,7 +125,7 @@ export interface GeneratedCensusCase {
 }
 
 /**
- * Intent: generate one case's standalone phrase at its level and take its seventh census, keeping
+ * Generate one case's standalone phrase at its level and take its seventh census, keeping
  * the intent and the outcome for a replay sample.
  */
 export function generateSeventhCensusCase(censusCase: SeventhCensusCase): GeneratedCensusCase {
@@ -140,7 +140,7 @@ export function generateSeventhCensusCase(censusCase: SeventhCensusCase): Genera
   return { intent, outcome, census: seventhCensusOf(intent, outcome) }
 }
 
-/** Intent: generate one case's standalone phrase at its level and take its seventh census. */
+/** Generate one case's standalone phrase at its level and take its seventh census. */
 export function runSeventhCensusCase(
   censusCase: SeventhCensusCase,
 ): PhraseSeventhCensus | FailedSeventhCensus {
@@ -154,7 +154,7 @@ export interface CensusShare {
   readonly share: number | null
 }
 
-/** Intent: a count over a total, with its share. */
+/** A count over a total, with its share. */
 function shareOf(count: number, total: number): CensusShare {
   return { count, total, share: total === 0 ? null : count / total }
 }
@@ -191,10 +191,10 @@ export class SeventhTally {
     SEVENTH_QUALITIES.map((quality) => [quality, 0]),
   )
 
-  /** Intent: start the tally of the group named `label`. */
+  /** Start the tally of the group named `label`. */
   constructor(readonly label: string) {}
 
-  /** Intent: add one case's census, or its failed generation. */
+  /** Add one case's census, or its failed generation. */
   add(census: PhraseSeventhCensus | FailedSeventhCensus): void {
     this.cases += 1
     if ('kind' in census) {
@@ -210,7 +210,7 @@ export class SeventhTally {
       if (event.form !== 'triad') this.qualities[event.form] = (this.qualities[event.form] ?? 0) + 1
   }
 
-  /** Intent: the group's shares so far. */
+  /** The group's shares so far. */
   figures(): SeventhFigures {
     return {
       label: this.label,
@@ -243,10 +243,10 @@ export class LevelTally {
   )
   private readonly overall = new SeventhTally('all modes')
 
-  /** Intent: start the tallies of `level`. */
+  /** Start the tallies of `level`. */
   constructor(readonly level: ChordFamilyLevel) {}
 
-  /** Intent: add one case's census to its mode's, its profile's and the overall tally. */
+  /** Add one case's census to its mode's, its profile's and the overall tally. */
   add(censusCase: SeventhCensusCase, census: PhraseSeventhCensus | FailedSeventhCensus): void {
     if (censusCase.level !== this.level || census.level !== this.level)
       throw new Error(`${censusCase.label}: a census at ${census.level} added to ${this.level}.`)
@@ -255,7 +255,7 @@ export class LevelTally {
     this.overall.add(census)
   }
 
-  /** Intent: the level's figures so far. */
+  /** The level's figures so far. */
   figures(): LevelFigures {
     return {
       level: this.level,
@@ -266,18 +266,18 @@ export class LevelTally {
   }
 }
 
-/** Intent: a share as a percentage with one decimal, or a dash when it is null. */
+/** A share as a percentage with one decimal, or a dash when it is null. */
 export function percent(share: number | null): string {
   return share === null ? '-' : `${(share * 100).toFixed(1)}`
 }
 
-/** Intent: one table row of a group's figures. */
+/** One table row of a group's figures. */
 function row(figures: SeventhFigures): string {
   const failed = Object.values(figures.failedGenerations).reduce((sum, count) => sum + count, 0)
   return `${figures.label.padEnd(12)}${String(figures.phrases).padStart(9)}${String(failed).padStart(8)}${String(figures.seventhEvents.total).padStart(9)}${String(figures.seventhEvents.count).padStart(10)}${percent(figures.seventhEvents.share).padStart(10)}${percent(figures.drawnEvents.share).padStart(9)}${String(figures.fallbacks.count).padStart(11)}${percent(figures.fallbacks.share).padStart(12)}`
 }
 
-/** Intent: the readable table of one level, per mode then per profile then overall, `SEVENTH-CENSUS` lines. */
+/** The readable table of one level, per mode then per profile then overall, `SEVENTH-CENSUS` lines. */
 export function levelTableLines(figures: LevelFigures): readonly string[] {
   const prefix = `SEVENTH-CENSUS [${SEVENTH_LEVEL_NAMES[figures.level]}]`
   const header = `${'group'.padEnd(12)}${'phrases'.padStart(9)}${'failed'.padStart(8)}${'events'.padStart(9)}${'sevenths'.padStart(10)}${'share %'.padStart(10)}${'drawn %'.padStart(9)}${'fallbacks'.padStart(11)}${'fallback %'.padStart(12)}`

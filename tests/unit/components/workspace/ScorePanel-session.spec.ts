@@ -15,7 +15,7 @@ import { reachTooManyNotesNotice } from './score-panel-harness'
 import { createTestWorkspace, PHRASE_SCORE_STUB, type TestWorkspace } from './test-workspace'
 import { provideSaveSettings } from './recording-save-settings'
 
-/** Intent: mount the panel on `workspace` over `controller`, attached so focus can move. */
+/** Mount the panel on `workspace` over `controller`, attached so focus can move. */
 function mountPanel(workspace: TestWorkspace, controller: SessionController | null) {
   return mount(ScorePanel, {
     props: {
@@ -107,7 +107,7 @@ describe('ScorePanel session staff', () => {
   })
 })
 
-/** Intent: a starting note at `identity` (a fresh object each call, as the controller recomputes it). */
+/** A starting note at `identity` (a fresh object each call, as the controller recomputes it). */
 function startingNoteAt(identity: ExpectedNoteIdentity): StartingNote {
   return { identity: { ...identity }, concertPitch: makeConcertPitch(60), label: 'C4' }
 }
@@ -117,7 +117,7 @@ const SECOND_NOTE: ExpectedNoteIdentity = { phraseNumber: 1, measureIndex: 0, ev
 
 // @test-link [[module_notation_note_identity_overlays]]
 describe('ScorePanel score overlays', () => {
-  /** Intent: the overlays the panel hands PhraseScore now. */
+  /** The overlays the panel hands PhraseScore now. */
   function overlaysOf(wrapper: ReturnType<typeof mountPanel>): ScoreOverlays {
     return wrapper.getComponent({ name: 'PhraseScore' }).props('overlays') as ScoreOverlays
   }

@@ -27,7 +27,7 @@ const BAR_WIDTH = 60
 const SPLIT_GAP_MS = 60
 
 /**
- * Intent: the options and the files to read, crashing on an unknown flag or a flag with no
+ * The options and the files to read, crashing on an unknown flag or a flag with no
  * positive number after it.
  * @param {readonly string[]} args
  * @returns {{ binMs: number, upToMs: number, files: string[] }}
@@ -57,7 +57,7 @@ function parseArgs(args) {
 }
 
 /**
- * Intent: a function giving the time in milliseconds of a tick of a file, from its division and
+ * A function giving the time in milliseconds of a tick of a file, from its division and
  * its tempo map; crashes on a file with no tempo at tick 0, since its first notes would have none.
  * @param {number} division
  * @param {readonly { tick: number, microsecondsPerQuarter: number }[]} tempos
@@ -86,7 +86,7 @@ function tickClock(division, tempos) {
  */
 
 /**
- * Intent: load the tests' MIDI reader through Vite, crashing when a function the script uses is
+ * Load the tests' MIDI reader through Vite, crashing when a function the script uses is
  * missing.
  * @returns {Promise<SmfReader>}
  */
@@ -100,7 +100,7 @@ async function loadReader() {
 }
 
 /**
- * Intent: every note of one played-notes file with its onset and length in milliseconds, in onset
+ * Every note of one played-notes file with its onset and length in milliseconds, in onset
  * order. The conductor track holds the tempo map; every other track's notes are read.
  * @param {string} path
  * @param {SmfReader} reader
@@ -123,7 +123,7 @@ function fileNotes(path, reader) {
 }
 
 /**
- * Intent: print the histogram of note lengths from 0 to `upToMs` in bins of `binMs`, one bar per
+ * Print the histogram of note lengths from 0 to `upToMs` in bins of `binMs`, one bar per
  * bin, plus the count of longer notes.
  * @param {readonly number[]} lengths
  * @param {number} binMs
@@ -145,7 +145,7 @@ function printHistogram(lengths, binMs, upToMs) {
 }
 
 /**
- * Intent: list every note shorter than `upToMs` of one file in its melodic context: the pitches
+ * List every note shorter than `upToMs` of one file in its melodic context: the pitches
  * just before and after it, and `split` when a neighbour of the same pitch sits within
  * `SPLIT_GAP_MS` of it (the controller cutting one held note in two), so a stray in-between note
  * (a different pitch wedged between two notes) can be told from the short half of a split note.

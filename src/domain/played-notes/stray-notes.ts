@@ -30,20 +30,20 @@ export interface TimedNote {
   readonly releaseAt: number
 }
 
-/** Intent: whether a played note is very short: its length is under the threshold. */
+/** Whether a played note is very short: its length is under the threshold. */
 // @spec-link [[rule_stray_note_definition]]
 export function isVeryShortNote(note: TimedNote): boolean {
   return note.releaseAt - note.onsetAt < VERY_SHORT_NOTE_SECONDS
 }
 
-/** Intent: the played notes that are not very short, in their order; the input is unchanged. */
+/** The played notes that are not very short, in their order; the input is unchanged. */
 // @spec-link [[rule_stray_notes_filtered_on_reading]]
 export function withoutVeryShortNotes<N extends TimedNote>(notes: readonly N[]): N[] {
   return notes.filter((note) => !isVeryShortNote(note))
 }
 
 /**
- * Intent: the records with their very short played notes left out, every other field kept; a
+ * The records with their very short played notes left out, every other field kept; a
  * record that holds none is returned as it is.
  */
 // @spec-link [[rule_stray_notes_filtered_on_reading]]

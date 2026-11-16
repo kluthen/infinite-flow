@@ -37,7 +37,7 @@ describe('the Overview lines', () => {
   })
 
   it('round the space used: under 1 KB, whole KB, MB with one decimal under 10 MB, whole MB after', () => {
-    /** Intent: the line for `bytes` measured. */
+    /** The line for `bytes` measured. */
     const measured = (bytes: number) => spaceLine({ kind: 'measured', bytes })
     expect(spaceLine({ kind: 'measuring' })).toBe('Measuring…')
     expect(spaceLine({ kind: 'unmeasured' })).toBe("Couldn't be measured.")

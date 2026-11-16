@@ -72,7 +72,7 @@ export interface ConductorDoodle {
 export const DOODLE_MARKER = 'Doodle'
 
 /**
- * Intent: the MIDI tick at which the file's first phrase starts: zero, or, in a Jam's files, the
+ * The MIDI tick at which the file's first phrase starts: zero, or, in a Jam's files, the
  * doodle's last barline, its measures of 4/4 counted from zero.
  */
 // @spec-link [[rule_jam_exports_open_with_doodle]]
@@ -82,7 +82,7 @@ export function phrasesOrigin(doodle: ConductorDoodle | null | undefined): numbe
 }
 
 /**
- * Intent: the MIDI tick at which the phrase at zero-based `position` of the file starts: the first
+ * The MIDI tick at which the phrase at zero-based `position` of the file starts: the first
  * at `origin` (zero, or a Jam's doodle's end), the phrases back to back. `phraseStartTick(count)`
  * is where the file's last phrase ends.
  */
@@ -94,7 +94,7 @@ export function phraseStartTick(position: number, origin = 0): number {
 }
 
 /**
- * Intent: the conductor track's events: the file's name and the 4/4 time signature at time zero,
+ * The conductor track's events: the file's name and the 4/4 time signature at time zero,
  * then, at each phrase's start, a tempo event when the tempo is the first or differs from the
  * phrase before, and a marker "Phrase n" with its session number. In a Jam's files the doodle
  * comes first: its capture tempo and a marker "Doodle" at time zero, the doodle's tempo then
@@ -132,7 +132,7 @@ export function conductorTrackEvents(
 }
 
 /**
- * Intent: a phrase's concert timeline as sounding notes, shifted to the start of the phrase at
+ * A phrase's concert timeline as sounding notes, shifted to the start of the phrase at
  * zero-based `position` of the file, the phrases starting at `origin`; `phraseNumber` names it in
  * a failure. A fresh
  * note opens a note; a tie continuation lengthens the open note, which must be of the same pitch
@@ -173,7 +173,7 @@ export function generatedLineNotes(
 }
 
 /**
- * Intent: timed notes (whole notes from their span's start) as sounding notes from `offset`.
+ * Timed notes (whole notes from their span's start) as sounding notes from `offset`.
  */
 function soundingFrom(notes: readonly MidiBackingNote[], offset: number): SoundingNote[] {
   return notes.map((note) => {
@@ -187,7 +187,7 @@ function soundingFrom(notes: readonly MidiBackingNote[], offset: number): Soundi
 }
 
 /**
- * Intent: one phrase's backing notes as sounding notes, shifted to the start of the phrase at
+ * One phrase's backing notes as sounding notes, shifted to the start of the phrase at
  * zero-based `position` of the file, the phrases starting at `origin`.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
@@ -200,7 +200,7 @@ export function backingNotes(
 }
 
 /**
- * Intent: a Jam's quantized doodle as sounding notes from time zero, where its section opens the
+ * A Jam's quantized doodle as sounding notes from time zero, where its section opens the
  * file.
  */
 // @spec-link [[rule_jam_exports_open_with_doodle]]
@@ -209,7 +209,7 @@ export function doodleNotes(doodle: MidiDoodleSection): SoundingNote[] {
 }
 
 /**
- * Intent: a note track's events: its name at time zero, then every note's note-on and note-off in
+ * A note track's events: its name at time zero, then every note's note-on and note-off in
  * time order, each on its own channel and the note-on at its own velocity. At the same tick every
  * release comes before every attack, so a pitch that ends one note and starts the next is released
  * before it sounds again; ties among releases or among attacks go by channel, then by pitch, lowest
@@ -244,7 +244,7 @@ export function voicedNoteTrackEvents(
 }
 
 /**
- * Intent: a note track whose notes all share one channel and one velocity, as the generated line
+ * A note track whose notes all share one channel and one velocity, as the generated line
  * and the backing are written: the same events as voicedNoteTrackEvents gives those notes.
  */
 // @spec-link [[rule_generated_notes_midi_export]]

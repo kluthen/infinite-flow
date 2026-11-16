@@ -10,7 +10,7 @@ import type { SessionControllerState } from '@/components/workspace/workspace-se
 
 const ROW: KeptSessionRow = { kind: 'newer', key: 'n', readable: {}, failedToOpen: false }
 
-/** Intent: the link facts at Idle, no review mode, with `edit` applied. */
+/** The link facts at Idle, no review mode, with `edit` applied. */
 function facts(
   edit: Partial<SessionControllerState> = {},
 ): Pick<SessionControllerState, 'phase' | 'review' | 'listShowing' | 'mostRecent' | 'keptRows'> {

@@ -21,7 +21,7 @@ import {
 import { reviewAreaRig } from './review-area-rig'
 import { reviewedJamPart } from './reviewed-jam-part-fixture'
 
-/** Intent: a fake controller showing a Review whose played notes are kept, or not. */
+/** A fake controller showing a Review whose played notes are kept, or not. */
 function showingPlayedNotes(kept: boolean): FakeSessionController {
   const review = fakeReview(fakeReviewHistory(recordedRecords()), true, 'not-pinned', kept)
   return createFakeSessionController({
@@ -31,7 +31,7 @@ function showingPlayedNotes(kept: boolean): FakeSessionController {
   })
 }
 
-/** Intent: the review area over `fake`'s controller, inside its own effect scope. */
+/** The review area over `fake`'s controller, inside its own effect scope. */
 function areaOver(fake: FakeSessionController) {
   const { area, saves, stop } = reviewAreaRig(fake)
   return { built: area, saves, stop }
@@ -214,7 +214,7 @@ describe("the review area: Delete played notes' confirmation", () => {
   })
 })
 
-/** Intent: a listed session under `key` a newer version wrote, with what can be read of it. */
+/** A listed session under `key` a newer version wrote, with what can be read of it. */
 function listed(key: string, playedNotesKept: boolean, isJam: boolean): KeptSessionRow {
   return { kind: 'newer', key, readable: { playedNotesKept, isJam }, failedToOpen: false }
 }
@@ -224,7 +224,7 @@ function listed(key: string, playedNotesKept: boolean, isJam: boolean): KeptSess
 describe("the review area: the played notes already kept's confirmation", () => {
   const CANNOT = "This can't be undone."
 
-  /** Intent: the copy opened by turning Keep my played notes off over `keptRows`, `count` kept. */
+  /** The copy opened by turning Keep my played notes off over `keptRows`, `count` kept. */
   async function keptCopy(keptRows: readonly KeptSessionRow[], count: number) {
     const fake = showingPlayedNotes(true)
     fake.state.keptRows = keptRows

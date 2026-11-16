@@ -210,7 +210,7 @@ describe("useReviewArea: the session's length", () => {
 })
 
 /**
- * Intent: a showing, kept Review of `records` with the given favorites and the distinctive comment,
+ * A showing, kept Review of `records` with the given favorites and the distinctive comment,
  * over a fake controller, and the area over it.
  */
 function scopeRig(records: readonly SessionHistoryRecord[], favorites: readonly number[] = []) {

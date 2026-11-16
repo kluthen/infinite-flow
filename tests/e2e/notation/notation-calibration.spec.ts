@@ -91,7 +91,7 @@ type ComboResult =
       readonly details?: Readonly<Record<string, number>> | undefined
     }
 
-/** Intent: build the harness URL for one combination; every generation control is explicit. */
+/** Build the harness URL for one combination; every generation control is explicit. */
 function comboUrl(controls: Readonly<Record<string, string>>, frameWidthPx: number): string {
   const params = new URLSearchParams({
     source: 'generated',
@@ -108,7 +108,7 @@ function comboUrl(controls: Readonly<Record<string, string>>, frameWidthPx: numb
 }
 
 /**
- * Intent: run one combination and classify its result -- a thrown generation failure surfaces as an
+ * Run one combination and classify its result -- a thrown generation failure surfaces as an
  * uncaught page error (the harness's `runGeneratedSource` throws rather than publishing a code), so
  * both that path and the harness's own published error/ready states are handled. A ready result
  * also reports each system SVG's drawn extent in its own viewBox units.
@@ -172,13 +172,13 @@ async function runCombo(page: Page, url: string, withInk = false): Promise<Combo
   }
 }
 
-/** Intent: the median of a non-empty, already-sorted numeric array. */
+/** The median of a non-empty, already-sorted numeric array. */
 function median(sorted: readonly number[]): number {
   const mid = Math.floor(sorted.length / 2)
   return sorted.length % 2 === 0 ? (sorted[mid - 1]! + sorted[mid]!) / 2 : sorted[mid]!
 }
 
-/** Intent: every (density, variety, syncopation, seed, profile) combination of the width grid. */
+/** Every (density, variety, syncopation, seed, profile) combination of the width grid. */
 function widthGrid(): readonly Readonly<Record<string, string>>[] {
   return DENSITIES.flatMap((density) =>
     RHYTHMIC_VARIETIES.flatMap((variety) =>
@@ -198,7 +198,7 @@ function widthGrid(): readonly Readonly<Record<string, string>>[] {
 }
 
 /**
- * Intent: every (leapiness, contour, arpeggio chaos, density, seed, profile) combination of the
+ * Every (leapiness, contour, arpeggio chaos, density, seed, profile) combination of the
  * height sweep for one register, as harness controls.
  */
 function heightGrid(register: (typeof REGISTERS)[number]) {
@@ -235,7 +235,7 @@ interface Extremes {
 }
 
 /**
- * Intent: widen one profile and register's extremes by one ready combination's system extents,
+ * Widen one profile and register's extremes by one ready combination's system extents,
  * counting the systems whose ink touches the SVG's first or last row.
  */
 function recordExtents(entry: Extremes, extents: readonly SystemExtent[]): void {
@@ -576,7 +576,7 @@ const MY_INSTRUMENT_CASES: readonly MyInstrumentCase[] = [
   },
 ]
 
-/** Intent: every (register, leapiness, contour, chaos, density, seed) combination of one case. */
+/** Every (register, leapiness, contour, chaos, density, seed) combination of one case. */
 function myInstrumentGrid(grid: MyInstrumentGrid) {
   return REGISTERS.flatMap((register) =>
     grid.leapiness.flatMap((leapiness) =>

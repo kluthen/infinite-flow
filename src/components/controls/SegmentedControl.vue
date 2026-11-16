@@ -31,7 +31,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-/** Intent: locate the option index for a given value, or null when the value is unselected. */
+/** Locate the option index for a given value, or null when the value is unselected. */
 function indexForValue(value: string | null): number | null {
   if (value === null) return null
   const index = props.options.findIndex((option) => option.value === value)
@@ -46,13 +46,13 @@ function indexForValue(value: string | null): number | null {
   return index
 }
 
-/** Intent: whether the option at `index` can take focus and be selected. */
+/** Whether the option at `index` can take focus and be selected. */
 function isAvailable(index: number): boolean {
   return props.options[index]?.disabled !== true
 }
 
 /**
- * Intent: the nearest available option from `start`, stepping by `step` (+1 or -1) and wrapping,
+ * The nearest available option from `start`, stepping by `step` (+1 or -1) and wrapping,
  * `start` included. Null only when no option is available.
  */
 function nearestAvailable(start: number, step: 1 | -1): number | null {
@@ -64,10 +64,10 @@ function nearestAvailable(start: number, step: 1 | -1): number | null {
   return null
 }
 
-/** Intent: crash early on an unresolvable selection rather than rendering an inconsistent group. */
+/** Crash early on an unresolvable selection rather than rendering an inconsistent group. */
 const checkedIndex = computed(() => indexForValue(props.modelValue))
 
-/** Intent: track which option currently holds the roving tab stop, independent of selection. */
+/** Track which option currently holds the roving tab stop, independent of selection. */
 const rovingIndex = ref(checkedIndex.value ?? nearestAvailable(0, 1) ?? 0)
 
 watch(checkedIndex, (next) => {
@@ -75,7 +75,7 @@ watch(checkedIndex, (next) => {
 })
 
 /**
- * Intent: an option that becomes unavailable while it holds the roving tab stop (reached by arrow
+ * An option that becomes unavailable while it holds the roving tab stop (reached by arrow
  * keys while read-only) hands the stop back to the checked option, or the first available one, so
  * the group never loses its only tabbable segment.
  */
@@ -87,7 +87,7 @@ watch(
   },
 )
 
-/** Intent: emit the selected value unless the group is read-only, in which case selection is inert. */
+/** Emit the selected value unless the group is read-only, in which case selection is inert. */
 function select(index: number): void {
   if (props.readonly) return
   const option = props.options[index]
@@ -95,20 +95,20 @@ function select(index: number): void {
   emit('update:modelValue', option.value)
 }
 
-/** Intent: move the roving tab stop to `index` and, unless read-only, also select it. */
+/** Move the roving tab stop to `index` and, unless read-only, also select it. */
 function moveTo(index: number): void {
   rovingIndex.value = index
   select(index)
 }
 
-/** Intent: handle click selection on one segment; read-only groups accept focus but not selection. */
+/** Handle click selection on one segment; read-only groups accept focus but not selection. */
 function handleClick(index: number): void {
   rovingIndex.value = index
   select(index)
 }
 
 /**
- * Intent: roving-tabindex arrow/Home/End navigation that always moves focus, even when read-only,
+ * Roving-tabindex arrow/Home/End navigation that always moves focus, even when read-only,
  * skipping unavailable options.
  */
 function handleKeydown(event: KeyboardEvent, index: number): void {
@@ -127,7 +127,7 @@ function handleKeydown(event: KeyboardEvent, index: number): void {
 
 const optionRefs = ref<(HTMLButtonElement | null)[]>([])
 
-/** Intent: move DOM focus onto the option at `index` after the roving tab stop changes. */
+/** Move DOM focus onto the option at `index` after the roving tab stop changes. */
 function focusOption(index: number): void {
   optionRefs.value[index]?.focus()
 }

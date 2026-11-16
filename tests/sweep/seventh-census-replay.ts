@@ -23,7 +23,7 @@ export const FALLBACK_CLASS = 'fallback'
 /** The class of the phrases above Off whose draw gave no event its seventh form. */
 export const UNDRAWN_CLASS = 'triads, none drawn'
 
-/** Intent: the class of the phrases generated at one level. */
+/** The class of the phrases generated at one level. */
 export function generatedClass(level: ChordFamilyLevel): string {
   return `generated at ${SEVENTH_LEVEL_NAMES[level]}`
 }
@@ -56,7 +56,7 @@ export class SeventhReplaySampler {
   private readonly samples: Map<string, SeventhSample[]>
   private replayed: SeventhReplayFigures | undefined
 
-  /** Intent: a sampler for the census of `levels`, keeping up to `perClass` phrases per class. */
+  /** A sampler for the census of `levels`, keeping up to `perClass` phrases per class. */
   constructor(
     levels: readonly ChordFamilyLevel[],
     private readonly perClass: number = SEVENTH_REPLAY_PER_CLASS,
@@ -66,7 +66,7 @@ export class SeventhReplaySampler {
     this.samples = new Map(classes.map((replayClass) => [replayClass, []]))
   }
 
-  /** Intent: the classes one generated census case belongs to; none for a failed generation. */
+  /** The classes one generated census case belongs to; none for a failed generation. */
   private classesOf({ census }: GeneratedCensusCase): readonly string[] {
     if ('kind' in census) return []
     const classes = [generatedClass(census.level)]
@@ -76,7 +76,7 @@ export class SeventhReplaySampler {
     return classes
   }
 
-  /** Intent: offer one census case of sweep case `caseIndex`, kept in each class it may still join. */
+  /** Offer one census case of sweep case `caseIndex`, kept in each class it may still join. */
   offer(caseIndex: number, generated: GeneratedCensusCase): void {
     const { intent, outcome } = generated
     if (outcome.kind !== 'generation_success') return
@@ -93,7 +93,7 @@ export class SeventhReplaySampler {
     }
   }
 
-  /** Intent: replay every sample once (later calls give the same figures). */
+  /** Replay every sample once (later calls give the same figures). */
   replay(): SeventhReplayFigures {
     if (this.replayed !== undefined) return this.replayed
     const mismatchedKeys: string[] = []
@@ -114,7 +114,7 @@ export class SeventhReplaySampler {
 }
 
 /**
- * Intent: the readable replay lines of the census: per class, the replays matched and one sample
+ * The readable replay lines of the census: per class, the replays matched and one sample
  * key, then every key that did not match.
  */
 export function seventhReplayLines(figures: SeventhReplayFigures): readonly string[] {

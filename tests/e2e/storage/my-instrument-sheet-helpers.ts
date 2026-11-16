@@ -33,57 +33,57 @@ export const BASS_LEAD = 'In bass clef, the range must stay between E0 and E5.'
 /** The session seed phrase 1 is published with in the pre-generation cases. */
 export const SESSION_SEED = 4242
 
-/** Intent: the `instrument-actions` button, `Create my instrument` or `Edit my instrument`. */
+/** The `instrument-actions` button, `Create my instrument` or `Edit my instrument`. */
 export function instrumentActions(page: Page): Locator {
   return page.locator('.instrument-actions button')
 }
 
-/** Intent: the My instrument sheet's dialog. */
+/** The My instrument sheet's dialog. */
 export function mySheet(page: Page): Locator {
   return page.getByRole('dialog')
 }
 
-/** Intent: one of the sheet's semitone steppers, by its accessible name. */
+/** One of the sheet's semitone steppers, by its accessible name. */
 export function stepper(page: Page, name: 'Lowest note' | 'Highest note' | 'Sounds'): Locator {
   return mySheet(page).getByRole('spinbutton', { name, exact: true })
 }
 
-/** Intent: one segment of one of the sheet's segmented controls ("Start from", "Clef"). */
+/** One segment of one of the sheet's segmented controls ("Start from", "Clef"). */
 export function sheetSegment(page: Page, group: 'Start from' | 'Clef', label: string): Locator {
   return mySheet(page)
     .getByRole('radiogroup', { name: group })
     .getByRole('radio', { name: label, exact: true })
 }
 
-/** Intent: one of the sheet's `sheet-actions` buttons, by its exact label. */
+/** One of the sheet's `sheet-actions` buttons, by its exact label. */
 export function sheetActionButton(page: Page, label: string): Locator {
   return mySheet(page).locator('.sheet-actions').getByRole('button', { name: label, exact: true })
 }
 
-/** Intent: the sheet's name field. */
+/** The sheet's name field. */
 export function nameField(page: Page): Locator {
   return mySheet(page).getByRole('textbox', { name: 'Name' })
 }
 
-/** Intent: the range's refusal, shown while the range is refused. */
+/** The range's refusal, shown while the range is refused. */
 export function rangeAlert(page: Page): Locator {
   return mySheet(page).locator('.range-alert')
 }
 
-/** Intent: the transposition's interval note, under the "Sounds" stepper. */
+/** The transposition's interval note, under the "Sounds" stepper. */
 export function transpositionNote(page: Page): Locator {
   return stepper(page, 'Sounds').locator(
     'xpath=following-sibling::p[contains(@class, "field-note")]',
   )
 }
 
-/** Intent: open the sheet from `instrument-actions` and wait until it shows. */
+/** Open the sheet from `instrument-actions` and wait until it shows. */
 export async function openSheet(page: Page): Promise<void> {
   await instrumentActions(page).click()
   await expect(mySheet(page)).toBeVisible()
 }
 
-/** Intent: the value a stepper holds now. */
+/** The value a stepper holds now. */
 export async function stepperValue(
   page: Page,
   name: Parameters<typeof stepper>[1],
@@ -91,7 +91,7 @@ export async function stepperValue(
   return Number(await stepper(page, name).getAttribute('aria-valuenow'))
 }
 
-/** Intent: step a stepper by keyboard, one semitone per arrow press, until it holds `value`. */
+/** Step a stepper by keyboard, one semitone per arrow press, until it holds `value`. */
 export async function stepTo(
   page: Page,
   name: Parameters<typeof stepper>[1],
@@ -105,13 +105,13 @@ export async function stepTo(
   await expect(control).toHaveAttribute('aria-valuenow', String(value))
 }
 
-/** Intent: Save, and wait until the sheet has closed. */
+/** Save, and wait until the sheet has closed. */
 export async function saveSheet(page: Page): Promise<void> {
   await sheetActionButton(page, 'Save').click()
   await expect(mySheet(page)).toHaveCount(0)
 }
 
-/** Intent: the instrument control's segments' labels, in order. */
+/** The instrument control's segments' labels, in order. */
 export function instrumentLabels(page: Page): Promise<string[]> {
   return page
     .getByRole('radiogroup', { name: INSTRUMENT_GROUP })
@@ -120,22 +120,22 @@ export function instrumentLabels(page: Page): Promise<string[]> {
     .then((labels) => labels.map((label) => label.trim()))
 }
 
-/** Intent: the records the `instrument` store holds now. */
+/** The records the `instrument` store holds now. */
 export function instrumentRecords(page: Page): Promise<unknown[]> {
   return page.evaluate(() => window.__workspaceHarness.storage.records('instrument'))
 }
 
-/** Intent: the records the `controller` store holds now. */
+/** The records the `controller` store holds now. */
 export function controllerRecords(page: Page): Promise<unknown[]> {
   return page.evaluate(() => window.__workspaceHarness.storage.records('controller'))
 }
 
-/** Intent: the player's phrase requests (no abort signal) made since the page loaded. */
+/** The player's phrase requests (no abort signal) made since the page loaded. */
 export async function idleRequests(page: Page): Promise<WorkspaceHarnessGenerationRequest[]> {
   return (await generationRecords(page)).filter((record) => !record.signal)
 }
 
-/** Intent: wait until Idle shows a drawn phrase and holds no generation or notation. */
+/** Wait until Idle shows a drawn phrase and holds no generation or notation. */
 export async function untilIdleDrawn(page: Page): Promise<void> {
   await expect
     .poll(async () => (await harnessSnapshot(page)).operation, { timeout: 30_000 })
@@ -143,14 +143,14 @@ export async function untilIdleDrawn(page: Page): Promise<void> {
   await expect(page.locator('.staff-frame')).toHaveClass(/staff-ready/)
 }
 
-/** Intent: the clef glyphs the workspace's staff draws now. */
+/** The clef glyphs the workspace's staff draws now. */
 export function staffClefs(page: Page): Promise<string[]> {
   return page
     .locator('.score-panel > div > .staff-viewport svg.staff-svg g.vf-clef > text')
     .evaluateAll((texts) => texts.map((text) => text.textContent ?? ''))
 }
 
-/** Intent: each workspace staff SVG's `viewBox` height: the shared system-position size. */
+/** Each workspace staff SVG's `viewBox` height: the shared system-position size. */
 export function staffHeights(page: Page): Promise<number[]> {
   return page
     .locator('.score-panel > div > .staff-viewport svg.staff-svg')
@@ -169,7 +169,7 @@ export const LETTER_SEMITONES: Readonly<Record<string, number>> = {
 }
 
 /**
- * Intent: the MIDI number of the first written note the staff's text description names (`B flat
+ * The MIDI number of the first written note the staff's text description names (`B flat
  * 4 quarter`): the first token that is neither a chord announcement nor a rest.
  */
 export async function firstWrittenNote(page: Page): Promise<number> {
@@ -192,7 +192,7 @@ export async function firstWrittenNote(page: Page): Promise<number> {
   return (Number(match[3]) + 1) * 12 + LETTER_SEMITONES[match[1]!]! + alter
 }
 
-/** Intent: the concert pitch of the first attacked note of a concert timeline (JSON). */
+/** The concert pitch of the first attacked note of a concert timeline (JSON). */
 export function firstConcertNote(timeline: string): number {
   const parsed = JSON.parse(timeline) as {
     measures: { events: { kind: string; pitch?: number }[] }[]
@@ -205,7 +205,7 @@ export function firstConcertNote(timeline: string): number {
   throw new Error('no note in the timeline')
 }
 
-/** Intent: every attacked note's concert pitch in a concert timeline (JSON). */
+/** Every attacked note's concert pitch in a concert timeline (JSON). */
 export function timelinePitches(timeline: string): number[] {
   const parsed = JSON.parse(timeline) as {
     measures: { events: { kind: string; pitch?: number }[] }[]
@@ -218,7 +218,7 @@ export function timelinePitches(timeline: string): number[] {
 }
 
 /**
- * Intent: create my instrument through the sheet from `template`, with `name`, its written range
+ * Create my instrument through the sheet from `template`, with `name`, its written range
  * set by keyboard when given, and Save; wait until it is selected and Idle shows its phrase.
  */
 export async function createThroughSheet(
@@ -242,7 +242,7 @@ export async function createThroughSheet(
   await untilIdleDrawn(page)
 }
 
-/** Intent: before any page script runs, count `navigator.storage.persist()` calls, never granted. */
+/** Before any page script runs, count `navigator.storage.persist()` calls, never granted. */
 export async function spyOnPersist(page: Page): Promise<void> {
   await page.addInitScript(() => {
     const spied = window as unknown as { __persistCalls: number }
@@ -255,7 +255,7 @@ export async function spyOnPersist(page: Page): Promise<void> {
   })
 }
 
-/** Intent: the `navigator.storage.persist()` calls since the page loaded. */
+/** The `navigator.storage.persist()` calls since the page loaded. */
 export function persistCalls(page: Page): Promise<number> {
   return page.evaluate(() => (window as unknown as { __persistCalls: number }).__persistCalls)
 }

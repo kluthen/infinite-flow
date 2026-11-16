@@ -83,7 +83,7 @@ export interface SessionAcknowledgement {
 }
 
 /**
- * Intent: an empty acknowledgement for one session, with its latency correction. Rejects a
+ * An empty acknowledgement for one session, with its latency correction. Rejects a
  * correction with a negative or non-finite delay, before any note arrives. Each phrase's expected
  * notes are placed at that phrase's own tempo from its own first downbeat. A phrase out of order,
  * at a tempo that is not a positive finite BPM, or whose notes do not follow the previous phrase's
@@ -167,7 +167,7 @@ export function createSessionAcknowledgement(
 }
 
 /**
- * Intent: reject a correction with a delay that is negative or not a finite number, as
+ * Reject a correction with a delay that is negative or not a finite number, as
  * compensatePlayedNote would, but at the session's start rather than at its first note.
  */
 function assertCorrection(correction: LatencyCorrection): void {
@@ -185,7 +185,7 @@ function assertCorrection(correction: LatencyCorrection): void {
 }
 
 /**
- * Intent: a finished played note with its onset and release shifted earlier by the same total
+ * A finished played note with its onset and release shifted earlier by the same total
  * correction (output latency plus connection delay), so the history's played notes line up with
  * the generated notes the player heard. The onset is the very one matching used
  * (compensatePlayedNote); the release takes the same two delays off in the same order. Rejects

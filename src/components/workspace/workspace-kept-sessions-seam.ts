@@ -36,7 +36,7 @@ export interface DamagedSessionReports {
 }
 
 /**
- * Intent: the channel of the reports of the deletions of damaged kept sessions, one per
+ * The channel of the reports of the deletions of damaged kept sessions, one per
  * workspace: a report reaches the listeners attached when it is told, and nothing keeps it after.
  */
 // @spec-link [[module_kept_session_save]]
@@ -93,7 +93,7 @@ export interface KeptSessionsSeam {
 }
 
 /**
- * Intent: the kept sessions as the session controller reaches them, over the saved data the load
+ * The kept sessions as the session controller reaches them, over the saved data the load
  * gave and the visit's saves: the summaries it read, a session's records read by its key through
  * the visit's save policy, whether saving is off now, known without waiting on a policy that may
  * never settle (a visit started from the defaults, whose port opens late or never, saves nothing)

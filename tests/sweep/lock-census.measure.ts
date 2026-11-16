@@ -55,7 +55,7 @@ describe('lock census runner (M2)', () => {
     const tallies: LockGroupTally[] = []
     for (const level of choices.levels)
       for (const group of groups) {
-        /** Intent: report one density part played, with the heap in use. */
+        /** Report one density part played, with the heap in use. */
         const onPart = (density: string, count: number): void => {
           const heap = Math.round(process.memoryUsage().heapUsed / 2 ** 20)
           console.log(

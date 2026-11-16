@@ -20,7 +20,7 @@ import {
 const C4 = makeConcertPitch(60)
 const E4 = makeConcertPitch(64)
 
-/** Intent: a rig connected to KEYS_A, the only device present. */
+/** A rig connected to KEYS_A, the only device present. */
 async function connectedRig(options: ControllerRigOptions = {}) {
   const rig = createControllerRig({ devices: [KEYS_A], ...options })
   await rig.controller.connect()
@@ -144,7 +144,7 @@ describe('MidiController: onsets and releases on the audio clock', () => {
 const ANCHOR_BEFORE: ClockAnchor = { audioTime: 10, performanceTimeMs: 1_000 }
 const ANCHOR_BEHIND: ClockAnchor = { audioTime: 9.997, performanceTimeMs: 1_000 }
 
-/** Intent: a rig connected to KEYS_A (and PAD_B, unselected) whose anchor the test sets per message. */
+/** A rig connected to KEYS_A (and PAD_B, unselected) whose anchor the test sets per message. */
 async function rigWithSetAnchor() {
   let reading = ANCHOR_BEFORE
   const rig = await connectedRig({ devices: [KEYS_A, PAD_B], anchor: () => reading })
@@ -244,7 +244,7 @@ describe('MidiController: message order is kept on the audio clock', () => {
   })
 })
 
-/** Intent: run one fixed script of plugs, picks, notes and unplugs; return what was reported. */
+/** Run one fixed script of plugs, picks, notes and unplugs; return what was reported. */
 async function runScript(): Promise<{
   changes: MidiControllerChange[]
   notes: PlayedNoteEvent[]

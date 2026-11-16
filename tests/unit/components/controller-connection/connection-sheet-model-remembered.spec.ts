@@ -13,7 +13,7 @@ import {
 
 import { change, KEYS, PAD, run, selected } from './sheet-model-fixtures'
 
-/** Intent: a sheet just opened at Requesting access with KEYS remembered, the controller asking. */
+/** A sheet just opened at Requesting access with KEYS remembered, the controller asking. */
 function openedRemembering(): SheetModel {
   return run(initialSheetModel(change({ kind: 'not-requested' }, [], KEYS)), {
     kind: 'open-requesting',

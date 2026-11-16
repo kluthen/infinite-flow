@@ -38,7 +38,7 @@ interface Call {
 
 const NO_PLAN: PitchPlanResult = { kind: 'no_legal_pitch_plan', fuelUsed: 0 }
 
-/** Intent: planner deps that record every call, planning for real only when `plans` allows. */
+/** Planner deps that record every call, planning for real only when `plans` allows. */
 function recordingDeps(plans: (rhythm: RhythmCandidate) => boolean): {
   readonly deps: WindowSearchDeps
   readonly calls: Call[]
@@ -60,7 +60,7 @@ function recordingDeps(plans: (rhythm: RhythmCandidate) => boolean): {
   }
 }
 
-/** Intent: every call one pair of the walk makes, in binding order. */
+/** Every call one pair of the walk makes, in binding order. */
 function pairCalls(harmony: HarmonyCandidate, rhythm: RhythmCandidate): Call[] {
   const domain = makeTensionBindingDomain(harmony, rhythm)
   if (domain.kind !== 'tension_binding_domain') return []
@@ -71,14 +71,14 @@ function pairCalls(harmony: HarmonyCandidate, rhythm: RhythmCandidate): Call[] {
   }))
 }
 
-/** Intent: the calls of v3.1's harmony-major walk: each chord plan with every rhythm. */
+/** The calls of v3.1's harmony-major walk: each chord plan with every rhythm. */
 function harmonyMajorCalls(input: WindowSearchInput): Call[] {
   return input.rankedHarmony.flatMap((harmony) =>
     input.rankedRhythm.candidates.flatMap((rhythm) => pairCalls(harmony, rhythm)),
   )
 }
 
-/** Intent: the calls of the lock's rhythm-major walk: each rhythm with every chord plan. */
+/** The calls of the lock's rhythm-major walk: each rhythm with every chord plan. */
 function rhythmMajorCalls(input: WindowSearchInput): Call[] {
   const order = input.rhythmLockOrder!
   const changes = order.changeCandidates.map((entry) => entry.rhythm)
@@ -96,7 +96,7 @@ const LOCKED = LIFT.find((rhythm) => {
 })!
 const LOCKED_KEY = rhythmBarKey(LOCKED.bars)
 
-/** Intent: the window input of a Lift intent locked on LOCKED's bars. */
+/** The window input of a Lift intent locked on LOCKED's bars. */
 function lockedInput(seed = 5): WindowSearchInput {
   return lockTestWindowInput(
     lockTestIntent({ tension: 'Lift', seed, rhythmLock: lockOn(lockedBarsOf(LOCKED)) }),
@@ -198,7 +198,7 @@ describe('the search without locked bars', () => {
 /** Locked Build bars that offer rhythm changes: a candidate one change from several others. */
 const BUILD_LOCKED = lockedBarsOf(lockTestDomain('Build')[1]!)
 
-/** Intent: the window input of a Build intent locked on BUILD_LOCKED, every change allowed. */
+/** The window input of a Build intent locked on BUILD_LOCKED, every change allowed. */
 function changeInput(seed: number): WindowSearchInput {
   const rhythmLock = makeRequestRhythmLock({
     state: { kind: 'locked', bars: BUILD_LOCKED },
@@ -254,7 +254,7 @@ describe('the search under a drawn rhythm change', () => {
   })
 })
 
-/** Intent: the window input at a Seventh chords level: the orchestrator's searched plan list. */
+/** The window input at a Seventh chords level: the orchestrator's searched plan list. */
 function atLevel(input: WindowSearchInput, level: ChordFamilyLevel): WindowSearchInput {
   const intent = { ...input.intent, chordFamilies: parseChordFamilies({ 'seventh-chords': level }) }
   const domain = buildHarmonyDomain(intent)
@@ -262,14 +262,14 @@ function atLevel(input: WindowSearchInput, level: ChordFamilyLevel): WindowSearc
   return { ...input, intent, rankedHarmony: searchedHarmonyOrder(intent, domain) }
 }
 
-/** Intent: the chord plans of some calls in the order first tried, each plan once in a row. */
+/** The chord plans of some calls in the order first tried, each plan once in a row. */
 function plansInTurn(calls: readonly Call[]): readonly string[] {
   return calls
     .map((call) => call.harmony)
     .filter((harmony, index, all) => index === 0 || all[index - 1] !== harmony)
 }
 
-/** Intent: true when every seventh variant in a row of plans is directly followed by its plan. */
+/** True when every seventh variant in a row of plans is directly followed by its plan. */
 function formsSideBySide(plans: readonly string[]): boolean {
   return plans.every((plan, index) => {
     const mark = plan.indexOf(SEVENTHS_IDENTITY_MARK)

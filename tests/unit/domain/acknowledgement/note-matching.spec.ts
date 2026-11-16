@@ -17,7 +17,7 @@ import {
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { phraseFromBars } from './acknowledgement-fixtures'
 
-/** Intent: a played note over USB at a concert pitch and an audio-clock time. */
+/** A played note over USB at a concert pitch and an audio-clock time. */
 function play(pitch: number, audioClockSeconds: number): PlayedNote {
   return compensatePlayedNote(
     { pitch: makeConcertPitch(pitch), audioClockSeconds },
@@ -25,7 +25,7 @@ function play(pitch: number, audioClockSeconds: number): PlayedNote {
   )
 }
 
-/** Intent: windowed expected notes of one phrase at a tempo, starting at 0 s. */
+/** Windowed expected notes of one phrase at a tempo, starting at 0 s. */
 function windowed(
   bars: readonly [string, string, string, string],
   pitches: readonly number[],

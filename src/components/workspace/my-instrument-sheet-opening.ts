@@ -26,7 +26,7 @@ export interface MyInstrumentSheetProps {
 type OpeningState = Pick<GenerationSessionState<unknown>, 'myInstrument' | 'controls'>
 
 /**
- * Intent: how the sheet opens now: editing the saved my instrument, or creating from the selected
+ * How the sheet opens now: editing the saved my instrument, or creating from the selected
  * built-in. Creating with a selection that is not a built-in is a defect and throws: with no my
  * instrument, the selection is always a built-in.
  */
@@ -42,7 +42,7 @@ function startNow(state: OpeningState): MyInstrumentFormStart {
 }
 
 /**
- * Intent: the props the sheet opens with now: how it starts, and whether my instrument is the
+ * The props the sheet opens with now: how it starts, and whether my instrument is the
  * selected instrument.
  */
 // @spec-link [[req_my_instrument]]

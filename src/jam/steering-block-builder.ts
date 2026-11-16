@@ -56,7 +56,7 @@ const OVERLAYS: Readonly<Record<QuantizedDoodle['measureCount'], readonly number
   4: [0, 1, 2, 3],
 }
 
-/** Intent: the band and the strength a drift position gives the steering block. */
+/** The band and the strength a drift position gives the steering block. */
 // @spec-link [[rule_jam_drift_positions]]
 // @spec-link [[module_steering_block_builder]]
 export function driftSteering(drift: JamDrift): DriftSteering {
@@ -64,7 +64,7 @@ export function driftSteering(drift: JamDrift): DriftSteering {
 }
 
 /**
- * Intent: the doodle measure (from 0) each of the phrase's four measures takes, in phrase order.
+ * The doodle measure (from 0) each of the phrase's four measures takes, in phrase order.
  */
 // @spec-link [[rule_jam_rhythm_ordered_by_doodle]]
 // @spec-link [[module_steering_block_builder]]
@@ -73,7 +73,7 @@ export function doodleOverlay(measureCount: QuantizedDoodle['measureCount']): re
 }
 
 /**
- * Intent: one doodle measure's starts as heard (`measureIndex` from 0), in increasing tick from
+ * One doodle measure's starts as heard (`measureIndex` from 0), in increasing tick from
  * the measure's start: a note start where each note starting in it starts, and a rest start where
  * each of its rests starts (doodleMeasureRests). A note held across the barline starts nothing, so
  * a measure may hold no start; a measure opening in a silence that holds a rest at tick 0 starts
@@ -98,7 +98,7 @@ export function doodleMeasureStarts(
 }
 
 /**
- * Intent: the doodle's moves between neighbouring notes, in the doodle's order: the same note, or
+ * The doodle's moves between neighbouring notes, in the doodle's order: the same note, or
  * up or down by a step (1–2 half steps), a skip (3–4) or a leap (5 or more), read by the
  * generator's own melodicMoveBetween. No pitch is kept.
  */
@@ -110,7 +110,7 @@ export function doodleMoves(doodle: QuantizedDoodle): readonly MelodicMove[] {
 }
 
 /**
- * Intent: the steering block of a quantized doodle under a drift position: the target rhythm (the
+ * The steering block of a quantized doodle under a drift position: the target rhythm (the
  * doodle's measures laid over the phrase's four, each as its starts as heard, with the drift's
  * band) and the doodle's moves in order with the drift's strength, built through makeSteeringBlock
  * so it passes the generation worker's checks. Holds nothing else of the doodle, the drift or the

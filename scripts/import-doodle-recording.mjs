@@ -32,7 +32,7 @@ const USAGE =
   '[--measures <1-4>] [--out <dir>]'
 
 /**
- * Intent: a path relative to this script as an absolute file path.
+ * A path relative to this script as an absolute file path.
  * @param {string} path
  * @returns {string}
  */
@@ -81,7 +81,7 @@ const NAME_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/
  */
 
 /**
- * Intent: the options, crashing on a missing file or name, an unknown flag, a flag with no value,
+ * The options, crashing on a missing file or name, an unknown flag, a flag with no value,
  * a phrase that is not a whole number from 1, or a measure count outside 1 to 4.
  * @param {readonly string[]} args
  * @returns {Options}
@@ -122,7 +122,7 @@ function parseArgs(args) {
 }
 
 /**
- * Intent: a flag's value as a whole number from `min` to `max`, crashing otherwise.
+ * A flag's value as a whole number from `min` to `max`, crashing otherwise.
  * @param {string} text
  * @param {string} flag
  * @param {number} min
@@ -140,7 +140,7 @@ function wholeNumber(text, flag, min, max) {
 }
 
 /**
- * Intent: load a module through Vite, crashing when a function the script uses is missing.
+ * Load a module through Vite, crashing when a function the script uses is missing.
  * @template T
  * @param {string} path
  * @param {readonly string[]} names
@@ -157,7 +157,7 @@ async function loadModule(path, names) {
 }
 
 /**
- * Intent: a function giving the seconds from the file's start of a MIDI tick, from the file's
+ * A function giving the seconds from the file's start of a MIDI tick, from the file's
  * division and tempo map; crashes on a file with no tempo at tick 0.
  * @param {number} division
  * @param {readonly TempoChange[]} tempos
@@ -177,7 +177,7 @@ function tickClock(division, tempos) {
 }
 
 /**
- * Intent: the phrase marker the doodle starts at: the one numbered `phrase`, or the file's first;
+ * The phrase marker the doodle starts at: the one numbered `phrase`, or the file's first;
  * crashes when the file has no such marker.
  * @param {readonly { tick: number, text: string }[]} markers
  * @param {number | null} phrase
@@ -197,7 +197,7 @@ function phraseMarker(markers, phrase) {
 }
 
 /**
- * Intent: the tempo in force at a tick, as a whole number of BPM, crashing on a tempo the app
+ * The tempo in force at a tick, as a whole number of BPM, crashing on a tempo the app
  * could not have played (the export writes whole BPM, rounded to the microsecond).
  * @param {readonly TempoChange[]} tempos
  * @param {number} tick
@@ -214,7 +214,7 @@ function bpmAt(tempos, tick) {
 }
 
 /**
- * Intent: the capture of the doodle at the chosen phrase: its grid origin and tempo, and every
+ * The capture of the doodle at the chosen phrase: its grid origin and tempo, and every
  * played note starting from one tick before the marker up to the phrase's end, in seconds from
  * the file's start, before the end barline is chosen.
  * @param {string} file
@@ -252,7 +252,7 @@ function readRecording(file, phrase, reader) {
 }
 
 /**
- * Intent: a time in seconds rounded to the microsecond, the quantizer's resolution.
+ * A time in seconds rounded to the microsecond, the quantizer's resolution.
  * @param {number} seconds
  * @returns {number}
  */
@@ -261,7 +261,7 @@ function microsecondSeconds(seconds) {
 }
 
 /**
- * Intent: the end barline's measure index: the one asked for, or else the barline after the last
+ * The end barline's measure index: the one asked for, or else the barline after the last
  * of the phrase's measures in which a note starts once snapped (very short notes included: the
  * quantizer filters them, and a doodle cut short by one is checked by eye).
  * @param {{ gridOriginAt: number, tempoBpm: number, notes: readonly RawNote[] }} recording
@@ -278,7 +278,7 @@ function endMeasureOf(recording, measures, quantizer) {
 }
 
 /**
- * Intent: an object as one line of JSON with a space after each colon and comma, the layout the
+ * An object as one line of JSON with a space after each colon and comma, the layout the
  * doodle files use for their notes.
  * @param {Record<string, unknown>} value
  * @returns {string}
@@ -291,7 +291,7 @@ function inlineJson(value) {
 }
 
 /**
- * Intent: the new doodle file's text, laid out as the hand-written files are: the hand-judged
+ * The new doodle file's text, laid out as the hand-written files are: the hand-judged
  * traits and the description null, a note asking to fill them with the computed note density.
  * @param {string} name
  * @param {number} phraseNumber
@@ -325,7 +325,7 @@ function fixtureText(name, phraseNumber, capture, quantized, computed) {
     },
   }
   /**
-   * Intent: a list of notes, one indented line each, as the doodle files lay them out.
+   * A list of notes, one indented line each, as the doodle files lay them out.
    * @param {readonly Record<string, unknown>[]} notes
    * @returns {string}
    */
@@ -358,7 +358,7 @@ function fixtureText(name, phraseNumber, capture, quantized, computed) {
 }
 
 /**
- * Intent: import one recording as a new doodle file and say where it went and what is left to
+ * Import one recording as a new doodle file and say where it went and what is left to
  * fill; crashes rather than overwrite an existing file.
  * @returns {Promise<void>}
  */

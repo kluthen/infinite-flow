@@ -24,7 +24,7 @@ export interface WakeTimerWorkerDeps<Handle> {
   readonly post: (event: WakeTimerEvent) => void
 }
 
-/** Intent: `message` as a wake-timer command; throws on anything else or on a bad interval. */
+/** `message` as a wake-timer command; throws on anything else or on a bad interval. */
 function parseWakeTimerCommand(message: unknown): WakeTimerCommand {
   if (typeof message !== 'object' || message === null || !('type' in message)) {
     throw new Error(`The wake-up worker got a message that is not a command: ${String(message)}`)
@@ -41,7 +41,7 @@ function parseWakeTimerCommand(message: unknown): WakeTimerCommand {
 }
 
 /**
- * Intent: the wake-up worker's message handler: on start, run one interval that posts a wake-up
+ * The wake-up worker's message handler: on start, run one interval that posts a wake-up
  * each time it fires; on stop, clear it. A second start, or a stop with nothing started, throws.
  */
 // @spec-link [[rule_playhead_follows_audio_clock]]

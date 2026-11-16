@@ -31,13 +31,13 @@ import {
   type FitSessionOptions,
 } from './fit-session-harness'
 
-/** Intent: the ten preset-held controls of a set of controls, in the presets' order. */
+/** The ten preset-held controls of a set of controls, in the presets' order. */
 function heldControls(controls: object): Record<string, unknown> {
   const values = controls as Record<string, unknown>
   return Object.fromEntries(PRESET_HELD_CONTROL_KEYS.map((key) => [key, values[key]]))
 }
 
-/** Intent: a fit session started from these controls, levels and selection, and player presets. */
+/** A fit session started from these controls, levels and selection, and player presets. */
 function sessionFrom(
   controls: Partial<typeof DEFAULT_GENERATION_CONTROLS>,
   selection: PresetSelection,

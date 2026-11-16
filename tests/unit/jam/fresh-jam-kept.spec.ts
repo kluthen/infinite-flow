@@ -32,7 +32,7 @@ interface RigJam {
   readonly changes: KeptRefusal[]
 }
 
-/** Intent: a connected rig with a fresh Jam started, its changes after the save logged. */
+/** A connected rig with a fresh Jam started, its changes after the save logged. */
 async function startJam(options: ControllerRigOptions = {}, savingOff = false): Promise<RigJam> {
   const changes: KeptRefusal[] = []
   const keptSessions: Partial<KeptSessionsSeam> = {
@@ -57,7 +57,7 @@ async function startJam(options: ControllerRigOptions = {}, savingOff = false): 
   return { rig, jam, countInEndsAt: jam.session.timeline.countInEndsAt, changes }
 }
 
-/** Intent: a one-measure doodle of four quarter notes, then Stop one measure into phrase 1. */
+/** A one-measure doodle of four quarter notes, then Stop one measure into phrase 1. */
 async function doodleThenStop(run: RigJam): Promise<void> {
   for (const [index, pitch] of [60, 62, 64, 65].entries()) {
     await playTo(run.rig, run.countInEndsAt + index * 0.25 + 0.01)
@@ -72,7 +72,7 @@ async function doodleThenStop(run: RigJam): Promise<void> {
   await flush()
 }
 
-/** Intent: the records the `index`th session save wrote from no kept summary, by store. */
+/** The records the `index`th session save wrote from no kept summary, by store. */
 function savedRecords(
   rig: ControllerRig,
   index: number,
@@ -88,7 +88,7 @@ function savedRecords(
   )
 }
 
-/** Intent: the review's session key, which must exist. */
+/** The review's session key, which must exist. */
 function reviewKey(rig: ControllerRig): string {
   const review = rig.controller.state.review
   if (review === null) throw new Error('no Review exists')

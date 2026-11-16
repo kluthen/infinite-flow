@@ -53,7 +53,7 @@ type CountedSessions = MyInstrumentSessions & {
   readonly stay: Mock<() => void>
 }
 
-/** Intent: three counted sessions of my instrument, with spies on their leaving and staying. */
+/** Three counted sessions of my instrument, with spies on their leaving and staying. */
 function threeSessions(): CountedSessions {
   return {
     count: 3,
@@ -63,7 +63,7 @@ function threeSessions(): CountedSessions {
   }
 }
 
-/** Intent: no counted session, with spies on their (empty) leaving and staying. */
+/** No counted session, with spies on their (empty) leaving and staying. */
 function noSessions(): CountedSessions {
   return {
     count: 0,
@@ -74,7 +74,7 @@ function noSessions(): CountedSessions {
 }
 
 /**
- * Intent: a session on fakes with `myInstrument` and `controls` and a phrase on screen, whose
+ * A session on fakes with `myInstrument` and `controls` and a phrase on screen, whose
  * batches resolve `batch` (a promise the test may hold), recording every save in order.
  */
 async function withPhrase(
@@ -128,7 +128,7 @@ async function withPhrase(
   return { created, generated, saves }
 }
 
-/** Intent: a batch outcome the test resolves when it chooses. */
+/** A batch outcome the test resolves when it chooses. */
 function heldBatch() {
   let resolve: (outcome: KeptChangeOutcome) => void = () => undefined
   const promise = new Promise<KeptChangeOutcome>((settle) => {

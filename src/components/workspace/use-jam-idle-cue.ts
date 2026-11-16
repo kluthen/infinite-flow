@@ -109,7 +109,7 @@ export interface JamIdleCue {
 }
 
 /**
- * Intent: Jam mode's Idle cue. Outside Jam mode, during a session and while the review mode shows,
+ * Jam mode's Idle cue. Outside Jam mode, during a session and while the review mode shows,
  * none. Without a connected controller (a selected one away counts as none), the needs-controller
  * line, in every idle state of Jam mode. Otherwise the starting-note line naming the starting note
  * exactly while a Jam could start (whenever `Start Jam` is enabled): the home note with no doodle

@@ -40,7 +40,7 @@ const FIRST_CASE = sweepCases()[0]!
 const DOODLES = loadDoodleSet()
 const REAL_SUCCESS = generatePhrase(phraseOneIntent(caseSettings(FIRST_CASE, 120), FIRST_CASE.seed))
 
-/** Intent: whether a doodle of the set gives the first case's instrument a join. */
+/** Whether a doodle of the set gives the first case's instrument a join. */
 function hasJoin(name: string): boolean {
   const doodle = DOODLES.find((each) => each.name === name)!
   return doodlePhraseOne(caseSettings(FIRST_CASE, 120), doodle.quantized, 'Near', { on: false })
@@ -67,7 +67,7 @@ interface ScriptedRun {
 }
 
 /**
- * Intent: run a ladder on a doodle at a tempo and a Seventh chords level over a scripted
+ * Run a ladder on a doodle at a tempo and a Seventh chords level over a scripted
  * generator, its input built as the sweep's Jam builds it (the case's settings at the tempo and
  * the level, what the doodle gives phrase 1).
  */
@@ -107,12 +107,12 @@ function runScripted(
   return { result: ladder.run(input), intents }
 }
 
-/** Intent: an intent with its request id set aside, the one part the two ladders name apart. */
+/** An intent with its request id set aside, the one part the two ladders name apart. */
 function withoutRequestId(intent: GenerationIntent): object {
   return { ...intent, requestId: 'set aside' }
 }
 
-/** Intent: what the two ladders must agree on in a run: its attempts and its phrase 1. */
+/** What the two ladders must agree on in a run: its attempts and its phrase 1. */
 function agreed({ result }: ScriptedRun): object {
   return {
     attempts: result.attempts.map((each) => ({
@@ -150,7 +150,7 @@ interface Scenario {
   readonly rung: string | null
 }
 
-/** Intent: a script charging `seconds` for every attempt, a phrase from attempt `succeedAt` on. */
+/** A script charging `seconds` for every attempt, a phrase from attempt `succeedAt` on. */
 function steady(
   seconds: number,
   succeedAt: number,

@@ -83,7 +83,7 @@ afterEach(() => {
   scope = null
 })
 
-/** Intent: Jam mode at Idle with Jam's settings made, a kept doodle holder and phrase 1 over them. */
+/** Jam mode at Idle with Jam's settings made, a kept doodle holder and phrase 1 over them. */
 function keptPhraseRig(answer: (intent: GenerationIntent, index: number) => Answer = () => 'real') {
   const instrument = shallowRef<{
     instrumentProfileId: InstrumentProfileId
@@ -156,18 +156,18 @@ function keptPhraseRig(answer: (intent: GenerationIntent, index: number) => Answ
   return { ...built, instrument, below, asked, held, counts, operations }
 }
 
-/** Intent: let every writing asked for run through to its end. */
+/** Let every writing asked for run through to its end. */
 async function settle(): Promise<void> {
   for (let round = 0; round < 6; round += 1) await flushPromises()
 }
 
-/** Intent: keep the fixture's doodle, from session `key`, and let phrase 1 be written. */
+/** Keep the fixture's doodle, from session `key`, and let phrase 1 be written. */
 async function keepDoodle(rig: ReturnType<typeof keptPhraseRig>, key = 'session-1') {
   rig.keptDoodle.keep(reviewedJamPart(), key)
   await settle()
 }
 
-/** Intent: the phrase 1 shown now; it must be there. */
+/** The phrase 1 shown now; it must be there. */
 function shown(phrase: WorkspaceKeptDoodlePhrase) {
   const result = phrase.state.result
   if (result === null) throw new Error('no phrase 1 is shown')

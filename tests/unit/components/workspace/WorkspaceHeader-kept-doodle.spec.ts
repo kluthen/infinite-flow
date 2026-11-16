@@ -26,7 +26,7 @@ const JAM_MODE: WorkspaceModeView = { mode: 'jam', checked: 'jam', opening: fals
 /** A phrase 1 shown, as the header reads it: only its presence matters here. */
 const SHOWN = {} as KeptDoodlePhraseResult
 
-/** Intent: Jam's phrase 1 at Ready, kept or not, its actions spied on. */
+/** Jam's phrase 1 at Ready, kept or not, its actions spied on. */
 function jamPhrase(kept = true) {
   const state = shallowReactive<IdlePhraseState<KeptDoodlePhraseResult>>({
     latestIntent: null,
@@ -58,7 +58,7 @@ function jamPhrase(kept = true) {
   return { state, actions, view }
 }
 
-/** Intent: mount the header in Jam mode over session mode at Ready and Jam's phrase 1. */
+/** Mount the header in Jam mode over session mode at Ready and Jam's phrase 1. */
 function mountHeader(phrase: ReturnType<typeof jamPhrase>) {
   const session = fakeGenerationSession(readyState())
   const wrapper = mount(WorkspaceHeader, {
@@ -76,12 +76,12 @@ function mountHeader(phrase: ReturnType<typeof jamPhrase>) {
   return { wrapper, session }
 }
 
-/** Intent: the phrase action, the header's first action slot. */
+/** The phrase action, the header's first action slot. */
 function phraseAction(wrapper: ReturnType<typeof mountHeader>['wrapper']) {
   return wrapper.get('.header-actions > button:not(.session-action)')
 }
 
-/** Intent: the session action, the header's second action slot. */
+/** The session action, the header's second action slot. */
 function sessionAction(wrapper: ReturnType<typeof mountHeader>['wrapper']) {
   return wrapper.get('.header-actions > button.session-action')
 }

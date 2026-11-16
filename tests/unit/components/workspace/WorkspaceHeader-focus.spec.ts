@@ -32,7 +32,7 @@ const SIXTEENTH_ONLY: GenerationControls = {
 const NARROW = { belowTabletLandscape: true, sessionSteppedDown: false } as const
 const WIDE = { belowTabletLandscape: false, sessionSteppedDown: false } as const
 
-/** Intent: mount the header at session mode's Ready, its controller able to start. */
+/** Mount the header at session mode's Ready, its controller able to start. */
 function mountReady(overrides: Parameters<typeof fakeGenerationSession>[0] = {}) {
   const session = fakeGenerationSession({ ...readyState(), ...overrides })
   const fake = createFakeSessionController({ canStart: true })
@@ -49,29 +49,29 @@ function mountReady(overrides: Parameters<typeof fakeGenerationSession>[0] = {})
 
 type Wrapper = ReturnType<typeof mountReady>['wrapper']
 
-/** Intent: the phrase action, the header's first action slot. */
+/** The phrase action, the header's first action slot. */
 function phraseAction(wrapper: Wrapper): HTMLButtonElement {
   return wrapper.get('.header-actions > button:not(.session-action)').element as HTMLButtonElement
 }
 
-/** Intent: the session action, the header's second action slot. */
+/** The session action, the header's second action slot. */
 function sessionAction(wrapper: Wrapper): HTMLButtonElement {
   return wrapper.get('.header-actions > button.session-action').element as HTMLButtonElement
 }
 
-/** Intent: the header's `controller-status` button. */
+/** The header's `controller-status` button. */
 function controllerStatus(wrapper: Wrapper): HTMLButtonElement {
   return wrapper.get('.context-group > button.controller-status').element as HTMLButtonElement
 }
 
-/** Intent: let a state change be drawn and any focus move asked for after it run. */
+/** Let a state change be drawn and any focus move asked for after it run. */
 async function settle(): Promise<void> {
   await nextTick()
   await nextTick()
 }
 
 /**
- * Intent: a browser that drops focus from a button as it becomes disabled, as Chromium does: focus
+ * A browser that drops focus from a button as it becomes disabled, as Chromium does: focus
  * falls to the page. jsdom keeps focus on a disabled button and ignores its `blur()`, so the button
  * is blurred enabled for a moment.
  */

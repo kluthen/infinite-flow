@@ -13,7 +13,7 @@ import { isAbsolute, relative, sep } from 'node:path'
 export const MODULE_GRAPH_FILE = '.vite/module-graph.json'
 
 /**
- * Intent: a module id as the graph lists it: without the `\0` prefix that marks a virtual module,
+ * A module id as the graph lists it: without the `\0` prefix that marks a virtual module,
  * without its query string (a Vue file's script, template and style parts are one source file),
  * and relative to the project root with forward slashes when it is a path inside it.
  *
@@ -30,7 +30,7 @@ export function graphModuleId(id, root) {
 }
 
 /**
- * Intent: the module graph of one bundle: every JS chunk with its file name, whether it is an
+ * The module graph of one bundle: every JS chunk with its file name, whether it is an
  * entry, the chunks it imports statically and dynamically (file names), and the source modules it
  * holds (see graphModuleId), sorted and without repeats.
  *
@@ -53,7 +53,7 @@ export function bundleModuleGraph(bundle, root) {
 }
 
 /**
- * Intent: the Vite build plugin that emits the bundle's module graph (see bundleModuleGraph) as the
+ * The Vite build plugin that emits the bundle's module graph (see bundleModuleGraph) as the
  * asset `.vite/module-graph.json`, for the build's boundary check.
  *
  * @returns {import('vite').Plugin}

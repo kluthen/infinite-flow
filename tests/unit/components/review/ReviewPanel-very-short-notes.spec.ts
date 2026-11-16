@@ -29,7 +29,7 @@ interface PanelOptions {
   readonly exportPlayedNotes?: () => Promise<void>
 }
 
-/** Intent: mount the panel of `records`, a session holding played notes, its lanes on. */
+/** Mount the panel of `records`, a session holding played notes, its lanes on. */
 function mountPanel(records: readonly SessionHistoryRecord[], options: PanelOptions = {}) {
   const wrapper = mount(ReviewPanel, {
     props: {
@@ -60,12 +60,12 @@ function mountPanel(records: readonly SessionHistoryRecord[], options: PanelOpti
   return wrapper
 }
 
-/** Intent: a played note of `pitch` from `onsetAt`, lasting `seconds`. */
+/** A played note of `pitch` from `onsetAt`, lasting `seconds`. */
 function played(pitch: number, onsetAt: number, seconds: number): RecordedPlayedNote {
   return { pitch: makeConcertPitch(pitch), velocity: 127, onsetAt, releaseAt: onsetAt + seconds }
 }
 
-/** Intent: the recorded session with `extra(record)` added to each phrase's played notes. */
+/** The recorded session with `extra(record)` added to each phrase's played notes. */
 function withPlayedNotes(
   extra: (record: SessionHistoryRecord) => readonly RecordedPlayedNote[],
   keep = true,
@@ -76,7 +76,7 @@ function withPlayedNotes(
   }))
 }
 
-/** Intent: the pitch scale each phrase of the panel is given. */
+/** The pitch scale each phrase of the panel is given. */
 function phraseScales(wrapper: VueWrapper) {
   return wrapper.findAllComponents(ReviewPhrase).map((phrase) => phrase.props('pitchScale'))
 }
@@ -131,7 +131,7 @@ describe("the lanes' pitch scale and very short notes", () => {
 const EVERY_NOTE_VERY_SHORT =
   'Every note you played is very short. Turn on Include very short notes to export them.'
 
-/** Intent: the played-notes export's group, and its toggle, button and note. */
+/** The played-notes export's group, and its toggle, button and note. */
 function playedExport(wrapper: VueWrapper) {
   const group = wrapper.get('.review-actions > .review-export-played')
   return {

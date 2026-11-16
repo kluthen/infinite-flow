@@ -47,7 +47,7 @@ export class SessionSeedPlanError extends Error {
   }
 }
 
-/** Intent: refuse a session seed that is not a 32-bit unsigned integer, as no Seed can be. */
+/** Refuse a session seed that is not a 32-bit unsigned integer, as no Seed can be. */
 function assertSessionSeed(sessionSeed: Seed): void {
   if (!Number.isInteger(sessionSeed) || sessionSeed < 0 || sessionSeed > MAX_UNSIGNED_32)
     throw new SessionSeedPlanError(
@@ -55,14 +55,14 @@ function assertSessionSeed(sessionSeed: Seed): void {
     )
 }
 
-/** Intent: the seed one label derives from the session seed: their XOR, unsigned 32-bit. */
+/** The seed one label derives from the session seed: their XOR, unsigned 32-bit. */
 function derive(sessionSeed: Seed, label: string): Seed {
   assertSessionSeed(sessionSeed)
   return makeSeed((sessionSeed ^ fnv1a32(label)) >>> 0)
 }
 
 /**
- * Intent: the seed of rung `rung` of phrase `phraseNumber`: the rung is the failure ladder's
+ * The seed of rung `rung` of phrase `phraseNumber`: the rung is the failure ladder's
  * index (0 the first carry-in attempt, 1 to 3 the carry-in retries, 4 the standalone attempt).
  * A phrase number below 2, a rung outside the ladder or a non-integer throws.
  */
@@ -80,7 +80,7 @@ export function phraseAttemptSeed(sessionSeed: Seed, phraseNumber: number, rung:
 }
 
 /**
- * Intent: the seed of attempt `rung` of a fresh Jam's phrase 1, from the session seed drawn at
+ * The seed of attempt `rung` of a fresh Jam's phrase 1, from the session seed drawn at
  * Start: 0 for rung 1's first attempt (the doodle's join and the steering block), 1 to 3 for its
  * retries, 4 for rung 2 (the block, no join), 5 for rung 3 (the standalone phrase). An attempt
  * cancelled by a further doodle note and requested again on the longer doodle is still rung 0.
@@ -96,7 +96,7 @@ export function jamPhraseOneSeed(sessionSeed: Seed, rung: number): Seed {
 }
 
 /**
- * Intent: the Vary settings mutation seed of the session, derived only when Vary settings is on
+ * The Vary settings mutation seed of the session, derived only when Vary settings is on
  * at Start; the mutation's indexed streams derive from it.
  */
 // @spec-link [[module_session_seed_plan]]

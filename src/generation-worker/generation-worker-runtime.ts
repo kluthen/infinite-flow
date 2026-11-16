@@ -40,7 +40,7 @@ export interface GenerationWorkerRuntime {
 }
 
 /**
- * Intent: create one Worker runtime. Every inbound message is parsed first (a malformed one
+ * Create one Worker runtime. Every inbound message is parsed first (a malformed one
  * throws). A generate request is answered at once through the pure handler. A prewarm begins (or
  * resumes) its setting's memo build job, makes it the current job and ensures exactly one slice is
  * scheduled; a prewarm of an already-memoized setting, or of one whose harmony has no plan, drops
@@ -60,14 +60,14 @@ export function createGenerationWorkerRuntime(
   let current: CanonicalRhythmDomainBuildJob | undefined
   let sliceScheduled = false
 
-  /** Intent: schedule the next slice unless one is already outstanding. */
+  /** Schedule the next slice unless one is already outstanding. */
   function ensureSliceScheduled(): void {
     if (sliceScheduled) return
     sliceScheduled = true
     scheduleSlice(runScheduledSlice)
   }
 
-  /** Intent: run the current job for one budgeted slice, then reschedule or clear it. */
+  /** Run the current job for one budgeted slice, then reschedule or clear it. */
   function runScheduledSlice(): void {
     sliceScheduled = false
     const job = current

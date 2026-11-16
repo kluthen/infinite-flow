@@ -30,23 +30,23 @@ interface AgendaEntry {
   readonly action: () => void
 }
 
-/** Intent: guard an audio time is finite, naming the agenda in the error. */
+/** Guard an audio time is finite, naming the agenda in the error. */
 function assertFinite(at: AudioTime): void {
   if (!Number.isFinite(at)) throw new Error(`session agenda: time ${at} is not finite`)
 }
 
-/** Intent: whether entry `a` fires before entry `b`: earlier time, or the same time scheduled earlier. */
+/** Whether entry `a` fires before entry `b`: earlier time, or the same time scheduled earlier. */
 function firesBefore(a: AgendaEntry, b: AgendaEntry): boolean {
   return a.at < b.at || (a.at === b.at && a.order < b.order)
 }
 
-/** Intent: an empty agenda. */
+/** An empty agenda. */
 // @spec-link [[service_session_controller]]
 export function createAudioTimeAgenda(): AudioTimeAgenda {
   let entries: AgendaEntry[] = []
   let scheduled = 0
 
-  /** Intent: the index of the first entry due by `now`, or -1 when none is due. */
+  /** The index of the first entry due by `now`, or -1 when none is due. */
   function nextDue(now: AudioTime): number {
     let found = -1
     entries.forEach((entry, index) => {

@@ -32,7 +32,7 @@ const SECONDS_PER_MINUTE = 60
 export const MIDI_TICKS_PER_PHRASE = MIDI_TICKS_PER_WHOLE_NOTE * MEASURES_PER_PHRASE
 
 /**
- * Intent: convert an exact musical time, in whole notes, to MIDI ticks. The result is exact: a
+ * Convert an exact musical time, in whole notes, to MIDI ticks. The result is exact: a
  * time that falls between two MIDI ticks is rejected with a MidiExportError, never rounded.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
@@ -47,7 +47,7 @@ export function midiTicksOfWholeNotes(value: Rational): number {
 }
 
 /**
- * Intent: the tempo meta event's value for a tempo in quarter notes per minute: microseconds per
+ * The tempo meta event's value for a tempo in quarter notes per minute: microseconds per
  * quarter note, rounded to the nearest whole microsecond. The format holds only whole
  * microseconds, and most tempos (70 BPM is 857142.86 µs) have no exact value; the rounding moves
  * a quarter note by under half a microsecond, so a whole four-measure phrase by under 8 µs.
@@ -58,7 +58,7 @@ export function microsecondsPerQuarterNote(bpm: number): number {
 }
 
 /**
- * Intent: how long one four-measure 4/4 phrase lasts on the audio clock at a tempo in quarter
+ * How long one four-measure 4/4 phrase lasts on the audio clock at a tempo in quarter
  * notes per minute: 16 quarter notes, in seconds.
  */
 // @spec-link [[rule_played_notes_export_unquantized_timing]]
@@ -67,7 +67,7 @@ export function phraseSeconds(bpm: number): number {
 }
 
 /**
- * Intent: a span of audio-clock seconds, played at a tempo in quarter notes per minute, as MIDI
+ * A span of audio-clock seconds, played at a tempo in quarter notes per minute, as MIDI
  * ticks, rounded to the nearest tick and nothing coarser: no grid, no snapping. At 960 ticks per
  * quarter note the rounding moves a time by at most half a tick, under 1 ms at every tempo the
  * export accepts.

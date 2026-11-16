@@ -46,7 +46,7 @@ export interface DoodleEngravingContext {
 }
 
 /**
- * Intent: the context a Jam's doodle is engraved in, from the session's phrase 1, which the Jam
+ * The context a Jam's doodle is engraved in, from the session's phrase 1, which the Jam
  * generated in the key and mode it started with, for its instrument, in its clef.
  */
 // @spec-link [[rule_review_opens_with_doodle]]
@@ -63,13 +63,13 @@ export function doodleEngravingContext(
   }
 }
 
-/** Intent: a span of whole ticks (sixteenth notes) as a fraction of a whole note. */
+/** A span of whole ticks (sixteenth notes) as a fraction of a whole note. */
 function tickDuration(ticks: number): ReturnType<typeof makeRational> {
   return makeRational(ticks, TICKS_PER_BAR)
 }
 
 /**
- * Intent: one measure of the four-measure timeline: the doodle's notes inside it (a note begun in
+ * One measure of the four-measure timeline: the doodle's notes inside it (a note begun in
  * an earlier measure continues as a tie), rests in every gap; a whole rest after the doodle.
  */
 function doodleMeasure(doodle: QuantizedDoodle, index: number): Measure {
@@ -105,7 +105,7 @@ const PLACEHOLDER_CHORDS: readonly ConcertChordSymbol[] = [0, 1, 2, 3].map((meas
 }))
 
 /**
- * Intent: the doodle as a four-measure written phrase, spelled and notated exactly as a phrase in
+ * The doodle as a four-measure written phrase, spelled and notated exactly as a phrase in
  * the same key and collection is: its measures first, whole rests after them, and no chord symbol.
  * The chord symbols the transform asks for fall on each measure's first beat, where every measure
  * already starts a glyph, so they move no note; they are then dropped.
@@ -127,12 +127,12 @@ export function doodleWrittenPhrase(
     clef: context.clef,
   })
   const [first, second, third, fourth] = phrase.measures
-  /** Intent: a written measure without its chord symbols. */
+  /** A written measure without its chord symbols. */
   const bare = (measure: WrittenMeasure): WrittenMeasure => ({ ...measure, chords: [] })
   return deepFreeze({ ...phrase, measures: [bare(first), bare(second), bare(third), bare(fourth)] })
 }
 
-/** Intent: the engraving's anchors of the doodle's own measures, the ones its lanes are drawn on. */
+/** The engraving's anchors of the doodle's own measures, the ones its lanes are drawn on. */
 // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
 export function doodleMeasureAnchors<A extends Pick<MeasureAnchors, 'measureIndex'>>(
   anchors: readonly A[],
@@ -141,7 +141,7 @@ export function doodleMeasureAnchors<A extends Pick<MeasureAnchors, 'measureInde
   return anchors.filter((anchor) => anchor.measureIndex < measureCount)
 }
 
-/** Intent: the viewBox of an engraved system's SVG, in engraving units. */
+/** The viewBox of an engraved system's SVG, in engraving units. */
 function viewBoxOf(svg: SVGSVGElement): { readonly width: number; readonly height: number } {
   const [, , width, height] = (svg.getAttribute('viewBox') ?? '').split(/\s+/u).map(Number)
   if (width === undefined || height === undefined || !(width > 0) || !(height > 0)) {
@@ -151,7 +151,7 @@ function viewBoxOf(svg: SVGSVGElement): { readonly width: number; readonly heigh
 }
 
 /**
- * Intent: cut one system's drawing at an inline position (CSS px from its SVG's start): everything
+ * Cut one system's drawing at an inline position (CSS px from its SVG's start): everything
  * drawn is moved into a group clipped there, the clip reaching far above and below the staff so no
  * ink outside the system position is cut.
  */
@@ -179,7 +179,7 @@ function clipSystemAt(svg: SVGSVGElement, endPx: number, clipId: string): void {
 let clips = 0
 
 /**
- * Intent: end each drawn system of the doodle at the doodle's last barline in it, leaving one
+ * End each drawn system of the doodle at the doodle's last barline in it, leaving one
  * `measure-slot` per doodle measure (the whole rests after it go), and remove the note identities
  * the engraver tagged its notes with (the doodle holds no expected note). A system
  * holding none of the doodle's measures is never reserved, so meeting one is a caller defect.

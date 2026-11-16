@@ -19,7 +19,7 @@ import {
 const INDEPENDENT_NATURAL_PC: Record<Letter, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
 const INDEPENDENT_LETTERS: readonly Letter[] = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
 
-/** Intent: independently reimplement candidate enumeration to cross-check the production output. */
+/** Independently reimplement candidate enumeration to cross-check the production output. */
 function independentCandidates(
   tonic: number,
   offsets: readonly number[],

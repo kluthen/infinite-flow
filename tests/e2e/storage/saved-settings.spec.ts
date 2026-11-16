@@ -22,17 +22,17 @@ const PHONE = { width: 844, height: 390 } as const
 /** A desktop window, at and above bp-tablet-landscape. */
 const DESKTOP = { width: 1280, height: 900 } as const
 
-/** Intent: whether a radio is the checked option of its group. */
+/** Whether a radio is the checked option of its group. */
 async function expectChecked(page: Page, group: string, option: string): Promise<void> {
   await expect(radio(page, group, option)).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: the tempo stepper. */
+/** The tempo stepper. */
 function tempoStepper(page: Page): Locator {
   return page.getByRole('spinbutton', { name: 'Tempo' })
 }
 
-/** Intent: the toolbar toggle of one mix channel. */
+/** The toolbar toggle of one mix channel. */
 function mixToggle(
   page: Page,
   channel: 'Backing' | 'Click' | 'Melody guide' | 'Rhythm guide',
@@ -40,13 +40,13 @@ function mixToggle(
   return page.locator('.score-toolbar').getByRole('button', { name: channel, exact: true })
 }
 
-/** Intent: open the toolbar's Volume popover and wait for it to show. */
+/** Open the toolbar's Volume popover and wait for it to show. */
 async function openVolume(page: Page): Promise<void> {
   await page.locator('.score-toolbar').getByRole('button', { name: 'Volume', exact: true }).click()
   await expect(page.locator('#mix-volume-popover')).toBeVisible()
 }
 
-/** Intent: the volume slider labelled `name`. */
+/** The volume slider labelled `name`. */
 function slider(
   page: Page,
   name: 'Backing volume' | 'Click volume' | 'Melody guide volume' | 'Rhythm guide volume',

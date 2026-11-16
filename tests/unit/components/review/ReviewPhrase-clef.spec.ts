@@ -23,7 +23,7 @@ const ONE_POSITION: ReviewStaffReservation = { positionCount: 1, positionBlockPx
 
 const mounted: VueWrapper[] = []
 
-/** Intent: mount one phrase, engrave it on the fake engraver and give the clef it was drawn in. */
+/** Mount one phrase, engrave it on the fake engraver and give the clef it was drawn in. */
 async function drawnClef(record: ReviewedPhrase): Promise<string> {
   const wrapper = mount(ReviewPhrase, {
     props: {

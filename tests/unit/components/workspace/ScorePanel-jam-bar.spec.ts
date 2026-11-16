@@ -33,7 +33,7 @@ const JamBarStub = defineComponent({
   },
 })
 
-/** Intent: the bar as the shell gives it, its listeners spied on. */
+/** The bar as the shell gives it, its listeners spied on. */
 function barView(): JamBarView {
   return {
     component: JamBarStub,
@@ -54,7 +54,7 @@ function barView(): JamBarView {
   }
 }
 
-/** Intent: mount the panel with the bar `jamBar`, over `fake`'s controller. */
+/** Mount the panel with the bar `jamBar`, over `fake`'s controller. */
 function mountPanel(
   jamBar: JamBarView | null,
   fake: FakeSessionController = createFakeSessionController(),

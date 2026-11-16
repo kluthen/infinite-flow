@@ -47,21 +47,21 @@ const sentence = computed(() =>
   tapTempoSentence(props.note, JAM_TEMPO_VALUES, props.controllerConnected),
 )
 
-/** Intent: a tap, unless the button is disabled; `fromPress` when a click is still to follow. */
+/** A tap, unless the button is disabled; `fromPress` when a click is still to follow. */
 function tap(fromPress: boolean): void {
   if (props.disabled) return
   tappedBeforeClick = fromPress
   emit('press')
 }
 
-/** Intent: a primary pointer's press is a tap. */
+/** A primary pointer's press is a tap. */
 // @spec-link [[rule_jam_tap_in_listening]]
 function handlePointerDown(event: PointerEvent): void {
   if (event.button !== 0 || !event.isPrimary) return
   tap(true)
 }
 
-/** Intent: Enter or Space pressed is a tap; its key repeats are prevented and tap nothing. */
+/** Enter or Space pressed is a tap; its key repeats are prevented and tap nothing. */
 // @spec-link [[rule_jam_tap_in_listening]]
 function handleKeyDown(event: KeyboardEvent): void {
   if (event.key !== 'Enter' && event.key !== ' ') return
@@ -73,7 +73,7 @@ function handleKeyDown(event: KeyboardEvent): void {
 }
 
 /**
- * Intent: a click that follows no pointer or key press (detail 0, from assistive technology) is a
+ * A click that follows no pointer or key press (detail 0, from assistive technology) is a
  * tap; the click a press brings, or any other, taps nothing.
  */
 // @spec-link [[rule_jam_tap_in_listening]]
@@ -85,24 +85,24 @@ function handleClick(event: MouseEvent): void {
   if (event.detail === 0) tap(false)
 }
 
-/** Intent: a press or key press outside the button ends listening. */
+/** A press or key press outside the button ends listening. */
 function handleElsewhere(event: Event): void {
   const target = event.target
   if (target instanceof Node && button.value?.contains(target)) return
   emit('end')
 }
 
-/** Intent: the page hidden ends listening. */
+/** The page hidden ends listening. */
 function handleVisibilityChange(): void {
   if (document.visibilityState === 'hidden') emit('end')
 }
 
-/** Intent: the page left ends listening. */
+/** The page left ends listening. */
 function handlePageHide(): void {
   emit('end')
 }
 
-/** Intent: listen to the page for what ends listening, only while listening. */
+/** Listen to the page for what ends listening, only while listening. */
 function attachEndListeners(): void {
   document.addEventListener('pointerdown', handleElsewhere, true)
   document.addEventListener('keydown', handleElsewhere, true)
@@ -110,7 +110,7 @@ function attachEndListeners(): void {
   window.addEventListener('pagehide', handlePageHide)
 }
 
-/** Intent: stop listening to the page. */
+/** Stop listening to the page. */
 function detachEndListeners(): void {
   document.removeEventListener('pointerdown', handleElsewhere, true)
   document.removeEventListener('keydown', handleElsewhere, true)

@@ -37,7 +37,7 @@ export interface StartOnKeptDoodle {
 }
 
 /**
- * Intent: build one controller's start of a Jam on the kept doodle over its core, sides and ends:
+ * Build one controller's start of a Jam on the kept doodle over its core, sides and ends:
  * refused, touching nothing, while a session runs or no controller is connected (Jam's side
  * judges its other start conditions first: Jam's phrase 1 shown with nothing running, failed or
  * noticed on it); otherwise a start from phrase 1, inside the Start click or the starting note's

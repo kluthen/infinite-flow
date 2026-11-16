@@ -14,7 +14,7 @@ export const REVIEW_NEAR_ROOT_MARGIN = '100% 0px'
 // @spec-link [[req_last_session_review]]
 export const REVIEW_RETAINED_ROOT_MARGIN = '300% 0px'
 
-/** Intent: an item's distance, in CSS px, from the visible area of the window; 0 when it shows. */
+/** An item's distance, in CSS px, from the visible area of the window; 0 when it shows. */
 // @spec-link [[req_last_session_review]]
 export function distanceFromVisibleArea(item: Element): number {
   const box = item.getBoundingClientRect()
@@ -24,7 +24,7 @@ export function distanceFromVisibleArea(item: Element): number {
 }
 
 /**
- * Intent: observe every item of the list for the scheduler, in its order (the list's children by
+ * Observe every item of the list for the scheduler, in its order (the list's children by
  * default; a Jam's doodle section first, before them, when it is engraved with them), and the
  * list's width: a real width change invalidates the engravings, anything else (its block size
  * growing as positions are reserved) does not. Returns the function that stops observing.
@@ -37,7 +37,7 @@ export function observeReviewList(
 ): () => void {
   const indexes = new Map(items.map((item, index) => [item, index]))
 
-  /** Intent: the list index of an observed item; any other target is a wiring defect. */
+  /** The list index of an observed item; any other target is a wiring defect. */
   function indexOf(target: Element): number {
     const index = indexes.get(target)
     if (index === undefined)

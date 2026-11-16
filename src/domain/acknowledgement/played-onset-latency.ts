@@ -76,7 +76,7 @@ export class PlayedOnsetError extends Error {
   }
 }
 
-/** Intent: the shipped latency correction for a controller connection, from the constants above. */
+/** The shipped latency correction for a controller connection, from the constants above. */
 // @spec-link [[rule_played_onset_latency_compensation]]
 export function latencyCorrectionFor(connection: ControllerConnection): LatencyCorrection {
   return deepFreeze({
@@ -86,7 +86,7 @@ export function latencyCorrectionFor(connection: ControllerConnection): LatencyC
 }
 
 /**
- * Intent: turn a note-on stamped on the audio clock into a played note for matching: its onset is
+ * Turn a note-on stamped on the audio clock into a played note for matching: its onset is
  * the audio-clock time minus the output latency and minus the connection's delay. Rejects a time
  * or a correction that is not a finite number, and a negative correction.
  */
@@ -107,7 +107,7 @@ export function compensatePlayedNote(
   return deepFreeze({ pitch: noteOn.pitch, onsetSeconds: onsetSeconds as CompensatedOnsetSeconds })
 }
 
-/** Intent: reject a delay that is negative or not a finite number of seconds. */
+/** Reject a delay that is negative or not a finite number of seconds. */
 function assertDelay(name: string, seconds: number): void {
   if (!Number.isFinite(seconds) || seconds < 0) {
     throw new PlayedOnsetError(

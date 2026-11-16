@@ -27,29 +27,29 @@ export const JAM_CHUNK = /\/assets\/jam-mode-[\w-]+\.js(\?.*)?$/
 export const JAM_LOAD_FAILED =
   "Jam mode couldn't open because part of the app didn't load. Check that you're online, then try again."
 
-/** Intent: the header's mode switch, the radiogroup "Mode". */
+/** The header's mode switch, the radiogroup "Mode". */
 export function modeSwitch(page: Page): Locator {
   return page.getByRole('radiogroup', { name: 'Mode', exact: true })
 }
 
-/** Intent: one segment of the mode switch. */
+/** One segment of the mode switch. */
 export function modeSegment(page: Page, label: ModeLabel): Locator {
   return modeSwitch(page).getByRole('radio', { name: label, exact: true })
 }
 
-/** Intent: the other segment's label. */
+/** The other segment's label. */
 export function otherMode(label: ModeLabel): ModeLabel {
   return label === 'Session' ? 'Jam' : 'Session'
 }
 
-/** Intent: assert `label` is the checked segment and the other is not. */
+/** Assert `label` is the checked segment and the other is not. */
 export async function expectChecked(page: Page, label: ModeLabel): Promise<void> {
   await expect(modeSegment(page, label)).toHaveAttribute('aria-checked', 'true')
   await expect(modeSegment(page, otherMode(label))).toHaveAttribute('aria-checked', 'false')
 }
 
 /**
- * Intent: session mode's staff viewport, the staff stack's first child (Jam's view and the kept
+ * Session mode's staff viewport, the staff stack's first child (Jam's view and the kept
  * doodle's staff each have one of their own after it).
  */
 export function sessionViewport(page: Page): Locator {
@@ -58,23 +58,23 @@ export function sessionViewport(page: Page): Locator {
     .filter({ hasNot: page.locator('.staff-jam') })
 }
 
-/** Intent: session mode's staff frame. */
+/** Session mode's staff frame. */
 export function sessionFrame(page: Page): Locator {
   return sessionViewport(page).locator(':scope > .staff-frame')
 }
 
-/** Intent: the score panel's title, `h2#score-panel-title`, which also names the staff frame. */
+/** The score panel's title, `h2#score-panel-title`, which also names the staff frame. */
 export function scoreTitle(page: Page): Locator {
   return page.locator('.score-toolbar h2#score-panel-title')
 }
 
-/** Intent: Jam's staff frame, rendered only while Jam mode shows. */
+/** Jam's staff frame, rendered only while Jam mode shows. */
 export function jamFrame(page: Page): Locator {
   return page.locator('.score-panel .staff-frame.staff-jam')
 }
 
 /**
- * Intent: assert Jam mode shows: `Jam` checked and not loading, the score titled `Jam`, Jam's staff
+ * Assert Jam mode shows: `Jam` checked and not loading, the score titled `Jam`, Jam's staff
  * frame in the staff's place with session mode's out of sight, `Generate phrase` disabled and
  * `Start Jam` as `startJam` says: disabled by default (no controller connected, or a fresh Jam
  * could not start), enabled while a fresh Jam could start.
@@ -97,7 +97,7 @@ export async function expectJamModeShows(
 }
 
 /**
- * Intent: assert session mode shows at Idle: `Session` checked and not loading, the score titled
+ * Assert session mode shows at Idle: `Session` checked and not loading, the score titled
  * `Four-measure phrase`, no Jam view, its staff in sight, the session action `Start session`.
  */
 export async function expectSessionModeShows(page: Page): Promise<void> {
@@ -112,7 +112,7 @@ export async function expectSessionModeShows(page: Page): Promise<void> {
 }
 
 /**
- * Intent: assert the switch is read-only with `checked` checked, and that a click on the other
+ * Assert the switch is read-only with `checked` checked, and that a click on the other
  * segment and an arrow key from the checked one change nothing. A read-only switch takes no
  * pointer events, so the click is made twice: where the pointer lands (the header under it), and
  * dispatched on the segment itself, which its script refuses.
@@ -129,7 +129,7 @@ export async function expectSwitchRefuses(page: Page, checked: ModeLabel): Promi
   await expect(modeSwitch(page)).not.toHaveClass(/is-loading/)
 }
 
-/** Intent: record the URL of every request for Jam's code chunk the page makes from now on. */
+/** Record the URL of every request for Jam's code chunk the page makes from now on. */
 export function watchJamChunk(page: Page): string[] {
   const urls: string[] = []
   page.on('request', (request) => {
@@ -148,7 +148,7 @@ export interface HeldJamChunk {
   readonly refuse: () => Promise<void>
 }
 
-/** Intent: hold every request for Jam's code chunk until `release` or `refuse`. */
+/** Hold every request for Jam's code chunk until `release` or `refuse`. */
 export async function holdJamChunk(page: Page): Promise<HeldJamChunk> {
   let requests = 0
   let settle!: (outcome: 'release' | 'refuse') => void
@@ -175,12 +175,12 @@ export async function holdJamChunk(page: Page): Promise<HeldJamChunk> {
   }
 }
 
-/** Intent: refuse every request for Jam's code chunk, as a network gone away does. */
+/** Refuse every request for Jam's code chunk, as a network gone away does. */
 export async function refuseJamChunk(page: Page): Promise<void> {
   await page.route(JAM_CHUNK, (route) => route.abort('internetdisconnected'))
 }
 
-/** Intent: from now on, record whether `mode-switch` ever takes `is-loading`. */
+/** From now on, record whether `mode-switch` ever takes `is-loading`. */
 export async function watchOpening(page: Page): Promise<void> {
   await page.evaluate(() => {
     const element = document.querySelector('.mode-switch')
@@ -192,22 +192,22 @@ export async function watchOpening(page: Page): Promise<void> {
   })
 }
 
-/** Intent: whether `mode-switch` has taken `is-loading` since `watchOpening`. */
+/** Whether `mode-switch` has taken `is-loading` since `watchOpening`. */
 export function openingSeen(page: Page): Promise<boolean> {
   return page.evaluate(() => window.__modeSwitchLoadingSeen === true)
 }
 
-/** Intent: Jam's load-failure notice in the notice row. */
+/** Jam's load-failure notice in the notice row. */
 export function jamNotice(page: Page): Locator {
   return page.locator('.app-notice-row .app-notice').filter({ hasText: JAM_LOAD_FAILED })
 }
 
-/** Intent: one of Jam's load-failure notice's buttons. */
+/** One of Jam's load-failure notice's buttons. */
 export function jamNoticeButton(page: Page, name: 'Try again' | 'Dismiss'): Locator {
   return jamNotice(page).getByRole('button', { name, exact: true })
 }
 
-/** Intent: wait until this page's own service worker has installed and taken control. */
+/** Wait until this page's own service worker has installed and taken control. */
 export async function waitForServiceWorkerReady(page: Page): Promise<void> {
   await page.evaluate(async () => {
     const registration = await navigator.serviceWorker.ready

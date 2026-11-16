@@ -64,7 +64,7 @@ interface SteeringDoodle {
   readonly moves: readonly MelodicMove[]
 }
 
-/** Intent: every doodle of the set with two notes or more, each with the moves between its notes. */
+/** Every doodle of the set with two notes or more, each with the moves between its notes. */
 function steeringDoodles(): readonly SteeringDoodle[] {
   return loadDoodleSet().flatMap((doodle) => {
     const pitches = doodle.quantized.notes.map((note) => note.pitch)
@@ -73,7 +73,7 @@ function steeringDoodles(): readonly SteeringDoodle[] {
   })
 }
 
-/** Intent: a block holding the moves at the strength, its band unbounded and its rhythm empty. */
+/** A block holding the moves at the strength, its band unbounded and its rhythm empty. */
 function blockOf(moves: readonly MelodicMove[], strength: SteeringStrength): SteeringBlock {
   return makeSteeringBlock({
     targetRhythm: { measures: [[], [], [], []], band: 'unbounded' },
@@ -89,7 +89,7 @@ interface PopulationRequest {
   readonly carryIn?: CarryIn
 }
 
-/** Intent: the request's intent, carrying the block when given. */
+/** The request's intent, carrying the block when given. */
 function intentOf(request: PopulationRequest, steering?: SteeringBlock): GenerationIntent {
   const base = buildIntent({ seed: request.seed, controls: CONTROLS, label: request.label })
   if (request.carryIn === undefined) return steering === undefined ? base : { ...base, steering }
@@ -111,7 +111,7 @@ function joinedCarryIn(): CarryIn {
   return makeCarryIn(carryInAfter(first, generateSuccess(first), 1))
 }
 
-/** Intent: the standalone and joined requests, one per seed each. */
+/** The standalone and joined requests, one per seed each. */
 function population(): readonly PopulationRequest[] {
   const carryIn = joinedCarryIn()
   return SEEDS.flatMap((seed) => [
@@ -128,7 +128,7 @@ interface Tally {
   successes: number
 }
 
-/** Intent: count, over a phrase's notes reached by a move, those matching the block's move. */
+/** Count, over a phrase's notes reached by a move, those matching the block's move. */
 function tallyPhrase(
   tally: Tally,
   outcome: SuccessOutcome,
@@ -155,7 +155,7 @@ interface Results {
   readonly noneDiffers: readonly string[]
 }
 
-/** Intent: the timeline of a success, or a marker of the failure, to compare two generations. */
+/** The timeline of a success, or a marker of the failure, to compare two generations. */
 function phraseText(outcome: ReturnType<typeof generatePhrase>): string {
   return outcome.kind === 'generation_success'
     ? JSON.stringify(outcome.result.timeline)
@@ -164,7 +164,7 @@ function phraseText(outcome: ReturnType<typeof generatePhrase>): string {
 
 let cached: Results | undefined
 
-/** Intent: the tally kept under the key, started empty the first time the key is met. */
+/** The tally kept under the key, started empty the first time the key is met. */
 function tallyIn(
   tallies: Map<SteeringStrength | 'no block', Tally>,
   key: SteeringStrength | 'no block',
@@ -174,7 +174,7 @@ function tallyIn(
   return known
 }
 
-/** Intent: generate the population once under every strength and without a block. */
+/** Generate the population once under every strength and without a block. */
 function results(): Results {
   if (cached) return cached
   const tallies = new Map<SteeringStrength | 'no block', Tally>()
@@ -204,7 +204,7 @@ function results(): Results {
   return cached
 }
 
-/** Intent: the tally of one strength, which the population always fills. */
+/** The tally of one strength, which the population always fills. */
 function tallyAt(key: SteeringStrength | 'no block'): Tally {
   const tally = results().tallies.get(key)
   if (!tally) throw new Error(`no phrase generated at ${key}`)

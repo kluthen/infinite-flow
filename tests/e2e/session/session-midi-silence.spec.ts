@@ -33,7 +33,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: on a fresh page with the keyboard connected, start a session with the starting note. */
+/** On a fresh page with the keyboard connected, start a session with the starting note. */
 async function startByStartingNote(page: Page): Promise<number> {
   await gotoSessionHarness(page)
   await connectDevice(page, KEYS)

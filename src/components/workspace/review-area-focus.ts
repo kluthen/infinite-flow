@@ -77,13 +77,13 @@ export interface ReviewAreaFocus {
   readonly dispose: () => void
 }
 
-/** Intent: whether `key` names a row whose title can take focus (one this version opens). */
+/** Whether `key` names a row whose title can take focus (one this version opens). */
 function openable(rows: readonly KeptSessionRow[], key: string | undefined): key is string {
   return key !== undefined && rows.some((row) => row.key === key && row.kind === 'current')
 }
 
 /**
- * Intent: the review area's focus moves over its levels; a move asked for before its target has
+ * The review area's focus moves over its levels; a move asked for before its target has
  * mounted waits for it, the latest move replacing a waiting one.
  */
 // @spec-link [[req_last_session_review]]
@@ -96,18 +96,18 @@ export function useReviewAreaFocus(deps: ReviewAreaFocusDependencies): ReviewAre
   let lastFocused: Element | null = null
   let tracking = false
 
-  /** Intent: run the waiting move; drop it once it found its target. */
+  /** Run the waiting move; drop it once it found its target. */
   const retryPending = (): void => {
     if (pending !== null && pending()) pending = null
   }
 
-  /** Intent: make `move` the waiting move and try it now. */
+  /** Make `move` the waiting move and try it now. */
   const attempt = (move: () => boolean): void => {
     pending = move
     retryPending()
   }
 
-  /** Intent: focus the title of the level that shows; false while it is not mounted. */
+  /** Focus the title of the level that shows; false while it is not mounted. */
   const focusTitle = (): boolean => {
     const level = deps.listShowing() ? deps.list() : deps.panel()
     if (level === null) return false
@@ -115,19 +115,19 @@ export function useReviewAreaFocus(deps: ReviewAreaFocusDependencies): ReviewAre
     return true
   }
 
-  /** Intent: remember where focus moves, while a deletion runs. */
+  /** Remember where focus moves, while a deletion runs. */
   const onFocusIn = (event: FocusEvent): void => {
     lastFocused = event.target instanceof Element ? event.target : null
   }
 
-  /** Intent: stop following focus. */
+  /** Stop following focus. */
   const stopTracking = (): void => {
     if (!tracking) return
     tracking = false
     document.removeEventListener('focusin', onFocusIn)
   }
 
-  /** Intent: focus after a row's deletion: the next row's title, else the previous, else the title. */
+  /** Focus after a row's deletion: the next row's title, else the previous, else the title. */
   const afterRowDeletion = (row: string, before: readonly string[]): void => {
     const list = deps.list()
     if (list === null) return

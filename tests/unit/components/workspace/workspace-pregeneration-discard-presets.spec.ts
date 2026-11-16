@@ -30,14 +30,14 @@ const NEUTRAL = builtInPreset('neutral')
 /** Neutral's values in C Ionian, Neutral selected. */
 const NEUTRAL_SELECTED = settingsOf(NEUTRAL, { kind: 'preset', presetId: 'neutral' })
 
-/** Intent: My reel's values in C Mixolydian, selected as given. */
+/** My reel's values in C Mixolydian, selected as given. */
 function myReelSettings(
   selection: PresetSelection = { kind: 'preset', presetId: MY_REEL.id },
 ): SessionSettings {
   return settingsOf(MY_REEL, selection, 'Mixolydian')
 }
 
-/** Intent: whether Vary settings is on, in words for a test title. */
+/** Whether Vary settings is on, in words for a test title. */
 function varyInWords(varySettings: boolean): string {
   return `Vary settings ${varySettings ? 'on' : 'off'}`
 }

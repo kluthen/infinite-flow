@@ -55,13 +55,13 @@ export interface TestWorkspace {
   readonly saves: SettingChanges[]
 }
 
-/** Intent: the default fake generate seam -- always the same cheap, real generation result. */
+/** The default fake generate seam -- always the same cheap, real generation result. */
 async function defaultGenerate(intent: GenerationIntent): Promise<WorkspaceGeneratedPhrase> {
   return buildWorkspaceSessionResult(intent.requestId, intent.seed)
 }
 
 /**
- * Intent: build one real session + coordinator pair for a component spec, defaulting every
+ * Build one real session + coordinator pair for a component spec, defaulting every
  * generation to a cheap real result so `useCheapControls` is not required at every call site.
  */
 export function createTestWorkspace(
@@ -125,7 +125,7 @@ export function createTestWorkspace(
   }
 }
 
-/** Intent: apply the same cheap rhythm/harmony controls `defaultGenerate`'s fixture assumes. */
+/** Apply the same cheap rhythm/harmony controls `defaultGenerate`'s fixture assumes. */
 export function useCheapControls(session: GenerationSession<WorkspaceSessionResult>): void {
   session.actions.setControl('noteDensity', CHEAP_CONTROLS.noteDensity)
   session.actions.setControl('syncopation', CHEAP_CONTROLS.syncopation)

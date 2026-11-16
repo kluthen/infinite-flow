@@ -44,17 +44,17 @@ const SAVED = {
   'sessionOptions.risingTempo': true,
 } as const
 
-/** Intent: the toggle button of one mix channel. */
+/** The toggle button of one mix channel. */
 function mixToggle(page: Page, channel: 'Backing' | 'Click') {
   return page.locator('.mix-controls').getByRole('button', { name: channel, exact: false })
 }
 
-/** Intent: the shown option of a "During a session" option. */
+/** The shown option of a "During a session" option. */
 function sessionOption(page: Page, option: string, label: 'Off' | 'On') {
   return radio(page, option, label)
 }
 
-/** Intent: the load's outcome and saving state, as the harness reports them. */
+/** The load's outcome and saving state, as the harness reports them. */
 function loadReport(page: Page) {
   return page.evaluate(() => ({
     outcome: window.__workspaceHarness.storage.loadOutcome(),

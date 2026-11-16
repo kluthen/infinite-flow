@@ -54,7 +54,7 @@ export class PlayedNoteTrackerError extends Error {
 }
 
 /**
- * Intent: create an empty tracker.
+ * Create an empty tracker.
  * - noteOn: if the pitch is already held, ends that note at `at` first; then holds the new note.
  *   Returns the optional `ended` event, then the `played` event.
  * - noteOff: ends the held note of that pitch. A note-off for a pitch not held returns no event:
@@ -105,7 +105,7 @@ export function createPlayedNoteTracker(): PlayedNoteTracker {
 }
 
 /**
- * Intent: hand a played note to latency compensation as a note-on on the audio clock. The onset
+ * Hand a played note to latency compensation as a note-on on the audio clock. The onset
  * is passed through unchanged; the correction itself is applied by compensatePlayedNote.
  */
 // @spec-link [[rule_played_onset_latency_compensation]]
@@ -113,7 +113,7 @@ export function toNoteOnOnAudioClock(note: PlayedNoteOn): NoteOnOnAudioClock {
   return deepFreeze({ pitch: note.pitch, audioClockSeconds: note.onsetAt })
 }
 
-/** Intent: end a held note at `at`, rejecting a release earlier than its onset. */
+/** End a held note at `at`, rejecting a release earlier than its onset. */
 function endNote(note: PlayedNoteOn, at: AudioTime): PlayedNoteEvent {
   if (at < note.onsetAt) {
     throw new PlayedNoteTrackerError(
@@ -123,19 +123,19 @@ function endNote(note: PlayedNoteOn, at: AudioTime): PlayedNoteEvent {
   return deepFreeze({ kind: 'ended', note: { ...note, releaseAt: at } })
 }
 
-/** Intent: the held notes sorted by onset (stable, so equal onsets keep their arrival order). */
+/** The held notes sorted by onset (stable, so equal onsets keep their arrival order). */
 function inOnsetOrder(heldByPitch: ReadonlyMap<ConcertPitch, PlayedNoteOn>): PlayedNoteOn[] {
   return [...heldByPitch.values()].sort((a, b) => a.onsetAt - b.onsetAt)
 }
 
-/** Intent: reject a time that is not a finite number of audio-clock seconds. */
+/** Reject a time that is not a finite number of audio-clock seconds. */
 function assertTime(at: AudioTime): void {
   if (!Number.isFinite(at)) {
     throw new PlayedNoteTrackerError(`A played-note time must be a finite number, got ${at}.`)
   }
 }
 
-/** Intent: reject a note-on velocity that is not an integer in 1-127. */
+/** Reject a note-on velocity that is not an integer in 1-127. */
 function assertVelocity(velocity: number): void {
   if (!Number.isInteger(velocity) || velocity < VELOCITY_MIN || velocity > VELOCITY_MAX) {
     throw new PlayedNoteTrackerError(

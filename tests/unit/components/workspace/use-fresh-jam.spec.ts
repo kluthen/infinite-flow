@@ -55,7 +55,7 @@ afterEach(() => {
   scope = null
 })
 
-/** Intent: a connected rig at 180 BPM and the shell's fresh Jam over it, Jam mode showing. */
+/** A connected rig at 180 BPM and the shell's fresh Jam over it, Jam mode showing. */
 async function shellJam(script: GenerateScript = alwaysSucceed): Promise<ShellJam> {
   const rig = controllerRig(script, undefined, { tempo: TEMPO })
   await connectKeys(rig)
@@ -105,14 +105,14 @@ async function shellJam(script: GenerateScript = alwaysSucceed): Promise<ShellJa
   }
 }
 
-/** Intent: the count-in's end of the Jam started last, one measure after its click plan's start. */
+/** The count-in's end of the Jam started last, one measure after its click plan's start. */
 function countInEnd(run: ShellJam): AudioTime {
   const started = run.rig.runnerInputsWithoutPhraseOne.at(-1)
   if (started === undefined) throw new Error('no Jam has started')
   return started.start.at + MEASURE
 }
 
-/** Intent: a one-measure doodle of four quarter notes from `from`, played live. */
+/** A one-measure doodle of four quarter notes from `from`, played live. */
 async function playOneMeasure(run: ShellJam, from: AudioTime): Promise<void> {
   for (const [index, pitch] of [60, 62, 64, 65].entries()) {
     await playTo(run.rig, from + (index * MEASURE) / 4 + 0.01)

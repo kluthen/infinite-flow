@@ -25,7 +25,7 @@ export interface MarkedSystem {
 /** One-line phrase summaries, computed once per phrase. */
 const summaries = new WeakMap<WrittenPhrase, string>()
 
-/** Intent: a phrase's one-line summary, computed once per phrase. */
+/** A phrase's one-line summary, computed once per phrase. */
 function summaryOf(phrase: WrittenPhrase): string {
   const known = summaries.get(phrase)
   if (known !== undefined) return known
@@ -34,7 +34,7 @@ function summaryOf(phrase: WrittenPhrase): string {
   return summary
 }
 
-/** Intent: the systems' SVGs grouped by phrase number, in screen order. */
+/** The systems' SVGs grouped by phrase number, in screen order. */
 function svgsByPhrase(shown: readonly MarkedSystem[]): Map<number, SVGSVGElement[]> {
   const groups = new Map<number, SVGSVGElement[]>()
   for (const { system, svg } of shown) {
@@ -45,7 +45,7 @@ function svgsByPhrase(shown: readonly MarkedSystem[]): Map<number, SVGSVGElement
   return groups
 }
 
-/** Intent: the acknowledged notes of phrase `phraseNumber` that its systems on screen draw. */
+/** The acknowledged notes of phrase `phraseNumber` that its systems on screen draw. */
 // @spec-link [[module_session_staff_overlays]]
 // @spec-link [[module_notation_note_identity_overlays]]
 function acknowledgedOnScreen(
@@ -61,7 +61,7 @@ function acknowledgedOnScreen(
 }
 
 /**
- * Intent: name each phrase on screen once, on its first system shown, its other system hidden from
+ * Name each phrase on screen once, on its first system shown, its other system hidden from
  * assistive technology; the described phrase's name points at the description.
  */
 // @spec-link [[module_session_staff_overlays]]
@@ -86,7 +86,7 @@ function labelPhrases(
 }
 
 /**
- * Intent: redraw a session's marks on the systems on screen (top first) and return the phrase the
+ * Redraw a session's marks on the systems on screen (top first) and return the phrase the
  * hidden description is to follow. Overlays are applied per phrase with that phrase's systems
  * only; a band naming a measure its phrase's systems on screen lack is a defect, and throws.
  */
@@ -112,7 +112,7 @@ export function drawSessionMarks(
 }
 
 /**
- * Intent: take every overlay mark off a system leaving the screen, so a unit fading out never
+ * Take every overlay mark off a system leaving the screen, so a unit fading out never
  * carries the band.
  */
 // @spec-link [[module_session_staff_overlays]]

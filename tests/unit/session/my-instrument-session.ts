@@ -21,7 +21,7 @@ import { sessionFigureLevels } from '@/session/session-figure-levels'
 import { BASE_CONTROLS, generateSuccess } from '../domain/generation/carry-in/carry-in-fixture'
 import { recordRunnerSession } from './history-recording'
 
-/** Intent: my instrument written C2 to C5 (MIDI 36 to 72), sounding a minor third lower. */
+/** My instrument written C2 to C5 (MIDI 36 to 72), sounding a minor third lower. */
 export function lowHorn(clef: InstrumentClef): MyInstrument {
   return makeMyInstrument({
     template: 'c-keyboard',
@@ -32,7 +32,7 @@ export function lowHorn(clef: InstrumentClef): MyInstrument {
   })
 }
 
-/** Intent: session settings for my instrument at 120 BPM, its profile carried as data. */
+/** Session settings for my instrument at 120 BPM, its profile carried as data. */
 export function myInstrumentSettings(instrument: MyInstrument): SessionSettings {
   return {
     controls: makeGenerationControls({
@@ -50,7 +50,7 @@ export function myInstrumentSettings(instrument: MyInstrument): SessionSettings 
   }
 }
 
-/** Intent: a real phrase 1 generated at Idle under the settings, with their profile as data. */
+/** A real phrase 1 generated at Idle under the settings, with their profile as data. */
 export function myInstrumentPhraseOne(
   settings: SessionSettings,
   seed = 11,
@@ -69,7 +69,7 @@ export function myInstrumentPhraseOne(
 }
 
 /**
- * Intent: a real session of `phraseCount` phrases played with my instrument, recorded through the
+ * A real session of `phraseCount` phrases played with my instrument, recorded through the
  * session runner into a history drawn in the instrument's clef.
  */
 export function recordedMyInstrumentSession(

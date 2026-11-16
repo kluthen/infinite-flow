@@ -103,7 +103,7 @@ const PHRASE_KEYS: readonly string[] = ['number', 'timeline', 'tempo']
 const BACKING_PHRASE_KEYS: readonly string[] = ['number', 'notes']
 const BACKING_NOTE_KEYS: readonly string[] = ['pitch', 'start', 'duration']
 
-/** Intent: crash early unless `value` has exactly the named own keys, no more and no fewer. */
+/** Crash early unless `value` has exactly the named own keys, no more and no fewer. */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[req_played_notes_export]]
 export function assertExactKeys(value: object, expected: readonly string[], what: string): void {
@@ -117,7 +117,7 @@ export function assertExactKeys(value: object, expected: readonly string[], what
 }
 
 /**
- * Intent: crash early unless a list's session numbers are whole numbers from 1 up, each greater
+ * Crash early unless a list's session numbers are whole numbers from 1 up, each greater
  * than the one before, as phrases come in session order: 1, 2, 3 … for a whole session, the
  * favorites' own numbers (2, 5, 6, say) for a favorites-only file.
  */
@@ -139,7 +139,7 @@ export function assertNumberedInOrder(
   })
 }
 
-/** Intent: crash early unless a phrase's tempo is a whole number of BPM in the accepted range. */
+/** Crash early unless a phrase's tempo is a whole number of BPM in the accepted range. */
 // @spec-link [[rule_generated_notes_midi_export]]
 // @spec-link [[req_played_notes_export]]
 export function assertTempo(phrase: { readonly number: number; readonly tempo: number }): void {
@@ -153,7 +153,7 @@ export function assertTempo(phrase: { readonly number: number; readonly tempo: n
 }
 
 /**
- * Intent: crash early unless a timed note (`what` names it, `owner` its phrase or the doodle) has a
+ * Crash early unless a timed note (`what` names it, `owner` its phrase or the doodle) has a
  * MIDI pitch, a positive length, and lies wholly inside its span of `length` whole notes.
  */
 function assertTimedNote(
@@ -179,7 +179,7 @@ function assertTimedNote(
 }
 
 /**
- * Intent: crash early unless a backing note has a MIDI pitch, a positive length, and lies wholly
+ * Crash early unless a backing note has a MIDI pitch, a positive length, and lies wholly
  * inside its four-measure phrase.
  */
 function assertBackingNote(note: MidiBackingNote, phraseNumber: number): void {
@@ -190,7 +190,7 @@ function assertBackingNote(note: MidiBackingNote, phraseNumber: number): void {
 }
 
 /**
- * Intent: crash early when two notes of the same pitch overlap (`what` names them, `owner` their
+ * Crash early when two notes of the same pitch overlap (`what` names them, `owner` their
  * phrase or the doodle): one MIDI channel cannot sound the same pitch twice at once, so the file
  * could not say which release ends which note. A note may start exactly where the same pitch
  * ends.
@@ -212,7 +212,7 @@ function assertNoSamePitchOverlap(
   })
 }
 
-/** Intent: crash early unless the backing holds one valid entry per phrase, numbered alike. */
+/** Crash early unless the backing holds one valid entry per phrase, numbered alike. */
 function assertBacking(
   backing: readonly MidiBackingPhrase[],
   phrases: readonly MidiSessionPhrase[],
@@ -238,7 +238,7 @@ function assertBacking(
 }
 
 /**
- * Intent: crash early unless a doodle section has a whole number of measures from 1 to 4 and a
+ * Crash early unless a doodle section has a whole number of measures from 1 to 4 and a
  * whole-number tempo the export accepts, and its notes are ones the file can hold inside it.
  */
 // @spec-link [[rule_jam_exports_open_with_doodle]]
@@ -260,7 +260,7 @@ export function assertDoodleSpan(doodle: {
   }
 }
 
-/** Intent: crash early unless the doodle section is one the generated-notes file can open with. */
+/** Crash early unless the doodle section is one the generated-notes file can open with. */
 function assertMidiDoodle(doodle: MidiDoodleSection): void {
   assertExactKeys(doodle, DOODLE_KEYS, 'The doodle section')
   assertDoodleSpan(doodle)
@@ -270,7 +270,7 @@ function assertMidiDoodle(doodle: MidiDoodleSection): void {
 }
 
 /**
- * Intent: reject an encoder input that breaks the contract: an extra field anywhere (a
+ * Reject an encoder input that breaks the contract: an extra field anywhere (a
  * played-note list among them), an empty session, phrase numbers that are not whole numbers from 1
  * up, each above the one before, a tempo outside whole numbers from 60 to 240 BPM, a backing that
  * does not match the phrases or holds a note the file could not represent, or a doodle section

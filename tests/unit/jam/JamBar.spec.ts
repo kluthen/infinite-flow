@@ -47,7 +47,7 @@ interface BarOptions {
   readonly held?: boolean
 }
 
-/** Intent: mount the bar attached to the document, so focus can be checked. */
+/** Mount the bar attached to the document, so focus can be checked. */
 function mountBar(options: BarOptions = {}) {
   const wrapper = mount(JamBar, {
     props: {
@@ -66,17 +66,17 @@ function mountBar(options: BarOptions = {}) {
 
 type Wrapper = ReturnType<typeof mountBar>
 
-/** Intent: the bar's own sentence. */
+/** The bar's own sentence. */
 function sentence(wrapper: Wrapper) {
   return wrapper.get('.jam-bar > p')
 }
 
-/** Intent: `New doodle`. */
+/** `New doodle`. */
 function newDoodle(wrapper: Wrapper) {
   return wrapper.get('.jam-bar > button')
 }
 
-/** Intent: the suggestion row's sentence and buttons' words, or null when it is absent. */
+/** The suggestion row's sentence and buttons' words, or null when it is absent. */
 function row(wrapper: Wrapper): { sentence: string; buttons: string[] } | null {
   const found = wrapper.find('.jam-bar > .suggestion-row')
   if (!found.exists()) return null
@@ -86,7 +86,7 @@ function row(wrapper: Wrapper): { sentence: string; buttons: string[] } | null {
   }
 }
 
-/** Intent: the suggestion row's buttons. */
+/** The suggestion row's buttons. */
 function rowButtons(wrapper: Wrapper) {
   return wrapper.findAll('.suggestion-row > button')
 }
@@ -174,7 +174,7 @@ describe('the kept doodle’s bar: the suggestion at Idle', () => {
 
 // @test-link [[rule_suggestion_use_it]]
 describe('the kept doodle’s bar: Jam in {answer}', () => {
-  /** Intent: press `Jam in {answer}` and let Jam take the answer, as its settings do. */
+  /** Press `Jam in {answer}` and let Jam take the answer, as its settings do. */
   async function jamInAnswer(wrapper: Wrapper): Promise<void> {
     await rowButtons(wrapper)[0]!.trigger('click')
     await wrapper.setProps({ jam: D_MINOR })

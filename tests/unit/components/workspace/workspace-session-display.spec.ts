@@ -35,13 +35,13 @@ const WIDE: StaffLayoutInputs = {
   viewport: { layout: 'one-system', heightBudgetPx: null },
 }
 
-/** Intent: the session phrase `n`, a real phrase generated from its own seed. */
+/** The session phrase `n`, a real phrase generated from its own seed. */
 function sessionPhrase(n: number): SessionPhrase {
   const { intent, outcome } = phraseOneFor(SETTINGS, { seed: 100 + n })
   return { phraseNumber: n, origin: 'carry-in', intent, outcome }
 }
 
-/** Intent: the written phrase of a session phrase, as the display derives it. */
+/** The written phrase of a session phrase, as the display derives it. */
 function writtenOf(phrase: Pick<SessionPhrase, 'intent' | 'outcome'>): WrittenPhrase {
   return transformToWrittenPhrase(
     notationInputFromOutcome(phrase.outcome, phrase.intent, BUILT_IN_INSTRUMENT_CLEF),
@@ -63,7 +63,7 @@ const AT_240: RigTiming = {
   },
 }
 
-/** Intent: a display over a hand-set clock, stepped frames and a fake planner. */
+/** A display over a hand-set clock, stepped frames and a fake planner. */
 function displayRig(
   heldLayout: StaffLayout = 'one-system',
   outputLatency = 0,
@@ -117,7 +117,7 @@ function displayRig(
   }
 }
 
-/** Intent: a staff's two positions as slot keys. */
+/** A staff's two positions as slot keys. */
 function keys(staff: SessionStaff): [string | null, string | null] {
   return [staff.top && slotKey(staff.top), staff.bottom && slotKey(staff.bottom)]
 }

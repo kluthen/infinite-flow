@@ -16,7 +16,7 @@ import { type WindowedExpectedNote } from './acknowledgement-window'
 import { type PlayedNote } from './played-onset-latency'
 
 /**
- * Intent: match one played note against the windowed expected notes, given the identities already
+ * Match one played note against the windowed expected notes, given the identities already
  * acknowledged. Returns the identity it newly acknowledges (a list of one), or an empty list.
  */
 // @spec-link [[rule_acknowledgement_exact_pitch]]
@@ -32,7 +32,7 @@ export function acknowledgePlayedNote(
 }
 
 /**
- * Intent: match played notes one after another, in the order given (the order they were played),
+ * Match played notes one after another, in the order given (the order they were played),
  * and return every identity acknowledged, in the order acknowledged.
  */
 // @spec-link [[rule_acknowledgement_exact_pitch]]
@@ -54,7 +54,7 @@ export function acknowledgePlayedNotes(
 }
 
 /**
- * Intent: the earliest expected note, in time order, that is not yet acknowledged, has exactly the
+ * The earliest expected note, in time order, that is not yet acknowledged, has exactly the
  * played pitch, and whose window (both ends included) holds the played onset.
  */
 function firstMatch(
@@ -71,7 +71,7 @@ function firstMatch(
   )
 }
 
-/** Intent: a string key that is equal for two identities exactly when they name the same note. */
+/** A string key that is equal for two identities exactly when they name the same note. */
 function identityKey(identity: ExpectedNoteIdentity): string {
   return `${identity.phraseNumber}/${identity.measureIndex}/${identity.eventIndex}`
 }

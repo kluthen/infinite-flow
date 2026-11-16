@@ -10,7 +10,7 @@ import type { Component } from 'vue'
 let sheetPromise: Promise<Component> | null = null
 
 /**
- * Intent: the connection sheet component, loaded once and shared by every caller. Safe to call
+ * The connection sheet component, loaded once and shared by every caller. Safe to call
  * speculatively (on workspace mount) to absorb the fetch ahead of the first click.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]

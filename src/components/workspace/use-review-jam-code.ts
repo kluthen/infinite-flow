@@ -29,7 +29,7 @@ export interface ReviewJamCodeSeams {
 }
 
 /**
- * Intent: Jam's code for the showing Review, asked for each time a Jam session's Review opens:
+ * Jam's code for the showing Review, asked for each time a Jam session's Review opens:
  * loaded at once when it already is, else loading until the load settles, a load settling for a
  * Review no longer showing changing nothing.
  */
@@ -69,7 +69,7 @@ export function useReviewJamCode(seams: ReviewJamCodeSeams): Readonly<Ref<Review
 export type SettledReviewJamCode = Exclude<ReviewJamCode, { readonly state: 'loading' }>
 
 /**
- * Intent: Jam's code once `code` has settled, at once when it already has: what a Jam's export
+ * Jam's code once `code` has settled, at once when it already has: what a Jam's export
  * asked for while Jam's code loads waits on, inside its own loading state, before it builds the
  * doodle's part of its file or ends with nothing built when the load failed.
  */

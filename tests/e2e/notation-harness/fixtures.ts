@@ -54,7 +54,7 @@ import { buildChordGridPhrase } from './seventh-fixtures'
 /** The C MIDI keyboard's active concert range, for the test-only transpositions' phrases. */
 const KEYBOARD_CONCERT_RANGE = { minMidi: 48, maxMidi: 72 } as const
 
-/** Intent: build the six-sharp F-sharp major written key. */
+/** Build the six-sharp F-sharp major written key. */
 function keyFSharpMajor(): WrittenKey {
   const scale: readonly SpelledPitchClass[] = [
     { letter: 'F', alter: 1 },
@@ -79,7 +79,7 @@ function keyFSharpMajor(): WrittenKey {
   }
 }
 
-/** Intent: build the five-flat D-flat major written key. */
+/** Build the five-flat D-flat major written key. */
 function keyDFlatMajor(): WrittenKey {
   const scale: readonly SpelledPitchClass[] = [
     { letter: 'D', alter: -1 },
@@ -104,7 +104,7 @@ function keyDFlatMajor(): WrittenKey {
   }
 }
 
-/** Intent: build one full-sixteenth-grid measure with a few displayed accidentals and two chords. */
+/** Build one full-sixteenth-grid measure with a few displayed accidentals and two chords. */
 function denseMeasure(measureIndex: 0 | 1 | 2 | 3): WrittenMeasure {
   const chordAtStart: WrittenChordSymbol = {
     startTick: 0,
@@ -126,7 +126,7 @@ function denseMeasure(measureIndex: 0 | 1 | 2 | 3): WrittenMeasure {
   ])
 }
 
-/** Intent: build the dense fixture -- 16 sixteenths per measure, accidentals, a mid-bar chord change. */
+/** Build the dense fixture -- 16 sixteenths per measure, accidentals, a mid-bar chord change. */
 function buildDensePhrase(): WrittenPhrase {
   const measures: readonly [WrittenMeasure, WrittenMeasure, WrittenMeasure, WrittenMeasure] = [
     denseMeasure(0),
@@ -145,7 +145,7 @@ function buildDensePhrase(): WrittenPhrase {
   }
 }
 
-/** Intent: build the simple fixture's four measures: half+rest, dotted+beamed-eighths+tie, tie-in/tie-out, whole. */
+/** Build the simple fixture's four measures: half+rest, dotted+beamed-eighths+tie, tie-in/tie-out, whole. */
 function buildSimplePhrase(): WrittenPhrase {
   const chordAt = (root: SpelledPitchClass, text: string): readonly WrittenChordSymbol[] => [
     { startTick: 0, root, suffix: '', bass: null, text },
@@ -296,7 +296,7 @@ function buildSimplePhrase(): WrittenPhrase {
 }
 
 /**
- * Intent: build the dense fixture again but with a tie crossing from the last sixteenth of measure
+ * Build the dense fixture again but with a tie crossing from the last sixteenth of measure
  * 1 into the first sixteenth of measure 2 -- the exact boundary the two-system phone layout breaks
  * its line at (bars 1-2 then bars 3-4), so a two-system engrave must draw it as two partial ties.
  */
@@ -321,7 +321,7 @@ function buildDensePhraseWithCrossLineTie(): WrittenPhrase {
   return { ...base, measures: [m0, patchedM1, patchedM2, m3] }
 }
 
-/** Intent: build one whole-note-on-tonic measure for a key-signature-heavy fixture. */
+/** Build one whole-note-on-tonic measure for a key-signature-heavy fixture. */
 function keySignatureMeasure(index: 0 | 1 | 2 | 3, key: WrittenKey): WrittenMeasure {
   return stemmedMeasure({
     index,
@@ -342,7 +342,7 @@ function keySignatureMeasure(index: 0 | 1 | 2 | 3, key: WrittenKey): WrittenMeas
   })
 }
 
-/** Intent: build a minimal single-whole-note-per-measure phrase for a given written key. */
+/** Build a minimal single-whole-note-per-measure phrase for a given written key. */
 function buildKeySignaturePhrase(key: WrittenKey): WrittenPhrase {
   const measures: readonly [WrittenMeasure, WrittenMeasure, WrittenMeasure, WrittenMeasure] = [
     keySignatureMeasure(0, key),
@@ -386,7 +386,7 @@ function tonicChordEachMeasure(): readonly ConcertChordSymbol[] {
 }
 
 /**
- * Intent: engrave a real, explicit written phrase (via `transformToWrittenPhrase`, not a hand-built
+ * Engrave a real, explicit written phrase (via `transformToWrittenPhrase`, not a hand-built
  * WrittenPhrase) for one written tonal center/collection and instrument transposition, over a
  * whole-note-tonic concert timeline.
  */
@@ -443,7 +443,7 @@ function buildWrittenFlatSideEbAltoPhrase(): WrittenPhrase {
   return buildTransformedPhrase(64, 'C#', 'Major', EB_ALTO_PROFILE)
 }
 
-/** Intent: one concert note event of `ticks` sixteenths, never a tie continuation. */
+/** One concert note event of `ticks` sixteenths, never a tie continuation. */
 function concertNote(pitch: number, ticks: number): MeasureEvent {
   return makeNoteEvent({
     duration: makeRational(ticks, 16),
@@ -453,7 +453,7 @@ function concertNote(pitch: number, ticks: number): MeasureEvent {
 }
 
 /**
- * Intent: engrave, through the real display transform at concert pitch in C major, notes on both
+ * Engrave, through the real display transform at concert pitch in C major, notes on both
  * sides of the middle line (B4), single and beamed, so the drawn stems can be checked against the
  * stem-direction rule. Measure 0: quarter D4, quarter D5, eighths E5 F5, eighths E4 F4. Measure 1:
  * sixteenths A5 G4 F4 E4 (the far A5 stems the group down), sixteenths D5 E5 F5 C4 (the far C4
@@ -487,7 +487,7 @@ function buildStemDirectionsPhrase(): WrittenPhrase {
 }
 
 /**
- * Intent: engrave, through the real display transform, a phrase for a player-made instrument that
+ * Engrave, through the real display transform, a phrase for a player-made instrument that
  * sounds 6 semitones higher than written (template C MIDI keyboard, written F♯3 to F♯5), with the
  * written tonal centre F♯ in Major: the generator's concert C major, written a tritone lower in F♯
  * major (six sharps). Measure 0: eighths concert C4 E4 G4 B4 C5 B4 G4 E4 (written F♯3 A♯3 C♯4 E♯4
@@ -518,7 +518,7 @@ function buildMyInstrumentTritoneHigherPhrase(): WrittenPhrase {
     ),
     makeMeasure(3, [concertNote(60, 16)]),
   ])
-  /** Intent: one concert chord symbol on a measure's downbeat, with no slash bass. */
+  /** One concert chord symbol on a measure's downbeat, with no slash bass. */
   const chord = (measureIndex: MeasureIndex, root: number, suffix: string): ConcertChordSymbol => ({
     measureIndex,
     startTick: 0,
@@ -556,7 +556,7 @@ export type FixtureName =
   | 'seventhsQuarter'
   | 'triadsQuarter'
 
-/** Intent: resolve a harness fixture name to its WrittenPhrase, crashing on an unknown name. */
+/** Resolve a harness fixture name to its WrittenPhrase, crashing on an unknown name. */
 // @test-link [[module_notation_layout_preflight]]
 export function resolveFixture(name: string): WrittenPhrase {
   switch (name) {

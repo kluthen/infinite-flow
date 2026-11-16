@@ -13,7 +13,7 @@ import { createBrowserOrientationLock, createBrowserScreenWakeLock } from './bro
 import { createBrowserWindowShape } from './browser-window-shape'
 
 /**
- * Intent: every session browser port of this tab over its browser adapter, with the page
+ * Every session browser port of this tab over its browser adapter, with the page
  * activation the entry chunk built at the page's load. None asks or listens for anything until
  * used, but the page going away, which listens from this call on.
  */

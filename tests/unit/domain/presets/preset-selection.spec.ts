@@ -66,7 +66,7 @@ const PRESETS: readonly Preset[] = [...BUILT_IN_PRESETS, KEPT_TO_G_DORIAN, KEYS_
 /** The Seventh chords level raised to its highest. */
 const MOSTLY: ChordFamilies = { 'seventh-chords': 'stronglyFavored' }
 
-/** Intent: the player's settings at a written key and collection, other controls at Neutral's. */
+/** The player's settings at a written key and collection, other controls at Neutral's. */
 function settingsAt(key: PitchClass, mode: Collection): PresetSettings {
   return {
     controls: makeGenerationControls({
@@ -81,24 +81,24 @@ function settingsAt(key: PitchClass, mode: Collection): PresetSettings {
   }
 }
 
-/** Intent: the written key and collection of settings, as "G Dorian". */
+/** The written key and collection of settings, as "G Dorian". */
 function keyAndMode(settings: PresetSettings): string {
   return `${settings.controls.tonalCenter} ${settings.controls.collection}`
 }
 
-/** Intent: one entry picked from a list by the seeded generator. */
+/** One entry picked from a list by the seeded generator. */
 function pick<T>(random: Mulberry32Generator, list: readonly T[]): T {
   const entry = list[random.nextUint32() % list.length]
   if (entry === undefined) throw new Error('Cannot pick from an empty list.')
   return entry
 }
 
-/** Intent: whether a restriction half allows a value, worked out independently of the module. */
+/** Whether a restriction half allows a value, worked out independently of the module. */
 function halfAllows<T>(half: 'any' | readonly T[], value: T): boolean {
   return half === 'any' || half.includes(value)
 }
 
-/** Intent: the reference model's restriction in force, from the selection, key and mode alone. */
+/** The reference model's restriction in force, from the selection, key and mode alone. */
 function modelInForce(
   selection: PresetSelection,
   key: PitchClass,
@@ -117,10 +117,10 @@ type Step =
   | { readonly kind: 'choose'; readonly preset: Preset }
   | { readonly kind: 'change'; readonly change: SettingChange; readonly after: PresetSettings }
 
-/** Intent: one random step from the current settings, every kind about as likely. */
+/** One random step from the current settings, every kind about as likely. */
 function randomStep(random: Mulberry32Generator, settings: PresetSettings): Step {
   const { controls, levels } = settings
-  /** Intent: a change step, the settings after it being the current ones with `after` laid over. */
+  /** A change step, the settings after it being the current ones with `after` laid over. */
   const change = (change: SettingChange, after: Partial<PresetSettings>): Step => ({
     kind: 'change',
     change,
@@ -167,7 +167,7 @@ function randomStep(random: Mulberry32Generator, settings: PresetSettings): Step
   }
 }
 
-/** Intent: the reference model's selection after a change, never comparing values. */
+/** The reference model's selection after a change, never comparing values. */
 function modelSelectionAfter(selection: PresetSelection, change: SettingChange): PresetSelection {
   if (selection.kind === 'custom' || change.kind === 'notPresetHeld') return selection
   const custom: PresetSelection = { kind: 'custom', baseId: selection.presetId }
@@ -175,7 +175,7 @@ function modelSelectionAfter(selection: PresetSelection, change: SettingChange):
   return modelInForce(selection, change.key, change.mode) === null ? custom : selection
 }
 
-/** Intent: check what choosing a preset did against the reference model. */
+/** Check what choosing a preset did against the reference model. */
 function expectChosen(
   before: { readonly settings: PresetSettings; readonly selection: PresetSelection },
   preset: Preset,

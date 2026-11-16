@@ -147,7 +147,7 @@ const MAX_SHORTFALL_LINES = 5
 export const NO_ORDERINGS_NOTE = 'no attempt reports ordering time'
 
 /**
- * Intent: a configuration's readable label, e.g. `jam 120 BPM lock off warm no block seventh
+ * A configuration's readable label, e.g. `jam 120 BPM lock off warm no block seventh
  * chords Off`.
  */
 export function configurationLabel(key: ConfigurationKey): string {
@@ -157,9 +157,9 @@ export function configurationLabel(key: ConfigurationKey): string {
   return `${key.mode} ${key.tempo} BPM ${lock} ${key.domain} ${key.steering ? 'with block' : 'no block'} seventh chords ${SEVENTH_LEVEL_NAMES[key.level]}`
 }
 
-/** Intent: a Jam's phrase 1 over the Jams, by the rung that made it (null: it never came). */
+/** A Jam's phrase 1 over the Jams, by the rung that made it (null: it never came). */
 export function rungShares(rungs: readonly (LadderRung | null)[]): RungShares {
-  /** Intent: the Jams whose phrase 1 came from one rung (null: never came), as a share. */
+  /** The Jams whose phrase 1 came from one rung (null: never came), as a share. */
   const count = (rung: LadderRung | null): Share =>
     shareOf(rungs.filter((each) => each === rung).length, rungs.length)
   return {
@@ -170,7 +170,7 @@ export function rungShares(rungs: readonly (LadderRung | null)[]): RungShares {
   }
 }
 
-/** Intent: the slowest and nearest-rank 95th-percentile of some times, null with none. */
+/** The slowest and nearest-rank 95th-percentile of some times, null with none. */
 function slowestAndP95(values: readonly number[]): {
   p95Seconds: number | null
   slowestSeconds: number | null
@@ -182,7 +182,7 @@ function slowestAndP95(values: readonly number[]): {
 }
 
 /**
- * Intent: the `generatePhrase` times of some attempts and the share spent ordering candidates:
+ * The `generatePhrase` times of some attempts and the share spent ordering candidates:
  * the sum of the ordering times over the sum of every attempt's time, null (with a note) when no
  * attempt reports an ordering time.
  */
@@ -205,7 +205,7 @@ export function attemptTimings(attempts: readonly AttemptRecord[]): AttemptTimin
 }
 
 /**
- * Intent: the standalone attempts among some (a look-ahead phrase's standalone step, a Jam phrase
+ * The standalone attempts among some (a look-ahead phrase's standalone step, a Jam phrase
  * 1's rung 3): their times, and how many were charged more than the standalone reserve.
  */
 export function standaloneFigures(attempts: readonly AttemptRecord[]): StandaloneFigures {
@@ -234,10 +234,10 @@ export class ConfigurationTally {
   private readonly census = new LockCensusTally()
   private readonly phraseTwo = new Map<string, PhraseTwoByDoodle>()
 
-  /** Intent: start the tally of one configuration. */
+  /** Start the tally of one configuration. */
   constructor(readonly key: ConfigurationKey) {}
 
-  /** Intent: add one run of this configuration, and the wall time it took to play. */
+  /** Add one run of this configuration, and the wall time it took to play. */
   add(record: JamRunRecord, seconds: number): void {
     if (record.mode !== this.key.mode || record.tempo !== this.key.tempo)
       throw new Error(`A ${record.mode} ${record.tempo} BPM run was added to ${this.label()}.`)
@@ -262,7 +262,7 @@ export class ConfigurationTally {
       this.addPhraseTwo(record.doodle, record.instrument, record.phraseTwoOrigin)
   }
 
-  /** Intent: count one steered Jam's phrase 2 under its doodle and instrument. */
+  /** Count one steered Jam's phrase 2 under its doodle and instrument. */
   private addPhraseTwo(doodle: string, instrument: string, origin: string): void {
     const key = `${doodle} on ${instrument}`
     const was = this.phraseTwo.get(key) ?? { doodle, instrument, jams: 0, standalone: 0, repeat: 0 }
@@ -274,18 +274,18 @@ export class ConfigurationTally {
     })
   }
 
-  /** Intent: the configuration's label. */
+  /** The configuration's label. */
   label(): string {
     return configurationLabel(this.key)
   }
 
-  /** Intent: a Jam's phrase-1 figures so far, null in session mode. */
+  /** A Jam's phrase-1 figures so far, null in session mode. */
   private phraseOne(): ConfigurationFigures['phraseOne'] {
     if (this.key.mode !== 'jam') return null
     const byMeasures: Record<string, number> = {}
     for (const wait of this.waits) byMeasures[String(wait)] = (byMeasures[String(wait)] ?? 0) + 1
     const phraseOne = this.attempts.filter((attempt) => attempt.phraseNumber === 1)
-    /** Intent: the timings of phrase 1's attempts of one rung. */
+    /** The timings of phrase 1's attempts of one rung. */
     const ofRung = (rung: LadderRung): AttemptTimings =>
       attemptTimings(phraseOne.filter((attempt) => attempt.kind === rung))
     return {
@@ -303,14 +303,14 @@ export class ConfigurationTally {
     }
   }
 
-  /** Intent: the lock census's figures so far, null with the lock off. */
+  /** The lock census's figures so far, null with the lock off. */
   private lockCensus(): JamLockFigures | null {
     if (!this.key.lock.on) return null
     const figures = this.census.figures()
     return { ...figures, forcedBendRate: figures.shares.bent, changesShare: figures.shares.changed }
   }
 
-  /** Intent: the configuration's figures so far. */
+  /** The configuration's figures so far. */
   figures(): ConfigurationFigures {
     return {
       label: this.label(),
@@ -334,23 +334,23 @@ export class ConfigurationTally {
   }
 }
 
-/** Intent: a share as a percentage with one decimal and its counts, or a dash with no total. */
+/** A share as a percentage with one decimal and its counts, or a dash with no total. */
 function percent(share: Share): string {
   const value = share.share === null ? '-' : `${(share.share * 100).toFixed(1)} %`
   return `${value} (${share.count}/${share.total})`
 }
 
-/** Intent: a time in seconds with three decimals, or a dash when there is none. */
+/** A time in seconds with three decimals, or a dash when there is none. */
 function secondsText(value: number | null): string {
   return value === null ? '-' : `${value.toFixed(3)} s`
 }
 
-/** Intent: a ratio as a percentage with one decimal, or a dash when it is null. */
+/** A ratio as a percentage with one decimal, or a dash when it is null. */
 function ratioText(value: number | null): string {
   return value === null ? '-' : `${(value * 100).toFixed(1)} %`
 }
 
-/** Intent: the readable summary of one configuration, every line prefixed `JAM-SWEEP [label]`. */
+/** The readable summary of one configuration, every line prefixed `JAM-SWEEP [label]`. */
 export function configurationSummaryLines(figures: ConfigurationFigures): readonly string[] {
   const prefix = `JAM-SWEEP [${figures.label}]`
   const { attempts, standalone } = figures

@@ -77,11 +77,11 @@ export class JamReplaySampler {
   ])
   private replayed: JamReplayFigures | undefined
 
-  /** Intent: a sampler keeping up to `perKind` phrases of each kind. */
+  /** A sampler keeping up to `perKind` phrases of each kind. */
   constructor(private readonly perKind: number = JAM_REPLAY_SAMPLE_PER_KIND) {}
 
   /**
-   * Intent: offer one Jam steered by its doodle, with the session it played and what its doodle
+   * Offer one Jam steered by its doodle, with the session it played and what its doodle
    * gave phrase 1 (for the probes of the rungs that did not make its phrase 1).
    */
   addJam(
@@ -108,7 +108,7 @@ export class JamReplaySampler {
     this.keep(later, sounded.get(2 + (kept % Math.max(1, record.phraseCount - 1))))
   }
 
-  /** Intent: keep, for each rung other than the one that made phrase 1, a probe of its attempt. */
+  /** Keep, for each rung other than the one that made phrase 1, a probe of its attempt. */
   private offerProbes(made: LadderRung | null, doodle: DoodlePhraseOne, sessionSeed: number): void {
     for (const [rung, probes] of this.probes) {
       if (rung === made || probes.length >= this.perKind) continue
@@ -123,7 +123,7 @@ export class JamReplaySampler {
     }
   }
 
-  /** Intent: the samples of a kind: its own, or a rung's probes when it never made phrase 1. */
+  /** The samples of a kind: its own, or a rung's probes when it never made phrase 1. */
   private samplesOf(kind: JamReplayKind): { samples: JamSample[]; probed: boolean } {
     const own = this.samples.get(kind)!
     const probes = this.probes.get(kind as LadderRung)
@@ -138,13 +138,13 @@ export class JamReplaySampler {
     }
   }
 
-  /** Intent: keep one phrase under a kind, unless the kind is full or there is no phrase. */
+  /** Keep one phrase under a kind, unless the kind is full or there is no phrase. */
   private keep(kind: JamReplayKind, sample: JamSample | undefined): void {
     const kept = this.samples.get(kind)!
     if (sample !== undefined && kept.length < this.perKind) kept.push(sample)
   }
 
-  /** Intent: replay every sample once (later calls give the same figures). */
+  /** Replay every sample once (later calls give the same figures). */
   replay(): JamReplayFigures {
     if (this.replayed !== undefined) return this.replayed
     const mismatchedKeys: string[] = []
@@ -168,7 +168,7 @@ export class JamReplaySampler {
 }
 
 /**
- * Intent: the readable replay lines of a configuration: the replays matched per kind, one sample
+ * The readable replay lines of a configuration: the replays matched per kind, one sample
  * key per kind sampled, and every key that did not match.
  */
 export function jamReplayLines(label: string, figures: JamReplayFigures): readonly string[] {

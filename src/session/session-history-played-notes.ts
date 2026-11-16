@@ -78,7 +78,7 @@ interface PlaceableRecord {
 }
 
 /**
- * Intent: the index of the recorded phrase whose span holds an onset: the last record started at
+ * The index of the recorded phrase whose span holds an onset: the last record started at
  * or before it, the last record taking every later onset. An onset before the first record's
  * start, or with no record, belongs to no phrase (-1).
  */
@@ -95,7 +95,7 @@ function phraseIndexAt(records: readonly PlaceableRecord[], onsetAt: AudioTime):
   return low - 1
 }
 
-/** Intent: the played notes grouped by the record that holds them, each group ordered by onset. */
+/** The played notes grouped by the record that holds them, each group ordered by onset. */
 // @spec-link [[rule_session_history_records_played_notes]]
 function notesByRecord(
   records: readonly PlaceableRecord[],
@@ -112,7 +112,7 @@ function notesByRecord(
 }
 
 /**
- * Intent: the records with their acknowledgements (arrival order, by phrase number) and their
+ * The records with their acknowledgements (arrival order, by phrase number) and their
  * played notes (by onset) filled in, each deep-frozen; a record that gains nothing is handed back
  * as it is. Acknowledgements of a phrase never recorded appear nowhere.
  */
@@ -136,13 +136,13 @@ export function withPlayedNotes<R extends PlaceableRecord>(
   })
 }
 
-/** Intent: the key one played note's identity (its pitch and onset) is matched by. */
+/** The key one played note's identity (its pitch and onset) is matched by. */
 function identityKey(note: PlayedNoteIdentity): string {
   return `${note.pitch}@${note.onsetAt}`
 }
 
 /**
- * Intent: the played notes the doodle names (one per identity, matched on its pitch and its exact
+ * The played notes the doodle names (one per identity, matched on its pitch and its exact
  * onset), by onset, ties in arrival order; a named note not yet recorded as finished is not there
  * yet. Frozen.
  */
@@ -160,7 +160,7 @@ export function doodlePlayedNotes(
 const DOODLE_SIXTEENTHS_PER_QUARTER = 4
 
 /**
- * Intent: the doodle's raw notes its export section holds: those whose onset could snap inside
+ * The doodle's raw notes its export section holds: those whose onset could snap inside
  * the doodle, from a sixteenth note before its first barline to its end barline. A kept Jam
  * session read back holds as raw doodle notes every note kept before phrase 1; any other there (a
  * count-in note) is left out, as every note played before phrase 1 is.

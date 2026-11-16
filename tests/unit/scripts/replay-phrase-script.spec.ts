@@ -91,7 +91,7 @@ const RECORDED_IFK2_KEY = [
   '0cnVlLDEsbnVsbCxbIk15IGhvcm4gaW4gQSIsNDUsODEsMywyXV0',
 ].join('')
 
-/** Intent: run the script with the given arguments and stdin, capturing its output. */
+/** Run the script with the given arguments and stdin, capturing its output. */
 function runScript(args: readonly string[], input?: string): SpawnSyncReturns<string> {
   return spawnSync(process.execPath, ['scripts/replay-phrase.mjs', ...args], {
     cwd: REPO_ROOT,
@@ -101,7 +101,7 @@ function runScript(args: readonly string[], input?: string): SpawnSyncReturns<st
   })
 }
 
-/** Intent: assert a run exited 0 and printed a complete report for KEY; return its stdout. */
+/** Assert a run exited 0 and printed a complete report for KEY; return its stdout. */
 function expectCompleteReport(run: SpawnSyncReturns<string>): string {
   expect(run.stderr).toBe('')
   expect(run.status).toBe(0)

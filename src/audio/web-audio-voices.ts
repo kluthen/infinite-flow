@@ -75,13 +75,13 @@ const HIGHEST_PITCH = 127
 // @spec-link [[rule_guide_same_pitch_reattack]]
 const REATTACK_FADE_SECONDS = 0.015
 
-/** Intent: throw unless `value`, named `what`, is a finite number. */
+/** Throw unless `value`, named `what`, is a finite number. */
 export function assertFinite(value: number, what: string): void {
   if (!Number.isFinite(value)) throw new Error(`${what} must be a finite number, got ${value}`)
 }
 
 /**
- * Intent: sound one click at `click.at` into `destination`: an oscillator at the beat's pitch,
+ * Sound one click at `click.at` into `destination`: an oscillator at the beat's pitch,
  * shaped by its own envelope gain, both unhooked once the oscillator has ended.
  */
 // @spec-link [[rule_click_track]]
@@ -117,7 +117,7 @@ export function soundClick(
   oscillator.stop(click.at + CLICK_VOICE.stopSeconds)
 }
 
-/** Intent: the equal-tempered frequency of a MIDI pitch, A4 (69) at 440 Hz. */
+/** The equal-tempered frequency of a MIDI pitch, A4 (69) at 440 Hz. */
 function midiFrequency(pitch: number): number {
   return 440 * 2 ** ((pitch - 69) / 12)
 }
@@ -130,7 +130,7 @@ interface SoundedNote {
 }
 
 /**
- * Intent: throw unless `note`, a note of `what`, can sound in `voice`: finite times, an end after
+ * Throw unless `note`, a note of `what`, can sound in `voice`: finite times, an end after
  * its start, a whole MIDI pitch from 0 to 127, and, for a voice whose release ends at the note's
  * end, room for the attack and the release inside the note. A voice whose release starts at the
  * note's end has no shortest note.
@@ -168,7 +168,7 @@ export interface SoundingNote {
 }
 
 /**
- * Intent: sound one note of a role from `note.at` into `destination`: an oscillator at the note's
+ * Sound one note of a role from `note.at` into `destination`: an oscillator at the note's
  * pitch in its voice's waveform, shaped by its own envelope gain, both unhooked once the
  * oscillator has ended. The envelope rises linearly from silence to the voice's peak over its
  * attack, holds, then falls exponentially over its release: a release that ends at the note's end
@@ -212,7 +212,7 @@ export function soundNote(
 }
 
 /**
- * Intent: cut a sounding note's envelope at `at`, keeping its curve exactly up to there. The cut
+ * Cut a sounding note's envelope at `at`, keeping its curve exactly up to there. The cut
  * (`cancelScheduledValues`) removes every envelope event from `at` on, a ramp ending later
  * included, so the part of the curve before `at` is laid again: the attack's linear rise, or the
  * release's exponential fall (the same curve, ending at its own level at `at`), or nothing during
@@ -238,7 +238,7 @@ function cutEnvelopeAt(note: SoundingNote, at: AudioTime): void {
 }
 
 /**
- * Intent: fade a guide's still-ringing note out quickly from `at`, where that guide starts a new
+ * Fade a guide's still-ringing note out quickly from `at`, where that guide starts a new
  * note on its pitch: from the level its envelope holds then to silence over
  * `REATTACK_FADE_SECONDS`, its oscillator stopping there. A note whose release is over by the end
  * of that fade is left as it is.
@@ -253,7 +253,7 @@ export function fadeRingingNote(ringing: SoundingNote, at: AudioTime): void {
 }
 
 /**
- * Intent: sound one backing note in its voice into `destination`, its release ending at the
+ * Sound one backing note in its voice into `destination`, its release ending at the
  * note's end as it always has. Throws on a note that cannot sound.
  */
 // @spec-link [[req_session_backing_track]]

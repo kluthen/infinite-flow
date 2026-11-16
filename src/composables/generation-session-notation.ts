@@ -33,7 +33,7 @@ export type NotationActions = Pick<
 }
 
 /**
- * Intent: build the session's actions on the phrase the staff shows, over the shared state. Each
+ * Build the session's actions on the phrase the staff shows, over the shared state. Each
  * acts only at idle with a phrase present, except clearing, which always discards the phrase.
  */
 export function createNotationActions<TResult>(
@@ -74,7 +74,7 @@ export function createNotationActions<TResult>(
   }
 
   /**
-   * Intent: draw the phrase on screen again, as it is, in the clef its instrument has now (a clef
+   * Draw the phrase on screen again, as it is, in the clef its instrument has now (a clef
    * changed alone keeps the phrase): no new phrase, no new seed. Only at idle with a phrase shown.
    */
   // @spec-link [[req_my_instrument]]

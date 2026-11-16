@@ -64,17 +64,17 @@ const FLAT_IONIAN_TONICS: readonly SpelledPitchClass[] = [
   { letter: 'C', alter: -1 },
 ]
 
-/** Intent: normalize any integer pitch class into the closed 0..11 PitchClassNumber range. */
+/** Normalize any integer pitch class into the closed 0..11 PitchClassNumber range. */
 function normalizePitchClass(value: number): PitchClassNumber {
   return (((value % 12) + 12) % 12) as PitchClassNumber
 }
 
-/** Intent: reduce a semitone difference to its unique representative in the -6..5 range. */
+/** Reduce a semitone difference to its unique representative in the -6..5 range. */
 function normalizeAlterRange(diff: number): number {
   return ((((diff + 6) % 12) + 12) % 12) - 6
 }
 
-/** Intent: return the natural (no-accidental) pitch class of a written letter. */
+/** Return the natural (no-accidental) pitch class of a written letter. */
 // @spec-link [[module_notation_display_convention]]
 export function naturalPitchClassOf(letter: Letter): PitchClassNumber {
   return NATURAL_PC[letter]
@@ -97,13 +97,13 @@ export const CLEF_STAFF_LINES: Readonly<Record<InstrumentClef, ClefStaffLines>> 
   bass: Object.freeze({ topLineStep: 5 + 7 * 3, middleLineStep: 1 + 7 * 3 }),
 })
 
-/** Intent: a written pitch's diatonic step count from C0, read from its letter and octave only. */
+/** A written pitch's diatonic step count from C0, read from its letter and octave only. */
 function diatonicStepOf(pitch: SpelledPitch): number {
   return LETTERS.indexOf(pitch.letter) + 7 * pitch.octave
 }
 
 /**
- * Intent: the staff position of a written pitch as diatonic steps from the middle line of its
+ * The staff position of a written pitch as diatonic steps from the middle line of its
  * clef (B4 in treble, D3 in bass): 0 on it, positive above, negative below. Read from the written
  * letter and octave, so the accidental never moves it (B♯3 sits below C4, C♭5 above B4).
  */
@@ -112,7 +112,7 @@ export function staffStepsFromMiddleLine(pitch: SpelledPitch, clef: InstrumentCl
   return diatonicStepOf(pitch) - CLEF_STAFF_LINES[clef].middleLineStep
 }
 
-/** Intent: render one spelled pitch class as 'F♯', 'B♭', 'C', 'D𝄪', 'E𝄫'. */
+/** Render one spelled pitch class as 'F♯', 'B♭', 'C', 'D𝄪', 'E𝄫'. */
 // @spec-link [[module_notation_display_convention]]
 export function pitchClassText(p: SpelledPitchClass): string {
   const suffix =
@@ -120,7 +120,7 @@ export function pitchClassText(p: SpelledPitchClass): string {
   return `${p.letter}${suffix}`
 }
 
-/** Intent: name the displayed accidental sign carried by a semitone alteration. */
+/** Name the displayed accidental sign carried by a semitone alteration. */
 // @spec-link [[module_notation_display_convention]]
 export function displayedAccidentalOf(alter: Alter): DisplayedAccidental {
   switch (alter) {
@@ -143,7 +143,7 @@ interface CandidateScale {
 }
 
 /**
- * Intent: build the consecutive-letter scale candidate for one tonic letter, or null when any
+ * Build the consecutive-letter scale candidate for one tonic letter, or null when any
  * degree (including the tonic itself) would need more than a double sharp/flat to spell.
  */
 function buildCandidate(
@@ -165,7 +165,7 @@ function buildCandidate(
   return { degrees, count }
 }
 
-/** Intent: enumerate every tonic-letter candidate whose tonic alteration stays within -2..2. */
+/** Enumerate every tonic-letter candidate whose tonic alteration stays within -2..2. */
 function candidatesForTonic(
   writtenTonic: PitchClassNumber,
   offsets: readonly number[],
@@ -181,7 +181,7 @@ function candidatesForTonic(
 }
 
 /**
- * Intent: choose the fewest-accidental candidate scale, breaking ties in favor of the
+ * Choose the fewest-accidental candidate scale, breaking ties in favor of the
  * no-flats (sharp) representation, and crashing on a genuine ambiguity that must not occur.
  */
 function chooseCandidate(candidates: readonly CandidateScale[]): CandidateScale {
@@ -203,7 +203,7 @@ interface StandardSignature {
 }
 
 /**
- * Intent: verify a candidate scale's non-zero alters form a standard key signature (all +1
+ * Verify a candidate scale's non-zero alters form a standard key signature (all +1
  * following the sharp order, or all -1 following the flat order) and describe that signature.
  */
 function standardSignatureOf(degrees: readonly SpelledPitchClass[]): StandardSignature {
@@ -228,14 +228,14 @@ function standardSignatureOf(degrees: readonly SpelledPitchClass[]): StandardSig
   return { accidental: allSharp ? 'sharp' : 'flat', count, letters: expected }
 }
 
-/** Intent: look up the Ionian tonic sharing a standard signature's sharp/flat count. */
+/** Look up the Ionian tonic sharing a standard signature's sharp/flat count. */
 function ionianTonicFor(signature: StandardSignature): SpelledPitchClass {
   if (signature.accidental === 'flat') return FLAT_IONIAN_TONICS[signature.count]!
   return SHARP_IONIAN_TONICS[signature.count]!
 }
 
 /**
- * Intent: derive the written key for a written tonal center and its (unchanged) collection —
+ * Derive the written key for a written tonal center and its (unchanged) collection —
  * the fewest-accidental enharmonic spelling, sharp on a tie — and its standard key signature.
  */
 // @spec-link [[module_notation_display_convention]]
@@ -263,7 +263,7 @@ export function spellWrittenKey(
   }
 }
 
-/** Intent: find the written letter whose natural pitch class matches a given white-key pitch class. */
+/** Find the written letter whose natural pitch class matches a given white-key pitch class. */
 function whiteLetterFor(pc: PitchClassNumber): Letter {
   const found = LETTERS.find((letter) => NATURAL_PC[letter] === pc)
   if (found === undefined) {
@@ -273,7 +273,7 @@ function whiteLetterFor(pc: PitchClassNumber): Letter {
 }
 
 /**
- * Intent: spell a pitch class in a written key — its in-scale spelling when it is one of the
+ * Spell a pitch class in a written key — its in-scale spelling when it is one of the
  * key's seven scale degrees, otherwise the documented chromatic rule (natural letter for a white
  * key; the flat of the letter above for a black key when the key's signature is flat, otherwise
  * the sharp of the letter below).
@@ -295,7 +295,7 @@ export function spellPitchClassInKey(pc: PitchClassNumber, key: WrittenKey): Spe
 }
 
 /**
- * Intent: spell an absolute MIDI pitch in a written key, deriving the written octave from the
+ * Spell an absolute MIDI pitch in a written key, deriving the written octave from the
  * chosen letter and alteration so that, for example, B♯3 and C♭5 both resolve to MIDI 60 and 71.
  * Rejects a non-integer MIDI value.
  */

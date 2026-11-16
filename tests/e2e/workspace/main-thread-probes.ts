@@ -35,7 +35,7 @@ export interface TimedEntry {
   readonly duration: number
 }
 
-/** Intent: install the long-task, long-frame and heartbeat probes before any app script runs. */
+/** Install the long-task, long-frame and heartbeat probes before any app script runs. */
 export async function installMainThreadProbes(page: Page): Promise<void> {
   await page.addInitScript(() => {
     const probes: NonNullable<Window['__mainThread']> = {
@@ -74,7 +74,7 @@ export async function installMainThreadProbes(page: Page): Promise<void> {
   })
 }
 
-/** Intent: start the zero-delay heartbeat that measures how long a main-thread timer could wait. */
+/** Start the zero-delay heartbeat that measures how long a main-thread timer could wait. */
 export async function startHeartbeat(page: Page): Promise<void> {
   await page.evaluate(() => {
     const beat = window.__mainThread?.heartbeat
@@ -93,7 +93,7 @@ export async function startHeartbeat(page: Page): Promise<void> {
   })
 }
 
-/** Intent: name the longest attributed script of a set, so a long frame can be traced to its cause. */
+/** Name the longest attributed script of a set, so a long frame can be traced to its cause. */
 export function describeLongestScript(
   scripts: readonly { duration: number; invoker: string; invokerType: string }[],
 ): string {

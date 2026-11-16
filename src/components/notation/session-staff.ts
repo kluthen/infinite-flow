@@ -54,7 +54,7 @@ const IDLE_PARTS: Readonly<
 }
 
 /**
- * Intent: the slot a position shows at Idle: the phrase on the top system in the one-system
+ * The slot a position shows at Idle: the phrase on the top system in the one-system
  * layout (the bottom position blank), or its opening above its closing in the split layout.
  */
 // @spec-link [[module_session_staff_refill]]
@@ -69,7 +69,7 @@ export function idleSlot(
 }
 
 /**
- * Intent: the comparison key of the inputs a system is engraved with: the container width, the
+ * The comparison key of the inputs a system is engraved with: the container width, the
  * viewport drawn in and the shared system-position size (the built-in one by default), so an Idle
  * engraving and a session's, in the same layout, compare equal.
  */
@@ -82,14 +82,14 @@ export function engravingKey(
   return `${containerWidthPx}|${viewport.layout}|${viewport.heightBudgetPx ?? 'none'}|${systemPositionUnits}`
 }
 
-/** Intent: the key of the slot a position shows, or null for a blank position. */
+/** The key of the slot a position shows, or null for a blank position. */
 // @spec-link [[module_session_staff_refill]]
 export function positionKey(slot: SystemSlot | null): string | null {
   return slot === null ? null : slotKey(slot)
 }
 
 /**
- * Intent: a system of the phrase the hidden score description follows: the playhead's phrase, or
+ * A system of the phrase the hidden score description follows: the playhead's phrase, or
  * the top system's during the count-in (null with a blank top). A playhead whose phrase no
  * position shows is the caller's error.
  */
@@ -105,7 +105,7 @@ export function describedSessionSystem(staff: SessionStaff): SessionSystem | nul
 }
 
 /**
- * Intent: the overlay state of phrase `phraseNumber` on screen during a session: no start marker,
+ * The overlay state of phrase `phraseNumber` on screen during a session: no start marker,
  * the playhead band only when the playhead is in this phrase, and the acknowledged notes the
  * caller found on its systems.
  */

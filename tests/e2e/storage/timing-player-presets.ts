@@ -87,7 +87,7 @@ const PRESET_NAME_STEMS = [
 const PRESET_NAME_MAX_LENGTH = 40
 
 /**
- * Intent: player preset `index` (from 0): `player-{index + 1}`, a numbered name of at most 40
+ * Player preset `index` (from 0): `player-{index + 1}`, a numbered name of at most 40
  * characters, its controls, levels and restriction cycled, so some carry a restriction; with
  * `withLevel`, its Seventh chords level cycled too, without it none given (as v3.2 stored them).
  */
@@ -107,7 +107,7 @@ export function timingPlayerPreset(index: number, withLevel: boolean): Workspace
 }
 
 /**
- * Intent: the counts a measurement runs on: `fallback`, or the comma-separated whole numbers of
+ * The counts a measurement runs on: `fallback`, or the comma-separated whole numbers of
  * the environment variable `name` when it is set (`MEASURE_SESSION_COUNTS=10` runs 10 kept
  * sessions only), for a quick check that the measurement runs. Anything else in it throws.
  */

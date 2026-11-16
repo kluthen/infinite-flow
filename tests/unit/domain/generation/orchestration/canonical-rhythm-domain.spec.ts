@@ -59,7 +59,7 @@ const CHEAP_CONTROLS = {
   instrumentProfileId: 'c-keyboard' as const,
 }
 
-/** Intent: build a real, cheap-to-search GenerationIntent for one seed against CHEAP_CONTROLS. */
+/** Build a real, cheap-to-search GenerationIntent for one seed against CHEAP_CONTROLS. */
 function buildCheapIntent(seed: number) {
   return createGenerationIntent({
     requestId: makeRequestId(`canonical-rhythm-domain-fixture-${seed}`),
@@ -70,7 +70,7 @@ function buildCheapIntent(seed: number) {
   })
 }
 
-/** Intent: assert a value is the materialized-domain branch, not the no-plan branch. */
+/** Assert a value is the materialized-domain branch, not the no-plan branch. */
 function expectDomain(
   domain: CanonicalRhythmDomain,
 ): Extract<CanonicalRhythmDomain, { kind: 'canonical_rhythm_domain' }> {
@@ -168,7 +168,7 @@ describe('canonical rhythm domain memo', () => {
 })
 
 /**
- * Intent: a builder factory whose first builder is the real one but throws on its `failAtStep`-th
+ * A builder factory whose first builder is the real one but throws on its `failAtStep`-th
  * step, like a grammar failing partway; every later builder is the untouched real one.
  */
 function failingFirstBuilder(failAtStep: number): RhythmDomainBuilderFactory {
@@ -189,7 +189,7 @@ function failingFirstBuilder(failAtStep: number): RhythmDomainBuilderFactory {
   }
 }
 
-/** Intent: the job a memo began, failing when it began none. */
+/** The job a memo began, failing when it began none. */
 function begun(job: CanonicalRhythmDomainBuildJob | undefined): CanonicalRhythmDomainBuildJob {
   if (job === undefined) throw new Error('Expected a build job.')
   return job

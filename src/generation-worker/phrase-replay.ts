@@ -21,7 +21,7 @@ const REPLAY_MESSAGE_ID = 1
 const KEY_TOKEN_PATTERN = /(?<![A-Za-z0-9_.-])ifk\d+\.[A-Za-z0-9_-]+(?![A-Za-z0-9_-])/gu
 
 /**
- * Intent: return the single phrase replay key token in a text, which may be the bare key or a
+ * Return the single phrase replay key token in a text, which may be the bare key or a
  * whole copied console line. Strict: a text holding no key token, or more than one, is rejected
  * as a PhraseReplayKeyError rather than guessed at.
  */
@@ -41,7 +41,7 @@ export function extractPhraseReplayKey(text: string): string {
 }
 
 /**
- * Intent: replay an already-decoded key through the generation worker runtime: build the generate
+ * Replay an already-decoded key through the generation worker runtime: build the generate
  * envelope, round-trip it through JSON as a worker message's structured clone would, hand it to a
  * fresh runtime's message handler (cold memo; replay never prewarms) and report its answer. A
  * generate message that yields no response breaks the worker protocol and throws.
@@ -71,7 +71,7 @@ export function replayDecodedPhraseKey(
 }
 
 /**
- * Intent: decode a phrase replay key and replay it through the generation worker runtime,
+ * Decode a phrase replay key and replay it through the generation worker runtime,
  * returning the full report. A malformed or unsupported key throws its typed error before any
  * generation runs.
  */

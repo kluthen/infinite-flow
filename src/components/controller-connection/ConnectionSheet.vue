@@ -49,7 +49,7 @@ const { model, dispatch } = useConnectionSheetDriver(props, () => emit('close'))
 const stage = computed(() => model.value.stage)
 
 /**
- * Intent: what `Use this for my instrument` would save for the check's result, shown or being
+ * What `Use this for my instrument` would save for the check's result, shown or being
  * confirmed; null when it is not offered (a match, or an instrument sounding outside MIDI notes 0
  * to 127) or no result shows.
  */
@@ -62,7 +62,7 @@ const offer = computed<UseForMyInstrument | null>(() => {
 })
 
 /**
- * Intent: the kept sessions of my instrument the offered use would erase: those counted, when it
+ * The kept sessions of my instrument the offered use would erase: those counted, when it
  * changes the transposition of the my instrument that exists; null when it erases none.
  */
 // @spec-link [[entity_my_instrument_record]]
@@ -108,7 +108,7 @@ const dialog = ref<HTMLElement | null>(null)
 const closeButton = ref<HTMLButtonElement | null>(null)
 
 /**
- * Intent: run a button's action (Close, Escape and the backdrop are `close`). The confirmed `Use
+ * Run a button's action (Close, Escape and the backdrop are `close`). The confirmed `Use
  * for my instrument` goes on to Connected and hands my instrument to the host to save.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
@@ -132,7 +132,7 @@ function act(action: SheetButtonAction): void {
 }
 
 /**
- * Intent: `Use and erase`: save and select my instrument erasing `sessions` in one batch, then go
+ * `Use and erase`: save and select my instrument erasing `sessions` in one batch, then go
  * on to Connected; refused, stay with the error line; saving off, back to the result.
  */
 // @spec-link [[rule_transposition_check_sets_my_instrument]]
@@ -160,25 +160,25 @@ watch(
   { flush: 'sync' },
 )
 
-/** Intent: a click on the backdrop itself (not inside the sheet) closes the sheet. */
+/** A click on the backdrop itself (not inside the sheet) closes the sheet. */
 // @spec-link [[rule_controller_connects_between_sessions]]
 function handleBackdropClick(event: MouseEvent): void {
   if (event.target === event.currentTarget) act('close')
 }
 
-/** Intent: the player chose a device in the picker. */
+/** The player chose a device in the picker. */
 // @spec-link [[req_midi_controller_input]]
 function choose(deviceId: string): void {
   dispatch({ kind: 'choose', deviceId })
 }
 
-/** Intent: the rendered dialog; asking for it while it is not rendered is a bug. */
+/** The rendered dialog; asking for it while it is not rendered is a bug. */
 function dialogElement(): HTMLElement {
   if (dialog.value === null) throw new Error('connection sheet: the dialog is not rendered')
   return dialog.value
 }
 
-/** Intent: the element the current state's focus goes to (see sheetFocusTarget). */
+/** The element the current state's focus goes to (see sheetFocusTarget). */
 function mainFocusTarget(): HTMLElement | null {
   const target = sheetFocusTarget(stage.value, actions.value)
   switch (target.kind) {
@@ -194,7 +194,7 @@ function mainFocusTarget(): HTMLElement | null {
   }
 }
 
-/** Intent: move focus to the current state's main action, else to Close. */
+/** Move focus to the current state's main action, else to Close. */
 // @spec-link [[rule_controller_connects_between_sessions]]
 function focusMain(): void {
   const target = mainFocusTarget()
@@ -202,13 +202,13 @@ function focusMain(): void {
   target.focus()
 }
 
-/** Intent: the sheet's tab stops, in order: Close, the body's tab stop, the actions. */
+/** The sheet's tab stops, in order: Close, the body's tab stop, the actions. */
 function tabStops(): HTMLElement[] {
   const selector = 'button:not([disabled]):not([tabindex="-1"])'
   return Array.from(dialogElement().querySelectorAll<HTMLElement>(selector))
 }
 
-/** Intent: Tab and Shift+Tab cycle through the sheet's tab stops, wrapping at both ends. */
+/** Tab and Shift+Tab cycle through the sheet's tab stops, wrapping at both ends. */
 // @spec-link [[rule_controller_connects_between_sessions]]
 function cycleFocus(direction: 1 | -1): void {
   const stops = tabStops()
@@ -219,7 +219,7 @@ function cycleFocus(direction: 1 | -1): void {
   next.focus()
 }
 
-/** Intent: while the sheet is open, Escape closes it and Tab stays trapped in it. */
+/** While the sheet is open, Escape closes it and Tab stays trapped in it. */
 // @spec-link [[rule_controller_connects_between_sessions]]
 function handleKeydown(event: KeyboardEvent): void {
   if (stage.value.kind === 'closed') return
@@ -232,18 +232,18 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 }
 
-/** Intent: on open, listen for Escape and Tab and focus the opening state's main action. */
+/** On open, listen for Escape and Tab and focus the opening state's main action. */
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
   if (stage.value.kind !== 'closed') focusMain()
 })
 
-/** Intent: stop listening for keys once the sheet leaves the page. */
+/** Stop listening for keys once the sheet leaves the page. */
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
 })
 
-/** Intent: on every state change (a check result included), focus the new state's main action. */
+/** On every state change (a check result included), focus the new state's main action. */
 // @spec-link [[rule_controller_connects_between_sessions]]
 watch(
   stage,

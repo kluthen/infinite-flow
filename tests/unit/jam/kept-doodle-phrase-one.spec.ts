@@ -33,7 +33,7 @@ const NO_LEGAL_PLAN: PhraseOneAttemptResult = {
   code: 'no_legal_pitch_plan',
 }
 
-/** Intent: a climb over counted seams, the window below the tablet width while `below` says so. */
+/** A climb over counted seams, the window below the tablet width while `below` says so. */
 function climbOf(doodle = KEPT_DOODLE.quantized, below = { now: false }) {
   const counts = { id: 0, seed: 0 }
   const climb = climbKeptDoodleLadder(doodle, JAM, {

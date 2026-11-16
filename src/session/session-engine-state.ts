@@ -102,7 +102,7 @@ export interface Step {
   readonly outputs: readonly SessionOutput[]
 }
 
-/** Intent: the look-ahead of a state, which the caller has established exists. */
+/** The look-ahead of a state, which the caller has established exists. */
 // @spec-link [[service_session_engine]]
 export function lookAheadOf(state: EngineState): LookAhead {
   if (state.lookAhead === undefined)
@@ -110,7 +110,7 @@ export function lookAheadOf(state: EngineState): LookAhead {
   return state.lookAhead
 }
 
-/** Intent: the decided phrase not yet sounding, which the caller has established exists. */
+/** The decided phrase not yet sounding, which the caller has established exists. */
 // @spec-link [[rule_session_change_applies_at_phrase_boundary]]
 export function decidedOf(state: EngineState): DecidedPhrase {
   if (state.decided === undefined)
@@ -119,7 +119,7 @@ export function decidedOf(state: EngineState): DecidedPhrase {
 }
 
 /**
- * Intent: take back the decision of the phrase not yet sounding, as if it was never decided: the
+ * Take back the decision of the phrase not yet sounding, as if it was never decided: the
  * phrase before is the latest decided again, with its settings, and the notice and the rhythm lock
  * state are as they were, so a discarded re-lock phrase leaves the re-lock pending.
  */
@@ -139,7 +139,7 @@ export function undecide(state: EngineState): EngineState {
 }
 
 /**
- * Intent: decide the look-ahead phrase: it is the next one to show, generated under its basis's
+ * Decide the look-ahead phrase: it is the next one to show, generated under its basis's
  * settings (a repeat under those of the phrase it repeats), the notice learns of it, and a re-lock
  * phrase's bars become the locked ones. Its look-ahead, the notice and the rhythm lock state
  * before are kept until it sounds, for a settings change to discard it.

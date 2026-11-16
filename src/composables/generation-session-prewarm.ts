@@ -56,7 +56,7 @@ export const FIRST_VISIT_RHYTHM_VALUES: DoodleRhythmValues = deepFreeze({
 })
 
 /**
- * Intent: the controls a prewarm for a doodle's rhythm is built from: the current controls with the
+ * The controls a prewarm for a doodle's rhythm is built from: the current controls with the
  * doodle's four rhythm values and Jam's tension in place of their own, every other control kept.
  */
 // @spec-link [[module_generation_prewarm]]
@@ -90,7 +90,7 @@ export type RhythmPrewarmTrigger = (
 ) => void
 
 /**
- * Intent: the rhythm setting of an intent, as the dedupe key: the same five controls the worker's
+ * The rhythm setting of an intent, as the dedupe key: the same five controls the worker's
  * rhythm-domain memo is keyed by (`rhythmDomainInputOf` in generation-orchestrator.ts, not imported
  * here so the page bundle never pulls in the generator; a unit test pins the two together).
  */
@@ -107,7 +107,7 @@ export function rhythmSettingKeyOf(intent: GenerationIntent): string {
 }
 
 /**
- * Intent: build a trigger that posts one prewarm whenever the rhythm setting it is given differs
+ * Build a trigger that posts one prewarm whenever the rhythm setting it is given differs
  * from the last one it posted (the first call always posts), so a non-rhythm edit (tonal center,
  * tempo, contour...) and a width crossing that leaves the generated density unchanged post nothing.
  * My instrument's profile goes into the intent as data, never looked up by its id. The intent's

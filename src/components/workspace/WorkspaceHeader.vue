@@ -108,7 +108,7 @@ const PRIMARY_ACTION_LABEL: Readonly<Record<PrimaryActionKind, string>> = {
 const state = computed(() => props.session.state)
 
 /**
- * Intent: Jam mode shows (not while it opens, when both actions keep session mode's labels and
+ * Jam mode shows (not while it opens, when both actions keep session mode's labels and
  * emphasis).
  */
 // @spec-link [[module_workspace_mode]]
@@ -130,7 +130,7 @@ const jamWithoutDoodle = computed(() => jamShowing.value && jamPhrase.value === 
 const shownIdle = computed(() => jamPhrase.value?.state ?? state.value)
 
 /**
- * Intent: name which of the four phrase-action labels the Idle phrase shown calls for. Under the
+ * Name which of the four phrase-action labels the Idle phrase shown calls for. Under the
  * room notice no phrase is kept, yet the action is `Regenerate phrase` (a new phrase, which under
  * the too-many-notes cause starts a round), unless a generation-failure banner shows.
  */
@@ -145,7 +145,7 @@ const primaryActionKind = computed<PrimaryActionKind>(() => {
 })
 
 /**
- * Intent: Jam's staff shows a notation error at Jam mode's Idle: the phrase action is `Retry
+ * Jam's staff shows a notation error at Jam mode's Idle: the phrase action is `Retry
  * notation`, enabled and primary, as in the action table's Notation error row.
  */
 // @spec-link [[module_workspace_mode]]
@@ -157,7 +157,7 @@ const jamRetriesNotation = computed(
     !reviewShowing.value,
 )
 
-/** Intent: the phrase action's label; in Jam mode `Generate phrase`, or its notation retry. */
+/** The phrase action's label; in Jam mode `Generate phrase`, or its notation retry. */
 const primaryActionLabel = computed(() => {
   if (jamRetriesNotation.value) return PRIMARY_ACTION_LABEL['retry-notation']
   if (jamWithoutDoodle.value) return PRIMARY_ACTION_LABEL.generate
@@ -190,7 +190,7 @@ const sessionActive = computed(
 
 /** True while the last session's Review shows, in place of the staff. */
 // @spec-link [[req_last_session_review]]
-/** Intent: the review mode shows: a Review, or the session list in its place. */
+/** The review mode shows: a Review, or the session list in its place. */
 const reviewShowing = computed(
   () =>
     props.controller?.state.review?.showing === true ||
@@ -215,7 +215,7 @@ const primaryActionDisabled = computed(() => {
 })
 
 /**
- * Intent: `Start session` is enabled only once the controller has loaded and every start
+ * `Start session` is enabled only once the controller has loaded and every start
  * condition holds; `Stop` is always enabled during a session, and `Close review` while the
  * Review shows.
  */
@@ -230,7 +230,7 @@ const sessionActionDisabled = computed(() => {
 })
 
 /**
- * Intent: what `Start Jam` names with `aria-describedby` at Jam mode's Idle: `jam-needs-controller`
+ * What `Start Jam` names with `aria-describedby` at Jam mode's Idle: `jam-needs-controller`
  * while the cue row holds it, else `jam-notice` while Jam's staff shows it; nothing otherwise.
  */
 // @spec-link [[module_workspace_mode]]
@@ -240,7 +240,7 @@ const sessionActionDescribedBy = computed(() => {
   return idle && props.jamNoticeShown ? JAM_NOTICE_ID : undefined
 })
 
-/** Intent: the session action's label: `Stop` in a session, `Close review` over the Review. */
+/** The session action's label: `Stop` in a session, `Close review` over the Review. */
 // @spec-link [[req_last_session_review]]
 const sessionActionLabel = computed(() => {
   if (sessionActive.value) return 'Stop'
@@ -249,7 +249,7 @@ const sessionActionLabel = computed(() => {
 })
 
 /**
- * Intent: which of the two slots carries the primary emphasis, by the handoff's action table; in
+ * Which of the two slots carries the primary emphasis, by the handoff's action table; in
  * Jam mode without a kept doodle, the session action, unless Jam's staff shows a notation error.
  */
 // @spec-link [[rule_session_start_conditions]]
@@ -269,7 +269,7 @@ const sessionActionPrimary = computed(() => {
 })
 
 /**
- * Intent: the tempo the header shows: the running session's locked tempo, else the control's,
+ * The tempo the header shows: the running session's locked tempo, else the control's,
  * Jam's own while Jam mode shows.
  */
 // @spec-link [[rule_session_settings_locked]]
@@ -277,7 +277,7 @@ const shownTempo = computed(
   () => props.controller?.state.sessionTempo ?? props.jamTempo ?? state.value.controls.tempo,
 )
 
-/** Intent: invoke whichever session action the current primary-action label calls for. */
+/** Invoke whichever session action the current primary-action label calls for. */
 // @spec-link [[user_story_controlled_phrase_generation]]
 function handlePrimaryAction(): void {
   if (primaryActionDisabled.value) return
@@ -297,7 +297,7 @@ function handlePrimaryAction(): void {
 }
 
 /**
- * Intent: the phrase action on Jam's phrase 1, writing from the kept doodle: `Regenerate phrase`
+ * The phrase action on Jam's phrase 1, writing from the kept doodle: `Regenerate phrase`
  * (`Generate phrase` alike), `Retry generation` or `Retry notation`.
  */
 // @spec-link [[user_story_controlled_phrase_generation]]
@@ -308,7 +308,7 @@ function actOnJamPhrase(actions: KeptDoodlePhraseView['actions']): void {
 }
 
 /**
- * Intent: ask for a session start (`Start session`), its end (`Stop`) or the Review's close
+ * Ask for a session start (`Start session`), its end (`Stop`) or the Review's close
  * (`Close review`), synchronously in the click.
  */
 // @spec-link [[rule_session_start_conditions]]
@@ -322,7 +322,7 @@ function handleSessionAction(): void {
 }
 
 /**
- * Intent: ask for the connection sheet from `controller-status`, synchronously in the click. During
+ * Ask for the connection sheet from `controller-status`, synchronously in the click. During
  * a session the button is disabled (a status display only), so no click reaches here.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
@@ -330,13 +330,13 @@ function handleControllerStatus(): void {
   emit('open-connection-sheet')
 }
 
-/** Intent: move focus to an action slot's button, which is always rendered. */
+/** Move focus to an action slot's button, which is always rendered. */
 function focusButton(button: HTMLButtonElement | null): void {
   if (button === null) throw new Error('workspace header: an action button is not mounted')
   button.focus()
 }
 
-/** Intent: move focus to `controller-status`, which is always rendered. */
+/** Move focus to `controller-status`, which is always rendered. */
 function focusControllerStatus(): void {
   if (controllerStatusButton.value === null)
     throw new Error('workspace header: controller-status is not mounted')
@@ -344,7 +344,7 @@ function focusControllerStatus(): void {
 }
 
 /**
- * Intent: after the connection sheet closes, by any path, focus the first enabled of the session
+ * After the connection sheet closes, by any path, focus the first enabled of the session
  * action, the phrase action and `controller-status`; while the Review shows, that is `Close
  * review`, always enabled then.
  */
@@ -363,7 +363,7 @@ function focusAfterConnectionSheet(): void {
 let refocusPhraseAction = false
 
 /**
- * Intent: the phrase action disabled while it has focus: a session start (the starting note)
+ * The phrase action disabled while it has focus: a session start (the starting note)
  * moves focus to `Stop` once drawn; a Loading moves nothing until it ends.
  */
 // @spec-link [[user_story_controlled_phrase_generation]]
@@ -378,7 +378,7 @@ watch(
 )
 
 /**
- * Intent: at that Loading's end, focus still on the phrase action or dropped to the page goes to
+ * At that Loading's end, focus still on the phrase action or dropped to the page goes to
  * it, else to the session action, else `controller-status`; focus moved elsewhere stays there.
  */
 // @spec-link [[user_story_controlled_phrase_generation]]
@@ -411,7 +411,7 @@ defineExpose({
   focusAfterConnectionSheet,
 })
 
-/** Intent: apply a manual or system theme choice; the session enforces this never reaches generation or engraving. */
+/** Apply a manual or system theme choice; the session enforces this never reaches generation or engraving. */
 function handleThemeSelect(theme: ThemePreference): void {
   props.session.actions.setTheme(theme)
 }

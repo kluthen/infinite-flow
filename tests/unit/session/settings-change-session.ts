@@ -17,7 +17,7 @@ import {
 } from './session-harness'
 import { FAST_TEMPO, fastDriver, soundingAt } from './scripted-session'
 
-/** Intent: fast-session settings with the given overrides. */
+/** Fast-session settings with the given overrides. */
 export function settingsWith(
   overrides: Partial<GenerationControls>,
 ): ReturnType<typeof sessionSettings> {
@@ -27,7 +27,7 @@ export function settingsWith(
 /** Settings that differ from the chosen ones in one control the carry-in never depends on. */
 export const SHAPED = settingsWith({ leapiness: 'Shaped' })
 
-/** Intent: a fast session with phrase 2 sounding and phrase 3 requested, still undecided. */
+/** A fast session with phrase 2 sounding and phrase 3 requested, still undecided. */
 export function threeRequested(onScreen = false): SessionDriver {
   const driver = fastDriver({ display: fakeDisplay(onScreen) })
   driver.accept(0.5)
@@ -36,20 +36,20 @@ export function threeRequested(onScreen = false): SessionDriver {
   return driver
 }
 
-/** Intent: a fast session with phrase 2 sounding and phrase 3 decided, not yet sounding. */
+/** A fast session with phrase 2 sounding and phrase 3 decided, not yet sounding. */
 export function threeDecided(onScreen = false): SessionDriver {
   const driver = threeRequested(onScreen)
   driver.accept(soundingAt(2) + 0.5)
   return driver
 }
 
-/** Intent: the carry-in phrase 3 receives from the phrase 2 a driver decided. */
+/** The carry-in phrase 3 receives from the phrase 2 a driver decided. */
 export function carryFromTwo(driver: SessionDriver): CarryIn {
   const two = driver.all('phrase-ready')[0]!.phrase
   return deriveCarryIn({ intent: two.intent, outcome: two.outcome, phraseNumber: 2 })
 }
 
-/** Intent: the request among some outputs, failing the assertion when there is none. */
+/** The request among some outputs, failing the assertion when there is none. */
 export function requestIn(outputs: readonly unknown[]): GenerationRequestOutput {
   const request = outputs.find(
     (output): output is GenerationRequestOutput =>

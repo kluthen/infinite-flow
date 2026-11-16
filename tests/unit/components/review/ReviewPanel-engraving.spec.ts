@@ -41,7 +41,7 @@ const SPLIT: StaffViewport = { layout: 'split', heightBudgetPx: 300 }
 const mounted: VueWrapper[] = []
 
 /**
- * Intent: mount the panel on the given records and viewport, attached to the document, its
+ * Mount the panel on the given records and viewport, attached to the document, its
  * played-notes tools shown when the records hold a played note and its lanes off unless asked.
  */
 function mountPanel(
@@ -78,7 +78,7 @@ function mountPanel(
 }
 
 /**
- * Intent: let every engraving the panel scheduled run to the end: rounds of a timer turn (the
+ * Let every engraving the panel scheduled run to the end: rounds of a timer turn (the
  * panel's turn between two engravings) and settled promises, until three rounds engrave nothing.
  */
 async function settle(): Promise<void> {
@@ -93,19 +93,19 @@ async function settle(): Promise<void> {
   }
 }
 
-/** Intent: scroll the page to put `index` at the top of the window, then deliver what changed. */
+/** Scroll the page to put `index` at the top of the window, then deliver what changed. */
 async function scrollToItem(index: number): Promise<void> {
   page.scrollTopPx = index * page.itemHeightPx
   deliverIntersections()
   await settle()
 }
 
-/** Intent: the phrase numbers the fake engraver was called for, in call order. */
+/** The phrase numbers the fake engraver was called for, in call order. */
 function engravedPhraseNumbers(): number[] {
   return fakePhraseEngraver.engraveWrittenPhrase.mock.calls.map((call) => call[2])
 }
 
-/** Intent: the items of the list holding an engraving now. */
+/** The items of the list holding an engraving now. */
 function engravedItems(wrapper: VueWrapper): number[] {
   const items = (wrapper.element as Element).querySelectorAll<HTMLElement>('.review-phrase')
   return Array.from(items).flatMap((item, index) =>

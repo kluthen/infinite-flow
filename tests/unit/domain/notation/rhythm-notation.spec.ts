@@ -326,7 +326,7 @@ describe('beamGroupsFor', () => {
   })
 })
 
-/** Intent: a tiny deterministic PRNG (mulberry32) so the property test is reproducible. */
+/** A tiny deterministic PRNG (mulberry32) so the property test is reproducible. */
 function mulberry32(seed: number): () => number {
   let state = seed >>> 0
   return () => {
@@ -337,7 +337,7 @@ function mulberry32(seed: number): () => number {
   }
 }
 
-/** Intent: build a measure whose events are arbitrary (not necessarily glyph-aligned) tick spans. */
+/** Build a measure whose events are arbitrary (not necessarily glyph-aligned) tick spans. */
 function randomMeasure(rand: () => number): Measure {
   const interiorCutCount = Math.floor(rand() * 5)
   const cuts = new Set<number>()
@@ -354,7 +354,7 @@ function randomMeasure(rand: () => number): Measure {
   return measureOf(events)
 }
 
-/** Intent: reproduce the brief's alignment table independently of the implementation under test. */
+/** Reproduce the brief's alignment table independently of the implementation under test. */
 function satisfiesAlignmentTable(ticksValue: number, startTick: number): boolean {
   switch (ticksValue) {
     case 16:

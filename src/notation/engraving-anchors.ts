@@ -39,7 +39,7 @@ export interface AnchoredSystem {
 }
 
 /**
- * Intent: read the anchors of one drawn system's measures, in phrase order, from their formatted
+ * Read the anchors of one drawn system's measures, in phrase order, from their formatted
  * glyphs (`glyphs[measureIndex][eventIndex]`, rests included) and their drawn boxes (one per
  * system measure, same order), scaling the glyphs' engraving units by the system's scale into the
  * boxes' CSS px frame. Reads only: it calls nothing that draws or formats, so the drawn SVG is the

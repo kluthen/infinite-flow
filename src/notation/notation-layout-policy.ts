@@ -178,7 +178,7 @@ export const NOTATION_HIGH_NOTE_INK_ABOVE_UNITS = 22
 export const NOTATION_LOW_NOTE_INK_BELOW_UNITS = 7
 
 /**
- * Intent: how far a diatonic step sits above the top line of a staff with `lines`, in engraving
+ * How far a diatonic step sits above the top line of a staff with `lines`, in engraving
  * units (below: negative).
  */
 function unitsAboveTopLine(step: number, lines: ClefStaffLines): number {
@@ -186,7 +186,7 @@ function unitsAboveTopLine(step: number, lines: ClefStaffLines): number {
 }
 
 /**
- * Intent: how far above the top line the ink of the chord symbol on an up-stemmed note on `step`
+ * How far above the top line the ink of the chord symbol on an up-stemmed note on `step`
  * reaches: over that note's own stem tip, at the stem's unextended length, beamed or not.
  */
 // @spec-link [[module_notation_layout_preflight]]
@@ -198,7 +198,7 @@ function upStemChordReach(step: number, lines: ClefStaffLines): number {
   )
 }
 
-/** Intent: how far below the top line the tip of a down stem from a note on `step` reaches. */
+/** How far below the top line the tip of a down stem from a note on `step` reaches. */
 // @spec-link [[module_notation_layout_preflight]]
 function downStemReach(step: number, lines: ClefStaffLines): number {
   return -unitsAboveTopLine(step, lines) + NOTATION_STEM_LENGTH_UNITS
@@ -255,7 +255,7 @@ export interface StaffPlacement {
 }
 
 /**
- * Intent: the diatonic step (octave × 7 + letter index, C4 = 28) of a MIDI note's natural
+ * The diatonic step (octave × 7 + letter index, C4 = 28) of a MIDI note's natural
  * spelling, moving to the nearest natural letter below (`down`) or above (`up`) when the note is
  * a black key, so a range's outer notes are placed where their plainer spelling sits.
  */
@@ -272,7 +272,7 @@ function naturalStep(midi: number, direction: 'down' | 'up'): number {
 const PITCH_CLASS_F = 5
 
 /**
- * Intent: the lowest diatonic step a range's lowest written note can be spelled on, in any written
+ * The lowest diatonic step a range's lowest written note can be spelled on, in any written
  * key. Its natural spelling, a black key by its natural neighbour below, except a written F: a key
  * signature of six sharps (F♯ major and its modes, the most sharps the fewest-accidental key
  * spelling ever takes, sharps winning a tie with six flats) spells it E♯, one step lower. No other
@@ -288,7 +288,7 @@ function lowestWrittenStep(midi: number): number {
 }
 
 /**
- * Intent: how far from the middle line of a staff with `lines`, in diatonic steps, a beam group's
+ * How far from the middle line of a staff with `lines`, in diatonic steps, a beam group's
  * note can sit on the side its stems point towards, for a range from `lowestStep` to
  * `highestStep` whose beam groups span at most `maxSpanSteps`. Inside a beam group a note on or
  * above the middle line can carry an up stem (as C5 in [C5 G4] in treble), whose chord symbol then
@@ -371,7 +371,7 @@ export function planStaffInk(rangeInClef: WrittenRangeInClef): StaffInk {
 }
 
 /**
- * Intent: guard a system-position size is one the planner can hold: finite, at least the built-in
+ * Guard a system-position size is one the planner can hold: finite, at least the built-in
  * size, and a whole number of staff spaces. Any other value is a caller's programming error.
  */
 function assertSystemPositionUnits(systemPositionUnits: number): void {
@@ -567,7 +567,7 @@ export interface StaffViewport {
 }
 
 /**
- * Intent: the viewport a session draws in: its held layout, with the window's own height budget
+ * The viewport a session draws in: its held layout, with the window's own height budget
  * kept as it is, so a held layout is sized and judged against the window it is shown in.
  */
 // @spec-link [[rule_session_layout_fixed_at_start]]
@@ -656,7 +656,7 @@ const MAX_SCALE = NOTATION_MAX_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STA
 const FLOOR_SCALE =
   NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
 
-/** Intent: guard the container width is a usable, positive, finite pixel measurement. */
+/** Guard the container width is a usable, positive, finite pixel measurement. */
 function assertContainerWidth(containerWidthPx: number): void {
   if (!Number.isFinite(containerWidthPx) || containerWidthPx <= 0) {
     throw new NotationError(
@@ -667,7 +667,7 @@ function assertContainerWidth(containerWidthPx: number): void {
   }
 }
 
-/** Intent: guard the window's height budget is a finite pixel measurement (it may be negative: no room). */
+/** Guard the window's height budget is a finite pixel measurement (it may be negative: no room). */
 function assertHeightBudget(heightBudgetPx: number): void {
   if (!Number.isFinite(heightBudgetPx)) {
     throw new NotationError(

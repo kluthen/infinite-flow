@@ -28,12 +28,12 @@ const ANGULAR = sessionSettings({ tempo: 90, leapiness: 'Angular' })
 const SMOOTH = sessionSettings({ tempo: 90, leapiness: 'Smooth' })
 const PHRASE = phraseOneFor(START)
 
-/** Intent: session phrase `n` from `origin`; its notes do not matter here. */
+/** Session phrase `n` from `origin`; its notes do not matter here. */
 function phrase(n: number, origin: SessionPhraseOrigin = 'carry-in'): SessionPhrase {
   return { phraseNumber: n, origin, intent: PHRASE.intent, outcome: PHRASE.outcome }
 }
 
-/** Intent: an automatic change of the settings to `settings` from phrase `n` on. */
+/** An automatic change of the settings to `settings` from phrase `n` on. */
 function changed(n: number, settings: SessionSettings): SettingsChangedOutput {
   return { kind: 'settings-changed', phraseNumber: n, settings, cause: 'automatic' }
 }

@@ -12,7 +12,7 @@ import type { RhythmEventKind } from '@/domain/rhythm/rhythm-types'
 
 import { bar, phrase, starts } from './rhythm-bar-fixture'
 
-/** Intent: a small deterministic PRNG (mulberry32) so the property checks replay exactly. */
+/** A small deterministic PRNG (mulberry32) so the property checks replay exactly. */
 function prng(seed: number): () => number {
   let state = seed >>> 0
   return () => {
@@ -24,7 +24,7 @@ function prng(seed: number): () => number {
   }
 }
 
-/** Intent: draw a start list of 0 to `maxStarts` distinct ticks of a 16-tick measure. */
+/** Draw a start list of 0 to `maxStarts` distinct ticks of a 16-tick measure. */
 function randomStarts(next: () => number, maxStarts: number): MeasureStarts {
   const count = Math.floor(next() * (maxStarts + 1))
   const ticks = new Set<number>()
@@ -34,19 +34,19 @@ function randomStarts(next: () => number, maxStarts: number): MeasureStarts {
     .map((tick) => ({ tick, kind: (next() < 0.5 ? 'note' : 'rest') as RhythmEventKind }))
 }
 
-/** Intent: whether a tick is beat 1 or beat 3, the strong beats of the distance. */
+/** Whether a tick is beat 1 or beat 3, the strong beats of the distance. */
 function strong(tick: number): number {
   return tick === 0 || tick === 8 ? 1 : 0
 }
 
 /**
- * Intent: the exact lexicographic minimum (edits, strong edits) over every partial matching of
+ * The exact lexicographic minimum (edits, strong edits) over every partial matching of
  * `a`'s starts to `b`'s, crossing pairs included; an unmatched start is an add or a remove.
  */
 function bruteForce(a: MeasureStarts, b: MeasureStarts): { edits: number; strongEdits: number } {
   let best = { edits: Infinity, strongEdits: Infinity }
   const used = new Array<boolean>(b.length).fill(false)
-  /** Intent: settle start `index` of `a` every possible way, then score the unmatched starts. */
+  /** Settle start `index` of `a` every possible way, then score the unmatched starts. */
   const visit = (index: number, edits: number, strongEdits: number): void => {
     if (index === a.length) {
       let total = edits
@@ -81,7 +81,7 @@ function bruteForce(a: MeasureStarts, b: MeasureStarts): { edits: number; strong
   return best
 }
 
-/** Intent: a four-measure rhythm from one measure's start list and three unchanged ones. */
+/** A four-measure rhythm from one measure's start list and three unchanged ones. */
 function withFirst(first: MeasureStarts): readonly MeasureStarts[] {
   return [first, starts('n0 n8'), starts('n0'), starts('n0 r12')]
 }

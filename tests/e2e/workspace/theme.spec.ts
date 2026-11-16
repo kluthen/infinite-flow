@@ -37,7 +37,7 @@ test('System removes the data-theme override', async ({ page }) => {
 })
 
 /**
- * Intent: the `--color-staff` custom property's computed value as an actual `rgb()` string, so it
+ * The `--color-staff` custom property's computed value as an actual `rgb()` string, so it
  * compares directly against `getComputedStyle(...).fill` / `.stroke` on the real SVG (a raw
  * `--color-staff` read would still be the unresolved hex/`var()` source text).
  */
@@ -53,7 +53,7 @@ async function computedStaffColor(page: import('@playwright/test').Page): Promis
 }
 
 /**
- * Intent: every element under `svg.staff-svg` whose computed fill or stroke paints (is not `none`)
+ * Every element under `svg.staff-svg` whose computed fill or stroke paints (is not `none`)
  * but does not equal `expectedColor`, described as `<tag> fill=... stroke=...` for a readable
  * failure message.
  */

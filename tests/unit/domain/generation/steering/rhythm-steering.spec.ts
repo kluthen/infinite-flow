@@ -37,7 +37,7 @@ const RESTFUL: RhythmExpansionInput = {
   tensionArc: 'Build',
 }
 
-/** Intent: a whole frozen domain of the given rhythm controls, in domain order. */
+/** A whole frozen domain of the given rhythm controls, in domain order. */
 function domainOf(input: RhythmExpansionInput): readonly RhythmCandidate[] {
   const result = makeRhythmCandidateDomain(input)
   if (isNoLegalRhythmPlan(result)) throw new Error('Fixture setup: the domain has no plan.')
@@ -48,19 +48,19 @@ const DOMAIN = domainOf(RESTFUL)
 const SEED = makeSeed(19)
 const SEEDED = seededOrder(DOMAIN, SEED)
 
-/** Intent: a measure's starts as heard, read here on their own: a rest after a rest is dropped. */
+/** A measure's starts as heard, read here on their own: a rest after a rest is dropped. */
 function heard(measure: MeasureStarts): MeasureStarts {
   return measure.filter(
     (start, index) => start.kind === 'note' || measure[index - 1]?.kind !== 'rest',
   )
 }
 
-/** Intent: a candidate's four measures as heard. */
+/** A candidate's four measures as heard. */
 function heardRhythm(candidate: RhythmCandidate): readonly MeasureStarts[] {
   return rhythmStarts(candidate.bars).map(heard)
 }
 
-/** Intent: a target rhythm of these measures (as plain starts) and band. */
+/** A target rhythm of these measures (as plain starts) and band. */
 function targetOf(measures: readonly MeasureStarts[], band: SteeringBand): SteeringTargetRhythm {
   return {
     measures: measures.map((measure) =>
@@ -70,14 +70,14 @@ function targetOf(measures: readonly MeasureStarts[], band: SteeringBand): Steer
   }
 }
 
-/** Intent: whether a band admits a measure band. */
+/** Whether a band admits a measure band. */
 function admits(band: SteeringBand, measure: RhythmBand): boolean {
   if (band === 'unbounded') return true
   if (band === 'near') return measure !== 'beyond'
   return measure === 'Same' || measure === 'Close'
 }
 
-/** Intent: the candidate's rank as the spec states it, computed here from the rhythm distance. */
+/** The candidate's rank as the spec states it, computed here from the rhythm distance. */
 function expectedRank(
   candidate: RhythmCandidate,
   target: SteeringTargetRhythm,
@@ -92,7 +92,7 @@ function expectedRank(
   return inside ? 0 : 1 + edits
 }
 
-/** Intent: whether some measure of the candidate writes a rest start right after another. */
+/** Whether some measure of the candidate writes a rest start right after another. */
 function writesTwoRests(candidate: RhythmCandidate): boolean {
   return rhythmStarts(candidate.bars).some((measure) => heard(measure).length < measure.length)
 }
@@ -104,7 +104,7 @@ const BEATS: readonly MeasureStarts[] = [0, 1, 2, 3].map(() =>
   [0, 4, 8, 12].map((tick) => ({ tick, kind: 'note' as const })),
 )
 
-/** Intent: the candidate indexes of an order. */
+/** The candidate indexes of an order. */
 function indexes(order: readonly RhythmCandidate[]): readonly number[] {
   return order.map((candidate) => candidate.candidateIndex)
 }
@@ -201,7 +201,7 @@ describe('the steered rhythm order', () => {
     expect(
       steerRhythmOrder({ domain: DOMAIN, seeded: SEEDED, target: unbounded, ordering: 'band' }),
     ).toBe(SEEDED)
-    /** Intent: the nearest ordering's candidate indexes for the beats target at a band. */
+    /** The nearest ordering's candidate indexes for the beats target at a band. */
     const nearest = (band: SteeringBand): readonly number[] =>
       indexes(
         steerRhythmOrder({

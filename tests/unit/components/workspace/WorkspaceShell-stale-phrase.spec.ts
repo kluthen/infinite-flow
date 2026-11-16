@@ -34,7 +34,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: mount the shell over `session` and `controller`, the jump's scroll spied. */
+/** Mount the shell over `session` and `controller`, the jump's scroll spied. */
 function mountShell(
   session: GenerationSession<WorkspaceSessionResult>,
   controller: SessionController,
@@ -62,12 +62,12 @@ function mountShell(
   })
 }
 
-/** Intent: the header's session action. */
+/** The header's session action. */
 function sessionAction(wrapper: ReturnType<typeof mountShell>) {
   return wrapper.get('.header-actions > button.session-action')
 }
 
-/** Intent: the prompt's button labelled `label`, once the prompt is mounted. */
+/** The prompt's button labelled `label`, once the prompt is mounted. */
 function promptButton(wrapper: ReturnType<typeof mountShell>, label: string) {
   const found = wrapper
     .findAll('[role="alertdialog"] button')

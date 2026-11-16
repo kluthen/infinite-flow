@@ -215,7 +215,7 @@ type Parse<T> = (value: unknown, context: SettingsDecodeContext) => T | Unreadab
 type GroupParsers<T> = { readonly [F in keyof T]: Parse<T[F]> }
 
 /**
- * Intent: run a strict validator and turn the one refusal it raises for a bad value into
+ * Run a strict validator and turn the one refusal it raises for a bad value into
  * "unreadable". Any other error is a defect, not a bad saved value, and is rethrown.
  */
 function refusedAs<T>(
@@ -231,7 +231,7 @@ function refusedAs<T>(
 }
 
 /**
- * Intent: a parser accepting only a value of one control's closed catalog. Every catalog holds
+ * A parser accepting only a value of one control's closed catalog. Every catalog holds
  * strings only, so any other stored value, a BigInt or a circular object included (which the
  * validator's refusal could not even write), is unreadable before the validator sees it.
  */
@@ -243,20 +243,20 @@ function controlValue<T extends string>(catalog: readonly T[], name: string): Pa
   }
 }
 
-/** Intent: a parser accepting only a member of a closed catalog that has no domain validator. */
+/** A parser accepting only a member of a closed catalog that has no domain validator. */
 function oneOf<T extends string>(catalog: readonly T[]): Parse<T> {
   return (value) => (catalog.includes(value as T) ? (value as T) : UNREADABLE)
 }
 
-/** Intent: accept only a boolean, so an on/off choice is never guessed from another type. */
+/** Accept only a boolean, so an on/off choice is never guessed from another type. */
 const readBoolean: Parse<boolean> = (value) => (typeof value === 'boolean' ? value : UNREADABLE)
 
-/** Intent: accept only a tempo the tempo control offers: 60 to 240 BPM in steps of 10. */
+/** Accept only a tempo the tempo control offers: 60 to 240 BPM in steps of 10. */
 const readTempo: Parse<number> = (value) =>
   refusedAs(() => normalizeTempo(value), GenerationControlError)
 
 /**
- * Intent: accept a built-in instrument, or my instrument's fixed id (never its display name) only
+ * Accept a built-in instrument, or my instrument's fixed id (never its display name) only
  * while my instrument itself loads; a selection of an instrument that did not load falls back.
  */
 // @spec-link [[rule_saved_settings_load_tolerantly]]
@@ -266,7 +266,7 @@ const readInstrument: Parse<GenerationControls['instrumentProfileId']> = (value,
 }
 
 /**
- * Intent: a parser accepting only a number its volume validator, which refuses with a
+ * A parser accepting only a number its volume validator, which refuses with a
  * RangeError, accepts in the design's range.
  */
 function volume(validate: typeof validateClickVolume): Parse<number> {
@@ -279,21 +279,21 @@ function volume(validate: typeof validateClickVolume): Parse<number> {
   }
 }
 
-/** Intent: whether a value is a plain object, as a stored record or object value is. */
+/** Whether a value is a plain object, as a stored record or object value is. */
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
   const prototype: unknown = Object.getPrototypeOf(value)
   return prototype === Object.prototype || prototype === null
 }
 
-/** Intent: whether a plain object has exactly the given fields, no more and no fewer. */
+/** Whether a plain object has exactly the given fields, no more and no fewer. */
 function hasExactKeys(record: Record<string, unknown>, keys: readonly string[]): boolean {
   const own = Object.keys(record)
   return own.length === keys.length && keys.every((key) => Object.hasOwn(record, key))
 }
 
 /**
- * Intent: the tolerant twin of the generation worker's strict musical profile parser: the same
+ * The tolerant twin of the generation worker's strict musical profile parser: the same
  * shape (exactly a known profile and a boolean "customized"), read as unreadable instead of
  * rejected. Only v3.0's record of it is read, to carry it over.
  */
@@ -307,13 +307,13 @@ function readProfileSelection(value: unknown): ProfileSelection | Unreadable {
   return { musicalProfile: musicalProfile as MusicalProfile, isCustom }
 }
 
-/** Intent: whether a value is a non-empty string, as a preset id is. */
+/** Whether a value is a non-empty string, as a preset id is. */
 function isPresetId(value: unknown): value is string {
   return typeof value === 'string' && value !== ''
 }
 
 /**
- * Intent: read a saved preset selection: exactly a preset by its non-empty id, or exactly Custom
+ * Read a saved preset selection: exactly a preset by its non-empty id, or exactly Custom
  * with a non-empty base id or none. Whether the id names a known preset is the load's to judge.
  */
 // @spec-link [[rule_saved_settings_load_tolerantly]]
@@ -380,7 +380,7 @@ const MIX_PARSERS: GroupParsers<AudioMix> = {
 }
 
 /**
- * Intent: accept only a list of known rhythm change kinds, each once, in RHYTHM_CHANGE_KINDS
+ * Accept only a list of known rhythm change kinds, each once, in RHYTHM_CHANGE_KINDS
  * order, as the app writes it; any other list is unreadable, never repaired.
  */
 // @spec-link [[rule_saved_settings_load_tolerantly]]
@@ -402,7 +402,7 @@ const VARY_SETTINGS_GROUP_NAMES = Object.keys(
 ) as (keyof AllowedGroups)[]
 
 /**
- * Intent: accept only exactly Vary settings' six groups, each on or off. A stored Rhythm group is
+ * Accept only exactly Vary settings' six groups, each on or off. A stored Rhythm group is
  * read as stored, whatever the lock: the lock disables it without changing the player's choice.
  */
 // @spec-link [[rule_saved_settings_load_tolerantly]]
@@ -439,7 +439,7 @@ const REVIEW_PARSERS: GroupParsers<ReviewPreferences> = {
   playedNotesShown: readBoolean,
 }
 
-/** Intent: the record keys of one group's fields, in the group's parser order. */
+/** The record keys of one group's fields, in the group's parser order. */
 function fieldKeys<G extends SettingGroup>(group: G, parsers: object): FieldKey<G>[] {
   return Object.keys(parsers).map((field) => `${group}.${field}` as FieldKey<G>)
 }
@@ -467,7 +467,7 @@ const SETTING_KEY_SET: ReadonlySet<string> = new Set(SETTING_KEYS)
 const JAM_SETTING_KEY_SET: ReadonlySet<string> = new Set(JAM_SETTING_KEYS)
 
 /**
- * Intent: the stored records of Jam's settings, as stored and undecoded, in their stored order:
+ * The stored records of Jam's settings, as stored and undecoded, in their stored order:
  * each record naming one of Jam's keys. Their values are not read here: Jam's code decodes each
  * on its own when Jam's settings are first needed, and session mode's decoding skips them.
  */
@@ -484,7 +484,7 @@ export function jamSettingRecords(records: readonly unknown[]): readonly unknown
 const LEVEL_KEY_PREFIX = 'figureLevels.'
 
 /**
- * Intent: the data version of one setting's record shape: 3 for the preset selection and each
+ * The data version of one setting's record shape: 3 for the preset selection and each
  * figure level, introduced at data version 3; 1 for every setting v3.0 already saved, and for the
  * records added beside them with no step: v3.2's (session mode's three options, Jam's group) and
  * v3.3's Seventh chords level.
@@ -498,7 +498,7 @@ export function settingDataVersion(key: SettingKey): number {
 }
 
 /**
- * Intent: the record of one setting, holding the value the player chose and the versions it is
+ * The record of one setting, holding the value the player chose and the versions it is
  * written with. Throws on an empty app version: the record would be written unreadable.
  */
 // @spec-link [[rule_settings_saved_on_change]]
@@ -512,14 +512,14 @@ export function encodeSettingRecord<K extends SettingKey>(
   return { key, dataVersion: settingDataVersion(key), appVersion, value }
 }
 
-/** Intent: the value one setting holds in a full set, read by its record key. */
+/** The value one setting holds in a full set, read by its record key. */
 function settingValueAt<K extends SettingKey>(settings: SavedSettings, key: K): SettingValue<K> {
   const [name, field] = key.split('.') as [keyof SavedSettings, string | undefined]
   const top: unknown = settings[name]
   return (field === undefined ? top : (top as Record<string, unknown>)[field]) as SettingValue<K>
 }
 
-/** Intent: one record per setting for a full set of the player's chosen settings, in key order. */
+/** One record per setting for a full set of the player's chosen settings, in key order. */
 // @spec-link [[rule_settings_saved_on_change]]
 // @spec-link [[rule_saved_setting_is_players_choice]]
 export function encodeSettings(settings: SavedSettings, appVersion: string): SettingRecord[] {
@@ -529,7 +529,7 @@ export function encodeSettings(settings: SavedSettings, appVersion: string): Set
 }
 
 /**
- * Intent: the stored records by setting key. A record that is not an object, or names no setting,
+ * The stored records by setting key. A record that is not an object, or names no setting,
  * is no setting's record and is skipped; a setting with two records is unreadable, since which
  * one is the player's cannot be told.
  */
@@ -548,7 +548,7 @@ function indexRecords(
 const RECORD_FIELDS = ['key', 'dataVersion', 'appVersion', 'value'] as const
 
 /**
- * Intent: the stored value of a well-formed record at its setting's own data version. A record
+ * The stored value of a well-formed record at its setting's own data version. A record
  * written by a newer data version is left unread, as this version cannot know what its value
  * means; a record with a missing, extra or ill-typed field, or an older data version than its
  * setting's shape, is damaged. Both are unreadable.
@@ -560,7 +560,7 @@ function storedValue(record: Record<string, unknown>, dataVersion: number): unkn
 }
 
 /**
- * Intent: v3.0's musical-profile selection from its stored record, for the step that carries it
+ * v3.0's musical-profile selection from its stored record, for the step that carries it
  * over to data version 3: exactly the four record fields, its key, data version 1 and a readable
  * selection; null for anything else, a newer record included. Never throws for what was stored.
  */
@@ -577,7 +577,7 @@ export function decodeV30ProfileSelectionRecord(stored: unknown): ProfileSelecti
 /** Reads one setting from the indexed records, its default when it cannot. */
 type ReadSetting = <T>(key: SettingKey, parse: Parse<T>, fallback: T) => T
 
-/** Intent: decode every field of one group, each on its own. */
+/** Decode every field of one group, each on its own. */
 function decodeGroup<G extends SettingGroup>(
   group: G,
   parsers: GroupParsers<SavedSettings[G]>,
@@ -600,7 +600,7 @@ interface LoadedValues {
 }
 
 /**
- * Intent: whether the loaded values still match a preset: its ten preset-held controls, its seven
+ * Whether the loaded values still match a preset: its ten preset-held controls, its seven
  * levels, its Seventh chords level, and the loaded written key and mode inside its restriction.
  */
 // @spec-link [[rule_preset_load_values_win]]
@@ -615,7 +615,7 @@ function matchesPreset(preset: Preset, loaded: LoadedValues): boolean {
 }
 
 /**
- * Intent: the preset selection a load gives, judged against the loaded values: the values win. A
+ * The preset selection a load gives, judged against the loaded values: the values win. A
  * selected preset that no longer exists loads as Custom with no base; one whose values (its
  * Seventh chords level included) or restriction the loaded values no longer match (a value fell
  * back, a built-in was retuned, a player preset changed in another tab) loads as Custom based on
@@ -641,7 +641,7 @@ function loadedPresetSelection(
 }
 
 /**
- * Intent: every saved setting from the stored records, each read on its own: a missing,
+ * Every saved setting from the stored records, each read on its own: a missing,
  * damaged, newer or invalid record gives that setting its default, silently, and never disturbs
  * another setting. Never throws for what was stored. The decoded controls are rebuilt by the
  * strict control builder, so what the app runs is still guarded by it, and the preset selection
@@ -658,7 +658,7 @@ export function decodeSettings(
 ): SavedSettings {
   const byKey = indexRecords(records)
   const defaults = defaultSettings(context.mixDesign.defaults)
-  /** Intent: one setting's stored value when its record is readable and valid, else its default. */
+  /** One setting's stored value when its record is readable and valid, else its default. */
   const read: ReadSetting = (key, parse, fallback) => {
     const record = byKey.get(key)
     if (record === undefined || record === UNREADABLE) return fallback

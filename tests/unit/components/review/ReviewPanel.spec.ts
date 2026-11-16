@@ -49,7 +49,7 @@ interface PanelOptions {
 
 const mounted: VueWrapper[] = []
 
-/** Intent: mount the panel attached to the document, so focus can be checked. */
+/** Mount the panel attached to the document, so focus can be checked. */
 function mountPanel(options: PanelOptions = {}) {
   const wrapper = mount(ReviewPanel, {
     props: {
@@ -89,7 +89,7 @@ interface Deferred {
   readonly reject: (error: unknown) => void
 }
 
-/** Intent: a promise with its settle functions exposed. */
+/** A promise with its settle functions exposed. */
 function deferred(): Deferred {
   let resolve: () => void = () => {}
   let reject: (error: unknown) => void = () => {}
@@ -100,7 +100,7 @@ function deferred(): Deferred {
   return { promise, resolve, reject }
 }
 
-/** Intent: the export button. */
+/** The export button. */
 function exportButton(wrapper: VueWrapper): HTMLButtonElement {
   return wrapper.get<HTMLButtonElement>('.review-export-action').element
 }

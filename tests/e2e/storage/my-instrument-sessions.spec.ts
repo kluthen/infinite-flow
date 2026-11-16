@@ -122,7 +122,7 @@ interface Seeded {
 /** The kept-session keys each store holds, sorted. */
 type StoredKeys = Record<(typeof KEPT_STORES)[number], string[]>
 
-/** Intent: the keys each kept-session store holds now, sorted, read through the seam. */
+/** The keys each kept-session store holds now, sorted, read through the seam. */
 async function storedKeys(page: Page): Promise<StoredKeys> {
   const entries = await Promise.all(
     KEPT_STORES.map(async (store) => {
@@ -133,7 +133,7 @@ async function storedKeys(page: Page): Promise<StoredKeys> {
   return Object.fromEntries(entries) as StoredKeys
 }
 
-/** Intent: the keys each kept-session store holds, sorted, read straight from IndexedDB. */
+/** The keys each kept-session store holds, sorted, read straight from IndexedDB. */
 async function databaseKeys(page: Page): Promise<Record<string, number>> {
   const records = await databaseRecords(page)
   return Object.fromEntries(
@@ -141,19 +141,19 @@ async function databaseKeys(page: Page): Promise<Record<string, number>> {
   )
 }
 
-/** Intent: the stored keys with the seed's five sessions, played notes kept for one of mine. */
+/** The stored keys with the seed's five sessions, played notes kept for one of mine. */
 function allFive(seeded: Seeded): StoredKeys {
   const all = [...seeded.mine, ...seeded.tenor].sort()
   return { sessionSummaries: all, sessionBodies: [...all], playedNotes: [MINE_COPY] }
 }
 
-/** Intent: the stored keys with only the tenor's two sessions. */
+/** The stored keys with only the tenor's two sessions. */
 function tenorOnly(seeded: Seeded): StoredKeys {
   const tenor = [...seeded.tenor].sort()
   return { sessionSummaries: tenor, sessionBodies: [...tenor], playedNotes: [] }
 }
 
-/** Intent: every record of every kept-session store stored under one of `keys`, by store. */
+/** Every record of every kept-session store stored under one of `keys`, by store. */
 async function recordsUnder(
   page: Page,
   keys: readonly string[],
@@ -167,7 +167,7 @@ async function recordsUnder(
   return Object.fromEntries(entries)
 }
 
-/** Intent: close the Review showing, back to Idle with a phrase drawn. */
+/** Close the Review showing, back to Idle with a phrase drawn. */
 async function closeReview(page: Page): Promise<void> {
   await expectIdleReady(page)
   await expect(sessionAction(page)).toHaveText('Close review')
@@ -175,14 +175,14 @@ async function closeReview(page: Page): Promise<void> {
   await expect(sessionAction(page)).toHaveText('Start session')
 }
 
-/** Intent: choose an instrument profile with its radio, at Idle, and wait until it is checked. */
+/** Choose an instrument profile with its radio, at Idle, and wait until it is checked. */
 async function chooseInstrument(page: Page, label: string): Promise<void> {
   await radio(page, INSTRUMENT_GROUP, label).click()
   await expect(radio(page, INSTRUMENT_GROUP, label)).toHaveAttribute('aria-checked', 'true')
 }
 
 /**
- * Intent: three kept sessions of my instrument (made from the tenor, named `MY_NAME`, selected)
+ * Three kept sessions of my instrument (made from the tenor, named `MY_NAME`, selected)
  * and two of the tenor profile, then a reload: M1 (start 1, a favorite, so pinned), T1 (start 2,
  * the tenor, pinned), M3 (start 5, the most recent), then copies T2 of T1 (start 3) and M2 of M3
  * (start 4, with played notes). The copies come after the last session's own save, which deletes
@@ -239,17 +239,17 @@ async function seedSessions(page: Page): Promise<Seeded> {
   return seeded
 }
 
-/** Intent: the open confirmation's body paragraphs, in order. */
+/** The open confirmation's body paragraphs, in order. */
 function bodyParagraphs(page: Page): Locator {
   return mySheet(page).locator('.sheet-body > p')
 }
 
-/** Intent: the open sheet's error line. */
+/** The open sheet's error line. */
 function errorLine(page: Page): Locator {
   return mySheet(page).locator('.sheet-body > .inline-alert.alert-error')
 }
 
-/** Intent: assert the erase warning shows, naming `first`, with its hint and its two actions. */
+/** Assert the erase warning shows, naming `first`, with its hint and its two actions. */
 async function expectEraseWarning(page: Page, first: string, hint: string): Promise<void> {
   await expect(mySheet(page)).toHaveAccessibleName(ERASE_TITLE)
   await expect(bodyParagraphs(page)).toHaveText([first, UNDONE, hint])
@@ -262,14 +262,14 @@ async function expectEraseWarning(page: Page, first: string, hint: string): Prom
   await expect(sheetActionButton(page, 'Cancel')).toBeFocused()
 }
 
-/** Intent: the clef glyphs every staff SVG inside `scope` draws, in document order. */
+/** The clef glyphs every staff SVG inside `scope` draws, in document order. */
 function clefGlyphs(scope: Locator): Promise<string[]> {
   return scope
     .locator('svg.staff-svg g.vf-clef > text')
     .evaluateAll((texts) => texts.map((text) => text.textContent ?? ''))
 }
 
-/** Intent: wait until the Review shows staves, and give their clef glyphs. */
+/** Wait until the Review shows staves, and give their clef glyphs. */
 async function reviewClefs(page: Page): Promise<string[]> {
   await expect.poll(async () => (await clefGlyphs(reviewPanel(page))).length).toBeGreaterThan(0)
   return clefGlyphs(reviewPanel(page))

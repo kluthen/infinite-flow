@@ -40,7 +40,7 @@ import {
 } from './session-harness'
 
 /**
- * Intent: the settings a session of one seed-matrix cell starts from: the cell's profile's figure
+ * The settings a session of one seed-matrix cell starts from: the cell's profile's figure
  * levels, the selection Custom based on the preset of that name.
  */
 export function settingsForCell(cell: MatrixCell): SessionSettings {
@@ -60,7 +60,7 @@ export function settingsForCell(cell: MatrixCell): SessionSettings {
 }
 
 /**
- * Intent: a real phrase 1 generated at Idle from the settings (with an optional density the Idle
+ * A real phrase 1 generated at Idle from the settings (with an optional density the Idle
  * window gave it) and a seed.
  */
 export function idlePhraseOne(
@@ -90,13 +90,13 @@ export interface RecordedSessionOptions {
   readonly clef?: InstrumentClef
 }
 
-/** Intent: let every settled seam promise run its continuation. */
+/** Let every settled seam promise run its continuation. */
 function settle(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 /**
- * Intent: run one session through the real session runner, generating with the real
+ * Run one session through the real session runner, generating with the real
  * `generatePhrase` and fitting every phrase, and record every output into a history. Each phrase
  * starts sounding one phrase after the one before, every generation comes back at once (so no
  * deadline passes and no repeat is inserted), and the session stops once `phraseCount` phrases
@@ -153,7 +153,7 @@ export async function recordRunnerSession(
   return history
 }
 
-/** Intent: the phrase regenerated from a record's stored inputs, which must succeed. */
+/** The phrase regenerated from a record's stored inputs, which must succeed. */
 export function regenerate(record: SessionHistoryRecord): SuccessfulOutcome {
   const outcome = generatePhrase(record.intent)
   if (outcome.kind !== 'generation_success')
@@ -162,7 +162,7 @@ export function regenerate(record: SessionHistoryRecord): SuccessfulOutcome {
 }
 
 /**
- * Intent: the MusicXML of regenerated phrases, built without the history's adapter: numbered 1,
+ * The MusicXML of regenerated phrases, built without the history's adapter: numbered 1,
  * 2, 3 ... in order, each written from its regenerated outcome and stored intent, at the stored
  * tempo, for the given instrument.
  */
@@ -184,7 +184,7 @@ export function regeneratedMusicXml(
 }
 
 /**
- * Intent: the MIDI file of regenerated phrases, built without the history's adapter: numbered 1,
+ * The MIDI file of regenerated phrases, built without the history's adapter: numbered 1,
  * 2, 3 ... in order, each with its regenerated timeline at the stored tempo, without backing.
  */
 export function regeneratedMidi(

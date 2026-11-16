@@ -62,7 +62,7 @@ import { evenlySpaced } from './jam-sweep-population'
 import { JamReplaySampler } from './jam-sweep-replay'
 import { runJamCase, type JamRunConfig } from './jam-sweep'
 
-/** Intent: a hand-made standalone attempt record. */
+/** A hand-made standalone attempt record. */
 function attempt(seconds: number, extra: Partial<AttemptRecord> = {}): AttemptRecord {
   return {
     phraseNumber: 2,
@@ -118,7 +118,7 @@ describe('Jam phrase 1: the extended wait and the baseline ladder', () => {
     expect([0.1, 2, 2.01, 5.9].map((at) => extendedWaitMeasures(at, 120))).toEqual([0, 0, 1, 2])
   })
 
-  /** Intent: a ladder input over a scripted generator charging fixed times, failing until `succeedAt`. */
+  /** A ladder input over a scripted generator charging fixed times, failing until `succeedAt`. */
   function scripted(charged: number, succeedAt: number): LadderInput {
     const sweepCase = sweepCases()[0]!
     const settings = caseSettings(sweepCase, 120)
@@ -162,7 +162,7 @@ describe('Jam phrase 1: the extended wait and the baseline ladder', () => {
 const DOODLES = loadDoodleSet()
 const FIRST_CASE = sweepCases()[0]!
 
-/** Intent: what a doodle of the set gives phrase 1 under the first case's settings at 120 BPM. */
+/** What a doodle of the set gives phrase 1 under the first case's settings at 120 BPM. */
 function doodleInput(name: string, lock: LadderInput['lock'] = { on: false }): DoodlePhraseOne {
   const doodle = DOODLES.find((each) => each.name === name)!
   return doodlePhraseOne(caseSettings(FIRST_CASE, 120), doodle.quantized, 'Near', lock)
@@ -175,7 +175,7 @@ const WITHOUT_JOIN = DOODLES.filter((each) => !doodleInput(each.name).hasJoin).m
 )
 
 /**
- * Intent: a double's input on a doodle at 120 BPM over a scripted generator: each attempt charged
+ * A double's input on a doodle at 120 BPM over a scripted generator: each attempt charged
  * `charged(index)` seconds and failing with `fail(index)`'s code until attempt `succeedAt` (by
  * the order asked, from 1).
  */
@@ -210,7 +210,7 @@ function scriptedDouble(
 describe("Jam phrase 1: the double of Jam's ladder (C5.7, C11)", () => {
   it("derives each attempt seed from the session seed by the plan's derivation, under C11's labels", () => {
     const sessionSeed = FIRST_CASE.firstSessionSeed
-    /** Intent: the seed plan's one derivation of a label, written out. */
+    /** The seed plan's one derivation of a label, written out. */
     const derive = (label: string): number => makeSeed((sessionSeed ^ fnv1a32(label)) >>> 0)
     expect(derive('session-seed-plan-v1:phrase:2:rung:0')).toBe(
       phraseAttemptSeed(makeSeed(sessionSeed), 2, 0),
@@ -329,13 +329,13 @@ const REAL_CASES: readonly SweepCase[] = [
   ).values(),
 ]
 
-/** Intent: a run's outputs as JSON, the whole of what it did at what time. */
+/** A run's outputs as JSON, the whole of what it did at what time. */
 function outputsOf(session: TimedSession | undefined): string {
   if (session === undefined) throw new Error('The run played no session.')
   return JSON.stringify(session.outputs)
 }
 
-/** Intent: the phrase 1 a run sounded, as JSON. */
+/** The phrase 1 a run sounded, as JSON. */
 function phraseOneOf(session: TimedSession | undefined): string {
   const sounding = session?.outputs.find(
     ({ output }) => output.kind === 'phrase-sounding' && output.phrase.phraseNumber === 1,

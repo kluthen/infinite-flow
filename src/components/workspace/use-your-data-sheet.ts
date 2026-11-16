@@ -90,7 +90,7 @@ export interface YourDataSheet {
   readonly back: () => boolean
 }
 
-/** Intent: the form the sheet takes from the load's outcome and the saving state. */
+/** The form the sheet takes from the load's outcome and the saving state. */
 // @spec-link [[rule_outdated_tab_stops_saving]]
 // @spec-link [[rule_failed_read_offers_only_delete_everything]]
 export function yourDataForm(outcome: SavedDataLoad['outcome'], saving: SavingState): YourDataForm {
@@ -100,7 +100,7 @@ export function yourDataForm(outcome: SavedDataLoad['outcome'], saving: SavingSt
 }
 
 /**
- * Intent: the pinned, favorites and played-notes facts a row holds, a newer one's as far as it can
+ * The pinned, favorites and played-notes facts a row holds, a newer one's as far as it can
  * be read.
  */
 function rowFacts(row: KeptSessionRow): { pinned: boolean; favorites: number; kept: boolean } {
@@ -112,14 +112,14 @@ function rowFacts(row: KeptSessionRow): { pinned: boolean; favorites: number; ke
   return { pinned: pinned ?? false, favorites: favoritesCount ?? 0, kept: playedNotesKept ?? false }
 }
 
-/** Intent: whether a deletion refused as outdated, or a plain refusal; anything else is a defect. */
+/** Whether a deletion refused as outdated, or a plain refusal; anything else is a defect. */
 function refusalOf(error: unknown): 'outdated' | 'refused' {
   if (!(error instanceof StorageError)) throw error
   return error.kind === 'outdated' ? 'outdated' : 'refused'
 }
 
 /**
- * Intent: what became of a preset's deletion, as a deletion of the sheet. A session running is a
+ * What became of a preset's deletion, as a deletion of the sheet. A session running is a
  * defect: the sheet never opens during one.
  */
 // @spec-link [[rule_deleting_base_preset_leaves_custom]]
@@ -129,7 +129,7 @@ function presetDeletion(outcome: PresetDeletionOutcome): SessionDeletion {
 }
 
 /**
- * Intent: the sheet's model over the controller, the player presets, the load and the saver, for
+ * The sheet's model over the controller, the player presets, the load and the saver, for
  * as long as the sheet's scope lives: the saving state followed, the space and protection read at
  * once.
  */
@@ -152,7 +152,7 @@ export function useYourDataSheet(deps: YourDataSheetDependencies): YourDataSheet
   let unsubscribe: (() => void) | null = null
   let disposed = false
 
-  /** Intent: read the space used and the protection again from the save policy. */
+  /** Read the space used and the protection again from the save policy. */
   const measure = (policy: SavePolicy): void => {
     space.value = { kind: 'measuring' }
     protection.value = 'checking'
@@ -217,7 +217,7 @@ export function useYourDataSheet(deps: YourDataSheetDependencies): YourDataSheet
     deps.forcedBack()
   })
 
-  /** Intent: run the open confirmation's deletion; what it became, a refusal told as such. */
+  /** Run the open confirmation's deletion; what it became, a refusal told as such. */
   const deletion = async (open: YourDataConfirmation): Promise<SessionDeletion> => {
     if (open.kind === 'every-session') return controller.deleteEverySession()
     if (open.kind === 'preset') {
@@ -233,7 +233,7 @@ export function useYourDataSheet(deps: YourDataSheetDependencies): YourDataSheet
     }
   }
 
-  /** Intent: open the confirmation of deleting `preset`, offered only on the Overview. */
+  /** Open the confirmation of deleting `preset`, offered only on the Overview. */
   // @spec-link [[rule_deleting_base_preset_leaves_custom]]
   const askToDelete = (preset: Preset): void => {
     if (form.value !== 'overview' || confirmation.value !== null)
@@ -241,7 +241,7 @@ export function useYourDataSheet(deps: YourDataSheetDependencies): YourDataSheet
     confirmation.value = { kind: 'preset', preset, readCount: 0, failed: false, busy: false }
   }
 
-  /** Intent: confirm: the Overview once deleted (the page reloading after Delete everything). */
+  /** Confirm: the Overview once deleted (the page reloading after Delete everything). */
   const confirm = async (): Promise<YourDataConfirmed> => {
     const open = confirmation.value
     if (open === null || open.busy) throw new Error('your data: no confirmation to confirm')

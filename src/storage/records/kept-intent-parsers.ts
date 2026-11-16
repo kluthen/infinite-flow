@@ -95,7 +95,7 @@ const CONTROL_FIELDS: Catalog<keyof GenerationControls> = {
 }
 
 /**
- * Intent: the stored controls, exactly the control fields, each through the strict control
+ * The stored controls, exactly the control fields, each through the strict control
  * builder, which refuses any value the controls do not offer.
  */
 function parseControls(value: unknown): GenerationControls {
@@ -103,14 +103,14 @@ function parseControls(value: unknown): GenerationControls {
   return makeGenerationControls(record as unknown as GenerationControls)
 }
 
-/** Intent: the stored seed, a number the domain's seed maker accepts as a 32-bit unsigned seed. */
+/** The stored seed, a number the domain's seed maker accepts as a 32-bit unsigned seed. */
 function parseStoredSeed(value: unknown): Seed {
   if (typeof value !== 'number') throw new KeptRecordError('Kept intent.seed must be a number.')
   return makeSeed(value)
 }
 
 /**
- * Intent: the instrument profile from the data the intent holds, never from its id: its own
+ * The instrument profile from the data the intent holds, never from its id: its own
  * `kind` tags checked here, every other field through the domain's profile parser, which
  * re-validates the range, the register-window policy and the transposition.
  */
@@ -139,7 +139,7 @@ function parseStoredProfile(value: unknown): InstrumentProfile {
   })
 }
 
-/** Intent: a stored MIDI span with its own `kind` tag: a concert range or a register window. */
+/** A stored MIDI span with its own `kind` tag: a concert range or a register window. */
 function parseTaggedSpan<K extends 'ActiveConcertRange' | 'RegisterWindow'>(
   value: unknown,
   kind: K,
@@ -154,7 +154,7 @@ function parseTaggedSpan<K extends 'ActiveConcertRange' | 'RegisterWindow'>(
   }
 }
 
-/** Intent: one stored register-window candidate: a register, its index and its window. */
+/** One stored register-window candidate: a register, its index and its window. */
 function parseCandidate(value: unknown, context: string): RegisterWindowCandidate {
   const record = exactRecord(value, ['id', 'canonicalIndex', 'window'], context)
   const id = CANONICAL_REGISTER_ORDER.find((register: RegisterId) => register === record.id)
@@ -167,7 +167,7 @@ function parseCandidate(value: unknown, context: string): RegisterWindowCandidat
 }
 
 /**
- * Intent: the stored register intent, checked field by field against the RegisterIntent shape,
+ * The stored register intent, checked field by field against the RegisterIntent shape,
  * then against what the stored profile's own data and the stored register choice give: a register
  * intent the generator could not have built from them is refused, never replaced.
  */
@@ -211,7 +211,7 @@ function parseRegisterIntent(
 }
 
 /**
- * Intent: refuse an intent whose parts disagree: controls naming another instrument than the
+ * Refuse an intent whose parts disagree: controls naming another instrument than the
  * profile held, or a concert tonal center that is not the written one transposed for it.
  */
 function assertIntentCoherent(
@@ -230,7 +230,7 @@ function assertIntentCoherent(
 }
 
 /**
- * Intent: the figure levels of a stored data version 1 intent, in any of its three shapes: its
+ * The figure levels of a stored data version 1 intent, in any of its three shapes: its
  * levels only (kept by this version), through the domain's parser; a musical profile only (kept
  * by v3.0), as the levels that profile stands for through storage's profile-to-levels module; or
  * both (kept by chunk 4's code), where the stored levels must equal the profile's levels, so the
@@ -278,7 +278,7 @@ interface IntentShape {
   readonly carryIn: (value: unknown) => CarryIn
 }
 
-/** Intent: the Seventh chords level of an intent shape that holds none: Off. */
+/** The Seventh chords level of an intent shape that holds none: Off. */
 function offChordFamilies(): ChordFamilies {
   return OFF_CHORD_FAMILIES
 }
@@ -339,7 +339,7 @@ const INTENT_V5: IntentShape = {
 }
 
 /**
- * Intent: the carry-in, rhythm lock group and steering block a stored intent holds, each present
+ * The carry-in, rhythm lock group and steering block a stored intent holds, each present
  * exactly when its key is, in that order: the carry-in through the shape's reader, the group and
  * the block through the generation request's own parsers. A carry-in from no phrase without a
  * steering block beside it is refused.
@@ -364,7 +364,7 @@ function parseRequestInputs(
 }
 
 /**
- * Intent: read a stored intent of the given shape back into the intent it was generated from,
+ * Read a stored intent of the given shape back into the intent it was generated from,
  * without rebuilding it: each field through the domain's own parser (request id, seed, meter,
  * controls, written tonal center, figure levels, instrument profile from its stored data,
  * carry-in, rhythm lock group, steering block), the rest against the intent's shape, with exactly
@@ -407,7 +407,7 @@ function parseIntentOfShape(input: unknown, shape: IntentShape): GenerationInten
 }
 
 /**
- * Intent: read a data version 1 kept phrase's stored generation intent, as the upgrade step to
+ * Read a data version 1 kept phrase's stored generation intent, as the upgrade step to
  * data version 2 reads it: every field as `parseKeptIntentV2` reads it, `carryIn` only when one
  * was handed forward, its figure levels from any of data version 1's three shapes (levels only; a
  * v3.0 musical profile only, read as that profile's levels; or both, which must agree), and the
@@ -422,7 +422,7 @@ export function parseKeptIntentV1(input: unknown): GenerationIntent {
 }
 
 /**
- * Intent: read a data version 2 kept phrase's stored generation intent, v3.1's, as the upgrade
+ * Read a data version 2 kept phrase's stored generation intent, v3.1's, as the upgrade
  * step to data version 4 reads it: each field through the domain's own parser, with exactly v3.1's
  * keys (its figure levels always, `carryIn` only when one was handed forward, read through
  * `parsePhraseCarryIn` in v3.1's exact form; a musical profile, a rhythm lock group or a steering
@@ -438,7 +438,7 @@ export function parseKeptIntentV2(input: unknown): GenerationIntent {
 }
 
 /**
- * Intent: read a data version 4 kept phrase's stored generation intent, v3.2's, as the upgrade
+ * Read a data version 4 kept phrase's stored generation intent, v3.2's, as the upgrade
  * step to data version 5 reads it: every field as `parseKeptIntent` reads it, but with exactly
  * v3.2's keys (a `chordFamilies` key refused as an unknown field) and the carried chord read as a
  * triad only, a carried seventh refused; the intent read holds the Seventh chords level at Off.
@@ -452,7 +452,7 @@ export function parseKeptIntentV4(input: unknown): GenerationIntent {
 }
 
 /**
- * Intent: read a kept phrase's stored generation intent (data version 5) back into the intent it
+ * Read a kept phrase's stored generation intent (data version 5) back into the intent it
  * was generated from, without rebuilding it: each field through the domain's own parser (request
  * id, seed, meter, controls, written tonal center, figure levels, instrument profile from its
  * stored data, and, each when its key is present, the Seventh chords level through

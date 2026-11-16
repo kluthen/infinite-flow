@@ -13,13 +13,13 @@ import { transportRig, type TransportRig } from './transport-rig'
 /** Beats per four-measure phrase in 4/4. */
 const PHRASE_BEATS = 16
 
-/** Intent: the first session beat of phrase `n` (from 1), after the four count-in beats. */
+/** The first session beat of phrase `n` (from 1), after the four count-in beats. */
 function phraseBeat(n: number): number {
   return 4 + (n - 1) * PHRASE_BEATS
 }
 
 /**
- * Intent: a running session started at `tempos[0]`, phrase n queued at `tempos[n - 1]`, all at
+ * A running session started at `tempos[0]`, phrase n queued at `tempos[n - 1]`, all at
  * once before any of them starts, alternating the two test harmonies.
  */
 function queuedAt(tempos: readonly number[]): TransportRig & { readonly startAt: number } {
@@ -34,7 +34,7 @@ function queuedAt(tempos: readonly number[]): TransportRig & { readonly startAt:
 }
 
 /**
- * Intent: the closed-form start of phrase `n` (from 1): the count-in at the starting tempo, then
+ * The closed-form start of phrase `n` (from 1): the count-in at the starting tempo, then
  * each earlier phrase's sixteen beats at its own tempo, summed in phrase order.
  */
 function closedFormStart(startAt: number, tempos: readonly number[], n: number): number {

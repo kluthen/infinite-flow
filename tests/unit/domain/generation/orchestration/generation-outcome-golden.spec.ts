@@ -22,7 +22,7 @@ import { levelsForProfile } from '@/domain/figures/figure-levels'
 import { GENERATION_OUTCOME_GOLDEN_V3, type GoldenCase } from './generation-outcome-golden.v3'
 
 /**
- * Intent: build the real GenerationIntent one golden fixture case describes. `requestId` matches
+ * Build the real GenerationIntent one golden fixture case describes. `requestId` matches
  * the exact string the baseline-recording script used (`golden-<name>`) so the outcome's embedded
  * request identity — and therefore its hash — is byte-identical when `seed` is the fixture's
  * original seed; a different seed gets a distinguishing suffix since it is never hash-compared

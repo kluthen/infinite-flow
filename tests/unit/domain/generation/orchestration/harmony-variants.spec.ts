@@ -32,7 +32,7 @@ vi.mock('@/domain/random/hash32', async (importOriginal) => {
 const LEVELS_ABOVE_OFF: readonly ChordFamilyLevel[] = ['sometimes', 'favored', 'stronglyFavored']
 const SEEDS = [0, 1, 7, 42, 4294967295].map((seed) => makeSeed(seed))
 
-/** Intent: the harmony domain of one mode, motion and tension, in C. */
+/** The harmony domain of one mode, motion and tension, in C. */
 function domainOf(
   collection: Collection,
   harmonicMotion: (typeof HARMONIC_MOTIONS)[number],
@@ -57,14 +57,14 @@ function everyDomain(): readonly HarmonyCandidateDomain[] {
   )
 }
 
-/** Intent: an event as its triad form: the event without its seventh. */
+/** An event as its triad form: the event without its seventh. */
 function asTriad(event: HarmonyEvent): HarmonyEvent {
   return Object.fromEntries(
     Object.entries(event).filter(([key]) => key !== 'seventh'),
   ) as unknown as HarmonyEvent
 }
 
-/** Intent: the list a plan becomes: its seventh variant then itself, or itself alone. */
+/** The list a plan becomes: its seventh variant then itself, or itself alone. */
 function expectedEntries(
   candidate: HarmonyCandidate,
   level: ChordFamilyLevel,

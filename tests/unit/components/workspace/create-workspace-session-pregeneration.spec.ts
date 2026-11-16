@@ -41,12 +41,12 @@ beforeEach(() => {
   resetFakeEngraver()
 })
 
-/** Intent: let every pending promise settle. */
+/** Let every pending promise settle. */
 function flush(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-/** Intent: settle a player regeneration the way a mounted staff would, by engraving it. */
+/** Settle a player regeneration the way a mounted staff would, by engraving it. */
 async function regenerateAndEngrave(workspace: WorkspaceSession): Promise<boolean> {
   const running = workspace.session.actions.regenerate()
   await vi.waitFor(() => {

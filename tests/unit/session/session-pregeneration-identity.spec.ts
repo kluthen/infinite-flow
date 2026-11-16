@@ -58,12 +58,12 @@ const LAST_SOUNDING = 7
 /** Generous timeout: each case generates two whole sessions and a plan. */
 const SESSIONS_TIMEOUT_MS = 60_000
 
-/** Intent: let every settled seam promise run its continuation, the runner's feedback included. */
+/** Let every settled seam promise run its continuation, the runner's feedback included. */
 function settle(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-/** Intent: the moment phrase N (1 or more) starts sounding in a session started at 0. */
+/** The moment phrase N (1 or more) starts sounding in a session started at 0. */
 function soundingAt(phraseNumber: number): number {
   return measureSeconds(TEMPO) * (1 + 4 * (phraseNumber - 1))
 }
@@ -95,7 +95,7 @@ interface SessionCase {
   readonly levelAtIdle?: ChordFamilies
 }
 
-/** Intent: the base settings at 60 BPM after choosing `preset`, as Start takes them. */
+/** The base settings at 60 BPM after choosing `preset`, as Start takes them. */
 function settingsUnder(preset: BuiltInPresetId): SessionSettings {
   const base = sessionSettings({ tempo: TEMPO })
   const chosen = choosePreset(
@@ -117,7 +117,7 @@ function settingsUnder(preset: BuiltInPresetId): SessionSettings {
   )
 }
 
-/** Intent: settings with the case's rhythm lock: on with its allowed changes, or off as given. */
+/** Settings with the case's rhythm lock: on with its allowed changes, or off as given. */
 function withCaseLock(settings: SessionSettings, options: SessionCase): SessionSettings {
   const allowed = options.allowedRhythmChanges
   if (allowed === undefined) return settings
@@ -125,7 +125,7 @@ function withCaseLock(settings: SessionSettings, options: SessionCase): SessionS
 }
 
 /**
- * Intent: a case's settings: phrase 1's, the base settings at 60 BPM with the case's controls, and
+ * A case's settings: phrase 1's, the base settings at 60 BPM with the case's controls, and
  * the session's, those with the case's Idle change; with none, the two are the same. Both carry
  * the case's rhythm lock.
  */
@@ -154,7 +154,7 @@ function caseSettings(options: SessionCase): {
   return { phraseOne, session }
 }
 
-/** Intent: whether a case starts on a stale phrase 1, its own settings beside the session's. */
+/** Whether a case starts on a stale phrase 1, its own settings beside the session's. */
 function startsStale(options: SessionCase): boolean {
   return options.changedAtIdle !== undefined || options.levelAtIdle !== undefined
 }
@@ -165,7 +165,7 @@ interface SessionRun {
 }
 
 /**
- * Intent: run one workspace session at 60 BPM to phrase `LAST_SOUNDING` sounding, every generate
+ * Run one workspace session at 60 BPM to phrase `LAST_SOUNDING` sounding, every generate
  * call answered at once with its real outcome and every phrase fitting, each result fed back on a
  * clock that stands still until the next transport event.
  */
@@ -213,7 +213,7 @@ async function runSession(
   return { log }
 }
 
-/** Intent: the plan for a case's phrase 1, seed and options, run with real results. */
+/** The plan for a case's phrase 1, seed and options, run with real results. */
 function planFor(options: SessionCase): PlanRun {
   const settings = caseSettings(options)
   return runPlan(
@@ -237,12 +237,12 @@ function planFor(options: SessionCase): PlanRun {
   )
 }
 
-/** Intent: the ready phrases the plan makes for a case's phrase 1, seed and options. */
+/** The ready phrases the plan makes for a case's phrase 1, seed and options. */
 function readyFor(options: SessionCase): readonly ReadyPhrase[] {
   return planFor(options).plan.readyPhrases
 }
 
-/** Intent: every output of one kind a session gave, in order. */
+/** Every output of one kind a session gave, in order. */
 function outputsOf<K extends SessionOutput['kind']>(
   run: SessionRun,
   kind: K,
@@ -250,7 +250,7 @@ function outputsOf<K extends SessionOutput['kind']>(
   return run.log.filter((output): output is OutputOf<K> => output.kind === kind)
 }
 
-/** Intent: a session's decided phrases (number, origin, intent and outcome), request ids aside. */
+/** A session's decided phrases (number, origin, intent and outcome), request ids aside. */
 function decidedPhrases(run: SessionRun): unknown {
   return withoutRequestIds(outputsOf(run, 'phrase-ready').map((output) => output.phrase))
 }
@@ -470,7 +470,7 @@ describe('a session under a restriction in force, with and without pre-generatio
   )
 })
 
-/** Intent: the session seed of lock case `index`, spread over the 32 bits. */
+/** The session seed of lock case `index`, spread over the 32 bits. */
 function lockCaseSeed(index: number): Seed {
   return makeSeed(Math.imul(0x9e37_79b1, index + 1) >>> 0)
 }
@@ -497,7 +497,7 @@ const LOCK_CASES: readonly SessionCase[] = [
   },
 ].map((lockCase) => ({ ...lockCase, controls: { tension: 'Lift' } }))
 
-/** Intent: whether a decided or ready phrase's outcome took a drawn rhythm change. */
+/** Whether a decided or ready phrase's outcome took a drawn rhythm change. */
 function tookChange(entry: { readonly outcome: ReadyPhrase['outcome'] }): boolean {
   return entry.outcome.provenance.rhythmLockOutcome === 'rhythm_change'
 }
@@ -535,7 +535,7 @@ describe('a session under the rhythm lock, with and without pre-generation', () 
   )
 })
 
-/** Intent: whether bars hold a note or rest starting or lasting off the two-tick Eighth grid. */
+/** Whether bars hold a note or rest starting or lasting off the two-tick Eighth grid. */
 function offEighthGrid(bars: readonly LockedRhythmMeasure[]): boolean {
   return bars.some((measure) =>
     measure.some((event) => event.startTick % 2 === 1 || event.durationTicks % 2 === 1),

@@ -10,7 +10,7 @@ import { JAZZ_FIGURE_LEVELS, NEUTRAL_FIGURE_LEVELS } from '../figures/figure-lev
 import { ANY_KEY_AND_MODE } from './key-and-mode-restriction'
 import { makePreset, PresetModelError, type Preset, type PresetSelection } from './preset-selection'
 
-/** Intent: the built-ins' fixed ids, in order; a later rename of a built-in keeps its id. */
+/** The built-ins' fixed ids, in order; a later rename of a built-in keeps its id. */
 // @spec-link [[module_preset_model]]
 // @spec-link [[req_presets]]
 export const BUILT_IN_PRESET_IDS = deepFreeze([
@@ -24,12 +24,12 @@ export const BUILT_IN_PRESET_IDS = deepFreeze([
   'modal-dorian',
 ] as const)
 
-/** Intent: one built-in preset's fixed id. */
+/** One built-in preset's fixed id. */
 // @spec-link [[module_preset_model]]
 export type BuiltInPresetId = (typeof BUILT_IN_PRESET_IDS)[number]
 
 /**
- * Intent: the eight built-in presets in id order, each holding exactly its B6.5 values: the ten
+ * The eight built-in presets in id order, each holding exactly its B6.5 values: the ten
  * controls, the seven figure levels, the Seventh chords level at Off, and the restriction ("any"
  * except Reel, Bebop, Pop song and Modal (Dorian), which restrict the modes only).
  */
@@ -248,13 +248,13 @@ export const BUILT_IN_PRESETS: readonly Preset[] = deepFreeze([
   }),
 ])
 
-/** Intent: whether a value is one of the eight built-in ids. */
+/** Whether a value is one of the eight built-in ids. */
 // @spec-link [[module_preset_model]]
 export function isBuiltInPresetId(value: unknown): value is BuiltInPresetId {
   return BUILT_IN_PRESET_IDS.some((id) => id === value)
 }
 
-/** Intent: the built-in preset with a fixed id. */
+/** The built-in preset with a fixed id. */
 // @spec-link [[module_preset_model]]
 // @spec-link [[rule_built_in_preset_values]]
 export function builtInPreset(id: BuiltInPresetId): Preset {
@@ -263,7 +263,7 @@ export function builtInPreset(id: BuiltInPresetId): Preset {
   return preset
 }
 
-/** Intent: the selection at first load: Neutral, whose "any" restriction never moves C Ionian. */
+/** The selection at first load: Neutral, whose "any" restriction never moves C Ionian. */
 // @spec-link [[req_presets]]
 export const DEFAULT_PRESET_SELECTION: PresetSelection = deepFreeze({
   kind: 'preset',

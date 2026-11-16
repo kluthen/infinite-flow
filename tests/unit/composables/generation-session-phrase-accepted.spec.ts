@@ -19,12 +19,12 @@ const SIXTEENTH_ONLY_BLOCKED = {
   syncopation: 'Active displacement',
 } as const
 
-/** Intent: a staff-layout failure as the engraver raises it while drawing. */
+/** A staff-layout failure as the engraver raises it while drawing. */
 function layoutFailure(code: 'notation_no_room' | 'notation_notes_too_wide'): NotationError {
   return new NotationError(code, `layout failure ${code}`, {})
 }
 
-/** Intent: a notation failure that is not about the staff's layout, kept as retryable. */
+/** A notation failure that is not about the staff's layout, kept as retryable. */
 function fontFailure(): NotationError {
   return new NotationError('notation_font_unavailable', 'font missing', {})
 }

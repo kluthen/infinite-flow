@@ -53,7 +53,7 @@ export interface JamPregenerationHost {
 }
 
 /**
- * Intent: hold Jam's queue over `seams`, inside an effect scope; see the module comment. Jam's
+ * Hold Jam's queue over `seams`, inside an effect scope; see the module comment. Jam's
  * tempo is read only once Jam's settings exist, as the queue reads it only to plan from or take a
  * phrase 1 written under them. The scope's end stops the queue, or the queue still loading once it
  * has loaded. A load that fails is not caught: it rejects out of band, the programming error it is.
@@ -65,14 +65,14 @@ export function useJamPregeneration(seams: JamPregenerationHostSeams): JamPregen
   let loading = false
   let disposed = false
 
-  /** Intent: Jam's tempo now; Jam's settings must exist. */
+  /** Jam's tempo now; Jam's settings must exist. */
   function tempo(): number {
     const source = seams.settings()
     if (source === null) throw new Error("Jam's pre-generation: no tempo before Jam's settings")
     return source.controls.tempo
   }
 
-  /** Intent: load and build Jam's queue once, keeping it unless disposed meanwhile. */
+  /** Load and build Jam's queue once, keeping it unless disposed meanwhile. */
   function load(load: JamPregenerationLoader): void {
     loading = true
     void load({

@@ -46,7 +46,7 @@ interface LedgerReading {
 }
 
 /**
- * Intent: read every ledger line (a note's bare path) in the staff SVGs `svgs` selects, and the
+ * Read every ledger line (a note's bare path) in the staff SVGs `svgs` selects, and the
  * `--color-staff` token resolved to rgb inside the staff element `scope` holding them.
  */
 function readLedgerLines(page: Page, scope: string, svgs: string): Promise<LedgerReading> {
@@ -73,7 +73,7 @@ function readLedgerLines(page: Page, scope: string, svgs: string): Promise<Ledge
   )
 }
 
-/** Intent: assert a staff draws ledger lines and every one carries the staff colour only. */
+/** Assert a staff draws ledger lines and every one carries the staff colour only. */
 function expectStaffColouredLedgers(reading: LedgerReading): void {
   expect(reading.lines.length).toBeGreaterThan(0)
   for (const line of reading.lines) {
@@ -84,7 +84,7 @@ function expectStaffColouredLedgers(reading: LedgerReading): void {
   }
 }
 
-/** Intent: pick a theme with the app's own theme control. */
+/** Pick a theme with the app's own theme control. */
 async function pickTheme(page: Page, theme: 'Light' | 'Dark'): Promise<void> {
   await radio(page, 'Presentation theme', theme).click()
   await expect(page.locator('html')).toHaveAttribute('data-theme', theme.toLowerCase())

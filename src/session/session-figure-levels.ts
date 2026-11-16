@@ -7,7 +7,7 @@ import { FIGURE_IDS, type FigureId, type FigureLevels } from '../domain/figures/
 import type { SessionSettings } from './session-types'
 
 /**
- * Intent: the figure levels the settings generate with: the settings' own seven levels, never
+ * The figure levels the settings generate with: the settings' own seven levels, never
  * taken from the selection's name, whatever the selection is.
  */
 // @spec-link [[module_session_carry_in_after_change]]
@@ -17,7 +17,7 @@ export function sessionFigureLevels(settings: SessionSettings): FigureLevels {
 }
 
 /**
- * Intent: every figure whose level differs between the two settings' levels, in FIGURE_IDS order;
+ * Every figure whose level differs between the two settings' levels, in FIGURE_IDS order;
  * none when the levels are equal, as after a change of the selection alone.
  */
 // @spec-link [[module_session_carry_in_after_change]]

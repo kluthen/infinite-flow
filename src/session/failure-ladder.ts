@@ -95,7 +95,7 @@ export interface LookAhead {
 }
 
 /**
- * Intent: the carry-in of the phrase after `previous`, from that record's intent and outcome with
+ * The carry-in of the phrase after `previous`, from that record's intent and outcome with
  * its own phrase number, whatever its origin (a standalone or a repeat included).
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
@@ -108,7 +108,7 @@ export function carryInAfter(previous: SessionPhrase): CarryIn {
 }
 
 /**
- * Intent: open the look-ahead for the phrase after `previous`, with its carry-in, basis and the
+ * Open the look-ahead for the phrase after `previous`, with its carry-in, basis and the
  * rhythm lock groups its rungs carry.
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
@@ -131,7 +131,7 @@ export function openLookAhead(
   }
 }
 
-/** Intent: the rung after a failed one, or undefined once the standalone retry has failed. */
+/** The rung after a failed one, or undefined once the standalone retry has failed. */
 // @spec-link [[rule_session_generation_failure_ladder]]
 export function nextRung(rung: LadderRung): LadderRung | undefined {
   return LADDER[LADDER.indexOf(rung) + 1]
@@ -141,7 +141,7 @@ export function nextRung(rung: LadderRung): LadderRung | undefined {
 const STANDALONE_RUNG: LadderRung = LADDER[LADDER.length - 1]!
 
 /**
- * Intent: the first rung requested for a phrase: the first carry-in rung, or the standalone rung
+ * The first rung requested for a phrase: the first carry-in rung, or the standalone rung
  * when the standalone attempt is already due, as a close deadline at a fast tempo can make it.
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
@@ -170,7 +170,7 @@ export interface FailedRung {
 }
 
 /**
- * Intent: whether a failed attempt searched its carry-in window to exhaustion: a carry-in attempt
+ * Whether a failed attempt searched its carry-in window to exhaustion: a carry-in attempt
  * whose generation failed with no_legal_pitch_plan. Its one window holds the same candidates
  * whatever the seed, which only orders them, so every carry-in retry would fail the same way.
  */
@@ -185,7 +185,7 @@ function exhaustedCarryInSearch(failed: FailedRung, failure: AttemptFailure): bo
 }
 
 /**
- * Intent: the rung after a failed attempt, or undefined once the standalone retry has failed. A
+ * The rung after a failed attempt, or undefined once the standalone retry has failed. A
  * carry-in attempt goes straight to the standalone rung when the standalone attempt is due or when
  * it exhausted its search; every other failure (a search allowance cutoff, a validation failure, a
  * crash, a phrase that does not fit, and any failure of a standalone attempt) goes to the next rung.
@@ -203,7 +203,7 @@ export function rungAfterFailure(
 }
 
 /**
- * Intent: the rung an attempt in flight is cut over to: the standalone rung for a carry-in attempt
+ * The rung an attempt in flight is cut over to: the standalone rung for a carry-in attempt
  * still generating once the standalone attempt is due, and none otherwise. An attempt in its fit
  * check is not cut over, nor is a standalone one, even on a carry-in rung of a phrase whose every
  * attempt is standalone.
@@ -216,14 +216,14 @@ export function cutoverRung(attempt: Attempt, standaloneDue: boolean): LadderRun
   return STANDALONE_RUNG
 }
 
-/** Intent: how many rungs lie strictly between a failed rung and the rung requested after it. */
+/** How many rungs lie strictly between a failed rung and the rung requested after it. */
 // @spec-link [[module_session_failure_ladder]]
 export function rungsSkipped(failed: LadderRung, next: LadderRung): number {
   return LADDER.indexOf(next) - LADDER.indexOf(failed) - 1
 }
 
 /**
- * Intent: the attempt in flight when it has this id; undefined for any other id, which is a
+ * The attempt in flight when it has this id; undefined for any other id, which is a
  * superseded, dropped or unknown attempt, whose late result is ignored.
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
@@ -236,7 +236,7 @@ export function currentAttempt(
 }
 
 /**
- * Intent: the record of an accepted attempt: generated with or without carry-in, and fitting,
+ * The record of an accepted attempt: generated with or without carry-in, and fitting,
  * with the re-lock mark when the attempt carried the re-lock group.
  */
 // @spec-link [[rule_look_ahead_phrase_must_fit_staff]]
@@ -255,7 +255,7 @@ export function acceptedPhrase(
 }
 
 /**
- * Intent: the repeat decided at the deadline when no valid phrase exists: the phrase before, as
+ * The repeat decided at the deadline when no valid phrase exists: the phrase before, as
  * the next phrase, marked with the internal repeat origin and the number of the phrase repeated.
  * A repeat is no generated phrase, so it never carries the re-lock mark.
  */

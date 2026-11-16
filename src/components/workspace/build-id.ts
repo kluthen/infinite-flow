@@ -6,7 +6,7 @@
  */
 
 /**
- * Intent: the injected commit id, checked once at load: a build that injected none fails loudly
+ * The injected commit id, checked once at load: a build that injected none fails loudly
  * here instead of showing an empty build id.
  */
 function checkedAppCommit(commit: unknown): string {

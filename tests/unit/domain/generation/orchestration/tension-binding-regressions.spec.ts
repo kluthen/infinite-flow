@@ -82,7 +82,7 @@ const REGRESSION_CASES: readonly RegressionCase[] = [
   },
 ]
 
-/** Intent: the fixed default pitch context every regression case shares, per `buildControls`. */
+/** The fixed default pitch context every regression case shares, per `buildControls`. */
 function buildIntent(testCase: RegressionCase) {
   const controls = makeGenerationControls({
     tempo: 90,

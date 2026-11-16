@@ -46,7 +46,7 @@ import {
 import { CONTEXT, DEFAULTS } from './settings-record-fixtures'
 import { freshFactory, rawGet, withRawDatabase } from './storage-test-doubles'
 
-/** Intent: v3.0's stored selection record of `selection`, as a v3.0 tab wrote it. */
+/** v3.0's stored selection record of `selection`, as a v3.0 tab wrote it. */
 function v30SelectionRecord(selection: ProfileSelection): Record<string, unknown> {
   return {
     key: V30_PROFILE_SELECTION_KEY,
@@ -56,13 +56,13 @@ function v30SelectionRecord(selection: ProfileSelection): Record<string, unknown
   }
 }
 
-/** Intent: v3.0's stored record of one control, at data version 1. */
+/** v3.0's stored record of one control, at data version 1. */
 function v30Control(field: string, value: unknown): readonly [string, unknown] {
   const key = `controls.${field}`
   return [key, { key, dataVersion: 1, appVersion: V30_APP_VERSION, value }]
 }
 
-/** Intent: a database a v3.0 tab created at data version 1, its settings store seeded raw. */
+/** A database a v3.0 tab created at data version 1, its settings store seeded raw. */
 async function v30Database(settings: readonly (readonly [string, unknown])[]): Promise<IDBFactory> {
   const factory = freshFactory()
   await openV30Port(factory)
@@ -73,7 +73,7 @@ async function v30Database(settings: readonly (readonly [string, unknown])[]): P
 /** The production steps of v3.1, up to the settings step: a database at data version 3. */
 const V3_1_MIGRATIONS = PRODUCTION_MIGRATIONS.slice(0, 3)
 
-/** Intent: open the database as the upgrading v3.1 tab does, with every step it has. */
+/** Open the database as the upgrading v3.1 tab does, with every step it has. */
 function openUpgraded(factory: IDBFactory) {
   return openStoragePort({
     factory,
@@ -82,7 +82,7 @@ function openUpgraded(factory: IDBFactory) {
   })
 }
 
-/** Intent: every value of a store, read raw. */
+/** Every value of a store, read raw. */
 function rawAll(factory: IDBFactory, store: string): Promise<unknown[]> {
   return withRawDatabase(
     factory,
@@ -95,7 +95,7 @@ function rawAll(factory: IDBFactory, store: string): Promise<unknown[]> {
   )
 }
 
-/** Intent: the records the step writes for a selection and its levels, by the upgrading app. */
+/** The records the step writes for a selection and its levels, by the upgrading app. */
 function expectedRecords(selection: PresetSelection, levels: FigureLevels): unknown[] {
   return [
     ...FIGURE_IDS.map((figure) =>
@@ -105,7 +105,7 @@ function expectedRecords(selection: PresetSelection, levels: FigureLevels): unkn
   ]
 }
 
-/** Intent: the settings records the step writes, as stored, in the order the step writes them. */
+/** The settings records the step writes, as stored, in the order the step writes them. */
 function storedSelectionRecords(factory: IDBFactory): Promise<unknown[]> {
   return withRawDatabase(factory, (database) =>
     Promise.all(
@@ -116,7 +116,7 @@ function storedSelectionRecords(factory: IDBFactory): Promise<unknown[]> {
   )
 }
 
-/** Intent: v3.1's production steps, each recorded in `ran` before it runs. */
+/** v3.1's production steps, each recorded in `ran` before it runs. */
 function recordedProductionSteps(ran: number[]): MigrationStep[] {
   return V3_1_MIGRATIONS.map((step) => ({
     toVersion: step.toVersion,
@@ -307,7 +307,7 @@ describe("carrying v3.0's selection over", () => {
   // @test-link [[module_settings_upgrade_step]]
   it('gives nothing for any value it cannot read, never throwing', () => {
     const throwing = {
-      /** Intent: a stored value whose reading throws. */
+      /** A stored value whose reading throws. */
       get key(): string {
         throw new Error('a getter that throws')
       },

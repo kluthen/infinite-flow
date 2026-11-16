@@ -45,7 +45,7 @@ export interface StartingNote {
 }
 
 /**
- * Intent: the starting note of the Idle phrase, from its concert timeline and the written phrase
+ * The starting note of the Idle phrase, from its concert timeline and the written phrase
  * the staff shows for it. The identity is phrase 1's first fresh attack, the pitch is that
  * attack's concert pitch, and the label is the staff's own spelling of its glyph. Throws a
  * StartingNoteError on a phrase with no attacked note, or when the written phrase does not show
@@ -76,7 +76,7 @@ export function startingNoteOf(
 }
 
 /**
- * Intent: whether a played note is the starting note: exactly its concert pitch, octave included.
+ * Whether a played note is the starting note: exactly its concert pitch, octave included.
  */
 // @spec-link [[rule_midi_starting_note]]
 // @spec-link [[module_session_starting_note]]
@@ -88,7 +88,7 @@ export function isStartingNote(
 }
 
 /**
- * Intent: phrase 1's first fresh attack, in timeline order: its identity and concert pitch. A
+ * Phrase 1's first fresh attack, in timeline order: its identity and concert pitch. A
  * valid phrase never opens on a tie continuation, so the first note event is a fresh attack;
  * one that is not, or a phrase with no note, is a caller bug and throws.
  */
@@ -119,7 +119,7 @@ function firstAttackOf(timeline: ConcertEventTimeline): {
 }
 
 /**
- * Intent: the glyph the staff draws for an attack: the note glyph of the attack's measure whose
+ * The glyph the staff draws for an attack: the note glyph of the attack's measure whose
  * source event is the attack and which is not tied from a previous glyph. Throws when the written
  * phrase has no such glyph.
  */
@@ -138,7 +138,7 @@ function attackGlyph(written: WrittenPhrase, identity: ExpectedNoteIdentity): Wr
   return glyph
 }
 
-/** Intent: the MIDI number a spelled written pitch sounds as on a C instrument (C4 is 60). */
+/** The MIDI number a spelled written pitch sounds as on a C instrument (C4 is 60). */
 function midiOf(pitch: SpelledPitch): number {
   return (pitch.octave + 1) * SEMITONES_PER_OCTAVE + naturalPitchClassOf(pitch.letter) + pitch.alter
 }

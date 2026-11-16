@@ -50,7 +50,7 @@ export const C_KEYBOARD_WINDOWS = deriveRegisterWindowCandidates(
 )
 
 /**
- * Intent: where a last note lies for the C MIDI keyboard profile: inside one of its register
+ * Where a last note lies for the C MIDI keyboard profile: inside one of its register
  * windows, else outside its range (48 to 72), else outside the windows but inside the range.
  */
 export function lastNotePlace(pitch: number): LastNotePlace {
@@ -61,7 +61,7 @@ export function lastNotePlace(pitch: number): LastNotePlace {
   return pitch < range.minMidi || pitch > range.maxMidi ? 'outside-range' : 'outside-windows'
 }
 
-/** Intent: whether two neighbouring notes of the doodle lie 7 or more half steps apart. */
+/** Whether two neighbouring notes of the doodle lie 7 or more half steps apart. */
 export function isLeaping(doodle: QuantizedDoodle): boolean {
   return doodle.notes.some((note, index) => {
     const next = doodle.notes[index + 1]
@@ -69,13 +69,13 @@ export function isLeaping(doodle: QuantizedDoodle): boolean {
   })
 }
 
-/** Intent: the capture's notes that are not very short: the ones the quantizer reads. */
+/** The capture's notes that are not very short: the ones the quantizer reads. */
 function heardNotes(capture: DoodleCapture): RawDoodleNote[] {
   return capture.notes.filter((note) => !isVeryShortNote(note))
 }
 
 /**
- * Intent: whether two raw notes (not very short) sound together for at least one tick: a chord or
+ * Whether two raw notes (not very short) sound together for at least one tick: a chord or
  * overlapping notes, not the fraction of a tick by which a legato note outlasts the next onset.
  */
 export function holdsChord(capture: DoodleCapture): boolean {
@@ -90,7 +90,7 @@ export function holdsChord(capture: DoodleCapture): boolean {
   )
 }
 
-/** Intent: a raw note's snapped start and length, in grid ticks, as the quantizer snaps it. */
+/** A raw note's snapped start and length, in grid ticks, as the quantizer snaps it. */
 function snapped(note: RawDoodleNote, capture: DoodleCapture): { start: number; length: number } {
   const start = snappedTickOf(note.onsetAt, capture)
   const end = Math.max(snappedTickOf(note.releaseAt, capture), start + 1)
@@ -98,7 +98,7 @@ function snapped(note: RawDoodleNote, capture: DoodleCapture): { start: number; 
 }
 
 /**
- * Intent: whether the capture holds a grace note: a raw note (not very short) that snaps onto the
+ * Whether the capture holds a grace note: a raw note (not very short) that snaps onto the
  * same tick as a longer note played after it, so the quantizer keeps the longer one.
  */
 export function dropsGraceNote(capture: DoodleCapture): boolean {
@@ -113,13 +113,13 @@ export function dropsGraceNote(capture: DoodleCapture): boolean {
   )
 }
 
-/** Intent: whether the capture holds a raw note under the very-short-note threshold. */
+/** Whether the capture holds a raw note under the very-short-note threshold. */
 export function holdsStrayNote(capture: DoodleCapture): boolean {
   return capture.notes.some(isVeryShortNote)
 }
 
 /**
- * Intent: the note density C5.16.1 reads from the doodle: Sixteenth when 4 × (starts at an odd
+ * The note density C5.16.1 reads from the doodle: Sixteenth when 4 × (starts at an odd
  * position) ≥ n, else Eighth when 4 × (starts at a position not divisible by 4) ≥ n, else
  * Quarter; null (not shown) for fewer than two notes. A position is a start in its measure.
  */
@@ -132,7 +132,7 @@ export function shownNoteDensity(doodle: QuantizedDoodle): NoteDensity | null {
   return 'Quarter'
 }
 
-/** Intent: every computable trait of a doodle, from its capture and its quantized form. */
+/** Every computable trait of a doodle, from its capture and its quantized form. */
 export function computedTraits(
   capture: DoodleCapture,
   quantized: QuantizedDoodle,

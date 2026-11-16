@@ -35,7 +35,7 @@ const fieldEl = ref<HTMLTextAreaElement | null>(null)
 const toggleEl = ref<HTMLButtonElement | null>(null)
 const count = computed(() => `${draft.value.length}/${MAX}`)
 
-/** Intent: open the editor on the comment as held, focus in the field and the caret at its end. */
+/** Open the editor on the comment as held, focus in the field and the caret at its end. */
 // @spec-link [[rule_session_comment]]
 async function startEditing(): Promise<void> {
   draft.value = props.comment
@@ -47,20 +47,20 @@ async function startEditing(): Promise<void> {
   field.setSelectionRange(field.value.length, field.value.length)
 }
 
-/** Intent: keep what the field holds as the draft, cut at 500 characters (a paste included). */
+/** Keep what the field holds as the draft, cut at 500 characters (a paste included). */
 function input(event: Event): void {
   const field = event.target as HTMLTextAreaElement
   if (field.value.length > MAX) field.value = field.value.slice(0, MAX)
   draft.value = field.value
 }
 
-/** Intent: hand the draft to the page to save, for the session the editor is open on. */
+/** Hand the draft to the page to save, for the session the editor is open on. */
 // @spec-link [[rule_session_comment]]
 function save(): void {
   emit('save', props.sessionKey, draft.value)
 }
 
-/** Intent: `Done` (or Escape): save, close the editor and move focus to its button. */
+/** `Done` (or Escape): save, close the editor and move focus to its button. */
 // @spec-link [[rule_session_comment]]
 async function done(): Promise<void> {
   save()

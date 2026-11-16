@@ -63,7 +63,7 @@ export interface VisitRequests {
 }
 
 /**
- * Intent: the requests beyond saving over `port`, deferring to the save policy, through `view`,
+ * The requests beyond saving over `port`, deferring to the save policy, through `view`,
  * on whether saving is on and whether a session runs.
  */
 // @spec-link [[rule_persistent_storage_requested]]
@@ -73,13 +73,13 @@ export interface VisitRequests {
 export function createVisitRequests(port: StoragePort, view: SavingView): VisitRequests {
   let protectionAsked = false
 
-  /** Intent: whether persistent storage may be asked for now: saving on and no session running. */
+  /** Whether persistent storage may be asked for now: saving on and no session running. */
   const mayAsk = async (): Promise<boolean> => {
     await view.whenNotHeld()
     return view.isOn()
   }
 
-  /** Intent: ask the browser for persistent storage unless it is already persistent. */
+  /** Ask the browser for persistent storage unless it is already persistent. */
   const askForProtection = async (): Promise<ProtectionOutcome> => {
     try {
       if (!(await mayAsk())) return 'not-asked'

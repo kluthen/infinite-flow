@@ -71,7 +71,7 @@ const WIDE_STAFF: StaffLayoutInputs = {
   viewport: { layout: 'one-system', heightBudgetPx: null },
 }
 
-/** Intent: export ports over the real lazy export code, recording each download. */
+/** Export ports over the real lazy export code, recording each download. */
 function recordingPorts() {
   const downloads: ExportFile[] = []
   const ports: ReviewExportPorts = {
@@ -81,7 +81,7 @@ function recordingPorts() {
   return { ports, downloads }
 }
 
-/** Intent: mount the panel over `session` and `fake`, attached so focus can move. */
+/** Mount the panel over `session` and `fake`, attached so focus can move. */
 function mountPanel(
   session: GenerationSession<WorkspaceSessionResult>,
   fake: FakeSessionController,
@@ -106,7 +106,7 @@ function mountPanel(
   })
 }
 
-/** Intent: a fake controller whose Review of the recorded session shows, on the E-flat alto. */
+/** A fake controller whose Review of the recorded session shows, on the E-flat alto. */
 function showingReview(): FakeSessionController {
   return createFakeSessionController({
     canStart: false,
@@ -115,13 +115,13 @@ function showingReview(): FakeSessionController {
   })
 }
 
-/** Intent: the Review panel's stand-in, mounted once its lazy load has settled. */
+/** The Review panel's stand-in, mounted once its lazy load has settled. */
 function reviewPanel(wrapper: ReturnType<typeof mountPanel>) {
   return wrapper.getComponent({ name: 'ReviewPanel' })
 }
 
 /**
- * Intent: the class names of the score panel's children, in order, the staff viewports' unclassed
+ * The class names of the score panel's children, in order, the staff viewports' unclassed
  * container read through to its children.
  */
 function panelChildren(wrapper: ReturnType<typeof mountPanel>): string[] {
@@ -132,7 +132,7 @@ function panelChildren(wrapper: ReturnType<typeof mountPanel>): string[] {
   )
 }
 
-/** Intent: the text of both live regions. */
+/** The text of both live regions. */
 function liveRegions(wrapper: ReturnType<typeof mountPanel>) {
   return {
     generation: wrapper.get('.generation-status').text(),

@@ -24,7 +24,7 @@ describe('lock census runner: the preset groups seed each case on its own', () =
   const CASES = sweepCases()
   const PRESET = settingGroups('builtin')[0]!
 
-  /** Intent: the seeds phrase 1 may be generated with from a first seed, retries included. */
+  /** The seeds phrase 1 may be generated with from a first seed, retries included. */
   function phraseOneTries(seed: number): number[] {
     return Array.from({ length: IDLE_GENERATIONS }, (_, offset) => seed + offset)
   }

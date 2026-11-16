@@ -24,7 +24,7 @@ export interface KeySuggestionGolden {
   readonly cases: readonly KeySuggestionGoldenCase[]
 }
 
-/** Intent: the golden list, read and checked for its top-level shape; crashes on a malformed file. */
+/** The golden list, read and checked for its top-level shape; crashes on a malformed file. */
 export function loadKeySuggestionGolden(path = KEY_SUGGESTION_GOLDEN_PATH): KeySuggestionGolden {
   const parsed: unknown = JSON.parse(readFileSync(path, 'utf8'))
   if (

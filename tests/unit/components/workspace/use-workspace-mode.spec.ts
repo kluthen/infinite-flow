@@ -40,12 +40,12 @@ afterEach(() => {
   for (const stop of scopes.splice(0)) stop()
 })
 
-/** Intent: let every settled load's handlers run. */
+/** Let every settled load's handlers run. */
 function flush(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-/** Intent: the mode at Idle, its loader answering only when the test settles each load. */
+/** The mode at Idle, its loader answering only when the test settles each load. */
 function modeRig(): ModeRig {
   const loads: PendingLoad[] = []
   const heldChanges: boolean[] = []
@@ -74,7 +74,7 @@ function modeRig(): ModeRig {
   return { mode, loads, heldChanges, failures, operationRunning, sessionActive, reviewShowing }
 }
 
-/** Intent: the latest load asked for. */
+/** The latest load asked for. */
 function lastLoad(rig: ModeRig): PendingLoad {
   const load = rig.loads.at(-1)
   if (load === undefined) throw new Error('no load was asked for')

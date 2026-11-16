@@ -19,7 +19,7 @@ import {
 } from '../workspace/helpers'
 import { gotoWorkspaceHarness, harnessSnapshot } from './harness-helpers'
 
-/** Intent: every accessible radiogroup label this workspace renders, in on-page order. */
+/** Every accessible radiogroup label this workspace renders, in on-page order. */
 const RADIOGROUP_LABELS = [
   'Written key',
   'Collection',
@@ -38,7 +38,7 @@ const RADIOGROUP_LABELS = [
 ] as const
 
 /**
- * Intent: fully exercise one radiogroup's roving-tabindex contract -- pointer selection of every
+ * Fully exercise one radiogroup's roving-tabindex contract -- pointer selection of every
  * option, then keyboard Arrow/Home/End navigation over every option -- asserting exactly one radio
  * is ever `aria-checked` and carries the roving `tabindex="0"` at a time.
  */
@@ -78,7 +78,7 @@ async function assertRovingRadiogroup(page: Page, groupLabel: string): Promise<v
   await expect(radios.first(), `${groupLabel} Home`).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: assert exactly one radio in the group is checked, and it is the expected index. */
+/** Assert exactly one radio in the group is checked, and it is the expected index. */
 async function expectExactlyOneChecked(
   radios: Locator,
   count: number,
@@ -210,7 +210,7 @@ const JAZZ_LEVELS = {
   chromaticEnclosure: 'asToday',
 } as const
 
-/** Intent: every radiogroup of `controls` shows its option checked. */
+/** Every radiogroup of `controls` shows its option checked. */
 async function expectControls(
   page: Page,
   controls: Readonly<Record<string, string>>,

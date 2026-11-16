@@ -37,7 +37,7 @@ export interface DamagedSessionDeletions {
 }
 
 /**
- * Intent: build the deletions of damaged kept sessions over the controller's core and the rows it
+ * Build the deletions of damaged kept sessions over the controller's core and the rows it
  * holds.
  */
 // @spec-link [[module_kept_session_save]]
@@ -51,7 +51,7 @@ export function createDamagedSessionDeletions(
   const kept = core.deps.keptSessions
 
   /**
-   * Intent: the sessions under `keys` deleted, or left unlisted by a refusal: their rows leave and,
+   * The sessions under `keys` deleted, or left unlisted by a refusal: their rows leave and,
    * when the most recent session was one of them while not read into memory, `successor` gives
    * it now; then the deletion is told, committed or refused, with how many it named.
    */
@@ -71,14 +71,14 @@ export function createDamagedSessionDeletions(
     )
   }
 
-  /** Intent: the readable kept session that started last among the rows held, or none. */
+  /** The readable kept session that started last among the rows held, or none. */
   const latestRow = (): MostRecentSession | null => {
     const row = rows.rows().find(({ kind }) => kind === 'current')
     return row === undefined ? null : Object.freeze({ kind: 'kept', key: row.key })
   }
 
   /**
-   * Intent: the load's clean-up: when a summary the load read is damaged and saving is on, one
+   * The load's clean-up: when a summary the load read is damaged and saving is on, one
    * batch through the kept-change line deleting every session damaged at its re-read; a refused
    * read names the load's damaged sessions. Nothing damaged at the re-read, or saving off by
    * then, tells nothing.
@@ -100,7 +100,7 @@ export function createDamagedSessionDeletions(
   }
 
   /**
-   * Intent: delete the kept session under `key`, found damaged at its opening, in one batch
+   * Delete the kept session under `key`, found damaged at its opening, in one batch
    * through the kept-change line; the landing it resolves removes its row, chooses the most
    * recent session again from the rows when it was that one, and tells the deletion.
    */

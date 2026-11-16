@@ -7,7 +7,7 @@
 import { type Locator, type Page, expect } from '@playwright/test'
 
 /**
- * Intent: land on the workspace's empty state, ready for a fresh session. `search` is an optional
+ * Land on the workspace's empty state, ready for a fresh session. `search` is an optional
  * page-URL query string (e.g. `?prewarm=off`); omitted, the page loads with no query. The app
  * mounts only once its saved data has loaded, so this waits for the workspace to be drawn.
  */
@@ -16,20 +16,20 @@ export async function gotoWorkspace(page: Page, search = ''): Promise<void> {
   await page.locator('.generation-status').waitFor({ state: 'attached' })
 }
 
-/** Intent: the single workspace-header phrase action (Generate/Regenerate/Retry, by current label). */
+/** The single workspace-header phrase action (Generate/Regenerate/Retry, by current label). */
 export function primaryButton(page: Page): Locator {
   return page.getByRole('button', {
     name: /^(Generate|Regenerate|Retry) (phrase|generation|notation)$/,
   })
 }
 
-/** Intent: the persistent, visually hidden generation-status live region. */
+/** The persistent, visually hidden generation-status live region. */
 export function statusRegion(page: Page): Locator {
   return page.locator('.generation-status')
 }
 
 /**
- * Intent: one radio option inside the named radiogroup, resolved by its accessible group label.
+ * One radio option inside the named radiogroup, resolved by its accessible group label.
  * Matches the option name exactly, since several catalogs (e.g. tonal center) share a prefix
  * (`C` / `C-sharp/D-flat`) that a substring match would otherwise conflate.
  */
@@ -39,18 +39,18 @@ export function radio(page: Page, groupLabel: string, optionLabel: string): Loca
     .getByRole('radio', { name: optionLabel, exact: true })
 }
 
-/** Intent: the preset bar's "Preset" box, a native select, by its accessible name. */
+/** The preset bar's "Preset" box, a native select, by its accessible name. */
 export function presetBox(page: Page): Locator {
   return page.getByRole('combobox', { name: 'Preset', exact: true })
 }
 
-/** Intent: the preset bar's description line, the `field-note` the box names as its description. */
+/** The preset bar's description line, the `field-note` the box names as its description. */
 export function presetDescription(page: Page): Locator {
   return page.locator('.preset-bar .field-note')
 }
 
 /**
- * Intent: the box shows `text`, as the player reads it: its selected option's text (a preset's
+ * The box shows `text`, as the player reads it: its selected option's text (a preset's
  * name, "Custom, based on {name}" or "Custom") and its `title`, which holds the full text.
  */
 export async function expectPresetShown(page: Page, text: string): Promise<void> {
@@ -59,7 +59,7 @@ export async function expectPresetShown(page: Page, text: string): Promise<void>
 }
 
 /**
- * Intent: choose a preset by its name through the box, as the player does at Idle or in the
+ * Choose a preset by its name through the box, as the player does at Idle or in the
  * review mode, and wait until the box shows it. A refused choice (Loading, a session) fails here:
  * drive the box directly to prove a refusal.
  */
@@ -69,7 +69,7 @@ export async function choosePreset(page: Page, name: string): Promise<void> {
 }
 
 /**
- * Intent: attach a `MutationObserver` on `generation-status` before an action starts, so every text
+ * Attach a `MutationObserver` on `generation-status` before an action starts, so every text
  * value it takes on (including a value that resolves before Playwright's next poll) is captured.
  */
 export async function observeGenerationStatus(page: Page): Promise<void> {
@@ -85,13 +85,13 @@ export async function observeGenerationStatus(page: Page): Promise<void> {
   })
 }
 
-/** Intent: every text value `generation-status` has taken on since the last `observeGenerationStatus` call. */
+/** Every text value `generation-status` has taken on since the last `observeGenerationStatus` call. */
 export async function readGenerationStatusLog(page: Page): Promise<string[]> {
   return page.evaluate(() => window.__statusLog ?? [])
 }
 
 /**
- * Intent: click the primary phrase action and wait until the request cycle completes, asserting the
+ * Click the primary phrase action and wait until the request cycle completes, asserting the
  * live region announced both "Generating phrase" and "Phrase ready" along the way.
  */
 export async function generateAndAwaitReady(page: Page): Promise<void> {
@@ -119,7 +119,7 @@ export interface PhraseReadyTiming {
 }
 
 /**
- * Intent: click the primary phrase action and time the cycle until `generation-status` reads
+ * Click the primary phrase action and time the cycle until `generation-status` reads
  * "Phrase ready", two ways. The wall-clock figure waits on Playwright's assertion polling, which
  * backs off to one check every 500 ms, so it can overstate a long cycle by up to that much. The
  * in-page figure is exact to the page's clock: a capture-phase click listener stamps the click's

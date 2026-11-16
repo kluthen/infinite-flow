@@ -45,7 +45,7 @@ const SESSION_BUS_ROUTES: readonly SessionBusRoute[] = [
 // @spec-link [[req_session_audio_mix]]
 export type SessionBusTargets = Readonly<Record<SessionBusRoute, WebAudioNodePort>>
 
-/** Intent: a new gain node at gain 1, connected on to `destination`. */
+/** A new gain node at gain 1, connected on to `destination`. */
 function openFadeGain(
   factory: WebAudioNodeFactory,
   destination: WebAudioNodePort,
@@ -57,7 +57,7 @@ function openFadeGain(
 }
 
 /**
- * Intent: fade `fade` from full level at `at` to silence at `at + durationSeconds`, cancelling
+ * Fade `fade` from full level at `at` to silence at `at + durationSeconds`, cancelling
  * whatever was planned on it from `at` on.
  */
 // @spec-link [[rule_stop_ends_session]]
@@ -68,7 +68,7 @@ function fadeToSilence(fade: WebAudioGainNodePort, at: AudioTime, durationSecond
 }
 
 /**
- * Intent: the route a click takes: a click-track click before the forced end goes the count-in's
+ * The route a click takes: a click-track click before the forced end goes the count-in's
  * way, around the click on/off gate; every other click its own route.
  */
 // @spec-link [[rule_jam_click_runs_until_phrase_one]]
@@ -77,7 +77,7 @@ function routeOf(click: ScheduledClick, forcedUntil: AudioTime): ClickRoute {
 }
 
 /**
- * Intent: open one session's bus: a fresh fade gain per route, feeding that route's target, so a
+ * Open one session's bus: a fresh fade gain per route, feeding that route's target, so a
  * count-in click reaches the click volume around the click on/off gate, a click-track click goes
  * through the gate, the backing goes through the backing on/off gate, and each guide through its
  * own on/off gate. Once the click is forced on, a click-track click before the forced end takes
@@ -109,7 +109,7 @@ export function createWebAudioSessionBus(
   }
 
   /**
-   * Intent: sound one guide note on its guide's route, first fading out that guide's note still
+   * Sound one guide note on its guide's route, first fading out that guide's note still
    * ringing on its pitch, then remember it as that pitch's last note.
    */
   // @spec-link [[req_guide_playback]]

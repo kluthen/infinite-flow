@@ -38,7 +38,7 @@ export class HarmonyJoinError extends Error {
 }
 
 /**
- * Intent: true when two triads are the same chord: same degree, pitch classes and quality. Only
+ * True when two triads are the same chord: same degree, pitch classes and quality. Only
  * the triads are compared, so a carried seventh chord fits wherever its triad does: whether a
  * seventh was added is a draw of the phrase, not a property of the harmony settings.
  */
@@ -52,7 +52,7 @@ function sameTriad(left: DiatonicTriad, right: DiatonicTriad): boolean {
 }
 
 /**
- * Intent: true when some candidate of the domain ends on exactly the carried chord's triad and
+ * True when some candidate of the domain ends on exactly the carried chord's triad and
  * role and has the carried endpoint class, i.e. the carried chord is one these harmony settings
  * end on; a carried seventh is not compared.
  */
@@ -74,7 +74,7 @@ export function carriedHarmonyEndsDomain(
 }
 
 /**
- * Intent: true when `candidate` may follow the carried chord: the carried chord is a phrase ending
+ * True when `candidate` may follow the carried chord: the carried chord is a phrase ending
  * (the degree-5 open arrival, or the degree-1 tonic area of static and modal harmony) and the
  * candidate opens on the collection's tonic (degree 1), giving V to I or a tonic restatement.
  */
@@ -86,7 +86,7 @@ export function harmonyJoinFollows(carried: CarriedHarmony, candidate: HarmonyCa
 }
 
 /**
- * Intent: the harmony candidates, in their domain order, that a phrase generated with carry-in may
+ * The harmony candidates, in their domain order, that a phrase generated with carry-in may
  * use after the carried chord. Refuses a carried chord these settings never end a phrase on,
  * since it cannot have come from a phrase of the same session.
  */

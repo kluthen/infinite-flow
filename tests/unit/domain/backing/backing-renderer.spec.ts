@@ -49,7 +49,7 @@ const G_MAJOR: DiatonicTriad = { degree: 5, pitchClasses: [7, 11, 2], quality: '
 const A_MINOR: DiatonicTriad = { degree: 6, pitchClasses: [9, 0, 4], quality: 'minor' }
 const B_DIMINISHED: DiatonicTriad = { degree: 7, pitchClasses: [11, 2, 5], quality: 'diminished' }
 
-/** Intent: a hand-built harmony event; role, template and bar roles do not affect the backing. */
+/** A hand-built harmony event; role, template and bar roles do not affect the backing. */
 function event(
   barIndex: 0 | 1 | 2 | 3,
   startBeat: 0 | 2,
@@ -67,39 +67,39 @@ function event(
   }
 }
 
-/** Intent: a beat count as whole notes (a quarter note is 1/4). */
+/** A beat count as whole notes (a quarter note is 1/4). */
 function beats(count: number): Rational {
   return makeRational(count, 4)
 }
 
-/** Intent: an expected backing note from a MIDI number, a start beat and a length in beats. */
+/** An expected backing note from a MIDI number, a start beat and a length in beats. */
 function note(pitch: number, startBeat: number, lengthBeats: number): BackingNote {
   return { pitch: makeConcertPitch(pitch), start: beats(startBeat), duration: beats(lengthBeats) }
 }
 
-/** Intent: an expected block chord: one note per pitch, all attacked and held together. */
+/** An expected block chord: one note per pitch, all attacked and held together. */
 function chord(pitches: readonly number[], startBeat: number, lengthBeats: number): BackingNote[] {
   return pitches.map((pitch) => note(pitch, startBeat, lengthBeats))
 }
 
-/** Intent: a whole-note time as a beat number, asserting it lands on a whole beat. */
+/** A whole-note time as a beat number, asserting it lands on a whole beat. */
 function beatOf(time: Rational): number {
   const beat = (time.numerator * 4) / time.denominator
   expect(Number.isInteger(beat)).toBe(true)
   return beat
 }
 
-/** Intent: a pitch number's pitch class 0-11. */
+/** A pitch number's pitch class 0-11. */
 function pitchClassOf(pitch: number): number {
   return ((pitch % 12) + 12) % 12
 }
 
-/** Intent: the beat an event starts on, counted from the phrase's start. */
+/** The beat an event starts on, counted from the phrase's start. */
 function eventStart(harmonyEvent: HarmonyEvent): number {
   return harmonyEvent.barIndex * 4 + harmonyEvent.startBeat
 }
 
-/** Intent: the harmony event sounding at a beat; fails the test when none does. */
+/** The harmony event sounding at a beat; fails the test when none does. */
 function eventAt(harmony: readonly HarmonyEvent[], beat: number): HarmonyEvent {
   const found = harmony.find(
     (candidate) =>
@@ -109,14 +109,14 @@ function eventAt(harmony: readonly HarmonyEvent[], beat: number): HarmonyEvent {
   return found
 }
 
-/** Intent: the beats where the backing must attack: every chord change and every downbeat. */
+/** The beats where the backing must attack: every chord change and every downbeat. */
 function expectedAttacks(harmony: readonly HarmonyEvent[]): number[] {
   const attacks = new Set([0, 4, 8, 12, ...harmony.map(eventStart)])
   return [...attacks].sort((a, b) => a - b)
 }
 
 /**
- * Intent: check a rendered backing against every rendering rule for its harmony: attacks, pitch
+ * Check a rendered backing against every rendering rule for its harmony: attacks, pitch
  * classes (every chord tone, the seventh's too), registers, chord shape, bass fifths, and gap-free
  * coverage of the 16 beats.
  */
@@ -178,7 +178,7 @@ function expectBackingFollowsHarmony(
   for (const attack of attacks) expect(bassStarts).toContain(attack)
 }
 
-/** Intent: the harmony candidate domain for one planner input, failing the test if it is empty. */
+/** The harmony candidate domain for one planner input, failing the test if it is empty. */
 function harmonyDomain(
   collection: Collection,
   tonalCenter: 'C' | 'F#',
@@ -195,7 +195,7 @@ function harmonyDomain(
 }
 
 /**
- * Intent: how many of a phrase's four measures change chord on their beat 3 (two chords) and how
+ * How many of a phrase's four measures change chord on their beat 3 (two chords) and how
  * many hold one chord throughout.
  */
 function measureChordCounts(harmony: readonly HarmonyEvent[]): {
@@ -330,7 +330,7 @@ const TRIAD_SHAPES: Readonly<Record<TriadQuality, readonly [number, number]>> = 
   diminished: [3, 6],
 }
 
-/** Intent: a seventh-form event on `root` of `quality` lasting the whole phrase. */
+/** A seventh-form event on `root` of `quality` lasting the whole phrase. */
 function wholePhraseSeventh(root: number, quality: SeventhQuality): HarmonyEvent {
   const [triadQuality, seventh] = SEVENTH_SHAPES[quality]
   const [third, fifth] = TRIAD_SHAPES[triadQuality]
@@ -346,7 +346,7 @@ function wholePhraseSeventh(root: number, quality: SeventhQuality): HarmonyEvent
 }
 
 /**
- * Intent: the expected chord, worked out independently of the renderer: its top is the highest
+ * The expected chord, worked out independently of the renderer: its top is the highest
  * pitch at or below E4 whose pitch class is a chord tone, and close position puts every chord
  * tone in the octave ending on that top, ascending.
  */

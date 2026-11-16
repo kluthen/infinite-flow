@@ -36,13 +36,13 @@ export class GeneratedNotesExportLoadError extends Error {
 
 let modulePromise: Promise<GeneratedNotesExportModule> | null = null
 
-/** Intent: turn any thrown value into a readable message, since a caught value need not be an Error. */
+/** Turn any thrown value into a readable message, since a caught value need not be an Error. */
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
 /**
- * Intent: dynamically import the export module, with both the generated-notes and the
+ * Dynamically import the export module, with both the generated-notes and the
  * played-notes file builders, memoizing the in-flight or settled load so repeat exports never
  * fetch the chunk twice; on a failed import, clear the memo and throw a
  * GeneratedNotesExportLoadError, so a later call runs `import()` again. A browser that keeps the

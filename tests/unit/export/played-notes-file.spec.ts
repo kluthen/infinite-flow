@@ -33,7 +33,7 @@ import {
 import { SESSION_START_EPOCH_MS } from '../session/session-harness'
 import { metaTexts, notesOf, readSmf } from './midi/smf-reader'
 
-/** Intent: a history over `records`, started at `startedAt`, as the export reads it. */
+/** A history over `records`, started at `startedAt`, as the export reads it. */
 function historyOf(records: readonly SessionHistoryRecord[], startedAt = SESSION_START_EPOCH_MS) {
   return { phrases: () => records, startedAt }
 }
@@ -150,7 +150,7 @@ const RAW_DOODLE_TICKS: readonly (readonly number[])[] = [
   [64, 72, 3840, 4224],
 ]
 
-/** Intent: the played track's notes of a file as [pitch, velocity, start tick, end tick]. */
+/** The played track's notes of a file as [pitch, velocity, start tick, end tick]. */
 function playedTicks(bytes: Uint8Array): number[][] {
   return notesOf(readSmf(bytes).tracks[1]!).map((note) => [
     note.pitch,
@@ -160,7 +160,7 @@ function playedTicks(bytes: Uint8Array): number[][] {
   ])
 }
 
-/** Intent: a raw doodle note of `pitch` from `onsetAt`, lasting `seconds`. */
+/** A raw doodle note of `pitch` from `onsetAt`, lasting `seconds`. */
 function rawNote(pitch: number, onsetAt: number, seconds: number): RecordedPlayedNote {
   return { pitch: makeConcertPitch(pitch), velocity: 50, onsetAt, releaseAt: onsetAt + seconds }
 }
@@ -199,7 +199,7 @@ describe("the played-notes file of a Jam's session", () => {
     const doodle = exportPlayedDoodleSection(
       reviewedJamPart([rawNote(62, 1.5, 0.25), rawNote(70, 2, 0.012)]).doodle,
     )
-    /** Intent: the pitches of the file built with the option as given. */
+    /** The pitches of the file built with the option as given. */
     const pitches = (includeVeryShortNotes: boolean) =>
       playedTicks(
         buildPlayedNotesFile(jamHistory(true), { includeVeryShortNotes }, WHOLE_SESSION, doodle)

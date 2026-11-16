@@ -36,7 +36,7 @@ const SAVED_JAZZ: SavedSettings = {
   presetSelection: { kind: 'preset', presetId: 'jazz' },
 }
 
-/** Intent: the records of `settings` with the value of `key` replaced by `value`. */
+/** The records of `settings` with the value of `key` replaced by `value`. */
 function withValue(settings: SavedSettings, key: SettingKey, value: unknown): unknown[] {
   return corrupt(rawRecords(settings), key, (record) => ({ ...record, value }))
 }
@@ -213,7 +213,7 @@ describe('the data version of each setting record', () => {
 
   // @test-link [[rule_outdated_tab_reads_what_it_can]]
   it('leaves a preset selection or level record at data version 4 unread, as newer', () => {
-    /** Intent: a copy of a record as a newer app wrote it. */
+    /** A copy of a record as a newer app wrote it. */
     const newer = (record: RawRecord) => ({ ...record, dataVersion: 4 })
     const records = corrupt(
       corrupt(rawRecords(NON_DEFAULT), 'presetSelection', newer),
@@ -257,7 +257,7 @@ describe('the data version of each setting record', () => {
   })
 })
 
-/** Intent: v3.0's stored selection record holding `value`. */
+/** v3.0's stored selection record holding `value`. */
 function v30Record(value: unknown): RawRecord {
   return { key: V30_PROFILE_SELECTION_KEY, dataVersion: 1, appVersion: '3.0.0', value }
 }

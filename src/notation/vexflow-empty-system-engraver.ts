@@ -68,7 +68,7 @@ const EMPTY_MEASURE_MIN_WIDTHS = [
 ] as const
 
 /**
- * Intent: run `work`, turning any failure into a typed NotationError (a VexFlow `RuntimeError`
+ * Run `work`, turning any failure into a typed NotationError (a VexFlow `RuntimeError`
  * wrapped as `notation_engraving_failed`, with the original as `cause`) and leaving `host` empty.
  */
 function typedEngraving<T>(host: HTMLElement, work: () => T): T {
@@ -87,7 +87,7 @@ function typedEngraving<T>(host: HTMLElement, work: () => T): T {
 }
 
 /**
- * Intent: plan the empty system as the planner plans a phrase whose four measures all take the
+ * Plan the empty system as the planner plans a phrase whose four measures all take the
  * minimum measure width, with the leading width and the system padding a phrase's first system
  * has for this clef and key signature, in the viewport's layout and the shared position size.
  */
@@ -109,7 +109,7 @@ function planEmptySystem(
 }
 
 /**
- * Intent: draw the empty system into `host`: one stave as wide as the system, its top line where
+ * Draw the empty system into `host`: one stave as wide as the system, its top line where
  * the instrument's placement puts a phrase's, carrying the clef, the key signature and 4/4, with the
  * opening line a phrase's first stave keeps (the stave's default start barline) and no end barline.
  */

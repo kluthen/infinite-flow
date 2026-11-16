@@ -72,7 +72,7 @@ export type WorkspacePregenerationFactory = (
 ) => WorkspacePregeneration
 
 /**
- * Intent: the queue's key besides phrase 1: the generation controls except tempo (the instrument
+ * The queue's key besides phrase 1: the generation controls except tempo (the instrument
  * is a control), the seven figure levels in FIGURE_IDS order, session mode's Seventh chords level
  * (a change of it discards, as a figure level's does), Vary settings, Tension across
  * phrases, the restriction in force, whose change discards whether Vary settings is on or not
@@ -103,7 +103,7 @@ function settingsKeyOf(deps: PregenerationControllerSeams): string {
 }
 
 /**
- * Intent: build session mode's queue and start it: it runs at once if every start condition holds
+ * Build session mode's queue and start it: it runs at once if every start condition holds
  * and session mode is not held. A disabled policy builds one that never runs. A programming error
  * met while it runs (an unexpected rejection, or a plan that cannot be built or stepped, a
  * carry-in error included) goes to `fail`, the attempt in flight aborted and the queue emptied; it
@@ -119,7 +119,7 @@ export function createWorkspacePregeneration(
   const { idle } = deps
 
   /**
-   * Intent: the plan's start from phrase 1 and the Idle choices as a session would take them, the
+   * The plan's start from phrase 1 and the Idle choices as a session would take them, the
    * player's rhythm lock, its allowed changes and the allowed groups with them, my instrument's
    * profile taken from phrase 1's intent and the restriction in force frozen in, built as Start
    * builds them, with the settings phrase 1 was generated under, as the stale-phrase prompt's

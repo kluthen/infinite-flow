@@ -54,7 +54,7 @@ export interface IdleLayoutPort {
 export interface IdleLayoutGate extends SessionStaffReports, IdleLayoutPort {}
 
 /**
- * Intent: a gate in front of the Idle machinery's `idle` handlers, passing reports straight on.
+ * A gate in front of the Idle machinery's `idle` handlers, passing reports straight on.
  * A session staff failure goes to the diverting session only; with none diverting it is dropped:
  * the staff stops showing a session when it ends, so an engraving of it still in flight then
  * belongs to no session and reports nowhere.
@@ -66,7 +66,7 @@ export function createIdleLayoutGate(idle: StaffReports): IdleLayoutGate {
   let diverted: SessionStaffReports | null = null
   const observers = new Set<(inputs: StaffLayoutInputs) => void>()
 
-  /** Intent: whoever receives the staff's reports now. */
+  /** Whoever receives the staff's reports now. */
   const receiver = (): StaffReports => diverted ?? idle
 
   return {

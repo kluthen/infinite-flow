@@ -168,13 +168,13 @@ const MIX_GAIN_ORDER: readonly MixGain[] = MIX_CHANNELS.flatMap(
   (channel) => [`${channel}-enable`, `${channel}-volume`] as const,
 )
 
-/** Intent: throw unless `guide` names one of the two guides. */
+/** Throw unless `guide` names one of the two guides. */
 function assertGuide(guide: GuideRole): void {
   if (!GUIDE_ROLES.includes(guide)) throw new Error(`audio transport: ${String(guide)} is no guide`)
 }
 
 /**
- * Intent: build the audio transport. Nothing opens the audio output until `unlock`, which the
+ * Build the audio transport. Nothing opens the audio output until `unlock`, which the
  * player's Start or Connect controller click calls; the mix design, and the loaded mix the mix
  * starts from, are read on first use, when the stylesheet has loaded. Mix changes set their gain
  * at once when unlocked (running or not), and are applied all together at unlock otherwise.
@@ -193,14 +193,14 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
   let session: RunningSession | null = null
   const interruptListeners: (() => void)[] = []
 
-  /** Intent: the mix design, read once on first use. */
+  /** The mix design, read once on first use. */
   function mixDesign(): AudioMixDesign {
     design ??= deps.readMixDesign()
     return design
   }
 
   /**
-   * Intent: the mix the transport starts from, read on first use: the loaded mix, its volumes
+   * The mix the transport starts from, read on first use: the loaded mix, its volumes
    * checked against the design's range (a loaded volume outside it is a defect, and throws), or
    * the design's defaults when none was loaded.
    */
@@ -217,26 +217,26 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     return { ...loaded }
   }
 
-  /** Intent: the current mix, starting from the starting mix. */
+  /** The current mix, starting from the starting mix. */
   function currentMix(): AudioMix {
     current ??= startingMix()
     return current
   }
 
-  /** Intent: the unlocked output; throws before unlock. */
+  /** The unlocked output; throws before unlock. */
   function unlockedOutput(): AudioOutput {
     if (output === null) throw new Error('audio transport: the audio is not unlocked yet')
     return output
   }
 
-  /** Intent: store a new mix and, once unlocked, set the one gain it changed, at once. */
+  /** Store a new mix and, once unlocked, set the one gain it changed, at once. */
   // @spec-link [[rule_guide_switch_takes_effect]]
   function updateMix(next: AudioMix, gain: MixGain): void {
     current = next
     if (output !== null) output.setGain(gain, mixGains(next)[gain], output.now())
   }
 
-  /** Intent: end the running session after the browser interrupted the audio, then say so. */
+  /** End the running session after the browser interrupted the audio, then say so. */
   function handleInterruption(): void {
     if (session === null) return
     session = null
@@ -244,7 +244,7 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     interruptListeners.forEach((listener) => listener())
   }
 
-  /** Intent: open the output once, apply the whole mix to it, and watch for interruptions. */
+  /** Open the output once, apply the whole mix to it, and watch for interruptions. */
   function unlock(): void {
     if (output !== null) return
     const mix = currentMix()
@@ -256,14 +256,14 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     opened.onInterrupted(handleInterruption)
   }
 
-  /** Intent: the running session; throws when none is running. */
+  /** The running session; throws when none is running. */
   function runningSession(): RunningSession {
     if (session === null) throw new Error('audio transport: no session is running')
     return session
   }
 
   /**
-   * Intent: plan a fresh session's count-in and click on a fresh bus, starting just ahead, with
+   * Plan a fresh session's count-in and click on a fresh bus, starting just ahead, with
    * an empty backing queue waiting for phrase 1, phrase 1 on the count-in's end or, with its start
    * `'handed-over'`, nowhere yet; with `clickForced`, the bus's click is forced on with no end yet
    * before anything is planned.
@@ -299,13 +299,13 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     return { startAt: plan.startAt, countInEndsAt: countInEndsAt(plan) }
   }
 
-  /** Intent: whether `guide` is switched on in the current mix, read as each window is planned. */
+  /** Whether `guide` is switched on in the current mix, read as each window is planned. */
   // @spec-link [[rule_guide_switch_takes_effect]]
   function guideOn(guide: GuideRole): boolean {
     return channelOn(currentMix(), guide)
   }
 
-  /** Intent: fade the running session's bus out from now and stop planning its sound. */
+  /** Fade the running session's bus out from now and stop planning its sound. */
   function stop(): TransportStop {
     const out = unlockedOutput()
     if (session === null || scheduler === null) {

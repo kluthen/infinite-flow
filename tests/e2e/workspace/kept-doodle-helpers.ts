@@ -16,23 +16,23 @@ import { expectedNotesOf, noteKey, type ExpectedNoteAt } from '../session/sessio
 export const KEPT_SENTENCE =
   'Jamming again on your doodle: phrase 1 continues it. Leaving Jam mode lets it go.'
 
-/** Intent: the kept doodle's bar, between the score toolbar and the cue row. */
+/** The kept doodle's bar, between the score toolbar and the cue row. */
 export function jamBar(page: Page): Locator {
   return page.locator('.score-panel > .jam-bar')
 }
 
-/** Intent: `jam-bar`'s own sentence. */
+/** `jam-bar`'s own sentence. */
 export function jamBarSentence(page: Page): Locator {
   return jamBar(page).locator(':scope > p')
 }
 
-/** Intent: `jam-bar`'s `New doodle`. */
+/** `jam-bar`'s `New doodle`. */
 export function newDoodleButton(page: Page): Locator {
   return jamBar(page).getByRole('button', { name: 'New doodle', exact: true })
 }
 
 /**
- * Intent: Jam's staff for the kept doodle's phrase 1, at Jam mode's Idle: the one staff frame in
+ * Jam's staff for the kept doodle's phrase 1, at Jam mode's Idle: the one staff frame in
  * sight that is not `staff-jam` (session mode's is out of sight in Jam mode).
  */
 export function keptFrame(page: Page): Locator {
@@ -41,25 +41,25 @@ export function keptFrame(page: Page): Locator {
   )
 }
 
-/** Intent: `staff-jam`'s viewport, Jam's empty system's. */
+/** `staff-jam`'s viewport, Jam's empty system's. */
 export function jamViewport(page: Page): Locator {
   return page
     .locator('.score-panel .staff-viewport')
     .filter({ has: page.locator(':scope > .staff-frame.staff-jam') })
 }
 
-/** Intent: the Review's doodle section. */
+/** The Review's doodle section. */
 export function reviewDoodle(page: Page): Locator {
   return reviewPanel(page).locator('section.review-doodle')
 }
 
-/** Intent: how many `generate` calls the page has made since it loaded. */
+/** How many `generate` calls the page has made since it loaded. */
 export async function generationCount(page: Page): Promise<number> {
   return (await page.evaluate(() => window.__workspaceHarness.generationRequests())).length
 }
 
 /**
- * Intent: how many of the `generate` calls made after the first `from` are Idle attempts at
+ * How many of the `generate` calls made after the first `from` are Idle attempts at
  * phrase 1: those carrying no abort signal (a session's look-ahead and a background attempt carry
  * one).
  */
@@ -76,7 +76,7 @@ export interface KeptPhraseOne {
 }
 
 /**
- * Intent: the latest phrase 1 answered at Idle among the `generate` calls made after the first
+ * The latest phrase 1 answered at Idle among the `generate` calls made after the first
  * `from`: answered, carrying no abort signal (a session's look-ahead and a background attempt
  * carry one).
  */
@@ -93,7 +93,7 @@ export async function keptPhraseOneSince(page: Page, from: number): Promise<Kept
 }
 
 /**
- * Intent: from Jam mode's Idle with no doodle kept, a fresh Jam on a one-measure doodle run into
+ * From Jam mode's Idle with no doodle kept, a fresh Jam on a one-measure doodle run into
  * phrase 1, then Stopped: its Review shows.
  */
 export async function freshJamReviewed(page: Page): Promise<void> {
@@ -103,14 +103,14 @@ export async function freshJamReviewed(page: Page): Promise<void> {
   await expect(reviewTitle(page)).toBeVisible()
 }
 
-/** Intent: wait until the kept doodle's phrase 1 is Ready at Jam mode's Idle, `Start Jam` enabled. */
+/** Wait until the kept doodle's phrase 1 is Ready at Jam mode's Idle, `Start Jam` enabled. */
 export async function untilKeptPhraseOneReady(page: Page): Promise<void> {
   await expect(keptFrame(page)).toHaveClass(/staff-ready/, { timeout: 30_000 })
   await expect(sessionAction(page)).toHaveText('Start Jam')
   await expect(sessionAction(page)).toBeEnabled()
 }
 
-/** Intent: `Close review`, then wait until the kept doodle's phrase 1 is Ready at Jam's Idle. */
+/** `Close review`, then wait until the kept doodle's phrase 1 is Ready at Jam's Idle. */
 export async function closeReview(page: Page): Promise<void> {
   await expect(sessionAction(page)).toHaveText('Close review')
   await sessionAction(page).click()
@@ -119,7 +119,7 @@ export async function closeReview(page: Page): Promise<void> {
 }
 
 /**
- * Intent: whether the kept staff's one start marker stands over `first`'s notehead: its centre
+ * Whether the kept staff's one start marker stands over `first`'s notehead: its centre
  * between the notehead's left and right edges.
  */
 export function markerOverNote(page: Page, first: ExpectedNoteAt): Promise<boolean> {

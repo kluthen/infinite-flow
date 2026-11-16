@@ -96,7 +96,7 @@ import { createEarlierVersionSeeds } from './earlier-version-seams'
 /** How the harness runs the load: at once, or held until the spec releases it. */
 export type HarnessStorageLoadMode = 'immediate' | 'held'
 
-/** Intent: the load mode the page URL asks for; an unknown value throws. */
+/** The load mode the page URL asks for; an unknown value throws. */
 export function harnessStorageLoadMode(search: string): HarnessStorageLoadMode {
   const value = new URLSearchParams(search).get('storageLoad')
   if (value === null) return 'immediate'
@@ -107,7 +107,7 @@ export function harnessStorageLoadMode(search: string): HarnessStorageLoadMode {
 /** How the app's port reads: as the browser does, failing every read, or slower than the wait. */
 export type HarnessStorageReadMode = 'real' | 'fail' | 'slow'
 
-/** Intent: the read mode the page URL asks for; an unknown value throws. */
+/** The read mode the page URL asks for; an unknown value throws. */
 export function harnessStorageReadMode(search: string): HarnessStorageReadMode {
   const value = new URLSearchParams(search).get('storageRead')
   if (value === null) return 'real'
@@ -115,7 +115,7 @@ export function harnessStorageReadMode(search: string): HarnessStorageReadMode {
   throw new Error(`Workspace harness: ?storageRead=${value} is not a read mode (fail, slow)`)
 }
 
-/** Intent: the refusal the page URL asks the app's port to make from the load on; none by default. */
+/** The refusal the page URL asks the app's port to make from the load on; none by default. */
 export function harnessStorageRefusal(search: string): 'quota' | 'other' | null {
   const value = new URLSearchParams(search).get('storageRefuse')
   if (value === null) return null
@@ -136,7 +136,7 @@ interface PortInjections {
 }
 
 /**
- * Intent: the app's port over `real`: each read failed or delayed per the read mode, a kept
+ * The app's port over `real`: each read failed or delayed per the read mode, a kept
  * session's body read refused while those reads are, each change (Delete everything included)
  * counted, then refused when a refusal is set.
  */
@@ -201,7 +201,7 @@ const TIMING_DOODLE = Object.freeze({
 })
 
 /**
- * Intent: a sized kept session for the start-up read measurement: its summary and its body; a
+ * A sized kept session for the start-up read measurement: its summary and its body; a
  * Jam session (`jam`) holds the Jam mark with no decline and, in its body, the four-measure
  * doodle and a fresh Jam's played-notes clock.
  */
@@ -239,7 +239,7 @@ function timingSession(index: number, bodyBytes: number, jam: boolean): StorageC
   ]
 }
 
-/** Intent: a value with every object's keys sorted, so equal values compare equal as JSON. */
+/** A value with every object's keys sorted, so equal values compare equal as JSON. */
 function canonical(value: unknown): unknown {
   if (typeof value !== 'object' || value === null) return value
   if (Array.isArray(value)) return value.map(canonical)
@@ -247,13 +247,13 @@ function canonical(value: unknown): unknown {
   return Object.fromEntries(entries.map(([key, field]) => [key, canonical(field)]))
 }
 
-/** Intent: whether two stored or decoded values are the same value. */
+/** Whether two stored or decoded values are the same value. */
 function sameValue(a: unknown, b: unknown): boolean {
   return JSON.stringify(canonical(a)) === JSON.stringify(canonical(b))
 }
 
 /**
- * Intent: write `changes` straight to the app's IndexedDB database, opened at the version it has
+ * Write `changes` straight to the app's IndexedDB database, opened at the version it has
  * (no upgrade, so no tab turns outdated), in one transaction: for records the port refuses to
  * write, a newer version's.
  */
@@ -280,7 +280,7 @@ async function writeRaw(
   }
 }
 
-/** Intent: the value a decoded set of settings holds at one record key. */
+/** The value a decoded set of settings holds at one record key. */
 function decodedAt(settings: object, key: string): unknown {
   return key.split('.').reduce<unknown>((value, name) => {
     if (typeof value !== 'object' || value === null) return undefined
@@ -289,7 +289,7 @@ function decodedAt(settings: object, key: string): unknown {
 }
 
 /**
- * Intent: the key of each settings record the codec does not read back as the value it holds:
+ * The key of each settings record the codec does not read back as the value it holds:
  * the records are decoded together, as a load decodes them, the preset selection judged against
  * the built-ins and `playerPresets`, and each record's value compared with the decoded value at
  * its key. A record with no string key is reported as `(no key)`.
@@ -310,7 +310,7 @@ function notReadBack(records: readonly unknown[], playerPresets: readonly Preset
   })
 }
 
-/** Intent: the harness's saved data, loaded in `mode`, its port refusing changes as `refusal`. */
+/** The harness's saved data, loaded in `mode`, its port refusing changes as `refusal`. */
 export function createHarnessStorage(
   mode: HarnessStorageLoadMode,
   readMode: HarnessStorageReadMode,
@@ -333,23 +333,23 @@ export function createHarnessStorage(
   // Refused once the load is released or the app's port has opened.
   const earlierSeeds = createEarlierVersionSeeds(() => held && port === null)
 
-  /** Intent: the port the load opened; throws before it has opened. */
+  /** The port the load opened; throws before it has opened. */
   function openedPort(): StoragePort {
     if (port === null) throw new Error('Workspace harness: the storage port has not opened yet')
     return port
   }
 
-  /** Intent: what the load gave; throws before it has ended. */
+  /** What the load gave; throws before it has ended. */
   function finishedLoad(): SavedDataLoad {
     if (loaded === null) throw new Error('Workspace harness: the load has not ended yet')
     return loaded
   }
 
-  /** Intent: wait for the spec's release, publishing it and the held-load seed, when held. */
+  /** Wait for the spec's release, publishing it and the held-load seed, when held. */
   function released(): Promise<void> {
     if (mode === 'immediate') return Promise.resolve()
     return new Promise((resolve) => {
-      /** Intent: end the hold, refusing the earlier versions' seeds from now on; run the load. */
+      /** End the hold, refusing the earlier versions' seeds from now on; run the load. */
       const release = (): void => {
         held = false
         resolve()
@@ -358,7 +358,7 @@ export function createHarnessStorage(
     })
   }
 
-  /** Intent: run the app's load, timed, keeping the port it opens, even late. */
+  /** Run the app's load, timed, keeping the port it opens, even late. */
   async function load(): Promise<SavedDataLoad> {
     await released()
     const startedAt = performance.now()
@@ -377,7 +377,7 @@ export function createHarnessStorage(
     return result
   }
 
-  /** Intent: write one settings record per entry through the settings codec, valid or not. */
+  /** Write one settings record per entry through the settings codec, valid or not. */
   async function seedSettings(values: Readonly<Record<string, unknown>>): Promise<void> {
     const target = openedPort()
     for (const [key, value] of Object.entries(values)) {
@@ -395,7 +395,7 @@ export function createHarnessStorage(
   }
 
   /**
-   * Intent: write the my-instrument record built from `input` through its codec, valid or not:
+   * Write the my-instrument record built from `input` through its codec, valid or not:
    * the codec takes the fields unchecked, so a spec can seed one the load must refuse.
    */
   async function seedMyInstrument(input: WorkspaceHarnessMyInstrumentInput): Promise<void> {
@@ -404,7 +404,7 @@ export function createHarnessStorage(
   }
 
   /**
-   * Intent: write one player preset record per preset through the preset codec, under its id,
+   * Write one player preset record per preset through the preset codec, under its id,
    * each preset first built by the preset model, which refuses an invalid one; a preset given no
    * Seventh chords level is seeded at Off.
    */
@@ -419,12 +419,12 @@ export function createHarnessStorage(
     await openedPort().apply(changes)
   }
 
-  /** Intent: write `entries` to the `presets` store as given, straight to IndexedDB. */
+  /** Write `entries` to the `presets` store as given, straight to IndexedDB. */
   async function seedRawPresets(entries: readonly WorkspaceHarnessRawRecord[]): Promise<void> {
     await writeRaw(entries.map(({ key, record }) => ({ store: 'presets', key, record })))
   }
 
-  /** Intent: write `count` sized kept sessions, in batches. */
+  /** Write `count` sized kept sessions, in batches. */
   async function seedTimingSessions(
     count: number,
     bodyBytes: number,
@@ -444,7 +444,7 @@ export function createHarnessStorage(
     }
   }
 
-  /** Intent: rewrite a kept session's session-wide record as pinned; throws when there is none. */
+  /** Rewrite a kept session's session-wide record as pinned; throws when there is none. */
   async function pinKeptSession(key: string): Promise<void> {
     const target = openedPort()
     const summary: unknown = await target.read('sessionSummaries', key)
@@ -458,7 +458,7 @@ export function createHarnessStorage(
     await target.write('sessionSummaries', key, pinned)
   }
 
-  /** Intent: a kept session under `key` whose session-wide record no codec reads, and a body. */
+  /** A kept session under `key` whose session-wide record no codec reads, and a body. */
   async function seedUnreadableKeptSession(key: string): Promise<void> {
     const summary: RecordVersions & { readonly startedAt: string } = {
       dataVersion: KEPT_SESSION_SUMMARY_DATA_VERSION,
@@ -477,7 +477,7 @@ export function createHarnessStorage(
   }
 
   /**
-   * Intent: a played-notes record of one note under `key`, and the session-wide record stored
+   * A played-notes record of one note under `key`, and the session-wide record stored
    * there, if it has a `playedNotesKept` field, saying they are kept; in one batch.
    */
   async function seedPlayedNotes(key: string): Promise<void> {
@@ -506,7 +506,7 @@ export function createHarnessStorage(
   }
 
   /**
-   * Intent: copy the kept session stored under `from` (its session-wide record and body) under
+   * Copy the kept session stored under `from` (its session-wide record and body) under
    * `key`, its start set to `startedAt`; with `newer`, as a newer version would have written it:
    * one data version up, with a field this version does not know, written past the port.
    */
@@ -552,7 +552,7 @@ export function createHarnessStorage(
   }
 
   /**
-   * Intent: rewrite the body of the kept session under `key` with phrases the codec refuses, its
+   * Rewrite the body of the kept session under `key` with phrases the codec refuses, its
    * envelope current, so the session reads as damaged at its opening; throws when none is stored.
    */
   async function seedDamagedKeptBody(key: string): Promise<void> {

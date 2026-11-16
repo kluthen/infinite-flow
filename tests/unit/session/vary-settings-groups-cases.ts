@@ -48,14 +48,14 @@ export const SPEC_GROUP_SETTINGS: Readonly<Record<VarySettingsGroup, readonly Mu
   figures: ['figureLevels'],
 }
 
-/** Intent: the group the spec puts a setting in; a setting it does not list is a test bug. */
+/** The group the spec puts a setting in; a setting it does not list is a test bug. */
 export function specGroupOf(setting: MutableSetting): VarySettingsGroup {
   const group = SPEC_GROUP_ORDER.find((each) => SPEC_GROUP_SETTINGS[each].includes(setting))
   if (group === undefined) throw new Error(`The spec puts ${setting} in no group.`)
   return group
 }
 
-/** Intent: the allowed groups with exactly the given groups on. */
+/** The allowed groups with exactly the given groups on. */
 export function groupsOn(on: readonly VarySettingsGroup[]): AllowedGroups {
   return {
     keyAndMode: on.includes('keyAndMode'),
@@ -72,7 +72,7 @@ export const EVERY_GROUP_SUBSET: readonly AllowedGroups[] = Array.from({ length:
   groupsOn(SPEC_GROUP_ORDER.filter((_group, bit) => (mask & (1 << bit)) !== 0)),
 )
 
-/** Intent: the settings with these allowed groups and this lock state, the rest kept. */
+/** The settings with these allowed groups and this lock state, the rest kept. */
 export function withGroups(
   settings: SessionSettings,
   allowedGroups: AllowedGroups,
@@ -82,7 +82,7 @@ export function withGroups(
 }
 
 /**
- * Intent: the session's start settings after choosing `presetId` at Idle from C Ionian with
+ * The session's start settings after choosing `presetId` at Idle from C Ionian with
  * Neutral's controls, levels and selection, the restriction in force frozen in, with every group
  * on and the lock off. A Seventh chords level, when given, replaces the preset's (Off for every
  * built-in) and leaves the selection as it is.
@@ -127,7 +127,7 @@ export const GROUP_CONTEXTS: readonly MutationContext[] = [false, true].flatMap(
 )
 
 /**
- * Intent: whether the spec lets Vary settings move a group: its switch is on, and it is not the
+ * Whether the spec lets Vary settings move a group: its switch is on, and it is not the
  * Rhythm group while the lock is on.
  */
 export function specAllows(
@@ -139,7 +139,7 @@ export function specAllows(
 }
 
 /**
- * Intent: the steps the draw lists for these settings with every group on and the lock off, each
+ * The steps the draw lists for these settings with every group on and the lock off, each
  * marked as the spec marks it for the settings' own groups and lock: supported, and of a group
  * the spec allows.
  */
@@ -156,7 +156,7 @@ export function specMarkedCandidates(
   }))
 }
 
-/** Intent: one item of a non-empty list, drawn with a float in [0, 1). */
+/** One item of a non-empty list, drawn with a float in [0, 1). */
 export function pick<T>(items: readonly T[], float: number): T {
   const item = items[Math.floor(float * items.length)]
   if (item === undefined) throw new Error('Cannot pick from an empty list.')

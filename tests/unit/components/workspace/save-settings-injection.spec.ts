@@ -10,7 +10,7 @@ import { injectSaveSettings } from '@/components/workspace/save-settings-injecti
 import type { SaveSettings } from '@/storage/settings-saver'
 import { provideSaveSettings, recordingSaveSettings } from './recording-save-settings'
 
-/** Intent: a component that injects the saver at setup and hands it to `found`. */
+/** A component that injects the saver at setup and hands it to `found`. */
 function injecting(found: (saveSettings: SaveSettings) => void) {
   return defineComponent({
     setup() {

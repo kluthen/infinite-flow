@@ -17,12 +17,12 @@ import type { InstrumentTransposition } from '@/domain/profile/instrument-profil
 
 import type { KeyMode } from './key-suggestion-scores'
 
-/** Intent: a whole number of semitones as a pitch class, 0 to 11, for any sign. */
+/** A whole number of semitones as a pitch class, 0 to 11, for any sign. */
 function pitchClassNumberOf(semitones: number): PitchClassNumber {
   return (((semitones % 12) + 12) % 12) as PitchClassNumber
 }
 
-/** Intent: a concert home note named in written pitch for an instrument. */
+/** A concert home note named in written pitch for an instrument. */
 // @spec-link [[rule_suggestion_candidates]]
 export function writtenHomeNote(
   concert: PitchClassNumber,
@@ -31,7 +31,7 @@ export function writtenHomeNote(
   return PITCH_CLASSES[pitchClassNumberOf(concert + transposition.chromatic)]!
 }
 
-/** Intent: a written home note (Jam's Written key) read back in concert pitch for an instrument. */
+/** A written home note (Jam's Written key) read back in concert pitch for an instrument. */
 // @spec-link [[rule_suggestion_withheld]]
 export function concertHomeNote(
   written: PitchClass,
@@ -40,7 +40,7 @@ export function concertHomeNote(
   return pitchClassNumberOf(PITCH_CLASSES.indexOf(written) - transposition.chromatic)
 }
 
-/** Intent: the mode a Collection is compared as: Major as Ionian, Minor as Aeolian. */
+/** The mode a Collection is compared as: Major as Ionian, Minor as Aeolian. */
 // @spec-link [[rule_suggestion_withheld]]
 export function keyModeOf(collection: Collection): KeyMode {
   if (collection === 'Major') return 'Ionian'
@@ -49,7 +49,7 @@ export function keyModeOf(collection: Collection): KeyMode {
 }
 
 /**
- * Intent: the Collection a drawn mode reads as, and Use it sets, in the family of Jam's current
+ * The Collection a drawn mode reads as, and Use it sets, in the family of Jam's current
  * Collection: Major for Ionian and Minor for Aeolian when Jam's is Major or Minor; else its mode.
  */
 // @spec-link [[rule_suggestion_named_in_players_family]]

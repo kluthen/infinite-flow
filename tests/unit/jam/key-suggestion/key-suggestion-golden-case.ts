@@ -34,7 +34,7 @@ export interface KeySuggestionDescription {
 /** A recorded case: its input and what it gave when recorded. */
 export type KeySuggestionGoldenCase = KeySuggestionCase & KeySuggestionDescription
 
-/** Intent: what the app's functions give for one case, in plain data. */
+/** What the app's functions give for one case, in plain data. */
 export function describeKeySuggestion(input: KeySuggestionCase): KeySuggestionDescription {
   const profile = findBuiltInInstrumentProfile(input.instrumentProfileId)
   if (profile === undefined) {

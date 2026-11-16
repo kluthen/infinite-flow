@@ -86,7 +86,7 @@ const NOTICES: { readonly [K in FixedNoticeKind]: AppNotice } = {
 }
 
 /**
- * Intent: a notice about `count` damaged kept sessions, with `Dismiss` only: the apology for a
+ * A notice about `count` damaged kept sessions, with `Dismiss` only: the apology for a
  * committed deletion, or the save-problem notice's Damaged session not deleted wording for a
  * refused one; {n} in figures.
  */
@@ -108,7 +108,7 @@ function damagedNotice(
 }
 
 /**
- * Intent: the save-problem notice's preset wording, for a refused save of the player preset
+ * The save-problem notice's preset wording, for a refused save of the player preset
  * saved under `name`, with `Dismiss` only; the name as the player wrote it, in typographic quotes.
  */
 // @spec-link [[rule_refused_preset_save_told]]
@@ -147,7 +147,7 @@ export interface RefusedPresetSaves {
 }
 
 /**
- * Intent: the channel of the player presets' refused saves, one per workspace: a refusal reaches
+ * The channel of the player presets' refused saves, one per workspace: a refusal reaches
  * the listeners attached when it is told, and nothing keeps it after.
  */
 // @spec-link [[rule_refused_preset_save_told]]
@@ -188,7 +188,7 @@ export interface AppNotices {
   readonly dismiss: () => void
 }
 
-/** Intent: the notice a dismissible one shows as. */
+/** The notice a dismissible one shows as. */
 function dismissibleNotice(shown: Dismissible): AppNotice {
   if (shown.kind === 'apology') return damagedNotice('damaged-sessions-deleted', shown.count)
   if (shown.kind === 'damaged-not-deleted')
@@ -198,7 +198,7 @@ function dismissibleNotice(shown: Dismissible): AppNotice {
 }
 
 /**
- * Intent: the notice of the moment, ignoring any session: outdated, then unusable, then the
+ * The notice of the moment, ignoring any session: outdated, then unusable, then the
  * undismissed save problem or apology.
  */
 function liveNotice(
@@ -214,7 +214,7 @@ function liveNotice(
 }
 
 /**
- * Intent: the dismissible notice after `report` of a deletion of damaged kept sessions, over
+ * The dismissible notice after `report` of a deletion of damaged kept sessions, over
  * `shown`: a committed one adds its count to an apology showing, else apologises for its own; a
  * refused one raises the save-problem notice in its own wording, or Storage full for lack of space.
  */
@@ -230,7 +230,7 @@ function afterDamagedReport(shown: Dismissible | null, report: DamagedSessionsRe
 }
 
 /**
- * Intent: the dismissible notice after the refused save of the player preset named `name`, over
+ * The dismissible notice after the refused save of the player preset named `name`, over
  * `shown`. The policy has already told its failure listener of that refusal, unless it continued
  * a run under the kind last told: so the save-problem notice shows, with the refusal's kind, just
  * when this refusal is to be told. Its Save failed wording, or an earlier preset's, then takes
@@ -245,13 +245,13 @@ function afterRefusedPresetSave(shown: Dismissible | null, name: string): Dismis
   return toldInPresetWording ? { kind: 'preset-not-saved', name } : shown
 }
 
-/** Intent: whether `shown` is the save-problem notice in a save's wording, preset or not. */
+/** Whether `shown` is the save-problem notice in a save's wording, preset or not. */
 function isSaveProblem(shown: Dismissible | null): boolean {
   return shown?.kind === 'save-problem' || shown?.kind === 'preset-not-saved'
 }
 
 /**
- * Intent: the notice row's notice over the visit's load, the deletions of damaged kept sessions
+ * The notice row's notice over the visit's load, the deletions of damaged kept sessions
  * and the player presets' refused saves, held still while a session runs.
  */
 // @spec-link [[rule_failed_save_never_disturbs_session]]

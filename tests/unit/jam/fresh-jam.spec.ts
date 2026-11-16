@@ -26,7 +26,7 @@ interface RigJam {
   readonly countInEndsAt: AudioTime
 }
 
-/** Intent: a connected rig with a fresh Jam started under the rig's settings. */
+/** A connected rig with a fresh Jam started under the rig's settings. */
 async function startJam(): Promise<RigJam> {
   const rig = controllerRig()
   await connectKeys(rig)
@@ -38,7 +38,7 @@ async function startJam(): Promise<RigJam> {
   return { rig, jam, countInEndsAt: jam.session.timeline.countInEndsAt }
 }
 
-/** Intent: a one-measure doodle of four quarter notes from the count-in's end, played live. */
+/** A one-measure doodle of four quarter notes from the count-in's end, played live. */
 async function playOneMeasure(run: RigJam): Promise<void> {
   for (const [index, pitch] of [60, 62, 64, 65].entries()) {
     await playTo(run.rig, run.countInEndsAt + index * 0.25 + 0.01)
@@ -51,7 +51,7 @@ async function playOneMeasure(run: RigJam): Promise<void> {
 /** What the cue row would show at one moment: the controller's count-in or the Jam's phase. */
 type CueSnapshot = 'count-in' | JamPhase['state']
 
-/** Intent: play to `target`, logging each change of what the cue row reads. */
+/** Play to `target`, logging each change of what the cue row reads. */
 async function cueTo(run: RigJam, target: AudioTime, log: CueSnapshot[]): Promise<void> {
   while (run.rig.audioRig.now() < target) {
     await playTo(run.rig, Math.min(target, run.rig.audioRig.now() + 0.05))
@@ -61,7 +61,7 @@ async function cueTo(run: RigJam, target: AudioTime, log: CueSnapshot[]): Promis
   }
 }
 
-/** Intent: when phrase 1 sounds, as the transport took it from the hand-over. */
+/** When phrase 1 sounds, as the transport took it from the hand-over. */
 function phraseOneStart(run: RigJam): AudioTime {
   return run.rig.transport.phraseStartsAt(1)
 }

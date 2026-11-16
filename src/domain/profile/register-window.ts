@@ -32,7 +32,7 @@ export class RegisterWindowError extends Error {
 }
 
 /**
- * Intent: construct an immutable, deep-frozen RegisterWindow from validated integer endpoints.
+ * Construct an immutable, deep-frozen RegisterWindow from validated integer endpoints.
  * Rejects non-integer endpoints, minMidi > maxMidi, and endpoints outside the plausible MIDI
  * range [0, 127] as a typed failure; never clamps, defaults, or coerces.
  */
@@ -61,13 +61,13 @@ export function makeRegisterWindow(minMidi: number, maxMidi: number): RegisterWi
   return deepFreeze({ kind: 'RegisterWindow', minMidi, maxMidi })
 }
 
-/** Intent: does the given concert pitch fall inside this window, inclusive of both edges? */
+/** Does the given concert pitch fall inside this window, inclusive of both edges? */
 // @spec-link [[module_register_window_resolution_primitives]]
 export function registerWindowContainsPitch(window: RegisterWindow, pitch: number): boolean {
   return pitch >= window.minMidi && pitch <= window.maxMidi
 }
 
-/** Intent: is this window fully contained within the given active concert range? */
+/** Is this window fully contained within the given active concert range? */
 // @spec-link [[module_register_window_resolution_primitives]]
 export function registerWindowIsContainedIn(
   window: RegisterWindow,
@@ -76,7 +76,7 @@ export function registerWindowIsContainedIn(
   return window.minMidi >= range.minMidi && window.maxMidi <= range.maxMidi
 }
 
-/** Intent: do two register windows intersect (share at least one concert pitch)? */
+/** Do two register windows intersect (share at least one concert pitch)? */
 // @spec-link [[module_register_window_resolution_primitives]]
 export function registerWindowsIntersect(a: RegisterWindow, b: RegisterWindow): boolean {
   return a.minMidi <= b.maxMidi && b.minMidi <= a.maxMidi

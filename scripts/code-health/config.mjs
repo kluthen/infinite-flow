@@ -16,11 +16,11 @@ export const ATD_WARN_DISTINCT = 5
 export const ATD_ERROR_DISTINCT = 10
 
 /**
- * ATD scope. CODING_RULE.md §1: "ATD is for business behaviour only. Tooling, scripts, debug,
- * logging, diagnostics, app bootstrap and test plumbing (fixtures, harnesses, shared helpers) stand
- * outside it: they get no atoms and need no links. They still follow every other rule in this
- * file." §6: "≥1 link per business file, ≤10 distinct atoms (warn >5 distinct); repeated links to
- * the same atom count once. Files outside ATD scope (§1) are exempt."
+ * ATD scope. CODING_RULE.md §1: "Declared intent is for business behaviour only. Tooling,
+ * scripts, debug, logging, diagnostics, app bootstrap and test plumbing (fixtures, harnesses,
+ * shared helpers) stand outside it: they get no intent and need no links. They still follow every
+ * other rule in this file." §6: "≥1 link per business file, ≤10 distinct atoms or entries (warn >5
+ * distinct); repeated links to the same id count once. Files outside intent scope (§1) are exempt."
  *
  * A file matching this list is outside that scope: it needs no ATD link and has no distinct-atom
  * limit, but the links it does carry are still checked (phantom id, unattached link, link kind by
@@ -105,7 +105,7 @@ export const BYPASS_TOKENS = {
 }
 
 /**
- * Callee names of the test frameworks (vitest, Playwright): their callbacks need no intent comment,
+ * Callee names of the test frameworks (vitest, Playwright): their callbacks need no doc comment,
  * and an expression statement calling one of them may carry an ATD link.
  */
 export const TEST_FRAMEWORK_CALLS = new Set([

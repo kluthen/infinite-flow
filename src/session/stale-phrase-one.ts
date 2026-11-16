@@ -21,7 +21,7 @@ import { SessionEngineError, type SessionSettings } from './session-types'
 import { ALL_GROUPS_ALLOWED } from './settings-mutation-scales'
 
 /**
- * Intent: the session settings phrase 1 was generated under, as a session takes them: the
+ * The session settings phrase 1 was generated under, as a session takes them: the
  * recorded controls at the session's `tempo` (the tempo never affects generation), the recorded
  * figure levels, Seventh chords level and selection, my instrument's profile taken from phrase 1's
  * intent, which embeds it: after `Start with this phrase`, phrase 1 keeps its own level, and the
@@ -52,7 +52,7 @@ export function phraseOneSettings(
 }
 
 /**
- * Intent: the settings a session's phrase 1 was decided under, frozen: the chosen settings when
+ * The settings a session's phrase 1 was decided under, frozen: the chosen settings when
  * the start gives none, so phrase 2 then joins it as it always did; otherwise phrase 1's own,
  * which must hold the session's tempo and instrument (a session keeps both), or the start is a
  * caller bug.
@@ -77,14 +77,14 @@ export function phraseOneSettingsAtStart(
   return frozen
 }
 
-/** Intent: whether any generation control but the tempo differs between the two controls. */
+/** Whether any generation control but the tempo differs between the two controls. */
 function controlsDiffer(before: GenerationControls, after: GenerationControls): boolean {
   const keys = Object.keys(before) as (keyof GenerationControls)[]
   return keys.some((key) => key !== 'tempo' && before[key] !== after[key])
 }
 
 /**
- * Intent: whether the instrument, as the generation reads it, differs: its concert range or its
+ * Whether the instrument, as the generation reads it, differs: its concert range or its
  * transposition (its id is a control). My instrument's display name, a part of its profile, and
  * its clef, which is not, never count.
  */
@@ -99,7 +99,7 @@ function instrumentDiffers(before: SessionSettings, after: SessionSettings): boo
   )
 }
 
-/** Intent: the chord families (the Seventh chords level) whose level differs, in their order. */
+/** The chord families (the Seventh chords level) whose level differs, in their order. */
 function familiesWithChangedLevels(
   before: SessionSettings,
   after: SessionSettings,
@@ -110,7 +110,7 @@ function familiesWithChangedLevels(
 }
 
 /**
- * Intent: whether phrase 1 is stale: a setting the generation reads has a different value now
+ * Whether phrase 1 is stale: a setting the generation reads has a different value now
  * than when phrase 1 was generated. Values are compared, not edits. Every generation control
  * counts but the tempo, each figure's level and the Seventh chords level count (a change of the
  * selection alone changes none), and the instrument counts as the generation reads it; the
@@ -134,7 +134,7 @@ export function isPhraseOneStale(phraseOne: SessionSettings, current: SessionSet
 export type StaleSetting = Exclude<keyof GenerationControls, 'tempo'> | FigureId | ChordFamilyId
 
 /**
- * Intent: every setting whose value differs from phrase 1's, over what the generation reads, as
+ * Every setting whose value differs from phrase 1's, over what the generation reads, as
  * `isPhraseOneStale` compares them, for the prompt to name: each generation control but the
  * tempo, the instrument's control also when my instrument's range or transposition differs, then
  * each figure whose level differs, in FIGURE_IDS order, then each chord family whose level

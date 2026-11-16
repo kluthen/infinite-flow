@@ -104,7 +104,7 @@ export interface TimedOutcome {
 }
 
 /**
- * Intent: split a clocked outcome into the outcome the session sees, deep-equal to an unclocked
+ * Split a clocked outcome into the outcome the session sees, deep-equal to an unclocked
  * one, and the seconds its diagnostics report for building the rhythm orderings.
  */
 export function splitOrderingsTime(clocked: GenerationOutcome): {
@@ -128,7 +128,7 @@ export function splitOrderingsTime(clocked: GenerationOutcome): {
 export class OutcomeCache {
   private readonly outcomes = new Map<string, TimedOutcome>()
 
-  /** Intent: the real outcome of an intent and its generation time, once per intent content. */
+  /** The real outcome of an intent and its generation time, once per intent content. */
   of(intent: GenerationIntent): TimedOutcome {
     const key = JSON.stringify(withoutTempo(intent))
     const cached = this.outcomes.get(key)
@@ -158,7 +158,7 @@ export type AttemptCost = (
   request: GenerationRequestOutput,
 ) => number
 
-/** Intent: the default cost model: every attempt costs the same modelled time. */
+/** The default cost model: every attempt costs the same modelled time. */
 const flatAttemptCost: AttemptCost = () => ATTEMPT_COST_SECONDS
 
 /**
@@ -228,19 +228,19 @@ interface DueItem {
   readonly run: () => void
 }
 
-/** Intent: let every settled promise run its continuations before the clock moves on. */
+/** Let every settled promise run its continuations before the clock moves on. */
 function drainContinuations(): Promise<void> {
   return new Promise((resolve) => setImmediate(resolve))
 }
 
-/** Intent: the moment phrase N starts sounding in a session started at 0, at a tempo. */
+/** The moment phrase N starts sounding in a session started at 0, at a tempo. */
 export function soundingAt(phraseNumber: number, tempo: number): AudioTime {
   const measure = measureSeconds(tempo)
   return measure * (COUNT_IN_MEASURES + (phraseNumber - 1) * PHRASE_MEASURE_COUNT)
 }
 
 /**
- * Intent: the moment phrase N starts sounding at a tempo, counted from when phrase 1 started
+ * The moment phrase N starts sounding at a tempo, counted from when phrase 1 started
  * sounding (after the count-in, or after a Jam's read-in measure), four measures per phrase.
  */
 function soundingFrom(
@@ -251,13 +251,13 @@ function soundingFrom(
   return phraseOneSoundsAt + (phraseNumber - 1) * PHRASE_MEASURE_COUNT * measureSeconds(tempo)
 }
 
-/** Intent: the moment phrase N starts sounding in a run, from its phrase 1's sounding. */
+/** The moment phrase N starts sounding in a run, from its phrase 1's sounding. */
 export function runSoundingAt(run: TimedSession, phraseNumber: number): AudioTime {
   return soundingFrom(run.phraseOneSoundsAt, phraseNumber, run.tempo)
 }
 
 /**
- * Intent: the transport's events of a session of `phraseCount` phrases whose phrase 1 starts
+ * The transport's events of a session of `phraseCount` phrases whose phrase 1 starts
  * sounding at `phraseOneSoundsAt`: the count-in (or a Jam's read-in measure) over, each later
  * phrase starting to sound, and Stop when the last phrase has sounded.
  */
@@ -266,7 +266,7 @@ function transportEvents(
   phraseCount: number,
   phraseOneSoundsAt: AudioTime,
 ): readonly SessionRunnerEvent[] {
-  /** Intent: when phrase N starts sounding in this run. */
+  /** When phrase N starts sounding in this run. */
   const at = (phraseNumber: number): AudioTime =>
     soundingFrom(phraseOneSoundsAt, phraseNumber, tempo)
   const sounding = Array.from({ length: phraseCount - 1 }, (_, offset) => offset + 2).map(
@@ -284,7 +284,7 @@ function transportEvents(
 }
 
 /**
- * Intent: the runner's fit check: the attempt's written phrase is built from its outcome and
+ * The runner's fit check: the attempt's written phrase is built from its outcome and
  * intent, the step before engraving, and it fits the wide window's staff.
  */
 export function writtenPhraseFits(candidate: {
@@ -298,7 +298,7 @@ export function writtenPhraseFits(candidate: {
 }
 
 /**
- * Intent: the intent of phrase 1 generated with one seed under some settings, their Seventh chords
+ * The intent of phrase 1 generated with one seed under some settings, their Seventh chords
  * level included, exactly as the sweep builds it at Idle, so another way of producing phrase 1 (a
  * Jam's) can ask for the same phrase.
  */
@@ -313,7 +313,7 @@ export function phraseOneIntent(settings: SessionSettings, seed: number): Genera
 }
 
 /**
- * Intent: phrase 1 as the player gets it at Idle, before Start. As in v1, a phrase 1 that fails at
+ * Phrase 1 as the player gets it at Idle, before Start. As in v1, a phrase 1 that fails at
  * Idle is no phrase to start from, and the player generates again; the sweep does the same
  * deterministically, with the next seed each time (the case's seed, then seed + 1, seed + 2, ...),
  * and gives the case up as broken after `IDLE_GENERATIONS` failures.
@@ -362,7 +362,7 @@ export interface TimedSessionOptions {
   readonly jam?: JamHandover
 }
 
-/** Intent: a run's planned phrase count, refusing anything but a whole number of 2 or more. */
+/** A run's planned phrase count, refusing anything but a whole number of 2 or more. */
 function planned(phraseCount: number): number {
   if (!Number.isInteger(phraseCount) || phraseCount < 2)
     throw new Error(`A timed session plans 2 or more phrases, got ${phraseCount}.`)
@@ -370,7 +370,7 @@ function planned(phraseCount: number): number {
 }
 
 /**
- * Intent: play one case's session at a tempo through the real runner on the fake clock, answering
+ * Play one case's session at a tempo through the real runner on the fake clock, answering
  * each attempt as the script says once the serial generator has spent the attempt's cost on it,
  * unless the engine cancels it first, and keep every output with its time. An Idle phase, when
  * given, runs first and the session starts with the phrases it made ready. The run stops at Stop,
@@ -378,7 +378,7 @@ function planned(phraseCount: number): number {
  * chosen settings; none given, the run is the sweep's six-phrase session.
  */
 /**
- * Intent: refuse options only a caller bug can give: a Jam's hand-over beside a phrase 1, chosen
+ * Refuse options only a caller bug can give: a Jam's hand-over beside a phrase 1, chosen
  * settings or an Idle phase, which a fresh Jam has none of.
  */
 function requireOptions(options: TimedSessionOptions, idlePhase: IdlePhase | undefined): void {
@@ -388,7 +388,7 @@ function requireOptions(options: TimedSessionOptions, idlePhase: IdlePhase | und
 }
 
 /**
- * Intent: play one case's session at a tempo through the real runner on the fake clock, answering
+ * Play one case's session at a tempo through the real runner on the fake clock, answering
  * each attempt as the script says once the serial generator has spent the attempt's cost on it,
  * unless the engine cancels it first, and keep every output with its time. An Idle phase, when
  * given, runs first and the session starts with the phrases it made ready. The run stops at Stop,
@@ -459,7 +459,7 @@ export async function runTimedSession(
   let queued = 0
   let latestRequest: GenerationRequestOutput | undefined
 
-  /** Intent: queue work for a moment on the fake clock, after anything already queued for it. */
+  /** Queue work for a moment on the fake clock, after anything already queued for it. */
   function schedule(at: AudioTime, run: () => void): DueItem {
     const item = { at, order: queued++, run }
     due.push(item)
@@ -467,12 +467,12 @@ export async function runTimedSession(
     return item
   }
 
-  /** Intent: take a due item off the fake clock, so it never runs. */
+  /** Take a due item off the fake clock, so it never runs. */
   function unschedule(item: DueItem): void {
     due.splice(due.indexOf(item), 1)
   }
 
-  /** Intent: once the generator is idle, start the next waiting job, as soon as it is free. */
+  /** Once the generator is idle, start the next waiting job, as soon as it is free. */
   function startNext(): void {
     const job = waiting.shift()
     if (job === undefined) return
@@ -481,7 +481,7 @@ export async function runTimedSession(
     current = { job, answer: schedule(startAt + job.cost, () => finish(job)) }
   }
 
-  /** Intent: answer the current job as the script says, then move on to the next one. */
+  /** Answer the current job as the script says, then move on to the next one. */
   function finish(job: GeneratorJob): void {
     current = undefined
     generatorFreeAt = clock.at
@@ -493,7 +493,7 @@ export async function runTimedSession(
   }
 
   /**
-   * Intent: cancel a job, never answering it. The job the generator runs frees it at the cancel
+   * Cancel a job, never answering it. The job the generator runs frees it at the cancel
    * plus the worker's restart cost; a job not started yet (still waiting, or waiting for a restart
    * to end) leaves at no cost; a job already answered or cancelled is left alone.
    */
@@ -510,7 +510,7 @@ export async function runTimedSession(
   }
 
   /**
-   * Intent: hand one attempt to the serial generator, answered as the script says once the
+   * Hand one attempt to the serial generator, answered as the script says once the
    * generator has spent its cost on it, unless its signal cancels it first.
    */
   function generate(intent: GenerationIntent, signal?: AbortSignal): Promise<GenerationOutcome> {
@@ -586,7 +586,7 @@ export async function runTimedSession(
 }
 
 /**
- * Intent: the deadline the session's schedule gives phrase N (2 or more) in a run at a constant
+ * The deadline the session's schedule gives phrase N (2 or more) in a run at a constant
  * tempo: in a session started at 0 with phrase 1, the end of the count-in for phrase 2; otherwise
  * the start of the previous phrase's last measure.
  */
@@ -612,7 +612,7 @@ interface PhraseSlot {
   readonly soundingAt: AudioTime | undefined
 }
 
-/** Intent: the slots of phrases 2 to the run's planned phrase count, in order. */
+/** The slots of phrases 2 to the run's planned phrase count, in order. */
 export function phraseSlots(run: TimedSession): readonly PhraseSlot[] {
   return Array.from({ length: run.phraseCount - 1 }, (_, offset) => offset + 2).map(
     (phraseNumber): PhraseSlot => {
@@ -646,7 +646,7 @@ export function phraseSlots(run: TimedSession): readonly PhraseSlot[] {
   )
 }
 
-/** Intent: the struggling-notice changes of a timed run, each with its time. */
+/** The struggling-notice changes of a timed run, each with its time. */
 export function noticeChanges(
   run: TimedSession,
 ): readonly { readonly visible: boolean; readonly at: AudioTime }[] {
@@ -655,14 +655,14 @@ export function noticeChanges(
   )
 }
 
-/** Intent: how many phrases the run's end reported as sounded, or undefined with no end. */
+/** How many phrases the run's end reported as sounded, or undefined with no end. */
 function soundedAtEnd(run: TimedSession): number | undefined {
   const ended = run.outputs.find(({ output }) => output.kind === 'ended')?.output
   return ended?.kind === 'ended' ? ended.soundedPhraseCount : undefined
 }
 
 /**
- * Intent: every way a run broke the session's guarantees, as readable lines (none when it held):
+ * Every way a run broke the session's guarantees, as readable lines (none when it held):
  * a runner or engine error, a phrase slot never decided, a generated phrase not ready strictly
  * before its deadline, a repeat decided anywhere but at its deadline, a phrase not sounding on the
  * grid, or a session that did not reach its planned end.

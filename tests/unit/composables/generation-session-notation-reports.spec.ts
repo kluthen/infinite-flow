@@ -17,7 +17,7 @@ interface StubResult {
   readonly id: number
 }
 
-/** Intent: build fresh, call-counted request-id/seed providers so a test can prove provider consumption. */
+/** Build fresh, call-counted request-id/seed providers so a test can prove provider consumption. */
 function trackedProviders() {
   let id = 0
   let seed = 0

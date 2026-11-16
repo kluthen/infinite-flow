@@ -69,19 +69,19 @@ interface MelodyNote {
   readonly end: number
 }
 
-/** Intent: how many measures a part lasts. */
+/** How many measures a part lasts. */
 function partMeasures(part: RenderPart): number {
   return part.kind === 'rhythm' ? part.measures.length : part.measureCount
 }
 
-/** Intent: the pitch of note `index` of a measure: the line's note at that place, or its last. */
+/** The pitch of note `index` of a measure: the line's note at that place, or its last. */
 export function linePitch(line: readonly number[], index: number): number {
   if (line.length === 0) throw new Error('A render line needs at least one pitch.')
   return line[Math.min(index, line.length - 1)]!
 }
 
 /**
- * Intent: the notes of a rhythm part starting at MIDI tick `offset`: each note start sounds until
+ * The notes of a rhythm part starting at MIDI tick `offset`: each note start sounds until
  * the next start of the part (in this measure or a later one) or the part's end.
  */
 export function rhythmNotes(
@@ -110,7 +110,7 @@ export function rhythmNotes(
   )
 }
 
-/** Intent: note-on and note-off events of notes, offs before ons at one tick, in time order. */
+/** Note-on and note-off events of notes, offs before ons at one tick, in time order. */
 function noteEvents(
   notes: readonly MelodyNote[],
   channel: number,
@@ -124,7 +124,7 @@ function noteEvents(
   return events.map(({ tick, bytes }) => ({ tick, bytes }))
 }
 
-/** Intent: a click on every beat of `measureCount` measures, the first beat of each a little louder. */
+/** A click on every beat of `measureCount` measures, the first beat of each a little louder. */
 function clickNotes(measureCount: number): readonly MelodyNote[] {
   return Array.from({ length: measureCount * BEATS_PER_MEASURE }, (_, beat) => ({
     pitch: CLICK_PITCH,
@@ -133,18 +133,18 @@ function clickNotes(measureCount: number): readonly MelodyNote[] {
   }))
 }
 
-/** Intent: a click's velocity: a little louder on beat 1 of a measure. */
+/** A click's velocity: a little louder on beat 1 of a measure. */
 function clickVelocity(note: MelodyNote): number {
   return note.start % MIDI_PER_MEASURE === 0 ? CLICK_VELOCITY_DOWNBEAT : CLICK_VELOCITY_BEAT
 }
 
-/** Intent: the microseconds per quarter note of the render tempo. */
+/** The microseconds per quarter note of the render tempo. */
 function renderTempo(): number {
   return Math.round(60_000_000 / RENDER_BPM)
 }
 
 /**
- * Intent: the bytes of one render file: a type 1 file with a conductor track (name, tempo, 4/4,
+ * The bytes of one render file: a type 1 file with a conductor track (name, tempo, 4/4,
  * a marker per part), the melody track and the click track. Crashes on an empty file.
  */
 export function renderMidi(file: RenderFile): Uint8Array {

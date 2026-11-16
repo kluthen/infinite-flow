@@ -64,7 +64,7 @@ interface Rig {
 }
 
 /**
- * Intent: the start every rig and every reference driver shares: 240 BPM unless told otherwise,
+ * The start every rig and every reference driver shares: 240 BPM unless told otherwise,
  * at 0, a real phrase 1.
  */
 function fastStart(tempo = 240): SessionStart {
@@ -81,7 +81,7 @@ function fastStart(tempo = 240): SessionStart {
 }
 
 /**
- * Intent: build a runner at `tempo` (240 BPM by default) whose generate and fit-check calls wait
+ * Build a runner at `tempo` (240 BPM by default) whose generate and fit-check calls wait
  * until the test answers them.
  */
 function rig(tempo = 240): Rig {
@@ -125,33 +125,33 @@ function rig(tempo = 240): Rig {
  */
 const SLOW_TEMPO = 120
 
-/** Intent: let every settled seam promise run its continuation. */
+/** Let every settled seam promise run its continuation. */
 function settle(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
-/** Intent: the latest generate call, failing the test's assertion when there is none. */
+/** The latest generate call, failing the test's assertion when there is none. */
 function lastGeneration(r: Rig): PendingGeneration {
   const pending = r.generations.at(-1)
   expect(pending, 'the runner has called generate').toBeDefined()
   return pending!
 }
 
-/** Intent: the latest fit check, failing the test's assertion when there is none. */
+/** The latest fit check, failing the test's assertion when there is none. */
 function lastFit(r: Rig): PendingFit {
   const pending = r.fits.at(-1)
   expect(pending, 'the runner has called checkFit').toBeDefined()
   return pending!
 }
 
-/** Intent: every request-generation output the runner forwarded. */
+/** Every request-generation output the runner forwarded. */
 function requests(r: Rig): readonly GenerationRequestOutput[] {
   return r.log.filter(
     (output): output is GenerationRequestOutput => output.kind === 'request-generation',
   )
 }
 
-/** Intent: at the clock's time `at`, answer the latest generate call with its real success. */
+/** At the clock's time `at`, answer the latest generate call with its real success. */
 async function succeedAt(r: Rig, at: number): Promise<void> {
   r.clock.at = at
   const pending = lastGeneration(r)
@@ -159,14 +159,14 @@ async function succeedAt(r: Rig, at: number): Promise<void> {
   await settle()
 }
 
-/** Intent: at the clock's time `at`, answer the latest fit check. */
+/** At the clock's time `at`, answer the latest fit check. */
 async function fitAt(r: Rig, at: number, fits: boolean): Promise<void> {
   r.clock.at = at
   lastFit(r).resolve(fits)
   await settle()
 }
 
-/** Intent: at the clock's time `at`, reject the latest generate call with `error`. */
+/** At the clock's time `at`, reject the latest generate call with `error`. */
 async function rejectAt(r: Rig, at: number, error: unknown): Promise<void> {
   r.clock.at = at
   lastGeneration(r).reject(error)

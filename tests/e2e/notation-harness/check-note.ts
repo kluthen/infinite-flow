@@ -9,7 +9,7 @@ import { BUILT_IN_INSTRUMENT_CLEF } from '@/domain/profile/instrument-clef'
 import type { VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import { NotationError } from '@/notation/notation-error'
 
-/** Intent: the page's one `.check-note` host, created on first use and kept for axe and screenshots. */
+/** The page's one `.check-note` host, created on first use and kept for axe and screenshots. */
 function checkNoteHost(): HTMLElement {
   const existing = document.getElementById('check-note-host')
   if (existing) return existing
@@ -20,7 +20,7 @@ function checkNoteHost(): HTMLElement {
   return host
 }
 
-/** Intent: whether the inner box lies inside the outer one, allowing sub-pixel rounding. */
+/** Whether the inner box lies inside the outer one, allowing sub-pixel rounding. */
 function boxInside(inner: DOMRect, outer: DOMRect): boolean {
   const epsilon = 0.5
   return (
@@ -31,7 +31,7 @@ function boxInside(inner: DOMRect, outer: DOMRect): boolean {
   )
 }
 
-/** Intent: the host's content box: its border box less its borders and padding. */
+/** The host's content box: its border box less its borders and padding. */
 function contentBox(host: HTMLElement): DOMRect {
   const style = getComputedStyle(host)
   const box = host.getBoundingClientRect()
@@ -48,7 +48,7 @@ function contentBox(host: HTMLElement): DOMRect {
 }
 
 /**
- * Intent: the `y` of each drawn staff line, top to bottom, in the SVG's own units, read from the
+ * The `y` of each drawn staff line, top to bottom, in the SVG's own units, read from the
  * stave's line paths (`M<x> <y>L<x> <y>`).
  */
 function staffLineYs(svg: SVGSVGElement): number[] {
@@ -59,7 +59,7 @@ function staffLineYs(svg: SVGSVGElement): number[] {
   })
 }
 
-/** Intent: snapshot the host's drawn check note in a serialisable form; crash if nothing was drawn. */
+/** Snapshot the host's drawn check note in a serialisable form; crash if nothing was drawn. */
 function checkNoteSnapshot(host: HTMLElement): NotationHarnessCheckNoteSnapshot {
   const svg = host.querySelector('svg')
   if (!svg) throw new Error('The check note host holds no SVG.')
@@ -95,7 +95,7 @@ function checkNoteSnapshot(host: HTMLElement): NotationHarnessCheckNoteSnapshot 
   }
 }
 
-/** Intent: describe a thrown value in a serialisable form, keeping a NotationError's code. */
+/** Describe a thrown value in a serialisable form, keeping a NotationError's code. */
 function thrownSnapshot(error: unknown): NotationHarnessThrown {
   return {
     name: error instanceof Error ? error.name : typeof error,
@@ -104,7 +104,7 @@ function thrownSnapshot(error: unknown): NotationHarnessThrown {
   }
 }
 
-/** Intent: build the `window.__notationCheckNote` hook on the engraver `readyEngraver` loads. */
+/** Build the `window.__notationCheckNote` hook on the engraver `readyEngraver` loads. */
 // @test-link [[rule_controller_transposition_check]]
 export function notationCheckNoteHook(
   readyEngraver: () => Promise<VexflowEngraverModule>,

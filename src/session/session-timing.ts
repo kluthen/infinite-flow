@@ -17,7 +17,7 @@ import type { AudioTime } from './session-types'
 export const COUNT_IN_MEASURES = 1
 
 /**
- * Intent: the length of one 4/4 measure at a tempo in BPM, in seconds: four beats of 60 / tempo
+ * The length of one 4/4 measure at a tempo in BPM, in seconds: four beats of 60 / tempo
  * seconds each (1 s at 240 BPM, 4 s at 60 BPM).
  */
 // @spec-link [[rule_look_ahead_deadline]]
@@ -27,7 +27,7 @@ export function measureSeconds(tempo: number): number {
 }
 
 /**
- * Intent: a session's length in seconds, from phrase 1's scheduled start to the end of the last
+ * A session's length in seconds, from phrase 1's scheduled start to the end of the last
  * phrase that sounded (four measures at its tempo), from its phrases alone: the length its kept
  * record stores and its Review gives, whether its phrases' starts are audio times or seconds from
  * phrase 1's start.
@@ -41,7 +41,7 @@ export function sessionLengthSeconds(
 }
 
 /**
- * Intent: phrase 2's deadline: the end of the count-in, one measure after the session starts, so
+ * Phrase 2's deadline: the end of the count-in, one measure after the session starts, so
  * phrase 2 is ready as read-ahead from the moment phrase 1 starts sounding.
  */
 // @spec-link [[rule_look_ahead_deadline]]
@@ -51,7 +51,7 @@ export function phraseTwoDeadline(startAt: AudioTime, tempo: number): AudioTime 
 }
 
 /**
- * Intent: the deadline of phrase N+1, given the moment phrase N (2 or more) starts sounding: the
+ * The deadline of phrase N+1, given the moment phrase N (2 or more) starts sounding: the
  * start of phrase N's last measure, which leaves at least one measure of read-ahead on screen.
  */
 // @spec-link [[rule_look_ahead_deadline]]
@@ -68,7 +68,7 @@ export function nextPhraseDeadline(soundingAt: AudioTime, tempo: number): AudioT
 export const JAM_PHRASE_ONE_DEADLINE_MEASURES = 3
 
 /**
- * Intent: a fresh Jam's phrase 1 deadline, given the moment its generation measure begins (the
+ * A fresh Jam's phrase 1 deadline, given the moment its generation measure begins (the
  * doodle's end barline): three measures later at the Jam's tempo (4 s at 180 BPM, 6 s at 120, 12 s
  * at 60). Phrase 1 ready before it is shown at the first barline at or after it is ready, the
  * deadline's barline at the latest; its phrase 2 is due at the start of phrase 1's last measure
@@ -80,7 +80,7 @@ export function jamPhraseOneDeadline(generationMeasureAt: AudioTime, tempo: numb
   return generationMeasureAt + JAM_PHRASE_ONE_DEADLINE_MEASURES * measureSeconds(tempo)
 }
 
-/** Intent: whether a moment has reached a deadline; a result arriving at the deadline is too late. */
+/** Whether a moment has reached a deadline; a result arriving at the deadline is too late. */
 // @spec-link [[rule_look_ahead_deadline]]
 export function deadlineReached(at: AudioTime, deadline: AudioTime): boolean {
   return at >= deadline
@@ -123,7 +123,7 @@ export const STANDALONE_BUDGET_SECONDS = 0.95
 export const STANDALONE_RESERVE_SECONDS = STANDALONE_BUDGET_SECONDS + WORKER_RESPAWN_SECONDS
 
 /**
- * Intent: a look-ahead phrase's cutover time: its deadline minus the standalone reserve, from which
+ * A look-ahead phrase's cutover time: its deadline minus the standalone reserve, from which
  * no carry-in attempt may run.
  */
 // @spec-link [[module_session_look_ahead_timing]]
@@ -133,7 +133,7 @@ export function cutoverAt(deadline: AudioTime): AudioTime {
 }
 
 /**
- * Intent: whether the standalone attempt is due at a moment: the moment is at or after the cutover
+ * Whether the standalone attempt is due at a moment: the moment is at or after the cutover
  * time, so the time left before the deadline is no more than the standalone reserve.
  */
 // @spec-link [[module_session_look_ahead_timing]]

@@ -48,7 +48,7 @@ const INSIDE_BAND_RANK = 0
 const OUTSIDE_BAND_RANK = 1
 
 /**
- * Intent: one measure's start list as heard: every note start, and every rest start but one
+ * One measure's start list as heard: every note start, and every rest start but one
  * right after another rest, so a silence written as two or more rests starts once. A list with no
  * such rest is returned as it is.
  */
@@ -71,7 +71,7 @@ interface MeasureComparison {
 }
 
 /**
- * Intent: compare written measures with the target's measures, memoized by measure pair (the
+ * Compare written measures with the target's measures, memoized by measure pair (the
  * written start list, shared by every measure written alike, and the target measure's position),
  * so each distinct pair is measured once per order.
  */
@@ -95,7 +95,7 @@ function measureComparer(
 }
 
 /**
- * Intent: the preference rank of one rhythm's measures: under the band ordering 0 when every
+ * The preference rank of one rhythm's measures: under the band ordering 0 when every
  * measure is inside the band, else 1 plus the total edits; under the nearest ordering the total
  * edits alone. Throws when the rhythm and the target differ in measure count.
  */
@@ -122,7 +122,7 @@ function rankOf(
 }
 
 /**
- * Intent: the steered rhythm order of one request: the seeded order sorted by each candidate's
+ * The steered rhythm order of one request: the seeded order sorted by each candidate's
  * preference rank against the target (by band, or by nearness alone), the seeded order breaking
  * ties. Ranked once per bar key, since candidates written alike are at the same distance. Under
  * the band ordering with the unbounded band every candidate is inside, so the seeded order is

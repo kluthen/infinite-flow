@@ -50,7 +50,7 @@ const SETTINGS: readonly HarmonySettings[] = COLLECTIONS.flatMap((collection) =>
 )
 
 /**
- * Intent: every chord some settings in C end a phrase on, with its role and endpoint class, each
+ * Every chord some settings in C end a phrase on, with its role and endpoint class, each
  * once, as a triad and with its seventh: the rows of the fit matrix.
  */
 function carriedChords(): readonly (readonly [CarriedHarmony, CarriedHarmony])[] {
@@ -77,7 +77,7 @@ function carriedChords(): readonly (readonly [CarriedHarmony, CarriedHarmony])[]
   return [...seen.values()]
 }
 
-/** Intent: the controls of the receiving phrase. */
+/** The controls of the receiving phrase. */
 function controlsOf(settings: HarmonySettings): GenerationControls {
   return makeGenerationControls({ ...BASE_CONTROLS, ...settings })
 }
@@ -116,7 +116,7 @@ describe('the fit check over the fit matrix, at every level and seed', () => {
   )
 })
 
-/** Intent: session settings in C, every other control the fixture's, the figure levels Neutral's. */
+/** Session settings in C, every other control the fixture's, the figure levels Neutral's. */
 function sessionSettings(settings: HarmonySettings): SessionSettings {
   return {
     controls: controlsOf(settings),
@@ -129,7 +129,7 @@ function sessionSettings(settings: HarmonySettings): SessionSettings {
   }
 }
 
-/** Intent: what an adaptation did to the carried chord: kept, dropped, or no carry-in left. */
+/** What an adaptation did to the carried chord: kept, dropped, or no carry-in left. */
 function chordOutcome(adapted: ReturnType<typeof adaptCarryIn>): string {
   if (adapted.kind === 'standalone') return `standalone:${adapted.register}`
   return adapted.carryIn.finalHarmony === null ? 'dropped' : 'kept'

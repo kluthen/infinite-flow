@@ -24,14 +24,14 @@ export const V32_APP_VERSION = '3.2.0-test'
 /** The production migration steps of v3.2: a database at data version 4. */
 const V3_2_MIGRATIONS = PRODUCTION_MIGRATIONS.slice(0, 4)
 
-/** Intent: refuse, as a fixture defect, a value holding a seventh chord anywhere. */
+/** Refuse, as a fixture defect, a value holding a seventh chord anywhere. */
 function assertNoSeventh(value: unknown, what: string): void {
   if (allKeys(value).has('seventh'))
     throw new Error(`Fixture setup: v3.2 never stored a seventh chord, but ${what} holds one.`)
 }
 
 /**
- * Intent: a stored intent as v3.2 wrote it: the same keys in the same order without the Seventh
+ * A stored intent as v3.2 wrote it: the same keys in the same order without the Seventh
  * chords level. Throws for a level above Off, which v3.2 never stored.
  */
 function v4Intent(intent: Record<string, unknown>): Record<string, unknown> {
@@ -42,7 +42,7 @@ function v4Intent(intent: Record<string, unknown>): Record<string, unknown> {
 }
 
 /**
- * Intent: a stored body as v3.2 wrote it: the same keys in the same order at data version 4, each
+ * A stored body as v3.2 wrote it: the same keys in the same order at data version 4, each
  * phrase's intent without the Seventh chords level. Throws for a body holding a seventh chord or
  * a level above Off, which no v3.2 body held.
  */
@@ -58,7 +58,7 @@ export function v4Body(body: unknown): unknown {
 }
 
 /**
- * Intent: the stored values a session's records had when v3.2 kept them: its body at data version
+ * The stored values a session's records had when v3.2 kept them: its body at data version
  * 4, its session-wide record and played notes as encoded.
  */
 export function v4Session(records: KeptSessionRecords): StoredKeptSession {
@@ -67,7 +67,7 @@ export function v4Session(records: KeptSessionRecords): StoredKeptSession {
 }
 
 /**
- * Intent: a player preset's record as v3.2 wrote it: the same keys in the same order at data
+ * A player preset's record as v3.2 wrote it: the same keys in the same order at data
  * version 3, without the Seventh chords level. Throws for a preset above Off.
  */
 export function v3PresetRecord(
@@ -84,13 +84,13 @@ export function v3PresetRecord(
   ) as RecordVersions & Readonly<Record<string, unknown>>
 }
 
-/** Intent: a port over the factory's database at data version 4, as a v3.2 tab opens it. */
+/** A port over the factory's database at data version 4, as a v3.2 tab opens it. */
 export function openV32Port(factory: IDBFactory): Promise<StoragePort> {
   return openStoragePort({ factory, appVersion: V32_APP_VERSION, migrations: V3_2_MIGRATIONS })
 }
 
 /**
- * Intent: create the database at data version 4 through a v3.2 tab's port and apply `changes` in
+ * Create the database at data version 4 through a v3.2 tab's port and apply `changes` in
  * one batch; the port is returned still open, as a v3.2 tab left open.
  */
 export async function seedVersion4(

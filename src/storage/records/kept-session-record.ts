@@ -175,7 +175,7 @@ export interface KeptSession {
 }
 
 /**
- * Intent: refuse, as caller defects, phrases the session's instrument did not play (every phrase is
+ * Refuse, as caller defects, phrases the session's instrument did not play (every phrase is
  * played with the instrument locked at Start) and favorites that are not phrases of the session or
  * are listed twice; returns the favorites as a set.
  */
@@ -201,7 +201,7 @@ function checkedFavorites(
 }
 
 /**
- * Intent: the played-notes clock of a fresh Jam whose phrase 1 starts at `phraseOneStartsAt` on
+ * The played-notes clock of a fresh Jam whose phrase 1 starts at `phraseOneStartsAt` on
  * the audio clock: its first barline and phrase 1's start in seconds from its count-in's first
  * beat. Throws, as a caller defect, on a first barline before the count-in, a phrase 1 starting
  * at or before the first barline, or a raw doodle note starting before the count-in or at or
@@ -226,7 +226,7 @@ function freshJamClock(fresh: KeptFreshJam, phraseOneStartsAt: number): KeptPlay
 }
 
 /**
- * Intent: the played-notes record of a session's phrases whose phrase 1 starts at
+ * The played-notes record of a session's phrases whose phrase 1 starts at
  * `phraseOneStartsAt` on the audio clock: for a fresh Jam, its raw doodle notes and the phrases'
  * notes in seconds from its count-in's first beat; otherwise the phrases' notes in seconds from
  * phrase 1's start.
@@ -242,7 +242,7 @@ function playedNotesRecord(
 }
 
 /**
- * Intent: the records of a finished session: the session-wide record (its facts from the history,
+ * The records of a finished session: the session-wide record (its facts from the history,
  * the preset label of the preset selection the history keeps from the session's start, named from
  * the presets the session knew, the instrument's display name from phrase 1's intent, the starting
  * tempo from phrase 1, the tempo reached from the last phrase, and whether it is a Jam with, for a
@@ -315,7 +315,7 @@ export function encodeKeptSession(
 }
 
 /**
- * Intent: the played-notes record of a finished session whose notes are kept after its save, the
+ * The played-notes record of a finished session whose notes are kept after its save, the
  * very record its save writes when they are kept: every note placed in a phrase, times in seconds
  * from phrase 1's scheduled start; for a fresh Jam (`fresh` given), its raw doodle notes too, and
  * every time in seconds from its count-in's first beat. Throws, as a caller defect, on a history
@@ -350,7 +350,7 @@ export interface RewrittenKeptBody {
 }
 
 /**
- * Intent: a stored body encoded again after the session's save with phrase `phraseNumber` marked
+ * A stored body encoded again after the session's save with phrase `phraseNumber` marked
  * a favorite or not, as `favorite` says, every other mark and field (the doodle too) as stored,
  * written by `appVersion`; with the number of favorites it then holds. Nothing when no body is
  * stored, or it cannot be read, or a newer app wrote it. Throws, as a caller defect, on a phrase
@@ -380,7 +380,7 @@ export function rewriteKeptBodyFavorite(
 }
 
 /**
- * Intent: refuse a body that disagrees with its session-wide record: another phrase count or
+ * Refuse a body that disagrees with its session-wide record: another phrase count or
  * favorites count, a phrase played on another instrument than the session's, or a doodle held
  * by a session that is no Jam or missing from a Jam.
  */
@@ -397,7 +397,7 @@ function assertBodyMatchesSummary(summary: KeptSessionSummary, body: ParsedKeptB
 }
 
 /**
- * Intent: a session's played notes as read, split by its body's clock: with a fresh Jam's clock,
+ * A session's played notes as read, split by its body's clock: with a fresh Jam's clock,
  * the raw doodle notes before phrase 1 and the others rebased to phrase 1's start; without one,
  * no raw doodle note and every note as read.
  */
@@ -410,7 +410,7 @@ function splitByClock(
 }
 
 /**
- * Intent: the decoded phrases with the played notes placed in them exactly as the session history
+ * The decoded phrases with the played notes placed in them exactly as the session history
  * places them (each in the phrase its onset falls in, by onset), every field copied by name, and
  * an outcome holding only what the records hold: the result's id and seed are the stored request's.
  */
@@ -454,7 +454,7 @@ export interface StoredKeptSession {
   readonly playedNotes: unknown
 }
 
-/** Intent: read current records into a kept session, or throw a refusal for anything invalid. */
+/** Read current records into a kept session, or throw a refusal for anything invalid. */
 function keptSession(stored: StoredKeptSession): KeptSession {
   const summary = parseKeptSessionSummary(stored.summary)
   const body = parseKeptSessionBody(stored.body)
@@ -471,7 +471,7 @@ function keptSession(stored: StoredKeptSession): KeptSession {
 }
 
 /**
- * Intent: a kept session's stored values back into what the review and the exports read: its
+ * A kept session's stored values back into what the review and the exports read: its
  * session-wide facts, its phrases, phrase 1 starting at 0, with the played notes placed in them,
  * and, for a Jam, its doodle, its played-notes clock (a fresh Jam's) and its raw doodle notes: with
  * a clock, the played notes before phrase 1's start on it, in seconds from the count-in's first

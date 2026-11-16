@@ -62,17 +62,17 @@ const GROUP_LABELS = [
 
 type Group = VueWrapper<InstanceType<typeof SessionOptionsControls>>
 
-/** Intent: mount the group with a first visit's choices and `overrides`. */
+/** Mount the group with a first visit's choices and `overrides`. */
 function mountGroup(overrides: Partial<GroupProps> = {}): Group {
   return mount(SessionOptionsControls, { props: { ...FIRST_VISIT, ...overrides } })
 }
 
-/** Intent: the radiogroup of the field labelled `label`. */
+/** The radiogroup of the field labelled `label`. */
 function radiogroup(wrapper: Group, label: string) {
   return wrapper.get(`[role="radiogroup"][aria-label="${label}"]`)
 }
 
-/** Intent: the segment `text` of the field labelled `label`. */
+/** The segment `text` of the field labelled `label`. */
 function segment(wrapper: Group, label: string, text: 'Off' | 'On') {
   const found = radiogroup(wrapper, label)
     .findAll('[role="radio"]')
@@ -81,12 +81,12 @@ function segment(wrapper: Group, label: string, text: 'Off' | 'On') {
   return found
 }
 
-/** Intent: the checked segment's text of the field labelled `label`. */
+/** The checked segment's text of the field labelled `label`. */
 function checked(wrapper: Group, label: string): string {
   return radiogroup(wrapper, label).get('[aria-checked="true"]').text()
 }
 
-/** Intent: the toggle list labelled by the field label `label`, or undefined when absent. */
+/** The toggle list labelled by the field label `label`, or undefined when absent. */
 function toggleList(wrapper: Group, label: string) {
   return wrapper.findAll('[role="group"]').find((group) => {
     const labelId = group.attributes('aria-labelledby')
@@ -94,14 +94,14 @@ function toggleList(wrapper: Group, label: string) {
   })
 }
 
-/** Intent: the toggle list labelled `label`, which must be shown. */
+/** The toggle list labelled `label`, which must be shown. */
 function shownList(wrapper: Group, label: string) {
   const list = toggleList(wrapper, label)
   if (list === undefined) throw new Error(`${label} is not shown`)
   return list
 }
 
-/** Intent: the toggle named `name` in the list labelled `label`. */
+/** The toggle named `name` in the list labelled `label`. */
 function toggle(wrapper: Group, label: string, name: string) {
   const found = shownList(wrapper, label)
     .findAll('button')
@@ -110,7 +110,7 @@ function toggle(wrapper: Group, label: string, name: string) {
   return found
 }
 
-/** Intent: each toggle's name and pressed state in the list labelled `label`. */
+/** Each toggle's name and pressed state in the list labelled `label`. */
 function pressedStates(wrapper: Group, label: string): Record<string, string | undefined> {
   return Object.fromEntries(
     shownList(wrapper, label)
@@ -122,7 +122,7 @@ function pressedStates(wrapper: Group, label: string): Record<string, string | u
   )
 }
 
-/** Intent: the text of the element `id` names, one id. */
+/** The text of the element `id` names, one id. */
 function textOf(wrapper: Group, id: string | undefined): string {
   if (id === undefined) throw new Error('nothing is named')
   return wrapper.get(`#${id}`).text()

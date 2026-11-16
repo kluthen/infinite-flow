@@ -14,7 +14,7 @@ interface PopoverDom {
   readonly elsewhere: HTMLButtonElement
 }
 
-/** Intent: build both openers, the panel with one slider, and an unrelated button in the page. */
+/** Build both openers, the panel with one slider, and an unrelated button in the page. */
 function buildDom(popover: MixVolumePopover): PopoverDom {
   const make = (opener: MixVolumeOpener) => {
     const anchor = document.createElement('div')

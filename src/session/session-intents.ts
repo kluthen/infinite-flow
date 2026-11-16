@@ -88,7 +88,7 @@ export interface BuiltIntent {
 }
 
 /**
- * Intent: the profile the settings' instrument has: my instrument's, carried as data, or a
+ * The profile the settings' instrument has: my instrument's, carried as data, or a
  * built-in's, resolved from its id. Settings naming my instrument without its profile, or a
  * built-in with one, are refused as a GenerationIntentError, as an intent built from them would be.
  */
@@ -99,7 +99,7 @@ export function sessionInstrumentProfile(settings: SessionSettings): InstrumentP
 }
 
 /**
- * Intent: the settings' profile as an intent input takes it: my instrument's profile when the
+ * The settings' profile as an intent input takes it: my instrument's profile when the
  * settings carry one, nothing for a built-in, which the intent resolves from its id.
  */
 function suppliedProfileOf(
@@ -110,7 +110,7 @@ function suppliedProfileOf(
     : { instrumentProfile: settings.instrumentProfile }
 }
 
-/** Intent: a validated, frozen copy of the settings' restriction, when they carry one. */
+/** A validated, frozen copy of the settings' restriction, when they carry one. */
 function restrictionOf(
   settings: SessionSettings,
 ): { readonly restriction: KeyAndModeRestriction } | Record<string, never> {
@@ -119,7 +119,7 @@ function restrictionOf(
     : { restriction: makeKeyAndModeRestriction(settings.restriction) }
 }
 
-/** Intent: a fresh plain copy of a selection, holding only the fields its kind has. */
+/** A fresh plain copy of a selection, holding only the fields its kind has. */
 function selectionCopy(selection: PresetSelection): PresetSelection {
   return selection.kind === 'preset'
     ? { kind: 'preset', presetId: selection.presetId }
@@ -127,7 +127,7 @@ function selectionCopy(selection: PresetSelection): PresetSelection {
 }
 
 /**
- * Intent: a fresh plain copy of Vary settings' allowed groups, refused unless they hold exactly
+ * A fresh plain copy of Vary settings' allowed groups, refused unless they hold exactly
  * the six groups, each on or off.
  */
 function allowedGroupsCopy(allowedGroups: AllowedGroups): AllowedGroups {
@@ -154,7 +154,7 @@ function allowedGroupsCopy(allowedGroups: AllowedGroups): AllowedGroups {
   }
 }
 
-/** Intent: the rhythm lock's state, refused unless it is a boolean. */
+/** The rhythm lock's state, refused unless it is a boolean. */
 function rhythmLockOnOf(settings: SessionSettings): boolean {
   const value: unknown = settings.rhythmLockOn
   if (typeof value !== 'boolean')
@@ -163,7 +163,7 @@ function rhythmLockOnOf(settings: SessionSettings): boolean {
 }
 
 /**
- * Intent: a fresh copy of the allowed rhythm changes, refused unless it is a list of known kinds,
+ * A fresh copy of the allowed rhythm changes, refused unless it is a list of known kinds,
  * each once, in RHYTHM_CHANGE_KINDS order.
  */
 function allowedRhythmChangesCopy(settings: SessionSettings): RhythmChangeKind[] {
@@ -189,7 +189,7 @@ function allowedRhythmChangesCopy(settings: SessionSettings): RhythmChangeKind[]
 }
 
 /**
- * Intent: an independent, deep-frozen copy of the chosen settings, so nothing the caller does to
+ * An independent, deep-frozen copy of the chosen settings, so nothing the caller does to
  * its own objects after the start can reach the session. The controls and the figure levels are
  * validated on the way, and so is the Seventh chords level (settings without exactly one known
  * level per chord family are refused), the selection is copied as a plain value, and my
@@ -220,7 +220,7 @@ export function freezeSessionSettings(settings: SessionSettings): SessionSetting
 }
 
 /**
- * Intent: the settings a session starts with: the chosen controls, figure levels, Seventh chords
+ * The settings a session starts with: the chosen controls, figure levels, Seventh chords
  * level and selection, Vary settings' allowed groups, whether the rhythm lock is on and its
  * allowed changes, and, when
  * the controls name my instrument, its profile as phrase 1's intent embeds it, so the session
@@ -255,7 +255,7 @@ export function sessionSettingsAtStart(
 }
 
 /**
- * Intent: the register identity whose window is the carried window: the session's resolved
+ * The register identity whose window is the carried window: the session's resolved
  * register, which a standalone retry keeps. No such window means the carry-in did not come from
  * this session's instrument, which is a caller bug.
  */
@@ -276,7 +276,7 @@ export function resolvedRegister(
 }
 
 /**
- * Intent: build one attempt's intent from the settings in effect with a fresh request id and the
+ * Build one attempt's intent from the settings in effect with a fresh request id and the
  * seed the session seed plan gives its slot (its phrase and rung), whatever ran before it. The
  * note density comes from the density in effect, the window reading now and the step-down memory;
  * building it as Eighth for a Sixteenth in effect sets the memory, whatever the attempt's fate. A
@@ -334,7 +334,7 @@ export function buildAttemptIntent(
 }
 
 /**
- * Intent: draw and discard the request id of each skipped ladder rung, so the attempt requested
+ * Draw and discard the request id of each skipped ladder rung, so the attempt requested
  * after the skip gets exactly the request id it would have had if those rungs had run and failed.
  * No seed is drawn: a skipped rung's planned seed is simply unused and shifts no other seed. The
  * window is not read for them: the attempt requested next reads it at the same moment, so the

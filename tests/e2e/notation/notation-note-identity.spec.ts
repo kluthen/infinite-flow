@@ -55,7 +55,7 @@ interface EngravedTags {
   }[]
 }
 
-/** Intent: open the harness on a fixture at a viewport and frame width, and wait until it is ready. */
+/** Open the harness on a fixture at a viewport and frame width, and wait until it is ready. */
 async function engraveFixture(
   page: Page,
   viewport: { width: number; height: number },
@@ -71,7 +71,7 @@ async function engraveFixture(
   return harness
 }
 
-/** Intent: read every tag, chord-symbol mark and band rectangle off the engraved SVGs. */
+/** Read every tag, chord-symbol mark and band rectangle off the engraved SVGs. */
 async function readEngravedTags(page: Page): Promise<EngravedTags> {
   return page.evaluate((partNames) => {
     const violations: string[] = []
@@ -156,17 +156,17 @@ async function readEngravedTags(page: Page): Promise<EngravedTags> {
   }, PART_NAMES)
 }
 
-/** Intent: the attribute value an identity is written as. */
+/** The attribute value an identity is written as. */
 function keyOf(identity: NotationHarnessNoteIdentity): string {
   return `${identity.phraseNumber}:${identity.measureIndex}:${identity.eventIndex}`
 }
 
-/** Intent: whether a written glyph draws a stem (every note value but the whole note). */
+/** Whether a written glyph draws a stem (every note value but the whole note). */
 function hasStem(fact: NotationHarnessGlyphFact): boolean {
   return fact.kind === 'note' && fact.value !== 'whole'
 }
 
-/** Intent: whether a written glyph draws its own flag (an unbeamed eighth or sixteenth). */
+/** Whether a written glyph draws its own flag (an unbeamed eighth or sixteenth). */
 function hasFlag(fact: NotationHarnessGlyphFact): boolean {
   return (
     fact.kind === 'note' && !fact.beamed && (fact.value === 'eighth' || fact.value === 'sixteenth')
@@ -174,7 +174,7 @@ function hasFlag(fact: NotationHarnessGlyphFact): boolean {
 }
 
 /**
- * Intent: check every glyph's tags against the harness's identities and written facts: each note
+ * Check every glyph's tags against the harness's identities and written facts: each note
  * glyph's own parts carry its attack's key, rests carry nothing, each key's part totals (beamed
  * stems included) match its glyphs, chord symbols name only attacks, and nothing else is tagged.
  */
@@ -229,7 +229,7 @@ function expectGlyphTags(harness: NotationHarnessState, tags: EngravedTags): voi
 }
 
 /**
- * Intent: check every measure-slot's band rectangle: numeric, inside its SVG, contiguous from one
+ * Check every measure-slot's band rectangle: numeric, inside its SVG, contiguous from one
  * measure to the next along a system (barline to barline), and one height per system.
  */
 function expectBands(tags: EngravedTags): void {

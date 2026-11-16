@@ -120,7 +120,7 @@ type Stage =
   | { readonly kind: 'over' }
 
 /**
- * Intent: the attempt after a failed one, or undefined after rung 3: rung 3 once the standalone
+ * The attempt after a failed one, or undefined after rung 3: rung 3 once the standalone
  * attempt is due; rung 2 after a rung 1 attempt whose search covered every candidate
  * (no_legal_pitch_plan: its retries would fail the same way, whatever the seed); the next one
  * otherwise. Phrase 1 written at Idle from a kept doodle climbs the same way, with no deadline, so
@@ -141,7 +141,7 @@ export function attemptAfter(
 }
 
 /**
- * Intent: one fresh Jam's way to phrase 1, over its capture (started at the Jam's count-in), under
+ * One fresh Jam's way to phrase 1, over its capture (started at the Jam's count-in), under
  * Jam's settings and drift (the deadline at their tempo); see JamPhraseOne. It waits for the
  * doodle's end; each candidate end (or the end by length) gives every attempt its inputs and the
  * deadline, three measures after the generation measure begins (the end's barline). The first
@@ -166,7 +166,7 @@ export function createJamPhraseOne(
   let steppedDown = false
   let lastAt = Number.NEGATIVE_INFINITY
 
-  /** Intent: ask for attempt `index` at `at`, discarding the request ids of the attempts skipped. */
+  /** Ask for attempt `index` at `at`, discarding the request ids of the attempts skipped. */
   function request(
     climbing: Extract<Stage, { kind: 'climbing' }>,
     index: JamPhraseOneAttemptIndex,
@@ -197,7 +197,7 @@ export function createJamPhraseOne(
     return [{ kind: 'session-event', event }]
   }
 
-  /** Intent: start the ladder on a doodle end at `at`: its inputs, its deadline, its first attempt. */
+  /** Start the ladder on a doodle end at `at`: its inputs, its deadline, its first attempt. */
   function climb(end: RecordedDoodle, at: AudioTime): JamPhraseOneOutput[] {
     const attempts = doodleAttempts(end.doodle, jam)
     const deadline = jamPhraseOneDeadline(end.endBarlineAt, jam.settings.controls.tempo)
@@ -217,7 +217,7 @@ export function createJamPhraseOne(
     return request(climbing, first, first, at)
   }
 
-  /** Intent: the Jam ends at `at`, no phrase 1 having come by its deadline; the capture stops. */
+  /** The Jam ends at `at`, no phrase 1 having come by its deadline; the capture stops. */
   function fail(at: AudioTime): JamPhraseOneOutput[] {
     stage = { kind: 'over' }
     capture.end()
@@ -225,7 +225,7 @@ export function createJamPhraseOne(
   }
 
   /**
-   * Intent: the ladder's own decision at `at` while climbing: the end at the deadline; from the
+   * The ladder's own decision at `at` while climbing: the end at the deadline; from the
    * cutover on, a rung 1 or 2 attempt still generating is superseded by rung 3 (the session
    * cancels it).
    */
@@ -238,7 +238,7 @@ export function createJamPhraseOne(
     return request(stage, STANDALONE_ATTEMPT, STANDALONE_ATTEMPT - attempt.index - 1, at)
   }
 
-  /** Intent: when the ladder's own next decision falls: the cutover or the deadline, or none. */
+  /** When the ladder's own next decision falls: the cutover or the deadline, or none. */
   function ladderDecisionAt(): AudioTime | null {
     if (stage.kind !== 'climbing') return null
     const { attempt, deadline } = stage
@@ -249,7 +249,7 @@ export function createJamPhraseOne(
     return cuttable ? cutoverAt(deadline) : deadline
   }
 
-  /** Intent: drop the ladder's attempt on a voided candidate end; the session cancels it. */
+  /** Drop the ladder's attempt on a voided candidate end; the session cancels it. */
   function voided(at: AudioTime): JamPhraseOneOutput[] {
     if (stage.kind === 'waiting' || stage.kind === 'over') return []
     stage = { kind: 'waiting' }
@@ -257,7 +257,7 @@ export function createJamPhraseOne(
   }
 
   /**
-   * Intent: phrase 1 shown by the capture: hand the fitting attempt over, sounding at `soundsAt`,
+   * Phrase 1 shown by the capture: hand the fitting attempt over, sounding at `soundsAt`,
    * then give the doodle's readings it was written with.
    */
   function shown(at: AudioTime, soundsAt: AudioTime): JamPhraseOneOutput[] {
@@ -271,7 +271,7 @@ export function createJamPhraseOne(
     ]
   }
 
-  /** Intent: what one capture output asks of the ladder. */
+  /** What one capture output asks of the ladder. */
   function onCapture(output: JamCaptureOutput): JamPhraseOneOutput[] {
     const { at } = output
     switch (output.kind) {
@@ -296,13 +296,13 @@ export function createJamPhraseOne(
     }
   }
 
-  /** Intent: each capture output passed on, followed by what it asks of the ladder. */
+  /** Each capture output passed on, followed by what it asks of the ladder. */
   function fromCapture(outputs: readonly JamCaptureOutput[]): JamPhraseOneOutput[] {
     return outputs.flatMap((output) => [{ kind: 'capture', output } as const, ...onCapture(output)])
   }
 
   /**
-   * Intent: take every decision due by `at`, the capture's and the ladder's, in time order (the
+   * Take every decision due by `at`, the capture's and the ladder's, in time order (the
    * ladder's first on a tie).
    */
   function runUntil(at: AudioTime): JamPhraseOneOutput[] {
@@ -318,7 +318,7 @@ export function createJamPhraseOne(
     }
   }
 
-  /** Intent: the in-flight attempt `attemptId` names, or undefined for a superseded one. */
+  /** The in-flight attempt `attemptId` names, or undefined for a superseded one. */
   function named(attemptId: number): InFlight | undefined {
     if (stage.kind !== 'climbing') return undefined
     const { attempt } = stage
@@ -326,7 +326,7 @@ export function createJamPhraseOne(
   }
 
   /**
-   * Intent: a phrase 1 attempt's result at `at`: ready when it fits (the capture told, and showing
+   * A phrase 1 attempt's result at `at`: ready when it fits (the capture told, and showing
    * it when the barline is now), the next attempt otherwise.
    */
   function onResult(
@@ -348,7 +348,7 @@ export function createJamPhraseOne(
     return request(stage, next, next - attempt.index - 1, at)
   }
 
-  /** Intent: one engine output: its phrase 1 request, fit check and result; others are not ours. */
+  /** One engine output: its phrase 1 request, fit check and result; others are not ours. */
   function onSession(output: SessionOutput, at: AudioTime): JamPhraseOneOutput[] {
     if (output.kind === 'phrase-one-attempt-result')
       return onResult(output.attemptId, output.result, at)
@@ -364,7 +364,7 @@ export function createJamPhraseOne(
   }
 
   /**
-   * Intent: at `at` (never before the last time reached), take what is due, then `handle`, unless
+   * At `at` (never before the last time reached), take what is due, then `handle`, unless
    * the way to phrase 1 is over by then.
    */
   function at(

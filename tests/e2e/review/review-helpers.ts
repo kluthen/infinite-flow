@@ -34,59 +34,59 @@ import {
 /** The Review's title, which a session end once phrase 1 has sounded shows. */
 export const REVIEW_TITLE = 'Last session'
 
-/** Intent: the Review panel, in the staff area's place. */
+/** The Review panel, in the staff area's place. */
 export function reviewPanel(page: Page): Locator {
   return page.locator('.score-panel > section.review-panel')
 }
 
-/** Intent: the Review's `review-title` heading. */
+/** The Review's `review-title` heading. */
 export function reviewTitle(page: Page): Locator {
   return reviewPanel(page).locator('h2.review-title')
 }
 
-/** Intent: the Review's list items, one per phrase, in order. */
+/** The Review's list items, one per phrase, in order. */
 export function reviewItems(page: Page): Locator {
   return reviewPanel(page).locator('ol.review-list > li.review-phrase')
 }
 
-/** Intent: the cue row's `Review last session` link. */
+/** The cue row's `Review last session` link. */
 export function reviewLink(page: Page): Locator {
   return cueRow(page).locator('button.review-link')
 }
 
-/** Intent: the hidden staff's viewport, out of sight while the Review shows. */
+/** The hidden staff's viewport, out of sight while the Review shows. */
 export function staffViewport(page: Page): Locator {
   return page.locator('.score-panel > div > .staff-viewport')
 }
 
-/** Intent: the Review's `Export generated notes` button, in the generated-notes group. */
+/** The Review's `Export generated notes` button, in the generated-notes group. */
 export function exportButton(page: Page): Locator {
   return reviewPanel(page).locator('.review-export > button.review-export-action')
 }
 
 /**
- * Intent: the Review's `Export played notes` button, in the played-notes group after the
+ * The Review's `Export played notes` button, in the played-notes group after the
  * generated-notes group (rendered only when the session holds a played note).
  */
 export function exportPlayedButton(page: Page): Locator {
   return reviewPanel(page).locator('.review-export-played > button.review-export-action')
 }
 
-/** Intent: the played-notes export's `Include very short notes` toggle. */
+/** The played-notes export's `Include very short notes` toggle. */
 export function includeVeryShortNotesToggle(page: Page): Locator {
   return reviewPanel(page)
     .locator('.review-export-played')
     .getByRole('button', { name: 'Include very short notes', exact: true })
 }
 
-/** Intent: the Review's `Played notes` switch (rendered only with a played note in the session). */
+/** The Review's `Played notes` switch (rendered only with a played note in the session). */
 export function playedNotesToggle(page: Page): Locator {
   return reviewPanel(page)
     .locator('.review-view')
     .getByRole('button', { name: 'Played notes', exact: true })
 }
 
-/** Intent: the Review's `Keep my played notes` switch (rendered only with a played note). */
+/** The Review's `Keep my played notes` switch (rendered only with a played note). */
 export function keepPlayedNotesToggle(page: Page): Locator {
   return reviewPanel(page).locator('.review-view').getByRole('button', {
     name: 'Keep my played notes',
@@ -94,7 +94,7 @@ export function keepPlayedNotesToggle(page: Page): Locator {
   })
 }
 
-/** Intent: the Review's `Delete played notes` button (only when its played notes are kept). */
+/** The Review's `Delete played notes` button (only when its played notes are kept). */
 export function deletePlayedNotesButton(page: Page): Locator {
   return reviewPanel(page).locator('.review-view').getByRole('button', {
     name: 'Delete played notes',
@@ -102,25 +102,25 @@ export function deletePlayedNotesButton(page: Page): Locator {
   })
 }
 
-/** Intent: the Review's export error. */
+/** The Review's export error. */
 export function exportError(page: Page): Locator {
   return reviewPanel(page).locator('.review-export-error')
 }
 
-/** Intent: one of the export's Format options, `MusicXML` or `MIDI`. */
+/** One of the export's Format options, `MusicXML` or `MIDI`. */
 export function formatOption(page: Page, label: 'MusicXML' | 'MIDI'): Locator {
   return reviewPanel(page)
     .getByRole('radiogroup', { name: 'Format' })
     .getByRole('radio', { name: label, exact: true })
 }
 
-/** Intent: the export's `Backing track` toggle (rendered only while MIDI is picked). */
+/** The export's `Backing track` toggle (rendered only while MIDI is picked). */
 export function backingTrackToggle(page: Page): Locator {
   return reviewPanel(page).getByRole('button', { name: 'Backing track', exact: true })
 }
 
 /**
- * Intent: with a session running, play on until phrase `lastSounded` has started sounding, each
+ * With a session running, play on until phrase `lastSounded` has started sounding, each
  * phrase readied before the clock passes its deadline (phrase 2's is phrase 1's start) so none is
  * a repeat unless forced, and the next one readied too, so it is drawn as read-ahead without ever
  * sounding.
@@ -135,7 +135,7 @@ export async function playUntilPhrase(page: Page, lastSounded: number): Promise<
 }
 
 /**
- * Intent: start a session from Ready (phrase 1 seeded with `seed`), play until phrase
+ * Start a session from Ready (phrase 1 seeded with `seed`), play until phrase
  * `lastSounded` has started sounding with the next one only read ahead, run `beforeStop`, then
  * Stop: the Review opens. Returns phrase 1's concert timeline.
  */
@@ -156,7 +156,7 @@ export async function sessionEndedAfter(
 }
 
 /**
- * Intent: assert the Review shows for `phraseCount` phrases: the controller's Review showing, the
+ * Assert the Review shows for `phraseCount` phrases: the controller's Review showing, the
  * panel titled, `Close review` in the session action's slot, primary and focused.
  */
 export async function expectReviewShowing(page: Page, phraseCount: number): Promise<void> {
@@ -171,7 +171,7 @@ export async function expectReviewShowing(page: Page, phraseCount: number): Prom
   expect(state.lastEnd?.soundedPhraseCount).toBe(phraseCount)
 }
 
-/** Intent: wait until the hidden staff is in Ready again, with a phrase drawn at Idle. */
+/** Wait until the hidden staff is in Ready again, with a phrase drawn at Idle. */
 export async function expectIdleReady(page: Page): Promise<void> {
   await expect
     .poll(async () => (await harnessSnapshot(page)).operation, { timeout: 30_000 })
@@ -184,7 +184,7 @@ export interface Downloads {
   readonly all: Download[]
 }
 
-/** Intent: collect every download the page starts from now on. */
+/** Collect every download the page starts from now on. */
 export function collectDownloads(page: Page): Downloads {
   const all: Download[] = []
   page.on('download', (download) => all.push(download))
@@ -198,7 +198,7 @@ export interface DownloadedFile {
 }
 
 /**
- * Intent: click `button`, `Export generated notes` unless another is given, once and wait for the
+ * Click `button`, `Export generated notes` unless another is given, once and wait for the
  * action to finish: exactly one file built by the export and exactly one download started, read
  * back whole.
  */
@@ -220,7 +220,7 @@ export async function exportOnce(
   return { fileName: started.suggestedFilename(), bytes: await readFile(path) }
 }
 
-/** Intent: how many files the Review's export has built since the page loaded. */
+/** How many files the Review's export has built since the page loaded. */
 export function exportsBuilt(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.exportsBuilt())
 }
@@ -233,7 +233,7 @@ export const STARTED_AT = Date.UTC(2026, 9, 2, 14, 3, 5)
  */
 export const STEM = 'infinite-flow-2026-10-02-160305'
 
-/** Intent: fix the wall clock the next session's history reads its start from, at `STARTED_AT`. */
+/** Fix the wall clock the next session's history reads its start from, at `STARTED_AT`. */
 export function fixWallClock(page: Page): Promise<void> {
   return page.evaluate((at) => window.__workspaceHarness.setWallClock(at), STARTED_AT)
 }
@@ -242,7 +242,7 @@ export function fixWallClock(page: Page): Promise<void> {
 export const HELD_NOTE_SECONDS = 0.1
 
 /**
- * Intent: a note held `seconds` from audio time `at` (now by default), released by `before` at the
+ * A note held `seconds` from audio time `at` (now by default), released by `before` at the
  * latest (the next note's onset: the controller keeps its messages' times in order). Its note-off
  * is timestamped ahead of the fake clock, which places it there.
  */
@@ -262,7 +262,7 @@ async function hold(
 }
 
 /**
- * Intent: on a fresh page (at `size`, the desktop one unless given) with the keyboard connected
+ * On a fresh page (at `size`, the desktop one unless given) with the keyboard connected
  * and the wall clock fixed, run the same session (phrase 1 seeded 7, Start clicked, Stop once
  * phrase 2 sounds), playing notes into it (one right, two wrong, the first two each exactly on a
  * written note's onset), each held `heldSeconds` (0: taps, all three very short), or none; the
@@ -306,14 +306,14 @@ export interface ExportedFiles {
   readonly midiWithBacking: Buffer
 }
 
-/** Intent: pick a format in the export's Format control. */
+/** Pick a format in the export's Format control. */
 export async function pickFormat(page: Page, label: 'MusicXML' | 'MIDI'): Promise<void> {
   await formatOption(page, label).click()
   await expect(formatOption(page, label)).toHaveAttribute('aria-checked', 'true')
 }
 
 /**
- * Intent: from a Review at the first-load export settings, export MusicXML, then MIDI, then MIDI
+ * From a Review at the first-load export settings, export MusicXML, then MIDI, then MIDI
  * with the backing track, each twice, checking each pair is byte-identical and named from `STEM`.
  */
 export async function exportEach(page: Page, downloads: Downloads): Promise<ExportedFiles> {

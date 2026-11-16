@@ -28,7 +28,7 @@ export interface HarnessSessionBrowser {
   readonly windowShape: () => WorkspaceHarnessWindowShape
 }
 
-/** Intent: one fake lock's controls as plain-JSON harness calls. */
+/** One fake lock's controls as plain-JSON harness calls. */
 function lockApi(lock: FakeScreenLockControls): WorkspaceHarnessScreenLockApi {
   return {
     setBehaviour: (behaviour) => lock.setBehaviour(behaviour),
@@ -41,7 +41,7 @@ function lockApi(lock: FakeScreenLockControls): WorkspaceHarnessScreenLockApi {
 }
 
 /**
- * Intent: build the harness's session browser: fake locks (granting until told otherwise), a fake
+ * Build the harness's session browser: fake locks (granting until told otherwise), a fake
  * page visibility, and the real window shape, page activation and page leaving, with the APIs a
  * spec drives them through.
  */

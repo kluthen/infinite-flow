@@ -145,7 +145,7 @@ export interface TimelineStructureOutcome {
   readonly structurallyValid: boolean
 }
 
-/** Intent: check one measure's event durations tile exactly one whole note on the sixteenth grid. */
+/** Check one measure's event durations tile exactly one whole note on the sixteenth grid. */
 function measureDurationFailures(
   measure: Measure,
   position: number,

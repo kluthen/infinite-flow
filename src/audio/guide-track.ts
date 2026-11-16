@@ -18,7 +18,7 @@ import { phraseFirstBeat } from './backing-track'
 import { beatAt, type ClickPlan } from './click-track'
 
 /**
- * Intent: a whole-note position as a count of quarter-note beats, any rational accepted; a
+ * A whole-note position as a count of quarter-note beats, any rational accepted; a
  * position on a whole beat gives that exact integer.
  */
 function beatsOf(time: Rational): number {
@@ -26,7 +26,7 @@ function beatsOf(time: Rational): number {
 }
 
 /**
- * Intent: throw unless the tempo is constant across the phrase starting on `firstBeat`: no tempo
+ * Throw unless the tempo is constant across the phrase starting on `firstBeat`: no tempo
  * change of the plan falls after its first beat and before the next phrase's.
  */
 // @spec-link [[module_session_transport_tempo_map]]
@@ -40,7 +40,7 @@ function assertOneTempoAcross(plan: ClickPlan, phraseNumber: number, firstBeat: 
   }
 }
 
-/** Intent: one rendered note of guide `role` on the audio clock, from its phrase's first beat. */
+/** One rendered note of guide `role` on the audio clock, from its phrase's first beat. */
 // @spec-link [[rule_guide_notes_placed_exactly]]
 function placeNote(
   plan: ClickPlan,
@@ -57,7 +57,7 @@ function placeNote(
 }
 
 /**
- * Intent: phrase `phraseNumber`'s rendered guides as notes on the audio clock, ordered by start
+ * Phrase `phraseNumber`'s rendered guides as notes on the audio clock, ordered by start
  * (the melody guide before the rhythm guide on a shared start). Each start and end is the time of
  * its rational position through the tempo map, on a beat exactly that beat's click; phrase 1
  * starts on `phraseOneBeat`, as in `phraseFirstBeat`. Throws as `phraseFirstBeat` does, and on a
@@ -82,7 +82,7 @@ export function scheduleGuide(
 }
 
 /**
- * Intent: the queued guide notes with `from <= at < to`, in queue order. The window is half-open,
+ * The queued guide notes with `from <= at < to`, in queue order. The window is half-open,
  * like the click track's, so consecutive windows never repeat or drop a note. Throws on a
  * backwards window.
  */

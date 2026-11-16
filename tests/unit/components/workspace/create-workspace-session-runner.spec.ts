@@ -147,14 +147,14 @@ describe('composeWorkspaceSession session runner', () => {
 const REPLAY_KEY_LINE =
   /^\[Infinite Flow\] phrase replay key · (workspace phrase|session phrase \d+ \((?:carry-in|standalone)\)) · (seed1-[0-9a-f]{8}) · (ifk5\.[A-Za-z0-9_-]+)$/u
 
-/** Intent: split one replay-key line into its context, seed code and key, failing on any other line. */
+/** Split one replay-key line into its context, seed code and key, failing on any other line. */
 function parseReplayKeyLine(line: string) {
   const match = REPLAY_KEY_LINE.exec(line)
   if (match === null) throw new Error(`Not a phrase replay key line: ${line}`)
   return { context: match[1]!, seed: match[2]!, key: match[3]! }
 }
 
-/** Intent: whether a runner output readies a phrase, narrowing it to that output. */
+/** Whether a runner output readies a phrase, narrowing it to that output. */
 function isPhraseReady(
   output: SessionOutput,
 ): output is Extract<SessionOutput, { kind: 'phrase-ready' }> {

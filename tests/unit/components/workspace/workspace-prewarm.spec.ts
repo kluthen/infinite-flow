@@ -56,7 +56,7 @@ beforeEach(() => {
 })
 
 /**
- * Intent: a locked transport on a fake audio rig, a MIDI controller on a fake MIDI access that
+ * A locked transport on a fake audio rig, a MIDI controller on a fake MIDI access that
  * reads that transport's clock, and fake session browser ports; prewarm never touches any of them.
  */
 function fakeAudioAndMidi(): Pick<
@@ -89,7 +89,7 @@ interface PrewarmRig {
 }
 
 /**
- * Intent: a workspace under `policy` whose generate seam answers with a real phrase for the
+ * A workspace under `policy` whose generate seam answers with a real phrase for the
  * intent's own identity (never a hand-rolled outcome) and whose seeds come from `seeds` first,
  * then from a counter, as the e2e harness's queue does.
  */
@@ -126,14 +126,14 @@ function prewarmRig(
   return { workspace, viewport, prewarms, generated }
 }
 
-/** Intent: the rhythm setting a prewarm intent carries, as one readable string. */
+/** The rhythm setting a prewarm intent carries, as one readable string. */
 function rhythmOf(intent: GenerationIntent): string {
   const c = intent.controls
   return [c.noteDensity, c.rhythmicVariety, c.silenceDensity, c.syncopation, c.tension].join('|')
 }
 
 /**
- * Intent: report the staff's layout inputs, start `generate()`, then settle its inner `notate()`
+ * Report the staff's layout inputs, start `generate()`, then settle its inner `notate()`
  * the way a mounted `PhraseScore` would, so the whole Idle operation runs without a component tree.
  */
 function generateAndEngrave(workspace: WorkspaceSession): Promise<boolean> {
@@ -294,7 +294,7 @@ describe('workspace prewarm: policy and triggers', () => {
 })
 
 /**
- * Intent: one scripted walk through the workspace: rhythm and non-rhythm edits, a crossing, a
+ * One scripted walk through the workspace: rhythm and non-rhythm edits, a crossing, a
  * preset choice, Generate, another edit and Regenerate, returning the identities generate drew.
  */
 async function walkThroughWorkspace(rig: PrewarmRig): Promise<string[]> {
@@ -343,7 +343,7 @@ interface WorkerRig {
 }
 
 /**
- * Intent: a workspace over a real client and runtime (fresh memo, a clock that ticks 1 ms per
+ * A workspace over a real client and runtime (fresh memo, a clock that ticks 1 ms per
  * read so an 8 ms slice runs only a few build steps), with fixed identities for its generations.
  */
 function workerRig(policy: WorkspacePrewarmPolicy): WorkerRig {
@@ -376,7 +376,7 @@ function workerRig(policy: WorkspacePrewarmPolicy): WorkerRig {
   return { workspace, port }
 }
 
-/** Intent: let the fake port deliver every posted message, then run up to `count` queued slices. */
+/** Let the fake port deliver every posted message, then run up to `count` queued slices. */
 async function runSlices(port: FakeGenerationWorkerPort, count: number): Promise<void> {
   await Promise.resolve()
   for (let run = 0; run < count && port.pendingSliceCount() > 0; run++) port.runNextSlice()
@@ -392,7 +392,7 @@ const COMPARISON_EDITS = [
   ['tension', 'Settled'],
 ] as const
 
-/** Intent: make every comparison edit, running `slicesBetween` prewarm slices after each one. */
+/** Make every comparison edit, running `slicesBetween` prewarm slices after each one. */
 async function chooseComparisonSetting(rig: WorkerRig, slicesBetween: number): Promise<void> {
   for (const [key, value] of COMPARISON_EDITS) {
     rig.workspace.session.actions.setControl(key, value)
@@ -400,7 +400,7 @@ async function chooseComparisonSetting(rig: WorkerRig, slicesBetween: number): P
   }
 }
 
-/** Intent: generate once on `rig` and return the outcome it produced. */
+/** Generate once on `rig` and return the outcome it produced. */
 async function generatedOutcome(rig: WorkerRig): Promise<GenerationOutcome> {
   expect(await generateAndEngrave(rig.workspace)).toBe(true)
   return rig.workspace.session.state.result!.outcome

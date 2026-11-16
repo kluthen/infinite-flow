@@ -83,7 +83,7 @@ export const VARY_SETTINGS_GROUPS: readonly VarySettingsGroup[] = deepFreeze([
 // @spec-link [[rule_vary_settings_allowed_groups]]
 export type AllowedGroups = Readonly<Record<VarySettingsGroup, boolean>>
 
-/** Intent: all six groups on, the default: Vary settings as before the groups existed. */
+/** All six groups on, the default: Vary settings as before the groups existed. */
 // @spec-link [[rule_vary_settings_allowed_groups]]
 export const ALL_GROUPS_ALLOWED: AllowedGroups = deepFreeze({
   keyAndMode: true,
@@ -159,7 +159,7 @@ export type ControlScaleTable = {
 // @spec-link [[module_settings_mutation]]
 export type MutationScaleTable = ControlScaleTable & { readonly figureLevels: FigureStepEntry }
 
-/** Intent: the value at an index of a scale, crashing on an index the scale does not hold. */
+/** The value at an index of a scale, crashing on an index the scale does not hold. */
 function valueAt<T>(values: readonly T[], index: number): T {
   const value = values[index]
   if (value === undefined)
@@ -167,7 +167,7 @@ function valueAt<T>(values: readonly T[], index: number): T {
   return value
 }
 
-/** Intent: the index of a value on a scale, crashing when the value is not on it. */
+/** The index of a value on a scale, crashing when the value is not on it. */
 function indexOn<T extends string>(values: readonly T[], value: T): number {
   const index = values.indexOf(value)
   if (index < 0)
@@ -175,7 +175,7 @@ function indexOn<T extends string>(values: readonly T[], value: T): number {
   return index
 }
 
-/** Intent: the lower then the upper neighbour of a value on an ordered scale with no wrap. */
+/** The lower then the upper neighbour of a value on an ordered scale with no wrap. */
 function orderedNeighbours<T extends string>(values: readonly T[], value: T): readonly T[] {
   const index = indexOn(values, value)
   return [index - 1, index + 1]
@@ -184,7 +184,7 @@ function orderedNeighbours<T extends string>(values: readonly T[], value: T): re
 }
 
 /**
- * Intent: the values one grade away from `value` on a scale, in a fixed order (lower first, then
+ * The values one grade away from `value` on a scale, in a fixed order (lower first, then
  * higher; a circular scale's step down first). A value that is not on the scale is a caller bug.
  */
 // @spec-link [[rule_mutation_setting_scales]]
@@ -213,7 +213,7 @@ export function scaleNeighbours<T extends string>(scale: MutationScale<T>, value
   }
 }
 
-/** Intent: the settings with one control stepped to a value, the controls validated again. */
+/** The settings with one control stepped to a value, the controls validated again. */
 function withControl<K extends MutableControl>(
   settings: SessionSettings,
   key: K,
@@ -223,7 +223,7 @@ function withControl<K extends MutableControl>(
 }
 
 /**
- * Intent: an entry for the written key or the collection: a step changes the control and keeps
+ * An entry for the written key or the collection: a step changes the control and keeps
  * the selection as it is, so a key or mode move never marks Custom.
  */
 function keyOrModeEntry<K extends 'tonalCenter' | 'collection'>(
@@ -238,7 +238,7 @@ function keyOrModeEntry<K extends 'tonalCenter' | 'collection'>(
 }
 
 /**
- * Intent: an entry for one of the ten preset-held controls: a step changes the control and makes
+ * An entry for one of the ten preset-held controls: a step changes the control and makes
  * the selection Custom based on the selected preset; Custom stays Custom with its base.
  */
 // @spec-link [[rule_vary_settings_marks_custom]]
@@ -266,7 +266,7 @@ function presetHeldEntry<K extends PresetHeldControlKey>(
 }
 
 /**
- * Intent: the figure levels' one entry: one figure's level steps one level on the ordered scale
+ * The figure levels' one entry: one figure's level steps one level on the ordered scale
  * Off, As today, Favored, Strongly favored, never past either end; every other level stays, and
  * the step makes the selection Custom based on the selected preset, as a preset-held control's
  * does. The figures are listed in FIGURE_IDS order.
@@ -290,7 +290,7 @@ function figureStepEntry(): FigureStepEntry {
   }
 }
 
-/** Intent: an ordered scale over a catalog, in the catalog's order. */
+/** An ordered scale over a catalog, in the catalog's order. */
 function ordered<T extends string>(values: readonly T[]): MutationScale<T> {
   return { kind: 'ordered', values }
 }
@@ -310,7 +310,7 @@ const MODES_BY_BRIGHTNESS: readonly Collection[] = [
 ]
 
 /**
- * Intent: the scale of every mutable setting, as data. The ordered settings follow the catalog
+ * The scale of every mutable setting, as data. The ordered settings follow the catalog
  * order the settings controls show. Note density steps from the density the session generates
  * with (D177); a `Varying` register steps from the register the session resolved, and the scale
  * holds no `Varying`, so a step always lands on a concrete register. A step of any of the ten
@@ -353,7 +353,7 @@ export const MUTATION_SCALES: MutationScaleTable = deepFreeze({
 })
 
 /**
- * Intent: the mutable settings in the order a draw lists them: catalog order, then the figure
+ * The mutable settings in the order a draw lists them: catalog order, then the figure
  * levels, in the musical profile's former place, so the draw keeps its 13 places. The Seventh
  * chords level is none of them and belongs to no group: it is a choice of sound, never a practice
  * variation, so no draw moves it and the recorded draws keep their places.
@@ -403,7 +403,7 @@ export const MUTABLE_SETTING_GROUPS: Readonly<Record<MutableSetting, VarySetting
   })
 
 /**
- * Intent: whether Vary settings may move a group's settings under these settings: its switch is
+ * Whether Vary settings may move a group's settings under these settings: its switch is
  * on, and the Rhythm group counts as not allowed while the rhythm lock is on.
  */
 // @spec-link [[rule_vary_settings_allowed_groups]]

@@ -53,25 +53,25 @@ const REST_KEYS: Readonly<Record<InstrumentClef, ClefRestKeys>> = {
   bass: { rest: 'd/3', wholeRest: 'f/3' },
 }
 
-/** Intent: render a spelled alteration as the VexFlow accidental-letter suffix ('', '#', 'bb', ...). */
+/** Render a spelled alteration as the VexFlow accidental-letter suffix ('', '#', 'bb', ...). */
 function alterSuffix(alter: Alter): string {
   if (alter === 0) return ''
   return alter > 0 ? '#'.repeat(alter) : 'b'.repeat(-alter)
 }
 
-/** Intent: map one spelled pitch to a VexFlow key string, for example 'F#/5'. */
+/** Map one spelled pitch to a VexFlow key string, for example 'F#/5'. */
 function mapPitchKey(pitch: SpelledPitch): string {
   return `${pitch.letter}${alterSuffix(pitch.alter)}/${pitch.octave}`
 }
 
-/** Intent: map a written key's Ionian tonic to a VexFlow key-signature spec, for example 'Eb'. */
+/** Map a written key's Ionian tonic to a VexFlow key-signature spec, for example 'Eb'. */
 // @spec-link [[module_notation_display_convention]]
 export function mapKeySpec(ionianTonic: SpelledPitchClass): string {
   return `${ionianTonic.letter}${alterSuffix(ionianTonic.alter)}`
 }
 
 /**
- * Intent: choose the conventional vertical position for a rest of the given notated duration, on
+ * Choose the conventional vertical position for a rest of the given notated duration, on
  * the staff of `clef`.
  */
 function restKey(duration: NotatedDuration, clef: InstrumentClef): string {
@@ -88,7 +88,7 @@ const DURATION_CODES: Readonly<Record<NotatedDuration['value'], string>> = {
 }
 
 /**
- * Intent: map a notated duration and rest flag to a VexFlow duration code, for example 'qdr'. The
+ * Map a notated duration and rest flag to a VexFlow duration code, for example 'qdr'. The
  * dot is encoded in the code itself (not only via a Dot modifier) because VexFlow derives a note's
  * tick length from the duration code, and an undotted code would under-count a dotted note's ticks.
  */
@@ -109,7 +109,7 @@ const ACCIDENTAL_CODES: Readonly<Record<DisplayedAccidental, string>> = {
 const LEDGER_LINE_WIDTH_UNITS = 2
 
 /**
- * Intent: give a note's ledger lines no colour of their own, so they inherit the staff colour the
+ * Give a note's ledger lines no colour of their own, so they inherit the staff colour the
  * stylesheet sets, like every other drawn shape, in both themes. VexFlow builds a note's ledger
  * line style from its stave's own style (stroke #999999), then the stave's default ledger line
  * style (stroke #444, width 2), then the note's own, and writes the resulting stroke as an
@@ -157,7 +157,7 @@ export function buildStaveNote(event: WrittenEvent, clef: InstrumentClef): Stave
   return note
 }
 
-/** Intent: append a root/bass spelled pitch class (letter plus accidental glyph) to a chord symbol. */
+/** Append a root/bass spelled pitch class (letter plus accidental glyph) to a chord symbol. */
 function addSpelledPitchClass(chordSymbol: ChordSymbol, pitchClass: SpelledPitchClass): void {
   chordSymbol.addText(pitchClass.letter)
   const suffix = alterSuffix(pitchClass.alter)
@@ -172,7 +172,7 @@ const SEVENTH_SUFFIXES: ReadonlySet<string> = new Set(
   Object.values(CHORD_SUFFIX_BY_SEVENTH_QUALITY),
 )
 
-/** Intent: whether a written chord symbol names a seventh chord, by its suffix. */
+/** Whether a written chord symbol names a seventh chord, by its suffix. */
 // @spec-link [[rule_seventh_chord_symbols]]
 export function isSeventhChordSymbol(chord: Pick<WrittenChordSymbol, 'suffix'>): boolean {
   return SEVENTH_SUFFIXES.has(chord.suffix)
@@ -184,7 +184,7 @@ export function isSeventhChordSymbol(chord: Pick<WrittenChordSymbol, 'suffix'>):
  * chord-symbol formatting adds them up (no superscript or subscript run is ever built).
  */
 export class SpannedChordSymbol extends ChordSymbol {
-  /** Intent: the symbol's full width, in engraving units at scale 1. */
+  /** The symbol's full width, in engraving units at scale 1. */
   fullWidth(): number {
     return this.symbolBlocks.reduce(
       (width, block) => width + block.getWidth() + ChordSymbol.minPadding,
@@ -194,7 +194,7 @@ export class SpannedChordSymbol extends ChordSymbol {
 }
 
 /**
- * Intent: append a chord symbol's suffix on the root's baseline at the one chord-symbol size: its
+ * Append a chord symbol's suffix on the root's baseline at the one chord-symbol size: its
  * letters and digits as text, and each flat sign (the ♭ of `m7♭5`) as the same music-font glyph a
  * root's flat is drawn with. A suffix with no flat sign (every triad's) stays one text block.
  */
@@ -248,7 +248,7 @@ export function attachMeasureChordSymbols(
 }
 
 /**
- * Intent: build one Beam per written beam group, from the glyphs at its listed event indices. No
+ * Build one Beam per written beam group, from the glyphs at its listed event indices. No
  * `autoStem`: each beam keeps the stem direction its notes were built with, which the written
  * phrase made the same for the whole group.
  */
@@ -299,7 +299,7 @@ export function buildSystemTies(
   return ties
 }
 
-/** Intent: the DOM id VexFlow's SVG context gives the group it opens for a drawn element. */
+/** The DOM id VexFlow's SVG context gives the group it opens for a drawn element. */
 function drawnGroupId(element: { getAttribute(name: string): unknown }): string {
   return `vf-${String(element.getAttribute('id'))}`
 }

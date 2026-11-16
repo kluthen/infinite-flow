@@ -458,7 +458,7 @@ interface ChainLink {
   readonly number: number
 }
 
-/** Intent: one phrase of a chain: a control set's controls in the Middle register, at a level. */
+/** One phrase of a chain: a control set's controls in the Middle register, at a level. */
 function chainIntent(
   set: (typeof CONTROL_SETS)[number],
   level: ChordFamilyLevel,
@@ -477,14 +477,14 @@ function chainIntent(
   })
 }
 
-/** Intent: true when the phrase's final attack is its final chord's seventh. */
+/** True when the phrase's final attack is its final chord's seventh. */
 function endsOnSeventh(outcome: SuccessOutcome): boolean {
   const final = outcome.provenance.harmony.events.at(-1)!
   const lastAttack = attackMidis(outcome.result.timeline.measures).at(-1)!
   return final.seventh !== undefined && lastAttack % 12 === final.seventh.pitchClass
 }
 
-/** Intent: the chords of a phrase that are neither the triad nor the seventh chord on their degree. */
+/** The chords of a phrase that are neither the triad nor the seventh chord on their degree. */
 function chordsOffTheirDegree(
   intent: GenerationIntent,
   outcome: SuccessOutcome,
@@ -505,7 +505,7 @@ function chordsOffTheirDegree(
   })
 }
 
-/** Intent: record one generated phrase of a chain, validated independently; false when it failed. */
+/** Record one generated phrase of a chain, validated independently; false when it failed. */
 function recordPhrase(
   found: LevelPropertyOutcome,
   intent: GenerationIntent,
@@ -533,7 +533,7 @@ function recordPhrase(
   return true
 }
 
-/** Intent: run one session chain at one level, each phrase joined to the one before. */
+/** Run one session chain at one level, each phrase joined to the one before. */
 function runChain(
   found: LevelPropertyOutcome,
   set: (typeof CONTROL_SETS)[number],
@@ -550,7 +550,7 @@ function runChain(
   }
 }
 
-/** Intent: run every chain at every level above Off, validating each phrase independently. */
+/** Run every chain at every level above Off, validating each phrase independently. */
 function runLevelChains(): LevelPropertyOutcome {
   const found: LevelPropertyOutcome = {
     phrases: 0,

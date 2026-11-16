@@ -28,7 +28,7 @@ export const CHEAP_CONTROLS: GenerationControls = {
 /** The preset selection the fixture's phrases are generated under. */
 const SELECTION = { kind: 'preset', presetId: 'neutral' } as const
 
-/** Intent: run one real, cheap generation and return its successful WorkspaceSessionResult. */
+/** Run one real, cheap generation and return its successful WorkspaceSessionResult. */
 export function buildWorkspaceSessionResult(
   requestId = 'workspace-fixture-1',
   seed = 1,

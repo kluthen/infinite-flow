@@ -21,21 +21,21 @@ type HeardStart = AudioTime | string
 /** Thrown where the rig's runner is sent a `phrase-one` event, so the engine never gets it. */
 class PhraseOneHeard extends Error {}
 
-/** Intent: a rig with the controller connected and a session started without phrase 1. */
+/** A rig with the controller connected and a session started without phrase 1. */
 async function connectedFreshStart(): Promise<{ rig: ControllerRig; fresh: FreshStart }> {
   const rig = controllerRig()
   await connectKeys(rig)
   return { rig, fresh: startFresh(rig) }
 }
 
-/** Intent: the barline `measure` measures after the count-in's end, as Jam's capture has it. */
+/** The barline `measure` measures after the count-in's end, as Jam's capture has it. */
 function barline(rig: ControllerRig, fresh: FreshStart, measure: number): AudioTime {
   const plan = createClickPlan(fresh.session.timeline.startAt, rig.settings.controls.tempo)
   return beatAt(plan, plan.countInBeats + measure * plan.beatsPerMeasure)
 }
 
 /**
- * Intent: record, when the rig's runner is sent a `phrase-one` event (the rig logs every event
+ * Record, when the rig's runner is sent a `phrase-one` event (the rig logs every event
  * just before its runner gets it), what the transport then tells as phrase 1's start, or why it
  * can't; then stop the event there with `PhraseOneHeard`, as the engine's handling of phrase 1
  * is not what these specs check (no attempt of it was issued, and the controller's steps after

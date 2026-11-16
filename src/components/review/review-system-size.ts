@@ -9,7 +9,7 @@ import { planSystemPositionUnits } from '@/notation/notation-layout-policy'
 import type { ReviewedPhrase } from '@/session/session-history'
 
 /**
- * Intent: the Review's system-position size, in engraving units at scale 1: `shared`, or more when
+ * The Review's system-position size, in engraving units at scale 1: `shared`, or more when
  * a phrase's own instrument (its written range, from the profile its intent carries) needs more in
  * the clef the phrase was played in, as the shared size is planned (`planSystemPositionUnits`).
  */

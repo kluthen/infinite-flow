@@ -98,7 +98,7 @@ import {
 } from './workspace-session-controller-types'
 
 /**
- * Intent: the start facts the Idle state, the window and the controller give. A phrase is shown
+ * The start facts the Idle state, the window and the controller give. A phrase is shown
  * once its result is engraved; any Idle generation (generate, regenerate, fit retries) or
  * notation in progress counts as running; the Review blocks only while it shows; no MIDI fact
  * exists.
@@ -127,7 +127,7 @@ function startFactsOf(
 }
 
 /**
- * Intent: build the Idle pre-generation queue's orchestrator over the controller's run conditions
+ * Build the Idle pre-generation queue's orchestrator over the controller's run conditions
  * (`startBlocker`), its two session flags, the player's rhythm lock, its allowed changes and the
  * allowed groups, the Idle state, the window's shape and the staff's
  * reports. A programming error it meets has no session to end: it is thrown out of band, the
@@ -157,7 +157,7 @@ function createIdlePregeneration(
 }
 
 /**
- * Intent: build the session controller over the workspace's Idle state, audio transport, browser
+ * Build the session controller over the workspace's Idle state, audio transport, browser
  * ports and runner factory, its three "During a session" flags, the rhythm lock, its allowed
  * changes and the allowed groups starting from the player's saved choices. It reads the window's shape from creation (for the rotate-device start condition) and
  * listens to the MIDI controller (for the starting note) until `dispose`; it asks for no lock and

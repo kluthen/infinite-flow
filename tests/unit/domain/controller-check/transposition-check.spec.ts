@@ -27,7 +27,7 @@ const SUGGESTION_TABLE: ReadonlyArray<readonly [InstrumentProfile, number, Instr
 const PROFILES = [C_KEYBOARD_PROFILE, BB_TENOR_PROFILE, EB_ALTO_PROFILE] as const
 const OFFSETS = [0, 12, -12, 2, -2, 14, -14, 9, -9, 5, -5] as const
 
-/** Intent: the profile the handoff table suggests for (profile, d), or null when it lists none. */
+/** The profile the handoff table suggests for (profile, d), or null when it lists none. */
 function tableSuggestion(profile: InstrumentProfile, offset: number): InstrumentProfile | null {
   const row = SUGGESTION_TABLE.find(([current, d]) => current === profile && d === offset)
   return row === undefined ? null : row[2]

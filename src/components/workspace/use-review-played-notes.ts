@@ -80,7 +80,7 @@ export interface ReviewPlayedNotes {
   readonly openConfirmation: (confirmation: SessionToolConfirmation) => void
 }
 
-/** Intent: the controller, which must exist while a Review shows. */
+/** The controller, which must exist while a Review shows. */
 function requireController(deps: ReviewPlayedNotesDependencies): SessionController {
   const controller = deps.controller()
   if (controller === null) throw new Error('review host: no session controller yet')
@@ -88,7 +88,7 @@ function requireController(deps: ReviewPlayedNotesDependencies): SessionControll
 }
 
 /**
- * Intent: the played-notes side of one Review host, over the controller, the showing Review and
+ * The played-notes side of one Review host, over the controller, the showing Review and
  * the saver of the player's changes.
  */
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
@@ -109,7 +109,7 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
     )
   })
 
-  /** Intent: save the player's change, hand it to the controller, and open what it asks for. */
+  /** Save the player's change, hand it to the controller, and open what it asks for. */
   // @spec-link [[rule_kept_played_notes_deletable]]
   async function setKeepPlayedNotes(on: boolean): Promise<void> {
     deps.saveSettings({ keepPlayedNotes: on })
@@ -127,7 +127,7 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
     }
   }
 
-  /** Intent: run the open confirmation's deletion through the controller. */
+  /** Run the open confirmation's deletion through the controller. */
   function deletion(open: ReviewConfirmation): Promise<PlayedNotesDeletion> {
     const controller = requireController(deps)
     if (open.kind === 'unpin' || open.kind === 'delete-session')
@@ -137,7 +137,7 @@ export function useReviewPlayedNotes(deps: ReviewPlayedNotesDependencies): Revie
       : controller.deleteEveryKeptPlayedNote()
   }
 
-  /** Intent: confirm: closed once deleted, or with saving off; kept open with its error if refused. */
+  /** Confirm: closed once deleted, or with saving off; kept open with its error if refused. */
   // @spec-link [[rule_kept_played_notes_deletable]]
   async function confirm(): Promise<ConfirmedDeletion> {
     const open = confirmation.value

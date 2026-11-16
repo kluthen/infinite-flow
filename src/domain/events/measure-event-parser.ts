@@ -26,7 +26,7 @@ export class MeasureEventParseError extends Error {
   }
 }
 
-/** Intent: narrow an unknown value to a plain, non-null, non-array object record. */
+/** Narrow an unknown value to a plain, non-null, non-array object record. */
 function asRecord(input: unknown, context: string): Record<string, unknown> {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) {
     throw new MeasureEventParseError(`${context} must be a plain object, got ${typeof input}.`)
@@ -34,7 +34,7 @@ function asRecord(input: unknown, context: string): Record<string, unknown> {
   return input as Record<string, unknown>
 }
 
-/** Intent: parse and grid-validate an untrusted duration field, wrapping every rejection loudly. */
+/** Parse and grid-validate an untrusted duration field, wrapping every rejection loudly. */
 function parseDuration(input: unknown, context: string): Rational {
   const record = asRecord(input, `${context}.duration`)
   const { numerator, denominator } = record
@@ -61,7 +61,7 @@ function parseDuration(input: unknown, context: string): Rational {
   return duration
 }
 
-/** Intent: parse and validate an untrusted pitch field, wrapping every rejection loudly. */
+/** Parse and validate an untrusted pitch field, wrapping every rejection loudly. */
 function parsePitch(input: unknown): ConcertPitch {
   try {
     return parseConcertPitch(input)
@@ -70,7 +70,7 @@ function parsePitch(input: unknown): ConcertPitch {
   }
 }
 
-/** Intent: parse an untrusted optional annotations field, rejecting any non-string sub-field. */
+/** Parse an untrusted optional annotations field, rejecting any non-string sub-field. */
 function parseAnnotations(input: unknown, context: string): EventAnnotations | undefined {
   if (input === undefined) return undefined
   const record = asRecord(input, `${context}.annotations`)
@@ -96,7 +96,7 @@ function parseAnnotations(input: unknown, context: string): EventAnnotations | u
 const NOTE_ALLOWED_KEYS = new Set(['kind', 'duration', 'pitch', 'tieContinuation', 'annotations'])
 const REST_ALLOWED_KEYS = new Set(['kind', 'duration', 'annotations'])
 
-/** Intent: reject any key on the untrusted record that is not part of the given event shape. */
+/** Reject any key on the untrusted record that is not part of the given event shape. */
 function assertNoUnknownKeys(
   record: Record<string, unknown>,
   allowedKeys: ReadonlySet<string>,
@@ -110,7 +110,7 @@ function assertNoUnknownKeys(
 }
 
 /**
- * Intent: parse one untrusted measure event, dispatching on its `kind` discriminant. Rejects a
+ * Parse one untrusted measure event, dispatching on its `kind` discriminant. Rejects a
  * non-object input, an unrecognized `kind`, missing/malformed required fields, and unexpected
  * extra fields, always as a typed MeasureEventParseError and never as a partial event.
  */

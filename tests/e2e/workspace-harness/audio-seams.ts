@@ -63,7 +63,7 @@ interface AudioModeParts {
   readonly performanceTimeAt: (audioTime: number) => number
 }
 
-/** Intent: the audio mode the page URL asks for: `?audio=real`, or the fake rig by default. */
+/** The audio mode the page URL asks for: `?audio=real`, or the fake rig by default. */
 // @test-link [[rule_audio_unlocked_by_player_click]]
 export function harnessAudioMode(search: string): WorkspaceHarnessAudioMode {
   const mode = new URLSearchParams(search).get('audio')
@@ -72,7 +72,7 @@ export function harnessAudioMode(search: string): WorkspaceHarnessAudioMode {
   throw new Error(`Workspace harness: unknown audio mode "${mode}"; use "fake" or "real"`)
 }
 
-/** Intent: the fake rig's seams: its recording output, its hand-stepped timer and clock. */
+/** The fake rig's seams: its recording output, its hand-stepped timer and clock. */
 function fakeModeParts(): AudioModeParts {
   const rig = createFakeAudioRig()
   return {
@@ -86,7 +86,7 @@ function fakeModeParts(): AudioModeParts {
 }
 
 /**
- * Intent: the production seams, with the real Web Audio output wrapped by the recorder when the
+ * The production seams, with the real Web Audio output wrapped by the recorder when the
  * player's click opens it. The clock is the real audio clock, so it cannot be advanced by hand.
  */
 function realModeParts(): AudioModeParts {
@@ -110,7 +110,7 @@ function realModeParts(): AudioModeParts {
   }
 }
 
-/** Intent: the mix design, read from the harness page's production stylesheet tokens. */
+/** The mix design, read from the harness page's production stylesheet tokens. */
 function pageMixDesign(): AudioMixDesign {
   return readAudioMixDesign(getComputedStyle(document.documentElement))
 }
@@ -121,7 +121,7 @@ export interface HarnessShownPhrase {
   readonly timeline: ConcertEventTimeline
 }
 
-/** Intent: the harness's plain-JSON view of the harmony events `queueBacking` queued. */
+/** The harness's plain-JSON view of the harmony events `queueBacking` queued. */
 function queuedHarmonyView(harmony: readonly HarmonyEvent[]): WorkspaceHarnessQueuedHarmonyEvent[] {
   return harmony.map(({ barIndex, startBeat, durationBeats, triad }) => ({
     barIndex,
@@ -132,7 +132,7 @@ function queuedHarmonyView(harmony: readonly HarmonyEvent[]): WorkspaceHarnessQu
 }
 
 /**
- * Intent: build the harness's audio in `mode`: a transport on that mode's seams, and the API a
+ * Build the harness's audio in `mode`: a transport on that mode's seams, and the API a
  * spec drives it through. `start` is not on the API: only the harness's Start button starts a
  * session, from a real click, at the tempo `armStart` set beforehand. `shownPhrase` reads the
  * harmony and timeline of the phrase the workspace shows, which `queueBacking` hands to the
@@ -158,7 +158,7 @@ export function createHarnessAudio(
   let startedTempo: number | null = null
   let timeline: TransportTimeline | null = null
 
-  /** Intent: the Start click: unlock, then start at the armed tempo, synchronously. One shot. */
+  /** The Start click: unlock, then start at the armed tempo, synchronously. One shot. */
   function startFromClick(): void {
     if (armedTempo === null) {
       throw new Error('Workspace harness: click Start audio only after audio.armStart({ tempo })')
@@ -170,7 +170,7 @@ export function createHarnessAudio(
     startedTempo = tempo
   }
 
-  /** Intent: the tempo the Start click last started a session at; throws before any start. */
+  /** The tempo the Start click last started a session at; throws before any start. */
   function sessionTempo(): number {
     if (startedTempo === null) {
       throw new Error('Workspace harness: audio.queueBacking() needs a session started first')
@@ -224,7 +224,7 @@ export function createHarnessAudio(
   }
 }
 
-/** Intent: make the harness's Start audio button, found by its data attribute, start audio. */
+/** Make the harness's Start audio button, found by its data attribute, start audio. */
 // @test-link [[rule_audio_unlocked_by_player_click]]
 export function bindHarnessAudioStart(root: ParentNode, startFromClick: () => void): void {
   const button = root.querySelector<HTMLButtonElement>('[data-harness-audio-start]')

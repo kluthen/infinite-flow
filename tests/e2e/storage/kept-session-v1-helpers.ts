@@ -37,15 +37,15 @@ type StoredIntent = Record<string, unknown>
 /** A stored phrase, as a plain record. */
 type StoredPhrase = Record<string, unknown> & { intent: StoredIntent }
 
-/** Intent: select Jazz, then play a two-phrase session started at `startedAt`: the Review shows. */
+/** Select Jazz, then play a two-phrase session started at `startedAt`: the Review shows. */
 export async function playJazzSession(page: Page, startedAt: number): Promise<void> {
   await choosePreset(page, 'Jazz')
   await sessionAt(page, startedAt)
 }
 
-/** Intent: the stored values of the kept session under `key`, read through the harness's seam. */
+/** The stored values of the kept session under `key`, read through the harness's seam. */
 export async function storedSession(page: Page, key: string): Promise<StoredSession> {
-  /** Intent: the record a store holds under `key`, if any. */
+  /** The record a store holds under `key`, if any. */
   const under = async (
     store: 'sessionSummaries' | 'sessionBodies' | 'playedNotes',
   ): Promise<Record<string, unknown> | undefined> =>
@@ -60,7 +60,7 @@ export async function storedSession(page: Page, key: string): Promise<StoredSess
   return { summary, body, ...(playedNotes === undefined ? {} : { playedNotes }) }
 }
 
-/** Intent: the stored phrases of a stored body. */
+/** The stored phrases of a stored body. */
 export function storedPhrases(body: Record<string, unknown>): StoredPhrase[] {
   return body.phrases as StoredPhrase[]
 }
@@ -69,7 +69,7 @@ export function storedPhrases(body: Record<string, unknown>): StoredPhrase[] {
 const V31_APP_VERSION = '3.1.0'
 
 /**
- * Intent: a stored request or intent without the inputs v3.1 never held (v3.2's and v3.3's Seventh
+ * A stored request or intent without the inputs v3.1 never held (v3.2's and v3.3's Seventh
  * chords level), as a fresh record.
  */
 function withoutV32Inputs(stored: Record<string, unknown>): Record<string, unknown> {
@@ -82,7 +82,7 @@ function withoutV32Inputs(stored: Record<string, unknown>): Record<string, unkno
 }
 
 /**
- * Intent: a stored session this version kept, as a fresh copy without what only v3.2 keeps: no
+ * A stored session this version kept, as a fresh copy without what only v3.2 keeps: no
  * Jam mark or declined suggestion in its session-wide record; no doodle or played-notes clock in
  * its body; in each phrase's request and intent, no rhythm lock group, no steering block, no
  * Seventh chords level and no carry-in from no phrase (a carry-in from a phrase, v3.1's, stays);
@@ -110,7 +110,7 @@ function withoutV32Parts(stored: StoredSession): StoredSession {
 }
 
 /**
- * Intent: the stored values a session this version kept had when v3.1 kept them: its
+ * The stored values a session this version kept had when v3.1 kept them: its
  * session-wide record and body in v3.1's shapes at data version 2, written and recorded by v3.1
  * (`3.1.0`), every other field as stored; its played notes as stored (data version 1, unchanged
  * since v3.0). Throws for a Jam session.
@@ -129,7 +129,7 @@ export function v31Session(stored: StoredSession): StoredSession {
   }
 }
 
-/** Intent: a stored intent as v3.0 kept it: `V30_SELECTION` in place of its figure levels. */
+/** A stored intent as v3.0 kept it: `V30_SELECTION` in place of its figure levels. */
 function v30Intent(intent: StoredIntent): StoredIntent {
   const { figureLevels, ...rest } = intent
   void figureLevels
@@ -137,7 +137,7 @@ function v30Intent(intent: StoredIntent): StoredIntent {
 }
 
 /**
- * Intent: a stored session-wide record in v3.1's shape as v3.0 kept it: `V30_SELECTION` in place
+ * A stored session-wide record in v3.1's shape as v3.0 kept it: `V30_SELECTION` in place
  * of its preset label, at the same key position, at data version 1.
  */
 function v30Summary(summary: Record<string, unknown>): Record<string, unknown> {
@@ -150,7 +150,7 @@ function v30Summary(summary: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(entries)
 }
 
-/** Intent: a stored body in v3.1's shape as v3.0 kept it: each intent v3.0's, at data version 1. */
+/** A stored body in v3.1's shape as v3.0 kept it: each intent v3.0's, at data version 1. */
 function v30Body(body: Record<string, unknown>): Record<string, unknown> {
   const copy = structuredClone(body)
   for (const phrase of storedPhrases(copy)) phrase.intent = v30Intent(phrase.intent)
@@ -158,7 +158,7 @@ function v30Body(body: Record<string, unknown>): Record<string, unknown> {
 }
 
 /**
- * Intent: the stored values a session this version kept had when v3.0 kept them: its
+ * The stored values a session this version kept had when v3.0 kept them: its
  * session-wide record and body at data version 1 in v3.0's shapes (v3.1's without its preset
  * label and figure levels), their app versions as stored, its played notes as stored. Throws for
  * a Jam session.
@@ -172,7 +172,7 @@ export function v30Session(stored: StoredSession): StoredSession {
   }
 }
 
-/** Intent: open the harness with its load held, at the desktop size, and wait for the hold. */
+/** Open the harness with its load held, at the desktop size, and wait for the hold. */
 export async function gotoHeldLoad(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto(`${WORKSPACE_HARNESS_URL}?storageLoad=held`)
@@ -180,7 +180,7 @@ export async function gotoHeldLoad(page: Page): Promise<void> {
 }
 
 /**
- * Intent: while the load is held, seed `count` copies of the v3.0 session `template` through the
+ * While the load is held, seed `count` copies of the v3.0 session `template` through the
  * harness's v3.0 port (copy `i` started `i` minutes after the template, its session seed `i`).
  */
 export function seedVersionOne(page: Page, template: StoredSession, count: number): Promise<void> {
@@ -195,7 +195,7 @@ export function seedVersionOne(page: Page, template: StoredSession, count: numbe
 }
 
 /**
- * Intent: while the load is held, seed `count` copies of the v3.1 session `template` through the
+ * While the load is held, seed `count` copies of the v3.1 session `template` through the
  * harness's v3.1 port, at data version 3 (copies keyed and started as `seedVersionOne`'s).
  */
 export function seedVersionThree(
@@ -213,7 +213,7 @@ export function seedVersionThree(
   )
 }
 
-/** Intent: release the held load. */
+/** Release the held load. */
 export async function releaseHeldLoad(page: Page): Promise<void> {
   await page.evaluate(() => {
     const held = window.__workspaceHarnessHeldLoad
@@ -226,7 +226,7 @@ export async function releaseHeldLoad(page: Page): Promise<void> {
 const V32_APP_VERSION = '3.2.0'
 
 /**
- * Intent: a stored intent as v3.2 kept it: the same fields in the same order without the Seventh
+ * A stored intent as v3.2 kept it: the same fields in the same order without the Seventh
  * chords level. Throws for a level above Off, which v3.2 never kept.
  */
 function v32Intent(intent: StoredIntent): StoredIntent {
@@ -239,7 +239,7 @@ function v32Intent(intent: StoredIntent): StoredIntent {
 }
 
 /**
- * Intent: the stored values a session this version kept had when v3.2 kept them: its session-wide
+ * The stored values a session this version kept had when v3.2 kept them: its session-wide
  * record as stored (data version 4 since v3.2), its body at data version 4, written by v3.2
  * (`3.2.0`), every field in the same order, each phrase's intent without the Seventh chords level;
  * its played notes as stored. Throws for a body holding a seventh chord or a level above Off,
@@ -263,7 +263,7 @@ export function v32Session(stored: StoredSession): StoredSession {
 }
 
 /**
- * Intent: while the load is held, seed `count` copies of the v3.2 session `template` through the
+ * While the load is held, seed `count` copies of the v3.2 session `template` through the
  * harness's v3.2 port, at data version 4 (copies keyed and started as `seedVersionOne`'s).
  */
 export function seedVersionFour(page: Page, template: StoredSession, count: number): Promise<void> {
@@ -278,7 +278,7 @@ export function seedVersionFour(page: Page, template: StoredSession, count: numb
 }
 
 /**
- * Intent: while the load is held, seed v3.2's settings (`values`, by record key) and player
+ * While the load is held, seed v3.2's settings (`values`, by record key) and player
  * presets through the harness's v3.2 port, as v3.2 wrote them.
  */
 export async function seedVersionFourSettingsAndPresets(

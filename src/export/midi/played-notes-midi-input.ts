@@ -79,7 +79,7 @@ const QUARTERS_PER_MEASURE = 4
 const SECONDS_PER_MINUTE = 60
 
 /**
- * Intent: the audio-clock time a doodle section ends: its measures of 4/4 at its tempo after its
+ * The audio-clock time a doodle section ends: its measures of 4/4 at its tempo after its
  * first barline.
  */
 // @spec-link [[rule_jam_exports_line_up]]
@@ -103,7 +103,7 @@ const PHRASE_KEYS: readonly string[] = ['number', 'tempo', 'startedAt', 'playedN
 const NOTE_KEYS: readonly string[] = ['pitch', 'velocity', 'onsetAt', 'releaseAt']
 
 /**
- * Intent: crash early unless each phrase starts on a finite time, and the next one starts where it
+ * Crash early unless each phrase starts on a finite time, and the next one starts where it
  * ends (16 quarter notes at its own tempo later) within 1 ms.
  */
 // @spec-link [[rule_played_notes_export_unquantized_timing]]
@@ -125,7 +125,7 @@ function assertBackToBack(phrases: readonly PlayedNotesMidiPhrase[]): void {
 }
 
 /**
- * Intent: crash early unless a played note's pitch and velocity fit their MIDI ranges; `owner`
+ * Crash early unless a played note's pitch and velocity fit their MIDI ranges; `owner`
  * names its phrase ("Phrase 3") or the doodle.
  */
 // @spec-link [[req_played_notes_export]]
@@ -142,7 +142,7 @@ function assertPitchAndVelocity(note: MidiPlayedNote, owner: string): void {
 }
 
 /**
- * Intent: crash early unless a played note's onset and release are finite, it releases at or
+ * Crash early unless a played note's onset and release are finite, it releases at or
  * after its onset, and its onset falls in its phrase: at or after the phrase's start and, unless
  * the phrase is the last, before the next phrase's start.
  */
@@ -166,7 +166,7 @@ function assertNoteTimes(
 }
 
 /**
- * Intent: crash early unless a Jam's doodle section has exactly its fields, 1 to 4 measures at a
+ * Crash early unless a Jam's doodle section has exactly its fields, 1 to 4 measures at a
  * tempo the export accepts, a finite first barline, and raw notes the file can represent, each
  * starting at most a sixteenth note before the first barline and before the section's end, and
  * released at or after its onset.
@@ -197,7 +197,7 @@ function assertPlayedDoodle(doodle: PlayedNotesDoodleSection): void {
 }
 
 /**
- * Intent: reject a played-notes encoder input that breaks the contract: an extra or missing field
+ * Reject a played-notes encoder input that breaks the contract: an extra or missing field
  * anywhere (a timeline or a backing among them), an empty session, phrase numbers that are not
  * whole numbers from 1 up, each above the one before, a tempo outside whole numbers from 60 to 240 BPM, phrases not back to back
  * on the audio clock within 1 ms, a played note the file could not represent or that lies outside

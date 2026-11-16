@@ -16,7 +16,7 @@ export type ViewportMediaQuery = Pick<
 >
 
 /**
- * Intent: adapt one media-query list to a `ViewportWidthProvider`: a read returns whether it
+ * Adapt one media-query list to a `ViewportWidthProvider`: a read returns whether it
  * matches now, and a subscriber hears each of its `change` events, which fire on every crossing.
  */
 // @spec-link [[rule_generated_density_follows_window_width]]
@@ -31,7 +31,7 @@ export function createMediaQueryViewportWidth(query: ViewportMediaQuery): Viewpo
   }
 }
 
-/** Intent: the provider for this browser window, from `window.matchMedia`. */
+/** The provider for this browser window, from `window.matchMedia`. */
 // @spec-link [[rule_generated_density_follows_window_width]]
 export function createBrowserViewportWidth(): ViewportWidthProvider {
   return createMediaQueryViewportWidth(window.matchMedia(BELOW_TABLET_LANDSCAPE_MEDIA_QUERY))

@@ -57,7 +57,7 @@ interface ReproducedSession {
 const reproduced = new Map<string, Promise<ReproducedSession>>()
 
 /**
- * Intent: record one cell's session (phrase 1 from the cell's seed, later seeds queued from
+ * Record one cell's session (phrase 1 from the cell's seed, later seeds queued from
  * 1000 above it) and regenerate every record; run once per cell and shared by the specs below.
  */
 function reproducedSession(cell: MatrixCell): Promise<ReproducedSession> {

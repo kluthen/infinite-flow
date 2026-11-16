@@ -18,7 +18,7 @@ interface StandInWindow extends WindowShapeWindowLike {
   readonly listenerCount: () => number
 }
 
-/** Intent: a stand-in window `widthPx` wide that fires `resize` on every resize. */
+/** A stand-in window `widthPx` wide that fires `resize` on every resize. */
 function standInWindow(widthPx: number): StandInWindow {
   let width = widthPx
   const listeners = new Set<() => void>()
@@ -36,7 +36,7 @@ function standInWindow(widthPx: number): StandInWindow {
   }
 }
 
-/** Intent: a stand-in probe reading the given small viewport height and rem size. */
+/** A stand-in probe reading the given small viewport height and rem size. */
 function standInProbe(reading: { smallHeightPx: number; remPx: number }): ViewportProbe {
   return { smallHeightPx: () => reading.smallHeightPx, remPx: () => reading.remPx }
 }

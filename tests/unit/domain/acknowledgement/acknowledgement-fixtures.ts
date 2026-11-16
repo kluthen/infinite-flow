@@ -43,7 +43,7 @@ const DEFAULT_PITCH_WALK: readonly number[] = [
 ]
 
 /**
- * Intent: build one four-measure concert timeline from four bars of tokens such as `q q e e r:q`:
+ * Build one four-measure concert timeline from four bars of tokens such as `q q e e r:q`:
  * `r:` marks a rest and `~:` a tie continuation of the note before it (at that note's pitch). Fresh
  * attacks take their pitches from `pitches` in turn, cycling.
  */
@@ -90,7 +90,7 @@ export interface AcknowledgementFixture {
   readonly timeline: ConcertEventTimeline
 }
 
-/** Intent: the hand-built phrases, each chosen for one timing shape the window rule must handle. */
+/** The hand-built phrases, each chosen for one timing shape the window rule must handle. */
 function handBuiltFixtures(): readonly AcknowledgementFixture[] {
   return [
     { name: 'quarters', timeline: phraseFromBars(['q q q q', 'q q q q', 'q q q q', 'q q q q']) },
@@ -132,7 +132,7 @@ function handBuiltFixtures(): readonly AcknowledgementFixture[] {
   ]
 }
 
-/** Intent: one real generated phrase for a note density, syncopation and seed. */
+/** One real generated phrase for a note density, syncopation and seed. */
 function generatedFixture(
   noteDensity: NoteDensity,
   syncopation: Syncopation,
@@ -163,7 +163,7 @@ function generatedFixture(
 }
 
 /**
- * Intent: the whole fixture set: the hand-built phrases, then a generated phrase for every note
+ * The whole fixture set: the hand-built phrases, then a generated phrase for every note
  * density with straight and offbeat rhythms (offbeats bring ties), on two seeds each.
  */
 export function acknowledgementFixtureSet(): readonly AcknowledgementFixture[] {

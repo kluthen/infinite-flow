@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
 import { SessionDriver, kinds, phraseOneFor, sessionSettings } from './session-harness'
 
 /**
- * Intent: a driver at 240 BPM (a 1 s measure) started at 0: phrase 2's deadline is 1, phrase N
+ * A driver at 240 BPM (a 1 s measure) started at 0: phrase 2's deadline is 1, phrase N
  * sounds at 1 + 4(N - 1), and phrase N+1's deadline is 3 s after phrase N starts sounding.
  */
 function fastDriver(): SessionDriver {
@@ -17,22 +17,22 @@ function fastDriver(): SessionDriver {
   return new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
 }
 
-/** Intent: the moment phrase N starts sounding in a fast driver's session. */
+/** The moment phrase N starts sounding in a fast driver's session. */
 function soundsAt(phraseNumber: number): number {
   return 1 + 4 * (phraseNumber - 1)
 }
 
-/** Intent: the deadline of phrase N (2 or more) in a fast driver's session. */
+/** The deadline of phrase N (2 or more) in a fast driver's session. */
 function deadlineOf(phraseNumber: number): number {
   return phraseNumber === 2 ? 1 : soundsAt(phraseNumber - 1) + 3
 }
 
-/** Intent: let phrase N be decided as a repeat, by reaching its deadline with nothing ready. */
+/** Let phrase N be decided as a repeat, by reaching its deadline with nothing ready. */
 function repeatPhrase(driver: SessionDriver, phraseNumber: number): readonly string[] {
   return kinds(driver.tick(deadlineOf(phraseNumber)))
 }
 
-/** Intent: start phrase N sounding (count-in over for phrase 1) and return the output kinds. */
+/** Start phrase N sounding (count-in over for phrase 1) and return the output kinds. */
 function sound(driver: SessionDriver, phraseNumber: number): readonly string[] {
   const at = soundsAt(phraseNumber)
   return kinds(phraseNumber === 1 ? driver.countInOver(at) : driver.sounding(at, phraseNumber))

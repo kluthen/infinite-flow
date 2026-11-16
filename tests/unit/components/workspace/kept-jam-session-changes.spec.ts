@@ -50,7 +50,7 @@ interface Rig {
 }
 
 /**
- * Intent: a port holding the Jam-style session saved at its end as a fresh Jam, its phrases
+ * A port holding the Jam-style session saved at its end as a fresh Jam, its phrases
  * holding played notes or none, its doodle's raw notes those given, `Keep my played notes` as
  * `keep` says; the batches counted from then on.
  */
@@ -73,7 +73,7 @@ async function savedJam(
   }
 }
 
-/** Intent: the kept session stored under `key`, as its three stores hold it. */
+/** The kept session stored under `key`, as its three stores hold it. */
 async function storedSession(port: StoragePort, key: string): Promise<codec.StoredKeptSession> {
   const [summary, body, playedNotes] = await Promise.all([
     port.read('sessionSummaries', key),
@@ -83,14 +83,14 @@ async function storedSession(port: StoragePort, key: string): Promise<codec.Stor
   return { summary, body, playedNotes }
 }
 
-/** Intent: the kept session under `key` decoded, failing unless it reads as current. */
+/** The kept session under `key` decoded, failing unless it reads as current. */
 async function decoded(port: StoragePort, key: string): Promise<codec.KeptSession> {
   const reading = codec.decodeKeptSession(await storedSession(port, key))
   if (reading.reading !== 'current') throw new Error(`expected current, got ${reading.reading}`)
   return reading.value
 }
 
-/** Intent: every played note's onset the played-notes record under `key` holds, as stored. */
+/** Every played note's onset the played-notes record under `key` holds, as stored. */
 async function storedOnsets(port: StoragePort, key: string): Promise<readonly number[]> {
   const record = (await port.read('playedNotes', key)) as { notes: { onset: number }[] }
   return record.notes.map((note) => note.onset)

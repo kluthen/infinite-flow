@@ -23,7 +23,7 @@ const SAVED = makeMyInstrument({
   transposition: { octaves: 1, semitones: 2, direction: 'lower' },
 })
 
-/** Intent: `count` counted sessions of my instrument, as the controller counts them. */
+/** `count` counted sessions of my instrument, as the controller counts them. */
 function sessions(count: number, facts: Partial<MyInstrumentSessionCount> = {}) {
   return {
     count,
@@ -36,7 +36,7 @@ function sessions(count: number, facts: Partial<MyInstrumentSessionCount> = {}) 
   }
 }
 
-/** Intent: a batch the test settles when it chooses. */
+/** A batch the test settles when it chooses. */
 function held() {
   let settle: (outcome: MyInstrumentBatchOutcome) => void = () => undefined
   const promise = new Promise<MyInstrumentBatchOutcome>((resolve) => {
@@ -45,7 +45,7 @@ function held() {
   return { promise, settle }
 }
 
-/** Intent: the editing sheet over `counted`, its batches resolving `outcome`. */
+/** The editing sheet over `counted`, its batches resolving `outcome`. */
 function mountSheet(
   counted: MyInstrumentSessionCount = sessions(3),
   outcome: () => Promise<MyInstrumentBatchOutcome> = () => Promise.resolve('done'),
@@ -68,20 +68,20 @@ function mountSheet(
 
 type Sheet = ReturnType<typeof mountSheet>
 
-/** Intent: the sheet's button whose text is `label`. */
+/** The sheet's button whose text is `label`. */
 function button(wrapper: Sheet, label: string) {
   const found = wrapper.findAll('button').find((candidate) => candidate.text() === label)
   if (found === undefined) throw new Error(`no "${label}" button`)
   return found
 }
 
-/** Intent: one step of the stepper named `name`, up or down. */
+/** One step of the stepper named `name`, up or down. */
 async function step(wrapper: Sheet, name: string, direction: 'up' | 'down'): Promise<void> {
   const stepper = wrapper.get(`[role="spinbutton"][aria-label="${name}"]`)
   await stepper.trigger('keydown', { key: direction === 'up' ? 'ArrowUp' : 'ArrowDown' })
 }
 
-/** Intent: the value the stepper named `name` shows. */
+/** The value the stepper named `name` shows. */
 function stepperText(wrapper: Sheet, name: string): string | undefined {
   return wrapper.get(`[role="spinbutton"][aria-label="${name}"]`).attributes('aria-valuetext')
 }

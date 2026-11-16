@@ -94,13 +94,13 @@ export interface ScoredPair extends KeyModePair {
   readonly penalty: number
 }
 
-/** Intent: a pitch's pitch class, 0 (C) to 11 (B). */
+/** A pitch's pitch class, 0 (C) to 11 (B). */
 function pitchClassOf(pitch: number): PitchClassNumber {
   return (pitch % 12) as PitchClassNumber
 }
 
 /**
- * Intent: a note's weight in eighths of a beat: its length clamped to 2–6 ticks, twice that, or
+ * A note's weight in eighths of a beat: its length clamped to 2–6 ticks, twice that, or
  * three times when it starts on beat 1 or 3.
  */
 // @spec-link [[rule_suggestion_candidates]]
@@ -110,7 +110,7 @@ export function noteWeight(note: DoodleNote): number {
 }
 
 /**
- * Intent: the role penalty of each of the twelve intervals above a mode's home note: home, the
+ * The role penalty of each of the twelve intervals above a mode's home note: home, the
  * fifth and third degrees, the other four degrees, and the five notes outside the mode.
  */
 function rolePenaltiesOf(mode: KeyMode): readonly number[] {
@@ -127,7 +127,7 @@ function rolePenaltiesOf(mode: KeyMode): readonly number[] {
 const ROLE_TABLES: readonly (readonly number[])[] = deepFreeze(KEY_MODES.map(rolePenaltiesOf))
 
 /**
- * Intent: the 84 pairs' penalties for a doodle, home note C to B, each with the modes Ionian to
+ * The 84 pairs' penalties for a doodle, home note C to B, each with the modes Ionian to
  * Locrian: each note's role penalty times its weight, less the cue of a first or last note that
  * is the pair's home note. A doodle has at least one note.
  */
@@ -155,7 +155,7 @@ export function scorePairs(doodle: QuantizedDoodle): readonly ScoredPair[] {
   return deepFreeze(pairs)
 }
 
-/** Intent: the kept candidates' order: by penalty, then home note C to B, then mode. */
+/** The kept candidates' order: by penalty, then home note C to B, then mode. */
 function comparePairs(a: ScoredPair, b: ScoredPair): number {
   return (
     a.penalty - b.penalty ||
@@ -165,7 +165,7 @@ function comparePairs(a: ScoredPair, b: ScoredPair): number {
 }
 
 /**
- * Intent: the kept candidates: the pairs within 693 thousandths of the best, by penalty, then
+ * The kept candidates: the pairs within 693 thousandths of the best, by penalty, then
  * home note C to B, then mode Ionian to Locrian, at most three. The first is the best pair.
  */
 // @spec-link [[rule_suggestion_candidates]]
@@ -178,7 +178,7 @@ export function keptCandidates(scores: readonly ScoredPair[]): readonly ScoredPa
 }
 
 /**
- * Intent: whether the doodle has enough material to suggest from: at least 5 pitch classes,
+ * Whether the doodle has enough material to suggest from: at least 5 pitch classes,
  * 6 notes and 2 beats (8 ticks) of sounding time.
  */
 // @spec-link [[rule_suggestion_withheld]]
@@ -193,7 +193,7 @@ export function hasEnoughMaterial(doodle: QuantizedDoodle): boolean {
 }
 
 /**
- * Intent: whether at least 80 % of the doodle's weighted length lies in the pair's notes
+ * Whether at least 80 % of the doodle's weighted length lies in the pair's notes
  * (5 × fitting ≥ 4 × total); under it, the doodle fits no mode well enough.
  */
 // @spec-link [[rule_doodle_outside_modes_told]]

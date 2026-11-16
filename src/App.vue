@@ -74,7 +74,7 @@ const sessionController = shallowRef<SessionController | null>(null)
 let unmounted = false
 
 /**
- * Intent: load the session controller once, at setup; one that arrives after unmount is disposed
+ * Load the session controller once, at setup; one that arrives after unmount is disposed
  * of at once, so nothing it reads outlives the app.
  */
 // @spec-link [[service_session_controller]]
@@ -85,7 +85,7 @@ void workspace.createSessionController().then((controller) => {
 })
 
 /**
- * Intent: keep the workspace's connection-sheet flag, which the session controller reads, equal to
+ * Keep the workspace's connection-sheet flag, which the session controller reads, equal to
  * the shell's sheet; the shell reports every change synchronously.
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
@@ -94,7 +94,7 @@ function handleConnectionSheetOpenChange(open: boolean): void {
 }
 
 /**
- * Intent: keep the workspace's session-mode-held flag, which the session controller reads, equal
+ * Keep the workspace's session-mode-held flag, which the session controller reads, equal
  * to the shell's mode; the shell reports every change synchronously.
  */
 // @spec-link [[module_workspace_mode]]
@@ -103,7 +103,7 @@ function handleSessionModeHeldChange(held: boolean): void {
 }
 
 /**
- * Intent: keep the workspace's held-mode note route, which the session controller reads at Idle
+ * Keep the workspace's held-mode note route, which the session controller reads at Idle
  * while session mode is held, equal to the shell's (Jam's home note starting a fresh Jam); the
  * shell reports every change synchronously.
  */
@@ -113,14 +113,14 @@ function handleHeldModeNotesChange(route: HeldModeNoteRoute | null): void {
 }
 
 /**
- * Intent: give the workspace the shell's start jump, which the session controller makes after a
+ * Give the workspace the shell's start jump, which the session controller makes after a
  * start by the starting note; the shell gives it once at its setup.
  */
 function handleAfterNoteStartChange(afterStart: () => void): void {
   workspace.afterNoteStart.value = afterStart
 }
 
-/** Intent: end any running session and stop the controller, then tear the workspace down. */
+/** End any running session and stop the controller, then tear the workspace down. */
 // @spec-link [[service_session_controller]]
 onUnmounted(() => {
   unmounted = true

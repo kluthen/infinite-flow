@@ -18,7 +18,7 @@ import {
   type JamRun,
 } from './jam-phrase-one-rig'
 
-/** Intent: barline `k` of a run, 0 at the count-in's end. */
+/** Barline `k` of a run, 0 at the count-in's end. */
 const barline = rigBarline
 
 /** The one-measure doodle, then a note on beat 2 of the tentative measure, which voids it. */
@@ -67,7 +67,7 @@ describe('an attempt started at a candidate end that a doodle note voids', () =>
 
 // @test-link [[module_session_seed_plan]]
 describe("phrase 1's seeds", () => {
-  /** Intent: a run whose every phrase 1 attempt fails, so all six are asked for. */
+  /** A run whose every phrase 1 attempt fails, so all six are asked for. */
   function everyAttempt(sessionSeed = DEFAULT_SESSION_SEED): JamRun {
     return runJam({
       tempo: 120,

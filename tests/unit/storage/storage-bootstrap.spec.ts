@@ -72,7 +72,7 @@ const SAVED: SavedSettings = {
   keepPlayedNotes: true,
 }
 
-/** Intent: write every setting of `settings` through `port`, one record per setting. */
+/** Write every setting of `settings` through `port`, one record per setting. */
 async function seedSettings(port: StoragePort, settings: SavedSettings): Promise<void> {
   for (const record of encodeSettings(settings, TEST_APP_VERSION)) {
     await port.write('settings', record.key, record)
@@ -99,14 +99,14 @@ const SAVED_LATE_NIGHT: SavedSettings = {
   presetSelection: { kind: 'preset', presetId: 'player-1' },
 }
 
-/** Intent: write each of `presets` through `port`, one player preset record under its id. */
+/** Write each of `presets` through `port`, one player preset record under its id. */
 async function seedPresets(port: StoragePort, presets: readonly Preset[]): Promise<void> {
   for (const preset of presets) {
     await port.write('presets', preset.id, encodePresetRecord(preset, TEST_APP_VERSION))
   }
 }
 
-/** Intent: `port` with only its keyed read of the `presets` store refused as a storage failure. */
+/** `port` with only its keyed read of the `presets` store refused as a storage failure. */
 function failingPresetReads(port: StoragePort): StoragePort {
   return {
     ...port,
@@ -123,7 +123,7 @@ interface ControlledWait {
   readonly end: () => void
 }
 
-/** Intent: a start-up wait that ends only when the test calls `end`. */
+/** A start-up wait that ends only when the test calls `end`. */
 function controlledWait(): ControlledWait {
   let end: () => void = () => {
     throw new Error('the start-up wait was never started')
@@ -134,10 +134,10 @@ function controlledWait(): ControlledWait {
   return { wait: () => ended, end: () => end() }
 }
 
-/** Intent: a start-up wait that never ends, so every read finishes within it. */
+/** A start-up wait that never ends, so every read finishes within it. */
 const neverEnds = (): Promise<void> => new Promise<void>(() => {})
 
-/** Intent: the dependencies of a load over `openPort`, with the given start-up wait. */
+/** The dependencies of a load over `openPort`, with the given start-up wait. */
 function dependencies(
   openPort: () => Promise<StoragePort>,
   startupWait: () => Promise<void> = neverEnds,
@@ -145,7 +145,7 @@ function dependencies(
   return { openPort, startupWait, mixDesign: () => MIX_DESIGN }
 }
 
-/** Intent: `port` with its reads refused as a browser storage failure. */
+/** `port` with its reads refused as a browser storage failure. */
 function failingReads(port: StoragePort): StoragePort {
   const refuse = () => Promise.reject(new StorageError('other', 'the read failed'))
   return { ...port, read: refuse, readAll: refuse, readKeyed: refuse }
@@ -157,7 +157,7 @@ interface Deferred<T> {
   readonly resolve: (value: T) => void
 }
 
-/** Intent: a promise with its resolver exposed. */
+/** A promise with its resolver exposed. */
 function deferred<T>(): Deferred<T> {
   let resolve: (value: T) => void = () => {}
   const promise = new Promise<T>((settle) => {
@@ -166,7 +166,7 @@ function deferred<T>(): Deferred<T> {
   return { promise, resolve }
 }
 
-/** Intent: `port` with every `readAll` and keyed read held until the returned release is called. */
+/** `port` with every `readAll` and keyed read held until the returned release is called. */
 function heldReads(port: StoragePort): { port: StoragePort; release: () => void } {
   const gate = deferred<void>()
   return {
@@ -185,7 +185,7 @@ function heldReads(port: StoragePort): { port: StoragePort; release: () => void 
   }
 }
 
-/** Intent: `port` with only its keyed read of `presets` held until the release is called. */
+/** `port` with only its keyed read of `presets` held until the release is called. */
 function heldPresetReads(port: StoragePort): { port: StoragePort; release: () => void } {
   const gate = deferred<void>()
   return {
@@ -200,7 +200,7 @@ function heldPresetReads(port: StoragePort): { port: StoragePort; release: () =>
   }
 }
 
-/** Intent: a port opened outdated over `factory`, a newer app having upgraded it after `seed`. */
+/** A port opened outdated over `factory`, a newer app having upgraded it after `seed`. */
 async function outdatedAfter(
   factory: IDBFactory,
   seed: (port: StoragePort) => Promise<void>,
@@ -210,12 +210,12 @@ async function outdatedAfter(
   return openStoragePort({ factory, appVersion: '3.0.0' })
 }
 
-/** Intent: the saving state of the load's policy, once it exists. */
+/** The saving state of the load's policy, once it exists. */
 async function savingState(load: SavedDataLoad): Promise<ReturnType<SavePolicy['state']>> {
   return (await load.savePolicy).state()
 }
 
-/** Intent: whether a promise has settled after every queued job has run. */
+/** Whether a promise has settled after every queued job has run. */
 async function hasSettled(promise: Promise<unknown>): Promise<boolean> {
   let settled = false
   void promise.then(

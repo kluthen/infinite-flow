@@ -19,7 +19,7 @@ export const KEYS: MidiDevice = { id: 'keys', name: 'Keys', manufacturer: 'Acme'
 export const PAD: MidiDevice = { id: 'pad', name: 'Pad', manufacturer: 'Beta' }
 export const FLUTE: MidiDevice = { id: 'flute', name: 'Flute', manufacturer: 'Gamma' }
 
-/** Intent: a controller snapshot with these devices present, and this controller remembered. */
+/** A controller snapshot with these devices present, and this controller remembered. */
 export function change(
   state: MidiControllerState,
   devices: readonly MidiDevice[] = [],
@@ -28,10 +28,10 @@ export function change(
   return { state, devices, remembered, reselectedAtLoad: false }
 }
 
-/** Intent: the controller asking for access, nothing listed yet. */
+/** The controller asking for access, nothing listed yet. */
 export const REQUESTING = change({ kind: 'requesting' })
 
-/** Intent: a state with this device selected, in the given kind. */
+/** A state with this device selected, in the given kind. */
 export function selected(
   kind: 'opening' | 'connected' | 'away',
   device: MidiDevice,
@@ -45,7 +45,7 @@ export interface Run {
   readonly effects: readonly SheetEffect[]
 }
 
-/** Intent: run events through the reducer from a model, collecting every effect. */
+/** Run events through the reducer from a model, collecting every effect. */
 export function run(model: SheetModel, ...events: SheetEvent[]): Run {
   return events.reduce<Run>(
     (acc, event) => {
@@ -56,7 +56,7 @@ export function run(model: SheetModel, ...events: SheetEvent[]): Run {
   )
 }
 
-/** Intent: a sheet just opened at Requesting access, the controller requesting. */
+/** A sheet just opened at Requesting access, the controller requesting. */
 export function requestingSheet(): SheetModel {
   return run(initialSheetModel(change({ kind: 'not-requested' })), {
     kind: 'open-requesting',
@@ -64,12 +64,12 @@ export function requestingSheet(): SheetModel {
   }).model
 }
 
-/** Intent: a sheet opened at Requesting access whose connect() settled with this snapshot. */
+/** A sheet opened at Requesting access whose connect() settled with this snapshot. */
 export function settled(controller: MidiControllerChange): Run {
   return run(requestingSheet(), { kind: 'connect-settled', controller })
 }
 
-/** Intent: a sheet at Transposition check for KEYS (the only input), with these devices present. */
+/** A sheet at Transposition check for KEYS (the only input), with these devices present. */
 export function checkSheet(devices: readonly MidiDevice[] = [KEYS]): SheetModel {
   const opened = settled(change(selected('connected', KEYS), [KEYS])).model
   return run(opened, {
@@ -78,7 +78,7 @@ export function checkSheet(devices: readonly MidiDevice[] = [KEYS]): SheetModel 
   }).model
 }
 
-/** Intent: a sheet at Connected for KEYS (checked, then continued), with these devices present. */
+/** A sheet at Connected for KEYS (checked, then continued), with these devices present. */
 export function connectedSheet(devices: readonly MidiDevice[] = [KEYS]): SheetModel {
   return run(
     checkSheet(devices),
@@ -87,7 +87,7 @@ export function connectedSheet(devices: readonly MidiDevice[] = [KEYS]): SheetMo
   ).model
 }
 
-/** Intent: a sheet at the picker, reached by settling with these devices and nothing selected. */
+/** A sheet at the picker, reached by settling with these devices and nothing selected. */
 export function pickerSheet(devices: readonly MidiDevice[]): SheetModel {
   return settled(change({ kind: 'choosing' }, devices)).model
 }

@@ -58,7 +58,7 @@ const NON_MATCH_ACTIONS = [
   { label: 'Run check again', primary: false },
 ] as const
 
-/** Intent: Connected for `name`, with or without `Choose a different device`. */
+/** Connected for `name`, with or without `Choose a different device`. */
 function connectedShape(name: string, chooseDifferent: boolean) {
   return {
     title: 'Controller connected',

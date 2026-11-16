@@ -25,18 +25,18 @@ const PROPS = {
 
 let wrapper: VueWrapper | null = null
 
-/** Intent: the sheet mounted in the document with `props` over the defaults. */
+/** The sheet mounted in the document with `props` over the defaults. */
 function sheet(props: Partial<typeof PROPS> = {}): VueWrapper {
   wrapper = mount(ConfirmationSheet, { props: { ...PROPS, ...props }, attachTo: document.body })
   return wrapper
 }
 
-/** Intent: the sheet's buttons' text, in markup order. */
+/** The sheet's buttons' text, in markup order. */
 function buttons(mounted: VueWrapper): string[] {
   return mounted.findAll('button').map((button) => button.text())
 }
 
-/** Intent: press a key on the document, as the player would anywhere in the page. */
+/** Press a key on the document, as the player would anywhere in the page. */
 function press(key: string, shiftKey = false): void {
   document.dispatchEvent(new KeyboardEvent('keydown', { key, shiftKey, bubbles: true }))
 }

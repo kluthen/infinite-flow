@@ -60,7 +60,7 @@ export interface StaffReading {
   readonly bands: number
 }
 
-/** Intent: the audio time of barline `measureIndex` (0-3) of phrase `phraseNumber`. */
+/** The audio time of barline `measureIndex` (0-3) of phrase `phraseNumber`. */
 export async function barlineAt(
   page: Page,
   phraseNumber: number,
@@ -71,7 +71,7 @@ export async function barlineAt(
 }
 
 /**
- * Intent: move the clock just past a barline and wait until the playhead, read on the audio clock
+ * Move the clock just past a barline and wait until the playhead, read on the audio clock
  * once a frame, is on that measure.
  */
 export async function toBarline(
@@ -86,7 +86,7 @@ export async function toBarline(
     .toEqual({ phraseNumber, measureIndex })
 }
 
-/** Intent: wait until the session has readied phrase `phraseNumber` (its look-ahead decided). */
+/** Wait until the session has readied phrase `phraseNumber` (its look-ahead decided). */
 export async function untilReady(page: Page, phraseNumber: number): Promise<void> {
   await expect
     .poll(async () => (await sessionState(page)).latestReady, { timeout: 30_000 })
@@ -94,7 +94,7 @@ export async function untilReady(page: Page, phraseNumber: number): Promise<void
 }
 
 /**
- * Intent: what each position shows at measure `measureIndex` of phrase `phraseNumber` (the
+ * What each position shows at measure `measureIndex` of phrase `phraseNumber` (the
  * count-in reads as phrase 1's first measure) with phrases up to `latestReady` readied. One
  * system: phrase n on top when odd, below when even, the next phrase in the other once readied.
  * Split: bars 1-2 on top and 3-4 below; from bar 3 the top takes the next phrase's opening.
@@ -116,7 +116,7 @@ export function expectedSystems(
   return { top: next === null ? null : `${next}:opening`, bottom: closing }
 }
 
-/** Intent: the position holding measure `measureIndex` of phrase `phraseNumber` in a layout. */
+/** The position holding measure `measureIndex` of phrase `phraseNumber` in a layout. */
 export function playheadPosition(
   layout: Layout,
   phraseNumber: number,
@@ -126,7 +126,7 @@ export function playheadPosition(
   return measureIndex < 2 ? 'top' : 'bottom'
 }
 
-/** Intent: the staff's two positions and the controller's state, read in one task. */
+/** The staff's two positions and the controller's state, read in one task. */
 export function readStaff(page: Page): Promise<StaffReading> {
   return page.evaluate(() => {
     const frame = document.querySelector('.staff-frame')
@@ -171,13 +171,13 @@ export function readStaff(page: Page): Promise<StaffReading> {
   })
 }
 
-/** Intent: the slot keys a reading's settled units show. */
+/** The slot keys a reading's settled units show. */
 export function drawnKeys(reading: StaffReading): Systems {
   return { top: reading.top?.key ?? null, bottom: reading.bottom?.key ?? null }
 }
 
 /**
- * Intent: wait until the staff has caught up with the controller: no unit fading out, and each
+ * Wait until the staff has caught up with the controller: no unit fading out, and each
  * position's settled unit showing the slot the state gives it; return that reading.
  */
 export async function settledStaff(page: Page): Promise<StaffReading> {
@@ -196,13 +196,13 @@ export async function settledStaff(page: Page): Promise<StaffReading> {
   return reading
 }
 
-/** Intent: whether two system contents are the same. */
+/** Whether two system contents are the same. */
 function sameSystems(a: Systems, b: Systems): boolean {
   return a.top === b.top && a.bottom === b.bottom
 }
 
 /**
- * Intent: how many measures are on screen after the one being played, read from the drawn units:
+ * How many measures are on screen after the one being played, read from the drawn units:
  * the measures that follow it in playing order without a gap.
  */
 export function readAhead(reading: StaffReading, phraseNumber: number, measureIndex: number) {
@@ -218,7 +218,7 @@ export function readAhead(reading: StaffReading, phraseNumber: number, measureIn
   return ahead
 }
 
-/** Intent: tag every settled unit and its SVG, so a later reading tells a redraw or a new unit. */
+/** Tag every settled unit and its SVG, so a later reading tells a redraw or a new unit. */
 export async function markSystems(page: Page, mark: string): Promise<void> {
   await page.evaluate((value) => {
     for (const unit of document.querySelectorAll<HTMLElement>(
@@ -249,7 +249,7 @@ export interface RollingLogEntry {
 }
 
 /**
- * Intent: from now on, log every unit that starts fading out, every unit that enters a position,
+ * From now on, log every unit that starts fading out, every unit that enters a position,
  * every playhead band drawn, and the score taking the `error` notation state, each with the
  * session's phase then (at Idle, a staff with no room takes that state behind its own notice).
  */
@@ -316,12 +316,12 @@ export async function startRollingLog(page: Page): Promise<void> {
   })
 }
 
-/** Intent: every entry the rolling log recorded since it started. */
+/** Every entry the rolling log recorded since it started. */
 export function rollingLog(page: Page): Promise<RollingLogEntry[]> {
   return page.evaluate(() => window.__rollingLog ?? [])
 }
 
-/** Intent: the times the score took the `error` notation state while a session ran. */
+/** The times the score took the `error` notation state while a session ran. */
 export async function sessionNotationErrors(page: Page): Promise<RollingLogEntry[]> {
   return (await rollingLog(page)).filter(
     (entry) => entry.kind === 'notation-error' && entry.phase !== 'idle',

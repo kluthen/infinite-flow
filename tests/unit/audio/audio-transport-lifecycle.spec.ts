@@ -103,7 +103,7 @@ describe('an interruption of the audio output', () => {
   })
 })
 
-/** Intent: one fixed script of starts, mix changes and stops, returning every call it made. */
+/** One fixed script of starts, mix changes and stops, returning every call it made. */
 function scriptedEvents(): readonly FakeAudioEvent[] {
   const { rig, transport } = transportRig()
   transport.setClickVolume(0.5)

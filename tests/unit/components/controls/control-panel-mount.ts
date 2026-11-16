@@ -23,7 +23,7 @@ const NO_PRESET_ACTIONS: PresetActionsRow = {
 }
 
 /**
- * Intent: mount the control panel showing `controls` and `selection` among `presets`, readonly
+ * Mount the control panel showing `controls` and `selection` among `presets`, readonly
  * (its session options too) when `readonly`, with `startSettings` as the session's start settings
  * and `chordFamilies` as the Seventh chords level it shows.
  */

@@ -21,7 +21,7 @@ export interface JamSessionCue {
 export type JamCuePart = 'capture' | 'writing'
 
 /**
- * Intent: the part of the cue row a fresh Jam's phase gives: `jam-capture` during the capture,
+ * The part of the cue row a fresh Jam's phase gives: `jam-capture` during the capture,
  * `jam-writing` during a tentative generation measure (a barline with no note sounding), the
  * generation measure and any extended wait; none otherwise, the controller's count-in covering the
  * count-in and the read-in measure, and the session's cues phrase 1 on.

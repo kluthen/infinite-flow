@@ -22,13 +22,13 @@ import { isSeventhDrawn } from '../../harmony/seventh-draw'
 import type { Seed } from '../../random/seed'
 
 /**
- * Intent: what a seventh variant's identity gains after its plan's: this mark, then the indices of
+ * What a seventh variant's identity gains after its plan's: this mark, then the indices of
  * its seventh-form events, comma-separated. A triads-only plan's identity never holds it.
  */
 // @spec-link [[service_generation_orchestration]]
 export const SEVENTHS_IDENTITY_MARK = '|sevenths:'
 
-/** Intent: the seventh the collection gives on a degree: its pitch class and its quality. */
+/** The seventh the collection gives on a degree: its pitch class and its quality. */
 function seventhOnDegree(collection: HarmonyCollection, degree: CollectionDegree): ChordSeventh {
   const chord = collection.seventhChords[degree - 1]
   if (chord?.degree !== degree)
@@ -36,7 +36,7 @@ function seventhOnDegree(collection: HarmonyCollection, degree: CollectionDegree
   return { pitchClass: chord.pitchClasses[3], quality: chord.quality }
 }
 
-/** Intent: the plan with each drawn event in its seventh form, its identity marked. */
+/** The plan with each drawn event in its seventh form, its identity marked. */
 function seventhVariant(
   candidate: HarmonyCandidate,
   drawn: readonly boolean[],
@@ -54,7 +54,7 @@ function seventhVariant(
 }
 
 /**
- * Intent: the harmony list searched at a Seventh chords level, from the ranked plans, the
+ * The harmony list searched at a Seventh chords level, from the ranked plans, the
  * collection they are built on and the phrase's seed. Off returns `ranked` itself and draws
  * nothing; above Off, each plan with a drawn seventh becomes its seventh variant then itself, a
  * plan with none stays as it is, so the list grows by at most one variant per plan.

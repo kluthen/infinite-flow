@@ -17,7 +17,7 @@ import { NotationError } from '@/notation/notation-error'
 import type { VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import { resolveFixture } from './fixtures'
 
-/** Intent: create a laid-out scratch host on the page, so drawn SVGs have real boxes. */
+/** Create a laid-out scratch host on the page, so drawn SVGs have real boxes. */
 export function scratchHost(): HTMLElement {
   const host = document.createElement('div')
   host.className = 'notation-systems-scratch'
@@ -25,7 +25,7 @@ export function scratchHost(): HTMLElement {
   return host
 }
 
-/** Intent: rename VexFlow's `autoN` element ids in order of first appearance, so markup compares. */
+/** Rename VexFlow's `autoN` element ids in order of first appearance, so markup compares. */
 function normalisedMarkup(svg: SVGSVGElement): string {
   const names = new Map<string, string>()
   return svg.outerHTML.replace(/auto\d+/gu, (id) => {
@@ -37,7 +37,7 @@ function normalisedMarkup(svg: SVGSVGElement): string {
   })
 }
 
-/** Intent: snapshot one drawn system SVG in a serialisable form. */
+/** Snapshot one drawn system SVG in a serialisable form. */
 function svgSnapshot(svg: SVGSVGElement): NotationHarnessSvgSnapshot {
   const slots = [...svg.querySelectorAll('g.measure-slot')]
   return {
@@ -57,7 +57,7 @@ function svgSnapshot(svg: SVGSVGElement): NotationHarnessSvgSnapshot {
 }
 
 /**
- * Intent: the drawn `x` of each stave note's notehead (or rest) glyph in one measure slot, in
+ * The drawn `x` of each stave note's notehead (or rest) glyph in one measure slot, in
  * drawing order: the first text of its `g.vf-notehead` group, which VexFlow draws first.
  */
 // @test-link [[module_notation_engraving_anchors]]
@@ -69,7 +69,7 @@ function noteheadXs(slot: Element): number[] {
   })
 }
 
-/** Intent: snapshot reported measure anchors in a serialisable form. */
+/** Snapshot reported measure anchors in a serialisable form. */
 // @test-link [[module_notation_engraving_anchors]]
 function anchorsSnapshot(anchors: readonly MeasureAnchors[]): NotationHarnessMeasureAnchors[] {
   return anchors.map(({ measureIndex, systemIndex, eventStartsPx, barlinePx }) => ({
@@ -81,7 +81,7 @@ function anchorsSnapshot(anchors: readonly MeasureAnchors[]): NotationHarnessMea
 }
 
 /**
- * Intent: each chord symbol drawn in one system SVG, in document order: the measure slot holding
+ * Each chord symbol drawn in one system SVG, in document order: the measure slot holding
  * it, its text content, its horizontal extent in CSS px from the SVG's left edge (its box as the
  * browser lays it out) and each of its `<text>` runs, in drawing order, with the font size and
  * baseline (`y`) it was drawn at.
@@ -107,12 +107,12 @@ function drawnChordSymbols(svg: SVGSVGElement): NotationHarnessChordSymbolBox[] 
   )
 }
 
-/** Intent: a phrase's event count (notes and rests) per measure, in phrase order. */
+/** A phrase's event count (notes and rests) per measure, in phrase order. */
 function eventCounts(phrase: WrittenPhrase): number[] {
   return phrase.measures.map((measure) => measure.events.length)
 }
 
-/** Intent: describe a thrown value in a serialisable form, keeping a NotationError's code. */
+/** Describe a thrown value in a serialisable form, keeping a NotationError's code. */
 function thrownSnapshot(error: unknown): NotationHarnessThrown {
   return {
     name: error instanceof Error ? error.name : typeof error,
@@ -121,7 +121,7 @@ function thrownSnapshot(error: unknown): NotationHarnessThrown {
   }
 }
 
-/** Intent: build the `window.__notationSystems` hook on the engraver `readyEngraver` loads. */
+/** Build the `window.__notationSystems` hook on the engraver `readyEngraver` loads. */
 // @test-link [[module_session_rolling_display]]
 export function notationSystemsHook(
   readyEngraver: () => Promise<VexflowEngraverModule>,

@@ -24,19 +24,19 @@ const CANNOT_BE_UNDONE = "This can't be undone."
 /** What a refused deletion's sheet says. */
 const NOT_DELETED = "That couldn't be deleted. Try again."
 
-/** Intent: "with 1 session", or "with {n} sessions". */
+/** "with 1 session", or "with {n} sessions". */
 function withSessions(count: number): string {
   return count === 1 ? 'with 1 session' : `with ${count} sessions`
 }
 
-/** Intent: parts joined with commas and a last "and": "a", "a and b", "a, b and c". */
+/** Parts joined with commas and a last "and": "a", "a and b", "a, b and c". */
 function joinedWithAnd(parts: readonly string[]): string {
   if (parts.length <= 1) return parts.join('')
   return `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}`
 }
 
 /**
- * Intent: the words of a session tool's confirmation: "Unpin this session?" for a session with
+ * The words of a session tool's confirmation: "Unpin this session?" for a session with
  * favorites, naming them; "Delete this session?", naming the session by its date and what it
  * holds, in this order and only when present: its favorite phrases, its comment, its played notes.
  */
@@ -84,7 +84,7 @@ const JAM_SESSION_PLAYED_NOTES =
 const DOODLES_STAY = ' Doodles stay as the app wrote them.'
 
 /**
- * Intent: the words of a Review's confirmation: "Delete the played notes already kept?" when
+ * The words of a Review's confirmation: "Delete the played notes already kept?" when
  * `Keep my played notes` was turned off while some are kept (saying the doodles stay when a Jam
  * session keeps played notes), "Delete this session's played
  * notes?" for `Delete played notes` (in a Jam session, saying its doodle as the app wrote it

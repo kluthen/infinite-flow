@@ -40,7 +40,7 @@ function troubledIdle(): Partial<FakeIdleState> {
   }
 }
 
-/** Intent: mount the panel in Jam mode over session mode's Idle `idle` and the controller `fake`. */
+/** Mount the panel in Jam mode over session mode's Idle `idle` and the controller `fake`. */
 function mountJamPanel(fake: FakeSessionController, idle: Partial<FakeIdleState> = troubledIdle()) {
   const generation = fakeGenerationSession(idle)
   const wrapper = mount(ScorePanel, {
@@ -71,7 +71,7 @@ const PHRASE_ONE_STAFF: SessionStaff = {
   playhead: null,
 }
 
-/** Intent: the session's staff viewport: the first in DOM order. */
+/** The session's staff viewport: the first in DOM order. */
 function sessionViewport(wrapper: ReturnType<typeof mountJamPanel>['wrapper']) {
   return wrapper.findAll('.staff-viewport')[0]!
 }

@@ -35,26 +35,26 @@ interface WalkState {
   readonly latestReady: number
 }
 
-/** Intent: a playhead position, checked to be a legal measure index. */
+/** A playhead position, checked to be a legal measure index. */
 function at(phraseNumber: number, measure: number): PlayheadPosition {
   if (![0, 1, 2, 3].includes(measure)) throw new Error(`bad test measure ${measure}`)
   return { phraseNumber, measureIndex: measure as MeasureIndex }
 }
 
-/** Intent: a slot as a short label: phrase number and w/o/c for whole/opening/closing, or '-'. */
+/** A slot as a short label: phrase number and w/o/c for whole/opening/closing, or '-'. */
 function label(slot: SystemSlot | null): string {
   if (slot === null) return '-'
   return `${slot.phraseNumber}${slot.part[0]}`
 }
 
-/** Intent: what the two positions show, as `top/bottom` labels. */
+/** What the two positions show, as `top/bottom` labels. */
 function render(state: WalkState, layout: StaffLayout): string {
   const systems = systemsAt(layout, state.playhead, state.latestReady)
   return `${label(systems.top)}/${label(systems.bottom)}`
 }
 
 /**
- * Intent: the worst-case walk. Phrase 2 is readied during the count-in; phrase n+1 (n >= 2) is
+ * The worst-case walk. Phrase 2 is readied during the count-in; phrase n+1 (n >= 2) is
  * readied only just before the deadline, the start of phrase n's last measure, so it appears in
  * measure 2 as a separate state right before the measure-3 barline.
  */
@@ -74,7 +74,7 @@ function worstWalk(): WalkState[] {
 }
 
 /**
- * Intent: the early walk. Phrase n+1 is readied as phrase n starts sounding; on context time that
+ * The early walk. Phrase n+1 is readied as phrase n starts sounding; on context time that
  * is while the heard playhead is still in phrase n-1's last measure, so latestReady reaches p+2
  * there (the heard-time lag), as a second state after that measure's barline.
  */
@@ -89,24 +89,24 @@ function earlyWalk(): WalkState[] {
   return states
 }
 
-/** Intent: the position holding the playhead in a layout (none in the count-in). */
+/** The position holding the playhead in a layout (none in the count-in). */
 function playheadPosition(layout: StaffLayout, playhead: PlayheadPosition | null) {
   if (playhead === null) return null
   if (layout === 'one-system') return playhead.phraseNumber % 2 === 1 ? 'top' : 'bottom'
   return playhead.measureIndex < 2 ? 'top' : 'bottom'
 }
 
-/** Intent: the absolute measure (0-based across the session) a slot ends on. */
+/** The absolute measure (0-based across the session) a slot ends on. */
 function slotLastMeasure(slot: SystemSlot): number {
   return (slot.phraseNumber - 1) * 4 + (slot.part === 'opening' ? 1 : 3)
 }
 
-/** Intent: the absolute measure the playhead is on (-1 in the count-in). */
+/** The absolute measure the playhead is on (-1 in the count-in). */
 function absolute(playhead: PlayheadPosition | null): number {
   return playhead === null ? -1 : (playhead.phraseNumber - 1) * 4 + playhead.measureIndex
 }
 
-/** Intent: one walk's states grouped per line: the count-in, then one line per phrase. */
+/** One walk's states grouped per line: the count-in, then one line per phrase. */
 function table(states: readonly WalkState[], layout: StaffLayout): string[] {
   const lines = new Map<number, string[]>()
   for (const state of states) {
@@ -241,7 +241,7 @@ describe.each(LAYOUTS)('eight phrases in the %s layout', (layout) => {
   })
 })
 
-/** Intent: the waiting slots as short labels. */
+/** The waiting slots as short labels. */
 function waiting(layout: StaffLayout, playhead: PlayheadPosition | null, latest: number): string[] {
   return waitingMaterial(layout, playhead, latest).map(label)
 }
@@ -298,18 +298,18 @@ describe('read-ahead', () => {
   })
 })
 
-/** Intent: the barline k's time, by multiplication. */
+/** The barline k's time, by multiplication. */
 function barline(ms: number, k: number): number {
   return START + k * ms
 }
 
-/** Intent: a tempo map of one tempo for the whole session, from phrase 1's first barline. */
+/** A tempo map of one tempo for the whole session, from phrase 1's first barline. */
 function oneTempo(startsAt: number, ms: number): PlayheadTempoMap {
   return [{ phraseNumber: 1, startsAt, measureSeconds: ms }]
 }
 
 /**
- * Intent: the transport's click plan from `START - one measure` at 90 BPM, with phrase 3 on at 95
+ * The transport's click plan from `START - one measure` at 90 BPM, with phrase 3 on at 95
  * BPM, and the playhead's tempo map over it: phrase 1 from its start at 90 BPM, phrase 3 from its
  * start at 95 BPM.
  */

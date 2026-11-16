@@ -41,12 +41,12 @@ const SAVED_JAZZ: SavedSettings = {
   presetSelection: { kind: 'preset', presetId: 'jazz' },
 }
 
-/** Intent: NON_DEFAULT with the Seventh chords level at `level`. */
+/** NON_DEFAULT with the Seventh chords level at `level`. */
 function atLevel(level: ChordFamilyLevel): SavedSettings {
   return { ...NON_DEFAULT, chordFamilies: { 'seventh-chords': level } }
 }
 
-/** Intent: the records of `settings` with the level's record replaced by what `change` makes. */
+/** The records of `settings` with the level's record replaced by what `change` makes. */
 function withLevelRecord(settings: SavedSettings, change: (record: RawRecord) => unknown) {
   return corrupt(rawRecords(settings), KEY, change)
 }
@@ -121,7 +121,7 @@ describe('the Seventh chords level record', () => {
   it('loads a corrupt or unknown stored level as Off, every other setting kept (seeded property)', () => {
     const random = createMulberry32(0x7e7e5701)
     const next = random.nextFloat
-    /** Intent: one value of `values`, drawn from `next`. */
+    /** One value of `values`, drawn from `next`. */
     const pick = <T>(values: readonly T[]): T => values[Math.floor(next() * values.length)]!
 
     for (let round = 0; round < 300; round += 1) {

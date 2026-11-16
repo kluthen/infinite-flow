@@ -78,18 +78,18 @@ export interface H1Set extends DoodleMeasure {
 /** The fewest note starts a doodle measure needs to make an H1 set. */
 const MIN_NOTE_STARTS = 2
 
-/** Intent: how many bands of a set's picks come from a rhythm domain. */
+/** How many bands of a set's picks come from a rhythm domain. */
 function domainBands(picks: ReadonlyMap<RhythmBand, BandPick>): number {
   return [...picks.values()].filter((pick) => pick.source === 'domain').length
 }
 
-/** Intent: a doodle measure's label, e.g. `sparse-calls-m2`, which seeds its picks and letters. */
+/** A doodle measure's label, e.g. `sparse-calls-m2`, which seeds its picks and letters. */
 function measureLabel(measure: DoodleMeasure): string {
   return `${measure.doodle.name}-m${measure.measure}`
 }
 
 /**
- * Intent: every measure of every doodle, in doodle order then measure order, leaving out the
+ * Every measure of every doodle, in doodle order then measure order, leaving out the
  * measures holding fewer than two note starts (no rhythm to compare).
  */
 export function everyDoodleMeasure(doodles: readonly DoodleFixture[]): readonly DoodleMeasure[] {
@@ -110,7 +110,7 @@ interface ScoredMeasure {
 }
 
 /**
- * Intent: order scored doodle measures for H1: most bands holding a domain measure first, then a
+ * Order scored doodle measures for H1: most bands holding a domain measure first, then a
  * listening doodle's measure before another's, then by doodle name and measure number.
  */
 function byH1Preference(a: ScoredMeasure, b: ScoredMeasure): number {
@@ -124,7 +124,7 @@ function byH1Preference(a: ScoredMeasure, b: ScoredMeasure): number {
 }
 
 /**
- * Intent: the H1 sets. Of every measure of every doodle (two note starts or more), five, one per
+ * The H1 sets. Of every measure of every doodle (two note starts or more), five, one per
  * doodle at most, taken in the order of `byH1Preference`; numbered in doodle-name order. Each
  * set's candidates are lettered A, B, ... in an order seeded by the doodle measure's label.
  */
@@ -165,7 +165,7 @@ export function h1Sets(
   })
 }
 
-/** Intent: one rhythm part. */
+/** One rhythm part. */
 function rhythm(
   label: string,
   measures: readonly MeasureStarts[],
@@ -177,7 +177,7 @@ function rhythm(
 /** One silent measure between two rhythms. */
 const SILENT_MEASURE: RenderPart = { kind: 'silence', label: 'Silent measure', measureCount: 1 }
 
-/** Intent: the MIDI files of the H1 sets: each doodle measure alone, then one file per candidate. */
+/** The MIDI files of the H1 sets: each doodle measure alone, then one file per candidate. */
 export function h1Outputs(sets: readonly H1Set[]): readonly RenderOutput[] {
   return sets.flatMap((set) => {
     const doodle = rhythm('Doodle measure', [set.starts], set.line)
@@ -198,22 +198,22 @@ export function h1Outputs(sets: readonly H1Set[]): readonly RenderOutput[] {
   })
 }
 
-/** Intent: a change kind's file stem: its number in the canonical order and its name. */
+/** A change kind's file stem: its number in the canonical order and its name. */
 export function kindFileStem(kind: RhythmChangeKind): string {
   return `${RHYTHM_CHANGE_KINDS.indexOf(kind) + 1}-${kind.replaceAll('_', '-')}`
 }
 
-/** Intent: the locked file of the plan's lock at `index`: `locked.mid`, then `locked-2.mid`... */
+/** The locked file of the plan's lock at `index`: `locked.mid`, then `locked-2.mid`... */
 export function lockedFileName(index: number): string {
   return index === 0 ? 'locked.mid' : `locked-${index + 1}.mid`
 }
 
-/** Intent: an H2 phrase part: the bars' start lists as written, on H2's line. */
+/** An H2 phrase part: the bars' start lists as written, on H2's line. */
 function phrase(label: string, bars: readonly RhythmBar[]): RenderPart {
   return rhythm(label, rhythmStarts(bars), H2_LINE)
 }
 
-/** Intent: the MIDI files of H2: each locked rhythm alone, then one file per kind found. */
+/** The MIDI files of H2: each locked rhythm alone, then one file per kind found. */
 export function h2Outputs(plan: H2Plan): readonly RenderOutput[] {
   return plan.locks.flatMap((lock, index) => [
     {
@@ -245,7 +245,7 @@ export interface RenderBuild {
   readonly poolSize: number
 }
 
-/** Intent: build every file of the folder from the doodle set and the real rhythm domains. */
+/** Build every file of the folder from the doodle set and the real rhythm domains. */
 export function buildRenders(): RenderBuild {
   const pool = domainMeasurePool()
   const sets = h1Sets(loadDoodleSet(), pool)

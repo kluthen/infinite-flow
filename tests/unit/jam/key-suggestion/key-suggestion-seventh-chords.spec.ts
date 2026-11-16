@@ -20,7 +20,7 @@ import { jamFirstValues } from '@/jam/jam-settings'
 import { loadKeySuggestionGolden } from './key-suggestion-golden'
 import type { KeySuggestionGoldenCase } from './key-suggestion-golden-case'
 
-/** Intent: Jam's settings for a golden case's key, mode and instrument, at the given level. */
+/** Jam's settings for a golden case's key, mode and instrument, at the given level. */
 function jamAt(golden: KeySuggestionGoldenCase, level: ChordFamilyLevel): JamPhraseOneSettings {
   const { instrumentProfileId } = golden
   if (!isBuiltInInstrumentProfileId(instrumentProfileId))

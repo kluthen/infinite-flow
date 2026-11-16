@@ -16,7 +16,7 @@ export interface XmlElement {
 /** An element, or a run of character data. */
 export type XmlNode = XmlElement | string
 
-/** Intent: build an element; attributes are given as an ordered list of name/value pairs. */
+/** Build an element; attributes are given as an ordered list of name/value pairs. */
 export function element(
   name: string,
   attributes: readonly (readonly [string, string])[] = [],
@@ -25,12 +25,12 @@ export function element(
   return { name, attributes, children }
 }
 
-/** Intent: build an element holding only one run of text, such as `<step>C</step>`. */
+/** Build an element holding only one run of text, such as `<step>C</step>`. */
 export function textElement(name: string, text: string | number): XmlElement {
   return element(name, [], [String(text)])
 }
 
-/** Intent: escape the five XML special characters in character data or an attribute value. */
+/** Escape the five XML special characters in character data or an attribute value. */
 export function escapeXml(text: string): string {
   return text
     .replaceAll('&', '&amp;')
@@ -40,7 +40,7 @@ export function escapeXml(text: string): string {
     .replaceAll("'", '&apos;')
 }
 
-/** Intent: the opening of a start or empty tag: the name plus its escaped attributes. */
+/** The opening of a start or empty tag: the name plus its escaped attributes. */
 function openTag(node: XmlElement): string {
   const attributes = node.attributes
     .map(([name, value]) => ` ${name}="${escapeXml(value)}"`)
@@ -48,7 +48,7 @@ function openTag(node: XmlElement): string {
   return `<${node.name}${attributes}`
 }
 
-/** Intent: serialize one element and its subtree at `depth`, one line per element. */
+/** Serialize one element and its subtree at `depth`, one line per element. */
 function serializeElement(node: XmlElement, depth: number, lines: string[]): void {
   const indent = '  '.repeat(depth)
   if (node.children.length === 0) {
@@ -71,7 +71,7 @@ function serializeElement(node: XmlElement, depth: number, lines: string[]): voi
 }
 
 /**
- * Intent: serialize a whole document: the given prolog lines (XML declaration, document type),
+ * Serialize a whole document: the given prolog lines (XML declaration, document type),
  * then the root element, each line ending in a line feed.
  */
 // @spec-link [[rule_generated_notes_musicxml_export]]

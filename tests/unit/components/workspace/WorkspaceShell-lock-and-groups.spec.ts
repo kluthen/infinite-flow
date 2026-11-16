@@ -31,7 +31,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: mount the shell over a ready Idle and `controller`, recording what it saves. */
+/** Mount the shell over a ready Idle and `controller`, recording what it saves. */
 function mountShell(controller: SessionController) {
   const { saveSettings, saves } = recordingSaveSettings()
   const wrapper = mount(WorkspaceShell, {
@@ -62,7 +62,7 @@ function mountShell(controller: SessionController) {
 
 type Shell = ReturnType<typeof mountShell>['wrapper']
 
-/** Intent: the segment `text` of the radiogroup named `name`. */
+/** The segment `text` of the radiogroup named `name`. */
 function segment(wrapper: Shell, name: string, text: 'Off' | 'On') {
   const found = wrapper
     .get(`[role="radiogroup"][aria-label="${name}"]`)
@@ -72,7 +72,7 @@ function segment(wrapper: Shell, name: string, text: 'Off' | 'On') {
   return found
 }
 
-/** Intent: the toggle whose name starts with `name` in the "During a session" group. */
+/** The toggle whose name starts with `name` in the "During a session" group. */
 function toggle(wrapper: Shell, name: string) {
   const found = wrapper
     .findAll('.control-group-session .toggle-button')

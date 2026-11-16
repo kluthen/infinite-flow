@@ -41,7 +41,7 @@ export interface Size {
 }
 
 /**
- * Intent: land on the harness at `size` (pre-generation off), the keyboard connected, press `Jam`
+ * Land on the harness at `size` (pre-generation off), the keyboard connected, press `Jam`
  * and wait until Jam mode's Idle shows with `Start Jam` enabled.
  */
 export async function gotoJamIdle(page: Page, size: Size = DESKTOP): Promise<void> {
@@ -54,7 +54,7 @@ export async function gotoJamIdle(page: Page, size: Size = DESKTOP): Promise<voi
   await expect(sessionAction(page)).toBeEnabled()
 }
 
-/** Intent: click `Start Jam` and wait until the Jam's count-in runs. */
+/** Click `Start Jam` and wait until the Jam's count-in runs. */
 export async function startJamByClick(page: Page): Promise<void> {
   await expect(sessionAction(page)).toHaveText('Start Jam')
   await sessionAction(page).click()
@@ -62,7 +62,7 @@ export async function startJamByClick(page: Page): Promise<void> {
   expect((await sessionState(page)).phase).toBe('count-in')
 }
 
-/** Intent: play the home note (on, then off) now, and wait until the Jam's count-in runs. */
+/** Play the home note (on, then off) now, and wait until the Jam's count-in runs. */
 export async function startJamByHomeNote(page: Page): Promise<void> {
   await expect(startLine(page)).toHaveText('Play this note to start: C5')
   const at = await noteOn(page, KEYS, HOME_NOTE)
@@ -82,7 +82,7 @@ export interface JamGrid {
 }
 
 /**
- * Intent: the running Jam's grid: its start read from its count-in clicks (the first after the
+ * The running Jam's grid: its start read from its count-in clicks (the first after the
  * last fade, an earlier session's end), its beat from the session's tempo, Jam's.
  */
 export async function jamGrid(page: Page): Promise<JamGrid> {
@@ -93,7 +93,7 @@ export async function jamGrid(page: Page): Promise<JamGrid> {
   return { startAt, beat, barline: (measure) => startAt + (4 + 4 * measure) * beat }
 }
 
-/** Intent: play one doodle note of `pitch` on the keyboard at `at`, held for half a beat. */
+/** Play one doodle note of `pitch` on the keyboard at `at`, held for half a beat. */
 export async function doodleNote(page: Page, pitch: number, at: number): Promise<void> {
   await clockTo(page, at)
   await noteOn(page, KEYS, pitch)
@@ -104,7 +104,7 @@ export async function doodleNote(page: Page, pitch: number, at: number): Promise
 /** Concert pitches of the doodle's notes, one a measure: B♭3, C4, D4, E♭4 (in B♭ major). */
 const DOODLE_PITCHES = [58, 60, 62, 63] as const
 
-/** Intent: play a doodle of `measures` measures (1 to 4), one beat-long note on each barline. */
+/** Play a doodle of `measures` measures (1 to 4), one beat-long note on each barline. */
 export async function playDoodle(page: Page, grid: JamGrid, measures: number): Promise<void> {
   for (let measure = 0; measure < measures; measure += 1) {
     await doodleNote(page, DOODLE_PITCHES[measure]!, grid.barline(measure) + 0.01)
@@ -112,7 +112,7 @@ export async function playDoodle(page: Page, grid: JamGrid, measures: number): P
 }
 
 /**
- * Intent: wait until phrase 1's attempts have settled with one answered by a phrase: requests
+ * Wait until phrase 1's attempts have settled with one answered by a phrase: requests
  * made, none pending, one with a timeline.
  */
 export async function untilPhraseOneAnswered(page: Page): Promise<void> {
@@ -131,7 +131,7 @@ export async function untilPhraseOneAnswered(page: Page): Promise<void> {
     .toBe(true)
 }
 
-/** Intent: wait until every phrase 1 attempt made so far has settled (answered or cancelled). */
+/** Wait until every phrase 1 attempt made so far has settled (answered or cancelled). */
 export async function untilAttemptsSettled(page: Page): Promise<void> {
   await expect
     .poll(
@@ -145,7 +145,7 @@ export async function untilAttemptsSettled(page: Page): Promise<void> {
 }
 
 /**
- * Intent: from a fresh Jam's count-in, play a one-measure doodle, let phrase 1 be written in the
+ * From a fresh Jam's count-in, play a one-measure doodle, let phrase 1 be written in the
  * generation measure, and move the clock one second into phrase 1 (barline 3): Session running.
  */
 export async function jamToRunning(page: Page): Promise<JamGrid> {
@@ -162,7 +162,7 @@ export async function jamToRunning(page: Page): Promise<JamGrid> {
 export type CueShown =
   'count-in' | 'jam-capture' | 'jam-writing' | 'start-line' | 'needs-controller' | 'none'
 
-/** Intent: what the cue row shows now, by the part it holds before its actions. */
+/** What the cue row shows now, by the part it holds before its actions. */
 export function cueShown(page: Page): Promise<CueShown> {
   return cueRow(page).evaluate((row): CueShown => {
     if (row.querySelector(':scope > ol.count-in') !== null) return 'count-in'
@@ -174,7 +174,7 @@ export function cueShown(page: Page): Promise<CueShown> {
   })
 }
 
-/** Intent: how `jam-capture`'s four numbers show: `current`, `past` or `unlit`. */
+/** How `jam-capture`'s four numbers show: `current`, `past` or `unlit`. */
 export function captureNumbers(page: Page): Promise<string[]> {
   return cueRow(page)
     .locator('.jam-capture ol.count-in > li.count-in-beat')
@@ -186,17 +186,17 @@ export function captureNumbers(page: Page): Promise<string[]> {
     )
 }
 
-/** Intent: `doodle-readings`, Jam's controls' "From your doodle" list. */
+/** `doodle-readings`, Jam's controls' "From your doodle" list. */
 export function doodleReadings(page: Page): Locator {
   return page.locator('dl.doodle-readings')
 }
 
-/** Intent: Jam's staff's `jam-notice`. */
+/** Jam's staff's `jam-notice`. */
 export function jamStaffNotice(page: Page): Locator {
   return page.locator('.staff-frame.staff-jam p#jam-notice.inline-alert.alert-notice.jam-notice')
 }
 
-/** Intent: Jam's staff's room notice, Needs more room (session mode's staff is out of sight). */
+/** Jam's staff's room notice, Needs more room (session mode's staff is out of sight). */
 export function jamRoomNotice(page: Page): Locator {
   return page.locator(
     '.score-panel .staff-viewport:not(.is-out-of-sight) > .staff-frame.staff-no-room p.room-notice',
@@ -204,7 +204,7 @@ export function jamRoomNotice(page: Page): Locator {
 }
 
 /**
- * Intent: assert Jam mode's Idle as an end before phrase 1 leaves it: the session over with
+ * Assert Jam mode's Idle as an end before phrase 1 leaves it: the session over with
  * `cause` in the count-in phase and nothing sounded, `Jam` still checked, Jam's empty system back,
  * no review, nothing kept or saved, no phrase.
  */

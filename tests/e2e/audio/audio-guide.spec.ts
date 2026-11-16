@@ -69,24 +69,24 @@ interface ShownTimelineJson {
   }[]
 }
 
-/** Intent: the toolbar's toggle of the guide named `name`. */
+/** The toolbar's toggle of the guide named `name`. */
 function guideToggle(page: Page, name: 'Melody guide' | 'Rhythm guide'): Locator {
   return page.locator('.score-toolbar').getByRole('button', { name, exact: true })
 }
 
-/** Intent: the toolbar's `Backing` toggle. */
+/** The toolbar's `Backing` toggle. */
 function backingToggle(page: Page): Locator {
   return page.locator('.score-toolbar').getByRole('button', { name: 'Backing', exact: true })
 }
 
-/** Intent: press a toolbar toggle and wait until it shows `pressed`. */
+/** Press a toolbar toggle and wait until it shows `pressed`. */
 async function pressToggle(toggle: Locator, pressed: boolean): Promise<void> {
   await toggle.click()
   await expect(toggle).toHaveAttribute('aria-pressed', pressed ? 'true' : 'false')
 }
 
 /**
- * Intent: the fresh attacks of the phrase the workspace shows, read from its concert timeline:
+ * The fresh attacks of the phrase the workspace shows, read from its concert timeline:
  * each note that is no tie continuation, at its start in beats and its concert pitch.
  */
 async function shownAttacks(page: Page): Promise<readonly PhraseAttack[]> {
@@ -107,7 +107,7 @@ async function shownAttacks(page: Page): Promise<readonly PhraseAttack[]> {
   return attacks
 }
 
-/** Intent: the root pitch class of the harmony event sounding on beat `beat` of a phrase. */
+/** The root pitch class of the harmony event sounding on beat `beat` of a phrase. */
 function rootOnBeat(harmony: readonly WorkspaceHarnessQueuedHarmonyEvent[], beat: number): number {
   const event = harmony.find((e) => {
     const from = e.barIndex * 4 + e.startBeat
@@ -125,7 +125,7 @@ interface ExpectedGuideNote {
 }
 
 /**
- * Intent: the melody guide's expected notes over `phrases` phrases of the shown attacks, from the
+ * The melody guide's expected notes over `phrases` phrases of the shown attacks, from the
  * count-in's end at `beatSeconds` per beat.
  */
 function expectedMelody(
@@ -145,7 +145,7 @@ function expectedMelody(
 }
 
 /**
- * Intent: check each scheduled note of one guide against the expected one at its index (its start
+ * Check each scheduled note of one guide against the expected one at its index (its start
  * exact to `tolerance`), and that each melody note plays the attack's pitch, each rhythm note the
  * chord root in the C4-B4 octave.
  */
@@ -171,7 +171,7 @@ function expectNotesMatch(
   })
 }
 
-/** Intent: the notes of one guide, in order. */
+/** The notes of one guide, in order. */
 function ofRole(
   notes: readonly WorkspaceHarnessGuideNote[],
   role: WorkspaceHarnessGuideRole,
@@ -180,7 +180,7 @@ function ofRole(
 }
 
 /**
- * Intent: on the fake clock, generate the phrase and, with the guides as `turnOn` asks (pressed
+ * On the fake clock, generate the phrase and, with the guides as `turnOn` asks (pressed
  * from the toolbar), start a session at 120 BPM from the Start click and queue the shown phrase
  * as phrases 1 and 2; return the timeline, the harmony and the shown attacks.
  */
@@ -202,7 +202,7 @@ async function startWithTwoPhrases(
   return { startAt, countInEndsAt, harmony, attacks: await shownAttacks(page) }
 }
 
-/** Intent: advance the fake clock past the end of the two queued phrases. */
+/** Advance the fake clock past the end of the two queued phrases. */
 async function playRun(page: Page, startAt: number): Promise<void> {
   await advanceAudioTo(page, startAt + RUN_BEATS * BEAT_SECONDS + 1)
 }
@@ -343,7 +343,7 @@ const GUIDE_SETS = [
   { name: 'both guides', on: ['Melody guide', 'Rhythm guide'] },
 ] as const
 
-/** Intent: the bus the latest session opened. */
+/** The bus the latest session opened. */
 async function latestBus(page: Page): Promise<number> {
   const opened = (await audioEvents(page)).filter((event) => event.kind === 'open-bus')
   const last = opened.at(-1)

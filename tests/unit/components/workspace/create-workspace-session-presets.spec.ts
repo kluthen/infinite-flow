@@ -37,7 +37,7 @@ beforeEach(() => {
   resetFakeEngraver()
 })
 
-/** Intent: the settings records a load starts from, with every settings record a policy saved. */
+/** The settings records a load starts from, with every settings record a policy saved. */
 function recordsAfterSaves(settings: SavedSettings, calls: readonly PolicyCall[]): unknown[] {
   const byKey = new Map<string, unknown>(
     encodeSettings(settings, '3.0.0-test').map((record) => [record.key, record]),
@@ -53,14 +53,14 @@ function recordsAfterSaves(settings: SavedSettings, calls: readonly PolicyCall[]
   return [...byKey.values()]
 }
 
-/** Intent: a workspace on fakes whose saves reach a recording policy. */
+/** A workspace on fakes whose saves reach a recording policy. */
 function recordingWorkspace(settings: SavedSettings) {
   const { policy, calls } = recordingPolicy()
   const savedData = { ...fakeSavedData(settings), savePolicy: Promise.resolve(policy) }
   return { workspace: composeWorkspaceSession({ ...fakeDependencies(), savedData }), calls }
 }
 
-/** Intent: the settings a reload decodes from the records after the saves. */
+/** The settings a reload decodes from the records after the saves. */
 function reloaded(settings: SavedSettings, calls: readonly PolicyCall[]): SavedSettings {
   return decodeSettings(recordsAfterSaves(settings, calls), {
     mixDesign: themeDesign(),

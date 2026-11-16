@@ -42,7 +42,7 @@ import { levelsForProfile } from '@/domain/figures/figure-levels'
 interface ControlSetSpec {
   readonly name: string
   readonly musicalProfile: MusicalProfile
-  /** Intent: build this set's full GenerationControls for one register/instrument-profile pair. */
+  /** Build this set's full GenerationControls for one register/instrument-profile pair. */
   readonly build: (
     register: RegisterChoice,
     instrumentProfileId: InstrumentProfileId,
@@ -128,7 +128,7 @@ interface MatrixCell {
   readonly label: string
 }
 
-/** Intent: build the full profile x register x control-set x seed matrix, in a fixed, readable order. */
+/** Build the full profile x register x control-set x seed matrix, in a fixed, readable order. */
 function buildMatrix(): readonly MatrixCell[] {
   const cells: MatrixCell[] = []
   for (const instrumentProfileId of INSTRUMENT_PROFILE_IDS) {
@@ -151,7 +151,7 @@ function buildMatrix(): readonly MatrixCell[] {
 
 const MATRIX: readonly MatrixCell[] = buildMatrix()
 
-/** Intent: build one matrix cell's real, boundary-constructed GenerationIntent. */
+/** Build one matrix cell's real, boundary-constructed GenerationIntent. */
 function buildCellIntent(cell: MatrixCell): GenerationIntent {
   const controls = cell.set.build(cell.register, cell.instrumentProfileId)
   return createGenerationIntent({
@@ -165,7 +165,7 @@ function buildCellIntent(cell: MatrixCell): GenerationIntent {
   })
 }
 
-/** Intent: every chronological attack (non-tie-continuation note) MIDI pitch across a timeline. */
+/** Every chronological attack (non-tie-continuation note) MIDI pitch across a timeline. */
 function attackMidis(measures: readonly Measure[]): readonly number[] {
   const midis: number[] = []
   for (const measure of measures) {
@@ -176,7 +176,7 @@ function attackMidis(measures: readonly Measure[]): readonly number[] {
   return midis
 }
 
-/** Intent: a compact, order-preserving fingerprint of one successful cell's resolved outcome. */
+/** A compact, order-preserving fingerprint of one successful cell's resolved outcome. */
 function fingerprint(
   cell: MatrixCell,
   request: GenerationRequest,
@@ -190,7 +190,7 @@ const firstPassFingerprints: string[] = []
 const secondPassFingerprints: string[] = []
 
 /**
- * Intent: run one matrix cell's real intent through generatePhrase twice, asserting every
+ * Run one matrix cell's real intent through generatePhrase twice, asserting every
  * documented per-cell fact against the first call and bit-for-bit reproduction against the
  * second, and recording both calls' fingerprints for the matrix-wide determinism check.
  */

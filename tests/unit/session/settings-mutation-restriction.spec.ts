@@ -94,7 +94,7 @@ function cIonian(
   }
 }
 
-/** Intent: the session's start settings after choosing `preset` from C Ionian at Idle. */
+/** The session's start settings after choosing `preset` from C Ionian at Idle. */
 function startUnder(preset: Preset, controls: Partial<GenerationControls> = {}): SessionSettings {
   const before = cIonian({ kind: 'preset', presetId: 'neutral' }, controls)
   const chosen = choosePreset(
@@ -129,7 +129,7 @@ const SESSION_PHRASES = 60
 const SESSION_SEEDS = Array.from({ length: 120 }, (_, index) => makeSeed(index * 104_729 + 3))
 
 /**
- * Intent: the mutations of one seeded session from its start settings, as the engine's mutation
+ * The mutations of one seeded session from its start settings, as the engine's mutation
  * step lands them phrase after phrase, each from the settings the one before put in effect.
  */
 function sessionMoves(start: SessionSettings, seed: ReturnType<typeof makeSeed>): SessionMove[] {
@@ -156,12 +156,12 @@ function sessionMoves(start: SessionSettings, seed: ReturnType<typeof makeSeed>)
   return moves
 }
 
-/** Intent: every mutation of every seeded session from these start settings. */
+/** Every mutation of every seeded session from these start settings. */
 function everySessionMove(start: SessionSettings): SessionMove[] {
   return SESSION_SEEDS.flatMap((seed) => sessionMoves(start, seed))
 }
 
-/** Intent: the moves of one setting among these. */
+/** The moves of one setting among these. */
 function movesOf(moves: readonly SessionMove[], setting: string): SessionMove[] {
   return moves.filter((move) => move.result.setting === setting)
 }
@@ -339,7 +339,7 @@ describe('Vary settings with no restriction in force', () => {
   })
 })
 
-/** Intent: every chosen rhythm setting the four rhythm controls can form, note density outermost. */
+/** Every chosen rhythm setting the four rhythm controls can form, note density outermost. */
 function everyChosenRhythmSetting() {
   return NOTE_DENSITIES.flatMap((noteDensity) =>
     RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>

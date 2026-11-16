@@ -61,19 +61,19 @@ const CHANNEL_FIELDS: Readonly<Record<MixChannel, ChannelFields>> = {
   },
 }
 
-/** Intent: whether `channel` is switched on in `mix`. */
+/** Whether `channel` is switched on in `mix`. */
 // @spec-link [[req_session_audio_mix]]
 export function channelOn(mix: AudioMix, channel: MixChannel): boolean {
   return mix[CHANNEL_FIELDS[channel].on]
 }
 
-/** Intent: `mix` with `channel` switched on or off. */
+/** `mix` with `channel` switched on or off. */
 // @spec-link [[req_session_audio_mix]]
 export function withChannelOn(mix: AudioMix, channel: MixChannel, on: boolean): AudioMix {
   return { ...mix, [CHANNEL_FIELDS[channel].on]: on }
 }
 
-/** Intent: `mix` with `channel`'s volume at `level`, unchecked: validate it first. */
+/** `mix` with `channel`'s volume at `level`, unchecked: validate it first. */
 // @spec-link [[req_session_audio_mix]]
 export function withChannelVolume(mix: AudioMix, channel: MixChannel, level: number): AudioMix {
   return { ...mix, [CHANNEL_FIELDS[channel].volume]: level }
@@ -96,7 +96,7 @@ export interface DesignTokenSource {
 }
 
 /**
- * Intent: read one numeric design token. Throws when it is missing, empty or not a finite
+ * Read one numeric design token. Throws when it is missing, empty or not a finite
  * number: a mix read without its tokens would silently guess levels.
  */
 function readToken(style: DesignTokenSource, name: string): number {
@@ -109,7 +109,7 @@ function readToken(style: DesignTokenSource, name: string): number {
   return value
 }
 
-/** Intent: whether a level is a finite number in [min, max]. */
+/** Whether a level is a finite number in [min, max]. */
 function inRange(level: number, min: number, max: number): boolean {
   return Number.isFinite(level) && level >= min && level <= max
 }
@@ -120,7 +120,7 @@ function channelName(channel: MixChannel): string {
 }
 
 /**
- * Intent: check the design's range and defaults. Throws when the click minimum is not above
+ * Check the design's range and defaults. Throws when the click minimum is not above
  * silence, when another channel's minimum is below silence, or when a default lies outside its
  * range.
  */
@@ -146,7 +146,7 @@ function checkDesign(design: AudioMixDesign): void {
 }
 
 /**
- * Intent: read the mix design from the `--mix-*` design tokens of the loaded stylesheet (pass
+ * Read the mix design from the `--mix-*` design tokens of the loaded stylesheet (pass
  * `getComputedStyle(document.documentElement)`), by channel string: each channel's first-load
  * volume `--mix-<channel>-volume-default` and minimum `--mix-<channel>-volume-min`, and the shared
  * `--mix-volume-max`. The click's and the backing's switches start on; both guides' switches start
@@ -183,7 +183,7 @@ export function readAudioMixDesign(style: DesignTokenSource): AudioMixDesign {
 }
 
 /**
- * Intent: read the volume sliders' step from the `--mix-volume-step` design token. Throws when it
+ * Read the volume sliders' step from the `--mix-volume-step` design token. Throws when it
  * is missing, not a number, or not above zero: a slider without a real step would guess one.
  */
 // @spec-link [[req_session_audio_mix]]
@@ -194,7 +194,7 @@ export function readMixVolumeStep(style: DesignTokenSource): number {
 }
 
 /**
- * Intent: reject a volume for `channel` outside [its minimum, volumeMax], with a RangeError; the
+ * Reject a volume for `channel` outside [its minimum, volumeMax], with a RangeError; the
  * click's minimum is above zero, so the click volume never reaches silence.
  */
 // @spec-link [[req_session_audio_mix]]
@@ -212,20 +212,20 @@ export function validateChannelVolume(
   }
 }
 
-/** Intent: reject a click volume outside [clickVolumeMin, volumeMax], so it never reaches silence. */
+/** Reject a click volume outside [clickVolumeMin, volumeMax], so it never reaches silence. */
 // @spec-link [[rule_click_volume_never_silent]]
 export function validateClickVolume(level: number, range: AudioMixRange): void {
   validateChannelVolume('click', level, range)
 }
 
-/** Intent: reject a backing volume outside [backingVolumeMin, volumeMax]. */
+/** Reject a backing volume outside [backingVolumeMin, volumeMax]. */
 // @spec-link [[req_session_audio_mix]]
 export function validateBackingVolume(level: number, range: AudioMixRange): void {
   validateChannelVolume('backing', level, range)
 }
 
 /**
- * Intent: the value of every gain stage for a mix, channel by channel in `MIX_CHANNELS` order:
+ * The value of every gain stage for a mix, channel by channel in `MIX_CHANNELS` order:
  * each switch sets its channel's enable gain to 1 or 0, and each volume its volume gain. The gain
  * equals the level, linearly, as accepted by ear for v2.0.
  */

@@ -119,28 +119,28 @@ interface Decision {
 /** The doodle measure counts, 1 to 4, in order. */
 const MEASURE_COUNTS: readonly DoodleMeasureCount[] = [1, 2, 3, 4]
 
-/** Intent: whether a note counts by `at`: not very short, by its release or by how long it is held. */
+/** Whether a note counts by `at`: not very short, by its release or by how long it is held. */
 function countsBy(note: CaptureNote, at: AudioTime): boolean {
   if (note.releaseAt !== null) return !isVeryShortNote({ ...note, releaseAt: note.releaseAt })
   return at >= note.onsetAt + VERY_SHORT_NOTE_SECONDS
 }
 
-/** Intent: whether a note may still count: released long, or still held. */
+/** Whether a note may still count: released long, or still held. */
 function mayCount(note: CaptureNote): boolean {
   return note.releaseAt === null || !isVeryShortNote({ ...note, releaseAt: note.releaseAt })
 }
 
-/** Intent: whether a note is sounding on a barline: started at or before it, not released by then. */
+/** Whether a note is sounding on a barline: started at or before it, not released by then. */
 function soundsOn(note: CaptureNote, barline: AudioTime): boolean {
   return note.onsetAt <= barline && (note.releaseAt === null || note.releaseAt > barline)
 }
 
-/** Intent: whether a note's snapped start falls in measures `from` (inclusive) to `to` (exclusive). */
+/** Whether a note's snapped start falls in measures `from` (inclusive) to `to` (exclusive). */
 function startsIn(note: CaptureNote, from: number, to: number): boolean {
   return note.tick >= from * TICKS_PER_BAR && note.tick < to * TICKS_PER_BAR
 }
 
-/** Intent: refuse a tempo the quantizer cannot take: not a whole positive BPM. */
+/** Refuse a tempo the quantizer cannot take: not a whole positive BPM. */
 function checkedTempo(tempo: number): number {
   if (!Number.isSafeInteger(tempo) || tempo <= 0)
     throw new JamCaptureError(`A Jam's tempo must be a whole positive BPM, got ${tempo}.`)
@@ -148,7 +148,7 @@ function checkedTempo(tempo: number): number {
 }
 
 /**
- * Intent: the capture of one fresh Jam whose count-in starts at `start.startAt`, at `start.tempo`
+ * The capture of one fresh Jam whose count-in starts at `start.startAt`, at `start.tempo`
  * (a whole BPM); see JamCapture. It starts in the count-in.
  */
 // @spec-link [[module_jam_capture]]
@@ -169,13 +169,13 @@ export function createJamCapture(start: JamCaptureStart): JamCapture {
   let readyAt: AudioTime | null = null
   let lastTime = Number.NEGATIVE_INFINITY
 
-  /** Intent: the doodle notes that count by `at`, snapped at or after the grid origin. */
+  /** The doodle notes that count by `at`, snapped at or after the grid origin. */
   function doodleNotesBy(at: AudioTime): CaptureNote[] {
     return notes.filter((note) => note.tick >= 0 && countsBy(note, at))
   }
 
   /**
-   * Intent: the doodle ending at barline `measure`, quantized from every note known at `now`
+   * The doodle ending at barline `measure`, quantized from every note known at `now`
    * (a note still held taken as released now: it is cut at the end barline), with its raw notes.
    */
   function doodleEndingAt(measure: number, now: AudioTime): RecordedDoodle {
@@ -196,7 +196,7 @@ export function createJamCapture(start: JamCaptureStart): JamCapture {
     }
   }
 
-  /** Intent: phrase 1 shown at barline `measure`, its read-in measure before it sounds. */
+  /** Phrase 1 shown at barline `measure`, its read-in measure before it sounds. */
   function show(measure: number, now: AudioTime): JamCaptureOutput[] {
     const shownAt = barlineAt(plan, measure)
     const soundsAt = barlineAt(plan, measure + 1)
@@ -204,7 +204,7 @@ export function createJamCapture(start: JamCaptureStart): JamCapture {
     return [{ kind: 'phrase-one-shown', at: now, shownAt, soundsAt }]
   }
 
-  /** Intent: past the generation measure, show phrase 1 at `measure` when ready, else wait on. */
+  /** Past the generation measure, show phrase 1 at `measure` when ready, else wait on. */
   function afterGenerationMeasure(measure: number, now: AudioTime): JamCaptureOutput[] {
     if (readyAt !== null) return show(measure, now)
     stage = { kind: 'extended-wait' }
@@ -212,7 +212,7 @@ export function createJamCapture(start: JamCaptureStart): JamCapture {
   }
 
   /**
-   * Intent: before the first doodle note: the first one that counts fixes the doodle's first
+   * Before the first doodle note: the first one that counts fixes the doodle's first
    * measure; with none 30 s after the count-in (very short notes not counting), the Jam ends.
    */
   function beforeFirstNote(): Decision {
@@ -240,7 +240,7 @@ export function createJamCapture(start: JamCaptureStart): JamCapture {
   }
 
   /**
-   * Intent: barline `measure` of the capture, judged once every note touching it is known: the
+   * Barline `measure` of the capture, judged once every note touching it is known: the
    * fourth after the doodle's first ends the doodle by length; another with no doodle note sounding
    * on it and none snapped into the measure it opens is a candidate end.
    */
@@ -269,7 +269,7 @@ export function createJamCapture(start: JamCaptureStart): JamCapture {
   }
 
   /**
-   * Intent: in the tentative measure opened by barline `measure`: a doodle note snapped inside it
+   * In the tentative measure opened by barline `measure`: a doodle note snapped inside it
    * voids the candidate end (and any phrase 1 ready from it) and the measure joins the doodle; a
    * measure that stays silent is the generation measure, the doodle having ended at its start.
    */
@@ -298,7 +298,7 @@ export function createJamCapture(start: JamCaptureStart): JamCapture {
     }
   }
 
-  /** Intent: the next decision the capture's stage holds, or null when none is due. */
+  /** The next decision the capture's stage holds, or null when none is due. */
   function nextDecision(): Decision | null {
     switch (stage.kind) {
       case 'count-in':
@@ -335,7 +335,7 @@ export function createJamCapture(start: JamCaptureStart): JamCapture {
     }
   }
 
-  /** Intent: take every decision due by `at`, in time order; a late one is taken at once. */
+  /** Take every decision due by `at`, in time order; a late one is taken at once. */
   function runUntil(at: AudioTime): JamCaptureOutput[] {
     const outputs: JamCaptureOutput[] = []
     for (let decision = nextDecision(); decision !== null && decision.at <= at;) {
@@ -347,14 +347,14 @@ export function createJamCapture(start: JamCaptureStart): JamCapture {
     return outputs
   }
 
-  /** Intent: refuse a time before the last one the capture reached: its clock never runs back. */
+  /** Refuse a time before the last one the capture reached: its clock never runs back. */
   function checkedTime(at: AudioTime, what: string): AudioTime {
     if (!Number.isFinite(at) || at < lastTime)
       throw new JamCaptureError(`${what} at ${at} comes before ${lastTime}.`)
     return at
   }
 
-  /** Intent: keep a note-on, or the release of the note it ended (a note-on never seen: whole). */
+  /** Keep a note-on, or the release of the note it ended (a note-on never seen: whole). */
   function keep(event: PlayedNoteEvent): void {
     const { pitch, onsetAt } = event.note
     if (event.kind === 'played') {
@@ -374,12 +374,12 @@ export function createJamCapture(start: JamCaptureStart): JamCapture {
       })
   }
 
-  /** Intent: whether the capture takes nothing more: phrase 1 sounds, or the Jam ended. */
+  /** Whether the capture takes nothing more: phrase 1 sounds, or the Jam ended. */
   function over(): boolean {
     return stage.kind === 'phrase-one' || stage.kind === 'ended'
   }
 
-  /** Intent: the Jam's phase at the last time the capture reached. */
+  /** The Jam's phase at the last time the capture reached. */
   function phase(): JamPhase {
     const beat = beatOfMeasureAt(plan, lastTime)
     switch (stage.kind) {

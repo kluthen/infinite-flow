@@ -29,19 +29,19 @@ const GIT_NO_SIGNING = ['-c', 'commit.gpgsign=false']
 /** Temporary directories made by a test, removed after it. */
 const made: string[] = []
 
-/** Intent: a fresh empty directory outside any git checkout, removed after the test. */
+/** A fresh empty directory outside any git checkout, removed after the test. */
 function tempDir(): string {
   const dir = mkdtempSync(join(tmpdir(), 'build-commit-'))
   made.push(dir)
   return dir
 }
 
-/** Intent: run git in `cwd` and return its trimmed output. */
+/** Run git in `cwd` and return its trimmed output. */
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', [...GIT_ISOLATION, ...args], { cwd, encoding: 'utf8' }).trim()
 }
 
-/** Intent: write a build-commit file holding `content` into a fresh directory; returns its URL. */
+/** Write a build-commit file holding `content` into a fresh directory; returns its URL. */
 function commitFileWith(content: string): URL {
   const file = join(tempDir(), 'build-commit.txt')
   writeFileSync(file, content)

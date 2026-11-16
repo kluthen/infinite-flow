@@ -19,12 +19,12 @@ import { buildStaveNote } from '@/notation/vexflow-mapping'
 const QUARTER: NotatedDuration = { value: 'quarter', dots: 0, ticks: QUARTER_TICKS }
 const WHOLE: NotatedDuration = { value: 'whole', dots: 0, ticks: TICKS_PER_BAR }
 
-/** Intent: a written rest of `duration`. */
+/** A written rest of `duration`. */
 function rest(duration: NotatedDuration): WrittenRest {
   return { kind: 'rest', startTick: 0, duration, sourceEventIndex: 0 }
 }
 
-/** Intent: a written natural quarter note on `letter` in `octave`, its stem up. */
+/** A written natural quarter note on `letter` in `octave`, its stem up. */
 function note(letter: SpelledPitch['letter'], octave: number): WrittenNote {
   return {
     kind: 'note',
@@ -39,7 +39,7 @@ function note(letter: SpelledPitch['letter'], octave: number): WrittenNote {
   }
 }
 
-/** Intent: the VexFlow key and staff line the glyph built for `event` in `clef` carries. */
+/** The VexFlow key and staff line the glyph built for `event` in `clef` carries. */
 function placed(event: WrittenNote | WrittenRest, clef: InstrumentClef) {
   const keyProps = buildStaveNote(event, clef).getKeyProps()[0]!
   return { key: `${keyProps.key.toLowerCase()}/${keyProps.octave}`, line: keyProps.line }

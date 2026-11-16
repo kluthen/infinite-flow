@@ -140,7 +140,7 @@ interface PlanState {
 }
 
 /**
- * Intent: the plan's fixed context from its seams and start, each part checked; a steered start's
+ * The plan's fixed context from its seams and start, each part checked; a steered start's
  * block goes on every attempt, as the steered session's engine puts it on each of its requests.
  */
 // @spec-link [[rule_pregenerated_phrase_matches_session]]
@@ -157,7 +157,7 @@ function planContext(seams: PregenerationSeams, start: PregenerationStart): Plan
 }
 
 /**
- * Intent: the course at the start, as the engine's: phrase 1 decided under its own settings, so
+ * The course at the start, as the engine's: phrase 1 decided under its own settings, so
  * phrase 2 is planned joined to it as the session joins it after a stale phrase 1 is used, and
  * with the rhythm lock on, phrase 1's written bars locked.
  */
@@ -183,7 +183,7 @@ function initialCourse(start: PregenerationStart): PhraseCourse {
 }
 
 /**
- * Intent: the course once an opened phrase is decided after the previous course: its settings in
+ * The course once an opened phrase is decided after the previous course: its settings in
  * effect, the phrase as the latest decided one under its basis's settings, the step-down memory as
  * it now stands, and the rhythm lock state after it (a re-lock phrase's bars locked).
  */
@@ -204,7 +204,7 @@ function decidedCourse(
 }
 
 /**
- * Intent: walk a ready list from the course at the start, as the session would spend it: each
+ * Walk a ready list from the course at the start, as the session would spend it: each
  * phrase opened in turn and its intent re-derived with the window read now. The longest prefix
  * whose intents re-derive identically, and the course after it.
  */
@@ -236,7 +236,7 @@ function replayReady(
 }
 
 /**
- * Intent: request one rung of an opened phrase: the request ids of the `skipped` rungs are drawn
+ * Request one rung of an opened phrase: the request ids of the `skipped` rungs are drawn
  * and discarded first, then its intent is built with its own rung's planned seed, the window read
  * now, the step-down memory updated and the phrase's rhythm lock group.
  */
@@ -264,7 +264,7 @@ function requestRung(
 }
 
 /**
- * Intent: plan the phrase after the course's latest decided one from its first carry-in rung (no
+ * Plan the phrase after the course's latest decided one from its first carry-in rung (no
  * deadline ever makes the standalone attempt due), or stop once four phrases are ready.
  */
 function planNext(
@@ -279,7 +279,7 @@ function planNext(
 }
 
 /**
- * Intent: take back the pending attempt's result. A fitting success makes its phrase ready and
+ * Take back the pending attempt's result. A fitting success makes its phrase ready and
  * plans the next one from it; a failure climbs the ladder with no time rule, to the standalone rung
  * only after every carry-in rung failed or straight after an exhausted carry-in search, and stops
  * the plan, deciding no repeat, once the standalone attempt fails.
@@ -311,7 +311,7 @@ function takeResult(
   return requestRung(context, state, opened, next, rungsSkipped(rung, next))
 }
 
-/** Intent: the plan value of a state, whose `after` steps it with the same context. */
+/** The plan value of a state, whose `after` steps it with the same context. */
 function planOf(context: PlanContext, state: PlanState): PregenerationPlan {
   const { pending } = state
   const attempt: PregenerationAttempt | undefined =
@@ -332,7 +332,7 @@ function planOf(context: PlanContext, state: PlanState): PregenerationPlan {
 }
 
 /**
- * Intent: start a pre-generation plan from a session's start, or resume it after the last phrase
+ * Start a pre-generation plan from a session's start, or resume it after the last phrase
  * of an existing ready list (empty to start afresh). The list is checked as a session start's is,
  * and every phrase of it must still re-derive identically with the window read now: the caller
  * re-validates it first, so one that does not is a caller bug and throws. No request id is drawn
@@ -357,7 +357,7 @@ export function createPregenerationPlan(
 }
 
 /**
- * Intent: the longest prefix of a ready list whose intents still re-derive identically, in order,
+ * The longest prefix of a ready list whose intents still re-derive identically, in order,
  * with the window read now: the very check the session engine makes when it spends them. Draws no
  * request id; the list is checked as a session start's is.
  */

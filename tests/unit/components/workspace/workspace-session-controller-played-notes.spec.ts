@@ -57,7 +57,7 @@ interface FakeKeptChanges {
   readOutcome: () => Promise<KeptReadOutcome<number>>
 }
 
-/** Intent: kept-session changes that log every call and resolve what the test sets. */
+/** Kept-session changes that log every call and resolve what the test sets. */
 function fakeKeptChanges(): FakeKeptChanges {
   const fake: FakeKeptChanges = {
     calls: [],
@@ -77,7 +77,7 @@ function fakeKeptChanges(): FakeKeptChanges {
   return fake
 }
 
-/** Intent: a rig whose session was played with the keyboard, one note in phrase 1, then Stop. */
+/** A rig whose session was played with the keyboard, one note in phrase 1, then Stop. */
 async function afterPlayedSession(
   options: ControllerRigOptions & { readonly played?: boolean } = {},
 ): Promise<ControllerRig> {
@@ -96,26 +96,26 @@ async function afterPlayedSession(
   return rig
 }
 
-/** Intent: the Review's session, which must exist. */
+/** The Review's session, which must exist. */
 function reviewed(rig: ControllerRig): SessionReview {
   const review = rig.controller.state.review
   if (review === null) throw new Error('no Review exists')
   return review
 }
 
-/** Intent: the played notes the Review's session holds, phrase by phrase. */
+/** The played notes the Review's session holds, phrase by phrase. */
 function playedNoteCounts(session: ReviewedSession): number[] {
   return session.history.phrases().map((phrase) => phrase.playedNotes.length)
 }
 
-/** Intent: the batch the session's own save built, from no kept summary. */
+/** The batch the session's own save built, from no kept summary. */
 function sessionBatch(rig: ControllerRig): readonly StorageChange[] {
   const changes = rig.sessionSaves[0]
   if (changes === undefined) throw new Error('no session save was asked for')
   return changes([])
 }
 
-/** Intent: the kept-session seam for a rig: saving on unless said, over `fake`. */
+/** The kept-session seam for a rig: saving on unless said, over `fake`. */
 function seam(fake: FakeKeptChanges, savingOff = false): Partial<KeptSessionsSeam> {
   return { changes: fake.changes, savingOff: () => savingOff }
 }

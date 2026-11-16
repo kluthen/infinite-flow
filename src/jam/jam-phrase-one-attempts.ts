@@ -53,7 +53,7 @@ export const BLOCK_ATTEMPT: JamPhraseOneAttemptIndex = 4
 /** Rung 3's one attempt, v2's standalone phrase. */
 export const STANDALONE_ATTEMPT: JamPhraseOneAttemptIndex = 5
 
-/** Intent: the rung an attempt belongs to. */
+/** The rung an attempt belongs to. */
 // @spec-link [[rule_jam_phrase_one_failure_ladder]]
 export function rungOfAttempt(index: JamPhraseOneAttemptIndex): JamPhraseOneRung {
   if (index < BLOCK_ATTEMPT) return 'join-and-block'
@@ -89,7 +89,7 @@ export interface DoodleAttempts {
 }
 
 /**
- * Intent: what the doodle gives phrase 1's attempts, read now: the seven controls read from the
+ * What the doodle gives phrase 1's attempts, read now: the seven controls read from the
  * quantized doodle for Jam's instrument (its rhythmic variety stepped to a supported combination
  * at the note density as read, at no window width), set into Jam's settings; the steering block
  * from the doodle and Jam's drift; the join from the doodle's last note; and, with Jam's lock on,
@@ -154,7 +154,7 @@ export interface JamAttempt {
 }
 
 /**
- * Intent: the intent of attempt `index` on what the doodle gives: the controls read from the
+ * The intent of attempt `index` on what the doodle gives: the controls read from the
  * doodle with the note density as it generates now (a Sixteenth as Eighth below the
  * tablet-landscape width or once stepped down), my instrument's profile as data when selected,
  * the attempt's own Seventh chords level (Jam's, which the doodle never sets), and the caller's
@@ -210,7 +210,7 @@ export function jamAttempt(
 }
 
 /**
- * Intent: the key and mode suggestion for the doodle that ended, worked out against Jam's written
+ * The key and mode suggestion for the doodle that ended, worked out against Jam's written
  * key and mode for its instrument's transposition; nothing about it is shown during the Jam.
  */
 // @spec-link [[module_key_suggestion]]

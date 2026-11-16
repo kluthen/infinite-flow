@@ -92,7 +92,7 @@ function percentile(values: readonly number[], p: number): number {
   return sorted[Math.max(0, Math.ceil((p / 100) * sorted.length) - 1)] ?? Number.NaN
 }
 
-/** Intent: count, max |diff|, p95 |diff|, mean, signed range and target overruns of a sample. */
+/** Count, max |diff|, p95 |diff|, mean, signed range and target overruns of a sample. */
 function summarize(diffs: readonly number[], target: number) {
   const magnitudes = diffs.map(Math.abs)
   return {
@@ -107,7 +107,7 @@ function summarize(diffs: readonly number[], target: number) {
   }
 }
 
-/** Intent: keep the page's AudioContext once the Start click creates it, for its diagnostics. */
+/** Keep the page's AudioContext once the Start click creates it, for its diagnostics. */
 async function captureAudioContext(page: Page): Promise<void> {
   await page.addInitScript(() => {
     const Original = window.AudioContext
@@ -122,7 +122,7 @@ async function captureAudioContext(page: Page): Promise<void> {
 }
 
 /**
- * Intent: land on the harness with real audio, pick `settings`, set `tempo` with the tempo
+ * Land on the harness with real audio, pick `settings`, set `tempo` with the tempo
  * stepper's keyboard, and generate phrase 1 so `Start session` is enabled.
  */
 async function readyRealAudioSession(
@@ -143,7 +143,7 @@ async function readyRealAudioSession(
   await expect(sessionAction(page)).toBeEnabled()
 }
 
-/** Intent: click `Start session` (a real click, which unlocks the audio) and return phrase 1's start. */
+/** Click `Start session` (a real click, which unlocks the audio) and return phrase 1's start. */
 async function startRealSession(page: Page, tempo: number): Promise<number> {
   await expect(sessionAction(page)).toHaveText('Start session')
   await sessionAction(page).click()
@@ -152,7 +152,7 @@ async function startRealSession(page: Page, tempo: number): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.audio.phraseStartsAt(1))
 }
 
-/** Intent: wait, on the real audio clock, until heard time passes `audioTime`. */
+/** Wait, on the real audio clock, until heard time passes `audioTime`. */
 async function untilHeard(page: Page, audioTime: number, timeoutMs: number): Promise<void> {
   await page.waitForFunction(
     (at) => {
@@ -164,7 +164,7 @@ async function untilHeard(page: Page, audioTime: number, timeoutMs: number): Pro
   )
 }
 
-/** Intent: the page's audio context's sample rate and latencies, and the browser's version. */
+/** The page's audio context's sample rate and latencies, and the browser's version. */
 async function audioDiagnostics(page: Page) {
   return page.evaluate(() => {
     const context = window.__rollingAudioContext
@@ -179,7 +179,7 @@ async function audioDiagnostics(page: Page) {
 }
 
 /**
- * Intent: from now on, log every move of the playhead band to a different measure or system:
+ * From now on, log every move of the playhead band to a different measure or system:
  * where it landed, `performance.now()` in the observer callback, the frame's start, a fresh clock
  * anchor with the output latency and the audio clock read there, and the next frame's timestamp.
  */
@@ -240,7 +240,7 @@ async function observeBandMoves(page: Page): Promise<void> {
 }
 
 /**
- * Intent: barline `index`'s heard time on the `performance.now()` timeline, in ms, through the
+ * Barline `index`'s heard time on the `performance.now()` timeline, in ms, through the
  * move's own fresh anchor. The band reads heard time as `now() - outputLatency()` and moves to
  * measure `index` once it reaches `barline`; so the barline is heard when the audio clock reads
  * `barline + outputLatency`. The anchor's `audioTime` is on that same scheduling timeline (the
@@ -255,14 +255,14 @@ function heardBarlineMs(move: BandMove, barline: number): number {
   )
 }
 
-/** Intent: write one report to `ROLLING_OUT`, suffixed with its measurement's name. */
+/** Write one report to `ROLLING_OUT`, suffixed with its measurement's name. */
 function writeReport(suffix: string, report: unknown): void {
   const outPath = process.env.ROLLING_OUT
   if (outPath === undefined) return
   writeFileSync(outPath.replace(/(\.json)?$/, `-${suffix}.json`), JSON.stringify(report, null, 2))
 }
 
-/** Intent: end the running session with Stop and wait for Idle. */
+/** End the running session with Stop and wait for Idle. */
 async function stopSession(page: Page): Promise<void> {
   await sessionAction(page).click()
   await expect.poll(async () => (await sessionState(page)).phase).toBe('idle')
@@ -376,7 +376,7 @@ test.describe('playhead at 120 BPM', () => {
   })
 })
 
-/** Intent: the longest of a set of timed entries; 0 when there is none. */
+/** The longest of a set of timed entries; 0 when there is none. */
 function longest(entries: readonly TimedEntry[]): number {
   return entries.reduce((max, entry) => Math.max(max, entry.duration), 0)
 }

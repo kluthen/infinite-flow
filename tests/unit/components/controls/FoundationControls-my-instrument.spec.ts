@@ -24,7 +24,7 @@ const LOW_TENOR: MyInstrument = makeMyInstrument({
   transposition: { octaves: 1, semitones: 2, direction: 'lower' },
 })
 
-/** Intent: the control panel with `myInstrument`, the controls naming `instrumentProfileId`. */
+/** The control panel with `myInstrument`, the controls naming `instrumentProfileId`. */
 function mountPanel(
   myInstrument: MyInstrument | null,
   instrumentProfileId: InstrumentProfileId = 'c-keyboard',
@@ -57,14 +57,14 @@ function mountPanel(
   })
 }
 
-/** Intent: the instrument control's segments. */
+/** The instrument control's segments. */
 function radios(wrapper: ReturnType<typeof mountPanel>) {
   return wrapper
     .get('[role="radiogroup"][aria-label="Instrument profile"]')
     .findAll('[role="radio"]')
 }
 
-/** Intent: the instrument control's segments' labels. */
+/** The instrument control's segments' labels. */
 function segments(wrapper: ReturnType<typeof mountPanel>): string[] {
   return radios(wrapper).map((radio) => radio.text())
 }

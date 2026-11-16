@@ -191,7 +191,7 @@ describe('session controller: the count-in', () => {
 // @test-link [[rule_screen_wake_lock_during_session]]
 // @test-link [[rule_landscape_lock_during_session]]
 describe('session controller: a start that fails part-way', () => {
-  /** Intent: assert the failed start left nothing behind: Idle, silent, both locks given back. */
+  /** Assert the failed start left nothing behind: Idle, silent, both locks given back. */
   function expectNothingHeld(rig: ControllerRig): void {
     expect(endState(rig)).toMatchObject({
       phase: 'idle',

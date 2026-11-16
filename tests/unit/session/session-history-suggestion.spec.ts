@@ -32,7 +32,7 @@ const DOODLE: RecordedDoodle = {
   ],
 }
 
-/** Intent: a fresh history at 240 BPM, nothing recorded yet. */
+/** A fresh history at 240 BPM, nothing recorded yet. */
 function freshHistory(): SessionHistory {
   return createSessionHistory(
     sessionSettings({ tempo: 240 }),

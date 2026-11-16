@@ -34,7 +34,7 @@ const INTRO =
 /** Each field with the id of its note, which its radiogroup names. */
 const fields = FIGURE_LEVEL_FIELDS.map((field) => ({ field, noteId: useId() }))
 
-/** Intent: report the level chosen for a figure, refusing a segment value that is no level. */
+/** Report the level chosen for a figure, refusing a segment value that is no level. */
 // @spec-link [[module_figure_level_options]]
 // @spec-link [[req_embellishment_figure_levels]]
 function handleLevel(field: FigureLevelField, value: string): void {

@@ -19,7 +19,7 @@ export interface RhythmSetting {
 }
 
 /**
- * Intent: name every rhythmic variety + note density + silence density + syncopation combination
+ * Name every rhythmic variety + note density + silence density + syncopation combination
  * for which the rhythm grammar has no legal four-bar plan under any tension arc, so the workspace
  * can block Generate/Regenerate up front instead of letting a generation attempt fail. The note
  * density here is the one a phrase is generated with, which is what the rhythm grammar receives:
@@ -179,7 +179,7 @@ function applySuggestion(
 }
 
 /**
- * Intent: name the deterministic single-control nearest supported change for an unsupported
+ * Name the deterministic single-control nearest supported change for an unsupported
  * rhythm setting, without mutating or applying anything. Tries syncopation one step lighter at a
  * time first, then silence density by catalog distance, then note density by catalog distance,
  * returning the first candidate whose resulting setting is supported. Crashes rather than
@@ -205,19 +205,19 @@ export function suggestNearestSupportedRhythmChange(
   )
 }
 
-/** Intent: the calm inline explanation shown next to the rhythm controls when generation is blocked. */
+/** The calm inline explanation shown next to the rhythm controls when generation is blocked. */
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 export const UNSUPPORTED_RHYTHM_SETTING_MESSAGE =
   "This mix of note density, silence, and syncopation can't form a four-bar phrase yet. Try a lighter syncopation, a different note density, or another silence setting."
 
-/** Intent: render a nearest-supported-change suggestion as a single sentence for the live region. */
+/** Render a nearest-supported-change suggestion as a single sentence for the live region. */
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 export function describeRhythmSettingSuggestion(suggestion: RhythmSettingSuggestion): string {
   return `Suggested change: ${suggestion.to} instead of ${suggestion.from}.`
 }
 
 /**
- * Intent: the rhythm setting a phrase would be generated from: the chosen setting with its note
+ * The rhythm setting a phrase would be generated from: the chosen setting with its note
  * density resolved for the window's width and the session's step-down (a chosen `Sixteenth` counts
  * as `Eighth` below the tablet-landscape width). Every other rhythm control is kept as chosen.
  */
@@ -235,7 +235,7 @@ export function generatedRhythmSetting(
 }
 
 /**
- * Intent: whether the player's chosen rhythm setting blocks generation, judged on the note
+ * Whether the player's chosen rhythm setting blocks generation, judged on the note
  * density a phrase would be generated with. Below the tablet-landscape width a combination
  * unsupported only because of a chosen `Sixteenth` therefore blocks nothing, and a crossing of
  * that width can block or unblock the same chosen setting. `Eighth` is never blocked, so a session

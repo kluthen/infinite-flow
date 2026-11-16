@@ -24,7 +24,7 @@ const min = computed(() => props.values[0]!)
 const max = computed(() => props.values[props.values.length - 1]!)
 
 /**
- * Intent: the value shown and its catalog index, crashing early on a value the stepper cannot
+ * The value shown and its catalog index, crashing early on a value the stepper cannot
  * show: absent from its own catalog while editable, or, read-only, outside the catalog's bounds.
  * A read-only off-list value has no index (null); no step starts from it, since read-only
  * suppresses every change. The template reads it, so the check runs at every render.
@@ -41,7 +41,7 @@ const shown = computed((): { readonly bpm: number; readonly index: number | null
 const atMin = computed(() => shown.value.index === 0)
 const atMax = computed(() => shown.value.index === props.values.length - 1)
 
-/** Intent: move to the value at `index` unless read-only or the index is out of catalog bounds. */
+/** Move to the value at `index` unless read-only or the index is out of catalog bounds. */
 function moveTo(index: number): void {
   if (props.readonly) return
   const next = props.values[index]
@@ -49,19 +49,19 @@ function moveTo(index: number): void {
   emit('update:modelValue', next)
 }
 
-/** Intent: step the current value toward the previous catalog entry. */
+/** Step the current value toward the previous catalog entry. */
 function decrement(): void {
   const { index } = shown.value
   if (index !== null) moveTo(index - 1)
 }
 
-/** Intent: step the current value toward the next catalog entry. */
+/** Step the current value toward the next catalog entry. */
 function increment(): void {
   const { index } = shown.value
   if (index !== null) moveTo(index + 1)
 }
 
-/** Intent: spinbutton keyboard support -- Arrow keys step by one, Home/End jump to the bounds. */
+/** Spinbutton keyboard support -- Arrow keys step by one, Home/End jump to the bounds. */
 function handleKeydown(event: KeyboardEvent): void {
   if (event.key === 'ArrowUp' || event.key === 'ArrowRight') {
     event.preventDefault()

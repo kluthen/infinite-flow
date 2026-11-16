@@ -122,7 +122,7 @@ interface SavedRecords {
 }
 
 /**
- * Intent: my instrument from the `instrument` store's records: none, loading nothing, when the
+ * My instrument from the `instrument` store's records: none, loading nothing, when the
  * store is empty; otherwise decoded by the record's read side, loaded on demand. Its load failure
  * is not caught: it rejects as the defect it is.
  */
@@ -140,7 +140,7 @@ const WAIT_ENDED: unique symbol = Symbol('the start-up wait ended')
 const READ_FAILED: unique symbol = Symbol('the read failed')
 
 /**
- * Intent: read every record the load needs, in parallel, my instrument's decoded and the player
+ * Read every record the load needs, in parallel, my instrument's decoded and the player
  * presets with their keys. A refusal of the port, of any one read (the presets' included), is a
  * failed read of the whole visit; any other error is a defect and rejects.
  */
@@ -163,7 +163,7 @@ async function readSavedRecords(port: StoragePort): Promise<SavedRecords | typeo
 }
 
 /**
- * Intent: a visit started from the defaults, read nothing, with the given policy: no player
+ * A visit started from the defaults, read nothing, with the given policy: no player
  * preset, so it lists the built-ins only.
  */
 // @spec-link [[rule_presets_in_visits_that_save_nothing]]
@@ -183,7 +183,7 @@ function fromDefaults(
   }
 }
 
-/** Intent: the policy of a port that opened after the start-up wait: saving off from its start. */
+/** The policy of a port that opened after the start-up wait: saving off from its start. */
 function lateOpenedPolicy(port: StoragePort): SavePolicy {
   const policy = createSavePolicy(port)
   policy.stopSavingUnreadable()
@@ -191,7 +191,7 @@ function lateOpenedPolicy(port: StoragePort): SavePolicy {
 }
 
 /**
- * Intent: load the saved data under the start-up wait. Resolves with the saved settings and the
+ * Load the saved data under the start-up wait. Resolves with the saved settings and the
  * player presets when the port opens and reads within the wait, the saved preset selection
  * judged against the built-ins and those player presets (the saved values win); with the
  * defaults, the built-ins only and saving off when the read (the presets' included) fails or the
@@ -238,13 +238,13 @@ export async function loadSavedData(deps: SavedDataLoadDependencies): Promise<Sa
   }
 }
 
-/** Intent: a start-up wait of `ms` on the browser's timer. */
+/** A start-up wait of `ms` on the browser's timer. */
 function browserWait(ms: number): () => Promise<void> {
   return () => new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 /**
- * Intent: the load's dependencies in the app: the port over the browser's IndexedDB and storage
+ * The load's dependencies in the app: the port over the browser's IndexedDB and storage
  * manager at the running app's version, the start-up wait on the browser's timer, and the mix
  * design from the loaded stylesheet's tokens.
  */

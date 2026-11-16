@@ -122,7 +122,7 @@ export interface ReplayNotation {
   readonly concertChords: readonly ConcertChordSymbol[]
 }
 
-/** Intent: run the existing notation path on a successful outcome and its intent. */
+/** Run the existing notation path on a successful outcome and its intent. */
 // @spec-link [[service_headless_phrase_replay]]
 export function replayNotation(outcome: SuccessOutcome, intent: GenerationIntent): ReplayNotation {
   // Always treble: the replay key carries no clef and the replay tool shows no staff.
@@ -130,7 +130,7 @@ export function replayNotation(outcome: SuccessOutcome, intent: GenerationIntent
   return { written: transformToWrittenPhrase(input), concertChords: input.chords }
 }
 
-/** Intent: an exact whole-note duration as 'n/d' beside its quarter-beat length. */
+/** An exact whole-note duration as 'n/d' beside its quarter-beat length. */
 // @spec-link [[service_headless_phrase_replay]]
 export function replayDuration(duration: Rational): ReplayDuration {
   return {
@@ -139,7 +139,7 @@ export function replayDuration(duration: Rational): ReplayDuration {
   }
 }
 
-/** Intent: whether the event after (bar, index), in this bar or the next, is a tie continuation. */
+/** Whether the event after (bar, index), in this bar or the next, is a tie continuation. */
 function nextEventIsTieContinuation(
   timeline: ConcertEventTimeline,
   measureIndex: number,
@@ -153,7 +153,7 @@ function nextEventIsTieContinuation(
   return next?.kind === 'note' && next.tieContinuation
 }
 
-/** Intent: the written pitch of a concert note, read from its first glyph in the written measure. */
+/** The written pitch of a concert note, read from its first glyph in the written measure. */
 function writtenPitchOf(measure: WrittenMeasure, eventIndex: number): NamedPitch {
   const glyph = measure.events.find(
     (event) => event.kind === 'note' && event.sourceEventIndex === eventIndex,
@@ -166,7 +166,7 @@ function writtenPitchOf(measure: WrittenMeasure, eventIndex: number): NamedPitch
   return { midi: midiOfSpelledPitch(glyph.pitch), name: spelledPitchName(glyph.pitch) }
 }
 
-/** Intent: one concert event restated with its onset, duration, pitches and ties. */
+/** One concert event restated with its onset, duration, pitches and ties. */
 function replayEvent(
   event: MeasureEvent,
   context: {
@@ -197,7 +197,7 @@ function replayEvent(
   }
 }
 
-/** Intent: every event of one bar, in order, with its running onset. */
+/** Every event of one bar, in order, with its running onset. */
 function replayEvents(
   timeline: ConcertEventTimeline,
   written: WrittenPhrase,
@@ -219,7 +219,7 @@ function replayEvents(
   })
 }
 
-/** Intent: the chord symbol placed at one bar and tick, crashing when the notation path has none. */
+/** The chord symbol placed at one bar and tick, crashing when the notation path has none. */
 function symbolAt<T>(symbols: readonly T[], matches: (symbol: T) => boolean, where: string): T {
   const found = symbols.find(matches)
   if (found === undefined)
@@ -228,7 +228,7 @@ function symbolAt<T>(symbols: readonly T[], matches: (symbol: T) => boolean, whe
 }
 
 /**
- * Intent: one harmony event restated as a chord of its starting bar, its quality and notes those of
+ * One harmony event restated as a chord of its starting bar, its quality and notes those of
  * the chord its symbol names: a seventh-form event's seventh quality and four notes, a triad
  * event's triad.
  */
@@ -270,7 +270,7 @@ function replayChord(
 }
 
 /**
- * Intent: the four bars of a successful phrase, numbered from 1, each with the chords that start
+ * The four bars of a successful phrase, numbered from 1, each with the chords that start
  * in it and every note and rest in timeline order.
  */
 // @spec-link [[service_headless_phrase_replay]]

@@ -17,7 +17,7 @@ import {
 import { notesOf, readSmf } from '../export/midi/smf-reader'
 import { APP_VERSION, historyOf, recordedKeptSession, storedRecords } from './kept-session-fixtures'
 
-/** Intent: a recorded two-phrase session with a 5 ms note of pitch 90 added to each phrase. */
+/** A recorded two-phrase session with a 5 ms note of pitch 90 added to each phrase. */
 function sessionWithVeryShortNotes(): readonly SessionHistoryRecord[] {
   return recordedKeptSession('bb-tenor', 2)
     .phrases()
@@ -35,12 +35,12 @@ function sessionWithVeryShortNotes(): readonly SessionHistoryRecord[] {
     }))
 }
 
-/** Intent: decoded phrases as the export reads a history. */
+/** Decoded phrases as the export reads a history. */
 function exportableOf(phrases: KeptSession['phrases'], startedAt: number) {
   return { phrases: () => phrases, startedAt }
 }
 
-/** Intent: the pitches of a played-notes file's notes. */
+/** The pitches of a played-notes file's notes. */
 function filePitches(bytes: Uint8Array): number[] {
   return notesOf(readSmf(bytes).tracks[1]!).map((note) => note.pitch)
 }

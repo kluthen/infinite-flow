@@ -215,7 +215,7 @@ const LOW_KEYS_BASS: WorkspaceHarnessMyInstrumentInput = {
 }
 
 /**
- * Intent: with `LOW_KEYS_BASS` saved and selected, on the harness with pre-generation on, publish
+ * With `LOW_KEYS_BASS` saved and selected, on the harness with pre-generation on, publish
  * phrase 1 and wait until the queue is full, then hold the background gate. Returns the call
  * index after which the change's effects are read.
  */
@@ -235,7 +235,7 @@ async function queueFullWithLowKeys(page: Page): Promise<number> {
   return (await generationRecords(page)).length
 }
 
-/** Intent: switch my instrument to treble clef through the sheet: the staff grows to 19 spaces. */
+/** Switch my instrument to treble clef through the sheet: the staff grows to 19 spaces. */
 async function switchToTreble(page: Page): Promise<void> {
   await openSheet(page)
   await sheetSegment(page, 'Clef', 'Treble clef').click()

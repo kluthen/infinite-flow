@@ -49,7 +49,7 @@ export interface UseForMyInstrumentCopy {
 }
 
 /**
- * Intent: a transposition as entered from its chromatic count (written = concert + chromatic): a
+ * A transposition as entered from its chromatic count (written = concert + chromatic): a
  * positive count sounds lower, a negative one higher.
  */
 function transpositionOfChromatic(chromatic: number): MyInstrumentTransposition {
@@ -62,7 +62,7 @@ function transpositionOfChromatic(chromatic: number): MyInstrumentTransposition 
 }
 
 /**
- * Intent: what the record keeps whatever the transposition: the existing my instrument's template,
+ * What the record keeps whatever the transposition: the existing my instrument's template,
  * name, clef and written range, or, with none yet, the checked built-in's template and written
  * range, named My instrument, in treble clef. My instrument checked while none is given is a
  * caller bug.
@@ -88,7 +88,7 @@ function keptPart(
 }
 
 /**
- * Intent: what `Use this for my instrument` would save for the note `playedPitch` the controller
+ * What `Use this for my instrument` would save for the note `playedPitch` the controller
  * sent against `profile`, the instrument checked, or null when it is not offered: on a match, and
  * when the instrument it would make would sound outside MIDI notes 0 to 127 (its written range
  * moved by the new transposition). The new transposition is the semitones from the written note
@@ -115,7 +115,7 @@ export function useForMyInstrument(
 }
 
 /**
- * Intent: whether `use` changes the transposition of the my instrument that exists, `saved`: the
+ * Whether `use` changes the transposition of the my instrument that exists, `saved`: the
  * change that erases its kept sessions. Making a new one changes none.
  */
 // @spec-link [[rule_transposition_check_sets_my_instrument]]
@@ -129,7 +129,7 @@ export function changesSavedTransposition(
 }
 
 /**
- * Intent: the confirmation's words: the interval under the new transposition and the note a
+ * The confirmation's words: the interval under the new transposition and the note a
  * written C4 will sound as, then what happens to my instrument (made from the profile, with the
  * hint that it can be changed later; or keeping its range and clef, becoming the selection when
  * it is not).

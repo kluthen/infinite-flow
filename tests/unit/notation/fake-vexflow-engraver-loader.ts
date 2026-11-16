@@ -30,7 +30,7 @@ export const fakeEngraver = {
 
 export const loadVexflowEngraver = vi.fn<() => Promise<FakeEngraverModule>>()
 
-/** Intent: put every spy back to its default answer (fonts ready, fits, room, 60/60) with no calls. */
+/** Put every spy back to its default answer (fonts ready, fits, room, 60/60) with no calls. */
 export function resetFakeEngraver(): void {
   fakeEngraver.ensureNotationFonts.mockReset().mockResolvedValue(undefined)
   fakeEngraver.planWrittenPhraseFit.mockReset().mockReturnValue(FITS)

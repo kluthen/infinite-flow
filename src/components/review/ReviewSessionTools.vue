@@ -26,25 +26,25 @@ const emit = defineEmits<{
 const pinEl = ref<HTMLButtonElement | null>(null)
 const deleteEl = ref<HTMLButtonElement | null>(null)
 
-/** Intent: move focus to `element`, which must be rendered. */
+/** Move focus to `element`, which must be rendered. */
 function focusRendered(element: HTMLElement | null, name: string): void {
   if (element === null) throw new Error(`review session tools: ${name} is not rendered`)
   element.focus()
 }
 
-/** Intent: move focus to `Pin` / `Unpin` (after its confirmation, or on its way back). */
+/** Move focus to `Pin` / `Unpin` (after its confirmation, or on its way back). */
 // @spec-link [[rule_pinned_session_kept]]
 function focusPin(): void {
   focusRendered(pinEl.value, 'the pin button')
 }
 
-/** Intent: move focus back to `Delete session`, on its confirmation's way back. */
+/** Move focus back to `Delete session`, on its confirmation's way back. */
 // @spec-link [[req_kept_session_list]]
 function focusDelete(): void {
   focusRendered(deleteEl.value, 'Delete session')
 }
 
-/** Intent: whether `Delete session` holds focus now (before it leaves the page). */
+/** Whether `Delete session` holds focus now (before it leaves the page). */
 function deleteFocused(): boolean {
   return deleteEl.value !== null && document.activeElement === deleteEl.value
 }

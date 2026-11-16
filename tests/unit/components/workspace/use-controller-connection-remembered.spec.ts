@@ -17,7 +17,7 @@ import type { MidiDevice } from '@/midi/midi-controller-state'
 import { createTestWorkspace } from './test-workspace'
 import { createControllerRig, KEYS_A, PAD_B } from '../../midi/midi-controller-rig'
 
-/** Intent: a store of the remembered controller recording what is remembered and forgotten. */
+/** A store of the remembered controller recording what is remembered and forgotten. */
 function recordingStore(loaded: MidiDevice | null) {
   const saves: string[] = []
   const store: RememberedControllerStore = {
@@ -28,7 +28,7 @@ function recordingStore(loaded: MidiDevice | null) {
   return { store, saves }
 }
 
-/** Intent: run the composable in a mounted component over this rig and store. */
+/** Run the composable in a mounted component over this rig and store. */
 function mountConnection(
   rig: ReturnType<typeof createControllerRig>,
   store: RememberedControllerStore,

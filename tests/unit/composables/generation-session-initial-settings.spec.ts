@@ -33,7 +33,7 @@ const LOADED_CONTROLS = makeGenerationControls({
 /** A loaded selection: Custom based on Jazz. */
 const LOADED_SELECTION: PresetSelection = { kind: 'custom', baseId: 'jazz' }
 
-/** Intent: a session on fakes, with `initialSettings` when given, posting prewarms to `prewarm`. */
+/** A session on fakes, with `initialSettings` when given, posting prewarms to `prewarm`. */
 function session(
   prewarm: (intent: GenerationIntent) => void,
   initialSettings?: InitialGenerationSettings,

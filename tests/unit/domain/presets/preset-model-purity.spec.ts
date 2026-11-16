@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 
 const REPO_ROOT = fileURLToPath(new URL('../../../../', import.meta.url))
 
-/** Intent: every source file under one repo folder, as a repo-relative path and its text. */
+/** Every source file under one repo folder, as a repo-relative path and its text. */
 function sourceFiles(folder: string): readonly { path: string; text: string }[] {
   const root = join(REPO_ROOT, folder)
   return readdirSync(root, { recursive: true, encoding: 'utf8' })

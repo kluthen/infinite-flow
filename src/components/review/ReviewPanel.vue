@@ -176,7 +176,7 @@ const emit = defineEmits<{
 const titleId = useId()
 const titleEl = ref<HTMLElement | null>(null)
 
-/** Intent: move focus to the title (Review last session); it is never in the tab order. */
+/** Move focus to the title (Review last session); it is never in the tab order. */
 // @spec-link [[req_last_session_review]]
 function focusTitle(): void {
   if (titleEl.value === null) throw new Error('review panel: the title is not mounted')
@@ -186,19 +186,19 @@ function focusTitle(): void {
 const keepPlayedNotesEl = ref<HTMLButtonElement | null>(null)
 const deletePlayedNotesEl = ref<HTMLButtonElement | null>(null)
 
-/** Intent: move focus to `element`, which must be rendered. */
+/** Move focus to `element`, which must be rendered. */
 function focusRendered(element: HTMLElement | null, name: string): void {
   if (element === null) throw new Error(`review panel: ${name} is not rendered`)
   element.focus()
 }
 
-/** Intent: move focus to `Keep my played notes` (after its confirmation, review-view still shown). */
+/** Move focus to `Keep my played notes` (after its confirmation, review-view still shown). */
 // @spec-link [[rule_kept_played_notes_deletable]]
 function focusKeepPlayedNotes(): void {
   focusRendered(keepPlayedNotesEl.value, 'Keep my played notes')
 }
 
-/** Intent: move focus back to `Delete played notes`, on its confirmation's way back. */
+/** Move focus back to `Delete played notes`, on its confirmation's way back. */
 // @spec-link [[rule_kept_played_notes_deletable]]
 function focusDeletePlayedNotes(): void {
   focusRendered(deletePlayedNotesEl.value, 'Delete played notes')
@@ -206,14 +206,14 @@ function focusDeletePlayedNotes(): void {
 
 const sessionToolsEl = ref<InstanceType<typeof ReviewSessionTools> | null>(null)
 
-/** Intent: move focus to `Pin` / `Unpin` (after the unpin's confirmation, or on its way back). */
+/** Move focus to `Pin` / `Unpin` (after the unpin's confirmation, or on its way back). */
 function focusPin(): void {
   if (sessionToolsEl.value === null)
     throw new Error('review panel: the session tools are not mounted')
   sessionToolsEl.value.focusPin()
 }
 
-/** Intent: move focus back to `Delete session`, on its confirmation's way back. */
+/** Move focus back to `Delete session`, on its confirmation's way back. */
 function focusDeleteSession(): void {
   if (sessionToolsEl.value === null)
     throw new Error('review panel: the session tools are not mounted')
@@ -229,7 +229,7 @@ defineExpose({
 })
 
 /**
- * Intent: `Delete session` leaving while it holds focus (saving turned off) hands focus to the
+ * `Delete session` leaving while it holds focus (saving turned off) hands focus to the
  * title; read before the button leaves the page, moved once it has.
  */
 watch(
@@ -241,11 +241,11 @@ watch(
   { flush: 'pre' },
 )
 
-/** Intent: the session's favorite phrases, by number, for each phrase's star. */
+/** The session's favorite phrases, by number, for each phrase's star. */
 const favoriteSet = computed(() => new Set(props.favorites))
 
 /**
- * Intent: `Delete played notes` leaving while it holds focus (saving turned off) hands focus to
+ * `Delete played notes` leaving while it holds focus (saving turned off) hands focus to
  * the title; read before the button leaves the page, moved once it has.
  */
 // @spec-link [[rule_kept_played_notes_deletable]]
@@ -259,17 +259,17 @@ watch(
   { flush: 'pre' },
 )
 
-/** Intent: the session date of the session's start, as the title and the summary write it. */
+/** The session date of the session's start, as the title and the summary write it. */
 // @spec-link [[req_kept_session_review]]
 const date = computed(() => sessionDate(props.startedAt))
 
-/** Intent: "Last session" for the most recent session, the session date for any other. */
+/** "Last session" for the most recent session, the session date for any other. */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[req_kept_session_review]]
 const title = computed(() => (props.mostRecent ? 'Last session' : date.value))
 
 /**
- * Intent: "{session date} · {length} · {n} phrases · {instrument} · {preset} · {favorites}", the
+ * "{session date} · {length} · {n} phrases · {instrument} · {preset} · {favorites}", the
  * date left out when it is the title, the length and the preset as the session list's detail line
  * writes them ("{m} min" or "Under 1 min"; the label the session recorded at its start), "1
  * phrase" for one, the favorites as "No favorites", "1 favorite" or "{k} favorites", changing in
@@ -300,7 +300,7 @@ const KEEP_LINES: Readonly<Record<SessionKeeping, string>> = {
 }
 
 /**
- * Intent: the keep line, saying how the session is kept; below bp-tablet-landscape (the workspace
+ * The keep line, saying how the session is kept; below bp-tablet-landscape (the workspace
  * staff's split layout, the same width query) only its "Not saved" form, which the pin button's
  * label cannot say; null when it is not rendered.
  */
@@ -312,7 +312,7 @@ const keepLine = computed((): string | null => {
 })
 
 /**
- * Intent: the positions each phrase reserves: one system position, two in the split layout, at
+ * The positions each phrase reserves: one system position, two in the split layout, at
  * the block size the workspace staff's positions have in this viewport at the shared
  * system-position size; with no room in its height budget, the two share the budget, as on the
  * workspace staff.
@@ -372,7 +372,7 @@ const PLAYED_NOTES_UNAVAILABLE: Readonly<Record<PlayedNotesUnavailable, string>>
 /** The Review's one export error, after a failed export of either content. */
 const exportFailed = ref(false)
 
-/** Intent: ask the page for the picked format, refusing a value the control does not offer. */
+/** Ask the page for the picked format, refusing a value the control does not offer. */
 // @spec-link [[req_session_export]]
 function selectFormat(value: string): void {
   if (value !== 'musicxml' && value !== 'midi') {
@@ -381,14 +381,14 @@ function selectFormat(value: string): void {
   emit('update:format', value)
 }
 
-/** Intent: ask the page to turn the MIDI export's backing track on or off. */
+/** Ask the page to turn the MIDI export's backing track on or off. */
 // @spec-link [[req_session_export]]
 function toggleBackingTrack(): void {
   emit('update:backingTrack', !props.backingTrack)
 }
 
 /**
- * Intent: build one generated-notes file in the chosen format (the backing track applying to MIDI
+ * Build one generated-notes file in the chosen format (the backing track applying to MIDI
  * only) under the scope, Format, Backing track and the scope staying live while it is built.
  */
 // @spec-link [[req_session_export]]
@@ -403,7 +403,7 @@ const { running: exporting, start: startExport } = useReviewExportAction({
     }),
 })
 
-/** Intent: build the session's played-notes file, independently of the generated-notes export. */
+/** Build the session's played-notes file, independently of the generated-notes export. */
 // @spec-link [[req_played_notes_export]]
 const { running: exportingPlayed, start: startPlayedExport } = useReviewExportAction({
   button: playedExportButtonEl,
@@ -411,27 +411,27 @@ const { running: exportingPlayed, start: startPlayedExport } = useReviewExportAc
   build: () => props.exportPlayedNotes(),
 })
 
-/** Intent: ask the page to turn `Include very short notes`; focus stays on the toggle. */
+/** Ask the page to turn `Include very short notes`; focus stays on the toggle. */
 // @spec-link [[req_played_notes_export]]
 function toggleIncludeVeryShortNotes(): void {
   emit('update:includeVeryShortNotes', !props.includeVeryShortNotes)
 }
 
-/** Intent: ask the page to switch the played-notes lanes on or off; focus stays on the switch. */
+/** Ask the page to switch the played-notes lanes on or off; focus stays on the switch. */
 // @spec-link [[rule_review_played_notes_toggle]]
 // @spec-link [[module_review_played_notes_lane]]
 function togglePlayedNotes(): void {
   emit('update:playedNotesShown', !props.playedNotesShown)
 }
 
-/** Intent: ask the page to turn `Keep my played notes`; focus stays on the switch. */
+/** Ask the page to turn `Keep my played notes`; focus stays on the switch. */
 // @spec-link [[rule_played_notes_kept_only_after_opt_in]]
 function toggleKeepPlayedNotes(): void {
   emit('update:keepPlayedNotes', !props.keepPlayedNotes)
 }
 
 /**
- * Intent: the lanes' one pitch scale for the whole session, from the played notes the lanes show
+ * The lanes' one pitch scale for the whole session, from the played notes the lanes show
  * (very short notes left out, so one never widens it; none when every played note is very short);
  * and whether the lanes show: only while the switch is on and shown, so a session without a played
  * note shows none, whatever the page's switch state.
@@ -459,7 +459,7 @@ const listEl = ref<HTMLOListElement | null>(null)
 const phrases: (ReviewPhraseApi | null)[] = []
 const doodleSection = ref<ReviewDoodleApi | null>(null)
 
-/** Intent: keep the item component at `index` (null when Vue removes it). */
+/** Keep the item component at `index` (null when Vue removes it). */
 function setPhrase(index: number, instance: unknown): void {
   phrases[index] = instance === null ? null : (instance as ReviewPhraseApi)
 }
@@ -467,7 +467,7 @@ function setPhrase(index: number, instance: unknown): void {
 /** A Jam session's doodle section shows: it has a doodle, and the staff has room. */
 const doodleShown = computed(() => props.doodle !== null && !props.noRoom)
 /**
- * Intent: the doodle section leaving (the room notice in its place) while one of its controls
+ * The doodle section leaving (the room notice in its place) while one of its controls
  * holds focus hands focus to the title; read before the section leaves the page, moved once it has.
  */
 // @spec-link [[req_last_session_review]]
@@ -482,7 +482,7 @@ watch(
 /** The doodle is engraved with the list, as its first item, once Jam's code has loaded. */
 const doodleItems = computed(() => (doodleShown.value && props.jamCode.state === 'loaded' ? 1 : 0))
 
-/** Intent: the engraved item at a scheduler index: the doodle first, when it is one, then phrases. */
+/** The engraved item at a scheduler index: the doodle first, when it is one, then phrases. */
 function itemAt(index: number): ReviewItemApi | null {
   const offset = served?.doodleItems ?? 0
   if (index < offset) return doodleSection.value
@@ -492,7 +492,7 @@ function itemAt(index: number): ReviewItemApi | null {
 let engraverLoad: Promise<ReviewEngraver> | null = null
 
 /**
- * Intent: load the lazy engraver and its notation fonts once; a failed load is forgotten, so the
+ * Load the lazy engraver and its notation fonts once; a failed load is forgotten, so the
  * next engraving tries again.
  */
 function loadEngraver(): Promise<ReviewEngraver> {
@@ -509,7 +509,7 @@ function loadEngraver(): Promise<ReviewEngraver> {
 }
 
 /**
- * Intent: engrave one item; a failed engraver load shows its "couldn't be drawn" note. Null when
+ * Engrave one item; a failed engraver load shows its "couldn't be drawn" note. Null when
  * the item is gone (the list unmounted meanwhile).
  */
 // @spec-link [[req_last_session_review]]
@@ -528,7 +528,7 @@ async function engraveItem(index: number): Promise<ReviewEngravingOutcome | null
   return item === null ? null : item.engrave(engraver)
 }
 
-/** Intent: the item component at `index`, which the scheduler only names while it is mounted. */
+/** The item component at `index`, which the scheduler only names while it is mounted. */
 function requireItem(index: number): ReviewItemApi {
   const item = itemAt(index)
   if (item === null) throw new Error(`Review item ${index} is not mounted.`)
@@ -544,7 +544,7 @@ let served: {
   readonly doodleItems: number
 } | null = null
 
-/** Intent: stop the list's observers and scheduler, if any. */
+/** Stop the list's observers and scheduler, if any. */
 function stopEngraving(): void {
   stopObserving?.()
   stopObserving = null
@@ -553,7 +553,7 @@ function stopEngraving(): void {
   served = null
 }
 
-/** Intent: start a scheduler and its observers for the list on screen. */
+/** Start a scheduler and its observers for the list on screen. */
 // @spec-link [[req_last_session_review]]
 function startEngraving(list: HTMLOListElement): void {
   const doodle: Element | null = doodleItems.value === 1 ? doodleSection.value?.$el : null
@@ -577,7 +577,7 @@ function startEngraving(list: HTMLOListElement): void {
 }
 
 /**
- * Intent: serve the list on screen: from the mount on, and again whenever the list is replaced
+ * Serve the list on screen: from the mount on, and again whenever the list is replaced
  * (shown again after no room), the records change or the doodle joins it (Jam's code loaded);
  * nothing while the room notice stands in.
  */
@@ -598,7 +598,7 @@ onMounted(serveList)
 watch([listEl, () => props.records, doodleItems], serveList, { flush: 'post' })
 
 /**
- * Intent: a real change of the viewport or the Review's system-position size re-engraves what is
+ * A real change of the viewport or the Review's system-position size re-engraves what is
  * engraved near the window, once rendered.
  */
 watch(

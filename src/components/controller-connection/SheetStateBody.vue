@@ -55,7 +55,7 @@ const PICKER_LABEL_ID = 'device-picker-label'
 const stage = computed(() => props.model.stage)
 
 /**
- * Intent: "{device name} was unplugged." while the picker or No device found shows because the
+ * "{device name} was unplugged." while the picker or No device found shows because the
  * chosen device was unplugged during the check or at Connected; else null.
  */
 // @spec-link [[rule_same_controller_reattaches]]
@@ -66,7 +66,7 @@ const unpluggedLine = computed<string | null>(() => {
   return `${unplugged.device.name} was unplugged.`
 })
 
-/** Intent: in a picker reached from Connected, the id of the device in use, marked; else null. */
+/** In a picker reached from Connected, the id of the device in use, marked; else null. */
 // @spec-link [[req_midi_controller_input]]
 const inUseId = computed<string | null>(() => {
   const state = props.model.controller.state
@@ -74,7 +74,7 @@ const inUseId = computed<string | null>(() => {
   return state.kind === 'connected' || state.kind === 'opening' ? state.device.id : null
 })
 
-/** Intent: the check result's copy, judged on the played note for the current profile; else null. */
+/** The check result's copy, judged on the played note for the current profile; else null. */
 // @spec-link [[rule_controller_transposition_check]]
 const checkCopy = computed<TranspositionCheckCopy | null>(() => {
   const current = stage.value
@@ -83,7 +83,7 @@ const checkCopy = computed<TranspositionCheckCopy | null>(() => {
   return transpositionCheckCopy(report, props.profile)
 })
 
-/** Intent: the Use for my instrument confirmation's words, while it shows; else null. */
+/** The Use for my instrument confirmation's words, while it shows; else null. */
 // @spec-link [[rule_transposition_check_sets_my_instrument]]
 const useCopy = computed(() => {
   if (stage.value.kind !== 'use') return null

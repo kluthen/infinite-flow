@@ -5,7 +5,7 @@
  */
 
 /**
- * Intent: deep-structural equality over plain JSON-shaped values (objects, arrays, primitives) —
+ * Deep-structural equality over plain JSON-shaped values (objects, arrays, primitives) —
  * the only shape a rebuilt domain value or a structured-cloned wire value can take. Two objects
  * are equal when they have the same own keys with equal values; an array never equals an object.
  */

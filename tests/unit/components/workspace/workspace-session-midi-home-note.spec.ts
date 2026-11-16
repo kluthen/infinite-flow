@@ -63,7 +63,7 @@ const HOME_NOTE_CASES: readonly HomeNoteCase[] = [
 // @test-link [[rule_midi_starting_note]]
 describe('session controller: the home note while session mode is held', () => {
   /**
-   * Intent: a connected rig holding session mode, routing notes through Jam's Idle notes, with tap
+   * A connected rig holding session mode, routing notes through Jam's Idle notes, with tap
    * tempo listening while `listening.value` holds; its taps and every event heard are recorded.
    */
   async function holdingRig(

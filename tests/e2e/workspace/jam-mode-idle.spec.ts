@@ -52,7 +52,7 @@ const SMUFL_FLAT = ''
 const NEEDS_CONTROLLER_WIDE = 'A Jam needs a connected controller. Connect one to start.'
 const NEEDS_CONTROLLER_NARROW = 'Connect a controller to start.'
 
-/** Intent: land on the harness, pre-generation off, at `size`, its controller loaded. */
+/** Land on the harness, pre-generation off, at `size`, its controller loaded. */
 function gotoHarness(page: Page, size?: { readonly width: number; readonly height: number }) {
   return gotoControllerHarness(page, {
     query: { pregeneration: 'off' },
@@ -60,13 +60,13 @@ function gotoHarness(page: Page, size?: { readonly width: number; readonly heigh
   })
 }
 
-/** Intent: let a few animation frames pass, so whatever a change set going has had its turn. */
+/** Let a few animation frames pass, so whatever a change set going has had its turn. */
 async function settleAWhile(page: Page): Promise<void> {
   for (let frame = 0; frame < 5; frame += 1) await settleFrames(page)
 }
 
 /**
- * Intent: press `Jam` and wait until Jam mode shows, `Start Jam` as `startJam` says (enabled with a
+ * Press `Jam` and wait until Jam mode shows, `Start Jam` as `startJam` says (enabled with a
  * controller connected: a fresh Jam could start).
  */
 async function enterJam(page: Page, startJam: 'enabled' | 'disabled' = 'disabled'): Promise<void> {
@@ -74,12 +74,12 @@ async function enterJam(page: Page, startJam: 'enabled' | 'disabled' = 'disabled
   await expectJamModeShows(page, startJam)
 }
 
-/** Intent: the cue row's `jam-needs-controller` line. */
+/** The cue row's `jam-needs-controller` line. */
 function needsController(page: Page): Locator {
   return cueRow(page).locator('p.jam-needs-controller')
 }
 
-/** Intent: the glyphs drawn in the empty system's key signature, in drawing order. */
+/** The glyphs drawn in the empty system's key signature, in drawing order. */
 function keySignatureGlyphs(page: Page): Promise<string[]> {
   return jamFrame(page)
     .locator('svg.staff-svg g.vf-keysignature text')
@@ -125,7 +125,7 @@ const ACCIDENTAL_CASES: readonly SignatureCase[] = [
   { key: 'E', collection: 'Locrian', glyph: SMUFL_FLAT, count: 1 },
 ]
 
-/** Intent: assert two boxes do not overlap. */
+/** Assert two boxes do not overlap. */
 function expectApart(
   a: { x: number; y: number; width: number; height: number },
   b: { x: number; y: number; width: number; height: number },
@@ -136,7 +136,7 @@ function expectApart(
   expect(apart, message).toBe(true)
 }
 
-/** Intent: the box of a shown element, which must have one. */
+/** The box of a shown element, which must have one. */
 async function boxOf(
   locator: Locator,
 ): Promise<{ x: number; y: number; width: number; height: number }> {
@@ -195,7 +195,7 @@ test("the empty system shows the key signature of Jam's key and collection, nine
   expect(await generationRecords(page), 'a key change in Jam mode generates nothing').toEqual([])
 })
 
-/** Intent: the empty system's SVG. */
+/** The empty system's SVG. */
 function emptySystem(page: Page): Locator {
   return jamFrame(page).locator('[data-system-position="top"] > .staff-content > svg.staff-svg')
 }

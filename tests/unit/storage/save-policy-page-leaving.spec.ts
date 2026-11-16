@@ -20,14 +20,14 @@ const NEW_SESSION: readonly StorageChange[] = [
   { kind: 'write', store: 'sessionBodies', key: 'session-9-1', record: sampleRecord('body') },
 ]
 
-/** Intent: a ready port over a fresh database already holding one kept summary, `session-1-5`. */
+/** A ready port over a fresh database already holding one kept summary, `session-1-5`. */
 async function portWithKeptSession(): Promise<StoragePort> {
   const port = await readyPort(freshFactory())
   await port.write('sessionSummaries', 'session-1-5', sampleRecord('kept'))
   return port
 }
 
-/** Intent: the stores and mode of every transaction opened on the database from now on. */
+/** The stores and mode of every transaction opened on the database from now on. */
 function recordTransactions(): () => string[] {
   const spy = vi.spyOn(IDBDatabase.prototype, 'transaction')
   return () =>

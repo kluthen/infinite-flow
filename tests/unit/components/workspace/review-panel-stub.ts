@@ -17,7 +17,7 @@ import type {
 import type { StaffViewport } from '@/notation/notation-layout-policy'
 import type { SessionHistoryRecord } from '@/session/session-history'
 
-/** Intent: the panel stand-in, named as the real one so a spec finds it by name. */
+/** The panel stand-in, named as the real one so a spec finds it by name. */
 // @test-link [[req_last_session_review]]
 const ReviewPanelStub = defineComponent({
   name: 'ReviewPanel',
@@ -62,7 +62,7 @@ const ReviewPanelStub = defineComponent({
     const keep = ref<HTMLElement | null>(null)
     const remove = ref<HTMLElement | null>(null)
     const removeSession = ref<HTMLElement | null>(null)
-    /** Intent: focus `target`, which must be rendered. */
+    /** Focus `target`, which must be rendered. */
     const focus = (target: HTMLElement | null, name: string): void => {
       if (target === null) throw new Error(`review panel stub: no ${name}`)
       target.focus()

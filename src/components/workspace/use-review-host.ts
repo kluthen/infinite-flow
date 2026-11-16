@@ -78,7 +78,7 @@ export interface ReviewHost {
 }
 
 /**
- * Intent: warm the Review panel's chunk without waiting on it. A failure here is not reported:
+ * Warm the Review panel's chunk without waiting on it. A failure here is not reported:
  * the loader forgets it, the Review's mount retries the same loader and a failure then surfaces.
  */
 // @spec-link [[req_last_session_review]]
@@ -87,7 +87,7 @@ function warmReviewPanel(): void {
 }
 
 /**
- * Intent: warm the review area's chunk and the panel's without waiting on them, the same way: a
+ * Warm the review area's chunk and the panel's without waiting on them, the same way: a
  * failure is not reported here, the Review's mount loads again and a failure then surfaces.
  */
 // @spec-link [[req_last_session_review]]
@@ -97,7 +97,7 @@ function warmReviewArea(): void {
 }
 
 /**
- * Intent: the Review host of one score panel: from it the panel learns when the Review shows, and
+ * The Review host of one score panel: from it the panel learns when the Review shows, and
  * the review area what the page keeps of it, its export choices and Played notes switch starting
  * from the saved preferences and saved as the player changes them; a session's start warms the
  * Review's chunks, and the Review showing warms the panel's.
@@ -107,12 +107,12 @@ function warmReviewArea(): void {
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_settings_saved_on_change]]
 export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
-  /** Intent: the Review while it shows; null otherwise. */
+  /** The Review while it shows; null otherwise. */
   const shownReview = computed((): SessionReview | null => {
     const review = deps.controller()?.state.review ?? null
     return review !== null && review.showing ? review : null
   })
-  /** Intent: the review mode shows: a Review, or the session list in its place. */
+  /** The review mode shows: a Review, or the session list in its place. */
   const showing = computed(
     () => shownReview.value !== null || deps.controller()?.state.listShowing === true,
   )
@@ -124,25 +124,25 @@ export function useReviewHost(deps: ReviewHostDependencies): ReviewHost {
   // @spec-link [[rule_played_notes_export_omits_stray_notes]]
   const includeVeryShortNotes = ref(false)
 
-  /** Intent: the player chose the export's format: set it and save it. */
+  /** The player chose the export's format: set it and save it. */
   function setFormat(chosen: GeneratedNotesFormat): void {
     format.value = chosen
     deps.saveSettings({ 'review.format': chosen })
   }
 
-  /** Intent: the player chose whether the export holds the backing track: set it and save it. */
+  /** The player chose whether the export holds the backing track: set it and save it. */
   function setBackingTrack(on: boolean): void {
     backingTrack.value = on
     deps.saveSettings({ 'review.backingTrack': on })
   }
 
-  /** Intent: the player turned `Include very short notes`: set it for the page; nothing is saved. */
+  /** The player turned `Include very short notes`: set it for the page; nothing is saved. */
   // @spec-link [[rule_played_notes_export_omits_stray_notes]]
   function setIncludeVeryShortNotes(on: boolean): void {
     includeVeryShortNotes.value = on
   }
 
-  /** Intent: the player turned the Played notes switch: set it and save it. */
+  /** The player turned the Played notes switch: set it and save it. */
   // @spec-link [[module_review_played_notes_lane]]
   function setPlayedNotesShown(on: boolean): void {
     playedNotesShown.value = on

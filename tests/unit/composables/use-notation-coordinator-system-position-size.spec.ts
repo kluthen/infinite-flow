@@ -28,7 +28,7 @@ beforeEach(() => {
   resetFakeEngraver()
 })
 
-/** Intent: a coordinator whose reporter callbacks do nothing. */
+/** A coordinator whose reporter callbacks do nothing. */
 function buildCoordinator() {
   return createNotationCoordinator(
     { reportNotationFailure: () => true, reportNotationRecovered: () => true },

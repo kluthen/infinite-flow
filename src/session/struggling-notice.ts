@@ -33,13 +33,13 @@ export const NOTICE_AT_START: StrugglingNotice = Object.freeze({
   visible: false,
 })
 
-/** Intent: whether a phrase of this origin was newly generated during the session. */
+/** Whether a phrase of this origin was newly generated during the session. */
 function isGenerated(origin: SessionPhraseOrigin): boolean {
   return origin === 'carry-in' || origin === 'standalone'
 }
 
 /**
- * Intent: account for one decided phrase: a repeat extends the run and shows the notice when the
+ * Account for one decided phrase: a repeat extends the run and shows the notice when the
  * run reaches two; a generated phrase ends the run and leaves the notice as it is until it sounds.
  */
 // @spec-link [[rule_struggling_generator_notice]]
@@ -56,7 +56,7 @@ export function noticeOnDecision(
   }
 }
 
-/** Intent: clear a shown notice when a newly generated phrase starts sounding. */
+/** Clear a shown notice when a newly generated phrase starts sounding. */
 // @spec-link [[rule_struggling_generator_notice]]
 export function noticeOnSounding(
   notice: StrugglingNotice,
@@ -69,7 +69,7 @@ export function noticeOnSounding(
   }
 }
 
-/** Intent: clear a shown notice when the session ends. */
+/** Clear a shown notice when the session ends. */
 // @spec-link [[rule_struggling_generator_notice]]
 export function noticeAtEnd(notice: StrugglingNotice): readonly SessionOutput[] {
   return notice.visible ? [{ kind: 'struggling-notice', visible: false }] : []

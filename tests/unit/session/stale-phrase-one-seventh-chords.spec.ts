@@ -25,7 +25,7 @@ import {
 
 const FAVORED: ChordFamilies = { 'seventh-chords': 'favored' }
 
-/** Intent: the default settings at the given level, as a session or the current settings hold them. */
+/** The default settings at the given level, as a session or the current settings hold them. */
 function settingsAt(chordFamilies: ChordFamilies): SessionSettings {
   return {
     controls: makeGenerationControls(DEFAULT_GENERATION_CONTROLS),
@@ -38,7 +38,7 @@ function settingsAt(chordFamilies: ChordFamilies): SessionSettings {
   }
 }
 
-/** Intent: phrase 1's settings as a session takes them from an Idle result at the given level. */
+/** Phrase 1's settings as a session takes them from an Idle result at the given level. */
 function phraseOneAt(chordFamilies: ChordFamilies): SessionSettings {
   const controls = makeGenerationControls(DEFAULT_GENERATION_CONTROLS)
   const intent = createGenerationIntent({

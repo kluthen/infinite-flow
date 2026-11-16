@@ -40,17 +40,17 @@ export class KeyAndModeRestrictionError extends Error {
   }
 }
 
-/** Intent: the restriction allowing every written key with every mode. */
+/** The restriction allowing every written key with every mode. */
 // @spec-link [[rule_key_and_mode_restriction]]
 export const ANY_KEY_AND_MODE: KeyAndModeRestriction = deepFreeze({ keys: 'any', modes: 'any' })
 
-/** Intent: whether a value is a plain, non-null, non-array object. */
+/** Whether a value is a plain, non-null, non-array object. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 /**
- * Intent: read one half: "any", or a non-empty list of known values with no duplicate, kept in
+ * Read one half: "any", or a non-empty list of known values with no duplicate, kept in
  * its order. Anything else throws a KeyAndModeRestrictionError naming the half and the cause.
  */
 function parseHalf<T extends string>(
@@ -84,7 +84,7 @@ function parseHalf<T extends string>(
 }
 
 /**
- * Intent: read a restriction: each half "any" or a non-empty list of known values (PITCH_CLASSES
+ * Read a restriction: each half "any" or a non-empty list of known values (PITCH_CLASSES
  * for the keys, COLLECTIONS for the modes) with no duplicate. A refusal throws a
  * KeyAndModeRestrictionError naming the cause; nothing is defaulted. Returns a fresh deep-frozen
  * copy, lists in their given order.
@@ -102,30 +102,30 @@ export function makeKeyAndModeRestriction(input: KeyAndModeRestriction): KeyAndM
   })
 }
 
-/** Intent: the one-pair restriction to one written key and one mode. */
+/** The one-pair restriction to one written key and one mode. */
 // @spec-link [[rule_key_and_mode_restriction]]
 export function onlyKeyAndMode(key: PitchClass, mode: Collection): KeyAndModeRestriction {
   return makeKeyAndModeRestriction({ keys: [key], modes: [mode] })
 }
 
-/** Intent: whether a half allows a value: it is "any", or lists the value. */
+/** Whether a half allows a value: it is "any", or lists the value. */
 function halfAllows<T>(half: RestrictionHalf<T>, value: T): boolean {
   return half === 'any' || half.includes(value)
 }
 
-/** Intent: whether the restriction's keys half allows a written key. */
+/** Whether the restriction's keys half allows a written key. */
 // @spec-link [[rule_key_and_mode_restriction]]
 export function allowsKey(restriction: KeyAndModeRestriction, key: PitchClass): boolean {
   return halfAllows(restriction.keys, key)
 }
 
-/** Intent: whether the restriction's modes half allows a mode, by plain identity. */
+/** Whether the restriction's modes half allows a mode, by plain identity. */
 // @spec-link [[rule_key_and_mode_restriction]]
 export function allowsMode(restriction: KeyAndModeRestriction, mode: Collection): boolean {
   return halfAllows(restriction.modes, mode)
 }
 
-/** Intent: whether a written key and a mode are both allowed: every allowed key with every mode. */
+/** Whether a written key and a mode are both allowed: every allowed key with every mode. */
 // @spec-link [[rule_key_and_mode_restriction]]
 export function allowsKeyAndMode(
   restriction: KeyAndModeRestriction,
@@ -135,19 +135,19 @@ export function allowsKeyAndMode(
   return allowsKey(restriction, key) && allowsMode(restriction, mode)
 }
 
-/** Intent: whether both halves are "any". */
+/** Whether both halves are "any". */
 // @spec-link [[rule_key_and_mode_restriction]]
 export function isAnyKeyAndMode(restriction: KeyAndModeRestriction): boolean {
   return restriction.keys === 'any' && restriction.modes === 'any'
 }
 
-/** Intent: whether two halves are both "any", or equal lists in the same order. */
+/** Whether two halves are both "any", or equal lists in the same order. */
 function sameHalf<T>(left: RestrictionHalf<T>, right: RestrictionHalf<T>): boolean {
   if (left === 'any' || right === 'any') return left === right
   return left.length === right.length && left.every((entry, index) => entry === right[index])
 }
 
-/** Intent: whether two restrictions are the same, half by half, list order included. */
+/** Whether two restrictions are the same, half by half, list order included. */
 // @spec-link [[rule_key_and_mode_restriction]]
 export function sameRestriction(
   left: KeyAndModeRestriction,
@@ -163,7 +163,7 @@ export interface RestrictionLabels {
   readonly mode: (mode: Collection) => string
 }
 
-/** Intent: a list read as "A", "A or B", "A, B or C". */
+/** A list read as "A", "A or B", "A, B or C". */
 export function listInWords(items: readonly string[]): string {
   const last = items.at(-1) ?? ''
   if (items.length <= 1) return last
@@ -171,7 +171,7 @@ export function listInWords(items: readonly string[]): string {
 }
 
 /**
- * Intent: the restriction in plain words, as the preset sheet and the description line write it:
+ * The restriction in plain words, as the preset sheet and the description line write it:
  * "{modes} in any key", "{keys} in any mode", "only {key} {mode}" for one pair ("{key} {mode}"
  * with `{ only: false }`), "{keys}, in {modes}" for lists on both halves, and "any key and mode".
  * Every key and mode label comes from `labels`.

@@ -89,7 +89,7 @@ interface ControlSetting {
   readonly tensionArc: TensionArc
 }
 
-/** Intent: the full control policy for one measured setting, every other control held fixed. */
+/** The full control policy for one measured setting, every other control held fixed. */
 function buildControls(setting: ControlSetting): GenerationControls {
   return makeGenerationControls({
     tempo: 90,
@@ -109,7 +109,7 @@ function buildControls(setting: ControlSetting): GenerationControls {
   })
 }
 
-/** Intent: measure one rhythm setting's cold (fresh memo) and warm (different seed, same memo) call. */
+/** Measure one rhythm setting's cold (fresh memo) and warm (different seed, same memo) call. */
 function measureSetting(
   noteDensity: NoteDensity,
   rhythmicVariety: RhythmicVariety,
@@ -163,7 +163,7 @@ function measureSetting(
 }
 
 /**
- * Intent: every one of the 324 rhythm settings, in the harness's fixed, stable order: note density
+ * Every one of the 324 rhythm settings, in the harness's fixed, stable order: note density
  * outermost, then rhythmic variety, silence density, syncopation and tension arc innermost.
  */
 function rhythmSettingGrid(): ControlSetting[] {
@@ -184,7 +184,7 @@ function rhythmSettingGrid(): ControlSetting[] {
   )
 }
 
-/** Intent: measure every one of the 324 rhythm settings, in `rhythmSettingGrid` order. */
+/** Measure every one of the 324 rhythm settings, in `rhythmSettingGrid` order. */
 function allSettings(): SettingMeasurement[] {
   return rhythmSettingGrid().map((setting) =>
     measureSetting(
@@ -197,14 +197,14 @@ function allSettings(): SettingMeasurement[] {
   )
 }
 
-/** Intent: the given percentile (0-100) of a numeric sample, nearest-rank, sorted ascending. */
+/** The given percentile (0-100) of a numeric sample, nearest-rank, sorted ascending. */
 function percentile(sorted: readonly number[], p: number): number {
   if (sorted.length === 0) return 0
   const index = Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1)
   return sorted[Math.max(0, index)]!
 }
 
-/** Intent: the median/p90/p95/max summary of one numeric sample. */
+/** The median/p90/p95/max summary of one numeric sample. */
 function summarize(values: readonly number[]): {
   median: number
   p90: number
@@ -220,7 +220,7 @@ function summarize(values: readonly number[]): {
   }
 }
 
-/** Intent: print the compact console summary the task report is built from. */
+/** Print the compact console summary the task report is built from. */
 function printSummary(measurements: readonly SettingMeasurement[]): void {
   const supported = measurements.filter((m) => m.coldKind === 'generation_success')
   const unsupported = measurements.filter((m) => m.coldKind !== 'generation_success')
@@ -284,7 +284,7 @@ interface TransitionMeasurement {
 }
 
 /**
- * Intent: what every transition run knows besides the settings: a wide window, no step-down yet,
+ * What every transition run knows besides the settings: a wide window, no step-down yet,
  * and the starting register as the resolved one (a starting setting never holds Varying).
  */
 function mutationContextOf(start: SessionSettings): MutationContext {
@@ -297,7 +297,7 @@ function mutationContextOf(start: SessionSettings): MutationContext {
 const START_DRAW_SEED = 24
 
 /**
- * Intent: for each non-rhythm setting, the value each of `count` starting settings takes: the
+ * For each non-rhythm setting, the value each of `count` starting settings takes: the
  * catalog repeated in order over a seeded shuffle of the starting settings, so every value starts
  * equally often (up to one) and no two settings, nor a setting and the rhythm order, move together.
  */
@@ -319,7 +319,7 @@ function balancedDraw<T>(
 }
 
 /**
- * Intent: every starting setting of the setting-change case, in a fixed, stable order: each of the
+ * Every starting setting of the setting-change case, in a fixed, stable order: each of the
  * 324 rhythm settings once, each with non-rhythm values (tonal center, collection, harmonic
  * motion, contour, register, leapiness, arpeggio chaos and musical profile) drawn by
  * `balancedDraw` from a fixed seed. The profile is always customized, as after any mutation.
@@ -369,7 +369,7 @@ function allStartSettings(): SessionSettings[] {
   }))
 }
 
-/** Intent: a compact, stable display name for one session setting. */
+/** A compact, stable display name for one session setting. */
 function settingName({ controls, figureLevels, selection }: SessionSettings): string {
   const rhythm = `${controls.noteDensity}/${controls.rhythmicVariety}/${controls.silenceDensity}/${controls.syncopation}/${controls.tension}`
   return (
@@ -382,7 +382,7 @@ function settingName({ controls, figureLevels, selection }: SessionSettings): st
 /** The number of setting-change generations made so far; it keeps request ids short and unique. */
 let changeRequestCount = 0
 
-/** Intent: run and time one `generatePhrase` call for a setting against the given memo. */
+/** Run and time one `generatePhrase` call for a setting against the given memo. */
 function timedGeneration(
   settings: SessionSettings,
   seed: number,
@@ -408,7 +408,7 @@ interface StartTransitions {
 }
 
 /**
- * Intent: for one starting setting, warm a fresh memo on it (as the Worker's memo is warm on the
+ * For one starting setting, warm a fresh memo on it (as the Worker's memo is warm on the
  * setting a session has been playing), then time the first generation after each step a settings
  * mutation could take from it (`mutationCandidates`: one setting moved one grade on its mutation
  * scale), all against that same memo. Steps landing on an unsupported setting are counted, not
@@ -450,7 +450,7 @@ interface TransitionRun {
   readonly unsupported: number
 }
 
-/** Intent: every setting-change transition from every starting setting, in a fixed, stable order. */
+/** Every setting-change transition from every starting setting, in a fixed, stable order. */
 function allTransitions(): TransitionRun {
   const transitions: TransitionMeasurement[] = []
   const starts = allStartSettings()
@@ -468,7 +468,7 @@ function allTransitions(): TransitionRun {
   return { transitions, starts: starts.length, skippedStarts, unsupported }
 }
 
-/** Intent: one summary line for a group of successful transitions. */
+/** One summary line for a group of successful transitions. */
 function transitionLine(label: string, group: readonly TransitionMeasurement[]): string {
   const s = summarize(group.map((m) => m.ms))
   const misses = group.filter((m) => m.memoMiss).length
@@ -478,7 +478,7 @@ function transitionLine(label: string, group: readonly TransitionMeasurement[]):
   )
 }
 
-/** Intent: print the setting-change summary: overall, per changed setting, and the worst transitions. */
+/** Print the setting-change summary: overall, per changed setting, and the worst transitions. */
 function printTransitionSummary(run: TransitionRun): void {
   const { transitions } = run
   const succeeded = transitions.filter((m) => m.kind === 'generation_success')

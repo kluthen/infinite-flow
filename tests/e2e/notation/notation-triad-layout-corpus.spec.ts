@@ -53,7 +53,7 @@ const VERDICT_FRAMES = {
 
 type FrameName = keyof typeof VERDICT_FRAMES
 
-/** Intent: the URL of an app source module, loaded at run time so the e2e project never compiles it. */
+/** The URL of an app source module, loaded at run time so the e2e project never compiles it. */
 function sourceUrl(path: string): string {
   return new URL(`../../../src/${path}`, import.meta.url).href
 }
@@ -83,7 +83,7 @@ interface CorpusPhraseModules {
   ) => number
 }
 
-/** Intent: load a source module and take the named functions from it, crashing if one is missing. */
+/** Load a source module and take the named functions from it, crashing if one is missing. */
 async function loadFunctions(path: string, names: readonly string[]): Promise<object> {
   const loaded: unknown = await import(sourceUrl(path))
   if (typeof loaded !== 'object' || loaded === null) throw new TypeError(`${path} did not load.`)
@@ -95,7 +95,7 @@ async function loadFunctions(path: string, names: readonly string[]): Promise<ob
   return loaded
 }
 
-/** Intent: load the replay, notation-input, display-transform and layout-policy functions. */
+/** Load the replay, notation-input, display-transform and layout-policy functions. */
 async function loadCorpusPhraseModules(): Promise<CorpusPhraseModules> {
   const parts = await Promise.all([
     loadFunctions('generation-worker/phrase-replay.ts', [
@@ -116,7 +116,7 @@ interface CorpusPhrase {
   readonly systemPositionUnits: number
 }
 
-/** Intent: replay every corpus case headless into its written phrase; a failed generation is skipped. */
+/** Replay every corpus case headless into its written phrase; a failed generation is skipped. */
 function corpusPhrases(modules: CorpusPhraseModules): {
   readonly phrases: readonly CorpusPhrase[]
   readonly skipped: Readonly<Record<string, string>>
@@ -146,7 +146,7 @@ function corpusPhrases(modules: CorpusPhraseModules): {
   return { phrases, skipped, caseCount: corpus.cases.length }
 }
 
-/** Intent: the layout inputs PhraseScore reports for a frame width in a window, with no phrase. */
+/** The layout inputs PhraseScore reports for a frame width in a window, with no phrase. */
 async function frameLayoutInputs(
   page: Page,
   viewport: { readonly width: number; readonly height: number },
@@ -172,7 +172,7 @@ interface BatchInputs {
   readonly frames: readonly (readonly [FrameName, NotationHarnessLayoutInputs])[]
 }
 
-/** Intent: check one batch of phrases in the page: the two layouts wide, then the four frames. */
+/** Check one batch of phrases in the page: the two layouts wide, then the four frames. */
 function planBatch(page: Page, inputs: BatchInputs): Promise<Record<string, TriadLayout>> {
   return page.evaluate(async ({ phrases, wide, frames }) => {
     const checks = window.__notationChecks

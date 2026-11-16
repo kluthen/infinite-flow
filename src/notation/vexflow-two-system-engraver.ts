@@ -57,7 +57,7 @@ export interface SystemStaveSpec {
 }
 
 /**
- * Intent: add the clef and key signature every system starts with: the instrument's clef, then the
+ * Add the clef and key signature every system starts with: the instrument's clef, then the
  * key signature, whose accidentals VexFlow places on that clef's lines (it reads the stave's clef
  * when it formats them). The engraver's leading-width measurement (for a phrase's layout and for
  * the phrase-independent room check alike) uses the same helper, so the measured width always
@@ -85,7 +85,7 @@ export const SYSTEM_PADDING_UNITS = 60
 const LEADING_SCRATCH_WIDTH_UNITS = 1000
 
 /**
- * Intent: measure the first stave's leading width (clef + key signature + time signature) for a
+ * Measure the first stave's leading width (clef + key signature + time signature) for a
  * clef and a key signature, on a scratch stave built with the drawn staff's own helper.
  */
 // @spec-link [[module_notation_layout_preflight]]
@@ -136,7 +136,7 @@ interface DrawnMeasure {
 }
 
 /**
- * Intent: draw one measure's stave, voice and (already-beamed) beams into a tagged `g.measure-slot`.
+ * Draw one measure's stave, voice and (already-beamed) beams into a tagged `g.measure-slot`.
  * The beams are built and attached to their notes (via `Beam`'s own `note.setBeam()`) by the caller,
  * before any voice in the phrase is formatted or drawn, so a beamed note's flag is already suppressed
  * by the time `voice.draw` runs here.
@@ -167,7 +167,7 @@ function drawMeasureGroup(
 }
 
 /**
- * Intent: the vertical extent of one system's playhead band, in the SVG's user units: one staff
+ * The vertical extent of one system's playhead band, in the SVG's user units: one staff
  * space beyond each outer staff line, pushed out to half a space past any notehead edge lying
  * further out (a notehead is one space tall, so that is one space from its centre), clamped to
  * the system position (`systemPositionUnits` tall). Taken over every measure of the system, so the
@@ -260,7 +260,7 @@ export function drawSystemMeasures(
 const BOUNDS_EPSILON_PX = 1.5
 
 /**
- * Intent: check one system's drawn content lies within the container's width. The height needs no
+ * Check one system's drawn content lies within the container's width. The height needs no
  * such check: the system position's height is the plan's shared size, and the staff is placed in
  * it for the phrase's instrument so that every written pitch that instrument reaches, stems, beams
  * and chord symbols included, stays inside (see planSystemPositionUnits and planStaffPlacement),
@@ -284,7 +284,7 @@ export function assertSystemWidthBounds(
   }
 }
 
-/** Intent: create one system's SVG in its host, sized to the container width and its position's height. */
+/** Create one system's SVG in its host, sized to the container width and its position's height. */
 export function openSystemSvg(host: HTMLElement, plan: SystemLayoutPlan): Renderer {
   const renderer = new Renderer(host as HTMLDivElement, Renderer.Backends.SVG)
   renderer.resize(plan.systemWidthUnits * plan.scale, plan.systemPositionUnits * plan.scale)
@@ -293,7 +293,7 @@ export function openSystemSvg(host: HTMLElement, plan: SystemLayoutPlan): Render
 }
 
 /**
- * Intent: fix the finished SVG's size and viewBox directly on the element (never re-invoking
+ * Fix the finished SVG's size and viewBox directly on the element (never re-invoking
  * VexFlow's own resize/scale, which would re-derive the scale from itself and distort the drawn
  * content), and mark it with the documented class the stylesheet recolours and its image role.
  */

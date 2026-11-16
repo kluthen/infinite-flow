@@ -9,7 +9,7 @@ import { expect, test } from '@playwright/test'
 
 import { generateAndAwaitReady, gotoWorkspace } from '../workspace/helpers'
 
-/** Intent: wait until this page's own service worker has installed and taken control. */
+/** Wait until this page's own service worker has installed and taken control. */
 async function waitForServiceWorkerReady(page: import('@playwright/test').Page): Promise<void> {
   await page.evaluate(async () => {
     const registration = await navigator.serviceWorker.ready

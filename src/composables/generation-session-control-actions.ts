@@ -100,7 +100,7 @@ interface ChosenSettings extends GeneratedFrom {
   readonly selection: PresetSelection
 }
 
-/** Intent: what an edit of one control is, as the selection needs to know it. */
+/** What an edit of one control is, as the selection needs to know it. */
 function controlChange(key: keyof GenerationControls, controls: GenerationControls): SettingChange {
   if (PRESET_HELD_KEYS.has(key)) {
     return { kind: 'presetHeldControl', control: key as PresetHeldControlKey }
@@ -111,7 +111,7 @@ function controlChange(key: keyof GenerationControls, controls: GenerationContro
   return { kind: 'notPresetHeld' }
 }
 
-/** Intent: whether a setting the phrase is generated from differs, the tempo apart. */
+/** Whether a setting the phrase is generated from differs, the tempo apart. */
 function generationSettingsDiffer(before: GeneratedFrom, after: GeneratedFrom): boolean {
   const controlKeys = Object.keys(after.controls) as (keyof GenerationControls)[]
   return (
@@ -122,7 +122,7 @@ function generationSettingsDiffer(before: GeneratedFrom, after: GeneratedFrom): 
 }
 
 /**
- * Intent: build the session's control actions over the shared state. Configuration edits apply
+ * Build the session's control actions over the shared state. Configuration edits apply
  * only at idle; the theme is presentation-only and applies at any time.
  */
 // @spec-link [[module_profile_control_customization]]
@@ -131,12 +131,12 @@ export function createControlActions<TResult>(
 ): ControlActions {
   const { state } = deps
 
-  /** Intent: configuration may change only while no generation or drawing is in flight. */
+  /** Configuration may change only while no generation or drawing is in flight. */
   function canChangeConfiguration(): boolean {
     return state.operation === 'idle'
   }
 
-  /** Intent: the player's settings as they stand, before an edit. */
+  /** The player's settings as they stand, before an edit. */
   function chosenNow(): ChosenSettings {
     return {
       controls: state.controls,
@@ -147,7 +147,7 @@ export function createControlActions<TResult>(
   }
 
   /**
-   * Intent: the routing point's one apply: set the player's new controls, figure levels, Seventh
+   * The routing point's one apply: set the player's new controls, figure levels, Seventh
    * chords level and selection together, and save what changed. The phrase on screen stays.
    */
   // @spec-link [[module_profile_control_customization]]
@@ -162,7 +162,7 @@ export function createControlActions<TResult>(
   }
 
   /**
-   * Intent: the reactions to an applied edit: a prewarm (posted only when the rhythm setting
+   * The reactions to an applied edit: a prewarm (posted only when the rhythm setting
    * changed, the trigger dedupes), and, for a setting the phrase is generated from, the
    * room-notice reactions.
    */
@@ -326,7 +326,7 @@ export function createControlActions<TResult>(
   }
 
   /**
-   * Intent: refuse a player preset list or selection that breaks the preset-list action's
+   * Refuse a player preset list or selection that breaks the preset-list action's
    * contract: a preset not the player's, an id twice, a selection naming no preset of the list.
    */
   function checkReplacement(presets: readonly Preset[], selection?: PresetSelection): void {

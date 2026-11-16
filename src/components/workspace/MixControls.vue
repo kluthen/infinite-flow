@@ -26,7 +26,7 @@ const mix = ref<AudioMix>(props.audio.mix())
 const saveSettings = injectSaveSettings()
 
 /**
- * Intent: turn the backing on or off in the transport's mix, show the mix it now holds, and save
+ * Turn the backing on or off in the transport's mix, show the mix it now holds, and save
  * the value it holds.
  */
 // @spec-link [[req_session_audio_mix]]
@@ -38,7 +38,7 @@ function toggleBacking(): void {
 }
 
 /**
- * Intent: turn the click on or off in the transport's mix, show the mix it now holds, and save
+ * Turn the click on or off in the transport's mix, show the mix it now holds, and save
  * the value it holds.
  */
 // @spec-link [[req_session_audio_mix]]
@@ -56,7 +56,7 @@ const GUIDE_TOGGLES = [
 ] as const satisfies readonly { guide: GuideRole; label: string }[]
 
 /**
- * Intent: turn one guide on or off in the transport's mix, show the mix it now holds, and save the
+ * Turn one guide on or off in the transport's mix, show the mix it now holds, and save the
  * value it holds. During a session, a guide turned off is silent at once and one turned on sounds
  * from its next planned note.
  */

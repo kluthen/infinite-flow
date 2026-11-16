@@ -52,7 +52,7 @@ export interface RunningSession {
 }
 
 /**
- * Intent: plan one look-ahead window of a session on its bus: the clicks, the queued backing
+ * Plan one look-ahead window of a session on its bus: the clicks, the queued backing
  * notes and the queued notes of each guide switched on (per `guideOn`), all with
  * `from <= at < to`, then forget every note of the window, sent or not, and note how far planning
  * has reached. A guide switched off sends nothing, so with both off no guide note reaches the bus.
@@ -77,7 +77,7 @@ export function planWindow(
 }
 
 /**
- * Intent: the session beat `soundsAt` falls exactly on, when it is a barline at or after the
+ * The session beat `soundsAt` falls exactly on, when it is a barline at or after the
  * count-in's end of `plan`, a plan with no tempo change yet (phrase 1 is not queued): compared
  * with `beatAt` exactly, the way the code handing it over computes its barlines. Throws otherwise.
  */
@@ -99,7 +99,7 @@ function barlineBeatAt(plan: ClickPlan, soundsAt: AudioTime): number {
 }
 
 /**
- * Intent: the running session's phrase 1 first beat; throws before it is handed over, since no
+ * The running session's phrase 1 first beat; throws before it is handed over, since no
  * phrase's start is known until then.
  */
 // @spec-link [[module_session_transport_tempo_map]]
@@ -114,7 +114,7 @@ function phraseOneBeatOf(running: RunningSession, phraseNumber: number): number 
 }
 
 /**
- * Intent: in a session whose phrase 1 start is handed over, set phrase 1's first beat on the
+ * In a session whose phrase 1 start is handed over, set phrase 1's first beat on the
  * click plan at `soundsAt`, once. Everything is checked before anything is set, so a refused
  * hand-over leaves the session as it was.
  */
@@ -135,7 +135,7 @@ export function handOverPhraseOne(running: RunningSession, soundsAt: AudioTime):
 }
 
 /**
- * Intent: the running session's click plan with phrase `phraseNumber` at `tempo` BPM from its
+ * The running session's click plan with phrase `phraseNumber` at `tempo` BPM from its
  * first beat, counted from phrase 1's first beat `phraseOneBeat`. Phrase 1 must be at the
  * starting tempo (the count-in's), so its plan is unchanged, as are the beats up to it.
  */
@@ -162,7 +162,7 @@ function planWithPhraseTempo(
 }
 
 /**
- * Intent: render phrase `phraseNumber`'s backing from its harmony and its guide notes from its
+ * Render phrase `phraseNumber`'s backing from its harmony and its guide notes from its
  * concert timeline and harmony, and queue both at `tempo`, so the click runs at that tempo from
  * the phrase's first beat and the scheduler plays the backing on the session's beat grid, and
  * each guide note at its exact position through the tempo map, from phrase 1's first beat. Both
@@ -213,7 +213,7 @@ export function queuePhrase(
 }
 
 /**
- * Intent: when the running session's phrase `phraseNumber` starts sounding. Only phrases up to
+ * When the running session's phrase `phraseNumber` starts sounding. Only phrases up to
  * the one after the last queued are known: a later start depends on a tempo not queued yet; and
  * none before phrase 1's start is handed over, in a session whose phrase 1 start is handed over.
  */

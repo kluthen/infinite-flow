@@ -18,7 +18,7 @@ export interface UserActivationLike {
 }
 
 /**
- * Intent: adapt an event target (the window) and the browser's user activation to the
+ * Adapt an event target (the window) and the browser's user activation to the
  * page-activation port: active from the first listed event the browser counted, or from the start
  * when it already counts the page active. Its listeners are removed once it is active.
  */
@@ -31,7 +31,7 @@ export function createPageActivation(
   const listeners = new Set<() => void>()
   const options = { capture: true, passive: true } as const
 
-  /** Intent: note the activation once the browser counts this event as one. */
+  /** Note the activation once the browser counts this event as one. */
   const onInput = (): void => {
     if (active || (userActivation !== undefined && !userActivation.hasBeenActive)) return
     active = true
@@ -52,7 +52,7 @@ export function createPageActivation(
   }
 }
 
-/** Intent: the page activation of this browser tab. */
+/** The page activation of this browser tab. */
 // @spec-link [[rule_starting_note_waits_for_first_gesture]]
 export function createBrowserPageActivation(): PageActivation {
   return createPageActivation(window, navigator.userActivation)

@@ -30,7 +30,7 @@ function mountRhythm(
   })
 }
 
-/** Intent: the Note density radiogroup's three segments, in catalog order. */
+/** The Note density radiogroup's three segments, in catalog order. */
 function densitySegments(wrapper: ReturnType<typeof mountRhythm>) {
   return wrapper.get('[role="radiogroup"][aria-label="Note density"]').findAll('[role="radio"]')
 }

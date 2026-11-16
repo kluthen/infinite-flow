@@ -76,7 +76,7 @@ const JAZZ: ProfileSelection = { musicalProfile: 'Jazz', isCustom: false }
 const CUSTOM_JAZZ: ProfileSelection = { musicalProfile: 'Jazz', isCustom: true }
 
 /**
- * Intent: a v3.0 selection in v3.1's form, as the session histories hold it: Neutral or Jazz, or
+ * A v3.0 selection in v3.1's form, as the session histories hold it: Neutral or Jazz, or
  * Custom based on either.
  */
 function presetSelectionOf(selection: ProfileSelection): PresetSelection {
@@ -84,7 +84,7 @@ function presetSelectionOf(selection: ProfileSelection): PresetSelection {
   return selection.isCustom ? { kind: 'custom', baseId: presetId } : { kind: 'preset', presetId }
 }
 
-/** Intent: the v3.0 selection a v3.0 tab stored for a session's v3.1 selection. */
+/** The v3.0 selection a v3.0 tab stored for a session's v3.1 selection. */
 function v30Selection(selection: PresetSelection): ProfileSelection {
   const id = selection.kind === 'preset' ? selection.presetId : selection.baseId
   return {
@@ -119,7 +119,7 @@ interface V30Session {
   readonly label: string
 }
 
-/** Intent: a session-shaped value over recorded phrases, kept with the given selection. */
+/** A session-shaped value over recorded phrases, kept with the given selection. */
 function session(
   key: string,
   phrases: readonly SessionHistoryRecord[],
@@ -135,7 +135,7 @@ function session(
 }
 
 /**
- * Intent: the seven v3.0 sessions: Neutral, Jazz and customized Jazz, one played with my
+ * The seven v3.0 sessions: Neutral, Jazz and customized Jazz, one played with my
  * instrument, one with its played notes kept, one with favorites, one with a comment.
  */
 async function v30Sessions(): Promise<readonly V30Session[]> {
@@ -144,7 +144,7 @@ async function v30Sessions(): Promise<readonly V30Session[]> {
     playedNotes: [],
   }))
   const horn = await recordedMyInstrumentSession(lowHorn('bass'), 3)
-  /** Intent: the phrases of a recorded Neutral session on the instrument. */
+  /** The phrases of a recorded Neutral session on the instrument. */
   const neutral = (id: InstrumentProfileId, count: number) =>
     recordedKeptSession(id, count).phrases()
   const asNeutral = { levels: NEUTRAL_FIGURE_LEVELS, label: 'Neutral' }
@@ -185,7 +185,7 @@ async function v30Sessions(): Promise<readonly V30Session[]> {
   ]
 }
 
-/** Intent: the session stored values decode to, failing the test unless they read as current. */
+/** The session stored values decode to, failing the test unless they read as current. */
 function decoded(stored: StoredKeptSession): KeptSession {
   const reading = decodeKeptSession(stored)
   if (reading.reading !== 'current')
@@ -193,7 +193,7 @@ function decoded(stored: StoredKeptSession): KeptSession {
   return reading.value
 }
 
-/** Intent: the review's notation input of every phrase of a decoded session, as text. */
+/** The review's notation input of every phrase of a decoded session, as text. */
 function notationText(kept: KeptSession): string {
   return JSON.stringify(
     kept.phrases.map((phrase) =>
@@ -202,10 +202,10 @@ function notationText(kept: KeptSession): string {
   )
 }
 
-/** Intent: the bytes of every export of a decoded session, the played notes' when it keeps them. */
+/** The bytes of every export of a decoded session, the played notes' when it keeps them. */
 function exportBytes(kept: KeptSession): readonly Uint8Array[] {
   const history = {
-    /** Intent: the decoded phrases, as the exports read a history's. */
+    /** The decoded phrases, as the exports read a history's. */
     phrases: () => kept.phrases,
     startedAt: kept.summary.startedAt,
   }
@@ -248,7 +248,7 @@ describe('a data version 1 database of v3.0 kept sessions, opened by v3.1', () =
     )
   }, 30_000)
 
-  /** Intent: what v3.1 would have kept of the same session: its records decoded. */
+  /** What v3.1 would have kept of the same session: its records decoded. */
   function keptByV31({ history, facts }: V30Session): KeptSession {
     return decoded(storedRecords(encodeKeptSession(history, facts, V30_APP_VERSION)))
   }
@@ -426,7 +426,7 @@ describe('the upgrade step to data version 2 alone', () => {
 /** The remembered controller the v3.0 tab saved. */
 const CONTROLLER = { id: 'port-1', name: 'Sax controller', manufacturer: 'Acme' }
 
-/** Intent: the writes of one setting, my instrument and the remembered controller, at version 1. */
+/** The writes of one setting, my instrument and the remembered controller, at version 1. */
 function otherStoreWrites(): StorageChange[] {
   return [
     {

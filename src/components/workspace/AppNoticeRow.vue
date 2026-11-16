@@ -41,7 +41,7 @@ const JAM_LOAD_FAILED_TEXT =
 
 const jamTryAgainButton = ref<HTMLButtonElement | null>(null)
 
-/** Intent: move focus to the load-failure notice's `Try again`, which must be shown. */
+/** Move focus to the load-failure notice's `Try again`, which must be shown. */
 // @spec-link [[module_workspace_mode]]
 function focusJamTryAgain(): void {
   if (jamTryAgainButton.value === null)

@@ -31,7 +31,7 @@ export interface RememberedControllerDevice {
 export interface ControllerRecord extends RecordVersions, RememberedControllerDevice {}
 
 /**
- * Intent: the record remembering `device`, written by the app at `appVersion`. An empty app version
+ * The record remembering `device`, written by the app at `appVersion`. An empty app version
  * or port id is a caller defect and throws: no app could match or read such a record.
  */
 // @spec-link [[entity_remembered_controller_record]]
@@ -51,7 +51,7 @@ export function encodeControllerRecord(
   }
 }
 
-/** Intent: the device a current record holds, or null when one of its fields is invalid. */
+/** The device a current record holds, or null when one of its fields is invalid. */
 function deviceOf(record: Record<string, unknown>): RememberedControllerDevice | null {
   const { id, name, manufacturer } = record
   if (typeof id !== 'string' || id === '') return null
@@ -60,7 +60,7 @@ function deviceOf(record: Record<string, unknown>): RememberedControllerDevice |
 }
 
 /**
- * Intent: the remembered controller from the `controller` store's records as loaded: the first
+ * The remembered controller from the `controller` store's records as loaded: the first
  * current, valid record's device; null when there is none. Never throws for what was stored.
  */
 // @spec-link [[entity_remembered_controller_record]]

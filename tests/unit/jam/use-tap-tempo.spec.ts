@@ -21,7 +21,7 @@ interface Rig {
   readonly at: (seconds: number) => void
 }
 
-/** Intent: a tap tempo whose audio clock starts at 0 and whose Jam tempo starts at `tempo`. */
+/** A tap tempo whose audio clock starts at 0 and whose Jam tempo starts at `tempo`. */
 function rig(tempo = 90): Rig {
   let clock = 0
   let current = tempo
@@ -49,7 +49,7 @@ function rig(tempo = 90): Rig {
   }
 }
 
-/** Intent: press the button at each of `times` on the audio clock. */
+/** Press the button at each of `times` on the audio clock. */
 function pressAt(r: Rig, times: readonly number[]): void {
   for (const time of times) {
     r.at(time)
@@ -69,7 +69,7 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-/** Intent: a rig disposed after the test. */
+/** A rig disposed after the test. */
 function make(tempo?: number): Rig {
   current = rig(tempo)
   return current

@@ -31,7 +31,7 @@ export interface HeaderActionFacts {
 export type PrimaryHeaderAction = 'phrase' | 'session'
 
 /**
- * Intent: the action that carries the primary emphasis. The session action does during a
+ * The action that carries the primary emphasis. The session action does during a
  * session, while the Review shows (it reads `Close review`, whatever the hidden Idle state), in
  * Loading (disabled until the new phrase lands), in Needs more room without a banner (disabled
  * until the notice clears) and in Ready. The phrase action does in Empty, and under a
@@ -60,7 +60,7 @@ export interface PhraseActionFacts {
 }
 
 /**
- * Intent: whether the phrase action is disabled: while an operation runs, under an unsupported
+ * Whether the phrase action is disabled: while an operation runs, under an unsupported
  * rhythm, during a session, and in place while the Review shows (the hidden phrase is not the
  * player's to change from there).
  */
@@ -95,7 +95,7 @@ export interface FreshJamStartFacts {
 }
 
 /**
- * Intent: whether a fresh Jam could start now: every condition of a session start except the three
+ * Whether a fresh Jam could start now: every condition of a session start except the three
  * that need a phrase (a phrase on screen, no new phrase being generated, a supported rhythm
  * combination), and a controller connected: the controller loaded, no session running, the review
  * mode not showing, no sheet or confirmation open, and the staff shown (no rotate-device notice,
@@ -126,7 +126,7 @@ export interface KeptDoodleJamStartFacts extends Omit<FreshJamStartFacts, 'jamSt
 }
 
 /**
- * Intent: whether phrase 1 written from the kept doodle is shown as in Ready, from its Idle state:
+ * Whether phrase 1 written from the kept doodle is shown as in Ready, from its Idle state:
  * a result engraved, nothing running on it, and no failure, error or room notice.
  */
 // @spec-link [[rule_jam_on_held_doodle_skips_capture]]
@@ -143,7 +143,7 @@ export function keptPhraseOneShown(state: IdlePhraseStateView<unknown>): boolean
 }
 
 /**
- * Intent: whether a Jam on the kept doodle could start now: as a session start from Ready, its
+ * Whether a Jam on the kept doodle could start now: as a session start from Ready, its
  * phrase 1 the one shown from the kept doodle, and a controller connected: the controller loaded,
  * no session running, the review mode not showing, no sheet or confirmation open, no rotate-device
  * notice, and phrase 1 shown with nothing running, failed or noticed on it.

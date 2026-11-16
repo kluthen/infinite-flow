@@ -65,7 +65,7 @@ export class GenerationFailedError extends Error {
 }
 
 /**
- * Intent: adapt a raw Step 7 `GenerationOutcome` producer into the session's injected `generate`
+ * Adapt a raw Step 7 `GenerationOutcome` producer into the session's injected `generate`
  * seam. A successful outcome becomes a `WorkspaceGeneratedPhrase` with the settings `chosen` read
  * as the request is posted, the very moment its intent was built from them; a failure crashes
  * early as a typed `GenerationFailedError` carrying the orchestration's failure code, rather than
@@ -89,7 +89,7 @@ export function createWorkspaceGenerate(
 }
 
 /**
- * Intent: the Idle result a generated phrase is published as: the same outcome, intent and
+ * The Idle result a generated phrase is published as: the same outcome, intent and
  * settings, with the session seed the Idle session drew for this phrase 1.
  */
 // @spec-link [[module_session_seed_plan]]

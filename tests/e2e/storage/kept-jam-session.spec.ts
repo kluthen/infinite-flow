@@ -76,7 +76,7 @@ interface StoredJamBody {
   }
 }
 
-/** Intent: the value stored under `key` in `store`, read through the harness's seam. */
+/** The value stored under `key` in `store`, read through the harness's seam. */
 async function storedValue(
   page: Page,
   store: 'sessionSummaries' | 'sessionBodies' | 'playedNotes',
@@ -85,14 +85,14 @@ async function storedValue(
   return (await keyedRecords(page, store)).find((record) => record.key === key)?.value
 }
 
-/** Intent: the stored played notes' onsets under `key`, in seconds on the record's clock. */
+/** The stored played notes' onsets under `key`, in seconds on the record's clock. */
 async function storedOnsets(page: Page, key: string): Promise<readonly number[]> {
   const record = (await storedValue(page, 'playedNotes', key)) as
     { readonly notes: readonly { readonly onset: number }[] } | undefined
   return record === undefined ? [] : record.notes.map((note) => note.onset)
 }
 
-/** Intent: from Jam mode's Idle, a fresh Jam with a one-measure doodle, Stopped once running. */
+/** From Jam mode's Idle, a fresh Jam with a one-measure doodle, Stopped once running. */
 async function jamThenStop(page: Page): Promise<void> {
   await startJamByClick(page)
   await jamToRunning(page)
@@ -100,7 +100,7 @@ async function jamThenStop(page: Page): Promise<void> {
   await expect(reviewPanel(page)).toBeVisible()
 }
 
-/** Intent: land in Jam mode's Idle with `query` on the harness URL, the keyboard connected. */
+/** Land in Jam mode's Idle with `query` on the harness URL, the keyboard connected. */
 async function gotoJamIdleWith(page: Page, query: Readonly<Record<string, string>>): Promise<void> {
   await gotoControllerHarness(page, { query: { pregeneration: 'off', ...query } })
   await connectDevice(page, KEYS)

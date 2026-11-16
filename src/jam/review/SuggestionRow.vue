@@ -61,7 +61,7 @@ const setSentenceEl = ref<HTMLElement | null>(null)
 /** A button of the row was pressed: its leaving moves focus by that press's rule. */
 let pressed = false
 
-/** Intent: `Jam in {answer}`: ask for it; the set sentence takes focus once it shows. */
+/** `Jam in {answer}`: ask for it; the set sentence takes focus once it shows. */
 // @spec-link [[rule_suggestion_use_it]]
 function useAnswer(answer: JamKeyAndMode): void {
   pressed = true
@@ -73,7 +73,7 @@ function useAnswer(answer: JamKeyAndMode): void {
 }
 
 /**
- * Intent: the set sentence, which only `Jam in {answer}` brings, takes focus as it shows, so a
+ * The set sentence, which only `Jam in {answer}` brings, takes focus as it shows, so a
  * screen reader reads the confirmation.
  */
 // @spec-link [[rule_suggestion_use_it]]
@@ -85,7 +85,7 @@ watch(
   { flush: 'post' },
 )
 
-/** Intent: `Keep {key} {mode}`: ask to decline; the host moves focus as the row leaves. */
+/** `Keep {key} {mode}`: ask to decline; the host moves focus as the row leaves. */
 // @spec-link [[rule_suggestion_keep_mine]]
 function keep(): void {
   pressed = true
@@ -96,7 +96,7 @@ function keep(): void {
 }
 
 /**
- * Intent: the focused buttons or set sentence leaving, not by a press of theirs: read before they
+ * The focused buttons or set sentence leaving, not by a press of theirs: read before they
  * leave the page, handed back once they have.
  */
 watch(

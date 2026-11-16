@@ -17,14 +17,14 @@ import {
 } from './save-policy-doubles'
 import { freshFactory, rawGet, sampleRecord, withRawDatabase } from './storage-test-doubles'
 
-/** Intent: a policy over a ready port holding a theme and played notes, and its factory. */
+/** A policy over a ready port holding a theme and played notes, and its factory. */
 async function readyPolicy() {
   const factory = freshFactory()
   const port = await filledPort(factory)
   return { factory, port, policy: createSavePolicy(port) }
 }
 
-/** Intent: the values `keys` hold in the database, read raw, as `store/key` → value. */
+/** The values `keys` hold in the database, read raw, as `store/key` → value. */
 async function rawValues(
   factory: IDBFactory,
   keys: readonly (readonly [StoreName, string])[],
@@ -36,7 +36,7 @@ async function rawValues(
   })
 }
 
-/** Intent: one write, one delete and one batch through the policy, and their outcomes. */
+/** One write, one delete and one batch through the policy, and their outcomes. */
 function writeDeleteAndSave(policy: SavePolicy) {
   return Promise.all([
     policy.write('settings', 'theme', sampleRecord('Light')),

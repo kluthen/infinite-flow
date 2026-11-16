@@ -42,20 +42,20 @@ export interface TaggedNoteGlyph {
   readonly isAttack: boolean
 }
 
-/** Intent: find one drawn element by DOM id inside the SVG, crashing if the engraving lacks it. */
+/** Find one drawn element by DOM id inside the SVG, crashing if the engraving lacks it. */
 function requireById(svg: SVGSVGElement, domId: string): Element {
   const element = svg.querySelector(`[id="${domId}"]`)
   if (element === null) throw new Error(`Engraved SVG has no element with id "${domId}".`)
   return element
 }
 
-/** Intent: mark one part group with its identity key and part name. */
+/** Mark one part group with its identity key and part name. */
 function markPart(group: Element, key: string, part: NotePartName): void {
   group.setAttribute('data-note-id', key)
   group.setAttribute('data-note-part', part)
 }
 
-/** Intent: wrap a bare glyph text in a new attribute-less `<g>` at the same place, and tag it. */
+/** Wrap a bare glyph text in a new attribute-less `<g>` at the same place, and tag it. */
 function wrapAndMark(text: Element, key: string, part: NotePartName): void {
   const group = document.createElementNS(SVG_NS, 'g')
   text.replaceWith(group)
@@ -64,7 +64,7 @@ function wrapAndMark(text: Element, key: string, part: NotePartName): void {
 }
 
 /**
- * Intent: name each bare text of a notehead group as the notehead, an accidental or a dot, by its
+ * Name each bare text of a notehead group as the notehead, an accidental or a dot, by its
  * glyph string. The notehead text is drawn first; every expected accidental and dot must be found
  * exactly once, and any other bare text is an engraving this file does not understand.
  */
@@ -105,7 +105,7 @@ function classifyNoteheadTexts(
 }
 
 /**
- * Intent: tag one note glyph's own parts with its attack's key: its notehead, accidental and dot
+ * Tag one note glyph's own parts with its attack's key: its notehead, accidental and dot
  * texts wrapped each in a tagged group, its stem group (wherever the stem was drawn) and its flag
  * group; and, for an attack only, mark each attached chord symbol group with `data-chord-for`.
  * Ledger lines, beams, ties, the stavenote and notehead groups and chord symbols carry no identity.

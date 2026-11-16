@@ -26,14 +26,14 @@ import { lockTestIntent } from './rhythm-lock-search-fixture'
 
 type Success = Extract<GenerationOutcome, { kind: 'generation_success' }>
 
-/** Intent: generate and require a success. */
+/** Generate and require a success. */
 function succeed(intent: GenerationIntent): Success {
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') throw new Error(`Expected a phrase: ${outcome.code}`)
   return outcome
 }
 
-/** Intent: the total edits from locked bars to a rhythm. */
+/** The total edits from locked bars to a rhythm. */
 function editsFrom(bars: readonly LockedRhythmMeasure[], rhythm: RhythmCandidate): number {
   const locked = rhythmStarts(bars.map((events, barIndex) => ({ barIndex, events })))
   return rhythmDistance(rhythmStarts(rhythm.bars), locked)

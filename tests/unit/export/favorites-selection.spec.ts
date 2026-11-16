@@ -12,12 +12,12 @@ import { FavoritesSelectionError, phrasesInScope } from '@/export/favorites-sele
 import { sevenPhraseRecords } from './favorites-fixtures'
 import { phraseLength } from './midi/played-notes-fixtures'
 
-/** Intent: the favorites-only scope of the given phrase numbers. */
+/** The favorites-only scope of the given phrase numbers. */
 function favorites(...numbers: number[]): ExportScope {
   return { kind: 'favoritesOnly', favorites: numbers }
 }
 
-/** Intent: every played note of `records` as its pitch, onset and release from its phrase's start. */
+/** Every played note of `records` as its pitch, onset and release from its phrase's start. */
 function notesFromPhraseStart(
   records: readonly ReturnType<typeof sevenPhraseRecords>[number][],
 ): [number, number, number, number][] {

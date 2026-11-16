@@ -33,7 +33,7 @@ const MOUNT_OPTIONS = {
   global: { stubs: { PhraseScore: PHRASE_SCORE_STUB }, provide: provideSaveSettings() },
 }
 
-/** Intent: build a fake session double whose state/actions a test can override piecemeal. */
+/** Build a fake session double whose state/actions a test can override piecemeal. */
 function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult>['state']> = {}): {
   session: GenerationSession<WorkspaceSessionResult>
   actions: GenerationSession<WorkspaceSessionResult>['actions']
@@ -85,7 +85,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
   return { session, actions }
 }
 
-/** Intent: mount the shell over `session`, with no session controller loaded unless given. */
+/** Mount the shell over `session`, with no session controller loaded unless given. */
 function mountShell(
   session: GenerationSession<WorkspaceSessionResult>,
   controller: SessionController | null = null,
@@ -112,7 +112,7 @@ function mountShell(
   })
 }
 
-/** Intent: the header's phrase action, whatever its emphasis. */
+/** The header's phrase action, whatever its emphasis. */
 function phraseAction(wrapper: ReturnType<typeof mount>) {
   return wrapper.get('.header-actions > button:not(.session-action)')
 }
@@ -284,7 +284,7 @@ describe('WorkspaceShell', () => {
 /** Ready: a phrase engraved on the staff, nothing running. */
 const READY = { result: buildWorkspaceSessionResult(), resultEngraved: true } as const
 
-/** Intent: the header's session action. */
+/** The header's session action. */
 function sessionAction(wrapper: ReturnType<typeof mount>) {
   return wrapper.get('.header-actions > button.session-action')
 }
@@ -303,7 +303,7 @@ const MIX_TOKENS = [
   '--mix-rhythm-guide-volume-default',
 ]
 
-/** Intent: put the stylesheet's mix tokens on the root, where the popover reads them in jsdom. */
+/** Put the stylesheet's mix tokens on the root, where the popover reads them in jsdom. */
 function applyMixTokens(): void {
   const tokens = themeMixTokens()
   for (const name of MIX_TOKENS) {
@@ -432,7 +432,7 @@ describe('WorkspaceShell session', () => {
   })
 
   /**
-   * Intent: a Ready workspace whose Idle state a test can change after mounting, as the staff's
+   * A Ready workspace whose Idle state a test can change after mounting, as the staff's
    * re-engraving at a new window size does once a session has ended.
    */
   function liveReadySession() {
@@ -441,7 +441,7 @@ describe('WorkspaceShell session', () => {
     return { session: { ...session, state }, state }
   }
 
-  /** Intent: end the fake's session the way a window change does, in its current phase. */
+  /** End the fake's session the way a window change does, in its current phase. */
   function endForWindow(fake: ReturnType<typeof createFakeSessionController>): void {
     fake.stop()
     const ended = fake.state.lastEnd

@@ -132,12 +132,12 @@ export interface PlayerPresets {
   readonly deletePreset: (id: PresetId) => Promise<PresetDeletionOutcome>
 }
 
-/** Intent: the player presets of a list, in their order: every preset but the built-ins. */
+/** The player presets of a list, in their order: every preset but the built-ins. */
 function playerPresetsOf(presets: readonly Preset[]): readonly Preset[] {
   return presets.filter((preset) => preset.kind === 'player')
 }
 
-/** Intent: the restriction of `choice` among the offered ones; else a defect. */
+/** The restriction of `choice` among the offered ones; else a defect. */
 function chosenRestriction(
   offered: readonly SaveRestrictionChoice[],
   choice: SaveRestrictionChoiceKind,
@@ -150,7 +150,7 @@ function chosenRestriction(
 }
 
 /**
- * Intent: the player presets of the visit and the four preset actions over `deps`. A save
+ * The player presets of the visit and the four preset actions over `deps`. A save
  * changes the list and the selection at once, whatever becomes of its write, which is told to
  * the notices when refused; a deletion changes them only once its record is deleted.
  */
@@ -167,7 +167,7 @@ export function usePlayerPresets(deps: PlayerPresetsDependencies): PlayerPresets
     const preset = id === null ? undefined : findPreset(state.presets, id)
     return preset?.kind === 'player' ? preset : null
   })
-  /** Intent: whether a session runs now, count-in included: any controller phase but idle. */
+  /** Whether a session runs now, count-in included: any controller phase but idle. */
   function isSessionActive(): boolean {
     const phase = deps.controllerPhase()
     return phase !== null && phase !== 'idle'
@@ -191,14 +191,14 @@ export function usePlayerPresets(deps: PlayerPresetsDependencies): PlayerPresets
     return question.asks ? question.choices : null
   })
 
-  /** Intent: the player preset acted on; an action needing one with none is a defect. */
+  /** The player preset acted on; an action needing one with none is a defect. */
   function requireActedOn(action: string): Preset {
     const preset = actedOn.value
     if (preset === null) throw new Error(`player presets: ${action} with no player preset acted on`)
     return preset
   }
 
-  /** Intent: the current preset-held settings a save stores. */
+  /** The current preset-held settings a save stores. */
   function currentSettings(): PresetSettings {
     return {
       controls: state.controls,
@@ -208,7 +208,7 @@ export function usePlayerPresets(deps: PlayerPresetsDependencies): PlayerPresets
   }
 
   /**
-   * Intent: write a saved or renamed preset's record unless the visit saves nothing, telling the
+   * Write a saved or renamed preset's record unless the visit saves nothing, telling the
    * notices once the write is refused. A defect of the saves rejects, unhandled, and surfaces.
    */
   // @spec-link [[rule_refused_preset_save_told]]
@@ -220,7 +220,7 @@ export function usePlayerPresets(deps: PlayerPresetsDependencies): PlayerPresets
     })
   }
 
-  /** Intent: the player presets with `preset` in place of the one with its id. */
+  /** The player presets with `preset` in place of the one with its id. */
   function replaced(preset: Preset): readonly Preset[] {
     return playerPresetsOf(state.presets).map((kept) => (kept.id === preset.id ? preset : kept))
   }

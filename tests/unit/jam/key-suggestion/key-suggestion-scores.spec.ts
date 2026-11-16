@@ -33,25 +33,25 @@ import {
   WORKED_EXAMPLE,
 } from './key-suggestion-doodles'
 
-/** Intent: the penalty of one pair among a doodle's 84 scores. */
+/** The penalty of one pair among a doodle's 84 scores. */
 function penaltyOf(scores: readonly ScoredPair[], homeNote: number, mode: KeyMode): number {
   const pair = scores.find((each) => each.homeNote === homeNote && each.mode === mode)
   if (pair === undefined) throw new Error(`No score for ${homeNote} ${mode}.`)
   return pair.penalty
 }
 
-/** Intent: a penalty in the research note's unit (a beat's weight is one), as a plain number. */
+/** A penalty in the research note's unit (a beat's weight is one), as a plain number. */
 function inBeats(penalty: number): number {
   return penalty / (WEIGHT_UNITS_PER_BEAT * 1000)
 }
 
-/** Intent: the candidates whose penalty is within 693 thousandths of the best, uncapped. */
+/** The candidates whose penalty is within 693 thousandths of the best, uncapped. */
 function qualifying(scores: readonly ScoredPair[]): readonly ScoredPair[] {
   const best = Math.min(...scores.map((each) => each.penalty))
   return scores.filter((each) => each.penalty - best <= 693 * WEIGHT_UNITS_PER_BEAT)
 }
 
-/** Intent: 84 scored pairs, every one at `base` but those given, in the canonical order. */
+/** 84 scored pairs, every one at `base` but those given, in the canonical order. */
 function syntheticScores(
   base: number,
   overrides: readonly (readonly [homeNote: number, mode: KeyMode, penalty: number])[],
@@ -64,7 +64,7 @@ function syntheticScores(
   ).flat()
 }
 
-/** Intent: a small deterministic stream of whole numbers for the property's doodles. */
+/** A small deterministic stream of whole numbers for the property's doodles. */
 function lcg(seed: number): () => number {
   let state = seed >>> 0
   return () => {
@@ -73,7 +73,7 @@ function lcg(seed: number): () => number {
   }
 }
 
-/** Intent: a random one-line doodle of 6 to 20 notes over up to four measures, pitches 50 to 74. */
+/** A random one-line doodle of 6 to 20 notes over up to four measures, pitches 50 to 74. */
 function randomDoodle(next: () => number): QuantizedDoodle {
   const count = 6 + (next() % 15)
   const notes: { startTick: number; lengthTicks: number; pitch: number }[] = []
@@ -86,7 +86,7 @@ function randomDoodle(next: () => number): QuantizedDoodle {
   return makeQuantizedDoodle({ measureCount: 4, notes })
 }
 
-/** Intent: the doodle with every pitch raised by `semitones`. */
+/** The doodle with every pitch raised by `semitones`. */
 function transposed(doodle: QuantizedDoodle, semitones: number): QuantizedDoodle {
   return makeQuantizedDoodle({
     measureCount: doodle.measureCount,
@@ -98,7 +98,7 @@ function transposed(doodle: QuantizedDoodle, semitones: number): QuantizedDoodle
 describe("a note's weight", () => {
   // @test-link [[rule_suggestion_candidates]]
   it('is its length clamped to 2–6 ticks on a doubled scale, one and a half times on beat 1 or 3', () => {
-    /** Intent: the weight of a note starting at `startTick` and lasting `lengthTicks`. */
+    /** The weight of a note starting at `startTick` and lasting `lengthTicks`. */
     const at = (startTick: number, lengthTicks: number) =>
       noteWeight({ startTick, lengthTicks, pitch: 60 as never })
     expect(WEIGHT_UNITS_PER_BEAT).toBe(8)
@@ -165,7 +165,7 @@ describe("the 84 pairs' penalties", () => {
 
   // @test-link [[rule_suggestion_candidates]]
   it('counts the last note twice and the first one and a half times when home (−693, −405)', () => {
-    /** Intent: three notes off the beats: `first`, E, then `last`. */
+    /** Three notes off the beats: `first`, E, then `last`. */
     const three = (first: number, last: number) =>
       tickDoodle([
         [1, 4, first],
@@ -207,7 +207,7 @@ describe("the 84 pairs' penalties", () => {
 
   // @test-link [[rule_suggestion_candidates]]
   it('gives the research note’s gaps for its variations, off the strong beats', () => {
-    /** Intent: a pair's gap to the best of the scores, in the research note's unit. */
+    /** A pair's gap to the best of the scores, in the research note's unit. */
     const gapOf = (scores: readonly ScoredPair[], homeNote: number, mode: KeyMode) =>
       inBeats(penaltyOf(scores, homeNote, mode) - Math.min(...scores.map((each) => each.penalty)))
     const endingOnE = scorePairs(beatsDoodle(ENDING_ON_E, 1))
@@ -313,7 +313,7 @@ describe('the 80 % rule', () => {
 
   // @test-link [[rule_doodle_outside_modes_told]]
   it('fits the research note’s harmonic-minor and bluesy doodles (about 90 %)', () => {
-    /** Intent: whether the doodle fits its best pair well enough. */
+    /** Whether the doodle fits its best pair well enough. */
     const fits = (doodle: QuantizedDoodle) =>
       fitsWell(doodle, keptCandidates(scorePairs(doodle))[0]!)
     expect(fits(beatsDoodle(HARMONIC_MINOR))).toBe(true)
@@ -334,10 +334,10 @@ describe('a doodle transposed by a fifth', () => {
       for (const pair of scores) {
         expect(penaltyOf(fifthUp, (pair.homeNote + 7) % 12, pair.mode)).toBe(pair.penalty)
       }
-      /** Intent: the pairs transposed up a fifth, as sortable text with their penalties. */
+      /** The pairs transposed up a fifth, as sortable text with their penalties. */
       const moved = (pairs: readonly ScoredPair[]) =>
         pairs.map((pair) => `${(pair.homeNote + 7) % 12} ${pair.mode} ${pair.penalty}`).sort()
-      /** Intent: the pairs as sortable text with their penalties. */
+      /** The pairs as sortable text with their penalties. */
       const named = (pairs: readonly ScoredPair[]) =>
         pairs.map((pair) => `${pair.homeNote} ${pair.mode} ${pair.penalty}`).sort()
       expect(named(qualifying(fifthUp))).toEqual(moved(qualifying(scores)))

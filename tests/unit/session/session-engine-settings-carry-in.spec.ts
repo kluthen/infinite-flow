@@ -19,7 +19,7 @@ import { carryFromTwo, requestIn, settingsWith, threeRequested } from './setting
 // @test-link [[rule_key_change_drops_harmonic_carry_in]]
 // @test-link [[rule_register_change_replaces_carried_window]]
 describe('the carry-in after a settings change', () => {
-  /** Intent: discard the undecided phrase 3 for a change to these settings, and its new request. */
+  /** Discard the undecided phrase 3 for a change to these settings, and its new request. */
   function changedRequest(overrides: Partial<GenerationControls>): {
     readonly driver: SessionDriver
     readonly request: GenerationRequestOutput

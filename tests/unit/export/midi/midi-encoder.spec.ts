@@ -74,7 +74,7 @@ function shifted(
 }
 
 /**
- * Intent: a Jam's doodle section of `measureCount` measures at `tempo`: in each measure m (0 up),
+ * A Jam's doodle section of `measureCount` measures at `tempo`: in each measure m (0 up),
  * concert 62 + m for a quarter note on beat 1, then concert 70 + m for a half note from beat 3.
  */
 function doodleSection(measureCount: number, tempo: number): MidiDoodleSection {
@@ -105,7 +105,7 @@ function doodleTicks(measureCount: number): [number, number, number][] {
 }
 
 /**
- * Intent: an independent reading of a concert timeline as sounding notes in MIDI ticks: a tie
+ * An independent reading of a concert timeline as sounding notes in MIDI ticks: a tie
  * continuation lengthens the note before it, a rest sounds nothing. 240 MIDI ticks per sixteenth.
  */
 function soundingNotes(timeline: ConcertEventTimeline, offset: number): [number, number, number][] {

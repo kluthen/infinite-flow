@@ -27,7 +27,7 @@ const STARTING_NOTE: StartingNote = {
   label: 'B♭4',
 }
 
-/** Intent: mount the cue row over `controller` (null: the controller is still loading). */
+/** Mount the cue row over `controller` (null: the controller is still loading). */
 function mountRow(controller: SessionController | null) {
   return mount(SessionCueRow, {
     props: {

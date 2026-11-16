@@ -45,7 +45,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: land with the fake keyboard connected, and end a session once phrase 1 has sounded. */
+/** Land with the fake keyboard connected, and end a session once phrase 1 has sounded. */
 async function reviewWithController(page: Page): Promise<void> {
   await gotoSessionHarness(page)
   await connectDevice(page, KEYS)
@@ -53,7 +53,7 @@ async function reviewWithController(page: Page): Promise<void> {
   await expectIdleReady(page)
 }
 
-/** Intent: assert no session runs or was asked for: idle, no count-in, the transport stopped. */
+/** Assert no session runs or was asked for: idle, no count-in, the transport stopped. */
 async function expectNoSession(page: Page): Promise<void> {
   const state = await sessionState(page)
   expect(state.phase).toBe('idle')

@@ -27,7 +27,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: mount `tap-tempo`, at rest, connected and enabled unless told, a button beside it. */
+/** Mount `tap-tempo`, at rest, connected and enabled unless told, a button beside it. */
 function mountTapTempo(overrides: Partial<Props> = {}) {
   const props: Props = {
     listening: false,
@@ -45,26 +45,26 @@ function mountTapTempo(overrides: Partial<Props> = {}) {
   return { wrapper, button: wrapper.get('button.tap-tempo').element, elsewhere }
 }
 
-/** Intent: a primary pointer's press on `target`. */
+/** A primary pointer's press on `target`. */
 function pointerDown(target: Element, init: PointerEventInit = {}): void {
   target.dispatchEvent(
     new PointerEvent('pointerdown', { bubbles: true, button: 0, isPrimary: true, ...init }),
   )
 }
 
-/** Intent: a key press on `target`; returns whether its default was prevented. */
+/** A key press on `target`; returns whether its default was prevented. */
 function keyDown(target: Element, key: string, repeat = false): boolean {
   const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key, repeat })
   target.dispatchEvent(event)
   return event.defaultPrevented
 }
 
-/** Intent: a click on `target`, `detail` 1 for a mouse's, 0 for one with no pointer. */
+/** A click on `target`, `detail` 1 for a mouse's, 0 for one with no pointer. */
 function click(target: Element, detail: number): void {
   target.dispatchEvent(new MouseEvent('click', { bubbles: true, detail }))
 }
 
-/** Intent: the page's visibility set to `state`, and its change reported. */
+/** The page's visibility set to `state`, and its change reported. */
 function setVisibility(state: DocumentVisibilityState): void {
   Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => state })
   document.dispatchEvent(new Event('visibilitychange'))

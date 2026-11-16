@@ -122,7 +122,7 @@ const RAW_NOTE_KEYS = ['onsetAt', 'releaseAt', 'pitch']
 const FILL_HINT = 'fill the hand-judged traits (see docs/testing.md, "The doodle set (v3.2)")'
 
 /**
- * Intent: an untrusted value as a JSON object holding exactly the required keys, plus any of the
+ * An untrusted value as a JSON object holding exactly the required keys, plus any of the
  * optional ones; anything else crashes, naming the file and the place in it.
  */
 function exactObject(
@@ -142,12 +142,12 @@ function exactObject(
   return value as JsonRecord
 }
 
-/** Intent: the message of a caught error, which may not be an Error. */
+/** The message of a caught error, which may not be an Error. */
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
-/** Intent: a field that must be a non-empty string; a null one asks for the hand-judged traits. */
+/** A field that must be a non-empty string; a null one asks for the hand-judged traits. */
 function textField(record: JsonRecord, key: string, where: string): string {
   const value = record[key]
   if (value === null) throw new Error(`${where}.${key} is null: ${FILL_HINT}.`)
@@ -157,7 +157,7 @@ function textField(record: JsonRecord, key: string, where: string): string {
   return value
 }
 
-/** Intent: a field that must be a finite number. */
+/** A field that must be a finite number. */
 function numberField(record: JsonRecord, key: string, where: string): number {
   const value = record[key]
   if (typeof value !== 'number' || !Number.isFinite(value)) {
@@ -166,7 +166,7 @@ function numberField(record: JsonRecord, key: string, where: string): number {
   return value
 }
 
-/** Intent: a field that must be a boolean; a null one asks for the hand-judged traits. */
+/** A field that must be a boolean; a null one asks for the hand-judged traits. */
 function booleanField(record: JsonRecord, key: string, where: string): boolean {
   const value = record[key]
   if (value === null) throw new Error(`${where}.${key} is null: ${FILL_HINT}.`)
@@ -174,7 +174,7 @@ function booleanField(record: JsonRecord, key: string, where: string): boolean {
   return value
 }
 
-/** Intent: a field that must be one of the given strings; a null one asks for the hand traits. */
+/** A field that must be one of the given strings; a null one asks for the hand traits. */
 function oneOf<T extends string>(
   record: JsonRecord,
   key: string,
@@ -190,7 +190,7 @@ function oneOf<T extends string>(
   return found
 }
 
-/** Intent: a field that must be one of the given strings or null (a control not shown). */
+/** A field that must be one of the given strings or null (a control not shown). */
 function oneOfOrNull<T extends string>(
   record: JsonRecord,
   key: string,
@@ -200,7 +200,7 @@ function oneOfOrNull<T extends string>(
   return record[key] === null ? null : oneOf(record, key, values, where)
 }
 
-/** Intent: the measureCount trait: a doodle spans 1 to 4 measures. */
+/** The measureCount trait: a doodle spans 1 to 4 measures. */
 function measureCountField(record: JsonRecord, where: string): DoodleMeasureCount {
   const value = record.measureCount
   if (value !== 1 && value !== 2 && value !== 3 && value !== 4) {
@@ -209,7 +209,7 @@ function measureCountField(record: JsonRecord, where: string): DoodleMeasureCoun
   return value
 }
 
-/** Intent: the control values C5.16.1 gives; a null aimedAt asks for the hand-judged traits. */
+/** The control values C5.16.1 gives; a null aimedAt asks for the hand-judged traits. */
 function readAim(value: unknown, where: string): DoodleAim {
   if (value === null) throw new Error(`${where} is null: ${FILL_HINT}.`)
   const aim = exactObject(value, AIM_KEYS, where)
@@ -221,7 +221,7 @@ function readAim(value: unknown, where: string): DoodleAim {
   }
 }
 
-/** Intent: the traits of one file, every field checked; the free-text notes are optional. */
+/** The traits of one file, every field checked; the free-text notes are optional. */
 function readTraits(value: unknown, where: string): DoodleTraits {
   const traits = exactObject(value, TRAIT_KEYS, where, ['notes'])
   const notes = traits.notes === undefined ? {} : { notes: textField(traits, 'notes', where) }
@@ -245,7 +245,7 @@ function readTraits(value: unknown, where: string): DoodleTraits {
   }
 }
 
-/** Intent: a field that must be a concert pitch (a whole MIDI note number, 0 to 127). */
+/** A field that must be a concert pitch (a whole MIDI note number, 0 to 127). */
 function pitchField(record: JsonRecord, where: string): ConcertPitch {
   try {
     return parseConcertPitch(record.pitch)
@@ -254,7 +254,7 @@ function pitchField(record: JsonRecord, where: string): ConcertPitch {
   }
 }
 
-/** Intent: one raw played note of the capture: finite onset and release, a concert pitch. */
+/** One raw played note of the capture: finite onset and release, a concert pitch. */
 function readRawNote(value: unknown, where: string): RawDoodleNote {
   const note = exactObject(value, RAW_NOTE_KEYS, where)
   return {
@@ -265,7 +265,7 @@ function readRawNote(value: unknown, where: string): RawDoodleNote {
 }
 
 /**
- * Intent: the capture of one file: the grid origin, a whole positive tempo, the end measure and
+ * The capture of one file: the grid origin, a whole positive tempo, the end measure and
  * at least one raw note. Whether it quantizes is the spec's to check, not the loader's.
  */
 function readCapture(value: unknown, where: string): DoodleCapture {
@@ -290,7 +290,7 @@ function readCapture(value: unknown, where: string): DoodleCapture {
   }
 }
 
-/** Intent: the quantized doodle of one file, through the app's own parser for untrusted doodles. */
+/** The quantized doodle of one file, through the app's own parser for untrusted doodles. */
 function readQuantized(value: unknown, where: string): QuantizedDoodle {
   try {
     return parseQuantizedDoodle(value)
@@ -300,7 +300,7 @@ function readQuantized(value: unknown, where: string): QuantizedDoodle {
 }
 
 /**
- * Intent: one doodle file read and checked: its name must match the file name, its source be
+ * One doodle file read and checked: its name must match the file name, its source be
  * hand-written or travel-sax, and every part have its exact shape. Crashes, naming the file.
  */
 export function readDoodleFile(path: string): DoodleFixture {
@@ -327,7 +327,7 @@ export function readDoodleFile(path: string): DoodleFixture {
 }
 
 /**
- * Intent: every doodle of the set, read from its directory, sorted by name. Crashes on a
+ * Every doodle of the set, read from its directory, sorted by name. Crashes on a
  * malformed file or an empty directory, so a broken set never passes for a smaller one.
  */
 export function loadDoodleSet(directory: string = DOODLE_SET_DIR): readonly DoodleFixture[] {

@@ -41,7 +41,7 @@ import {
   withoutRequestIds,
 } from './session-harness'
 
-/** Intent: an answer failing every carry-in rung of one phrase with this code, real otherwise. */
+/** An answer failing every carry-in rung of one phrase with this code, real otherwise. */
 function failingCarryIn(
   phraseNumber: number,
   failure: PregenerationResult,
@@ -52,7 +52,7 @@ function failingCarryIn(
       : realResult(attempt)
 }
 
-/** Intent: the real successful outcome of an attempt that succeeded. */
+/** The real successful outcome of an attempt that succeeded. */
 function realOutcome(attempt: PregenerationAttempt): unknown {
   const result = realResult(attempt)
   return result.kind === 'fits' ? result.outcome : undefined
@@ -281,7 +281,7 @@ interface PlanLockCase {
   readonly sessionSeed: Seed
 }
 
-/** Intent: the session seed of lock case `index`, spread over the 32 bits. */
+/** The session seed of lock case `index`, spread over the 32 bits. */
 function lockCaseSeed(index: number): Seed {
   return makeSeed(Math.imul(0x9e37_79b1, index + 1) >>> 0)
 }
@@ -296,7 +296,7 @@ const PLAN_LOCK_CASES: readonly PlanLockCase[] = (
 ).map((lockCase, index) => ({ ...lockCase, sessionSeed: lockCaseSeed(index) }))
 
 /**
- * Intent: drive a session at 60 BPM from the same start as a plan, every attempt answered at once
+ * Drive a session at 60 BPM from the same start as a plan, every attempt answered at once
  * with its real outcome, until phrase 5 is decided; phrases 2 to 5 are requested in turn.
  */
 function drivenToPhraseFive(
@@ -317,7 +317,7 @@ function drivenToPhraseFive(
   return driver
 }
 
-/** Intent: an attempt or a request as the comparison reads it: phrase, step and intent. */
+/** An attempt or a request as the comparison reads it: phrase, step and intent. */
 function attemptView(attempt: {
   readonly phraseNumber: number
   readonly step: string

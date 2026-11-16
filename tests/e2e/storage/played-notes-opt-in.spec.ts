@@ -71,17 +71,17 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: every record of a store with its key, read through the harness's seam. */
+/** Every record of a store with its key, read through the harness's seam. */
 function keyedRecords(page: Page, store: KeptStore): Promise<KeyedRecord[]> {
   return page.evaluate((name) => window.__workspaceHarness.storage.keyedRecords(name), store)
 }
 
-/** Intent: the changes that reached the storage port since the load (the write spy). */
+/** The changes that reached the storage port since the load (the write spy). */
 function portChanges(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.storage.portChanges())
 }
 
-/** Intent: what every kept-session store holds now. */
+/** What every kept-session store holds now. */
 async function keptStores(page: Page): Promise<Record<KeptStore, KeyedRecord[]>> {
   return {
     sessionSummaries: await keyedRecords(page, 'sessionSummaries'),
@@ -90,7 +90,7 @@ async function keptStores(page: Page): Promise<Record<KeptStore, KeyedRecord[]>>
   }
 }
 
-/** Intent: wait until one kept session is stored, and give its key. */
+/** Wait until one kept session is stored, and give its key. */
 async function untilKept(page: Page): Promise<string> {
   await expect.poll(async () => (await keyedRecords(page, 'sessionSummaries')).length).toBe(1)
   const [summary] = await keyedRecords(page, 'sessionSummaries')
@@ -98,13 +98,13 @@ async function untilKept(page: Page): Promise<string> {
   return summary.key
 }
 
-/** Intent: the session-wide record stored under `key`, as a plain object. */
+/** The session-wide record stored under `key`, as a plain object. */
 async function summaryOf(page: Page, key: string): Promise<Record<string, unknown> | undefined> {
   const summaries = await keyedRecords(page, 'sessionSummaries')
   return summaries.find((record) => record.key === key)?.value as Record<string, unknown>
 }
 
-/** Intent: the played notes stored under `key`, each note's onset in seconds. */
+/** The played notes stored under `key`, each note's onset in seconds. */
 async function storedOnsets(page: Page, key: string): Promise<number[] | null> {
   const records = await keyedRecords(page, 'playedNotes')
   const record = records.find((entry) => entry.key === key)?.value as
@@ -118,7 +118,7 @@ interface PlayedSession {
 }
 
 /**
- * Intent: on the harness opened with `search`, with the keyboard connected, play a session from
+ * On the harness opened with `search`, with the keyboard connected, play a session from
  * phrase 1 seeded 7: two notes in phrase 1, each on a written note's onset, then Stop once phrase
  * 2 sounds; the Review shows. Gives the first note's onset from phrase 1's start.
  */
@@ -149,17 +149,17 @@ async function playedSession(page: Page, search = ''): Promise<PlayedSession> {
   return { firstOnset: first.onsetAt - start }
 }
 
-/** Intent: the open confirmation sheet. */
+/** The open confirmation sheet. */
 function sheet(page: Page): Locator {
   return page.getByRole('dialog')
 }
 
-/** Intent: the open sheet's action named `name`. */
+/** The open sheet's action named `name`. */
 function sheetAction(page: Page, name: string): Locator {
   return sheet(page).locator('.sheet-actions').getByRole('button', { name, exact: true })
 }
 
-/** Intent: after a reload, open the kept session's Review through `Review last session`. */
+/** After a reload, open the kept session's Review through `Review last session`. */
 async function reopenAfterReload(page: Page): Promise<void> {
   await reloadHarness(page)
   await reviewLink(page).click()

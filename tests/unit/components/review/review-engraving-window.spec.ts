@@ -31,7 +31,7 @@ interface Rig {
   readonly pending: (() => void)[]
 }
 
-/** Intent: a scheduler over `ITEM_COUNT` items whose environment records every call. */
+/** A scheduler over `ITEM_COUNT` items whose environment records every call. */
 function rig(): Rig {
   const state: Omit<Rig, 'window'> = {
     engraved: [],
@@ -60,7 +60,7 @@ function rig(): Rig {
   return Object.assign(state, { window }) as Rig
 }
 
-/** Intent: report the given items near the visible area, at the given distances. */
+/** Report the given items near the visible area, at the given distances. */
 function bringNear(r: Rig, items: readonly (readonly [number, number])[]): void {
   for (const [index, distance] of items) {
     r.distances.set(index, distance)
@@ -264,7 +264,7 @@ describe('the review engraving window', () => {
     const retained = new Set<number>()
     let cameNear = 0
     let maxEngraved = 0
-    /** Intent: the items within `viewports` viewport heights of the window at `scrollPx`. */
+    /** The items within `viewports` viewport heights of the window at `scrollPx`. */
     const within = (scrollPx: number, viewports: number): Set<number> => {
       const first = Math.max(0, Math.floor((scrollPx - viewports * viewportPx) / itemPx))
       const last = Math.min(

@@ -54,7 +54,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: a fake controller showing the recorded session's Review, its played notes kept. */
+/** A fake controller showing the recorded session's Review, its played notes kept. */
 function showingKeptPlayedNotes(): FakeSessionController {
   const review = fakeReview(fakeReviewHistory(recordedRecords()), true, 'not-pinned', true)
   return createFakeSessionController({
@@ -65,7 +65,7 @@ function showingKeptPlayedNotes(): FakeSessionController {
   })
 }
 
-/** Intent: mount the panel over `fake`, attached so focus can move; its saves recorded. */
+/** Mount the panel over `fake`, attached so focus can move; its saves recorded. */
 async function mountPanel(fake: FakeSessionController) {
   const { saveSettings, saves } = recordingSaveSettings()
   const wrapper = mount(ScorePanel, {
@@ -91,7 +91,7 @@ async function mountPanel(fake: FakeSessionController) {
   return { wrapper, saves }
 }
 
-/** Intent: the button of the page whose text is `label`. */
+/** The button of the page whose text is `label`. */
 function button(label: string): HTMLButtonElement {
   const found = [...document.querySelectorAll('button')].find(
     (candidate) => candidate.textContent?.trim() === label,
@@ -100,7 +100,7 @@ function button(label: string): HTMLButtonElement {
   return found
 }
 
-/** Intent: the open sheet's title, paragraphs, error and actions; null when none is open. */
+/** The open sheet's title, paragraphs, error and actions; null when none is open. */
 function openSheet() {
   const dialog = document.querySelector('[role="dialog"]')
   if (dialog === null) return null

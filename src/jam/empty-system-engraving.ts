@@ -33,7 +33,7 @@ import type { JamStaffProps } from './jam-view-types'
 export type EmptySystemEngraver = VexflowEngraverModule['engraveEmptySystem']
 
 /**
- * Intent: a written key and collection spelled exactly as a phrase in them is (the
+ * A written key and collection spelled exactly as a phrase in them is (the
  * fewest-accidental spelling, sharps on a tie).
  */
 function jamWrittenKey(tonalCenter: PitchClass, collection: Collection): WrittenKey {
@@ -42,7 +42,7 @@ function jamWrittenKey(tonalCenter: PitchClass, collection: Collection): Written
 }
 
 /**
- * Intent: the key signature of a written key and collection, spelled exactly as a phrase in them
+ * The key signature of a written key and collection, spelled exactly as a phrase in them
  * is: the signature the empty system carries.
  */
 // @spec-link [[rule_jam_idle_shows_no_phrase]]
@@ -54,7 +54,7 @@ export function jamKeySignature(
 }
 
 /**
- * Intent: the selected instrument's written range in its clef, as a phrase drawn for it carries
+ * The selected instrument's written range in its clef, as a phrase drawn for it carries
  * them: my instrument's own range and clef when it is selected, else the built-in profile's concert
  * range moved by its transposition, in treble clef. A selection naming an instrument that does not
  * exist is a caller defect and throws.
@@ -82,7 +82,7 @@ export function jamInstrumentRangeInClef(
   }
 }
 
-/** Intent: what the empty system shows for Jam's settings: the instrument's staff and the key. */
+/** What the empty system shows for Jam's settings: the instrument's staff and the key. */
 // @spec-link [[rule_jam_idle_shows_no_phrase]]
 export function emptySystemStaffOf(
   settings: Pick<
@@ -97,7 +97,7 @@ export function emptySystemStaffOf(
 }
 
 /**
- * Intent: the empty system's accessible name for Jam's settings, worded as a phrase's summary is
+ * The empty system's accessible name for Jam's settings, worded as a phrase's summary is
  * but naming no measures: "Empty staff, bass clef, key signature 2 flats (B flat Ionian), 4/4 time."
  */
 // @spec-link [[rule_jam_idle_shows_no_phrase]]
@@ -114,7 +114,7 @@ export function emptySystemNameOf(
 }
 
 /**
- * Intent: the empty system's engraver, once the lazy engraver chunk and its notation fonts have
+ * The empty system's engraver, once the lazy engraver chunk and its notation fonts have
  * loaded. A failed load or a missing font is the loader's or the font wait's own NotationError,
  * a failure a retry can cure; the loader retries a failed import on the next call.
  */

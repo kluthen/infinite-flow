@@ -22,7 +22,7 @@ import { WEIGHT_UNITS_PER_BEAT, type ScoredPair } from '@/jam/key-suggestion/key
 import { nonIntegerOperations } from '../doodle-builders'
 import { beatsDoodle, WORKED_EXAMPLE } from './key-suggestion-doodles'
 
-/** Intent: a kept candidate at a given gap from the best (in thousandths), on home note C. */
+/** A kept candidate at a given gap from the best (in thousandths), on home note C. */
 function candidateAt(gapThousandths: number, mode: ScoredPair['mode']): ScoredPair {
   return {
     homeNote: 0 as PitchClassNumber,

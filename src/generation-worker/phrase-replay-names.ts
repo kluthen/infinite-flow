@@ -86,7 +86,7 @@ export interface NoPhraseCarryInNames {
 export type CarryInNames = PhraseCarryInNames | NoPhraseCarryInNames
 
 /**
- * Intent: the pitch-class number of a tonal center, crashing on a value outside the closed
+ * The pitch-class number of a tonal center, crashing on a value outside the closed
  * pitch-class vocabulary rather than guessing one.
  */
 function pitchClassNumberOf(tonalCenter: PitchClass): PitchClassNumber {
@@ -96,7 +96,7 @@ function pitchClassNumberOf(tonalCenter: PitchClass): PitchClassNumber {
 }
 
 /**
- * Intent: the spelled key of a tonal center and collection, through the notation path's own key
+ * The spelled key of a tonal center and collection, through the notation path's own key
  * speller (used for the concert key with the concert tonal center, and the written key with the
  * written tonal center).
  */
@@ -105,14 +105,14 @@ export function keyFor(tonalCenter: PitchClass, collection: Collection): Written
   return spellWrittenKey(pitchClassNumberOf(tonalCenter), collection)
 }
 
-/** Intent: render a spelled pitch as its letter, accidental and octave, for example 'B♭3'. */
+/** Render a spelled pitch as its letter, accidental and octave, for example 'B♭3'. */
 // @spec-link [[service_headless_phrase_replay]]
 export function spelledPitchName(pitch: SpelledPitch): string {
   return `${pitchClassText(pitch)}${pitch.octave}`
 }
 
 /**
- * Intent: the MIDI number a spelled pitch denotes, read back from its letter, alteration and
+ * The MIDI number a spelled pitch denotes, read back from its letter, alteration and
  * octave (C4 = 60, B♯3 = 60), so a written pitch's number comes from the notation path's spelling.
  */
 // @spec-link [[service_headless_phrase_replay]]
@@ -120,19 +120,19 @@ export function midiOfSpelledPitch(pitch: SpelledPitch): number {
   return (pitch.octave + 1) * 12 + naturalPitchClassOf(pitch.letter) + pitch.alter
 }
 
-/** Intent: a MIDI pitch beside its name spelled in the given key. */
+/** A MIDI pitch beside its name spelled in the given key. */
 // @spec-link [[service_headless_phrase_replay]]
 export function namedPitchInKey(midi: number, key: WrittenKey): NamedPitch {
   return { midi, name: spelledPitchName(spellMidiInKey(midi, key)) }
 }
 
-/** Intent: a pitch-class number's name spelled in the given key, for example 'F♯'. */
+/** A pitch-class number's name spelled in the given key, for example 'F♯'. */
 // @spec-link [[service_headless_phrase_replay]]
 export function pitchClassNameInKey(pc: PitchClassNumber, key: WrittenKey): string {
   return pitchClassText(spellPitchClassInKey(pc, key))
 }
 
-/** Intent: a MIDI range beside its two bound names, spelled in the given key. */
+/** A MIDI range beside its two bound names, spelled in the given key. */
 // @spec-link [[service_headless_phrase_replay]]
 export function namedRange(
   range: { readonly minMidi: number; readonly maxMidi: number },
@@ -147,7 +147,7 @@ export function namedRange(
 }
 
 /**
- * Intent: the root-position concert chord symbol of a carried chord, spelled in the given key,
+ * The root-position concert chord symbol of a carried chord, spelled in the given key,
  * with the notation path's own suffix: its seventh's when it holds one, its triad's otherwise.
  */
 // @spec-link [[service_headless_phrase_replay]]
@@ -160,7 +160,7 @@ export function chordSymbolInKey(
 }
 
 /**
- * Intent: restate a carried chord readably: its symbol, and the quality and pitch classes, spelled
+ * Restate a carried chord readably: its symbol, and the quality and pitch classes, spelled
  * in the key, of the chord the symbol names: a carried seventh chord's seventh quality and four
  * notes, a triad's quality and three.
  */
@@ -181,7 +181,7 @@ function namedCarriedChord(harmony: CarriedHarmony, concertKey: WrittenKey): Nam
 }
 
 /**
- * Intent: restate a carry-in readably (named last pitch, window bounds and final chord); a dropped
+ * Restate a carry-in readably (named last pitch, window bounds and final chord); a dropped
  * harmony stays an explicit null chord. A carry-in from no phrase is named by its origin, with no
  * phrase number and no chord.
  */

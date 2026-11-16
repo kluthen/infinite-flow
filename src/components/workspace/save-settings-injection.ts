@@ -13,7 +13,7 @@ import type { SaveSettings } from '@/storage/settings-saver'
 export const SAVE_SETTINGS: InjectionKey<SaveSettings> = Symbol('save-settings')
 
 /**
- * Intent: the saver of the player's changes, injected at setup; throws when nothing provided it,
+ * The saver of the player's changes, injected at setup; throws when nothing provided it,
  * so a component wired without it fails at once rather than dropping the player's changes.
  */
 // @spec-link [[rule_settings_saved_on_change]]

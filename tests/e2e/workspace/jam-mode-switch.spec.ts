@@ -81,19 +81,19 @@ import {
 /** The session seed every phrase 1 of the pre-generation cases is published with. */
 const SESSION_SEED = 4242
 
-/** Intent: land on the harness with pre-generation off, whatever the harness build's default. */
+/** Land on the harness with pre-generation off, whatever the harness build's default. */
 function gotoHarness(page: Page): Promise<void> {
   return gotoSessionHarness(page, DESKTOP, PREGENERATION_OFF)
 }
 
-/** Intent: a phrase on screen at Idle, from the harness: its timeline, never null. */
+/** A phrase on screen at Idle, from the harness: its timeline, never null. */
 async function shownTimeline(page: Page): Promise<string> {
   const { timeline } = await harnessSnapshot(page)
   if (timeline === null) throw new Error('no phrase is shown')
   return timeline
 }
 
-/** Intent: assert session mode shows at Idle with exactly `timeline` drawn, ready to start. */
+/** Assert session mode shows at Idle with exactly `timeline` drawn, ready to start. */
 async function expectSessionModeAsLeft(page: Page, timeline: string): Promise<void> {
   await expectSessionModeShows(page)
   await expect(sessionFrame(page)).toHaveClass(/staff-ready/)
@@ -101,13 +101,13 @@ async function expectSessionModeAsLeft(page: Page, timeline: string): Promise<vo
   expect(await shownTimeline(page)).toBe(timeline)
 }
 
-/** Intent: let a few animation frames pass, so whatever a change set going has had its turn. */
+/** Let a few animation frames pass, so whatever a change set going has had its turn. */
 async function settleAWhile(page: Page): Promise<void> {
   for (let frame = 0; frame < 5; frame += 1) await settleFrames(page)
 }
 
 /**
- * Intent: let exactly the background attempt held at the gate through, holding the next one: the
+ * Let exactly the background attempt held at the gate through, holding the next one: the
  * gate is released and closed again in one turn of the page.
  */
 async function passOneBackground(page: Page): Promise<void> {
@@ -123,7 +123,7 @@ async function passOneBackground(page: Page): Promise<void> {
 }
 
 /**
- * Intent: start a session, play until phrase 3 sounds, Stop, and return the timelines of the
+ * Start a session, play until phrase 3 sounds, Stop, and return the timelines of the
  * phrases 2 and 3 it played; no attempt was made for them.
  */
 async function playedPhrasesTwoAndThree(page: Page): Promise<(string | undefined)[]> {

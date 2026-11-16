@@ -67,7 +67,7 @@ const FACTS: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: a three-phrase Neutral tenor session's values as data version 1 kept them in `shape`. */
+/** A three-phrase Neutral tenor session's values as data version 1 kept them in `shape`. */
 function neutralSession(shape: V1Shape): StoredKeptSession {
   const phrases = recordedKeptSession('bb-tenor', 3).phrases()
   const records = encodeKeptSession(
@@ -140,19 +140,19 @@ describe('a data version 1 database holding all three phrase shapes and a damage
   })
 })
 
-/** Intent: a value nested `depth` objects deep. */
+/** A value nested `depth` objects deep. */
 function nested(depth: number): unknown {
   let value: unknown = 'bottom'
   for (let level = 0; level < depth; level++) value = { inner: value }
   return value
 }
 
-/** Intent: the envelope of a data version 1 record around the given fields. */
+/** The envelope of a data version 1 record around the given fields. */
 function v1Envelope(fields: Record<string, unknown>): Record<string, unknown> {
   return { dataVersion: 1, appVersion: V30_APP_VERSION, ...fields }
 }
 
-/** Intent: the malformed values every store's record may be: not a record of any kind. */
+/** The malformed values every store's record may be: not a record of any kind. */
 function notRecords(): readonly (readonly [string, unknown])[] {
   return [
     ['a string', 'a kept session'],
@@ -164,7 +164,7 @@ function notRecords(): readonly (readonly [string, unknown])[] {
   ]
 }
 
-/** Intent: every malformed session-wide record, by name, over a valid data version 1 one. */
+/** Every malformed session-wide record, by name, over a valid data version 1 one. */
 function malformedSummaries(summary: unknown): readonly (readonly [string, unknown])[] {
   return [
     ...notRecords(),
@@ -182,7 +182,7 @@ function malformedSummaries(summary: unknown): readonly (readonly [string, unkno
   ]
 }
 
-/** Intent: every malformed body, by name, over a valid data version 1 one (v3.0's shape). */
+/** Every malformed body, by name, over a valid data version 1 one (v3.0's shape). */
 function malformedBodies(body: unknown): readonly (readonly [string, unknown])[] {
   const disagreeing = v1Session(
     encodeKeptSession(
@@ -237,7 +237,7 @@ describe('the upgrade step over malformed stored session-wide records and bodies
 
   // @test-link [[module_kept_session_upgrade_step]]
   it('gives no rewrite when the rewrite fails with an error that is no refusal', () => {
-    /** Intent: what `write` throws, null when it throws nothing. */
+    /** What `write` throws, null when it throws nothing. */
     const thrown = (write: () => unknown): unknown => {
       try {
         write()

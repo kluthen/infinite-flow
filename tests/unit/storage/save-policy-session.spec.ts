@@ -29,7 +29,7 @@ const NEW_SESSION: readonly StorageChange[] = [
   { kind: 'write', store: 'sessionBodies', key: 'session-9-1', record: sampleRecord('body') },
 ]
 
-/** Intent: changes that write the new session and record the kept summaries the save read. */
+/** Changes that write the new session and record the kept summaries the save read. */
 function recordingChanges(): { changes: SessionChanges; seen: (readonly StoredEntry[])[] } {
   const seen: (readonly StoredEntry[])[] = []
   return {
@@ -41,14 +41,14 @@ function recordingChanges(): { changes: SessionChanges; seen: (readonly StoredEn
   }
 }
 
-/** Intent: a ready port over a fresh database already holding one kept summary, `session-1-5`. */
+/** A ready port over a fresh database already holding one kept summary, `session-1-5`. */
 async function portWithKeptSession(): Promise<StoragePort> {
   const port = await readyPort(freshFactory())
   await port.write('sessionSummaries', 'session-1-5', sampleRecord('kept'))
   return port
 }
 
-/** Intent: the stores and mode of every transaction opened on the database from now on. */
+/** The stores and mode of every transaction opened on the database from now on. */
 function recordTransactions(): () => string[] {
   const spy = vi.spyOn(IDBDatabase.prototype, 'transaction')
   return () =>
@@ -139,7 +139,7 @@ describe("the session's own save", () => {
   // @test-link [[rule_failed_save_never_disturbs_session]]
   it('with its keyed read refused, still saves the new session, given no kept summary to delete', async () => {
     const real = await portWithKeptSession()
-    /** Intent: a keyed read the port refuses. */
+    /** A keyed read the port refuses. */
     const refused = () => Promise.reject(new StorageError('other', 'the read failed'))
     const policy = createSavePolicy({ ...real, readKeyed: refused })
     const { changes, seen } = recordingChanges()

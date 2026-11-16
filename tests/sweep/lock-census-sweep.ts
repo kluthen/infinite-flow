@@ -95,7 +95,7 @@ export interface LockCensusChoices {
 }
 
 /**
- * Intent: the runner's choices from an environment: `LOCK_LIMIT` a positive whole number of
+ * The runner's choices from an environment: `LOCK_LIMIT` a positive whole number of
  * evenly spaced cases (none: every case), `LOCK_SETTINGS` sweep (default), builtin or both,
  * `LOCK_LEVELS` the Seventh chords levels, comma-separated level ids (default all four,
  * seventh-levels.ts). Anything else fails.
@@ -113,7 +113,7 @@ export function lockCensusChoices(env: NodeJS.ProcessEnv = process.env): LockCen
   return { limit, settings, levels: seventhLevelsFrom('LOCK_LEVELS', env.LOCK_LEVELS) }
 }
 
-/** Intent: the setting groups a choice measures, the sweep's cases first, then the built-ins. */
+/** The setting groups a choice measures, the sweep's cases first, then the built-ins. */
 export function settingGroups(choice: LockSettingsChoice): readonly CostSetting[] {
   return [
     ...(choice === 'builtin' ? [] : [SWEEP_GROUP]),
@@ -129,7 +129,7 @@ export const PER_CASE_SEED_STRIDE = 10
 export const PER_CASE_SESSION_SEED_BASE = 500_000
 
 /**
- * Intent: a preset group case's own seeds, from its sweep index: under a preset every case plays
+ * A preset group case's own seeds, from its sweep index: under a preset every case plays
  * the preset's rhythm setting, so the sweep's two seeds would give phrase 1, the locked rhythm,
  * about two rhythms per preset. The phrase-1 stride leaves room for every retry at Idle, and both
  * ranges sit clear of the sweep's seeds (7 and 13; sessions from 100,000).
@@ -142,7 +142,7 @@ export function perCaseSeeds(index: number): Pick<SweepCase, 'seed' | 'firstSess
 }
 
 /**
- * Intent: the cases a setting group plays: the sweep group's unchanged, a preset group's with the
+ * The cases a setting group plays: the sweep group's unchanged, a preset group's with the
  * preset applied and each case's own seeds (`perCaseSeeds`), its label naming the seed it plays.
  */
 export function lockGroupCases(
@@ -159,7 +159,7 @@ export function lockGroupCases(
 }
 
 /**
- * Intent: a case played with Tension across phrases on or off, its label's session flags (`vary`
+ * A case played with Tension across phrases on or off, its label's session flags (`vary`
  * or `fixed`, then `arc` when on) rewritten to match.
  */
 export function withTensionAcrossPhrases(sweepCase: SweepCase, on: boolean): SweepCase {
@@ -171,7 +171,7 @@ export function withTensionAcrossPhrases(sweepCase: SweepCase, on: boolean): Swe
   return { ...sweepCase, label, tensionAcrossPhrases: on }
 }
 
-/** Intent: the seed scheme a run's setting groups play with, as the figures record it. */
+/** The seed scheme a run's setting groups play with, as the figures record it. */
 export function seedScheme(choice: LockSettingsChoice): string {
   const sweep = `sweep (${SEEDS.join(', ')})`
   const perCase =
@@ -194,7 +194,7 @@ export interface DrawingPhrase {
 }
 
 /**
- * Intent: the phrases that draw whether to change, with the locked rhythm in effect: from phrase 2
+ * The phrases that draw whether to change, with the locked rhythm in effect: from phrase 2
  * on, every phrase but a repeat (it sounds an earlier phrase again, its record included) and a
  * re-lock (its bars become the locked rhythm from the next phrase on); none with nothing allowed.
  */
@@ -213,7 +213,7 @@ export function drawingPhrases(
   return draws
 }
 
-/** Intent: a rhythm setting with its tension, as one readable key. */
+/** A rhythm setting with its tension, as one readable key. */
 export function rhythmSettingKey(input: RhythmExpansionInput): string {
   return `${input.noteDensity}/${input.rhythmicVariety}/${input.silenceDensity}/${input.syncopation}/${input.tensionArc}`
 }
@@ -222,7 +222,7 @@ export function rhythmSettingKey(input: RhythmExpansionInput): string {
 const domainBarsByKey = new Map<string, readonly (readonly RhythmBar[])[]>()
 
 /**
- * Intent: the written bars of every candidate of the rhythm domain a phrase was generated from:
+ * The written bars of every candidate of the rhythm domain a phrase was generated from:
  * the canonical domain of its intent's rhythm settings and tension, from the memo `generatePhrase`
  * uses by default, so exactly the candidates its search ranked. A phrase that sounded came from a
  * domain with candidates, so a domain with none fails.
@@ -262,7 +262,7 @@ export interface LockSession {
   readonly sounded: readonly SoundedPhrase[]
 }
 
-/** Intent: each phrase that sounded in a run, in phrase order, with its intent and outcome. */
+/** Each phrase that sounded in a run, in phrase order, with its intent and outcome. */
 function soundedPhrases(run: TimedSession): SoundedPhrase[] {
   const byNumber = new Map<number, SoundedPhrase>()
   for (const { output } of run.outputs)
@@ -274,7 +274,7 @@ function soundedPhrases(run: TimedSession): SoundedPhrase[] {
 }
 
 /**
- * Intent: play one case's eight-phrase session with the rhythm lock on, the allowed list and
+ * Play one case's eight-phrase session with the rhythm lock on, the allowed list and
  * Tension across phrases as given (every attempt generated, at the flat modelled cost), and read
  * its phrases from their provenance and, per draw, what it drew and the kinds available one change
  * from the locked rhythm in effect in the phrase's own domain. It completed when it raised no
@@ -332,7 +332,7 @@ export const AVAILABILITY_DIMENSIONS = [
 /** One dimension draws are grouped by. */
 export type AvailabilityDimension = (typeof AVAILABILITY_DIMENSIONS)[number]
 
-/** Intent: the value a draw's rhythm setting and tension takes in each dimension, in order. */
+/** The value a draw's rhythm setting and tension takes in each dimension, in order. */
 export function availabilityBuckets(
   rhythm: RhythmExpansionInput,
 ): readonly { readonly dimension: AvailabilityDimension; readonly value: string }[] {
@@ -373,7 +373,7 @@ export interface AvailabilityFigures {
 /** The most mismatch lines a setting group's summary keeps; the count covers them all. */
 const MAX_GROUP_MISMATCH_LINES = 10
 
-/** Intent: a share as a percentage to one decimal, or a dash when it is null. */
+/** A share as a percentage to one decimal, or a dash when it is null. */
 function percent(share: number | null): string {
   return `${share === null ? '-' : (share * 100).toFixed(1)} %`
 }
@@ -399,7 +399,7 @@ export class LockGroupTally {
   sessions = 0
   completed = 0
 
-  /** Intent: a tally for one setting group, by its label, sampling `perClass` phrases per class. */
+  /** A tally for one setting group, by its label, sampling `perClass` phrases per class. */
   constructor(
     readonly label: string,
     perClass: number = REPLAY_SAMPLE_PER_CLASS,
@@ -408,7 +408,7 @@ export class LockGroupTally {
   }
 
   /**
-   * Intent: add one session, played with Tension across phrases as given and the allowed list at
+   * Add one session, played with Tension across phrases as given and the allowed list at
    * `setIndex` of ALLOWED_SETS; an incomplete one is counted, never classified.
    */
   add(session: LockSession, tensionAcrossPhrases: boolean, setIndex: number): void {
@@ -439,12 +439,12 @@ export class LockGroupTally {
       }
   }
 
-  /** Intent: how many distinct rhythms phrase 1 locked across the completed sessions. */
+  /** How many distinct rhythms phrase 1 locked across the completed sessions. */
   get distinctLockedRhythms(): number {
     return this.lockedRhythms.size
   }
 
-  /** Intent: the mismatches between record and bars over every census group, and the first few. */
+  /** The mismatches between record and bars over every census group, and the first few. */
   mismatches(): { readonly count: number; readonly first: readonly string[] } {
     const all = this.groups().map(({ figures }) => figures.mismatches)
     return {
@@ -453,12 +453,12 @@ export class LockGroupTally {
     }
   }
 
-  /** Intent: replay the sampled phrases from their keys, once; see lock-census-replay.ts. */
+  /** Replay the sampled phrases from their keys, once; see lock-census-replay.ts. */
   replaySamples(): ReplayFigures {
     return this.sampler.replay()
   }
 
-  /** Intent: the census groups' figures, per Tension across phrases, then per allowed list. */
+  /** The census groups' figures, per Tension across phrases, then per allowed list. */
   groups(): readonly LockGroupFigures[] {
     return TENSION_ACROSS_PHRASES.flatMap((tensionAcrossPhrases) =>
       ALLOWED_SETS.map(({ kinds }, index) => ({
@@ -470,7 +470,7 @@ export class LockGroupTally {
     )
   }
 
-  /** Intent: the availability buckets' figures, in dimension order, then by value. */
+  /** The availability buckets' figures, in dimension order, then by value. */
   availabilityFigures(): readonly AvailabilityFigures[] {
     return [...this.availability.values()]
       .sort(
@@ -498,7 +498,7 @@ export class LockGroupTally {
   }
 
   /**
-   * Intent: the readable `LOCK-CENSUS` lines: the sessions and distinct locked rhythms, each census
+   * The readable `LOCK-CENSUS` lines: the sessions and distinct locked rhythms, each census
    * group's tally lines, one line of availability per bucket of every dimension but the whole
    * setting, then the replay sample's lines (replaying it, the first time).
    */
@@ -520,7 +520,7 @@ export class LockGroupTally {
 }
 
 /**
- * Intent: play every case under one setting group (`lockGroupCases`) at one Seventh chords level
+ * Play every case under one setting group (`lockGroupCases`) at one Seventh chords level
  * (Off by default; the tally's label names it), density by density, once per Tension across
  * phrases (on, off) and allowed list, each case with one outcome cache shared
  * by its sessions and dropped after them (a wider cache saves next to nothing and holds the heap),

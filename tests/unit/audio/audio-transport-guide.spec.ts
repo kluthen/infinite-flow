@@ -33,12 +33,12 @@ const PHRASE_A = phraseFromBars(['q e e q. s s', 'h q q', 'e. s q h', 'w'])
 /** Phrase 2's timeline: eighths, a rest, a tie across a barline. */
 const PHRASE_B = phraseFromBars(['e e e e q q', 'q. e h', 'r:q q q q', '~:h h'])
 
-/** Intent: the timeline phrase `n` plays: A for odd phrases, B for even ones. */
+/** The timeline phrase `n` plays: A for odd phrases, B for even ones. */
 function timelineFor(n: number): ConcertEventTimeline {
   return n % 2 === 1 ? PHRASE_A : PHRASE_B
 }
 
-/** Intent: four measures of sixteenth-note triplets, 24 notes of 1/24 whole note each. */
+/** Four measures of sixteenth-note triplets, 24 notes of 1/24 whole note each. */
 function sixteenthTripletTimeline(): ConcertEventTimeline {
   const pitches = [60, 64, 67, 72]
   return makeConcertEventTimeline(
@@ -70,13 +70,13 @@ interface ExpectedNote extends PlacedNote {
   readonly startBeat: number
 }
 
-/** Intent: a whole-note position as quarter-note beats. */
+/** A whole-note position as quarter-note beats. */
 function beatsOf(time: Rational): number {
   return (time.numerator * 4) / time.denominator
 }
 
 /**
- * Intent: the notes of `role` the renderer gives `timeline` over `harmony`, placed independently:
+ * The notes of `role` the renderer gives `timeline` over `harmony`, placed independently:
  * each start and end is `beatAt` of the phrase's first beat plus its position, on `plan`.
  */
 function expectedLine(
@@ -100,12 +100,12 @@ function expectedLine(
   })
 }
 
-/** Intent: a note as compared, dropping everything else the recorder or the expectation holds. */
+/** A note as compared, dropping everything else the recorder or the expectation holds. */
 function placed({ role, pitch, at, until }: PlacedNote): PlacedNote {
   return { role, pitch, at, until }
 }
 
-/** Intent: notes in a fixed order: by start, then guide, then pitch. */
+/** Notes in a fixed order: by start, then guide, then pitch. */
 function sorted(notes: readonly PlacedNote[]): PlacedNote[] {
   return notes
     .map(placed)
@@ -127,7 +127,7 @@ interface GuideRun extends TransportRig {
 }
 
 /**
- * Intent: a session with the guides and the backing as `switches` say, set before it starts,
+ * A session with the guides and the backing as `switches` say, set before it starts,
  * phrases 1 and 2 queued at once with their own timelines at `tempos`, run past phrase 2's end;
  * and each guide's line placed independently on the tempo map those tempos give.
  */
@@ -157,7 +157,7 @@ function guideRun(switches: Switches, tempos: readonly [number, number] = [120, 
   }
 }
 
-/** Intent: the recorded guide notes of `role`. */
+/** The recorded guide notes of `role`. */
 function guideEventsOf(events: readonly FakeAudioEvent[], role?: GuideRole): FakeGuideEvent[] {
   return events.filter(
     (event): event is FakeGuideEvent =>
@@ -171,14 +171,14 @@ const PRE_GUIDE_SCENARIOS: readonly RecordedScenario[] = JSON.parse(
 ) as readonly RecordedScenario[]
 
 /**
- * Intent: events as the fixture file holds them: through JSON, which writes an infinite time (a
+ * Events as the fixture file holds them: through JSON, which writes an infinite time (a
  * click forced on with no end yet) as null.
  */
 function asRecorded(events: readonly FakeAudioEvent[]): unknown {
   return JSON.parse(JSON.stringify(events))
 }
 
-/** Intent: whether an event is a gain change of one of the guides' channels. */
+/** Whether an event is a gain change of one of the guides' channels. */
 function isGuideGain(event: FakeAudioEvent): boolean {
   return (
     event.kind === 'gain' &&
@@ -323,7 +323,7 @@ describe('guide notes on the tempo map', () => {
   })
 })
 
-/** Intent: the first expected note of `role` starting after `after`. */
+/** The first expected note of `role` starting after `after`. */
 function firstNoteAfter(run: GuideRun, role: GuideRole, after: number): ExpectedNote {
   const note = run.expected[role].find((candidate) => candidate.at > after)
   if (note === undefined) throw new Error(`no ${role} note after ${after}`)

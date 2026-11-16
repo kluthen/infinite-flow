@@ -62,13 +62,13 @@ export type ExportScope =
 // @spec-link [[req_session_export]]
 export const WHOLE_SESSION: ExportScope = { kind: 'wholeSession' }
 
-/** Intent: a whole number as text, zero-padded on the left to `width` digits. */
+/** A whole number as text, zero-padded on the left to `width` digits. */
 function padded(value: number, width: number): string {
   return String(value).padStart(width, '0')
 }
 
 /**
- * Intent: the stem every export file name of a session starts with,
+ * The stem every export file name of a session starts with,
  * `infinite-flow-{YYYY-MM-DD}-{HHmmss}`, from the session's start in the player's local time.
  * Reads no clock: the time is the one the history recorded at start. Throws a
  * GeneratedNotesFileError on a start time that is not finite epoch milliseconds.
@@ -88,7 +88,7 @@ export function exportFileStem(startedAtMs: number): string {
 }
 
 /**
- * Intent: what a file name adds after its last word for `scope`: `-favorites` for favorites only,
+ * What a file name adds after its last word for `scope`: `-favorites` for favorites only,
  * nothing for the whole session, whose names stay as they were.
  */
 // @spec-link [[rule_favorites_only_export]]

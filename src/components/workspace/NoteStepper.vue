@@ -32,13 +32,13 @@ const emit = defineEmits<{
 const atMin = computed(() => props.modelValue <= props.min)
 const atMax = computed(() => props.modelValue >= props.max)
 
-/** Intent: move to `value` unless disabled, or `value` lies beyond the stepper's own bounds. */
+/** Move to `value` unless disabled, or `value` lies beyond the stepper's own bounds. */
 function moveTo(value: number): void {
   if (props.disabled || value < props.min || value > props.max) return
   emit('update:modelValue', value)
 }
 
-/** Intent: the spinbutton's keys: arrows step by one, Home and End jump to the bounds. */
+/** The spinbutton's keys: arrows step by one, Home and End jump to the bounds. */
 function handleKeydown(event: KeyboardEvent): void {
   const moves: Record<string, () => number> = {
     ArrowUp: () => props.modelValue + 1,

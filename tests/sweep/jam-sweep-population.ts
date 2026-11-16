@@ -58,7 +58,7 @@ export interface JamSweepChoices {
   readonly levels: readonly ChordFamilyLevel[]
 }
 
-/** Intent: one of some allowed words, or the default when unset; anything else fails. */
+/** One of some allowed words, or the default when unset; anything else fails. */
 function oneOf<T extends string>(
   name: string,
   raw: string | undefined,
@@ -72,7 +72,7 @@ function oneOf<T extends string>(
   return value as T
 }
 
-/** Intent: a positive whole number from the environment, or none when unset. */
+/** A positive whole number from the environment, or none when unset. */
 function positiveInteger(name: string, raw: string | undefined): number | undefined {
   if (raw === undefined || raw.trim() === '') return undefined
   const value = Number(raw)
@@ -81,7 +81,7 @@ function positiveInteger(name: string, raw: string | undefined): number | undefi
   return value
 }
 
-/** Intent: the tempos `JAM_TEMPOS` names, comma-separated, or none when unset. */
+/** The tempos `JAM_TEMPOS` names, comma-separated, or none when unset. */
 function tempoList(raw: string | undefined): readonly number[] | undefined {
   if (raw === undefined || raw.trim() === '') return undefined
   return raw.split(',').map((part) => {
@@ -98,7 +98,7 @@ const LOCKS_ON: readonly JamLock[] = [
   { on: true, allowedChanges: [] },
 ]
 
-/** Intent: the runner's choices from an environment (`process.env` by default). */
+/** The runner's choices from an environment (`process.env` by default). */
 export function jamSweepChoices(env: NodeJS.ProcessEnv = process.env): JamSweepChoices {
   const mode = oneOf('JAM_MODE', env.JAM_MODE, ['jam', 'session', 'both'], 'both')
   const domain = oneOf('JAM_DOMAIN', env.JAM_DOMAIN, ['warm', 'cold', 'both'], 'both')
@@ -127,7 +127,7 @@ export function jamSweepChoices(env: NodeJS.ProcessEnv = process.env): JamSweepC
   }
 }
 
-/** Intent: `limit` cases evenly spaced over the sweep's (every k-th), or all of them with none. */
+/** `limit` cases evenly spaced over the sweep's (every k-th), or all of them with none. */
 export function evenlySpaced(
   cases: readonly SweepCase[],
   limit: number | undefined,
@@ -140,7 +140,7 @@ export function evenlySpaced(
 }
 
 /**
- * Intent: every configuration the choices give, in run order: per Seventh chords level, per mode,
+ * Every configuration the choices give, in run order: per Seventh chords level, per mode,
  * its tempos, the locks, then the domains (warm only for a session). A Jam carries its doodle's
  * steering block with the double or the real ladder, none with the baseline; a session never does.
  */
@@ -165,7 +165,7 @@ export function configurations(choices: JamSweepChoices): readonly Configuration
   )
 }
 
-/** Intent: the doodles a Jam is crossed with: none (one run, no doodle), or the whole doodle set. */
+/** The doodles a Jam is crossed with: none (one run, no doodle), or the whole doodle set. */
 export function doodlesOf(choice: 'none' | 'all'): readonly (JamDoodle | undefined)[] {
   if (choice === 'none') return [undefined]
   const set = loadDoodleSet().map(({ name, quantized }) => ({ name, quantized }))
@@ -175,7 +175,7 @@ export function doodlesOf(choice: 'none' | 'all'): readonly (JamDoodle | undefin
 }
 
 /**
- * Intent: the ladder a steered Jam's phrase 1 goes through under the choices: chunk 18's real one
+ * The ladder a steered Jam's phrase 1 goes through under the choices: chunk 18's real one
  * with `JAM_LADDER=real`, otherwise none named (runJamCase's own: the double for a steered Jam,
  * the baseline for the others).
  */
@@ -183,7 +183,7 @@ export function phraseOneLadderOf(choices: JamSweepChoices): PhraseOneLadder | u
   return choices.ladder === 'real' ? JAM_REAL_LADDER : undefined
 }
 
-/** Intent: the drift of a steered Jam: Close, Near, Free in turn over the case and doodle. */
+/** The drift of a steered Jam: Close, Near, Free in turn over the case and doodle. */
 export function driftOf(sweepCase: SweepCase, doodleIndex: number): JamDrift {
   return JAM_DRIFTS[(sweepCase.index + doodleIndex) % JAM_DRIFTS.length]!
 }
@@ -195,7 +195,7 @@ export interface PlayedConfiguration {
 }
 
 /**
- * Intent: play one case under one configuration, at its Seventh chords level, with the doodle at
+ * Play one case under one configuration, at its Seventh chords level, with the doodle at
  * its index (a session runs once per case, with the first doodle's turn; a Jam once per doodle,
  * steered with its drift when the configuration carries a block, its phrase 1 through
  * `phraseOneLadder` when one is named), and add the run to the configuration's tally and replay
@@ -233,7 +233,7 @@ async function playOne(
 }
 
 /**
- * Intent: play every case under every configuration (a Jam once per doodle, steered by it with its
+ * Play every case under every configuration (a Jam once per doodle, steered by it with its
  * drift when the configuration carries a block), density by density, case by case and doodle by
  * doodle, with one outcome cache per case and doodle shared by every configuration and dropped
  * after it; add each run to its configuration's tally and offer it to its replay sample.

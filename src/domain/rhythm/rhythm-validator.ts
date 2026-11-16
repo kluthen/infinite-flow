@@ -54,7 +54,7 @@ const CODE_ORDER: readonly RhythmValidationCode[] = [
   'domain_replay_mismatch',
 ]
 
-/** Intent: the rest ticks the silence-density setting allows over the phrase, as [min, max]. */
+/** The rest ticks the silence-density setting allows over the phrase, as [min, max]. */
 // @spec-link [[module_rhythm_domain_validation]]
 function restBudget(candidate: UnindexedRhythmCandidate): readonly [number, number] {
   return candidate.input.silenceDensity === 'Sparse'

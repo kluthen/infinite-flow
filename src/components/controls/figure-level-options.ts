@@ -71,7 +71,7 @@ const LEVEL_OPTIONS: readonly SegmentedControlOption[] = deepFreeze(
 )
 
 /**
- * Intent: the seven figure level controls, in the fixed figure order, each with the same four
+ * The seven figure level controls, in the fixed figure order, each with the same four
  * options (Off, Rarely, Often, Very often) and none of them disabled, whatever the levels.
  */
 // @spec-link [[module_figure_level_options]]
@@ -81,7 +81,7 @@ export const FIGURE_LEVEL_FIELDS: readonly FigureLevelField[] = deepFreeze(
 )
 
 /**
- * Intent: the level a segment of a figure's control stands for. A value that is no level is a
+ * The level a segment of a figure's control stands for. A value that is no level is a
  * defect, refused with the figure's label.
  */
 // @spec-link [[module_figure_level_options]]

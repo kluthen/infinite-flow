@@ -36,7 +36,7 @@ const PRESET_OF_PROFILE: Readonly<Record<MusicalProfile, BuiltInPresetId>> = dee
 })
 
 /**
- * Intent: the settings records that replace a stored v3.0 selection record, written by
+ * The settings records that replace a stored v3.0 selection record, written by
  * `appVersion`: the seven level records, the built-in's levels, then the preset selection, that
  * built-in selected, or Custom based on it when it was customized. No saved control is compared
  * with the preset. Null for a record that cannot be read, which is then left as it is. Never

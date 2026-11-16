@@ -61,7 +61,7 @@ interface DecodedCorpusKey extends DecodedPhraseReplayKey {
 }
 
 /**
- * Intent: the profile selection a v3.0 key's raw tuple names, its entries 3 and 4 (the profile
+ * The profile selection a v3.0 key's raw tuple names, its entries 3 and 4 (the profile
  * name and its customized flag), as one comparable string, read without the codec's decoder.
  */
 function selectionOf(key: string): string {
@@ -82,7 +82,7 @@ const DECODED: readonly DecodedCorpusKey[] = CORPUS.cases.map((corpusCase) => ({
   selection: selectionOf(corpusCase.key),
 }))
 
-/** Intent: the instrument a decoded intent names: a built-in id, or my instrument's concert range. */
+/** The instrument a decoded intent names: a built-in id, or my instrument's concert range. */
 function instrumentOf(intent: GenerationIntent): string {
   if (intent.controls.instrumentProfileId !== 'my-instrument') {
     return intent.controls.instrumentProfileId
@@ -91,7 +91,7 @@ function instrumentOf(intent: GenerationIntent): string {
   return `my-instrument ${minMidi}-${maxMidi}`
 }
 
-/** Intent: the distinct values a read gives over a set of decoded keys. */
+/** The distinct values a read gives over a set of decoded keys. */
 function valuesOf(
   keys: readonly DecodedPhraseReplayKey[],
   read: (intent: GenerationIntent) => string,
@@ -99,7 +99,7 @@ function valuesOf(
   return new Set(keys.map((key) => read(key.intent)))
 }
 
-/** Intent: the standalone phrases (phrase 1, no carry-in) grouped by profile selection and instrument. */
+/** The standalone phrases (phrase 1, no carry-in) grouped by profile selection and instrument. */
 function standaloneGroups(): ReadonlyMap<string, readonly DecodedPhraseReplayKey[]> {
   const groups = new Map<string, DecodedPhraseReplayKey[]>()
   for (const key of DECODED) {
@@ -110,7 +110,7 @@ function standaloneGroups(): ReadonlyMap<string, readonly DecodedPhraseReplayKey
   return groups
 }
 
-/** Intent: the timeline a key replays to through a fresh worker runtime, or a loud failure. */
+/** The timeline a key replays to through a fresh worker runtime, or a loud failure. */
 function replayTimeline(key: string): unknown {
   const report = replayDecodedPhraseKey(key, decodePhraseReplayKey(key))
   if (

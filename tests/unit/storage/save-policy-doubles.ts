@@ -29,7 +29,7 @@ import {
   type RecordingManager,
 } from './storage-test-doubles'
 
-/** Intent: a ready port at data version 1 over `factory`, with an optional storage manager. */
+/** A ready port at data version 1 over `factory`, with an optional storage manager. */
 export function readyPort(
   factory: IDBFactory,
   storageManager?: StorageManagerLike,
@@ -37,7 +37,7 @@ export function readyPort(
   return openStoragePort({ factory, appVersion: TEST_APP_VERSION, storageManager })
 }
 
-/** Intent: a ready port over `factory` already holding a theme and played notes. */
+/** A ready port over `factory` already holding a theme and played notes. */
 export async function filledPort(
   factory: IDBFactory,
   storageManager?: StorageManagerLike,
@@ -48,7 +48,7 @@ export async function filledPort(
   return port
 }
 
-/** Intent: open a newer app's port over `factory`, upgrading the database one data version up. */
+/** Open a newer app's port over `factory`, upgrading the database one data version up. */
 export function openNewerTab(factory: IDBFactory): Promise<StoragePort> {
   return openStoragePort({
     factory,
@@ -57,7 +57,7 @@ export function openNewerTab(factory: IDBFactory): Promise<StoragePort> {
   })
 }
 
-/** Intent: a port opened outdated, over a database a newer app upgraded first. */
+/** A port opened outdated, over a database a newer app upgraded first. */
 export async function outdatedPort(
   factory: IDBFactory,
   storageManager?: StorageManagerLike,
@@ -66,7 +66,7 @@ export async function outdatedPort(
   return openStoragePort({ factory, appVersion: '3.0.0', storageManager })
 }
 
-/** Intent: an unavailable port (its open throws) over a database already holding data. */
+/** An unavailable port (its open throws) over a database already holding data. */
 export async function unavailablePort(
   storageManager?: StorageManagerLike,
 ): Promise<{ port: StoragePort; real: IDBFactory }> {
@@ -76,7 +76,7 @@ export async function unavailablePort(
   return { port, real }
 }
 
-/** Intent: rewrite meta as a newer tab does at the same IndexedDB version: the next write is refused. */
+/** Rewrite meta as a newer tab does at the same IndexedDB version: the next write is refused. */
 export async function raiseMeta(factory: IDBFactory): Promise<void> {
   await withRawDatabase(
     factory,
@@ -100,7 +100,7 @@ export interface CallCounter {
 }
 
 /**
- * Intent: count from now on every call to the port's data methods and every transaction opened on
+ * Count from now on every call to the port's data methods and every transaction opened on
  * the fake database. Call it after the setup writes, before the policy acts.
  */
 export function countCalls(port: StoragePort): CallCounter {
@@ -130,10 +130,10 @@ export interface RefusingPort {
   readonly refuse: (kind: StorageErrorKind | null) => void
 }
 
-/** Intent: wrap a real port so its changes can be refused on demand, with a refusal of any kind. */
+/** Wrap a real port so its changes can be refused on demand, with a refusal of any kind. */
 export function refusingPort(real: StoragePort): RefusingPort {
   let refusal: StorageErrorKind | null = null
-  /** Intent: run `operation` on the real port, unless told to refuse it. */
+  /** Run `operation` on the real port, unless told to refuse it. */
   const guarded = async <T>(operation: () => Promise<T>): Promise<T> => {
     if (refusal !== null) throw new StorageError(refusal, 'refused by the test double')
     return operation()
@@ -153,21 +153,21 @@ export function refusingPort(real: StoragePort): RefusingPort {
   }
 }
 
-/** Intent: the kinds a policy reports to its failure listener, in order. */
+/** The kinds a policy reports to its failure listener, in order. */
 export function recordFailures(policy: SavePolicy): SaveFailureKind[] {
   const reported: SaveFailureKind[] = []
   policy.onFailure((kind) => reported.push(kind))
   return reported
 }
 
-/** Intent: the states a policy changes to, in order. */
+/** The states a policy changes to, in order. */
 export function recordStates(policy: SavePolicy): SavingState[] {
   const states: SavingState[] = []
   policy.onStateChange((state) => states.push(state))
   return states
 }
 
-/** Intent: a recording storage manager whose saved data is already persistent. */
+/** A recording storage manager whose saved data is already persistent. */
 export function protectedManager(): RecordingManager {
   const recording = recordingManager()
   const manager: StorageManagerLike = {
@@ -180,17 +180,17 @@ export function protectedManager(): RecordingManager {
   return { manager, calls: recording.calls }
 }
 
-/** Intent: the error a browser out of space fails with. */
+/** The error a browser out of space fails with. */
 export function lackOfSpace(): DOMException {
   return new DOMException('quota exceeded', 'QuotaExceededError')
 }
 
-/** Intent: the error of a storage failure other than a lack of space. */
+/** The error of a storage failure other than a lack of space. */
 export function diskFailure(): DOMException {
   return new DOMException('disk failure', 'UnknownError')
 }
 
-/** Intent: assert-free capture of how a promise settles: its value, or the error it rejected with. */
+/** Assert-free capture of how a promise settles: its value, or the error it rejected with. */
 export async function settled<T>(operation: Promise<T>): Promise<{ value?: T; error?: unknown }> {
   try {
     return { value: await operation }

@@ -61,7 +61,7 @@ const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
 })
 
 /**
- * Intent: build a real, cheap-to-search GenerationIntent for one register choice and seed,
+ * Build a real, cheap-to-search GenerationIntent for one register choice and seed,
  * overriding only the register-affecting control and any explicitly supplied overrides on top of
  * the shared cheap base controls.
  */
@@ -87,7 +87,7 @@ export interface RankedDomains {
 }
 
 /**
- * Intent: independently recompute one intent's ranked harmony and rhythm candidate domains the
+ * Independently recompute one intent's ranked harmony and rhythm candidate domains the
  * same way generatePhrase does, for tests that assert against the orchestrator's exact search
  * order or exact window outcome without reaching into its internals. Throws if the fixture's
  * cheap controls stop yielding a legal domain, since that would silently invalidate every test
@@ -120,7 +120,7 @@ export function computeRankedDomains(intent: GenerationIntent): RankedDomains {
 }
 
 /**
- * Intent: independently recompute the exact WindowOutcome generatePhrase would reuse for one
+ * Independently recompute the exact WindowOutcome generatePhrase would reuse for one
  * resolved register window of one intent, under the same injectable deps/search policy, so a test
  * can assert the orchestrator's returned result is exactly that window's already-validated result
  * rather than a re-run or a different one.

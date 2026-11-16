@@ -51,7 +51,7 @@ export interface FakeWebMidiPermissions extends WebMidiPermissionsLike {
   readonly queries: PermissionDescriptor[]
 }
 
-/** Intent: a fake port, present and closed, of the given type; `open()` opens it at once. */
+/** A fake port, present and closed, of the given type; `open()` opens it at once. */
 // @test-link [[req_midi_controller_input]]
 export function createFakeWebMidiPort(
   id: string,
@@ -80,13 +80,13 @@ export function createFakeWebMidiPort(
   return port
 }
 
-/** Intent: a fake granted access whose inputs map holds these ports, in this order. */
+/** A fake granted access whose inputs map holds these ports, in this order. */
 // @test-link [[req_midi_controller_input]]
 export function createFakeWebMidiAccess(ports: readonly FakeWebMidiPort[]): FakeWebMidiAccess {
   const inputs = new Map(ports.map((port) => [port.id, port]))
   const listeners: ((event: WebMidiConnectionEventLike) => void)[] = []
 
-  /** Intent: dispatch one statechange event to every listener. */
+  /** Dispatch one statechange event to every listener. */
   function fireStateChange(event: WebMidiConnectionEventLike): void {
     ;[...listeners].forEach((listener) => listener(event))
   }
@@ -109,7 +109,7 @@ export function createFakeWebMidiAccess(ports: readonly FakeWebMidiPort[]): Fake
   }
 }
 
-/** Intent: a fake navigator whose `requestMIDIAccess` records the call and returns `answer()`. */
+/** A fake navigator whose `requestMIDIAccess` records the call and returns `answer()`. */
 // @test-link [[rule_controller_connects_between_sessions]]
 export function createFakeWebMidiNavigator(
   answer: () => Promise<WebMidiAccessLike>,
@@ -124,7 +124,7 @@ export function createFakeWebMidiNavigator(
   }
 }
 
-/** Intent: a fake `navigator.permissions` whose `query` records the descriptor and returns `answer()`. */
+/** A fake `navigator.permissions` whose `query` records the descriptor and returns `answer()`. */
 // @test-link [[rule_controller_connects_between_sessions]]
 export function createFakeWebMidiPermissions(
   answer: () => Promise<{ readonly state: PermissionState }>,

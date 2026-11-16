@@ -8,21 +8,21 @@ import { parseSource } from '../../../scripts/code-health/sources.mjs'
 /** The atom ids the fixtures may link: `alpha`, `beta` and `atom1` to `atom12`. */
 const atomIds = new Set(['alpha', 'beta', ...Array.from({ length: 12 }, (_, i) => `atom${i + 1}`)])
 
-/** Intent: the atd findings of one file, as `LEVEL line message` strings in report order. */
+/** The atd findings of one file, as `LEVEL line message` strings in report order. */
 function atdOf(path: string, text: string): string[] {
   return checkAtd(parseSource(path, text), { atomIds })
     .map((finding) => `${finding.level} ${finding.line} ${finding.message}`)
     .sort()
 }
 
-/** Intent: a module of one exported function per id, each linked to that id. */
+/** A module of one exported function per id, each linked to that id. */
 function linkedFunctions(ids: string[]): string {
   return ids
     .map((id, index) => `// @spec-link [[${id}]]\nexport function f${index}() {}`)
     .join('\n')
 }
 
-/** Intent: the ids `atom1` to `atom<count>`. */
+/** The ids `atom1` to `atom<count>`. */
 function atomRange(count: number): string[] {
   return Array.from({ length: count }, (_, index) => `atom${index + 1}`)
 }
@@ -160,7 +160,7 @@ describe('atd phantom ids', () => {
     const text = `// @spec-link [[alpha]]
 export const a = 1
 /**
- * Intent: two links in one doc comment.
+ * Two links in one doc comment.
  * @spec-link [[alpha]]
  * @spec-link [[ghost]]
  */
@@ -206,9 +206,7 @@ describe('atd link attachment in scripts', () => {
     ['top-level void call', 'void promise.then(() => {})'],
     ['top-level parenthesized call', '(start())'],
   ])('accepts a link directly above a %s', (_kind, code) => {
-    expect(
-      atdOf('src/a.ts', `/** Intent: documented. */\n// @spec-link [[alpha]]\n${code}\n`),
-    ).toEqual([])
+    expect(atdOf('src/a.ts', `/** Documented. */\n// @spec-link [[alpha]]\n${code}\n`)).toEqual([])
   })
 
   it('accepts links above test-framework calls and declarations nested in their callbacks', () => {
@@ -323,7 +321,7 @@ const shut = ref(true)
 })
 
 describe('atd bypass tokens', () => {
-  /** Intent: the atd findings of a source file analyzed with every rule and its bypasses. */
+  /** The atd findings of a source file analyzed with every rule and its bypasses. */
   const bypassedOf = (text: string) =>
     analyzeSource({ path: 'src/a.ts', text, atomIds }).filter((finding) => finding.rule === 'atd')
 

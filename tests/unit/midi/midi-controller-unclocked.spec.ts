@@ -10,7 +10,7 @@ import type { ClockAnchor } from '@/audio/audio-ports'
 
 import { createControllerRig, KEYS_A } from './midi-controller-rig'
 
-/** Intent: a rig whose clock runs only once `start` is called, with KEYS_A connected. */
+/** A rig whose clock runs only once `start` is called, with KEYS_A connected. */
 async function lockedRig() {
   const clock: { anchor: (() => ClockAnchor) | null } = { anchor: null }
   const rig = createControllerRig({ devices: [KEYS_A], anchor: () => clock.anchor?.() ?? null })

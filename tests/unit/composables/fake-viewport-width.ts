@@ -20,7 +20,7 @@ export interface FakeViewportWidth extends ViewportWidthProvider {
   readonly listenerCount: () => number
 }
 
-/** Intent: build a fake width provider starting on the given side of `bp-tablet-landscape`. */
+/** Build a fake width provider starting on the given side of `bp-tablet-landscape`. */
 export function createFakeViewportWidth(initiallyBelowTabletLandscape = false): FakeViewportWidth {
   let below = initiallyBelowTabletLandscape
   const listeners = new Set<() => void>()

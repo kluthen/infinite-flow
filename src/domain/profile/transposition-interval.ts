@@ -79,7 +79,7 @@ const LETTER_STEPS_PER_OCTAVE = 7
 const DIRECTIONS: readonly MyInstrumentDirection[] = ['lower', 'same', 'higher']
 
 /**
- * Intent: say what is wrong with a transposition, or nothing when it is well formed: octaves a
+ * Say what is wrong with a transposition, or nothing when it is well formed: octaves a
  * whole number from 0 up, semitones a whole number from 0 to 11, a known direction, "same" with a
  * zero size and "lower" or "higher" with a non-zero one. Never corrects the value.
  */
@@ -102,19 +102,19 @@ export function findTranspositionProblem(
   return undefined
 }
 
-/** Intent: refuse a malformed transposition as a typed failure. */
+/** Refuse a malformed transposition as a typed failure. */
 function assertWellFormed(transposition: MyInstrumentTransposition): void {
   const problem = findTranspositionProblem(transposition)
   if (problem !== undefined) throw new TranspositionIntervalError(problem)
 }
 
-/** Intent: the indefinite article an interval name takes. */
+/** The indefinite article an interval name takes. */
 function articleFor(name: string): string {
   return /^[aeiou]/.test(name) ? 'an' : 'a'
 }
 
 /**
- * Intent: the full interval name: the simple name within one octave, "octave" or the compound
+ * The full interval name: the simple name within one octave, "octave" or the compound
  * name at one octave, and "n octaves" or "n octaves and a(n) <simple name>" beyond.
  */
 function intervalName(octaves: number, semitones: number, simple: SimpleInterval): string {
@@ -125,7 +125,7 @@ function intervalName(octaves: number, semitones: number, simple: SimpleInterval
 }
 
 /**
- * Intent: derive the interval of a well-formed transposition from the fixed table: each octave
+ * Derive the interval of a well-formed transposition from the fixed table: each octave
  * adds 12 semitones and 7 letter-name steps. A malformed transposition is refused.
  */
 // @spec-link [[rule_my_instrument_transposition_named_interval]]
@@ -145,7 +145,7 @@ export function deriveTranspositionInterval(
   })
 }
 
-/** Intent: the sign written = concert + chromatic gives a direction: lower is positive. */
+/** The sign written = concert + chromatic gives a direction: lower is positive. */
 function directionSign(direction: MyInstrumentDirection): number {
   if (direction === 'lower') return 1
   if (direction === 'higher') return -1
@@ -153,7 +153,7 @@ function directionSign(direction: MyInstrumentDirection): number {
 }
 
 /**
- * Intent: the chromatic/diatonic pair of a well-formed transposition, in the instrument-profile
+ * The chromatic/diatonic pair of a well-formed transposition, in the instrument-profile
  * convention written = concert + chromatic: a transposition sounding lower has positive counts,
  * one sounding higher negative counts. A malformed transposition is refused.
  */
@@ -170,7 +170,7 @@ export function instrumentTranspositionFor(
 }
 
 /**
- * Intent: turn a built-in's chromatic/diatonic pair back into octaves, semitones and a direction,
+ * Turn a built-in's chromatic/diatonic pair back into octaves, semitones and a direction,
  * refusing a pair whose diatonic count is not the fixed table's steps for its chromatic count, so
  * a template is never respelled silently.
  */

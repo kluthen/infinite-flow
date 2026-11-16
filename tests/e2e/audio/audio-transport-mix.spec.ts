@@ -24,7 +24,7 @@ import {
 /** Two audio times this close are the same time. */
 const SAME_TIME = 1e-9
 
-/** Intent: whether every scheduled click falls on beat k of the run, k counting up from 0. */
+/** Whether every scheduled click falls on beat k of the run, k counting up from 0. */
 async function expectClicksOnTheBeat(page: Page, startAt: number): Promise<number> {
   const clicks = await scheduledClicks(page)
   clicks.forEach((click, k) => {
@@ -33,7 +33,7 @@ async function expectClicksOnTheBeat(page: Page, startAt: number): Promise<numbe
   return clicks.length
 }
 
-/** Intent: advance the fake clock by `seconds` and check it reads exactly `expected` after. */
+/** Advance the fake clock by `seconds` and check it reads exactly `expected` after. */
 async function advanceAndExpectNow(page: Page, seconds: number, expected: number): Promise<void> {
   await advanceAudio(page, seconds)
   expect(Math.abs((await audioNow(page)) - expected)).toBeLessThanOrEqual(SAME_TIME)
@@ -85,7 +85,7 @@ test('stop fades the session out over 0.1 s, and no click sounds from then on', 
   expect(await isAudioRunning(page)).toBe(false)
 })
 
-/** Intent: one fixed script: start, mute during the count-in, unmute, advance, stop, advance. */
+/** One fixed script: start, mute during the count-in, unmute, advance, stop, advance. */
 async function scriptedRun(page: Page): Promise<readonly WorkspaceHarnessAudioEvent[]> {
   await gotoAudioHarness(page)
   await startAudio(page)

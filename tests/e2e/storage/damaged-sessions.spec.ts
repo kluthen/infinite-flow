@@ -65,34 +65,34 @@ const NOT_DELETED_ONE =
 /** A row's note after its opening failed in an outdated tab. */
 const OUTDATED_FAILED_NOTE = "This session couldn't be opened. Try again."
 
-/** Intent: the notice row's notice. */
+/** The notice row's notice. */
 function notice(page: Page): Locator {
   return page.locator('.layout-workspace > .app-notice-row > .app-notice')
 }
 
-/** Intent: whether any of the three kept-session stores holds a record under `key`. */
+/** Whether any of the three kept-session stores holds a record under `key`. */
 async function storedUnder(page: Page, key: string): Promise<string[]> {
   const keys = await keptKeys(page)
   return Object.entries(keys).flatMap(([store, held]) => (held.includes(key) ? [store] : []))
 }
 
-/** Intent: seed a kept session whose summary the codec reads as unreadable, under `key`. */
+/** Seed a kept session whose summary the codec reads as unreadable, under `key`. */
 function seedDamagedSummary(page: Page, key = DAMAGED_KEY): Promise<void> {
   return page.evaluate((at) => window.__workspaceHarness.storage.seedUnreadableKeptSession(at), key)
 }
 
-/** Intent: damage the body of the kept session under `key`. */
+/** Damage the body of the kept session under `key`. */
 function damageBody(page: Page, key: string): Promise<void> {
   return page.evaluate((at) => window.__workspaceHarness.storage.seedDamagedKeptBody(at), key)
 }
 
-/** Intent: pin the kept session under `key`, as the review's pin does, through the seam. */
+/** Pin the kept session under `key`, as the review's pin does, through the seam. */
 function pin(page: Page, key: string): Promise<void> {
   return page.evaluate((at) => window.__workspaceHarness.storage.pinKeptSession(at), key)
 }
 
 /**
- * Intent: play `count` sessions, the `n`th started at `startAt(n)`, each but the last pinned once
+ * Play `count` sessions, the `n`th started at `startAt(n)`, each but the last pinned once
  * saved, so all are kept; resolves their keys, oldest first.
  */
 async function keptSessions(page: Page, count: number): Promise<string[]> {
@@ -107,7 +107,7 @@ async function keptSessions(page: Page, count: number): Promise<string[]> {
   return keys
 }
 
-/** Intent: the titles the list's rows show, in order. */
+/** The titles the list's rows show, in order. */
 async function rowTitles(page: Page): Promise<string[]> {
   return (await shownRows(page)).map((row) => row.title)
 }

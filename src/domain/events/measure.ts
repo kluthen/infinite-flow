@@ -32,7 +32,7 @@ export interface Measure {
   readonly events: readonly MeasureEvent[]
 }
 
-/** Intent: validate a raw measure index is one of the four legal first-release positions. */
+/** Validate a raw measure index is one of the four legal first-release positions. */
 function assertMeasureIndex(measureIndex: number): asserts measureIndex is MeasureIndex {
   if (measureIndex !== 0 && measureIndex !== 1 && measureIndex !== 2 && measureIndex !== 3) {
     throw new MeasureTilingViolation(
@@ -42,7 +42,7 @@ function assertMeasureIndex(measureIndex: number): asserts measureIndex is Measu
 }
 
 /**
- * Intent: construct an immutable, deep-frozen Measure from an already-validated measure index
+ * Construct an immutable, deep-frozen Measure from an already-validated measure index
  * and an ordered list of already-constructed events. Rejects a measure index outside 0-3 and any
  * event list whose exact rational duration sum is not precisely one whole note (a gap when less,
  * an overlap when more) as a typed MeasureTilingViolation; never defaults or truncates.

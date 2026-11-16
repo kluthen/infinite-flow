@@ -32,7 +32,7 @@ const C_MAJOR = [0, 2, 4, 5, 7, 9, 11]
 const C_MAJOR_TONIC_TRIAD = [0, 4, 7]
 
 /**
- * Intent: a valid phrase generated without carry-in at the given leapiness, the carry-in of
+ * A valid phrase generated without carry-in at the given leapiness, the carry-in of
  * another phrase in the same settings, and a validator for the phrase as if it had been generated
  * with a given carry-in.
  */
@@ -52,7 +52,7 @@ function scenario(leapiness: Leapiness) {
   return { donor, first, validateWith }
 }
 
-/** Intent: the MIDI values inside the carried window whose pitch class passes `keep`. */
+/** The MIDI values inside the carried window whose pitch class passes `keep`. */
 function windowMidis(carryIn: CarryIn, keep: (pitchClass: number) => boolean): readonly number[] {
   const midis: number[] = []
   for (let midi = carryIn.registerWindow.minMidi; midi <= carryIn.registerWindow.maxMidi; midi++)
@@ -60,13 +60,13 @@ function windowMidis(carryIn: CarryIn, keep: (pitchClass: number) => boolean): r
   return midis
 }
 
-/** Intent: the carried-chord tones inside the carried window, lowest first. */
+/** The carried-chord tones inside the carried window, lowest first. */
 function chordTones(carryIn: CarryIn): readonly number[] {
   const chord = carryIn.finalHarmony!.triad.pitchClasses as readonly number[]
   return windowMidis(carryIn, (pc) => chord.includes(pc))
 }
 
-/** Intent: the donor carry-in with its last pitch and leap state replaced. */
+/** The donor carry-in with its last pitch and leap state replaced. */
 function reshaped(
   donor: PhraseCarryIn,
   midi: number,
@@ -78,7 +78,7 @@ function reshaped(
   })
 }
 
-/** Intent: the failure list of a verdict that must be invalid. */
+/** The failure list of a verdict that must be invalid. */
 function failuresOf(verdict: ReturnType<ReturnType<typeof scenario>['validateWith']>) {
   expect(verdict.kind).toBe('invalid_generation_result')
   return verdict.kind === 'invalid_generation_result' ? verdict.failures : []

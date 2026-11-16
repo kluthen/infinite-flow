@@ -7,7 +7,7 @@
 import type { IdlePhraseStateView } from '@/composables/generation-session-types'
 
 /**
- * Intent: the staff-frame state class, in priority order, the room notice first: it holds the
+ * The staff-frame state class, in priority order, the room notice first: it holds the
  * frame through a round under it, dimmed as the Loading it is. A retained result never engraved
  * (its notation error cleared by a later attempt that then failed) falls back to `staff-error`,
  * but only while idle, since every ordinary generation assigns a not-yet-engraved result just

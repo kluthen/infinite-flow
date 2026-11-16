@@ -22,17 +22,17 @@ export const PINNED = 'Pinned: kept until you unpin or delete it.'
 export const NOT_PINNED = 'Not pinned: deleted when your next session is saved.'
 export const NOT_SAVED = 'Not saved on this device: export it to keep it.'
 
-/** Intent: every record of a store with its key, read through the harness's seam. */
+/** Every record of a store with its key, read through the harness's seam. */
 export function keyedRecords(page: Page, store: KeptStore): Promise<KeyedRecord[]> {
   return page.evaluate((name) => window.__workspaceHarness.storage.keyedRecords(name), store)
 }
 
-/** Intent: the changes that reached the storage port since the load (the write spy). */
+/** The changes that reached the storage port since the load (the write spy). */
 export function portChanges(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.storage.portChanges())
 }
 
-/** Intent: the session-wide record stored under `key`, as a plain object. */
+/** The session-wide record stored under `key`, as a plain object. */
 export async function summaryOf(
   page: Page,
   key: string,
@@ -41,7 +41,7 @@ export async function summaryOf(
   return summaries.find((record) => record.key === key)?.value as Record<string, unknown>
 }
 
-/** Intent: the favorite marks of the body stored under `key`, phrase by phrase. */
+/** The favorite marks of the body stored under `key`, phrase by phrase. */
 export async function favoriteMarks(page: Page, key: string): Promise<boolean[] | null> {
   const bodies = await keyedRecords(page, 'sessionBodies')
   const body = bodies.find((record) => record.key === key)?.value as
@@ -49,13 +49,13 @@ export async function favoriteMarks(page: Page, key: string): Promise<boolean[] 
   return body === undefined ? null : body.phrases.map((phrase) => phrase.favorite)
 }
 
-/** Intent: wait until exactly `count` kept sessions are stored, and give their keys. */
+/** Wait until exactly `count` kept sessions are stored, and give their keys. */
 export async function untilKept(page: Page, count: number): Promise<string[]> {
   await expect.poll(async () => (await keyedRecords(page, 'sessionSummaries')).length).toBe(count)
   return (await keyedRecords(page, 'sessionSummaries')).map((record) => record.key)
 }
 
-/** Intent: from Idle, play a two-phrase session seeded `seed`, then Stop: the Review shows. */
+/** From Idle, play a two-phrase session seeded `seed`, then Stop: the Review shows. */
 export async function playSession(page: Page, seed = 7): Promise<void> {
   await readyToStart(page, seed)
   await startSession(page)
@@ -64,32 +64,32 @@ export async function playSession(page: Page, seed = 7): Promise<void> {
   await expectReviewShowing(page, 2)
 }
 
-/** Intent: phrase `n`'s favorite star in the Review. */
+/** Phrase `n`'s favorite star in the Review. */
 export function star(page: Page, n: number): Locator {
   return reviewPanel(page).getByRole('button', { name: `Favorite phrase ${n}`, exact: true })
 }
 
-/** Intent: the Review's pin button, whichever it reads. */
+/** The Review's pin button, whichever it reads. */
 export function pinButton(page: Page): Locator {
   return reviewPanel(page).locator('.review-session-tools > button').first()
 }
 
-/** Intent: the Review's `Delete session`. */
+/** The Review's `Delete session`. */
 export function deleteSessionButton(page: Page): Locator {
   return reviewPanel(page).getByRole('button', { name: 'Delete session', exact: true })
 }
 
-/** Intent: the Review's keep line. */
+/** The Review's keep line. */
 export function keepLine(page: Page): Locator {
   return reviewPanel(page).locator('.review-keep-line')
 }
 
-/** Intent: the open confirmation sheet. */
+/** The open confirmation sheet. */
 export function sheet(page: Page): Locator {
   return page.getByRole('dialog')
 }
 
-/** Intent: the open sheet's action named `name`. */
+/** The open sheet's action named `name`. */
 export function sheetAction(page: Page, name: string): Locator {
   return sheet(page).locator('.sheet-actions').getByRole('button', { name, exact: true })
 }

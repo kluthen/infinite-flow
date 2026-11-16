@@ -41,7 +41,7 @@ const FACTS: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: the stored records of a session over recorded phrases on the C keyboard. */
+/** The stored records of a session over recorded phrases on the C keyboard. */
 function keptRecords(records: readonly SessionHistoryRecord[]): StoredKeptSession {
   return storedRecords(encodeKeptSession(historyOf(records, 'c-keyboard'), FACTS, APP_VERSION))
 }
@@ -49,12 +49,12 @@ function keptRecords(records: readonly SessionHistoryRecord[]): StoredKeptSessio
 /** One edit of a stored body: the path into it and the replacement, or REMOVE. */
 type Edit = readonly [readonly Step[], unknown]
 
-/** Intent: a stored body with every edit applied in order. */
+/** A stored body with every edit applied in order. */
 function editedBody(body: unknown, edits: readonly Edit[]): unknown {
   return edits.reduce((value, [path, replacement]) => edited(value, path, replacement), body)
 }
 
-/** Intent: the value at a path of a stored body. */
+/** The value at a path of a stored body. */
 function valueAt(body: unknown, path: readonly Step[]): unknown {
   return path.reduce<unknown>((node, step) => (node as Record<Step, unknown>)[step], body)
 }
@@ -71,7 +71,7 @@ describe("a kept phrase's request and intent over v3.2's request inputs", () => 
     sessions.set('jam', keptRecords(jamSessionRecords()))
   }, 60_000)
 
-  /** Intent: the stored session named, its body edited, decoded. */
+  /** The stored session named, its body edited, decoded. */
   function decodeEdited(name: SessionName, edits: (body: unknown) => readonly Edit[]) {
     const stored = sessions.get(name)!
     return decodeKeptSession({ ...stored, body: editedBody(stored.body, edits(stored.body)) })
@@ -139,7 +139,7 @@ describe("a kept phrase's request and intent over v3.2's request inputs", () => 
   // @test-link [[module_kept_session_codec]]
   // @test-link [[rule_kept_session_content]]
   it('reads a carry-in from no phrase on phrase 2, in its request and intent alike, as unreadable', () => {
-    /** Intent: the edits giving phrase 2's request and intent phrase 1's carry-ins. */
+    /** The edits giving phrase 2's request and intent phrase 1's carry-ins. */
     const noPhrase = (body: unknown): Edit[] =>
       (['request', 'intent'] as const).map((part) => [
         ['phrases', 1, part, 'carryIn'],

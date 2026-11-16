@@ -25,7 +25,7 @@ export type CountInDisplay =
   | { readonly over: true }
 
 /**
- * Intent: the count-in display at audio time `now` for a session whose count-in starts at
+ * The count-in display at audio time `now` for a session whose count-in starts at
  * `startAt` (from `audio.start`) at `tempo` BPM. A beat is current from its own click up to the
  * next beat's; before the first click every beat is muted. Throws, as the click track does, on a
  * start that is not finite or a tempo that is not a finite positive number, and on a time that is

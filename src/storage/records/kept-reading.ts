@@ -54,7 +54,7 @@ const NEWER = Object.freeze({ reading: 'newer' as const })
 const UNREADABLE = Object.freeze({ reading: 'unreadable' as const })
 
 /**
- * Intent: how a set of stored values reads together, each against its own kept-session shape's
+ * How a set of stored values reads together, each against its own kept-session shape's
  * version: any newer one makes the whole newer (left unread), else any unreadable one makes it
  * unreadable.
  */
@@ -67,7 +67,7 @@ export function readKeptEnvelopes(values: readonly KeptStoredValue[]): EnvelopeR
 }
 
 /**
- * Intent: decode stored values whose envelopes are read, each against its shape's version: a
+ * Decode stored values whose envelopes are read, each against its shape's version: a
  * newer or unreadable envelope is reported as such without reading anything; current ones are
  * read by `read`, whose refusal of an invalid stored value is reported as unreadable. Any other
  * error is rethrown.
@@ -86,7 +86,7 @@ export function readKept<T>(values: readonly KeptStoredValue[], read: () => T): 
   }
 }
 
-/** Intent: refuse an empty app version, which no record may be written with: a caller defect. */
+/** Refuse an empty app version, which no record may be written with: a caller defect. */
 // @spec-link [[entity_kept_session_record]]
 export function assertKeptAppVersion(appVersion: string): void {
   if (appVersion === '') throw new Error('kept session record: the app version must not be empty')
