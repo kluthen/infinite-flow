@@ -1234,3 +1234,42 @@ No agent over 300k tokens of context.
   covered it; C2 at wave 6's sync, 20.0.0); otherwise it is recorded as skipped. Wave 5 merged
   into `main` and pushed. Next: the release gate's preparations or wave 6 after L1, in a fresh
   session; L1, O310, H2, H4–H6, L2, U1b and the M2/M3 reruns with the owner.
+
+## Release gate (chunk 22, 2026-11-17)
+
+Branch `v3.3-release`, worktree `../infinite_flow-v3.3-release`, cut from `main` 76abd651. The
+owner's rulings: D539 (O310 as proposed) and D540 (L1 skipped, so chunk 21 and wave 6 are skipped)
+came in 76abd651; D541 (v3.3 is released first, its hand and listening checks after the `3.3.0`
+tag) and D542 (`rule_jam_phrase_one_failure_ladder` not revised) in 3514603f, with plan v24 and
+master spec Part D v1.6. The after-the-tag list is under
+[chunk 22](build-plan-v3.3.md#chunk-22--v33-release-gate).
+
+- Automated part, `coding-leader`: 945c8202 (`package.json` 3.3.0); 5115046f (release notes: 27
+  rows, item 24's table of 17 rows; 218 citations, 210 resolve at HEAD, the other 8 are retired
+  v3.2 titles verified at v3.2.0); 0ecb0781 (the quality figures and the reviewer's wording fixes;
+  the reviewer's verdict OKAY).
+  - M1, 21:09–21:15: equals chunk 18 count for count (Sometimes 25.3 %, Favored 50.3 %, Strongly
+    favored 100 %, fallbacks 0). DP holds.
+  - M2: cost runner 21:27–21:42, Jam sweep on the real ladder 21:42–22:43, lock census
+    22:43–23:02. Every acceptance is met; the D530 count is 0. One count moved: Jazz at Favored
+    7,450 distinct intents against 7,451 (one failed join fewer at 240 BPM, a timing shift). The
+    real ladder's phrase 1 ready by its deadline: 100 / 99.96 / 99.96 / 100 %; slowest standalone
+    attempt 0.739 s.
+  - A first cost runner overlapped the rerun from 21:27 to 21:30 and was discarded; only the
+    rerun counts.
+  - Corpora and goldens at Off: 534 tests, no fixture changed.
+  - M4: start-up JavaScript 387,038 B, entry 332,026 B.
+  - `quality` on 5115046f, 23:07–23:20: **green**. Two host e2e failures (`ERR_NETWORK_CHANGED`,
+    and a harness page timeout) passed when re-run alone. Unit 10,180 tests in 653 files;
+    e2e 752 + 1 skipped, twice; a11y 76; notation 121 + 4 skipped; `atd:check` empty (ISS-020).
+- Thin evidence, named in the notes: items 4, 6, 16, 18, 19, 22, 23, and item 14 (no direct test
+  loads a pre-v3.3 record at Off).
+- Release sync, `documentalist`: b4f9e5ec and 340f9bed. 32 `changes-in-v3.3` tags removed;
+  `specification_behavioral_quality_gates` 0.4; CONTRACT stays 19.0.0; lexicon lines updated.
+  Promotion proposal (change set part J4): 3 DRAFT to REVIEW, none to STABLE.
+- Fixes before the go, `spec-writer`: HARDWARE-CHECKLIST.md's v3.3 H5 now runs after the `3.3.0`
+  tag (D541), its anchor updated in the release notes; docs/generation-latency.md's ISS-019
+  addendum corrected from "10 to 9" to "21 to 20" (Neutral at Off, 240 BPM, standalone after no
+  legal pitch plan: chunk 18's table gives 21, the release gate's cost runner 20; the "10 to 9"
+  matches no recorded run).
+- Next: the owner's go.
