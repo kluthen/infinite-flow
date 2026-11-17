@@ -116,12 +116,14 @@ Status: this file holds four parts.
   (C13, C14, C16 item 49, C17; spec D522). Built and released as version 3.2.0 on 2026-11-09
   (spec D523), the contract for the running code with Parts A and B; its hand and listening checks
   follow the tag (spec D521). Its sections are numbered C1 to C19; what v1.1 to v1.26 change is listed at the top of Part C and marked in each section they touch.
-- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.5
-  (2026-11-14), consolidated from the v3.3 direction and the chord research, refreshed against
+- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.6
+  (2026-11-17), consolidated from the v3.3 direction and the chord research, refreshed against
   v3.2 as built (spec D511–D519); **approved by the owner on 2026-11-09** (spec D520); v1.3
   corrects it after the intent ingestion (spec D526); v1.4 says what a recovery owed across the join
   may land on (spec D530); v1.5 (2026-11-14) counts all start-up JavaScript against a 400 KiB
-  budget (§D13, spec D536). The contract wording it changes (§D12) was
+  budget (§D13, spec D536); v1.6 (2026-11-17) records the listening check on endings as skipped by
+  the owner, so v3.3 ships the triad reading (§D6.3, §D15 item 9; spec D540), and v3.3's release
+  before its hand and listening checks, which follow the `3.3.0` tag (§D15, §D16; spec D541). The contract wording it changes (§D12) was
   confirmed by the owner separately, on 2026-11-10 (spec D526). Chrome is the one supported
   browser (D15, item 18; spec D399). Its sections are numbered D1 to D17.
 
@@ -4988,7 +4990,7 @@ Five layers, so that v4 keeps them (D491; the owner does not want it rewritten i
 
 ## Part D — v3.3
 
-Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.5 (2026-11-14; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D518; §D8.3's phrase 1 after `Start with this phrase`, D519; v1.3 corrects it after the intent ingestion and the contract sign-off, spec D526: the contract at 14.1.0, the wordings confirmed and two more STABLE atoms reworded, §D12; the four-note backing stated as settled, §D7.3; the spoken words left to the design, §D7.1; the finer fallback's exception, §D5.2; v1.4 says what a leap recovery owed across the join may land on, §D6.3, spec D530; v1.5, 2026-11-14, counts all start-up JavaScript against a 400 KiB budget, §D13, spec D536), consolidated from the
+Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.6 (2026-11-17; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D518; §D8.3's phrase 1 after `Start with this phrase`, D519; v1.3 corrects it after the intent ingestion and the contract sign-off, spec D526: the contract at 14.1.0, the wordings confirmed and two more STABLE atoms reworded, §D12; the four-note backing stated as settled, §D7.3; the spoken words left to the design, §D7.1; the finer fallback's exception, §D5.2; v1.4 says what a leap recovery owed across the join may land on, §D6.3, spec D530; v1.5, 2026-11-14, counts all start-up JavaScript against a 400 KiB budget, §D13, spec D536; v1.6, 2026-11-17, records the listening check as skipped by the owner, §D6.3 and §D15 item 9, spec D540, and the release before the hand and listening checks, §D15 and §D16, spec D541), consolidated from the
 v3.3 direction in the [v3 notes](README.md#v33--richer-chords-optional) and the chord research
 [docs/music/chord-research.md](../../../docs/music/chord-research.md), which keeps the sources, the
 construction tables and the code and atom references line by line. **Approved by the owner on
@@ -5284,7 +5286,7 @@ can sound open, or like a mistake.
   the owner judges that ending on the seventh sounds open rather than wrong, the seventh also
   becomes an ending note and a landing note, and the contract wording of §D12's second option
   applies, confirmed by the owner then. Otherwise v3.3 ships with the triad reading. The result is
-  recorded either way.
+  recorded either way. **Skipped by the owner** (spec D540): v3.3 ships with the triad reading.
 
 ## D7. What the player sees and hears
 
@@ -5806,7 +5808,11 @@ and the join the same day while writing this part, and a re-check of all of it o
 
 ## D15. Definition of done
 
-v3.3 ships when every item holds, each verified by a named test or a recorded hand check.
+v3.3 ships when every item holds, each verified by a named test or a recorded hand check. **By the
+owner's ruling (spec D541), v3.3 ships as `3.3.0` before its hand and listening checks:** the
+listening check of the level and the backing (items 5, 10 and 27), from which the Sometimes and
+Favored shares may be tuned in a 3.3.x patch, and the hand checks of items 11, 12, 14, 18 and 19
+are verified after the tag, as v3.3.x follow-ups; their automated tests are the evidence at the tag.
 
 1. **The level** exists with four values, Off by default; it is set at Idle (the review included),
    locked during a session, saved and restored after a reload, and held by every preset. Jam mode's
@@ -5836,11 +5842,10 @@ v3.3 ships when every item holds, each verified by a named test or a recorded ha
    chord tones; triad events are unchanged.
 8. **Runs.** No recognized run is longer than three notes; a three-note run may include the seventh;
    no four-note one-way arpeggio is written.
-9. **Endings and the join.** The listening check of §D6.3 is done and its result recorded. With the
-   triad reading, a phrase generated without a join never ends on its final chord's seventh, a
-   tense carried note resolves onto a tonic-triad note, and a recovery owed across a join is never
-   repaid on the tonic chord's seventh; with the seventh approved, the second option's rules hold
-   and the owner's confirmation of that wording is recorded.
+9. **Endings and the join.** The listening check of §D6.3 was skipped by the owner (spec D540), so
+   v3.3 ships the triad reading: a phrase generated without a join never ends on its final chord's
+   seventh, a tense carried note resolves onto a tonic-triad note, and a recovery owed across a
+   join is never repaid on the tonic chord's seventh.
 10. **The backing** plays a seventh chord as its four notes in the highest close position with the
     top note at or below E4, and triads as before; the bass is unchanged; the same harmony renders
     the same backing; the MIDI export's backing holds the same notes.
@@ -5890,8 +5895,9 @@ v3.3 ships when every item holds, each verified by a named test or a recorded ha
 ## D16. Deferred and open
 
 - **Measured before the gate, not open questions:** the Sometimes and Favored shares, starting at
-  about 1 in 4 and 1 in 2 (§D5.2); the cost guard's figures (§D10); the listening check on endings and
-  landings, which picks the open ending's wording (§D6.3).
+  about 1 in 4 and 1 in 2 (§D5.2), measured at the gate as they stand and tuned by ear after the
+  `3.3.0` tag if need be (spec D541); the cost guard's figures (§D10); the listening check on endings
+  and landings, which picks the open ending's wording (§D6.3), skipped by the owner (spec D540).
 - **From the owner:** approval of this Part D (given on 2026-11-09, spec D520); then, in one
   sitting, the exact wording of §D12's STABLE changes (the open ending's second option only if the
   listening check approves it), and the vision's refreshed v3.3 line. v3.3 starts after v3.2's

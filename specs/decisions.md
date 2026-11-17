@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.138
+Status: draft v2.139
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -45,7 +45,8 @@ with D351, which shapes the v3.3 plan); D389 and D393–D395 (v3.4 and its lexic
 lexicon API later); D406 (Jam's four answers, provisional until the owner's checks after the
 `3.2.0` tag); D511–D520 (v3.3 refreshed against v3.2 as built, and approved); D521–D523 (v3.2's
 release as built, its contract as built and its go, whose checks after the tag are still open);
-D524 (v3.2 released and archived); and D526–D527 (v3.3's gates I0 and C1, and when A8 applies). D289 and D525 are unused; so are the IDs within the
+D524 (v3.2 released and archived); D526–D527 (v3.3's gates I0 and C1, and when A8 applies); and
+D528–D542 (the v3.3 build, through its release before the hand checks). D289 and D525 are unused; so are the IDs within the
 archived range D407–D509 that its archive notice lists.
 
 ## Decision Log
@@ -649,3 +650,18 @@ archived range D407–D509 that its archive notice lists.
   Endings on the seventh become a candidate for a later version, D539 standing. Now in:
   [build plan v3.3, gates](versions/v3/build-plan-v3.3.md#gates), [waves](versions/v3/build-plan-v3.3.md#waves),
   [roadmap candidates](roadmap.md#candidates-not-committed).
+- **D541 (2026-11-17): v3.3 is released first; its hand and listening checks follow the `3.3.0`
+  tag, as v3.2's did (D521, D523).** The owner's ruling: the release gate runs now, final M1 and M2
+  at the shares as they stand (no L2 tuning before the tag), DP re-checked on them. After the tag:
+  L2 (H2, and any share tuning shipped as a 3.3.x patch with M1, M2 and U1b run again), U1b, H3–H6,
+  M3's deciding runs and D537's restatement. §D15 item 9 now records L1 as skipped (D540), the triad
+  reading shipping. Now in: [Part D §D15](versions/v3/master-spec.md#d15-definition-of-done),
+  [§D16](versions/v3/master-spec.md#d16-deferred-and-open),
+  [build plan v3.3, chunk 22](versions/v3/build-plan-v3.3.md#chunk-22--v33-release-gate),
+  [gates](versions/v3/build-plan-v3.3.md#gates), [hand checks](versions/v3/build-plan-v3.3.md#hand-checks).
+- **D542 (2026-11-17): `rule_jam_phrase_one_failure_ladder` is not revised for v3.3; the release
+  sync removes its `changes-in-v3.3` tag.** Wave 5's sync found it in the change set's part E under
+  chunk 23 but in no Revisions line. Its wording names the rungs and their order, not what they
+  read, and holds; Jam's level on every rung is `rule_jam_has_own_seventh_chords_level`'s (§D15
+  item 22), linked at the attempts' builder. `documentalist` moves part E's row to the atoms
+  checked whose wording holds. Now in: [build plan v3.3, chunk 22](versions/v3/build-plan-v3.3.md#chunk-22--v33-release-gate).
