@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.90
+Status: draft v0.91
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -121,7 +121,8 @@ seventh), O171 by D270 (presets, saved settings, Vary settings never moves the l
 O172 by D271 (Jam and the suggestion unchanged), O173 by D272 (the STABLE wording changes listed
 for the owner) and O175's shape by D273. Their full text is in this register's history in git;
 the answers are in the [decisions log](decisions.md). If the owner amends Part D, the decision
-amended is revised, and no question comes back unless the owner reopens it.
+amended is revised, and no question comes back unless the owner reopens it. D539 closed O310
+(what a phrase may end owing once the seventh is a landing note) on 2026-11-17, as proposed.
 
 - **O176 - Style packs and the chord level: which wins** _(D273, from O175; with style packs, no
   version)_: when a later style pack sets the `seventh-chords` capability as data and the player's
@@ -139,16 +140,6 @@ amended is revised, and no question comes back unless the owner reopens it.
   pass that touches it, I0 at the latest; v3.3's
   [chunk 15](versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5) must not repeat it for
   `ifk5.`. It blocks no chunk.
-
-- **O310 - What a phrase may end owing once the seventh is a landing note** _(D530;
-  [build plan chunk 21](versions/v3/build-plan-v3.3.md#chunk-21--endings-on-the-seventh-second-option-conditional),
-  only if L1 approves the seventh)_: the phrase before checks that what it ends owing (a recovery,
-  a tense note) can be settled on a tonic-triad note (`phrase-ending-debt.ts`). It cannot know
-  whether the next phrase's first chord takes its seventh form, so counting the seventh there would
-  let it owe a debt only a seventh can settle, under a next chord that may be a triad. Proposed:
-  that check keeps reading the triad; only the landing itself (`pitch-advance.ts`, `join-rules.ts`)
-  admits the seventh when the first chord has it. Needed before chunk 21 starts; blocks nothing
-  now.
 
 ## v3.0 wave 2 (O180+)
 

@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.18 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.19 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -21,7 +21,8 @@ approval, 2026-10-12, D264–D274; v3.0 released as 3.0.0 2026-10-16, D348; v3.4
 review, added as the last v3 milestone 2026-10-21, D389; the lexicon page added to v3.4 and the
 lexicon API planned for v4 or v5, 2026-10-21, D393–D395; v3.1 released as 3.1.0 2026-10-21, D397; Chrome named the one supported browser
 2026-10-21, D399; v3.3 Part D approved 2026-11-09, D520; v3.2 to be released as built before its
-hand checks, D521; v3.2 released as 3.2.0 2026-11-09, D523)
+hand checks, D521; v3.2 released as 3.2.0 2026-11-09, D523; endings on the seventh added as a
+candidate 2026-11-17, D540)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -281,3 +282,8 @@ The owner's ideas, recorded so they are not lost. None of them is scope for any 
 - **Cross-device review by export, then import (no earlier than v6; D128).** A player exports a
   phone session and reopens it for review on a larger screen. It serves P3. Recorded in
   [v5+](versions/v5-plus/README.md#candidates-not-committed).
+- **Endings on the seventh (version open; D540).** A phrase may end on its final chord's seventh,
+  and the next phrase land on the tonic chord's seventh: v3.3's skipped
+  [chunk 21](versions/v3/build-plan-v3.3.md#chunk-21--endings-on-the-seventh-second-option-conditional),
+  after a listening check (v3.3's L1, skipped by the owner). What a phrase may end owing keeps
+  reading the tonic triad (D539).

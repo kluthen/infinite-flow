@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.137
+Status: draft v2.138
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -637,3 +637,15 @@ archived range D407–D509 that its archive notice lists.
   peek, C2's 20.0.0 at its sync), before the release gate; otherwise chunk 21 is recorded as
   skipped. Now in: [build plan v3.3, waves](versions/v3/build-plan-v3.3.md#waves),
   [chunk 21](versions/v3/build-plan-v3.3.md#chunk-21--endings-on-the-seventh-second-option-conditional).
+- **D539 (2026-11-17): O310 ruled as proposed: what a phrase may end owing keeps reading the tonic
+  triad; closes O310.** `phrase-ending-debt.ts` admits only a recovery or a tense note a tonic-triad
+  note can settle; only the landing (`pitch-advance.ts`, `join-rules.ts`) may admit the seventh,
+  when the next first chord has it. The owner's reason: every debt across the join stays payable
+  whatever that chord's form; accepting unpaid debts was considered and declined. Applies whenever
+  endings on the seventh are built. Now in: [chunk 21](versions/v3/build-plan-v3.3.md#chunk-21--endings-on-the-seventh-second-option-conditional).
+- **D540 (2026-11-17): the owner skips L1 ("skip the listening test"): chunk 21 is skipped, wave 6
+  does not run, C2 is not drafted, and v3.3 ships the triad reading (§D12's first option).** D538's
+  "otherwise" branch; L1's recorded result is "skipped by the owner", and the release gate is next.
+  Endings on the seventh become a candidate for a later version, D539 standing. Now in:
+  [build plan v3.3, gates](versions/v3/build-plan-v3.3.md#gates), [waves](versions/v3/build-plan-v3.3.md#waves),
+  [roadmap candidates](roadmap.md#candidates-not-committed).
