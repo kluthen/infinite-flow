@@ -7,7 +7,7 @@ priority: 1
 dependents: []
 layer: BUSINESS
 human_name: Figure Levels Leave Tension's Figure Alone
-tags: [v3, release-v3.1, generation, figures, tension, changes-in-v3.3]
+tags: [v3, release-v3.1, generation, figures, tension]
 parents:
   - [[req_embellishment_figure_levels]]
 ---

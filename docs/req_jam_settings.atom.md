@@ -8,7 +8,7 @@ parents:
 layer: BUSINESS
 version: 0.2
 human_name: Jam's Own Settings
-tags: [v3, release-v3.2, jam, player-controls, changes-in-v3.3]
+tags: [v3, release-v3.2, jam, player-controls]
 dependents:
   - [[module_jam_settings]]
   - [[rule_doodle_sets_jam_controls]]

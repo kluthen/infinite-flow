@@ -15,7 +15,7 @@ parents:
 layer: BUSINESS
 version: 0.3
 human_name: Vary Settings' Allowed Groups
-tags: [v3, release-v3.2, session, player-controls, changes-in-v3.3]
+tags: [v3, release-v3.2, session, player-controls]
 ---
 
 # Vary Settings' Allowed Groups
