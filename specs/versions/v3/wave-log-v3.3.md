@@ -1273,3 +1273,12 @@ master spec Part D v1.6. The after-the-tag list is under
   legal pitch plan: chunk 18's table gives 21, the release gate's cost runner 20; the "10 to 9"
   matches no recorded run).
 - Next: the owner's go.
+
+### The go (2026-11-18)
+
+The owner's answers: "Promote all 3" (`req_seventh_chords_level`,
+`rule_seventh_chords_off_changes_nothing`, `rule_jam_has_own_seventh_chords_level` to REVIEW;
+f4f047a8), "Yes, same as before" (v3.3's MODULE atoms join the contract surface when they reach
+STABLE, change set part J4; CONTRACT stays 19.0.0), then "Merge, tag v3.3.0, push". Chunk 22 done;
+`3.3.0` is tagged `v3.3.0` on `main`, its hand and listening checks after the tag as v3.3.x
+follow-ups (spec D541).

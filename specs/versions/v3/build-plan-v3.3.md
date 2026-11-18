@@ -2201,7 +2201,7 @@ ladder above Off is removed (`jam-sweep-population.ts`).
 
 ## Chunk 22 — v3.3 release gate
 
-Status: ready (the automated part now; the owner's go and the tag at its end)
+Status: done (2026-11-18, the owner's go; tagged `v3.3.0`; the checks after the tag remain)
 Depends on: every chunk (20 skipped, D534; 21 skipped, D540)
 
 The release gate, not a wave; it keeps its chunk number because other plans and documents link it.
