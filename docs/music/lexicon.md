@@ -1,6 +1,6 @@
 # Music Lexicon
 
-Status: v1.8 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v4 accompaniment research terms merged 2026-10-11; endgame musical-identity research terms merged 2026-10-11; style atlas research terms merged 2026-10-11; v3.3 chord research terms added 2026-10-12; bass clef and octave sign added, clef entries revised for my instrument's clef, 2026-10-12; starting note and count-in say an out-of-date phrase asks first, 2026-10-13; the v4, musical-identity and style atlas terms merged from branch `v4-accompaniment-research` 2026-10-19; v3.1's figure, preset and Embellishments entries describe the built app, musical profile and grammar entries marked as replaced, 2026-10-21; Held doodle renamed Kept doodle for v3.2's re-scope (spec D413), 2026-10-21; Jam, Doodle, Drift, Rhythm lock, Starting note and Key and mode suggestion follow master spec Part C v1.2, Jam as its own mode, 2026-10-21; Drift's Close and Near worded as master spec C8 states them (spec D431), 2026-10-23; Doodle says a short gap is part of the note before it (spec D440), 2026-11-03; Key and mode suggestion and the entries naming it describe the review's built suggestion, 2026-11-04; the entries for v3.2's Jam words describe the built app, Jam's own rhythm lock and allowed rhythm changes included, with D406's provisional answers noted (spec D521), 2026-11-09)
+Status: v1.8 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v4 accompaniment research terms merged 2026-10-11; endgame musical-identity research terms merged 2026-10-11; style atlas research terms merged 2026-10-11; v3.3 chord research terms added 2026-10-12; bass clef and octave sign added, clef entries revised for my instrument's clef, 2026-10-12; starting note and count-in say an out-of-date phrase asks first, 2026-10-13; the v4, musical-identity and style atlas terms merged from branch `v4-accompaniment-research` 2026-10-19; v3.1's figure, preset and Embellishments entries describe the built app, musical profile and grammar entries marked as replaced, 2026-10-21; Held doodle renamed Kept doodle for v3.2's re-scope (spec D413), 2026-10-21; Jam, Doodle, Drift, Rhythm lock, Starting note and Key and mode suggestion follow master spec Part C v1.2, Jam as its own mode, 2026-10-21; Drift's Close and Near worded as master spec C8 states them (spec D431), 2026-10-23; Doodle says a short gap is part of the note before it (spec D440), 2026-11-03; Key and mode suggestion and the entries naming it describe the review's built suggestion, 2026-11-04; the entries for v3.2's Jam words describe the built app, Jam's own rhythm lock and allowed rhythm changes included, with D406's provisional answers noted (spec D521), 2026-11-09; seventh chord, chord symbol, chord tone, run, voicing and the four seventh-chord kinds describe v3.3 as built (master spec §D16, spec D283), 2026-11-17)
 
 Date: 2026-10-21
 
@@ -1024,7 +1024,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** harmonic tone
 - **popup:** A note that belongs to the chord sounding at that moment. Chord tones sound stable and settled.
 - **definition:** A chord tone is a melody note that belongs to the chord sounding at that moment. Over a C major chord (C, E, G), any C, E or G in any octave is a chord tone. Chord tones blend with the harmony and sound stable, so melodies tend to put them on strong beats and use other notes to link them.
-- **in_infinite_flow:** A chord tone is a pitch belonging to the active chord. The app ranks chord tones ahead of other notes, and gives them priority on beat 1 and wherever the chord changes. Every tension figure must resolve onto a chord tone.
+- **in_infinite_flow:** A chord tone is a pitch belonging to the active chord. The app ranks chord tones ahead of other notes, and gives them priority on beat 1 and wherever the chord changes. Every tension figure must resolve onto a chord tone. When a chord is played as a seventh chord, its seventh is a chord tone too; ninths and other extensions never are. The end of a phrase still reads the chord as its plain three-note triad: a phrase on its own never ends on its last chord's seventh. In a session, a phrase that joins on from the one before may end on it, as a tense note the next phrase resolves on its first note.
 - **related:** `non-chord-tone`, `chord`, `triad`, `arpeggio`
 - **sources:** S4, S14
 
@@ -1523,7 +1523,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** lead-sheet symbol, chord name
 - **popup:** A short name for a chord, like C, Dm or G7. The letter is the chord's main note; the rest tells its flavor.
 - **definition:** A chord symbol is shorthand for a chord, written above the staff in lead sheets and in jazz and pop charts. It starts with the root's letter name, then adds signs for the quality and any extra notes: "C" is C major, "Dm" D minor, "Bdim" B diminished, "G7" a G dominant seventh. Players read them to know the harmony without every note being written out.
-- **in_infinite_flow:** The app shows one chord symbol at each chord change, transposed into your instrument's written pitch like the notes. Only triad symbols appear: major (C), minor (Dm) and diminished (Bdim).
+- **in_infinite_flow:** The app shows one chord symbol at each chord change, transposed into your instrument's written pitch like the notes. Triads show as major (C), minor (Dm) or diminished (Bdim). When the Seventh chords level is above Off, a seventh chord adds its ending: maj7 (Cmaj7), m7 (Dm7), 7 (G7) or m7♭5 (Bm7♭5), never the signs Δ, − or ø. Only the root's name changes with your instrument, never the ending: a sounding G7 shows as A7 for a tenor saxophone. Screen readers say the ending in words, such as "dominant seventh".
 - **related:** `chord`, `chord-quality`, `root`, `written-pitch`, `triad`, `lead-sheet`
 - **sources:** S14, ui_ux/screens/phrase-workspace/handoff.md
 
@@ -1583,7 +1583,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** dominant seventh, major-minor seventh chord, 7 chord, V7
 - **popup:** A major chord with a lower seventh on top, such as G, B, D, F (G7). It pulls strongly home, and it is the basic chord of the blues.
 - **definition:** A dominant seventh chord is a major triad plus a minor seventh: G–B–D–F is G7, written with a bare 7. It sits naturally on the fifth degree of a major key, where its third and seventh, a tritone apart, pull toward the home chord: in classical practice the seventh falls by step and the third rises to the tonic. Blues uses dominant sevenths on I, IV and V, where they need not pull anywhere.
-- **in_infinite_flow:** Not used yet. In each of the app's seven modes, exactly one degree carries it: degree 5 in Major, degree 1 in Mixolydian, degree 7 in natural Minor (docs/music/chord-research.md).
+- **in_infinite_flow:** Used when the Seventh chords level is above Off. In each of the app's seven modes, exactly one degree carries it: degree 5 in Major, degree 1 in Mixolydian, degree 7 in natural Minor (docs/music/chord-research.md). Its symbol is a bare 7, as in G7.
 - **related:** `dominant`, `seventh-chord`, `twelve-bar-blues`, `mixolydian`, `chord-symbol`
 - **sources:** S430, S416, S420
 
@@ -1623,7 +1623,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** half-diminished, minor seventh flat five, m7♭5, ø7
 - **popup:** A diminished triad with a minor seventh on top, such as B, D, F, A (Bm7♭5 or Bø7). Dark and unsettled.
 - **definition:** A half-diminished seventh chord is a diminished triad plus a minor seventh: B–D–F–A, written Bm7♭5 or Bø7. "Half" sets it apart from the diminished seventh chord, whose seventh is a half step lower. It sits on the seventh degree of a major key and the second degree of a natural minor key, and in jazz it is the usual first chord of a minor ii–V–i.
-- **in_infinite_flow:** Not used yet. If seventh chords are allowed, each of the app's seven modes has exactly one, on the degree whose triad is diminished today.
+- **in_infinite_flow:** Used when the Seventh chords level is above Off. Each of the app's seven modes has exactly one, on the degree whose triad is diminished (degree 7 in Major). Its symbol is m7♭5, as in Bm7♭5; the app never writes ø7.
 - **related:** `seventh-chord`, `diminished-seventh-chord`, `chord-quality`, `locrian`, `chord-symbol`
 - **sources:** S431, S416, S429
 
@@ -1663,7 +1663,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** maj7, M7, Δ7, major-major seventh chord
 - **popup:** A major chord with the note a half step below the root added on top, such as C, E, G, B (Cmaj7). Soft and dreamy.
 - **definition:** A major seventh chord is a major triad plus a major seventh: C–E–G–B is Cmaj7, also written CM7 or CΔ7. The seventh lies just a half step below the next root, which gives the chord its soft, floating sound. In a major key it sits on the first and fourth degrees. It is a common home chord in jazz and bossa nova.
-- **in_infinite_flow:** Not used yet. Each of the app's seven modes has two degrees that carry it.
+- **in_infinite_flow:** Used when the Seventh chords level is above Off. Each of the app's seven modes has two degrees that carry it (degrees 1 and 4 in Major). Its symbol is maj7, as in Cmaj7; the app never writes M7 or Δ7.
 - **related:** `seventh-chord`, `minor-seventh-chord`, `chord-quality`, `chord-symbol`, `bossa-nova`
 - **sources:** S416, S429, S441, S447
 
@@ -1673,7 +1673,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** m7, min7, −7, minor-minor seventh chord
 - **popup:** A minor chord with a seventh on top, such as D, F, A, C (Dm7). Mellow, the everyday minor chord of jazz.
 - **definition:** A minor seventh chord is a minor triad plus a minor seventh: D–F–A–C is Dm7, also written D−7. In a major key it sits on the second, third and sixth degrees. It is the "two" of the jazz ii–V–I and the home chord of Dorian vamps, such as the Am7 of "Oye Como Va".
-- **in_infinite_flow:** Not used yet. Each of the app's seven modes has three degrees that carry it.
+- **in_infinite_flow:** Used when the Seventh chords level is above Off. Each of the app's seven modes has three degrees that carry it (degrees 2, 3 and 6 in Major). Its symbol is m7, as in Dm7; the app never writes −7.
 - **related:** `seventh-chord`, `major-seventh-chord`, `dorian`, `chord-quality`, `chord-symbol`
 - **sources:** S416, S429, S105
 
@@ -1813,7 +1813,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** 7th chord
 - **popup:** A four-note chord: a three-note chord plus one more note stacked on top, as in G, B, D, F (G7).
 - **definition:** A seventh chord adds a fourth note to a triad: another third on top, which lies a seventh above the root. G-B-D-F is a G dominant seventh (G7). Common types include major seventh (Cmaj7), minor seventh (Dm7), dominant seventh (G7) and half-diminished (Bm7♭5). Seventh chords sound richer than triads and are the everyday chords of jazz.
-- **in_infinite_flow:** The app does not use seventh chords yet. Even under the Jazz preset, all chords are plain triads.
+- **in_infinite_flow:** The Seventh chords level lets the app write a chord as its seventh chord instead of its plain triad. It is set at Idle, and Jam mode has its own at Jam's Idle. Off, the first value and every built-in preset's (Jazz included), keeps every chord a triad. Sometimes makes about 1 chord in 4 a seventh chord, Often about 1 in 2, and Always a seventh on nearly every chord. It is a preference, never a quota: a phrase that only works as triads still comes. Only the four kinds inside the chosen key and mode are used (major seventh, minor seventh, dominant seventh and half-diminished seventh), and the chords follow the same order as at Off; only their form changes. The chord symbols, the backing and the exported files carry the added note.
 - **related:** `triad`, `chord`, `chord-symbol`, `chord-quality`
 - **sources:** S14, S15
 
@@ -1953,7 +1953,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** chord voicing, close position, open position
 - **popup:** Which exact notes of a chord are played, in which octaves and in what order from low to high.
 - **definition:** A chord names a set of notes, but a voicing is one particular way to play them: which octave each note is in, which note is on top, whether a note is doubled or left out, and how close together they sit. In close position the notes are packed inside an octave; in open position they are spread wider. Jazz players often leave out the root and the fifth and keep the third and the seventh.
-- **in_infinite_flow:** The backing plays close-position triads with the top note at or below E4 (MIDI 64).
+- **in_infinite_flow:** The backing plays every note of each chord in close position, as high as it can with the top note at or below E4 (MIDI 64): three notes for a triad, four for a seventh chord.
 - **related:** `chord`, `triad`, `root`, `chord-inversion`, `guide-tone`, `voice-leading`, `comping`
 - **sources:** S131, S146, S418, S427, src/domain/backing/backing-renderer.ts
 
@@ -3347,7 +3347,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** arpeggio run, chord-tone run
 - **popup:** Internal: three chord notes in a row, jumping the same way twice, counted by the Leapiness limits.
 - **definition:** In this project, a run is a recognized three-note arpeggio: three sounding chord tones of one chord, joined by two intervals of 3 or more half steps in the same direction, such as C up to E up to G. It is how the app allows two jumps in a row in one direction; two same-direction leaps that don't form such a run are not allowed. A single jump between two chord tones is ordinary motion, not a run.
-- **in_infinite_flow:** Smooth, Shaped and Leaping allow one run per phrase (made of skips only under Smooth). Angular allows two per phrase, at most one per measure.
+- **in_infinite_flow:** Smooth, Shaped and Leaping allow one run per phrase (made of skips only under Smooth). Angular allows two per phrase, at most one per measure. Over a seventh chord a run may use the seventh, such as E, G, B over Cmaj7, but it is still three notes: the app never plays four chord notes in a row going the same way.
 - **related:** `arpeggio`, `chord-tone`, `recovery`, `control-leapiness`, `control-arpeggio-chaos`
 - **sources:** docs/music/melodic-control-models.md, docs/music/pitch-planner-validation.md
 

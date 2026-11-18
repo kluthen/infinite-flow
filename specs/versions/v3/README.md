@@ -6,8 +6,9 @@ checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v
 built as version 3.2.0 on 2026-11-09 (tag `v3.2.0` at f93e552d; D521, D523), stated in
 [master spec Part C](master-spec.md#part-c--v32), its hand and listening checks after the tag
 ([v3.2.x notes](#v32x-notes-after-the-tag)), its working record archived (D524); v3.3 in master
-spec Part D v1.5 (D536), approved with its build plan and its design (D520), gate R0 cleared at the
-`v3.2.0` tag (D523), gates I0 and C1 cleared (D526), wave 0 in progress; v3.4, a structural
+spec Part D v1.6 (D541), approved with its build plan and its design (D520), gate R0 cleared at the
+`v3.2.0` tag (D523), gates I0 and C1 cleared (D526), waves 0–5 merged, L1 skipped (D540), the
+release gate next, its hand and listening checks after the `3.3.0` tag (D541); v3.4, a structural
 review before v4, opened as a scoping draft (D389), with a lexicon page added as its one
 player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until the
 v3.0, v3.1 and v3.2 releases are archived verbatim in
@@ -71,8 +72,9 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   (D520; D264–D274, 2026-10-12; v1.2 refreshed against v3.2 as built, D511–D519): one Seventh
   chords level, Off by default, and Jam mode's own; its contract wording changes wait for the
   owner's confirmation (gate C1). O176 (style packs and the level) stays open for later.
-- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v7 (2026-11-09), approved with
-  Part D (D520); gate R0 cleared at v3.2's `v3.2.0` tag (D521, D523); wave 0 waits on gate I0. Planning answers D276–D288,
+- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v24 (2026-11-17), approved with
+  Part D (D520); gate R0 cleared at v3.2's `v3.2.0` tag (D521, D523); waves 0–5 merged, the release
+  gate next (D541). Planning answers D276–D288,
   D511–D518.
 - **v3.4 is added after v3.3** (D389), the owner's request of 2026-10-21: an overall structural
   review of the app before v4's endgame work, with no player-facing change. It is the last v3
@@ -572,8 +574,8 @@ generation." v3.2 was the last v3 release; v3.3 follows it. Specced on 2026-10-1
 (D520); nothing built. The text below is the direction as recorded before the research; where it and
 Part D differ, Part D wins.
 
-**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v7 (2026-11-09), approved with Part D
-(D520); gate R0 cleared at the `v3.2.0` tag (D523). It plans v3.3 on top of the [v3.0](build-plan.md),
+**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v24 (2026-11-17), approved with Part D
+(D520); gate R0 cleared at the `v3.2.0` tag (D523); waves 0–5 merged, the release gate next (D541). It plans v3.3 on top of the [v3.0](build-plan.md),
 [v3.1](build-plan-v3.1.md) and [v3.2](build-plan-v3.2.md) build plans on the build-plan model: 22
 chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
 (D351), with contract sign-offs on the three STABLE changes and the owner's listening check on

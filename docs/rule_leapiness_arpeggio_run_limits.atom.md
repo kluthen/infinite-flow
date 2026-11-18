@@ -1,7 +1,7 @@
 ---
 id: rule_leapiness_arpeggio_run_limits
 status: REVIEW
-tags: [melody, leapiness, arpeggio, hard-constraint, changes-in-v3.3]
+tags: [melody, leapiness, arpeggio, hard-constraint]
 parents:
   - [[req_four_measure_phrase]]
 dependents: []

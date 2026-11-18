@@ -1,6 +1,6 @@
 ---
 id: rule_seventh_chords_off_changes_nothing
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: At Off, Phrases Are as Before Seventh Chords
 tags: [v3, release-v3.3, generation, chords]

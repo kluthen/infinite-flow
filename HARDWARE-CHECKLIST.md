@@ -1040,7 +1040,7 @@ restates the key (no sharps or flats) for the change of collection.
 
 **Result:** not run yet (needs the owner).
 
-## v3.3 H5. v3.2 data carried over (chunk 17; run at the release gate)
+## v3.3 H5. v3.2 data carried over (chunk 17; run after the 3.3.0 tag)
 
 The reference machine, from the repo, in plain Chrome, then the installed app if one is
 installed. Data that v3.2 saved on the device must come back after the update to v3.3: the
@@ -1098,8 +1098,8 @@ profile whose data at that address you can lose: the first step may clear it.
 - [ ] Afterwards: `git worktree remove ../infinite_flow-v3.2.0`.
 - [ ] Pass: every check above holds, in Chrome and, if installed, in the app.
 
-**Result:** not run yet (the release gate, after chunks 19 and 23: the two Seventh chords
-controls).
+**Result:** not run yet (after the `3.3.0` tag, spec D541; chunks 19 and 23, the two Seventh
+chords controls, are in).
 
 ## v3.3 H6. Symbols at the narrowest widths (chunk 14; run after chunk 19)
 

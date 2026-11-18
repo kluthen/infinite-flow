@@ -1,6 +1,6 @@
 ---
 id: req_seventh_chords_level
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: The Seventh Chords Level
 tags: [v3, release-v3.3, generation, player-controls, chords]

@@ -3,7 +3,7 @@ id: rule_jam_settings_saved_on_change
 status: REVIEW
 version: 0.2
 priority: 1
-tags: [v3, release-v3.2, jam, player-controls, storage, changes-in-v3.3]
+tags: [v3, release-v3.2, jam, player-controls, storage]
 dependents:
   - [[module_jam_settings]]
 type: RULE

@@ -15,7 +15,7 @@ dependents:
 type: RULE
 version: 0.3
 human_name: Session History Keeps Timeline and Reproduction Inputs
-tags: [v2, release-v2.0, session, history, determinism, changes-in-v3.3]
+tags: [v2, release-v2.0, session, history, determinism]
 ---
 
 # Session History Keeps Timeline and Reproduction Inputs

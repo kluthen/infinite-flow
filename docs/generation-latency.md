@@ -1578,8 +1578,11 @@ always resolves before the final attack), so its search is unchanged; the runner
 attempt its measured time plus 100 ms, so a higher load can move which intents a session tries at
 240 BPM. Neutral at Off, which the change cannot reach (the corpus guard and the goldens pass
 unchanged), moved the same way: at 240 BPM one standalone phrase after a cutover cancel instead of
-after no legal pitch plan (1 to 2, 10 to 9), and Neutral at Strongly favored one after three
-retries instead of after a cutover cancel.
+after no legal pitch plan (1 to 2, 21 to 20), and Neutral at Strongly favored one after three
+retries instead of after a cutover cancel. (Corrected at the v3.3 release gate, 2026-11-17: this
+addendum first gave "10 to 9". The count is the same one as chunk 18's table, which gives 21 at
+240 BPM for the same population, and the release gate's rerun of the same runner gave 2 and 20;
+the addendum run's own output was not kept, so "10 to 9" matches no recorded run.)
 
 **Bebop at every level** (ISS-019's table, the flat attempt cost: the 568 cases at 60, 120 and 240
 BPM, every attempt generated whatever its time, so the counts do not depend on the machine),
