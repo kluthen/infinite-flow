@@ -1,6 +1,6 @@
 ---
 id: rule_jam_has_own_seventh_chords_level
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: Jam Has Its Own Seventh Chords Level
 parents:
