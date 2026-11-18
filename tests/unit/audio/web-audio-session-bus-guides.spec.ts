@@ -10,8 +10,8 @@ import { describe, expect, it } from 'vitest'
 import { envelopeOf } from './fake-web-audio-context'
 import { MIDDLE_C_HZ, setUp } from './web-audio-bus-rig'
 
-/** The melody guide's voice: a sine at 0.3, 5 ms attack, ringing out over 600 ms after its end. */
-const MELODY = { peak: 0.3, attack: 0.005, release: 0.6, endGain: 0.0001 } as const
+/** The melody guide's voice: a sine at 0.39, 5 ms attack, ringing out over 600 ms after its end. */
+const MELODY = { peak: 0.39, attack: 0.005, release: 0.6, endGain: 0.0001 } as const
 
 /** The rhythm guide's voice: a triangle at 0.25, 3 ms attack, a plucked 300 ms release. */
 const RHYTHM = { peak: 0.25, attack: 0.003, release: 0.3, endGain: 0.0001 } as const
