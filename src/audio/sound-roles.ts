@@ -95,7 +95,7 @@ export const SOUND_ROLE_VOICES: Readonly<Record<SoundRole, SoundRoleVoice>> = {
   },
   'melody-guide': {
     waveform: 'sine',
-    peak: 0.3,
+    peak: 0.39,
     attackSeconds: 0.005,
     releaseSeconds: 0.6,
     releaseEndGain: 0.0001,
