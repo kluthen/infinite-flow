@@ -90,6 +90,13 @@
 No design unit is in progress at the root. v3.3's checks after the tag are in Remaining; the side
 work below is paused.
 
+- **v3.4's lexicon page, first design draft** (2026-11-22, D487):
+  [`drafts/lexicon-page/`](drafts/lexicon-page/README.md), with its research note, a prototype and
+  proposed answers to spec O239–O246. Waiting on the owner's rulings, which `spec-writer` takes
+  to him. Then: apply them, run `ux-critic`, move the screen and flow to the root with v3.4's
+  marks (its README, "What Adoption Changes at the Root"), and the token-source pass for the
+  `lexicon-*` classes.
+
 ## Remaining
 
 Standing working rules (ux D119, D135, archived; still in force):
@@ -155,6 +162,8 @@ Side work, not part of a version (paused):
     there yet". To be revisited later; nothing is decided from it yet.
 
 ## Next Unit
+
+v3.4's lexicon page: once the owner has ruled on O239–O246, adopt the draft (In Progress).
 
 v3.3: released as version 3.3.0 and archived (`archive/v3.3/`). Next here is U1b, once the
 owner's listening check L2 has run, and any design finding of hand check v3.3 H6 (Remaining,

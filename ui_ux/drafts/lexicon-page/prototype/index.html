@@ -1,0 +1,361 @@
+<!doctype html>
+<!--
+  Lexicon page: design prototype (draft, proposed). Not application code and not buildable truth:
+  the design is ../screens/lexicon-page/handoff.md and ../flows/look-up-a-word/handoff.md.
+
+  Self-contained: no network, no dependency. It holds no copy of the lexicon. It reads the
+  repository's own docs/music/lexicon.md, either from its relative path when served over http
+  (for example `npx vite preview` is not needed: any static server at the repository root, such
+  as `python3 -m http.server` run there, then open /ui_ux/drafts/lexicon-page/prototype/), or,
+  opened straight from disk, through the "Open lexicon.md" file picker.
+
+  The token values below are copied from src/styles/theme.css as a design reference only; the
+  build uses src/styles/, never this file.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lexicon page prototype (draft)</title>
+<style>
+  :root {
+    --font-display: Georgia, serif;
+    --font-ui: system-ui, sans-serif;
+    --text-xs: .75rem; --text-sm: .875rem; --text-md: 1rem; --text-lg: 1.25rem;
+    --text-xl: 1.5rem; --text-2xl: 2rem; --leading-base: 1.5;
+    --spacing-1: .25rem; --spacing-2: .5rem; --spacing-3: .75rem; --spacing-4: 1rem;
+    --spacing-5: 1.5rem; --spacing-6: 2rem; --spacing-7: 3rem;
+    --radius-sm: .25rem; --radius-md: .5rem; --radius-lg: 1rem;
+    --sheet-wide-max-inline-size: 36rem; --text-input-max-inline-size: 20rem;
+    --z-sheet: 20; --duration-feedback: 120ms; --ease-out-fast: cubic-bezier(.2,0,0,1);
+    --color-canvas: #f4f0e7; --color-surface: #fffdf8; --color-surface-muted: #e9e1d2;
+    --color-text: #22201b; --color-text-muted: #645f56; --color-border: #b8ae9d;
+    --color-accent: #7b4e12; --color-accent-hover: #603b09; --color-accent-text: #fff;
+    --color-focus-ring: #176c7f; --shadow-focus: 0 0 0 3px var(--color-focus-ring);
+    --bar-h: 8rem;
+  }
+  [data-theme="dark"] {
+    --color-canvas: #171816; --color-surface: #23231f; --color-surface-muted: #30302a;
+    --color-text: #f7f0df; --color-text-muted: #d0c7b6; --color-border: #756f62;
+    --color-accent: #e0a64b; --color-accent-hover: #f1bc6a; --color-accent-text: #211604;
+    --color-focus-ring: #70d2df;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font-ui); font-size: var(--text-md); line-height: var(--leading-base);
+         background: var(--color-canvas); color: var(--color-text); }
+  @media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; } }
+  .btn { font: inherit; min-block-size: 2.75rem; padding: var(--spacing-2) var(--spacing-4); border-radius: var(--radius-md);
+         border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); cursor: pointer; }
+  .btn:hover:not(:disabled) { border-color: var(--color-accent); }
+  .btn:focus-visible, a:focus-visible, summary:focus-visible, [tabindex="-1"]:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn.is-loading { cursor: wait; }
+  .sheet-hint { color: var(--color-text-muted); font-size: var(--text-sm); margin: 0; }
+  .sheet-title { font-family: var(--font-display); font-size: var(--text-xl); margin: 0; }
+  .field-label { font-size: var(--text-sm); font-weight: 600; white-space: nowrap; }
+  .text-input { font: inherit; inline-size: 100%; max-inline-size: var(--text-input-max-inline-size); min-inline-size: 8rem;
+                min-block-size: 2.75rem; padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border);
+                border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); }
+  .text-input:hover { border-color: var(--color-accent); }
+  .text-input:focus { outline: none; box-shadow: var(--shadow-focus); }
+
+  /* Prototype-only stand-ins for the workspace and its notice row. */
+  .proto-workspace { padding: var(--spacing-4); max-inline-size: 70rem; margin: auto; }
+  .proto-panel { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg);
+                 padding: var(--spacing-4); margin-block: var(--spacing-4); }
+  .proto-panel label { display: block; margin-block: var(--spacing-1); }
+  .layout-footer { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-2) var(--spacing-3);
+                   color: var(--color-text-muted); font-size: var(--text-sm); padding-block: var(--spacing-4); }
+  .footer-note { margin: 0; }
+  .app-notice { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-2) var(--spacing-3);
+                background: var(--color-surface-muted); border: 1px solid var(--color-accent); border-radius: var(--radius-md); padding: var(--spacing-3); }
+  .app-notice p { flex: 1 1 14rem; margin: 0; }
+
+  /* The proposed lexicon-* classes. */
+  .lexicon-view { position: fixed; inset: 0; z-index: var(--z-sheet); background: var(--color-canvas); overflow-y: auto; overflow-x: hidden;
+                  opacity: 1; transition: opacity var(--duration-feedback) var(--ease-out-fast); }
+  .lexicon-view[hidden] { display: none; }
+  .lexicon-bar { position: sticky; top: 0; z-index: 1; background: var(--color-surface); border-block-end: 1px solid var(--color-border);
+                 padding: var(--spacing-3); display: grid; gap: var(--spacing-2); }
+  .lexicon-bar-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-2) var(--spacing-3); }
+  .lexicon-bar-row .sheet-close { margin-inline-start: auto; }
+  .lexicon-search { display: flex; align-items: center; gap: var(--spacing-2); flex: 1 1 14rem; max-inline-size: calc(var(--text-input-max-inline-size) + 6rem); }
+  .lexicon-letters ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--spacing-1); }
+  .lexicon-letter { display: inline-flex; align-items: center; justify-content: center; min-inline-size: 2.75rem; min-block-size: 2.75rem;
+                    border-radius: var(--radius-sm); color: var(--color-accent); text-decoration: none; font-weight: 600; }
+  a.lexicon-letter:hover { background: var(--color-surface-muted); }
+  a.lexicon-letter:active { color: var(--color-accent-hover); }
+  .lexicon-letter.is-empty { color: var(--color-text-muted); font-weight: 400; opacity: .6; }
+  .proto-letters-btn { display: none; }
+  .lexicon-body { max-inline-size: calc(var(--sheet-wide-max-inline-size) + 2 * var(--spacing-4)); margin-inline: auto;
+                  padding: var(--spacing-4) var(--spacing-4) var(--spacing-6); display: grid; gap: var(--spacing-4); }
+  .lexicon-letter-heading { font-family: var(--font-display); font-size: var(--text-2xl); margin: 0;
+                            border-block-end: 1px solid var(--color-border); scroll-margin-top: calc(var(--bar-h) + var(--spacing-3)); }
+  .lexicon-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--spacing-5); }
+  .lexicon-section { display: grid; gap: var(--spacing-4); }
+  .lexicon-entry + .lexicon-entry { border-block-start: 1px solid var(--color-border); padding-block-start: var(--spacing-5); }
+  .lexicon-entry { scroll-margin-top: calc(var(--bar-h) + var(--spacing-3)); display: grid; gap: var(--spacing-1); }
+  .lexicon-entry-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--spacing-1) var(--spacing-3); }
+  .lexicon-word { font-family: var(--font-display); font-size: var(--text-lg); margin: 0; }
+  .lexicon-group { font-size: var(--text-sm); color: var(--color-text-muted); }
+  .lexicon-popup { margin: 0; }
+  .lexicon-more summary { color: var(--color-accent); cursor: pointer; min-block-size: 2.75rem; display: flex; align-items: center; gap: var(--spacing-2); inline-size: fit-content; }
+  .lexicon-more summary::before { content: "\25B8"; }
+  .lexicon-more[open] summary::before { content: "\25BE"; }
+  .lexicon-more summary::-webkit-details-marker { display: none; }
+  .lexicon-more summary { list-style: none; }
+  .lexicon-detail { display: grid; gap: var(--spacing-3); padding-block-end: var(--spacing-2); }
+  .lexicon-detail p, .lexicon-detail h5 { margin: 0; }
+  .lexicon-detail h5 { font-size: var(--text-md); }
+  .lexicon-link { color: var(--color-accent); text-decoration: underline; }
+  .lexicon-link:hover, .lexicon-link:active { color: var(--color-accent-hover); }
+  .lexicon-mentions { display: grid; gap: var(--spacing-3); border-block-start: 1px solid var(--color-border); padding-block-start: var(--spacing-5); }
+  .lexicon-mentions h3 { margin: 0; font-size: var(--text-lg); font-family: var(--font-display); }
+  .lexicon-empty { display: grid; gap: var(--spacing-3); justify-items: start; }
+  .lexicon-empty p { margin: 0; }
+  .visually-hidden { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* Below bp-tablet-landscape: only the title row stays; the letters scroll away. */
+  @media (max-width: 63.9375rem) {
+    .lexicon-bar { display: contents; }
+    .lexicon-bar-row { position: sticky; top: 0; z-index: 1; background: var(--color-surface);
+                       border-block-end: 1px solid var(--color-border); padding: var(--spacing-3); }
+    .lexicon-letters { padding: var(--spacing-3) var(--spacing-4) 0; max-inline-size: calc(var(--sheet-wide-max-inline-size) + 2 * var(--spacing-4)); margin-inline: auto; }
+    .proto-letters-btn { display: inline-block; }
+  }
+</style>
+</head>
+<body>
+<div class="proto-workspace" id="workspace">
+  <h1 class="sheet-title">Workspace (stand-in)</h1>
+  <div id="notice-row"></div>
+  <div class="proto-panel">
+    <p class="sheet-hint">Prototype controls, to try the owner's choices. Not part of the design.</p>
+    <p id="source-line" class="sheet-hint">Reading the lexicon…</p>
+    <label>Open lexicon.md from disk: <input type="file" id="file" accept=".md,text/markdown"></label>
+    <label><input type="checkbox" id="opt-internal"> Show the Internal entries</label>
+    <label><input type="checkbox" id="opt-mentions" checked> "Mentioned in other words" group</label>
+    <label><input type="checkbox" id="opt-history" checked> Back closes the page (one history entry, #lexicon)</label>
+    <label><input type="checkbox" id="opt-session"> A session is running (footer buttons disabled)</label>
+    <label><input type="checkbox" id="opt-dark"> Dark theme</label>
+  </div>
+  <footer class="layout-footer">
+    <p class="footer-note">Your settings and sessions are kept on this device only.</p>
+    <button class="btn" type="button" id="your-data">Your data</button>
+    <button class="btn" type="button" id="open-lexicon" disabled>Lexicon</button>
+  </footer>
+</div>
+
+<div class="lexicon-view" id="view" role="dialog" aria-modal="true" aria-labelledby="lexicon-title" hidden>
+  <div class="lexicon-bar" id="bar">
+    <div class="lexicon-bar-row">
+      <h2 class="sheet-title" id="lexicon-title" tabindex="-1">Lexicon</h2>
+      <p class="sheet-hint" id="count"></p>
+      <div class="lexicon-search" role="search">
+        <label class="field-label" for="q">Find a word</label>
+        <input class="text-input" id="q" type="search" autocomplete="off" spellcheck="false">
+      </div>
+      <button class="btn proto-letters-btn" type="button" id="letters-btn">Letters</button>
+      <button class="btn sheet-close" type="button" id="close">Close</button>
+    </div>
+    <nav class="lexicon-letters" aria-label="Letters"><ul id="letters"></ul></nav>
+  </div>
+  <div class="lexicon-body" id="body">
+    <p class="sheet-hint">The music words and the controls Infinite Flow uses, each in plain words. Choose a letter, or type part of a word in Find a word.</p>
+    <p class="lexicon-result-count visually-hidden" id="status" role="status" aria-live="polite"></p>
+    <div id="browse"></div>
+    <div id="results" hidden></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const fold = (s) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().replace(/[-'’]/g, ' ').replace(/\s+/g, ' ').trim();
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const inline = (s) => esc(s).replace(/`([^`]+)`/g, '$1').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  .replace(/(^|[\s(])_([^_]+)_(?=[\s).,;:]|$)/g, '$1<em>$2</em>');
+const collator = new Intl.Collator('en', { sensitivity: 'base', numeric: true });
+
+let all = [];        // every parsed entry
+let shown = [];      // the entries the page shows, sorted
+let byId = new Map();
+let opener = null;
+let isOpen = false;
+let statusTimer = 0;
+
+function parse(text) {
+  const out = []; let group = null; let groupIndex = -1; let fence = false; let cur = null;
+  for (const line of text.split('\n')) {
+    if (line.startsWith('```')) { fence = !fence; continue; }
+    if (fence) continue;
+    if (line.startsWith('## ')) { group = line.slice(3).trim(); groupIndex++; cur = null; continue; }
+    if (line.startsWith('### ')) { cur = { word: line.slice(4).trim(), group, groupIndex, f: {} }; out.push(cur); continue; }
+    const m = cur && line.match(/^- \*\*(\w+):\*\* (.*)$/);
+    if (m) cur.f[m[1]] = m[2].trim();
+  }
+  return out.filter((e) => e.f.id).map((e) => ({
+    id: e.f.id.replace(/`/g, ''), word: e.word, group: e.group, groupIndex: e.groupIndex,
+    internal: /^Internal/.test(e.group),
+    aliases: (!e.f.aliases || e.f.aliases === 'none') ? [] : e.f.aliases.split(',').map((a) => a.trim()).filter(Boolean),
+    popup: e.f.popup || '', definition: e.f.definition || '', app: e.f.in_infinite_flow || '',
+    related: (e.f.related || '').split(',').map((r) => r.replace(/`/g, '').trim()).filter(Boolean),
+  }));
+}
+
+function letterOf(e) { const c = fold(e.word).charAt(0).toUpperCase(); return /[A-Z]/.test(c) ? c : '#'; }
+
+function build() {
+  const internal = $('opt-internal').checked;
+  shown = all.filter((e) => internal || !e.internal)
+    .sort((a, b) => collator.compare(a.word, b.word) || a.groupIndex - b.groupIndex);
+  byId = new Map(shown.map((e) => [e.id, e]));
+  const counts = new Map(); shown.forEach((e) => counts.set(fold(e.word), (counts.get(fold(e.word)) || 0) + 1));
+  shown.forEach((e) => { e.doubled = counts.get(fold(e.word)) > 1; e.folded = fold(e.word); e.foldedAliases = e.aliases.map(fold); e.foldedPopup = fold(e.popup); });
+  $('count').textContent = shown.length === 1 ? '1 word' : `${shown.length} words`;
+  const letters = new Map(); shown.forEach((e) => { const l = letterOf(e); if (!letters.has(l)) letters.set(l, []); letters.get(l).push(e); });
+  const order = (letters.has('#') ? ['#'] : []).concat('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''));
+  $('letters').innerHTML = order.map((l) => letters.has(l)
+    ? `<li><a class="lexicon-letter" href="#lexicon-letter-${l === '#' ? 'num' : l.toLowerCase()}" data-letter="${l}">${l}</a></li>`
+    : `<li><span class="lexicon-letter is-empty">${l}</span></li>`).join('');
+  $('browse').innerHTML = order.filter((l) => letters.has(l)).map((l) => {
+    const hid = `lexicon-letter-${l === '#' ? 'num' : l.toLowerCase()}`;
+    return `<section class="lexicon-section" aria-labelledby="${hid}"><h3 class="lexicon-letter-heading" id="${hid}" tabindex="-1">${l}</h3>
+      <ul class="lexicon-list">${letters.get(l).map((e) => entryHtml(e, 'b')).join('')}</ul></section>`;
+  }).join('');
+  if ($('q').value) runSearch();
+}
+
+function nameOf(e) { return e.doubled ? `${e.word} (${e.group})` : e.word; }
+
+function entryHtml(e, scope, boldAlias) {
+  const aliases = boldAlias != null ? [e.aliases[boldAlias], ...e.aliases.filter((_, i) => i !== boldAlias)] : e.aliases;
+  const aliasLine = aliases.length ? `<p class="sheet-hint">Also called ${aliases.map((a, i) => (boldAlias != null && i === 0) ? `<strong>${esc(a)}</strong>` : esc(a)).join(', ')}.</p>` : '';
+  const rel = e.related.map((r) => byId.get(r)).filter(Boolean);
+  const relLine = rel.length ? `<p class="lexicon-related">Related: ${rel.map((r) => `<a class="lexicon-link" href="#lexicon-${r.id}" data-go="${r.id}">${esc(nameOf(r))}</a>`).join(', ')}</p>` : '';
+  const app = e.app ? `<h5>In Infinite Flow</h5><p>${inline(e.app)}</p>` : '';
+  const domId = scope === 'b' ? `lexicon-${e.id}` : `lexicon-${scope}-${e.id}`;
+  return `<li class="lexicon-entry" id="${domId}" data-id="${e.id}">
+    <div class="lexicon-entry-head"><h4 class="lexicon-word" tabindex="-1">${esc(e.word)}</h4><span class="lexicon-group">${esc(e.group)}</span></div>
+    <p class="lexicon-popup">${inline(e.popup)}</p>${aliasLine}
+    <details class="lexicon-more"><summary><span class="more-label">More</span><span class="visually-hidden"> about ${esc(e.word)}</span></summary>
+      <div class="lexicon-detail"><p>${inline(e.definition)}</p>${app}${relLine}</div></details></li>`;
+}
+
+function tier(e, q) {
+  const words = (s) => s.split(' ');
+  if (e.folded === q) return [0];
+  const ai = e.foldedAliases.indexOf(q); if (ai >= 0) return [1, ai];
+  if (e.folded.startsWith(q)) return [2];
+  if (words(e.folded).some((w) => w.startsWith(q))) return [3];
+  const aw = e.foldedAliases.findIndex((a) => a.startsWith(q) || words(a).some((w) => w.startsWith(q))); if (aw >= 0) return [3, aw];
+  if (e.folded.includes(q)) return [4];
+  const ac = e.foldedAliases.findIndex((a) => a.includes(q)); if (ac >= 0) return [4, ac];
+  return null;
+}
+
+function runSearch() {
+  const raw = $('q').value; const q = fold(raw);
+  if (!q) { $('results').hidden = true; $('browse').hidden = false; $('results').innerHTML = ''; announce(''); return; }
+  const matches = [];
+  shown.forEach((e) => { const t = tier(e, q); if (t) matches.push({ e, t: t[0], alias: t[1] }); });
+  matches.sort((a, b) => a.t - b.t || collator.compare(a.e.word, b.e.word) || a.e.groupIndex - b.e.groupIndex);
+  const matched = new Set(matches.map((m) => m.e));
+  const mentions = ($('opt-mentions').checked && q.length >= 3)
+    ? shown.filter((e) => !matched.has(e) && (' ' + e.foldedPopup).includes(' ' + q)) : [];
+  const shownQ = esc(raw.trim());
+  let html = '';
+  if (matches.length) html += `<ul class="lexicon-list">${matches.map((m) => entryHtml(m.e, 's', m.alias)).join('')}</ul>`;
+  else html += `<div class="lexicon-empty"><p>No word matches “${shownQ}”.</p><p class="sheet-hint">Check the spelling, or type only the first letters of the word.</p><button class="btn" type="button" id="clear">Clear search</button></div>`;
+  if (mentions.length) html += `<section class="lexicon-mentions" aria-labelledby="mentions-h"><h3 id="mentions-h">Mentioned in other words</h3>
+      <p class="sheet-hint">Their name doesn't contain “${shownQ}”, but their short line does.</p>
+      <ul class="lexicon-list">${mentions.map((e) => entryHtml(e, 'm')).join('')}</ul></section>`;
+  $('results').innerHTML = html; $('results').hidden = false; $('browse').hidden = true;
+  if (matches.length === 1) $('results').querySelector('details').open = true;
+  syncLabels();
+  announce(matches.length ? (matches.length === 1 ? `1 word matches “${raw.trim()}”.` : `${matches.length} words match “${raw.trim()}”.`) : `No word matches “${raw.trim()}”.`);
+}
+
+function announce(text) { clearTimeout(statusTimer); statusTimer = setTimeout(() => { $('status').textContent = text; }, 500); }
+
+function syncLabels() { document.querySelectorAll('.lexicon-more').forEach((d) => { d.querySelector('.more-label').textContent = d.open ? 'Less' : 'More'; }); }
+
+function clearSearch(focusField) { $('q').value = ''; runSearch(); $('view').scrollTop = 0; if (focusField) $('q').focus(); }
+
+function jumpTo(el, focusEl) { el.scrollIntoView({ block: 'start' }); (focusEl || el).focus({ preventScroll: true }); }
+
+function goToEntry(id) {
+  if ($('q').value) clearSearch(false);
+  const li = document.getElementById(`lexicon-${id}`); if (!li) return;
+  li.querySelector('details').open = true; syncLabels();
+  jumpTo(li, li.querySelector('.lexicon-word'));
+}
+
+function openView() {
+  if ($('opt-session').checked || isOpen) return;
+  opener = $('open-lexicon'); isOpen = true;
+  $('view').hidden = false; $('workspace').inert = true;
+  measureBar();
+  if ($('opt-history').checked && location.hash !== '#lexicon') history.pushState({ lexicon: true }, '', '#lexicon');
+  if (matchMedia('(pointer: fine)').matches) $('q').focus(); else $('lexicon-title').focus();
+}
+
+function closeView(fromHistory) {
+  if (!isOpen) return;
+  if (!fromHistory && history.state && history.state.lexicon) { history.back(); return; } // popstate closes
+  isOpen = false; $('view').hidden = true; $('workspace').inert = false;
+  if (location.hash === '#lexicon') history.replaceState(null, '', location.pathname + location.search);
+  (opener || $('open-lexicon')).focus();
+}
+
+function measureBar() {
+  const narrow = matchMedia('(max-width: 63.9375rem)').matches;
+  const el = narrow ? document.querySelector('.lexicon-bar-row') : $('bar');
+  document.documentElement.style.setProperty('--bar-h', `${el.getBoundingClientRect().height}px`);
+}
+
+function trap(ev) {
+  const items = [...$('view').querySelectorAll('a[href], button:not(:disabled), input, summary')]
+    .filter((el) => el.offsetParent !== null || el === document.activeElement);
+  if (!items.length) return;
+  const first = items[0]; const last = items[items.length - 1];
+  if (ev.shiftKey && (document.activeElement === first || !$('view').contains(document.activeElement))) { ev.preventDefault(); last.focus(); }
+  else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+}
+
+function load(text, from) {
+  all = parse(text);
+  $('source-line').textContent = `Read ${all.length} entries from ${from}.`;
+  $('open-lexicon').disabled = $('opt-session').checked; build();
+}
+
+// Wiring
+$('open-lexicon').addEventListener('click', openView);
+$('close').addEventListener('click', () => closeView(false));
+$('q').addEventListener('input', runSearch);
+$('letters-btn').addEventListener('click', () => { const a = $('letters').querySelector('a'); $('view').scrollTop = 0; if (a) a.focus(); });
+$('view').addEventListener('keydown', (ev) => {
+  if (ev.key === 'Escape') { ev.preventDefault(); if (ev.target === $('q') && $('q').value) clearSearch(true); else closeView(false); }
+  if (ev.key === 'Tab') trap(ev);
+});
+$('view').addEventListener('click', (ev) => {
+  const letter = ev.target.closest('a.lexicon-letter');
+  if (letter) { ev.preventDefault(); if ($('q').value) clearSearch(false); const h = document.getElementById(letter.getAttribute('href').slice(1)); jumpTo(h); return; }
+  const go = ev.target.closest('a[data-go]');
+  if (go) { ev.preventDefault(); goToEntry(go.dataset.go); return; }
+  if (ev.target.id === 'clear') clearSearch(true);
+});
+$('view').addEventListener('toggle', syncLabels, true);
+window.addEventListener('popstate', () => { if (isOpen && location.hash !== '#lexicon') closeView(true); else if (!isOpen && location.hash === '#lexicon') openView(); });
+window.addEventListener('resize', () => { if (isOpen) measureBar(); });
+['opt-internal', 'opt-mentions'].forEach((id) => $(id).addEventListener('change', build));
+$('opt-session').addEventListener('change', () => { const on = $('opt-session').checked; $('open-lexicon').disabled = on || !all.length; $('your-data').disabled = on; });
+$('opt-dark').addEventListener('change', () => { document.documentElement.dataset.theme = $('opt-dark').checked ? 'dark' : ''; });
+$('file').addEventListener('change', async () => { const f = $('file').files[0]; if (f) load(await f.text(), f.name); });
+
+fetch('../../../../docs/music/lexicon.md').then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
+  .then((t) => { load(t, 'docs/music/lexicon.md'); if (location.hash === '#lexicon') { history.replaceState(null, '', location.pathname); openView(); } })
+  .catch(() => { $('source-line').textContent = 'Opened from disk: choose docs/music/lexicon.md with the file picker below.'; });
+</script>
+</body>
+</html>
