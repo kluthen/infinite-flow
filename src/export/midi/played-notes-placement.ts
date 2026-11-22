@@ -32,7 +32,7 @@ const PERCUSSION_CHANNEL = 9
 const CHANNEL_COUNT = 16
 
 /**
- * Intent: an audio-clock time in MIDI ticks from the file's start, counted from the start of the
+ * An audio-clock time in MIDI ticks from the file's start, counted from the start of the
  * phrase at zero-based `position` of the file, at its tempo, rounded to the nearest tick.
  */
 // @spec-link [[rule_played_notes_export_unquantized_timing]]
@@ -47,7 +47,7 @@ function tickInPhrase(
 }
 
 /**
- * Intent: the position of the phrase whose span holds audio-clock time `at`, which is at or after
+ * The position of the phrase whose span holds audio-clock time `at`, which is at or after
  * the start of the phrase at `from`: the last phrase that started at or before it, the last phrase
  * taking every later time.
  */
@@ -63,7 +63,7 @@ function positionHolding(
 }
 
 /**
- * Intent: one played note of the phrase at `position` in MIDI ticks: its onset in its own phrase;
+ * One played note of the phrase at `position` in MIDI ticks: its onset in its own phrase;
  * its release in the phrase that holds it, stopped at `fileEnd`; and at least one tick long, so a
  * note released at its onset still sounds.
  */
@@ -87,7 +87,7 @@ function placedNote(
 }
 
 /**
- * Intent: every played note whose onset falls in a phrase of the session, placed in MIDI ticks, in
+ * Every played note whose onset falls in a phrase of the session, placed in MIDI ticks, in
  * session order. Membership is decided on the audio clock. A phrase other than the last keeps
  * every note it holds, since validation already bounds its onsets by the next phrase's start, which
  * may lie up to 1 ms after its nominal end. Only the last phrase is cut at its end, 16 quarter
@@ -109,7 +109,7 @@ function placedNotes(
 }
 
 /**
- * Intent: a Jam's raw doodle notes in MIDI ticks from the file's start, timed from the doodle's
+ * A Jam's raw doodle notes in MIDI ticks from the file's start, timed from the doodle's
  * first barline at its capture tempo and rounded to the nearest tick: an onset just before that
  * barline starts at tick 0, its release unchanged; a release past the section's end (`origin`,
  * where the phrases start) stops there; every note at least one tick long.
@@ -131,7 +131,7 @@ function placedDoodleNotes(doodle: PlayedNotesDoodleSection, origin: number): Pl
 }
 
 /**
- * Intent: give each note a channel: the lowest one, never the percussion channel, on which no note
+ * Give each note a channel: the lowest one, never the percussion channel, on which no note
  * of the same pitch still sounds at its start (a note may start exactly where another ends). Notes
  * are taken by start, ties in input order. Crashes when all fifteen channels sound that pitch.
  */
@@ -159,7 +159,7 @@ function voiced(notes: readonly PlacedNote[]): VoicedNote[] {
 }
 
 /**
- * Intent: the played notes of a valid session as the played track's notes, each with its tick span,
+ * The played notes of a valid session as the played track's notes, each with its tick span,
  * its channel and its original velocity, stopped at `fileEnd` (the end of the last phrase); in a
  * Jam, the raw doodle notes first, in the doodle's section, the phrases' notes after it.
  */

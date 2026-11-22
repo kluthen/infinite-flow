@@ -88,7 +88,7 @@ const REFUSALS: readonly (abstract new (message: string) => Error)[] = [
 ]
 
 /**
- * Intent: whether an error is one of the refusals the kept-session validators and parsers throw
+ * Whether an error is one of the refusals the kept-session validators and parsers throw
  * for an invalid stored value, which the codec reports as unreadable. Any other error is a defect
  * and must surface.
  */
@@ -139,12 +139,12 @@ const REQUIRED_FIGURE_COUNTS = [
   0, 1,
 ] as const satisfies readonly AbstractTensionRequirement['requiredFigureCount'][]
 
-/** Intent: a stored scale degree of the collection, 1 to 7. */
+/** A stored scale degree of the collection, 1 to 7. */
 function parseDegree(value: unknown, context: string): CollectionDegree {
   return integerIn(value, 1, 7, context) as CollectionDegree
 }
 
-/** Intent: a stored triad: its degree, three distinct pitch classes 0 to 11 and its quality. */
+/** A stored triad: its degree, three distinct pitch classes 0 to 11 and its quality. */
 function parseTriad(value: unknown, context: string): DiatonicTriad {
   const record = exactRecord(value, ['degree', 'pitchClasses', 'quality'], context)
   const stored = anyArray(record.pitchClasses, `${context}.pitchClasses`)
@@ -161,7 +161,7 @@ function parseTriad(value: unknown, context: string): DiatonicTriad {
   }
 }
 
-/** Intent: a stored bar role: its bar, its harmonic role and its degree. */
+/** A stored bar role: its bar, its harmonic role and its degree. */
 function parseBarRole(value: unknown, context: string): BarRole {
   const record = exactRecord(value, ['barIndex', 'role', 'degree'], context)
   return {
@@ -172,7 +172,7 @@ function parseBarRole(value: unknown, context: string): BarRole {
 }
 
 /**
- * Intent: the quality of the seventh chord a triad and a fourth pitch class stack into, root
+ * The quality of the seventh chord a triad and a fourth pitch class stack into, root
  * first, through the domain's own derivation; a refusal when the four form no diatonic seventh
  * chord, which is the only error that derivation throws.
  */
@@ -191,7 +191,7 @@ function stackedSeventhQuality(
 }
 
 /**
- * Intent: a stored event's seventh: exactly its pitch class, 0 to 11, and a known seventh-chord
+ * A stored event's seventh: exactly its pitch class, 0 to 11, and a known seventh-chord
  * quality, the pitch class stacking on the event's triad into a seventh chord of that quality.
  */
 function parseEventSeventh(value: unknown, triad: DiatonicTriad, context: string): ChordSeventh {
@@ -212,7 +212,7 @@ function parseEventSeventh(value: unknown, triad: DiatonicTriad, context: string
 }
 
 /**
- * Intent: one stored harmony event, on a bar and half-bar, lasting a positive even beat count,
+ * One stored harmony event, on a bar and half-bar, lasting a positive even beat count,
  * holding its seventh only when `reading` takes one.
  */
 function parseHarmonyEvent(
@@ -247,14 +247,14 @@ function parseHarmonyEvent(
   }
 }
 
-/** Intent: the stored endpoint class: one of the three kinds, always on degree 5. */
+/** The stored endpoint class: one of the three kinds, always on degree 5. */
 function parseEndpoint(value: unknown): HarmonyEndpoint {
   const record = exactRecord(value, ['kind', 'degree'], 'Kept harmony.endpoint')
   if (record.degree !== 5) throw new KeptRecordError('Kept harmony.endpoint.degree must be 5.')
   return { kind: member(ENDPOINT_KINDS, record.kind, 'Kept harmony.endpoint.kind'), degree: 5 }
 }
 
-/** Intent: the stored abstract tension requirement, every field as the domain type allows. */
+/** The stored abstract tension requirement, every field as the domain type allows. */
 function parseTensionRequirement(value: unknown): AbstractTensionRequirement {
   const context = 'Kept harmony.tensionRequirement'
   const record = exactRecord(
@@ -305,7 +305,7 @@ function parseTensionRequirement(value: unknown): AbstractTensionRequirement {
 }
 
 /**
- * Intent: read a kept phrase's stored harmony, the one its chord symbols and backing are drawn
+ * Read a kept phrase's stored harmony, the one its chord symbols and backing are drawn
  * from, back into the harmony candidate the generator chose: every field checked, with exactly
  * the candidate's keys at every level. With `reading` at `triad-or-seventh`, as a current (data
  * version 5) body reads it, an event may also hold its seventh, exactly a pitch class and a
@@ -355,7 +355,7 @@ export function parseKeptHarmony(
 }
 
 /**
- * Intent: a stored musical profile selection: exactly a known profile and a boolean, as a v3.0
+ * A stored musical profile selection: exactly a known profile and a boolean, as a v3.0
  * intent and a kept session's session-wide record hold it, read by storage's profile-to-levels
  * module.
  */

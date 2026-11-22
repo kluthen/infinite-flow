@@ -26,7 +26,7 @@ export interface VarySettingsAvailability {
 }
 
 /**
- * Intent: build the availability over the Idle state, the controller's phase and the player's
+ * Build the availability over the Idle state, the controller's phase and the player's
  * lock and groups, all read reactively. At Idle it is the legal-move check on the settings Start
  * would take now, under the context phrase 1 gives at the current window width; with no phrase 1,
  * or while an Idle generation runs (no session can start then, and the controls are read-only),

@@ -32,7 +32,7 @@ import {
 import { playedSession, referencePlayedSession } from './played-notes-fixtures'
 import { metaTexts, rawChunks, readSmf } from './smf-reader'
 
-/** Intent: a played session on the given tempos, one note at the start of every phrase. */
+/** A played session on the given tempos, one note at the start of every phrase. */
 function playedOn(tempos: readonly number[]): ReturnType<typeof playedSession> {
   return playedSession(
     7.25,
@@ -41,7 +41,7 @@ function playedOn(tempos: readonly number[]): ReturnType<typeof playedSession> {
   )
 }
 
-/** Intent: a generated session on the given tempos, phrases alternating the two shapes. */
+/** A generated session on the given tempos, phrases alternating the two shapes. */
 function generatedOn(tempos: readonly number[]): GeneratedNotesMidiInput {
   return {
     phrases: tempos.map((tempo, index) =>
@@ -88,7 +88,7 @@ const JAM_SCOPES: readonly (readonly [ExportScope, string])[] = [
 ]
 
 /**
- * Intent: a Jam part's doodle of `measureCount` measures (one note filling it) captured at
+ * A Jam part's doodle of `measureCount` measures (one note filling it) captured at
  * `captureTempo` from the fixture's first barline, with the fixture's raw doodle notes.
  */
 function jamDoodle(measureCount: DoodleMeasureCount, captureTempo: number): SessionDoodle {

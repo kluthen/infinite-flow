@@ -49,7 +49,7 @@ type KeptOpened =
 
 const OPEN_FAILED: KeptOpened = Object.freeze({ kind: 'failed' })
 
-/** Intent: the session held in memory under `key`, in the Review or as the most recent one. */
+/** The session held in memory under `key`, in the Review or as the most recent one. */
 // @spec-link [[module_kept_session_reach]]
 export function findHeldSession(
   state: Pick<SessionControllerCore['state'], 'review' | 'mostRecent'>,
@@ -61,7 +61,7 @@ export function findHeldSession(
 }
 
 /**
- * Intent: a kept session read back from the device, with the facts its row holds for the visit
+ * A kept session read back from the device, with the facts its row holds for the visit
  * (a pin, a comment or a Jam session's decline the device refused, or made while saving was off,
  * stays as the player made it); without a row, as read.
  */
@@ -80,7 +80,7 @@ function withRowFacts(read: ReviewedSession, rows: KeptSessionRows): ReviewedSes
 }
 
 /**
- * Intent: build the review mode over the controller's core, the rows it holds and its deletions
+ * Build the review mode over the controller's core, the rows it holds and its deletions
  * of damaged sessions: each move at Idle only; one opening pending at a time.
  */
 // @spec-link [[module_kept_session_reach]]
@@ -95,20 +95,20 @@ export function createReviewMode(
   /** Counts openings; a read that settles under an older count shows nothing. */
   let openings = 0
 
-  /** Intent: drop the pending opening, if any, so its read shows nothing when it settles. */
+  /** Drop the pending opening, if any, so its read shows nothing when it settles. */
   const cancelOpening = (): void => {
     openings += 1
     state.openingKey = null
   }
 
-  /** Intent: show `session`'s Review in the list's place, held in memory as the Review's. */
+  /** Show `session`'s Review in the list's place, held in memory as the Review's. */
   const show = (session: ReviewedSession): void => {
     state.review = shownReview(session)
     state.listShowing = false
   }
 
   /**
-   * Intent: read the kept session under `key`; resolve it with its row's facts; damaged, once its
+   * Read the kept session under `key`; resolve it with its row's facts; damaged, once its
    * deletion settled, with that deletion's landing; or failed when the read does not give it or
    * the damaged session was not deleted (its row then says it failed to open).
    */
@@ -126,7 +126,7 @@ export function createReviewMode(
   }
 
   /**
-   * Intent: `Review last session`: the most recent session's Review shows, only at Idle; else
+   * `Review last session`: the most recent session's Review shows, only at Idle; else
    * throws. One held in memory shows at once. A kept one is read first by its key, the read shown
    * as under way; once read it is held in memory and shows, unless a session started or the most
    * recent session changed meanwhile ('superseded'); a read that does not give it shows the list
@@ -152,7 +152,7 @@ export function createReviewMode(
     return showKept(recent)
   }
 
-  /** Intent: read the kept most recent session `recent`, then show it if still in turn. */
+  /** Read the kept most recent session `recent`, then show it if still in turn. */
   // @spec-link [[req_kept_session_review]]
   const showKept = async (recent: Extract<MostRecentSession, { kind: 'kept' }>) => {
     state.readingMostRecent = true
@@ -176,7 +176,7 @@ export function createReviewMode(
   }
 
   /**
-   * Intent: open the kept session under `key` from its row, at Idle only: one held in memory shows
+   * Open the kept session under `key` from its row, at Idle only: one held in memory shows
    * at once; any other is read by its key, `openingKey` saying so meanwhile, then held and shown
    * ('shown'), or its row marked as failed to open ('failed'), or, found damaged, deleted and its
    * row gone ('damaged'). A later opening, or leaving the mode, replaces a pending one, whose read
@@ -200,7 +200,7 @@ export function createReviewMode(
     return openKept(key)
   }
 
-  /** Intent: read the kept session under `key` for its row's opening, then show it if in turn. */
+  /** Read the kept session under `key` for its row's opening, then show it if in turn. */
   // @spec-link [[module_kept_session_reach]]
   const openKept = async (key: string): Promise<SessionOpening> => {
     const opening = openings
@@ -223,7 +223,7 @@ export function createReviewMode(
   }
 
   /**
-   * Intent: show the session list in the review mode's place, at Idle only: from the cue row, or
+   * Show the session list in the review mode's place, at Idle only: from the cue row, or
    * from a Review (`All sessions`), which is kept without showing. Throws during a session and
    * while the list already shows.
    */
@@ -239,7 +239,7 @@ export function createReviewMode(
   }
 
   /**
-   * Intent: `Close review`: leave the review mode from either level, the Review kept without
+   * `Close review`: leave the review mode from either level, the Review kept without
    * showing, a pending opening cancelled; throws when the mode does not show.
    */
   // @spec-link [[req_last_session_review]]

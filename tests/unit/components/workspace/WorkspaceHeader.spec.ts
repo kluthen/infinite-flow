@@ -30,7 +30,7 @@ const UNSUPPORTED_CONTROLS: GenerationControls = {
   syncopation: 'Active displacement',
 }
 
-/** Intent: build a fake session double whose state/actions a test can override piecemeal. */
+/** Build a fake session double whose state/actions a test can override piecemeal. */
 function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult>['state']> = {}): {
   session: GenerationSession<WorkspaceSessionResult>
   actions: GenerationSession<WorkspaceSessionResult>['actions']
@@ -83,7 +83,7 @@ function fakeSession(overrides: Partial<GenerationSession<WorkspaceSessionResult
 }
 
 /**
- * Intent: mount the header over `session`, with no session controller loaded unless given, and
+ * Mount the header over `session`, with no session controller loaded unless given, and
  * `controller-status` in its Connect controller form unless given.
  */
 function mountHeader(
@@ -97,12 +97,12 @@ function mountHeader(
   })
 }
 
-/** Intent: the phrase action, the header's first action slot, whatever its emphasis. */
+/** The phrase action, the header's first action slot, whatever its emphasis. */
 function primaryButton(wrapper: ReturnType<typeof mount>) {
   return wrapper.get('.header-actions > button:not(.session-action)')
 }
 
-/** Intent: the session action, the header's second action slot. */
+/** The session action, the header's second action slot. */
 function sessionAction(wrapper: ReturnType<typeof mount>) {
   return wrapper.get('.header-actions > button.session-action')
 }
@@ -436,7 +436,7 @@ describe('WorkspaceHeader session action', () => {
   })
 })
 
-/** Intent: the header's `controller-status` button. */
+/** The header's `controller-status` button. */
 function controllerStatus(wrapper: ReturnType<typeof mount>) {
   return wrapper.get('.context-group > button.controller-status')
 }

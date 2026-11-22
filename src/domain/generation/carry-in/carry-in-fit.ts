@@ -26,7 +26,7 @@ export interface CarryInReceiver {
   readonly registerIntent: RegisterIntent
 }
 
-/** Intent: refuse a carried window the receiver's register choice does not resolve to. */
+/** Refuse a carried window the receiver's register choice does not resolve to. */
 function assertWindowFits(carryIn: CarryIn, receiver: CarryInReceiver): void {
   const { registerWindow } = carryIn
   const candidate = receiver.registerIntent.candidates.find(
@@ -46,7 +46,7 @@ function assertWindowFits(carryIn: CarryIn, receiver: CarryInReceiver): void {
 }
 
 /**
- * Intent: true when the receiver's harmony settings end a phrase on the carried chord with its
+ * True when the receiver's harmony settings end a phrase on the carried chord with its
  * endpoint class. Shared with the session's carry-in adaptation, so the two never disagree.
  */
 // @spec-link [[entity_phrase_carry_in]]
@@ -66,7 +66,7 @@ export function carriedHarmonyFits(
 }
 
 /**
- * Intent: refuse a carried chord and endpoint class the receiver's harmony never ends on; a
+ * Refuse a carried chord and endpoint class the receiver's harmony never ends on; a
  * carry-in whose harmony was dropped carries no chord to check.
  */
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
@@ -77,7 +77,7 @@ function assertHarmonyFits(carryIn: CarryIn, receiver: CarryInReceiver): void {
 }
 
 /**
- * Intent: why the carried debt is one no phrase may end with, or one no next phrase could settle
+ * Why the carried debt is one no phrase may end with, or one no next phrase could settle
  * inside the carried window, or null when it can be settled. Without a carried chord the pitch
  * owes no resolution; an owed leap recovery is still checked. Shared with the session's carry-in
  * adaptation, so the two never disagree.
@@ -110,7 +110,7 @@ export function carriedDebtProblem(
   return null
 }
 
-/** Intent: refuse a carried debt that no phrase may end with, or that no next phrase could settle. */
+/** Refuse a carried debt that no phrase may end with, or that no next phrase could settle. */
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
 function assertDebtSettleable(carryIn: CarryIn, receiver: CarryInReceiver): void {
   const problem = carriedDebtProblem(carryIn, receiver)
@@ -118,7 +118,7 @@ function assertDebtSettleable(carryIn: CarryIn, receiver: CarryInReceiver): void
 }
 
 /**
- * Intent: refuse, as a CarryInError, a carry-in the receiving intent cannot honour: a window its
+ * Refuse, as a CarryInError, a carry-in the receiving intent cannot honour: a window its
  * register choice does not resolve to, a chord its harmony never ends on, or a debt no phrase may
  * owe or no next phrase could settle. A carry-in whose harmony was dropped (null) skips the chord
  * and tense-note checks, so a new key or collection can receive it.

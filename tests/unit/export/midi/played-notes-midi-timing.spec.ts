@@ -15,7 +15,7 @@ const MARKER = 0x06
 const CASES = 500
 const ONE_MILLISECOND = 0.001
 
-/** Intent: a seeded pseudo-random generator (mulberry32) giving numbers in [0, 1). */
+/** A seeded pseudo-random generator (mulberry32) giving numbers in [0, 1). */
 function mulberry32(seed: number): () => number {
   let state = seed >>> 0
   return () => {
@@ -27,12 +27,12 @@ function mulberry32(seed: number): () => number {
   }
 }
 
-/** Intent: a whole number from `low` to `high`, both included. */
+/** A whole number from `low` to `high`, both included. */
 function integerBetween(random: () => number, low: number, high: number): number {
   return low + Math.floor(random() * (high - low + 1))
 }
 
-/** Intent: random tempos from 60 to 240 BPM for `count` phrases, with at least one change. */
+/** Random tempos from 60 to 240 BPM for `count` phrases, with at least one change. */
 function randomTempos(random: () => number, count: number): number[] {
   const tempos = Array.from({ length: count }, () => integerBetween(random, 60, 240))
   if (tempos.every((tempo) => tempo === tempos[0])) tempos[count - 1] = tempos[0] === 60 ? 61 : 60
@@ -40,7 +40,7 @@ function randomTempos(random: () => number, count: number): number[] {
 }
 
 /**
- * Intent: one random session: two to four phrases from a random start, one to five notes in each,
+ * One random session: two to four phrases from a random start, one to five notes in each,
  * every note of the session on its own pitch, onsets anywhere inside their phrase and releases up
  * to three seconds later (across phrase boundaries and tempo changes, or past the end).
  */
@@ -62,7 +62,7 @@ function randomSession(random: () => number): PlayedNotesMidiInput {
   return playedSession(random() * 100, tempos, notes)
 }
 
-/** Intent: seconds from the file's start to `tick`, through the file's own tempo map. */
+/** Seconds from the file's start to `tick`, through the file's own tempo map. */
 function secondsAt(map: ReturnType<typeof tempoMap>, tick: number): number {
   let seconds = 0
   map.forEach((entry, index) => {

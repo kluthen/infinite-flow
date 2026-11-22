@@ -6,23 +6,23 @@
 
 import { type Rational } from './rational'
 
-/** Intent: the number of integer sixteenth-note ticks in one 4/4 bar: the interval [0,16). */
+/** The number of integer sixteenth-note ticks in one 4/4 bar: the interval [0,16). */
 // @spec-link [[entity_exact_musical_time]]
 export const TICKS_PER_BAR = 16
 
-/** Intent: the number of 4/4 bars in one generated phrase. */
+/** The number of 4/4 bars in one generated phrase. */
 // @spec-link [[entity_exact_musical_time]]
 export const BARS_PER_PHRASE = 4
 
-/** Intent: the number of integer sixteenth-note ticks across the whole phrase: [0,64). */
+/** The number of integer sixteenth-note ticks across the whole phrase: [0,64). */
 // @spec-link [[entity_exact_musical_time]]
 export const PHRASE_TICKS = TICKS_PER_BAR * BARS_PER_PHRASE
 
-/** Intent: the number of integer sixteenth-note ticks in one quarter-note beat. */
+/** The number of integer sixteenth-note ticks in one quarter-note beat. */
 // @spec-link [[entity_exact_musical_time]]
 export const QUARTER_TICKS = 4
 
-/** Intent: the documented tick at which each of the four bars starts. */
+/** The documented tick at which each of the four bars starts. */
 // @spec-link [[entity_exact_musical_time]]
 export const BAR_START_TICKS: readonly [0, 16, 32, 48] = [0, 16, 32, 48]
 
@@ -41,7 +41,7 @@ export class NonIntegerTickError extends Error {
 }
 
 /**
- * Intent: derive the integer sixteenth-note tick position/duration for a whole-note Rational by
+ * Derive the integer sixteenth-note tick position/duration for a whole-note Rational by
  * exact multiplication (value * 16), never by floating-point division. Throws when the value
  * does not divide evenly into sixteenth ticks (e.g. a tuplet or a finer subdivision); this is a
  * mathematical fact about the value, distinct from the first-release grid *policy* rejection
@@ -57,7 +57,7 @@ export function sixteenthTicksOf(value: Rational): number {
 }
 
 /**
- * Intent: given an integer tick within the phrase, return the zero-based index of the bar that
+ * Given an integer tick within the phrase, return the zero-based index of the bar that
  * contains it (bar 0 covers [0,16), bar 1 covers [16,32), and so on).
  */
 // @spec-link [[entity_exact_musical_time]]

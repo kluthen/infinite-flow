@@ -25,7 +25,7 @@ beforeEach(() => {
   resetFakeEngraver()
 })
 
-/** Intent: a coordinator drawing every instrument in `clef`, whose reports do nothing. */
+/** A coordinator drawing every instrument in `clef`, whose reports do nothing. */
 function coordinatorIn(clef: InstrumentClef) {
   const of = vi.fn(() => clef)
   const coordinator = createNotationCoordinator(

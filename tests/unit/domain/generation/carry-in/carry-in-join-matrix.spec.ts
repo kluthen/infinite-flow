@@ -55,7 +55,7 @@ import {
 import { buildMatrix, type MatrixCell } from './carry-in-matrix'
 
 /**
- * Intent: true when the carried pitch is not a tone of the carried chord: a tense note. A carry-in
+ * True when the carried pitch is not a tone of the carried chord: a tense note. A carry-in
  * whose harmony was dropped carries no chord, so its pitch is never tense.
  */
 function carriesTenseNote(carryIn: CarryIn): boolean {
@@ -67,7 +67,7 @@ function carriesTenseNote(carryIn: CarryIn): boolean {
   )
 }
 
-/** Intent: true when the carry-in owes something the next phrase must settle. */
+/** True when the carry-in owes something the next phrase must settle. */
 function owesDebt(carryIn: CarryIn): boolean {
   return carryIn.lastPitch.recovery.kind === 'owed' || carriesTenseNote(carryIn)
 }
@@ -82,7 +82,7 @@ const MAX_INTERVAL: Readonly<Record<Leapiness, number>> = {
 
 const MATRIX = buildMatrix()
 
-/** Intent: the real intent of one cell's phrase `phraseNumber`, with its own seed. */
+/** The real intent of one cell's phrase `phraseNumber`, with its own seed. */
 function phraseIntent(cell: MatrixCell, phraseNumber: number, carryIn?: CarryIn): GenerationIntent {
   const seed = cell.seed + 1000 * (phraseNumber - 1)
   const input = {
@@ -102,7 +102,7 @@ function phraseIntent(cell: MatrixCell, phraseNumber: number, carryIn?: CarryIn)
 }
 
 /**
- * Intent: assert every fact of one join made with carry-in: the whole-result validator (which
+ * Assert every fact of one join made with carry-in: the whole-result validator (which
  * judges the join with the in-phrase interval, chain, budget and recovery rules), an independent
  * restatement of the interval cap and register window across the join, a fresh attack on beat 1,
  * the carried window kept, the tonic opening after the carried chord, and same-seed reproduction.
@@ -155,7 +155,7 @@ function assertJoin(
 }
 
 /**
- * Intent: a phrase that ends owing is valid only because it was generated with carry-in: judged
+ * A phrase that ends owing is valid only because it was generated with carry-in: judged
  * with the same request and settings but no carry-in, the independent validator refuses it.
  */
 function assertOwingOnlyWithCarryIn(
@@ -194,7 +194,7 @@ const failedWithCarryIn: string[] = []
 const varyingReuseWitnesses: string[] = []
 
 /**
- * Intent: run one cell's three-phrase chain, asserting every join made with carry-in. A phrase
+ * Run one cell's three-phrase chain, asserting every join made with carry-in. A phrase
  * whose generation with carry-in fails is recorded (the session would fall back to a standalone
  * phrase) and ends the chain.
  */
@@ -267,7 +267,7 @@ describe('carry-in join matrix', () => {
 
 const C_MAJOR = makeHarmonyCollection('C', 'Major')
 
-/** Intent: the carry-in with the seventh of its chord's own degree in the given collection. */
+/** The carry-in with the seventh of its chord's own degree in the given collection. */
 function withCarriedSeventh(carryIn: PhraseCarryIn, collection: HarmonyCollection): PhraseCarryIn {
   const harmony = carryIn.finalHarmony!
   const seventh = seventhOf(harmony.triad.degree, collection)
@@ -275,19 +275,19 @@ function withCarriedSeventh(carryIn: PhraseCarryIn, collection: HarmonyCollectio
 }
 
 /**
- * Intent: the outcome a phrase generated after a carried seventh chord must equal: the one
+ * The outcome a phrase generated after a carried seventh chord must equal: the one
  * generated after its triad, its request holding the seventh chord's carry-in.
  */
 function expectSameJoin(overSeventh: SuccessOutcome, overTriad: SuccessOutcome, carried: CarryIn) {
   expect(overSeventh).toEqual({ ...overTriad, request: { ...overTriad.request, carryIn: carried } })
 }
 
-/** Intent: the matrix cells on the C keyboard in the Middle register, one per set and seed. */
+/** The matrix cells on the C keyboard in the Middle register, one per set and seed. */
 const SEVENTH_CELLS = MATRIX.filter(
   (cell) => cell.instrumentProfileId === 'c-keyboard' && cell.register === 'Middle',
 )
 
-/** Intent: a seed-11 phrase 1 of the fixture's C Major settings and the G chord it carries. */
+/** A seed-11 phrase 1 of the fixture's C Major settings and the G chord it carries. */
 function carriedG(): PhraseCarryIn {
   const intent = buildIntent({ seed: 11, label: 'carried-seventh' })
   const carryIn = carryInAfter(intent, generateSuccess(intent), 1)
@@ -295,7 +295,7 @@ function carriedG(): PhraseCarryIn {
   return carryIn
 }
 
-/** Intent: session settings from the fixture's base controls with some of them changed. */
+/** Session settings from the fixture's base controls with some of them changed. */
 function settings(controls: Partial<GenerationControls> = {}): SessionSettings {
   return {
     controls: makeGenerationControls({ ...BASE_CONTROLS, ...controls }),

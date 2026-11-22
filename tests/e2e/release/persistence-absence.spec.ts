@@ -14,7 +14,7 @@ import { databaseSettings } from '../storage/storage-helpers'
 import { choosePreset, generateAndAwaitReady, gotoWorkspace, radio } from '../workspace/helpers'
 import { failNextGeneration, gotoWorkspaceHarness, queueSeeds } from './harness-helpers'
 
-/** Intent: the Web Storage areas' lengths and the IndexedDB databases this origin holds. */
+/** The Web Storage areas' lengths and the IndexedDB databases this origin holds. */
 function readWebStorage(page: Page) {
   return page.evaluate(async () => {
     const databases = (await indexedDB.databases?.()) ?? []
@@ -35,7 +35,7 @@ const NON_SETTINGS_STORES = [
   'playedNotes',
 ] as const
 
-/** Intent: how many records each store but the settings holds, read through the harness's seam. */
+/** How many records each store but the settings holds, read through the harness's seam. */
 function nonSettingsRecordCounts(page: Page): Promise<Record<string, number>> {
   return page.evaluate(async (stores) => {
     const counts: Record<string, number> = {}

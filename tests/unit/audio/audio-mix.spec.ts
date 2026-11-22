@@ -31,7 +31,7 @@ const TOKENS: Readonly<Record<string, string>> = {
   '--mix-rhythm-guide-volume-default': ' 0.6',
 }
 
-/** Intent: a computed-style stub answering from `tokens`, with CSS's empty string when missing. */
+/** A computed-style stub answering from `tokens`, with CSS's empty string when missing. */
 function styleOf(tokens: Readonly<Record<string, string>>): {
   getPropertyValue(name: string): string
 } {

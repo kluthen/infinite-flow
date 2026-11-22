@@ -41,19 +41,19 @@ const MUSICXML: GeneratedNotesRequest = { format: 'musicxml', backingTrack: fals
 const MIDI: GeneratedNotesRequest = { format: 'midi', backingTrack: false }
 const MIDI_WITH_BACKING: GeneratedNotesRequest = { format: 'midi', backingTrack: true }
 
-/** Intent: the MusicXML file of the scope, parsed. */
+/** The MusicXML file of the scope, parsed. */
 function musicXmlOf(scope: ExportScope): Document {
   const file = buildGeneratedNotesFile(sevenPhraseHistory(), MUSICXML, scope)
   return new DOMParser().parseFromString(new TextDecoder().decode(file.bytes), 'application/xml')
 }
 
-/** Intent: the measures of a parsed MusicXML file, in order. */
+/** The measures of a parsed MusicXML file, in order. */
 function measuresOf(document: Document): Element[] {
   return Array.from(document.querySelectorAll('part > measure'))
 }
 
 /**
- * Intent: the notes the whole session's file holds in phrase `number`, moved to start where the
+ * The notes the whole session's file holds in phrase `number`, moved to start where the
  * phrase at `position` of a favorites-only file starts.
  */
 function phraseNotesAt(notes: readonly SmfNote[], number: number, position: number): SmfNote[] {
@@ -64,7 +64,7 @@ function phraseNotesAt(notes: readonly SmfNote[], number: number, position: numb
     .map((note) => ({ ...note, startTick: note.startTick + shift, endTick: note.endTick + shift }))
 }
 
-/** Intent: the played notes of a played-notes file as pitch, start and end ticks. */
+/** The played notes of a played-notes file as pitch, start and end ticks. */
 function playedSpans(bytes: Uint8Array): [number, number, number][] {
   return notesOf(readSmf(bytes).tracks[1]!).map((note) => [
     note.pitch,
@@ -168,7 +168,7 @@ describe('the favorites-only MusicXML file', () => {
   it("writes each favorite phrase's measures as the whole session's file writes them", () => {
     const whole = measuresOf(musicXmlOf(WHOLE_SESSION))
     const favorites = measuresOf(musicXmlOf(FAVORITES_2_5_6))
-    /** Intent: a measure's notes, as their serialized elements. */
+    /** A measure's notes, as their serialized elements. */
     const notes = (measure: Element) =>
       Array.from(measure.querySelectorAll('note')).map((note) => note.outerHTML)
 

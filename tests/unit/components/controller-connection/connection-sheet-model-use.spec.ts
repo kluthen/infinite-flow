@@ -18,17 +18,17 @@ import { change, checkSheet, KEYS, PAD, run, selected } from './sheet-model-fixt
 
 type Action = Extract<SheetEvent, { kind: 'action' }>['action']
 
-/** Intent: one named action as an event. */
+/** One named action as an event. */
 function action(name: Action): SheetEvent {
   return { kind: 'action', action: name }
 }
 
-/** Intent: a sheet at the check's result for KEYS, the controller having sent `pitch`. */
+/** A sheet at the check's result for KEYS, the controller having sent `pitch`. */
 function resultSheet(pitch = 62, devices = [KEYS]): SheetModel {
   return run(checkSheet(devices), { kind: 'note-played', pitch }).model
 }
 
-/** Intent: a sheet at the Use for my instrument confirmation, from a result for KEYS. */
+/** A sheet at the Use for my instrument confirmation, from a result for KEYS. */
 function useSheet(devices = [KEYS]): SheetModel {
   return run(resultSheet(62, devices), action('use-this')).model
 }

@@ -51,7 +51,7 @@ const KNOWN_CHORD_SUFFIXES: ReadonlySet<string> = new Set([
 ])
 
 /**
- * Intent: the chord-symbol suffix of a harmony chord: its seventh's suffix when the chord is in
+ * The chord-symbol suffix of a harmony chord: its seventh's suffix when the chord is in
  * seventh form, its triad's suffix otherwise.
  */
 // @spec-link [[rule_seventh_chord_symbols]]
@@ -68,7 +68,7 @@ interface HarmonyInterval {
   readonly event: HarmonyEvent
 }
 
-/** Intent: build the sorted absolute-beat sounding interval for every harmony event. */
+/** Build the sorted absolute-beat sounding interval for every harmony event. */
 function intervalsOf(harmony: HarmonyCandidate): readonly HarmonyInterval[] {
   return harmony.events
     .map((event) => ({
@@ -80,7 +80,7 @@ function intervalsOf(harmony: HarmonyCandidate): readonly HarmonyInterval[] {
 }
 
 /**
- * Intent: crash early unless the harmony's sounding intervals tile the phrase's 16 beats exactly
+ * Crash early unless the harmony's sounding intervals tile the phrase's 16 beats exactly
  * — contiguous, no gap, no overlap, starting at 0 and ending at 16.
  */
 function assertBeatsTileExactly(intervals: readonly HarmonyInterval[]): void {
@@ -102,7 +102,7 @@ function assertBeatsTileExactly(intervals: readonly HarmonyInterval[]): void {
 }
 
 /**
- * Intent: build one root-position concert chord symbol from a harmony event's sounding chord, its
+ * Build one root-position concert chord symbol from a harmony event's sounding chord, its
  * triad or, in seventh form, its seventh chord.
  */
 function chordSymbolFor(
@@ -120,7 +120,7 @@ function chordSymbolFor(
 }
 
 /**
- * Intent: derive one measure's chord symbols — every harmony event starting inside it, plus a
+ * Derive one measure's chord symbols — every harmony event starting inside it, plus a
  * restated downbeat chord (at tick 0) when no event starts exactly on the downbeat, since a
  * harmony spanning bars must still be visible at the top of every measure it sounds through.
  */
@@ -152,7 +152,7 @@ function chordsForMeasure(
 }
 
 /**
- * Intent: derive the concert chord symbols a harmony candidate implies across all four measures,
+ * Derive the concert chord symbols a harmony candidate implies across all four measures,
  * one per harmony change plus a restated downbeat chord for any measure a bar-spanning harmony
  * continues through. Crashes as a typed NotationInputError when the harmony's events do not tile
  * the phrase's 16 beats exactly, or when a measure would otherwise carry no chord.
@@ -171,7 +171,7 @@ export function chordSymbolsFromHarmony(harmony: HarmonyCandidate): readonly Con
 }
 
 /**
- * Intent: crash early unless a notation input's clef is treble or bass, its concert range is two
+ * Crash early unless a notation input's clef is treble or bass, its concert range is two
  * integers, low below high, and its chord symbols are strictly ascending by measure then tick, every tick is an integer in
  * [0, 15], every measure index is 0-3, every suffix is a triad or seventh-chord suffix, and every
  * measure carries a chord symbol at tick 0 — the explicit shape the display transform depends on.
@@ -251,7 +251,7 @@ export interface MakeNotationPhraseInputArgs {
 }
 
 /**
- * Intent: assemble and validate the explicit NotationPhraseInput a display transform reads, from
+ * Assemble and validate the explicit NotationPhraseInput a display transform reads, from
  * an already-produced GenerationResult, its selected written tonal context, the harmony candidate
  * that produced it, the active instrument profile's transposition and active concert range, and
  * the instrument's own clef (the instrument's value, never the generation intent's). References the result's timeline as-is (it is already deep-frozen by its own constructor) rather
@@ -284,7 +284,7 @@ export interface NotatedOutcome {
 }
 
 /**
- * Intent: build the NotationPhraseInput for one successful generation outcome, deriving the
+ * Build the NotationPhraseInput for one successful generation outcome, deriving the
  * written tonal context, transposition and concert range from the intent (the written selection
  * and the active instrument profile's own transposition and active concert range) and the chord
  * symbols from the outcome's harmony provenance. The clef is passed in by the caller from the

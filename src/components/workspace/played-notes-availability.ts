@@ -17,7 +17,7 @@ import type { PlayedNotesExportRequest } from './review-export'
 type PlayedPhrase = Pick<ReviewedPhrase, 'phraseNumber' | 'startedAt' | 'tempo' | 'playedNotes'>
 
 /**
- * Intent: whether the session holds a played note to export, very short ones included, read
+ * Whether the session holds a played note to export, very short ones included, read
  * without loading the export code, so the Review shows the played-notes action only when it can
  * make a file. History records
  * hold only the notes played within a phrase (session-history-played-notes.ts places a note in the
@@ -33,7 +33,7 @@ export function historyHoldsPlayedNote(
 }
 
 /**
- * Intent: whether the played-notes file `request` asks for would hold a note, read without loading
+ * Whether the played-notes file `request` asks for would hold a note, read without loading
  * the export code: some played note in a phrase of its scope that is not very short, or any one
  * when very short notes are included, as the file's selection keeps them; in a Jam, a raw doodle
  * note counts the same way in either scope, the doodle never a favorite (`doodleNotes`: the Jam
@@ -66,7 +66,7 @@ export interface PlayedNotesJam {
 }
 
 /**
- * Intent: why the played-notes file `request` asks for would hold no note, the first reason that
+ * Why the played-notes file `request` asks for would hold no note, the first reason that
  * applies, or null when it holds one. In a Jam whose code could not load, that comes first. Under
  * favorites only, no favorite phrase holding a played note (very short ones counted) and, in a Jam,
  * no raw doodle note either, then every one of theirs very short (in a Jam, its favorites' and its

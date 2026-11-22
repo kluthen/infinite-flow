@@ -172,7 +172,7 @@ test.describe('exporting the played notes', () => {
   })
 })
 
-/** Intent: click `button` (`Export generated notes` by default) and wait for the failed export. */
+/** Click `button` (`Export generated notes` by default) and wait for the failed export. */
 async function failedExport(
   page: Page,
   downloads: Downloads,

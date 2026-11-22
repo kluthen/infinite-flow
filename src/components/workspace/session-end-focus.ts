@@ -22,7 +22,7 @@ type IdleFocusFacts = Pick<
 >
 
 /**
- * Intent: the focus target after `end`. Once phrase 1 has sounded the Review shows, and focus goes
+ * The focus target after `end`. Once phrase 1 has sounded the Review shows, and focus goes
  * to the session action, now `Close review`, whatever the hidden Idle state (its room notice is
  * hidden with the staff). An end during the count-in goes to `room-notice` whenever the Idle rules
  * show it, else to the session action, now `Start session`, unless the Idle rules regenerate
@@ -43,7 +43,7 @@ export function sessionEndFocusTarget(
 }
 
 /**
- * Intent: the focus target after a Jam's `end`, in Jam mode, its Idle rules applied. Once phrase 1
+ * The focus target after a Jam's `end`, in Jam mode, its Idle rules applied. Once phrase 1
  * has sounded the Review shows, and focus goes to the session action, now `Close review`. Before
  * phrase 1: after a lost controller to `controller-status` (`Start Jam` is disabled, the cue row
  * names the missing controller); to Jam's `room-notice` whenever Jam's staff shows Needs more room;
@@ -62,7 +62,7 @@ export function jamSessionEndFocusTarget(
 }
 
 /**
- * Intent: whether Needs more room landing after the end's focus move should still take focus.
+ * Whether Needs more room landing after the end's focus move should still take focus.
  * After a window end during the count-in the staff re-engraves phrase 1 in the layout chosen
  * afresh, and finding no room there can show the notice only after focus has moved; the notice
  * then takes it (the session action it may have gone to is disabled under the notice). Other ends
@@ -90,7 +90,7 @@ export interface ReviewCloseFocusFacts {
 }
 
 /**
- * Intent: the focus target after `Close review`: it stays on the session action when that is
+ * The focus target after `Close review`: it stays on the session action when that is
  * enabled (`Start session` in Ready); otherwise it moves once to `room-notice` in Needs more room,
  * else to the phrase action if enabled, else to `controller-status`.
  */
@@ -125,13 +125,13 @@ export interface WorkspaceFocusMoves {
 }
 
 /**
- * Intent: the focus moves over `parts`, which gives the mounted header and score panel (and
+ * The focus moves over `parts`, which gives the mounted header and score panel (and
  * throws, a defect, when either is unmounted).
  */
 export function createWorkspaceFocusMoves(
   parts: () => { readonly header: FocusMovesHeader; readonly scorePanel: FocusMovesScorePanel },
 ): WorkspaceFocusMoves {
-  /** Intent: move focus to the element a focus target names, in the mounted header or score panel. */
+  /** Move focus to the element a focus target names, in the mounted header or score panel. */
   function focusTarget(target: SessionEndFocusTarget): void {
     const shown = parts()
     if (target === 'room-notice') shown.scorePanel.focusRoomNotice()
@@ -141,7 +141,7 @@ export function createWorkspaceFocusMoves(
   }
 
   /**
-   * Intent: move focus to the first enabled of the session action, the phrase action and
+   * Move focus to the first enabled of the session action, the phrase action and
    * `controller-status` (the workspace's fallback order).
    */
   function focusFallback(): void {

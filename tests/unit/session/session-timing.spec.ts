@@ -59,7 +59,7 @@ describe('phrase 1 is the Idle phrase', () => {
   })
 })
 
-/** Intent: the measure length at a tempo, in seconds: four beats. */
+/** The measure length at a tempo, in seconds: four beats. */
 function measureAt(tempo: number): number {
   return 240 / tempo
 }
@@ -130,7 +130,7 @@ describe('look-ahead deadlines', () => {
 })
 
 /**
- * Intent: one event script in measures, run at a tempo: a failure then a success for phrase 2, a
+ * One event script in measures, run at a tempo: a failure then a success for phrase 2, a
  * success for phrase 3, an attempt still in flight at phrase 4's deadline, then phrase 5's request.
  * Returns every request the engine made.
  */

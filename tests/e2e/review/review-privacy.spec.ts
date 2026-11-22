@@ -175,7 +175,7 @@ const SPIED_APIS = [
 ]
 
 /**
- * Intent: before any page script runs, wrap every browser storage write and every network API the
+ * Before any page script runs, wrap every browser storage write and every network API the
  * page could call, so each call is recorded in `window.__privacySpy.calls`, and every record
  * written through an opened IndexedDB database, so its store is recorded in `storeWrites`;
  * `installed` names each wrapper put in place, so a test can prove the spy was armed.
@@ -269,7 +269,7 @@ async function installPrivacySpy(page: Page): Promise<void> {
   })
 }
 
-/** Intent: the in-page spy's wrappers and recorded calls. */
+/** The in-page spy's wrappers and recorded calls. */
 function readPrivacySpy(page: Page): Promise<PrivacySpy> {
   return page.evaluate(() => (window as unknown as PrivacySpyWindow).__privacySpy)
 }
@@ -289,7 +289,7 @@ interface NetworkSpy {
 }
 
 /**
- * Intent: record every request the browser context makes from now on (the page's and its
+ * Record every request the browser context makes from now on (the page's and its
  * Workers'), and every WebSocket the page opens.
  */
 function spyOnNetwork(context: BrowserContext, page: Page): NetworkSpy {
@@ -317,7 +317,7 @@ const STATIC_RESOURCE_TYPES = new Set([
 ])
 
 /**
- * Intent: the requests that are not one of the app's own static files: on the page's origin, a GET
+ * The requests that are not one of the app's own static files: on the page's origin, a GET
  * with no body, of a static resource type, for the document itself (the path `/`, as the test
  * navigates to it) or for a built file under `/assets/` with no query string.
  */
@@ -343,7 +343,7 @@ interface StoredState {
   readonly serviceWorkers: number
 }
 
-/** Intent: everything this origin holds in browser storage now. */
+/** Everything this origin holds in browser storage now. */
 function readStoredState(page: Page): Promise<StoredState> {
   return page.evaluate(async () => ({
     localStorageLength: localStorage.length,
@@ -381,7 +381,7 @@ const ALLOWED_STORES = new Set([
 ])
 
 /**
- * Intent: the in-page spy is armed and saw no network call, no storage call but the app's
+ * The in-page spy is armed and saw no network call, no storage call but the app's
  * opening of its database (`indexedDB.open`, at least once), and records written in the allowed
  * stores only: no played note reaches storage while `Keep my played notes` is off.
  */
@@ -396,14 +396,14 @@ async function expectNothingSentOrStored(page: Page): Promise<void> {
 }
 
 /**
- * Intent: the app's database holds the session that ended last and the settings, and nothing
+ * The app's database holds the session that ended last and the settings, and nothing
  * else: one session-wide record and one body under the same key, the record saying its played
  * notes are not kept and the body holding none, no played notes record, and every settings record
  * one the settings codec reads back. Read through the harness's storage seam, once the session's
  * save has landed.
  */
 async function expectOnlyKeptSessionAndSettingsStored(page: Page): Promise<void> {
-  /** Intent: what the kept-session stores and the settings hold now. */
+  /** What the kept-session stores and the settings hold now. */
   const read = () =>
     page.evaluate(async () => {
       const { storage } = window.__workspaceHarness
@@ -434,7 +434,7 @@ async function expectOnlyKeptSessionAndSettingsStored(page: Page): Promise<void>
   })
 }
 
-/** Intent: the in-page spy is armed and saw the page call no network API since its load. */
+/** The in-page spy is armed and saw the page call no network API since its load. */
 async function expectNoNetworkCall(page: Page): Promise<void> {
   const spy = await readPrivacySpy(page)
   expect(spy.installed).toEqual(expect.arrayContaining([...NETWORK_APIS]))
@@ -481,7 +481,7 @@ const STORES: readonly WorkspaceHarnessStoreName[] = [
   'playedNotes',
 ]
 
-/** Intent: how many records each store of the app's database holds now, read through the seam. */
+/** How many records each store of the app's database holds now, read through the seam. */
 function storeCounts(page: Page): Promise<Record<string, number>> {
   return page.evaluate(async (stores) => {
     const { storage } = window.__workspaceHarness
@@ -492,13 +492,13 @@ function storeCounts(page: Page): Promise<Record<string, number>> {
   }, STORES)
 }
 
-/** Intent: the keys of the kept sessions stored now, sorted. */
+/** The keys of the kept sessions stored now, sorted. */
 async function keptKeys(page: Page): Promise<string[]> {
   return (await keyedRecords(page, 'sessionSummaries')).map(({ key }) => key).sort()
 }
 
 /**
- * Intent: the export files' name stem of the session started at `startAt(n)`, in a spec run with
+ * The export files' name stem of the session started at `startAt(n)`, in a spec run with
  * `timezoneId: 'Europe/Paris'`: 12:05 on October `n + 1`, 2026.
  */
 function stemAt(n: number): string {
@@ -506,7 +506,7 @@ function stemAt(n: number): string {
 }
 
 /**
- * Intent: leave the Review if it shows, then play a two-phrase session (phrase 1 seeded 7) started
+ * Leave the Review if it shows, then play a two-phrase session (phrase 1 seeded 7) started
  * at `startAt(n)` on the wall clock, one note held on the keyboard while phrase 2 sounds, then
  * Stop: the Review shows, with its played note. Resolves the key it is kept under.
  */
@@ -527,7 +527,7 @@ async function sessionWithPlayedNoteAt(page: Page, n: number): Promise<string> {
   return keyStartedAt(page, startAt(n))
 }
 
-/** Intent: one of the Review's export scope choices. */
+/** One of the Review's export scope choices. */
 function scopeOption(page: Page, label: 'Whole session' | 'Favorites only'): Locator {
   return reviewPanel(page)
     .getByRole('radiogroup', { name: 'Export' })
@@ -661,7 +661,7 @@ test.describe('a session under a network and storage spy', () => {
     const network = spyOnNetwork(context, page)
     const downloads: Downloads = collectDownloads(page)
     /**
-     * Intent: from Jam mode's Idle, a fresh Jam started at `startAt(n)` on the wall clock, its
+     * From Jam mode's Idle, a fresh Jam started at `startAt(n)` on the wall clock, its
      * doodle played, then one note in phrase 1, then Stop: the Review shows. Resolves its key.
      */
     const jamAt = async (n: number): Promise<string> => {
@@ -750,7 +750,7 @@ test.describe('a session under a network and storage spy', () => {
     await installPrivacySpy(page)
     const network = spyOnNetwork(context, page)
     const downloads: Downloads = collectDownloads(page)
-    /** Intent: export once with `button` (`Export generated notes` unless given); its file name. */
+    /** Export once with `button` (`Export generated notes` unless given); its file name. */
     const exportAs = async (button?: Locator): Promise<string> =>
       (await exportOnce(page, downloads, button)).fileName
 

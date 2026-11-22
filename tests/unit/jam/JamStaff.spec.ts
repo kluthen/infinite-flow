@@ -30,7 +30,7 @@ const engraving = vi.hoisted(() => ({
   loads: 0,
 }))
 
-/** Intent: the stand-in engraver: a bare `svg.staff-svg` in the host, or the outcome queued. */
+/** The stand-in engraver: a bare `svg.staff-svg` in the host, or the outcome queued. */
 const engraveEmptySystem = vi.fn<EmptySystemEngraver>((host) => {
   const outcome = engraving.outcomes.shift() ?? 'engraved'
   if (outcome === 'no_room') return { kind: 'no_room', cause: 'too_narrow' }
@@ -65,14 +65,14 @@ const D_DORIAN: JamStaffProps = {
   systemPositionUnits: 160,
 }
 
-/** Intent: stub what jsdom lacks: ResizeObserver, a wide window's matchMedia, and layout. */
+/** Stub what jsdom lacks: ResizeObserver, a wide window's matchMedia, and layout. */
 function stubBrowser(): void {
   vi.stubGlobal(
     'ResizeObserver',
     class {
-      /** Intent: observe nothing; a test changes the settings instead. */
+      /** Observe nothing; a test changes the settings instead. */
       observe(): void {}
-      /** Intent: nothing to stop observing. */
+      /** Nothing to stop observing. */
       disconnect(): void {}
     },
   )
@@ -85,13 +85,13 @@ function stubBrowser(): void {
   vi.spyOn(Element.prototype, 'clientWidth', 'get').mockImplementation(() => WIDTH_PX)
 }
 
-/** Intent: wait for the next animation frame and settle the promises it started. */
+/** Wait for the next animation frame and settle the promises it started. */
 async function nextFrame(): Promise<void> {
   await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
   await flushPromises()
 }
 
-/** Intent: mount Jam's staff on `props` and let its first engraving settle. */
+/** Mount Jam's staff on `props` and let its first engraving settle. */
 async function mountStaff(props: JamStaffProps & { readonly notice?: boolean } = D_DORIAN) {
   const wrapper = mount(JamStaff, { props, attachTo: document.body })
   await flushPromises()
@@ -180,7 +180,7 @@ describe("Jam's Idle staff", () => {
   // @test-link [[rule_jam_idle_shows_no_phrase]]
   it('renames the empty system silently on a redraw, a key sharing the signature included', async () => {
     const wrapper = await mountStaff()
-    /** Intent: the shown empty system's accessible name. */
+    /** The shown empty system's accessible name. */
     const label = () => wrapper.get('.staff-content svg.staff-svg').attributes('aria-label')
 
     // D Dorian and C Ionian share a signature, not a name.
@@ -275,7 +275,7 @@ describe("Jam's Idle staff", () => {
   })
 })
 
-/** Intent: give the staff's unit a running animation, as a browser does under `is-fading-out`. */
+/** Give the staff's unit a running animation, as a browser does under `is-fading-out`. */
 function animatingUnits(): void {
   Object.defineProperty(Element.prototype, 'getAnimations', {
     configurable: true,

@@ -60,7 +60,7 @@ interface ScriptRun {
   readonly lastEnd: WorkspaceHarnessSessionState['lastEnd']
 }
 
-/** Intent: play one note from its onset to its release, moving the clock to each. */
+/** Play one note from its onset to its release, moving the clock to each. */
 async function playNote(page: Page, note: ScriptedNote): Promise<void> {
   await clockTo(page, note.onsetAt)
   await noteOn(page, KEYS, note.pitch, { velocity: note.velocity, at: note.onsetAt })
@@ -68,13 +68,13 @@ async function playNote(page: Page, note: ScriptedNote): Promise<void> {
   await noteOff(page, KEYS, note.pitch, note.releaseAt)
 }
 
-/** Intent: a played expected note: its pitch, at its onset, held `holdFor` seconds. */
+/** A played expected note: its pitch, at its onset, held `holdFor` seconds. */
 function asPlayed(note: ExpectedNoteAt, velocity: number, holdFor = 0.1): ScriptedNote {
   return { pitch: note.pitch, velocity, onsetAt: note.onsetAt, releaseAt: note.onsetAt + holdFor }
 }
 
 /**
- * Intent: run the whole script on a fresh page: connect, start with the starting note (released
+ * Run the whole script on a fresh page: connect, start with the starting note (released
  * in the count-in), play phrase 1's first and third notes, a wrong pitch on its second, its last
  * note held into phrase 2, then phrase 2's second and third notes, and Stop.
  */
@@ -141,7 +141,7 @@ async function runScript(page: Page): Promise<ScriptRun> {
   }
 }
 
-/** Intent: assert recorded notes equal the scripted ones, times to within a microsecond. */
+/** Assert recorded notes equal the scripted ones, times to within a microsecond. */
 function expectNotes(
   recorded: readonly WorkspaceHarnessRecordedPlayedNote[],
   scripted: readonly ScriptedNote[],
@@ -160,7 +160,7 @@ function expectNotes(
   })
 }
 
-/** Intent: a history with every time rounded to the nanosecond, to compare two runs. */
+/** A history with every time rounded to the nanosecond, to compare two runs. */
 function rounded(history: readonly WorkspaceHarnessHistoryPhrase[]): unknown {
   const round = (t: number): number => Math.round(t * 1e9) / 1e9
   return history.map((phrase) => ({

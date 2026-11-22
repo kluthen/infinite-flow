@@ -172,7 +172,7 @@ describe('MidiController: abandonConnect()', () => {
   })
 })
 
-/** Intent: a rig connected to KEYS_A, with PAD_B also present. */
+/** A rig connected to KEYS_A, with PAD_B also present. */
 async function connectedToKeysWithPad() {
   const rig = createControllerRig({ devices: [KEYS_A, PAD_B] })
   await rig.controller.connect()

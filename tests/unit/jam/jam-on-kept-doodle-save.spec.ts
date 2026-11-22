@@ -38,7 +38,7 @@ import {
   type KeptDoodleJamRigOptions,
 } from './kept-doodle-jam-rig'
 
-/** Intent: changes after a save that succeed at once, as a visit that saves. */
+/** Changes after a save that succeed at once, as a visit that saves. */
 const SAVING: Partial<KeptSessionsSeam> = {
   changes: {
     changeKept: () => Promise.resolve({ status: 'saved' }),
@@ -48,7 +48,7 @@ const SAVING: Partial<KeptSessionsSeam> = {
   },
 }
 
-/** Intent: the time phrase 1 of the latest Jam started on the rig starts sounding. */
+/** The time phrase 1 of the latest Jam started on the rig starts sounding. */
 function phraseOneAt(rig: ControllerRig): number {
   const input = rig.runnerInputs.at(-1)
   if (input === undefined) throw new Error('no Jam was started')
@@ -56,7 +56,7 @@ function phraseOneAt(rig: ControllerRig): number {
 }
 
 /**
- * Intent: play a Jam on the kept doodle to one measure into phrase 2, a note played half a second
+ * Play a Jam on the kept doodle to one measure into phrase 2, a note played half a second
  * into phrase 1, and Stop; once its save was asked for, the review it opened.
  */
 async function playJam(run: KeptDoodleJamRig, start: () => void): Promise<ReviewedSession> {
@@ -77,7 +77,7 @@ async function playJam(run: KeptDoodleJamRig, start: () => void): Promise<Review
   return review
 }
 
-/** Intent: the records the `index`th session save wrote over `summaries`, by store. */
+/** The records the `index`th session save wrote over `summaries`, by store. */
 function saved(rig: ControllerRig, index: number, summaries: readonly StorageChange[] = []) {
   const changes: SessionChanges | undefined = rig.sessionSaves[index]
   if (changes === undefined) throw new Error(`no session save ${index} was asked for`)
@@ -87,13 +87,13 @@ function saved(rig: ControllerRig, index: number, summaries: readonly StorageCha
   return changes(stored)
 }
 
-/** Intent: the record a batch writes to `store`, cloned as the device would keep it. */
+/** The record a batch writes to `store`, cloned as the device would keep it. */
 function written(changes: readonly StorageChange[], store: StorageChange['store']): unknown {
   const write = changes.find((change) => change.kind === 'write' && change.store === store)
   return write?.kind === 'write' ? structuredClone(write.record) : undefined
 }
 
-/** Intent: a batch's records decoded as the kept-session codec reads them back. */
+/** A batch's records decoded as the kept-session codec reads them back. */
 function decoded(changes: readonly StorageChange[]): KeptSession {
   const reading = decodeKeptSession({
     summary: written(changes, 'sessionSummaries'),
@@ -112,7 +112,7 @@ interface WorkspaceJamRig extends KeptDoodleJamRig {
 }
 
 /**
- * Intent: the rig with the workspace's kept doodle (Jam's real code), its fresh Jam's end handing
+ * The rig with the workspace's kept doodle (Jam's real code), its fresh Jam's end handing
  * every Jam part on, and its Jam on the kept doodle over phrase 1 shown at Idle; the doodle kept as
  * a first Jam's end would keep it, from the session under `session-0`.
  */

@@ -34,7 +34,7 @@ export interface ReviewAreaRig {
 }
 
 /**
- * Intent: a host over `fake`'s controller starting from `preferences`, and the area over that
+ * A host over `fake`'s controller starting from `preferences`, and the area over that
  * host, built in one effect scope that `stop` ends; both save through the one recording saver.
  */
 export function reviewAreaRig(

@@ -87,20 +87,20 @@ export interface FakeSessionController {
 /** The key the fake's Reviews are kept under: the fixed test start and session seed. */
 export const FAKE_REVIEW_KEY = `session-${SESSION_START_EPOCH_MS}-${DEFAULT_SESSION_SEED}`
 
-/** Intent: whether the fake's session staff shows any part of phrase `phraseNumber`. */
+/** Whether the fake's session staff shows any part of phrase `phraseNumber`. */
 function staffShows(state: FakeSessionControllerState, phraseNumber: number): boolean {
   const staff = state.sessionStaff
   if (staff === null) return false
   return [staff.top, staff.bottom].some((system) => system?.phraseNumber === phraseNumber)
 }
 
-/** Intent: a recording method no Review ever calls: a closed history takes nothing more. */
+/** A recording method no Review ever calls: a closed history takes nothing more. */
 function closed(): never {
   throw new Error('fake review history: the history is closed')
 }
 
 /**
- * Intent: a closed session history for a Review: `records` as its phrases, no doodle, no skipped mutation,
+ * A closed session history for a Review: `records` as its phrases, no doodle, no skipped mutation,
  * the fixed test start time, the harness's session settings' preset selection, and the session's
  * instrument profile (the B-flat tenor unless given).
  */
@@ -129,7 +129,7 @@ export function fakeReviewHistory(
 }
 
 /**
- * Intent: a frozen Review of `history`, showing or kept, its instrument named after the built-in
+ * A frozen Review of `history`, showing or kept, its instrument named after the built-in
  * profile of the history's id, its preset label the history's start selection's, at tempo 90, not
  * pinned unless `keeping` says otherwise, under the fake key, its played notes not kept unless
  * `playedNotesKept` says so.
@@ -156,7 +156,7 @@ export function fakeReview(
   })
 }
 
-/** Intent: the most recent session `review` draws, held in memory. */
+/** The most recent session `review` draws, held in memory. */
 // @test-link [[rule_most_recent_session_kept]]
 export function heldSessionOf(review: SessionReview): MostRecentSession {
   const { history, instrumentName, tempoReached, keeping, key, playedNotesKept } = review
@@ -178,7 +178,7 @@ export function heldSessionOf(review: SessionReview): MostRecentSession {
   })
 }
 
-/** Intent: the state fields of `review` showing: the Review, and its session the most recent one. */
+/** The state fields of `review` showing: the Review, and its session the most recent one. */
 export function showingWith(
   review: SessionReview,
 ): Pick<FakeSessionControllerState, 'review' | 'mostRecent'> {
@@ -193,7 +193,7 @@ export const COUNT_IN_MUTED = {
 } as const
 
 /**
- * Intent: a fake controller at Idle, startable unless `overrides` say otherwise. `start` discards
+ * A fake controller at Idle, startable unless `overrides` say otherwise. `start` discards
  * the Review and enters the count-in at tempo 90 in the one-system layout; `stop` ends it, opening
  * the Review if phrase 1 had sounded (the test moved the phase to `running`).
  */
@@ -244,18 +244,18 @@ export function createFakeSessionController(
     savingOff: false,
     ...overrides,
   })
-  /** Intent: show `review`, which blocks a start, as the real start conditions do. */
+  /** Show `review`, which blocks a start, as the real start conditions do. */
   function showing(review: SessionReview): void {
     state.review = review
     state.canStart = false
     state.startBlocker = 'review_showing'
   }
-  /** Intent: open `review` at a session end: showing, its session the most recent one. */
+  /** Open `review` at a session end: showing, its session the most recent one. */
   function opened(review: SessionReview): void {
     state.mostRecent = heldSessionOf(review)
     showing(review)
   }
-  /** Intent: enter the count-in, as a real start does. */
+  /** Enter the count-in, as a real start does. */
   function begin(): void {
     state.review = null
     state.phase = 'count-in'
@@ -368,7 +368,7 @@ export function createFakeSessionController(
     state.keepPlayedNotes = on
     return Promise.resolve({ kind: 'done' })
   })
-  /** Intent: the Review's session without its played notes, as after a deletion. */
+  /** The Review's session without its played notes, as after a deletion. */
   const deleted = (): Promise<PlayedNotesDeletion> => {
     const review = state.review
     if (review !== null) {
@@ -378,7 +378,7 @@ export function createFakeSessionController(
   }
   const deletePlayedNotes = vi.fn(deleted)
   const deleteEveryKeptPlayedNote = vi.fn(deleted)
-  /** Intent: apply `change` to the Review's session, as the controller does in memory. */
+  /** Apply `change` to the Review's session, as the controller does in memory. */
   const changed = (change: (review: SessionReview) => SessionReview): Promise<void> => {
     const review = state.review
     if (review !== null) state.review = Object.freeze(change(review))

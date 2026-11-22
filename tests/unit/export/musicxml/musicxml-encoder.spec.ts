@@ -147,7 +147,7 @@ describe('encodeGeneratedNotesMusicXml: whole session, back to back', () => {
 })
 
 /**
- * Intent: a Jam's doodle section of `measureCount` measures at `tempo`, written for `instrument`
+ * A Jam's doodle section of `measureCount` measures at `tempo`, written for `instrument`
  * in `tonalCenter` Ionian: in each measure m (0 up), concert 48 + 2m (60 + 2m on a C instrument)
  * for a half note, then a half rest.
  */
@@ -172,7 +172,7 @@ function doodleSection(
   return { measureCount, writtenPhrase, tempo }
 }
 
-/** Intent: every element matching `selector`, as "measure:text" strings. */
+/** Every element matching `selector`, as "measure:text" strings. */
 function marksOf(document: Document, selector: string): string[] {
   return Array.from(document.querySelectorAll(selector)).map(
     (mark) => `${measureNumber(mark)}:${mark.textContent}`,
@@ -344,7 +344,7 @@ describe('encodeGeneratedNotesMusicXml: written pitch and transposition', () => 
   })
 })
 
-/** Intent: every chord symbol of a session's file as "<measure>:<root>:<kind>:<printed suffix>". */
+/** Every chord symbol of a session's file as "<measure>:<root>:<kind>:<printed suffix>". */
 function chordLabels(session: GeneratedNotesMusicXmlInput): string[] {
   return Array.from(encodeAndParse(session).querySelectorAll('harmony')).map(
     (harmony) =>

@@ -73,7 +73,7 @@ export interface WorkspaceJamSettings {
 }
 
 /**
- * Intent: Jam's settings, made the first time Jam mode shows in the visit (synchronously, as the
+ * Jam's settings, made the first time Jam mode shows in the visit (synchronously, as the
  * mode changes, so Jam's controls are drawn with them), and kept for the rest of the visit.
  */
 // @spec-link [[module_jam_settings]]
@@ -82,13 +82,13 @@ export function useJamSettings(seams: JamSettingsSeams): WorkspaceJamSettings {
   const store = shallowRef<JamSettingsStore | null>(null)
   const module = computed(() => seams.jamModule())
 
-  /** Intent: session mode's current key, mode and tempo, which Jam's first values start from. */
+  /** Session mode's current key, mode and tempo, which Jam's first values start from. */
   function sessionStart(): SessionModeStart {
     const { tempo, tonalCenter, collection } = seams.sessionControls()
     return { tempo, tonalCenter, collection }
   }
 
-  /** Intent: Jam's settings made from the load's records and session mode's current values. */
+  /** Jam's settings made from the load's records and session mode's current values. */
   function made(loaded: JamSettingsCode, firstValuesDeferred: boolean): JamSettingsStore {
     return loaded.createJamSettings({
       records: seams.records(),
@@ -125,7 +125,7 @@ export function useJamSettings(seams: JamSettingsSeams): WorkspaceJamSettings {
   })
 
   /**
-   * Intent: Jam's key and mode for a Review: its settings', else the records' or session mode's
+   * Jam's key and mode for a Review: its settings', else the records' or session mode's
    * current values, read again at each call, so they follow session mode until Jam's settings
    * exist.
    */
@@ -137,7 +137,7 @@ export function useJamSettings(seams: JamSettingsSeams): WorkspaceJamSettings {
     return { tonalCenter: settings.tonalCenter, collection: settings.collection }
   }
 
-  /** Intent: `Jam in {answer}` from a Review: Jam's settings made first if need be, then changed. */
+  /** `Jam in {answer}` from a Review: Jam's settings made first if need be, then changed. */
   // @spec-link [[rule_jam_settings_saved_on_change]]
   function changeFromReview(loaded: JamSettingsCode, change: JamKeyAndMode): void {
     store.value ??= made(loaded, true)

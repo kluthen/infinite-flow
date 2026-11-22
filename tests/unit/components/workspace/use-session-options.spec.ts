@@ -29,7 +29,7 @@ const ALL_ON: SessionOptionChoices = {
   allowedGroups: { ...ALL_GROUPS_ALLOWED, rhythm: false },
 }
 
-/** Intent: the options over a controller the test sets, inside their own effect scope. */
+/** The options over a controller the test sets, inside their own effect scope. */
 function options(saved: SessionOptionChoices) {
   const controller = shallowRef<SessionController | null>(null)
   const { saveSettings, saves } = recordingSaveSettings()

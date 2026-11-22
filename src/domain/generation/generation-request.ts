@@ -96,7 +96,7 @@ interface GenerationRequestInput {
 }
 
 /**
- * Intent: construct an immutable, deep-frozen GenerationRequest from already-validated inputs.
+ * Construct an immutable, deep-frozen GenerationRequest from already-validated inputs.
  * Rejects a measure count other than four, a resolved register window that is not fully contained
  * in the resolved active concert range, a carry-in whose window is not the resolved window, and a
  * carry-in from no phrase without a steering block, each as a typed failure; never defaults,
@@ -174,7 +174,7 @@ const CONCERT_RANGE_ALLOWED_KEYS = new Set(['kind', 'minMidi', 'maxMidi'])
 const REGISTER_WINDOW_ALLOWED_KEYS = new Set(['kind', 'minMidi', 'maxMidi'])
 const VALID_REGISTER_IDS = new Set<string>(['Low', 'Middle', 'High'])
 
-/** Intent: narrow an unknown value to a plain, non-null, non-array object record. */
+/** Narrow an unknown value to a plain, non-null, non-array object record. */
 function asPlainRecord(input: unknown, context: string): Record<string, unknown> {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) {
     throw new GenerationRequestError(`${context} must be a plain object, got ${typeof input}.`)
@@ -183,7 +183,7 @@ function asPlainRecord(input: unknown, context: string): Record<string, unknown>
 }
 
 /**
- * Intent: reject a nested value object's `kind` discriminant unless it is absent or exactly the
+ * Reject a nested value object's `kind` discriminant unless it is absent or exactly the
  * tag the domain constructor itself stamps, so a constructed request round-trips while a
  * mislabelled value (for example a RegisterWindow sent as the active range) is refused.
  */
@@ -196,7 +196,7 @@ function assertKindTag(record: Record<string, unknown>, expected: string, contex
 }
 
 /**
- * Intent: parse an untrusted boundary value into an ActiveConcertRange, accepting the domain's own
+ * Parse an untrusted boundary value into an ActiveConcertRange, accepting the domain's own
  * `kind: 'ActiveConcertRange'` tag (or its absence) and rejecting any other field or tag value.
  */
 function parseActiveConcertRange(input: unknown): ActiveConcertRange {
@@ -225,7 +225,7 @@ function parseActiveConcertRange(input: unknown): ActiveConcertRange {
 }
 
 /**
- * Intent: parse an untrusted boundary value into a RegisterWindow, accepting the domain's own
+ * Parse an untrusted boundary value into a RegisterWindow, accepting the domain's own
  * `kind: 'RegisterWindow'` tag (or its absence) and rejecting any other field or tag value.
  */
 function parseRegisterWindow(input: unknown): RegisterWindow {
@@ -254,7 +254,7 @@ function parseRegisterWindow(input: unknown): RegisterWindow {
 }
 
 /**
- * Intent: parse an untrusted boundary value into a resolved RegisterId. Rejects the outer
+ * Parse an untrusted boundary value into a resolved RegisterId. Rejects the outer
  * RegisterChoice value "Varying" and any other unrecognized string, so a core request can never
  * carry an unresolved register at this boundary either — the type-level exclusion is the primary
  * mechanism; this is the parser-level guard for untrusted input.
@@ -269,7 +269,7 @@ function parseResolvedRegisterId(input: unknown): RegisterId {
 }
 
 /**
- * Intent: parse one untrusted GenerationRequest record. Rejects a non-object input and — most
+ * Parse one untrusted GenerationRequest record. Rejects a non-object input and — most
  * importantly for rule_seeded_phrase_reproduction / rule_presentation_preference_preserves_phrase
  * — any unknown field (theme, notationDisplay, sessionId, or any other presentation/browser-state
  * field) rather than silently ignoring it, so such state structurally cannot enter a request.
@@ -287,7 +287,7 @@ export function parseGenerationRequest(input: unknown): GenerationRequest {
 }
 
 /**
- * Intent: parse one untrusted GenerationRequest record exactly as `parseGenerationRequest` does,
+ * Parse one untrusted GenerationRequest record exactly as `parseGenerationRequest` does,
  * except that its carry-in's carried chord may hold its same-degree seventh, kept unchanged. Only
  * the generation worker's outcome, the one form that can hold a carried seventh, reads with it.
  */
@@ -298,7 +298,7 @@ export function parseGenerationRequestTakingSeventh(input: unknown): GenerationR
 }
 
 /**
- * Intent: parse one untrusted GenerationRequest record field by field, reading its carry-in's
+ * Parse one untrusted GenerationRequest record field by field, reading its carry-in's
  * carried chord under the given reading, and rebuild it through `makeGenerationRequest`.
  */
 function parseGenerationRequestReading(
@@ -360,7 +360,7 @@ function parseGenerationRequestReading(
 }
 
 /**
- * Intent: parse an untrusted request carry-in under the carried chord's reading, reporting any
+ * Parse an untrusted request carry-in under the carried chord's reading, reporting any
  * fault as a GenerationRequestError.
  */
 function parseRequestCarryIn(input: unknown, reading: CarriedChordReading): CarryIn {
@@ -374,7 +374,7 @@ function parseRequestCarryIn(input: unknown, reading: CarriedChordReading): Carr
 }
 
 /**
- * Intent: parse one untrusted optional request group through its own parser, reporting any fault
+ * Parse one untrusted optional request group through its own parser, reporting any fault
  * as a GenerationRequestError naming the field.
  */
 function parseRequestGroup<T>(field: string, input: unknown, parse: (value: unknown) => T): T {

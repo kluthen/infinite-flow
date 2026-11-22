@@ -20,7 +20,7 @@ import {
 export type UnstemmedWrittenNote = Omit<WrittenNote, 'stemDirection'>
 
 /**
- * Intent: the stem direction of one note outside any beam group: down on or above the middle line
+ * The stem direction of one note outside any beam group: down on or above the middle line
  * of its clef (B4 in treble, D3 in bass), up below it.
  */
 // @spec-link [[module_notation_stem_direction]]
@@ -29,7 +29,7 @@ export function noteStemDirection(pitch: SpelledPitch, clef: InstrumentClef): St
 }
 
 /**
- * Intent: the one stem direction every note of a beam group shares. The note farthest from the
+ * The one stem direction every note of a beam group shares. The note farthest from the
  * middle line of its clef (B4 in treble, D3 in bass) decides (above it, or on it, gives down; below gives up); when the farthest note
  * above and the farthest below are equally far, the side holding more of the group's notes decides;
  * when that count ties too, down.
@@ -50,7 +50,7 @@ export function beamGroupStemDirection(
 }
 
 /**
- * Intent: give every note of one measure's glyphs its stem direction, returning new note objects
+ * Give every note of one measure's glyphs its stem direction, returning new note objects
  * and never mutating the given glyphs: each beam group's notes share the group's direction, every
  * other note follows its own staff position, both measured from the middle line of the phrase's
  * clef, and rests are returned as they are (they carry none).

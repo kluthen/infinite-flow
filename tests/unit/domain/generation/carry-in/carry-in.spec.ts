@@ -30,7 +30,7 @@ import {
   type SuccessOutcome,
 } from './carry-in-fixture'
 
-/** Intent: a real carry-in handed forward by a real phrase 1 (C keyboard, Middle, seed 11). */
+/** A real carry-in handed forward by a real phrase 1 (C keyboard, Middle, seed 11). */
 function realCarryIn(): { carryIn: PhraseCarryIn; outcome: SuccessOutcome } {
   const intent = buildIntent({ seed: 11 })
   const outcome = generateSuccess(intent)
@@ -38,7 +38,7 @@ function realCarryIn(): { carryIn: PhraseCarryIn; outcome: SuccessOutcome } {
 }
 
 /**
- * Intent: a pitch one or two semitones from the carried pitch, inside the carried window, that is
+ * A pitch one or two semitones from the carried pitch, inside the carried window, that is
  * a scale tone of C major but not a tone of the carried chord: a tense note.
  */
 function tenseNeighbour(carryIn: CarryIn): number {
@@ -56,17 +56,17 @@ function tenseNeighbour(carryIn: CarryIn): number {
   return tense
 }
 
-/** Intent: a copy of a carry-in with its last pitch replaced. */
+/** A copy of a carry-in with its last pitch replaced. */
 function withLastPitch(carryIn: CarryIn, lastPitch: Record<string, unknown>): CarryIn {
   return { ...carryIn, lastPitch: { ...carryIn.lastPitch, ...lastPitch } } as CarryIn
 }
 
-/** Intent: a copy of a carry-in whose carried chord holds the given seventh (G7's by default). */
+/** A copy of a carry-in whose carried chord holds the given seventh (G7's by default). */
 function withCarriedSeventh(carryIn: CarryIn, seventh: unknown = seventhOf(5)): CarryIn {
   return { ...carryIn, finalHarmony: { ...carryIn.finalHarmony!, seventh } } as CarryIn
 }
 
-/** Intent: an F inside the carried window, the seventh of a carried G7, reached by a step up. */
+/** An F inside the carried window, the seventh of a carried G7, reached by a step up. */
 function onTheSeventh(carryIn: CarryIn): CarryIn {
   const { minMidi, maxMidi } = carryIn.registerWindow
   const f = Array.from({ length: maxMidi - minMidi + 1 }, (_, index) => minMidi + index).find(

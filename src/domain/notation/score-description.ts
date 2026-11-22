@@ -42,7 +42,7 @@ export interface ScoreDescription {
   readonly measures: readonly [string, string, string, string]
 }
 
-/** Intent: turn one pitch-class accidental symbol string into its spoken-friendly words. */
+/** Turn one pitch-class accidental symbol string into its spoken-friendly words. */
 function spellAccidentalsAsWords(symbolText: string): string {
   return symbolText
     .replace(/𝄪/g, ' double sharp')
@@ -51,18 +51,18 @@ function spellAccidentalsAsWords(symbolText: string): string {
     .replace(/♭/g, ' flat')
 }
 
-/** Intent: render a spelled pitch class (root, bass, or the letter part of a pitch) as words. */
+/** Render a spelled pitch class (root, bass, or the letter part of a pitch) as words. */
 function pitchClassWords(pitchClass: SpelledPitchClass): string {
   return spellAccidentalsAsWords(pitchClassText(pitchClass))
 }
 
-/** Intent: render one written pitch as spoken words, naming a displayed natural sign explicitly. */
+/** Render one written pitch as spoken words, naming a displayed natural sign explicitly. */
 function pitchWords(pitch: SpelledPitch, displaysNatural: boolean): string {
   const natural = displaysNatural ? ' natural' : ''
   return `${pitchClassWords(pitch)}${natural} ${pitch.octave}`
 }
 
-/** Intent: render one notated duration glyph as spoken words ('dotted eighth', 'quarter'). */
+/** Render one notated duration glyph as spoken words ('dotted eighth', 'quarter'). */
 function durationWords(duration: NotatedDuration): string {
   const dotted = duration.dots === 1 ? 'dotted ' : ''
   return `${dotted}${duration.value}`
@@ -85,7 +85,7 @@ const SUFFIX_WORDS: ReadonlyMap<string, string> = new Map([
 ])
 
 /**
- * Intent: render a whole chord suffix as spoken words; crashes on a suffix that is neither a
+ * Render a whole chord suffix as spoken words; crashes on a suffix that is neither a
  * triad nor a seventh-chord suffix, which the notation input validator already refuses.
  */
 // @spec-link [[rule_seventh_chord_symbols_spoken]]
@@ -99,7 +99,7 @@ function suffixWords(suffix: string): string {
   return words
 }
 
-/** Intent: render one written chord symbol as spoken words: root, spoken suffix, spoken bass. */
+/** Render one written chord symbol as spoken words: root, spoken suffix, spoken bass. */
 function chordWords(chord: WrittenChordSymbol): string {
   const root = pitchClassWords(chord.root)
   const suffix = suffixWords(chord.suffix)
@@ -108,7 +108,7 @@ function chordWords(chord: WrittenChordSymbol): string {
   return `${rootAndSuffix}${bass}`
 }
 
-/** Intent: render one written note or rest glyph as its spoken token, including a trailing tie. */
+/** Render one written note or rest glyph as its spoken token, including a trailing tie. */
 function eventToken(event: WrittenEvent): string {
   if (event.kind === 'rest') return `rest ${durationWords(event.duration)}`
   const tie = event.tieToNext ? ', tied to next' : ''
@@ -117,7 +117,7 @@ function eventToken(event: WrittenEvent): string {
 }
 
 /**
- * Intent: render the key signature's accidental count and kind as words ('no sharps or flats',
+ * Render the key signature's accidental count and kind as words ('no sharps or flats',
  * '1 flat', '2 sharps'). Crashes on the invariant violation of a positive count with no kind.
  */
 function signatureWords(signature: WrittenKey['signature']): string {
@@ -129,20 +129,20 @@ function signatureWords(signature: WrittenKey['signature']): string {
   return `${signature.count} ${noun}`
 }
 
-/** Intent: render a clef, a key and the 4/4 meter as words, as a phrase's summary names them. */
+/** Render a clef, a key and the 4/4 meter as words, as a phrase's summary names them. */
 function clefKeyAndMeterWords(clef: InstrumentClef, key: WrittenKey): string {
   const signature = signatureWords(key.signature)
   const label = spellAccidentalsAsWords(key.label)
   return `${clef} clef, key signature ${signature} (${label}), 4/4 time`
 }
 
-/** Intent: build the one-line summary of a written phrase's clef, key and meter. */
+/** Build the one-line summary of a written phrase's clef, key and meter. */
 function summaryOf(phrase: WrittenPhrase): string {
   return `Written notation, ${clefKeyAndMeterWords(phrase.clef, phrase.key)}, four measures.`
 }
 
 /**
- * Intent: name Jam's empty system as a phrase's summary names its staff, naming no measures:
+ * Name Jam's empty system as a phrase's summary names its staff, naming no measures:
  * "Empty staff, treble clef, key signature 1 sharp (G Ionian), 4/4 time."
  */
 // @spec-link [[rule_jam_idle_shows_no_phrase]]
@@ -154,7 +154,7 @@ export function describeEmptySystem(clef: InstrumentClef, key: WrittenKey): stri
 const DOODLE_LENGTH_WORDS = ['one measure', 'two measures', 'three measures', 'four measures']
 
 /**
- * Intent: name a Jam's doodle as a phrase's summary names its staff, with its own length: "Your
+ * Name a Jam's doodle as a phrase's summary names its staff, with its own length: "Your
  * doodle, treble clef, key signature 1 sharp (G Ionian), 4/4 time, two measures."
  */
 // @spec-link [[rule_review_opens_with_doodle]]
@@ -166,7 +166,7 @@ export function describeDoodle(phrase: WrittenPhrase, measureCount: number): str
 }
 
 /**
- * Intent: build one measure's spoken description, interleaving each chord announcement
+ * Build one measure's spoken description, interleaving each chord announcement
  * immediately before the run of note/rest tokens starting at (and following) its tick.
  */
 function describeMeasure(measure: WrittenMeasure, measureNumber: number): string {
@@ -194,7 +194,7 @@ function describeMeasure(measure: WrittenMeasure, measureNumber: number): string
 }
 
 /**
- * Intent: describe a written phrase as pure semantic text — the accessible alternative shown
+ * Describe a written phrase as pure semantic text — the accessible alternative shown
  * alongside its engraving — without mutating or otherwise reading anything beyond the phrase.
  */
 // @spec-link [[module_notation_layout_preflight]]

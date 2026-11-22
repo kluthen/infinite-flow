@@ -50,7 +50,7 @@ export interface WorkspaceTapTempo {
 }
 
 /**
- * Intent: the workspace's tap tempo over its seams: Jam's tap tempo made once, as Jam's code
+ * The workspace's tap tempo over its seams: Jam's tap tempo made once, as Jam's code
  * loads; listening ended as the controls become read-only, and ended with its note rested as Jam
  * mode stops showing; a tempo changed another way told to it, so a note naming another tempo
  * rests. Its timer is cleared with the workspace.
@@ -59,7 +59,7 @@ export interface WorkspaceTapTempo {
 export function useTapTempoHost(seams: TapTempoHostSeams): WorkspaceTapTempo {
   const tapTempo = shallowRef<TapTempo | null>(null)
 
-  /** Intent: Jam's tempo now; asked for before Jam's settings exist, a defect. */
+  /** Jam's tempo now; asked for before Jam's settings exist, a defect. */
   function currentTempo(): number {
     const tempo = seams.tempo()
     if (tempo === null) throw new Error("workspace tap tempo: Jam's tempo read before it exists")

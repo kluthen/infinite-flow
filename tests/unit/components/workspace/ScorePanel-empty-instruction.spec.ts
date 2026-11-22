@@ -13,7 +13,7 @@ import { createTestWorkspace, useCheapControls } from './test-workspace'
 
 const EMPTY_INSTRUCTION = 'Generate a phrase to begin.'
 
-/** Intent: the empty instruction's text on the staff, or null when it is not shown. */
+/** The empty instruction's text on the staff, or null when it is not shown. */
 function emptyInstruction(wrapper: ReturnType<typeof mountHarness>): string | null {
   const copy = wrapper.find('.phrase-score-stub .staff-empty-copy')
   return copy.exists() ? copy.text() : null

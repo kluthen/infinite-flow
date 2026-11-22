@@ -22,13 +22,13 @@ interface SeededIntent {
   readonly sessionSeed: Seed
 }
 
-/** Intent: a staff-layout failure as the engraver raises it while drawing. */
+/** A staff-layout failure as the engraver raises it while drawing. */
 function layoutFailure(code: 'notation_no_room' | 'notation_notes_too_wide'): NotationError {
   return new NotationError(code, `layout failure ${code}`, {})
 }
 
 /**
- * Intent: an Idle session whose published result carries its session seed, drawn from a counter
+ * An Idle session whose published result carries its session seed, drawn from a counter
  * starting at 900, with phrase seeds from a counter starting at 1; `generate` echoes the intent
  * unless `failGenerate` is set, and `notate` fails while `failNotate` holds an error.
  */

@@ -42,7 +42,7 @@ const KEY_VERSIONS = ['ifk3']
 const LOAD_CONFIG = { configFile: false, logLevel: 'silent', resolve: { alias: { '@': SRC_DIR } } }
 
 /**
- * Intent: load a TypeScript module through Vite and return the named functions, crashing when one
+ * Load a TypeScript module through Vite and return the named functions, crashing when one
  * is missing.
  * @template {string} Name
  * @param {string} path
@@ -62,7 +62,7 @@ async function loadFunctions(path, names) {
 }
 
 /**
- * Intent: replay one key and return the timeline it gives, or the outcome kind when the key does
+ * Replay one key and return the timeline it gives, or the outcome kind when the key does
  * not replay to a phrase.
  * @param {Function} replayPhraseKey
  * @param {string} key
@@ -78,7 +78,7 @@ function replayOnce(replayPhraseKey, key) {
 }
 
 /**
- * Intent: replay one key twice and return its timeline; record a failure when it does not replay
+ * Replay one key twice and return its timeline; record a failure when it does not replay
  * to a phrase, and crash at once when the two replays differ (the generator is not deterministic).
  * @param {Function} replayPhraseKey
  * @param {string} label
@@ -102,7 +102,7 @@ function deterministicTimeline(replayPhraseKey, label, key, failures) {
 }
 
 /**
- * Intent: the fixture text: the top level readable, each case compact on one line, valid JSON
+ * The fixture text: the top level readable, each case compact on one line, valid JSON
  * ending with a newline. Crashes if the text does not parse back to the fixture.
  * @param {{ keyVersions: string[], recordedOnAppVersion: string, cases: unknown[] }} fixture
  * @returns {string}
@@ -126,7 +126,7 @@ function fixtureText(fixture) {
 }
 
 /**
- * Intent: build every case, encode it and replay it twice, crash on any case that fails to
+ * Build every case, encode it and replay it twice, crash on any case that fails to
  * generate or any key version missing, and write the fixture with the version it was recorded on.
  */
 async function main() {

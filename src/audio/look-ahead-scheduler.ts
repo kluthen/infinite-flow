@@ -33,7 +33,7 @@ export interface LookAheadSchedulerDependencies {
 }
 
 /**
- * Intent: build a look-ahead scheduler. `run` plans the first window at once, then one more slice
+ * Build a look-ahead scheduler. `run` plans the first window at once, then one more slice
  * on every wake-up, each slice starting where the last ended, so no moment is planned twice or
  * skipped. `halt` stops the timer; a wake-up still in flight afterwards does nothing. A second
  * `run`, or a `halt` when not running, throws.
@@ -47,7 +47,7 @@ export function createLookAheadScheduler(deps: LookAheadSchedulerDependencies): 
   let activeRun = 0
   let runCount = 0
 
-  /** Intent: start one run of `source`, whose wake-ups do nothing once another run replaces it. */
+  /** Start one run of `source`, whose wake-ups do nothing once another run replaces it. */
   function run(source: ScheduleSource): void {
     if (activeRun !== 0) throw new Error('look-ahead scheduler: already running')
     runCount += 1

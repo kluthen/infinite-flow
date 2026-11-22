@@ -33,7 +33,7 @@ const ARROW_STEP: Readonly<Record<string, number>> = {
 
 const group = ref<HTMLElement | null>(null)
 
-/** Intent: the option holding the tab stop at first: the device in use when listed, else the first. */
+/** The option holding the tab stop at first: the device in use when listed, else the first. */
 function initialStop(): string | null {
   const inUse = props.devices.find((device) => device.id === props.inUseId)
   return (inUse ?? props.devices[0])?.id ?? null
@@ -42,13 +42,13 @@ function initialStop(): string | null {
 /** The id of the option holding the roving tab stop. */
 const stopId = ref<string | null>(initialStop())
 
-/** Intent: the rendered option buttons, in list order. */
+/** The rendered option buttons, in list order. */
 function optionButtons(): HTMLButtonElement[] {
   if (group.value === null) throw new Error('device picker: the group did not render')
   return Array.from(group.value.querySelectorAll<HTMLButtonElement>('.device-option'))
 }
 
-/** Intent: move the tab stop and focus to the option at `index`. */
+/** Move the tab stop and focus to the option at `index`. */
 function moveTo(index: number): void {
   const device = props.devices[index]
   const button = optionButtons()[index]
@@ -57,7 +57,7 @@ function moveTo(index: number): void {
   button.focus()
 }
 
-/** Intent: arrows move focus to the previous or next option, clamped to the list's ends. */
+/** Arrows move focus to the previous or next option, clamped to the list's ends. */
 // @spec-link [[req_midi_controller_input]]
 function handleKeydown(event: KeyboardEvent, index: number): void {
   const step = ARROW_STEP[event.key]
@@ -67,7 +67,7 @@ function handleKeydown(event: KeyboardEvent, index: number): void {
 }
 
 /**
- * Intent: when the option holding the stop leaves the list, the option now at its place (the next
+ * When the option holding the stop leaves the list, the option now at its place (the next
  * one) takes the stop, else the new last one (the previous); focus follows when the leaving option
  * had it. Runs before the options re-render, while the leaving button is still in the page.
  */

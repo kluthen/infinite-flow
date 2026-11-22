@@ -26,7 +26,7 @@ export const CONCERT_TRANSPOSITION = { chromatic: 0, diatonic: 0 } as const
 export const FIXTURE_WRITTEN_RANGE = { minMidi: 60, maxMidi: 84 } as const
 export const TIME_SIGNATURE = { beats: 4, beatValue: 4 } as const
 
-/** Intent: build the no-accidental C major written key shared by the dense and simple fixtures. */
+/** Build the no-accidental C major written key shared by the dense and simple fixtures. */
 export function keyCMajor(): WrittenKey {
   const scale: readonly SpelledPitchClass[] = [
     { letter: 'C', alter: 0 },
@@ -52,7 +52,7 @@ export type UnstemmedMeasure = Omit<WrittenMeasure, 'events'> & {
 }
 
 /**
- * Intent: complete a hand-built measure with the stem directions the real domain rule gives its
+ * Complete a hand-built measure with the stem directions the real domain rule gives its
  * notes (beam groups included), so no fixture hard-codes a direction.
  */
 export function stemmedMeasure(measure: UnstemmedMeasure): WrittenMeasure {
@@ -110,7 +110,7 @@ export const DENSE_ACCIDENTAL_CYCLE: readonly (DisplayedAccidental | null)[] = [
 ]
 
 /**
- * Intent: build one measure filled by notes of one value (`duration`), one per pitch from tick 0,
+ * Build one measure filled by notes of one value (`duration`), one per pitch from tick 0,
  * each displaying its accidental, beamed by quarter beat (quarters stand unbeamed: a beam group
  * holds two notes or more), carrying the given chord symbols. The pitches must fill the 4/4
  * measure exactly.

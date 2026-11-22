@@ -43,25 +43,25 @@ const LADDER_RUNGS = 5
 /** The exact copy of the notice. */
 const NOTICE_COPY = 'The generator is struggling with these settings.'
 
-/** Intent: the struggling notice in the cue row. */
+/** The struggling notice in the cue row. */
 function notice(page: Page) {
   return cueRow(page).locator('p.inline-alert.alert-notice.session-alert > span.session-alert-text')
 }
 
-/** Intent: move the fake audio clock to audio time `t`, in steps of at most one second. */
+/** Move the fake audio clock to audio time `t`, in steps of at most one second. */
 async function clockTo(page: Page, t: number): Promise<void> {
   const now = await page.evaluate(() => window.__workspaceHarness.audio.now())
   expect(t).toBeGreaterThan(now)
   await advanceAudioBy(page, t - now)
 }
 
-/** Intent: wait until `count` generate calls in all have returned, failed or answered. */
+/** Wait until `count` generate calls in all have returned, failed or answered. */
 async function awaitSettled(page: Page, count: number): Promise<void> {
   await expect.poll(() => generationsSettled(page), { timeout: 30_000 }).toBe(count)
 }
 
 /**
- * Intent: arm `failures` forced failures for the next look-ahead attempts, let `phraseStarts`
+ * Arm `failures` forced failures for the next look-ahead attempts, let `phraseStarts`
  * (the moment the phrase before starts sounding, which requests the next one; null when already
  * requested) pass, and wait until every attempt has returned: the failures, plus one answer when
  * fewer than the whole ladder failed. The attempts draw no seed: theirs derive from the session
@@ -78,7 +78,7 @@ async function lookAheadWith(page: Page, failures: number, phraseStarts: number)
 }
 
 /**
- * Intent: assert nothing blocking shows: no failure banner or error alert, no notation error, and
+ * Assert nothing blocking shows: no failure banner or error alert, no notation error, and
  * neither live region announced anything since it was observed (a region emptied, as the Review
  * opening at the end empties both, announces nothing).
  */
@@ -92,20 +92,20 @@ async function expectNothingBlocking(page: Page): Promise<void> {
   expect(await announced('.notation-status')).toEqual([])
 }
 
-/** Intent: assert the notice shows, exactly, in the cue row and in the controller's state. */
+/** Assert the notice shows, exactly, in the cue row and in the controller's state. */
 async function expectNoticeShown(page: Page): Promise<void> {
   expect((await sessionState(page)).strugglingNotice).toBe(true)
   await expect(notice(page)).toHaveText(NOTICE_COPY)
 }
 
-/** Intent: assert the notice does not show. */
+/** Assert the notice does not show. */
 async function expectNoNotice(page: Page): Promise<void> {
   expect((await sessionState(page)).strugglingNotice).toBe(false)
   await expect(cueRow(page).locator('.session-alert')).toHaveCount(0)
 }
 
 /**
- * Intent: start a session whose phrases 2 and 3 are both repeats (every rung of their ladders
+ * Start a session whose phrases 2 and 3 are both repeats (every rung of their ladders
  * fails), so the notice shows at phrase 3's deadline; return phrase 1's start on the audio clock.
  * Phrase N (2 and up) is requested when phrase N-1 starts sounding, with its deadline three
  * measures later; phrase 2 is requested at Start, with the count-in's end as its deadline.

@@ -23,12 +23,12 @@ import { loadDoodleSet } from './doodle-set'
 
 const DOODLES = loadDoodleSet()
 
-/** Intent: a start list as compact text, e.g. `n0 n2 r6 n8`. */
+/** A start list as compact text, e.g. `n0 n2 r6 n8`. */
 function startsText(starts: readonly SteeringStart[]): string {
   return starts.map(({ tick, kind }) => `${kind === 'note' ? 'n' : 'r'}${tick}`).join(' ')
 }
 
-/** Intent: one measure of a doodle of the set, as its starts in compact text. */
+/** One measure of a doodle of the set, as its starts in compact text. */
 function setMeasure(name: string, measureIndex: number): string {
   const doodle = DOODLES.find((each) => each.name === name)!.quantized
   return startsText(doodleMeasureStarts(doodle, measureIndex))

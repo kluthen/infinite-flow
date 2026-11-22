@@ -48,7 +48,7 @@ const KEY_VERSIONS = ['ifk4']
 const LOAD_CONFIG = { configFile: false, logLevel: 'silent', resolve: { alias: { '@': SRC_DIR } } }
 
 /**
- * Intent: load a TypeScript module through Vite and return the named exports, crashing when one
+ * Load a TypeScript module through Vite and return the named exports, crashing when one
  * is missing.
  * @template {string} Name
  * @param {string} path
@@ -68,7 +68,7 @@ async function loadExports(path, names) {
 }
 
 /**
- * Intent: replay one key and return the timeline it gives, or the outcome kind when the key does
+ * Replay one key and return the timeline it gives, or the outcome kind when the key does
  * not replay to a phrase.
  * @param {Function} replayPhraseKey
  * @param {string} key
@@ -84,7 +84,7 @@ function replayOnce(replayPhraseKey, key) {
 }
 
 /**
- * Intent: replay one key twice and return its timeline; record a failure when it does not replay
+ * Replay one key twice and return its timeline; record a failure when it does not replay
  * to a phrase, and crash at once when the two replays differ (the generator is not deterministic).
  * @param {Function} replayPhraseKey
  * @param {string} label
@@ -108,7 +108,7 @@ function deterministicTimeline(replayPhraseKey, label, key, failures) {
 }
 
 /**
- * Intent: the fixture text: the top level readable, each case compact on one line, valid JSON
+ * The fixture text: the top level readable, each case compact on one line, valid JSON
  * ending with a newline. Crashes if the text does not parse back to the fixture.
  * @param {{ keyVersions: string[], recordedOnAppVersion: string, cases: unknown[] }} fixture
  * @returns {string}
@@ -132,7 +132,7 @@ function fixtureText(fixture) {
 }
 
 /**
- * Intent: build every case, encode it and replay it twice, crash on any case that fails to
+ * Build every case, encode it and replay it twice, crash on any case that fails to
  * generate, any repeated label or any key version missing, and write the fixture with the version
  * it was recorded on.
  * @param {string} version
@@ -169,7 +169,7 @@ async function recordPhraseCorpus(version) {
   process.stderr.write(`wrote ${cases.length} cases to ${FIXTURE_PATH}\n`)
 }
 
-/** Intent: render and encode every sampled session's files and write them to the corpus folder. */
+/** Render and encode every sampled session's files and write them to the corpus folder. */
 async function recordSessionFiles() {
   const { CORPUS_SESSIONS, SESSION_FILES_DIR, corpusSessionFiles } = await loadExports(
     SESSIONS_MODULE,
@@ -184,7 +184,7 @@ async function recordSessionFiles() {
   }
 }
 
-/** Intent: check the app version, then record the phrase corpus and the session files from it. */
+/** Check the app version, then record the phrase corpus and the session files from it. */
 async function main() {
   const { version } = JSON.parse(readFileSync(PACKAGE_PATH, 'utf8'))
   if (!RECORDED_ON_APP_VERSION.test(version)) {

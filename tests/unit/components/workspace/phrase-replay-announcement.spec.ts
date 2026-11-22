@@ -27,7 +27,7 @@ const CARRY_IN_INTENT = buildIntent({
 })
 const STANDALONE_INTENT = buildIntent({ seed: 23, label: 'announce' })
 
-/** Intent: a session phrase record with this number, origin and intent. */
+/** A session phrase record with this number, origin and intent. */
 function sessionPhrase(
   phraseNumber: number,
   origin: SessionPhraseOrigin,
@@ -42,7 +42,7 @@ function sessionPhrase(
   }
 }
 
-/** Intent: the runner output readying a session phrase with this number, origin and intent. */
+/** The runner output readying a session phrase with this number, origin and intent. */
 function readied(
   phraseNumber: number,
   origin: SessionPhraseOrigin,
@@ -51,7 +51,7 @@ function readied(
   return { kind: 'phrase-ready', phrase: sessionPhrase(phraseNumber, origin, intent) }
 }
 
-/** Intent: run outputs through the announcing wrapper, recording the lines and forwarded outputs. */
+/** Run outputs through the announcing wrapper, recording the lines and forwarded outputs. */
 function announce(outputs: readonly SessionOutput[]) {
   const lines: string[] = []
   const forwarded: SessionOutput[] = []

@@ -45,7 +45,7 @@ const templateNodeType = { element: 1, text: 2, comment: 3 }
 const commentCache = new WeakMap()
 
 /**
- * Intent: whether discovery must not descend into a directory of this name, at any depth.
+ * Whether discovery must not descend into a directory of this name, at any depth.
  *
  * @param {string} name
  * @returns {boolean}
@@ -55,7 +55,7 @@ export function isSkippedDirectory(name) {
 }
 
 /**
- * Intent: whether a repo-relative path is a test file: under `tests/`, or named `*.spec.*` /
+ * Whether a repo-relative path is a test file: under `tests/`, or named `*.spec.*` /
  * `*.test.*` anywhere.
  *
  * @param {string} path
@@ -67,7 +67,7 @@ export function isTestFile(path) {
 }
 
 /**
- * Intent: every source file under `directory`, recursively, skipping excluded directories, as
+ * Every source file under `directory`, recursively, skipping excluded directories, as
  * absolute paths.
  *
  * @param {string} directory
@@ -88,7 +88,7 @@ async function sourceFilesUnder(directory) {
 }
 
 /**
- * Intent: the sorted, de-duplicated repo-relative paths of the source files designated by
+ * The sorted, de-duplicated repo-relative paths of the source files designated by
  * `targets` (absolute paths of files or directories). Throws on a missing target, an explicit file
  * that is not a source file, or a target outside `repoRoot`.
  *
@@ -117,7 +117,7 @@ export async function discoverSourceFiles(repoRoot, targets) {
 }
 
 /**
- * Intent: the atom ids the project defines, read from the `id:` line of the YAML frontmatter of
+ * The atom ids the project defines, read from the `id:` line of the YAML frontmatter of
  * every `docs/*.atom.md` (top level of docs/ only). Throws if an atom file declares no id.
  *
  * @param {string} repoRoot
@@ -138,7 +138,7 @@ export async function loadAtomIds(repoRoot) {
 }
 
 /**
- * Intent: the `id:` value of a Markdown file's leading YAML frontmatter, unquoted, if any.
+ * The `id:` value of a Markdown file's leading YAML frontmatter, unquoted, if any.
  *
  * @param {string} text
  * @returns {string | undefined}
@@ -157,7 +157,7 @@ function frontmatterId(text) {
 }
 
 /**
- * Intent: read one repo-relative source file and parse it.
+ * Read one repo-relative source file and parse it.
  *
  * @param {string} repoRoot
  * @param {string} path
@@ -168,7 +168,7 @@ export async function loadSource(repoRoot, path) {
 }
 
 /**
- * Intent: parse a file's text into the shared model: its script blocks (TypeScript compiler API;
+ * Parse a file's text into the shared model: its script blocks (TypeScript compiler API;
  * `vue/compiler-sfc` for .vue), its template comments and its bypass tokens. Throws when a .vue
  * file cannot be parsed.
  *
@@ -190,7 +190,7 @@ export function parseSource(path, text) {
 }
 
 /**
- * Intent: the single script block of a non-.vue file, parsed as JavaScript or TypeScript by
+ * The single script block of a non-.vue file, parsed as JavaScript or TypeScript by
  * extension.
  *
  * @param {string} path
@@ -204,7 +204,7 @@ function moduleBlock(path, text) {
 }
 
 /**
- * Intent: the script blocks (in file order) and template comments of a .vue single-file component.
+ * The script blocks (in file order) and template comments of a .vue single-file component.
  *
  * @param {string} path
  * @param {string} text
@@ -232,7 +232,7 @@ function parseVueParts(path, text) {
 }
 
 /**
- * Intent: one `<script>` or `<script setup>` of a .vue file as a TypeScript block, with the
+ * One `<script>` or `<script setup>` of a .vue file as a TypeScript block, with the
  * offsets that map its positions back to the original file.
  *
  * @param {string} path
@@ -252,7 +252,7 @@ function vueScriptBlock(path, kind, block) {
 }
 
 /**
- * Intent: every HTML comment of a template node list, recursively, in document order.
+ * Every HTML comment of a template node list, recursively, in document order.
  *
  * @param {TemplateChildren} children
  * @returns {TemplateComment[]}
@@ -270,7 +270,7 @@ function templateCommentsOf(children) {
 }
 
 /**
- * Intent: the first sibling after `children[index]` that is neither whitespace-only text nor a
+ * The first sibling after `children[index]` that is neither whitespace-only text nor a
  * comment, if any — the node a comment run documents.
  *
  * @param {TemplateChildren} children
@@ -284,7 +284,7 @@ function nextTemplateNode(children, index) {
 }
 
 /**
- * Intent: the original 1-based line of a block-relative position.
+ * The original 1-based line of a block-relative position.
  *
  * @param {ScriptBlock} block
  * @param {number} pos
@@ -295,7 +295,7 @@ export function lineOf(block, pos) {
 }
 
 /**
- * Intent: a block-relative TypeScript comment range as a CommentRange.
+ * A block-relative TypeScript comment range as a CommentRange.
  *
  * @param {ScriptBlock} block
  * @param {ts.CommentRange} range
@@ -313,7 +313,7 @@ function toCommentRange(block, range) {
 }
 
 /**
- * Intent: every comment of a script block, in source order, found as the leading and trailing
+ * Every comment of a script block, in source order, found as the leading and trailing
  * trivia of the block's tokens (so comment-like text inside strings, template literals and regular
  * expressions is never mistaken for a comment). Cached per block.
  *
@@ -327,7 +327,7 @@ export function commentRanges(block) {
   /** @type {Map<number, ts.CommentRange>} */
   const byPos = new Map()
   /**
-   * Intent: record the comments around one node, then visit its children (tokens included,
+   * Record the comments around one node, then visit its children (tokens included,
    * JSDoc nodes skipped since they lie inside a comment already recorded).
    *
    * @param {ts.Node} node
@@ -351,7 +351,7 @@ export function commentRanges(block) {
 }
 
 /**
- * Intent: the comments directly attached to `node`: the tail run of its leading comments with no
+ * The comments directly attached to `node`: the tail run of its leading comments with no
  * blank line between two consecutive comments, nor between the last comment and the node's first
  * token. A comment separated from the node by a blank line (a file header) is not attached.
  *
@@ -375,7 +375,7 @@ export function attachedComments(block, node) {
 }
 
 /**
- * Intent: the prose lines of a raw comment (script or template): each line with its leading
+ * The prose lines of a raw comment (script or template): each line with its leading
  * comment markers (`//`, `/*`, `*`, `<!--`) and trailing closers (`*\/`, `-->`) removed, trimmed.
  *
  * @param {string} text
@@ -391,7 +391,7 @@ export function commentTextLines(text) {
 }
 
 /**
- * Intent: the bypass tokens a raw comment declares: a token counts only when a line of the comment
+ * The bypass tokens a raw comment declares: a token counts only when a line of the comment
  * starts with it once the comment markers are stripped, so prose or a string that merely mentions
  * a token bypasses nothing.
  *
@@ -406,7 +406,7 @@ export function bypassTokensIn(text) {
 }
 
 /**
- * Intent: build a Finding on `source` (rules should create every finding through this).
+ * Build a Finding on `source` (rules should create every finding through this).
  *
  * @param {ParsedSource} source
  * @param {RuleName} rule

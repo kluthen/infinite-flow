@@ -8,7 +8,7 @@ import { gotoWorkspace } from './helpers'
 
 const TAB_STOPS_TO_CHECK = 8
 
-/** Intent: read the focused element's computed focus-indicator styles and its own identity. */
+/** Read the focused element's computed focus-indicator styles and its own identity. */
 async function readFocusIndicator(
   page: import('@playwright/test').Page,
 ): Promise<{ boxShadow: string; outlineStyle: string; identity: string }> {

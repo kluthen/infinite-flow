@@ -58,20 +58,20 @@ export interface SessionWindowInput {
   readonly systemPositionUnits?: number
 }
 
-/** Intent: guard a measured size is a finite positive number, naming it in the error. */
+/** Guard a measured size is a finite positive number, naming it in the error. */
 function assertPositiveSize(name: string, value: number): void {
   if (!Number.isFinite(value) || value <= 0) {
     throw new Error(`session window: ${name} ${value} is not a finite positive number`)
   }
 }
 
-/** Intent: whether a width in CSS px is below a breakpoint given in rem. */
+/** Whether a width in CSS px is below a breakpoint given in rem. */
 function isBelow(widthPx: number, breakpointRem: number, remPx: number): boolean {
   return widthPx < breakpointRem * remPx
 }
 
 /**
- * Intent: the staff layout a session holds, chosen at Start from the viewport width alone, never
+ * The staff layout a session holds, chosen at Start from the viewport width alone, never
  * from phrase 1: split below bp-tablet-landscape, one system from it up, as at Idle.
  */
 // @spec-link [[rule_session_layout_fixed_at_start]]
@@ -82,7 +82,7 @@ export function sessionLayoutAtStart(widthPx: number, remPx: number): StaffLayou
 }
 
 /**
- * Intent: whether the window is portrait-shaped (height at least the width, as CSS
+ * Whether the window is portrait-shaped (height at least the width, as CSS
  * `orientation: portrait`) below bp-desktop: the rotate-device notice then replaces the workspace,
  * so a session cannot start, and one running ends. Throws on a non-positive size.
  */
@@ -99,7 +99,7 @@ export function isPortraitBelowDesktop(
 }
 
 /**
- * Intent: the reason a window change ends the session, or null when the session keeps running.
+ * The reason a window change ends the session, or null when the session keeps running.
  * First a portrait-shaped view (height at least the width, as CSS `orientation: portrait`) below
  * bp-desktop; then, in the planner's own order, the height room at the floor (while the window is
  * below bp-tablet-landscape, for either held layout: the held layout drawn in the window's height

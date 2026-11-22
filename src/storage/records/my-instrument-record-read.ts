@@ -28,12 +28,12 @@ import { MY_INSTRUMENT_DATA_VERSION } from './my-instrument-record'
 /** The one input kind a record may hold today. */
 const MIDI_CONTROLLER: MyInstrumentInputKind = 'midi-controller'
 
-/** Intent: whether a value is a non-null, non-array object, whose fields can be read. */
+/** Whether a value is a non-null, non-array object, whose fields can be read. */
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/** Intent: a written range's two ends, when the value holds two numbers; null otherwise. */
+/** A written range's two ends, when the value holds two numbers; null otherwise. */
 function writtenRangeOf(value: unknown): MyInstrumentInput['writtenRange'] | null {
   if (!isObject(value)) return null
   const { minMidi, maxMidi } = value
@@ -42,7 +42,7 @@ function writtenRangeOf(value: unknown): MyInstrumentInput['writtenRange'] | nul
 }
 
 /**
- * Intent: a transposition's three fields, when the value holds two numbers and a string; null
+ * A transposition's three fields, when the value holds two numbers and a string; null
  * otherwise. Whether they make a valid transposition is building my instrument's to check.
  */
 function transpositionOf(value: unknown): MyInstrumentTransposition | null {
@@ -54,7 +54,7 @@ function transpositionOf(value: unknown): MyInstrumentTransposition | null {
 }
 
 /**
- * Intent: what a current record says my instrument is built from, when every field has its type
+ * What a current record says my instrument is built from, when every field has its type
  * and the id and input kind are the only ones there are; null otherwise.
  */
 function inputOf(record: Record<string, unknown>): MyInstrumentInput | null {
@@ -70,7 +70,7 @@ function inputOf(record: Record<string, unknown>): MyInstrumentInput | null {
 }
 
 /**
- * Intent: my instrument from the `instrument` store's records as loaded: built from the first
+ * My instrument from the `instrument` store's records as loaded: built from the first
  * current record whose fields read and which my instrument's rules accept, unchanged; null when
  * there is none. A newer version's record, one that does not decode and one the rules refuse load
  * as absent, with no error, no notice and nothing repaired. A builder error other than my

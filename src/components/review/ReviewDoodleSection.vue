@@ -68,14 +68,14 @@ interface DoodleStaffApi {
 
 const staff = ref<DoodleStaffApi | null>(null)
 
-/** Intent: Jam's doodle staff, which the list only names once Jam's code has loaded. */
+/** Jam's doodle staff, which the list only names once Jam's code has loaded. */
 function requireStaff(): DoodleStaffApi {
   if (staff.value === null) throw new Error("The doodle's staff is not mounted.")
   return staff.value
 }
 
 /**
- * Intent: engrave the doodle; null, drawing nothing, while its staff is not mounted (Jam's code
+ * Engrave the doodle; null, drawing nothing, while its staff is not mounted (Jam's code
  * not there, or the section gone).
  */
 // @spec-link [[rule_review_opens_with_doodle]]

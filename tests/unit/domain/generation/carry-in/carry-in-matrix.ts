@@ -112,7 +112,7 @@ export interface MatrixCell {
   readonly label: string
 }
 
-/** Intent: the full profile x register x control-set x seed matrix, in a fixed order. */
+/** The full profile x register x control-set x seed matrix, in a fixed order. */
 export function buildMatrix(): readonly MatrixCell[] {
   const cells: MatrixCell[] = []
   for (const instrumentProfileId of INSTRUMENT_PROFILE_IDS)

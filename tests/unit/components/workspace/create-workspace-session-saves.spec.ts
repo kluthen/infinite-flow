@@ -32,7 +32,7 @@ beforeEach(() => {
   resetFakeEngraver()
 })
 
-/** Intent: the calls that reached a recording policy, each save as the setting keys it wrote. */
+/** The calls that reached a recording policy, each save as the setting keys it wrote. */
 function policyCalls(calls: readonly PolicyCall[]): unknown[] {
   return calls.map((call) =>
     call.method === 'save'

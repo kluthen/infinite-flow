@@ -5,7 +5,7 @@
  */
 
 /**
- * Intent: an on/off switch of a page URL's query string: `off` disables, `on` or no such parameter
+ * An on/off switch of a page URL's query string: `off` disables, `on` or no such parameter
  * enables, and any other value throws, so a mistyped measurement URL never silently measures the
  * wrong mode.
  */
@@ -24,7 +24,7 @@ function switchFromSearch(search: string, name: string): 'enabled' | 'disabled' 
 export type WorkspacePrewarmPolicy = 'enabled' | 'disabled'
 
 /**
- * Intent: the prewarm policy a page URL's query string asks for. `?prewarm=off` disables prewarm
+ * The prewarm policy a page URL's query string asks for. `?prewarm=off` disables prewarm
  * and `?prewarm=on` (or no `prewarm` parameter) enables it; any other value throws, so a mistyped
  * measurement URL never silently measures the wrong mode. This is the latency measurement seam:
  * the only way to load the production page with cold generation.
@@ -42,7 +42,7 @@ export function prewarmPolicyFromSearch(search: string): WorkspacePrewarmPolicy 
 export type WorkspacePregenerationPolicy = 'enabled' | 'disabled'
 
 /**
- * Intent: the pre-generation policy a page URL's query string asks for. `?pregeneration=off`
+ * The pre-generation policy a page URL's query string asks for. `?pregeneration=off`
  * disables it and `?pregeneration=on` (or no `pregeneration` parameter) enables it; any other
  * value throws, so a mistyped measurement URL never silently measures the wrong mode.
  */

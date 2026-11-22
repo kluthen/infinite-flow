@@ -106,7 +106,7 @@ interface EmptySystemInputs {
   readonly systemPositionUnits: number
 }
 
-/** Intent: read the current layout inputs, or null before the root element exists. */
+/** Read the current layout inputs, or null before the root element exists. */
 function readInputs(): EmptySystemInputs | null {
   const root = rootEl.value
   if (!root) return null
@@ -117,19 +117,19 @@ function readInputs(): EmptySystemInputs | null {
   }
 }
 
-/** Intent: the comparison key of an engraving: its layout inputs, what it shows and its name. */
+/** The comparison key of an engraving: its layout inputs, what it shows and its name. */
 function engravingKey(inputs: EmptySystemInputs, shown: EmptySystemStaff, name: string): string {
   return JSON.stringify({ inputs, shown, name })
 }
 
-/** Intent: show `next` and report it, only when it changes what the staff shows. */
+/** Show `next` and report it, only when it changes what the staff shows. */
 function setState(next: JamStaffState): void {
   if (state.value === next) return
   state.value = next
   emit('staff-state', next)
 }
 
-/** Intent: show the notation error a retry can cure, in the session staff's words. */
+/** Show the notation error a retry can cure, in the session staff's words. */
 // @spec-link [[module_notation_layout_preflight]]
 function showNotationError(error: NotationError): void {
   errorMessage.value = error.message
@@ -137,7 +137,7 @@ function showNotationError(error: NotationError): void {
 }
 
 /**
- * Intent: the empty system's engraver, loading it and its fonts once; the typed failure of a load
+ * The empty system's engraver, loading it and its fonts once; the typed failure of a load
  * is returned, not thrown, so the caller reports it only if its check is still the latest.
  */
 async function ensureEngraver(): Promise<EmptySystemEngraver | NotationError> {
@@ -152,7 +152,7 @@ async function ensureEngraver(): Promise<EmptySystemEngraver | NotationError> {
 }
 
 /**
- * Intent: move the staged empty system into the top position's `staff-content` unit, replacing
+ * Move the staged empty system into the top position's `staff-content` unit, replacing
  * the one shown, unless a later check has superseded this one. A unit already shown keeps its
  * element and only its engraving changes; a new one is rendered first.
  */
@@ -168,7 +168,7 @@ async function swapIn(host: HTMLElement, check: number): Promise<void> {
 }
 
 /**
- * Intent: engrave the empty system with the given inputs into a fresh staging host, name the
+ * Engrave the empty system with the given inputs into a fresh staging host, name the
  * image, and swap it in on success; no room shows the no-room sentence, a typed failure the
  * notation error.
  */
@@ -210,7 +210,7 @@ async function engrave(
 }
 
 /**
- * Intent: size both positions for the current viewport, then engrave the empty system if what it
+ * Size both positions for the current viewport, then engrave the empty system if what it
  * shows or its layout inputs changed since the last engraving, or when forced (a retry). Only the
  * latest check that got past the comparison may engrave or report.
  */
@@ -237,7 +237,7 @@ async function checkLayout(force: boolean): Promise<void> {
   await engrave(loaded, current, staff.value, systemName.value, check)
 }
 
-/** Intent: coalesce bursts of triggers into one layout check per frame. */
+/** Coalesce bursts of triggers into one layout check per frame. */
 function scheduleCheck(force: boolean): void {
   forceNextCheck = forceNextCheck || force
   if (rafHandle !== null) cancelAnimationFrame(rafHandle)
@@ -249,13 +249,13 @@ function scheduleCheck(force: boolean): void {
   })
 }
 
-/** Intent: a resize, breakpoint or settings signal: re-check, engraving only on a real change. */
+/** A resize, breakpoint or settings signal: re-check, engraving only on a real change. */
 function handleSignal(): void {
   scheduleCheck(false)
 }
 
 /**
- * Intent: `Retry notation`: engrave the empty system again, loading the engraver again if its
+ * `Retry notation`: engrave the empty system again, loading the engraver again if its
  * load failed.
  */
 // @spec-link [[rule_jam_idle_shows_no_phrase]]
@@ -265,7 +265,7 @@ function retryNotation(): void {
 
 const roomNoticeEl = ref<HTMLParagraphElement | null>(null)
 
-/** Intent: move focus to the no-room sentence (a Jam ended into Needs more room); it must show. */
+/** Move focus to the no-room sentence (a Jam ended into Needs more room); it must show. */
 // @spec-link [[rule_jam_ending_before_phrase_one]]
 function focusRoomNotice(): void {
   if (roomNoticeEl.value === null) throw new Error("Jam's staff: room-notice is not shown.")
@@ -277,7 +277,7 @@ defineExpose({ retryNotation, focusRoomNotice })
 /** Whether `left` has been reported for the current leaving. */
 let leftReported = false
 
-/** Intent: while leaving, report once that the staff has left. */
+/** While leaving, report once that the staff has left. */
 // @spec-link [[req_jam]]
 function reportLeft(): void {
   if (!props.leaving || leftReported) return
@@ -286,7 +286,7 @@ function reportLeft(): void {
 }
 
 /**
- * Intent: whether `unit` runs an animation now (its fade-out about to start or under way). Where
+ * Whether `unit` runs an animation now (its fade-out about to start or under way). Where
  * the DOM cannot tell (no `getAnimations`, as in jsdom), it is taken as running, `animationend`
  * then ending it.
  */
@@ -298,7 +298,7 @@ function unitAnimating(unit: HTMLElement): boolean {
 }
 
 /**
- * Intent: on leaving, once the fade-out class is on the unit, report `left` at once when nothing
+ * On leaving, once the fade-out class is on the unit, report `left` at once when nothing
  * fades: no unit shown, or no animation running (reduced motion's instant one may already be
  * over); otherwise its `animationend` reports it. A unit that goes away while leaving reports it
  * too. No longer leaving, the next leaving reports again.

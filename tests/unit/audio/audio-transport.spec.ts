@@ -168,7 +168,7 @@ describe('the lowest click volume', () => {
   })
 })
 
-/** Intent: a running session at 120 BPM, then `seconds` of it, on a fresh rig. */
+/** A running session at 120 BPM, then `seconds` of it, on a fresh rig. */
 function runningFor(seconds: number, muteDuringRun: boolean): TransportRig {
   const setup = transportRig()
   const { rig, transport } = setup

@@ -31,13 +31,13 @@ const SEEDS = Array.from({ length: 16 }, (_, index) => 101 + index)
 const C_MAJOR = [0, 2, 4, 5, 7, 9, 11]
 const C_MAJOR_TONIC_TRIAD = [0, 4, 7]
 
-/** Intent: a real carry-in handed forward by phrase 1 of the given controls (C major). */
+/** A real carry-in handed forward by phrase 1 of the given controls (C major). */
 function donorCarryIn(controls: Partial<GenerationControls>): PhraseCarryIn {
   const intent = buildIntent({ seed: 11, controls })
   return carryInAfter(intent, generateSuccess(intent), 1)
 }
 
-/** Intent: every MIDI value inside the carry-in's window whose pitch class passes `keep`. */
+/** Every MIDI value inside the carry-in's window whose pitch class passes `keep`. */
 function windowMidis(carryIn: CarryIn, keep: (pitchClass: number) => boolean): readonly number[] {
   const midis: number[] = []
   for (let midi = carryIn.registerWindow.minMidi; midi <= carryIn.registerWindow.maxMidi; midi++)
@@ -45,7 +45,7 @@ function windowMidis(carryIn: CarryIn, keep: (pitchClass: number) => boolean): r
   return midis
 }
 
-/** Intent: the donor carry-in with its last pitch and leap state replaced. */
+/** The donor carry-in with its last pitch and leap state replaced. */
 function reshaped(
   donor: PhraseCarryIn,
   midi: number,
@@ -58,7 +58,7 @@ function reshaped(
 }
 
 /**
- * Intent: a carried-chord tone owing the recovery of a large leap in `leapDirection` that a C-E-G
+ * A carried-chord tone owing the recovery of a large leap in `leapDirection` that a C-E-G
  * tone of the window can repay, preferring the middle of the window.
  */
 function owedCarryIn(controls: Partial<GenerationControls>, leapDirection: -1 | 1): CarryIn {
@@ -75,7 +75,7 @@ function owedCarryIn(controls: Partial<GenerationControls>, leapDirection: -1 | 
   })
 }
 
-/** Intent: a tense carried note (a C-major scale tone off the carried chord) reached by a step. */
+/** A tense carried note (a C-major scale tone off the carried chord) reached by a step. */
 function tenseCarryIn(controls: Partial<GenerationControls>): CarryIn {
   const donor = donorCarryIn(controls)
   const chord = donor.finalHarmony!.triad.pitchClasses as readonly number[]
@@ -89,7 +89,7 @@ function tenseCarryIn(controls: Partial<GenerationControls>): CarryIn {
   return reshaped(donor, middle, { arrivingInterval: 2 })
 }
 
-/** Intent: the first attack MIDI of each phrase that generates with the carry-in, per seed. */
+/** The first attack MIDI of each phrase that generates with the carry-in, per seed. */
 function firstNotes(controls: Partial<GenerationControls>, carryIn: CarryIn): readonly number[] {
   return SEEDS.flatMap((seed) => {
     const outcome = generatePhrase(buildIntent({ seed, controls, carryIn }))

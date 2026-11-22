@@ -42,17 +42,17 @@ export interface RegisterWindowCandidate {
   readonly window: RegisterWindow
 }
 
-/** Intent: integer ceiling division, never falling back to floating-point `/`. */
+/** Integer ceiling division, never falling back to floating-point `/`. */
 function ceilDiv(numerator: number, denominator: number): number {
   return Math.floor((numerator + denominator - 1) / denominator)
 }
 
-/** Intent: integer floor division, never falling back to floating-point `/`. */
+/** Integer floor division, never falling back to floating-point `/`. */
 function floorDiv(numerator: number, denominator: number): number {
   return Math.floor(numerator / denominator)
 }
 
-/** Intent: reject any policy whose algorithm is not the supported v1 identifier. */
+/** Reject any policy whose algorithm is not the supported v1 identifier. */
 function assertSupportedAlgorithm(policy: RegisterWindowPolicy): void {
   if (policy.algorithm !== REGISTER_WINDOW_ALGORITHM_V1) {
     throw new RegisterWindowDerivationError(
@@ -62,7 +62,7 @@ function assertSupportedAlgorithm(policy: RegisterWindowPolicy): void {
 }
 
 /**
- * Intent: derive the three canonical register-window candidates (Low, Middle, High) for an
+ * Derive the three canonical register-window candidates (Low, Middle, High) for an
  * active concert range under the overlapping-three-window-v1 policy, using pure integer
  * arithmetic: W = hi - lo, S = max(minimumSpan, ceil(W * widthNumerator / widthDenominator)),
  * Low = [lo, lo+S], Middle = [lo+floor((W-S)/2), lo+floor((W-S)/2)+S], High = [hi-S, hi]. Returns

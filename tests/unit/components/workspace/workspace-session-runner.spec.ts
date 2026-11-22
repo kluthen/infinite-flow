@@ -33,7 +33,7 @@ import {
 import { groupsOn, pick, specMarkedCandidates } from '../../session/vary-settings-groups-cases'
 import { randomSettings } from '../../session/vary-settings-random-settings'
 
-/** Intent: let every settled seam promise run its continuation. */
+/** Let every settled seam promise run its continuation. */
 function settle(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
@@ -50,7 +50,7 @@ function phraseStart(phraseNumber: number): number {
 }
 
 /**
- * Intent: a 240 BPM workspace runner on real generation, its outputs and errors logged, with the
+ * A 240 BPM workspace runner on real generation, its outputs and errors logged, with the
  * multi-phrase tension arc as `multiPhraseTensionArc` says (off unless given), from `settings`
  * (the harness settings at 240 BPM unless given).
  */
@@ -88,7 +88,7 @@ function runnerRig(
   return { runner, settings, clock, outputs, errors, providers }
 }
 
-/** Intent: play phrases 1 to `last` on the rig's clock, letting each request settle. */
+/** Play phrases 1 to `last` on the rig's clock, letting each request settle. */
 async function playTo(rig: ReturnType<typeof runnerRig>, last: number): Promise<void> {
   await settle()
   rig.clock.at = 1

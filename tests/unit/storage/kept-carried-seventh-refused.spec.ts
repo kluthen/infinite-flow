@@ -45,7 +45,7 @@ const FACTS: KeptSessionFacts = {
 const REASON = 'CarryIn.finalHarmony holds a seventh, which this form cannot carry.'
 
 /**
- * Intent: the seventh of the carried chord's own degree in the intent's concert collection, after
+ * The seventh of the carried chord's own degree in the intent's concert collection, after
  * checking the carry-in holding it is one the domain accepts.
  */
 function carriedSeventh(intent: GenerationIntent): ChordSeventh {
@@ -57,20 +57,20 @@ function carriedSeventh(intent: GenerationIntent): ChordSeventh {
   return seventh
 }
 
-/** Intent: the phrases a body reader gives: the body's own, or the list it gives itself. */
+/** The phrases a body reader gives: the body's own, or the list it gives itself. */
 function phrasesOf(
   read: ParsedKeptBody | readonly ParsedKeptPhrase[],
 ): readonly ParsedKeptPhrase[] {
   return 'phrases' in read ? read.phrases : read
 }
 
-/** Intent: the stored intent of a body's phrase at `index`. */
+/** The stored intent of a body's phrase at `index`. */
 function intentAt(body: unknown, index: number): unknown {
   return (body as { phrases: { intent: unknown }[] }).phrases[index]!.intent
 }
 
 /**
- * Intent: a stored copy of a body whose phrase at `phrase` holds `seventh` on its carried chord in
+ * A stored copy of a body whose phrase at `phrase` holds `seventh` on its carried chord in
  * its intent or in its stored request only: that part is replaced whole, since a stored body's
  * request and intent share their carry-in until it is written to the database.
  */

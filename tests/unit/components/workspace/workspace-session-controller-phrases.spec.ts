@@ -20,12 +20,12 @@ import {
   type GenerateScript,
 } from './session-controller-rig'
 
-/** Intent: the time phrase `n` starts sounding. */
+/** The time phrase `n` starts sounding. */
 function phraseStart(n: number): number {
   return 6.1 + (n - 1) * 4
 }
 
-/** Intent: the notice's state just before and just after phrase `n` starts sounding. */
+/** The notice's state just before and just after phrase `n` starts sounding. */
 async function noticeAround(rig: ControllerRig, n: number): Promise<[boolean, boolean]> {
   await playTo(rig, phraseStart(n) - 0.05)
   const before = rig.controller.state.strugglingNotice

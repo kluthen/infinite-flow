@@ -55,7 +55,7 @@ test.afterEach(() => expectNoPageErrors())
 /** A doodle plainly in G major, in concert pitch: G A B C D E F-sharp G. */
 const G_MAJOR = [67, 69, 71, 72, 74, 76, 78, 79] as const
 
-/** Intent: from Jam mode's Idle, a fresh Jam reviewed then its Review closed: a doodle kept. */
+/** From Jam mode's Idle, a fresh Jam reviewed then its Review closed: a doodle kept. */
 async function doodleKept(page: Page): Promise<void> {
   await freshJamReviewed(page)
   await closeReview(page)
@@ -63,7 +63,7 @@ async function doodleKept(page: Page): Promise<void> {
 }
 
 /**
- * Intent: assert Jam mode's Idle with no doodle kept: no `jam-bar`, Jam's empty system in sight,
+ * Assert Jam mode's Idle with no doodle kept: no `jam-bar`, Jam's empty system in sight,
  * `doodle-readings` empty.
  */
 async function expectNothingKept(page: Page): Promise<void> {

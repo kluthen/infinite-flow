@@ -32,7 +32,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: mount the bar over `selection`, its description from `descriptionSelection`. */
+/** Mount the bar over `selection`, its description from `descriptionSelection`. */
 function mountBar(
   selection: PresetSelection = NEUTRAL,
   options: { readonly?: boolean; descriptionSelection?: PresetSelection } = {},
@@ -50,12 +50,12 @@ function mountBar(
   })
 }
 
-/** Intent: the box's select element. */
+/** The box's select element. */
 function selectOf(wrapper: ReturnType<typeof mountBar>): HTMLSelectElement {
   return wrapper.get('select.preset-select').element as HTMLSelectElement
 }
 
-/** Intent: choose `value` in the box as the player would: set it, then fire the change. */
+/** Choose `value` in the box as the player would: set it, then fire the change. */
 async function choose(wrapper: ReturnType<typeof mountBar>, value: string): Promise<void> {
   const select = wrapper.get('select.preset-select')
   await select.setValue(value)

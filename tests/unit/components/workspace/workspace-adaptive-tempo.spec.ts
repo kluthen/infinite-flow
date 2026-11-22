@@ -19,7 +19,7 @@ const CONNECTED: MidiControllerState = {
   device: { id: 'keys', name: 'Keys', manufacturer: 'Test' },
 }
 
-/** Intent: a flag at Idle over a MIDI state the test sets, starting from `initialOn`. */
+/** A flag at Idle over a MIDI state the test sets, starting from `initialOn`. */
 function flagFrom(initialOn: boolean) {
   const controller = shallowRef<MidiControllerState>({ kind: 'not-requested' })
   const phase: SessionControllerPhase = 'idle'

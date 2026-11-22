@@ -13,14 +13,14 @@ import { renderedAttacks, restTimeline, twoPhraseHarmonies } from './backing-har
 import type { FakeAudioEvent } from './fake-audio'
 import { beat, transportRig, type TransportRig } from './transport-rig'
 
-/** Intent: the beat-`k` click time of the session on bus `bus`, as the rig recorded it. */
+/** The beat-`k` click time of the session on bus `bus`, as the rig recorded it. */
 function clickAt(setup: TransportRig, bus: number, k: number): number {
   const click = setup.rig.clicks().filter((event) => event.bus === bus)[k]
   if (click === undefined) throw new Error(`no click on beat ${k} of bus ${bus}`)
   return click.at
 }
 
-/** Intent: a running session at `tempo` BPM with phrases 1 and 2 queued, run past eight bars. */
+/** A running session at `tempo` BPM with phrases 1 and 2 queued, run past eight bars. */
 function eightBarsOfBacking(tempo: number): TransportRig {
   const setup = transportRig()
   const { rig, transport } = setup
@@ -82,7 +82,7 @@ describe('eight bars of backing', () => {
   })
 })
 
-/** Intent: eight bars of backing at 120 BPM, toggling the backing switch and volume or not. */
+/** Eight bars of backing at 120 BPM, toggling the backing switch and volume or not. */
 function backingRun(toggle: boolean): TransportRig {
   const setup = transportRig()
   const { rig, transport } = setup
@@ -103,7 +103,7 @@ function backingRun(toggle: boolean): TransportRig {
   return setup
 }
 
-/** Intent: the recorded events that are not a backing gain change. */
+/** The recorded events that are not a backing gain change. */
 function withoutBackingGains(events: readonly FakeAudioEvent[]): FakeAudioEvent[] {
   return events.filter((event) => !(event.kind === 'gain' && event.gain.startsWith('backing-')))
 }

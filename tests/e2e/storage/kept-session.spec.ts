@@ -96,7 +96,7 @@ test.beforeEach(({ page }) => {
 test.afterEach(() => expectNoPageErrors())
 
 /**
- * Intent: before any page script runs, wrap `IDBDatabase.prototype.transaction` so each
+ * Before any page script runs, wrap `IDBDatabase.prototype.transaction` so each
  * transaction opened is recorded in `window.__transactions` with its mode, its stores in name
  * order and the phase the test set in `window.__phase`.
  */
@@ -120,20 +120,20 @@ async function installTransactionSpy(page: Page): Promise<void> {
   })
 }
 
-/** Intent: mark the transactions opened from now on with `phase`. */
+/** Mark the transactions opened from now on with `phase`. */
 function setPhase(page: Page, phase: string): Promise<void> {
   return page.evaluate((value) => {
     window.__phase = value
   }, phase)
 }
 
-/** Intent: the transactions the spy saw in `phase`, in order, as `mode stores`. */
+/** The transactions the spy saw in `phase`, in order, as `mode stores`. */
 async function transactionsIn(page: Page, phase: string): Promise<string[]> {
   const seen = await page.evaluate(() => window.__transactions ?? [])
   return seen.filter((t) => t.phase === phase).map((t) => `${t.mode} ${t.stores}`)
 }
 
-/** Intent: every record of a store with its key, read through the harness's seam. */
+/** Every record of a store with its key, read through the harness's seam. */
 function keyedRecords(
   page: Page,
   store: 'sessionSummaries' | 'sessionBodies' | 'playedNotes',
@@ -141,12 +141,12 @@ function keyedRecords(
   return page.evaluate((name) => window.__workspaceHarness.storage.keyedRecords(name), store)
 }
 
-/** Intent: the keys of the kept sessions' summaries. */
+/** The keys of the kept sessions' summaries. */
 async function keptKeys(page: Page): Promise<string[]> {
   return (await keyedRecords(page, 'sessionSummaries')).map((record) => record.key)
 }
 
-/** Intent: the changes that reached the storage port since the load (the write spy). */
+/** The changes that reached the storage port since the load (the write spy). */
 function portChanges(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.storage.portChanges())
 }
@@ -156,24 +156,24 @@ const NOT_PINNED = 'Not pinned: deleted when your next session is saved.'
 const PINNED = 'Pinned: kept until you unpin or delete it.'
 const NOT_SAVED = 'Not saved on this device: export it to keep it.'
 
-/** Intent: the Review's keep line. */
+/** The Review's keep line. */
 function keepLine(page: Page): Locator {
   return reviewPanel(page).locator('.review-keep-line')
 }
 
-/** Intent: the notice row's notices. */
+/** The notice row's notices. */
 function notices(page: Page): Locator {
   return page.locator('.layout-workspace > .app-notice-row > .app-notice')
 }
 
-/** Intent: wait until `count` kept sessions are stored, and give their keys. */
+/** Wait until `count` kept sessions are stored, and give their keys. */
 async function untilKept(page: Page, count: number): Promise<string[]> {
   await expect.poll(async () => (await keptKeys(page)).length).toBe(count)
   return keptKeys(page)
 }
 
 /**
- * Intent: from now on, hide the harness's fake page right after each `pagehide` the app hears, as
+ * From now on, hide the harness's fake page right after each `pagehide` the app hears, as
  * the browser fires `visibilitychange` to hidden right after it.
  */
 function hideOnPageHide(page: Page): Promise<void> {
@@ -182,7 +182,7 @@ function hideOnPageHide(page: Page): Promise<void> {
   })
 }
 
-/** Intent: close the Review shown, then start a session and play until phrase 1 has sounded. */
+/** Close the Review shown, then start a session and play until phrase 1 has sounded. */
 async function nextSessionSounded(page: Page): Promise<void> {
   await expectIdleReady(page)
   await sessionAction(page).click()
@@ -191,7 +191,7 @@ async function nextSessionSounded(page: Page): Promise<void> {
 }
 
 /**
- * Intent: close the Review shown, then play a session until phrase `phrases` sounds and Stop it.
+ * Close the Review shown, then play a session until phrase `phrases` sounds and Stop it.
  */
 async function nextSessionEnded(page: Page, phrases = 1): Promise<void> {
   await expectIdleReady(page)
@@ -202,7 +202,7 @@ async function nextSessionEnded(page: Page, phrases = 1): Promise<void> {
   await expectReviewShowing(page, phrases)
 }
 
-/** Intent: close the Review shown, then start a session and Stop it during its count-in. */
+/** Close the Review shown, then start a session and Stop it during its count-in. */
 async function countInEnded(page: Page): Promise<void> {
   await expectIdleReady(page)
   await sessionAction(page).click()
@@ -212,7 +212,7 @@ async function countInEnded(page: Page): Promise<void> {
   await expect(sessionAction(page)).toHaveText('Start session')
 }
 
-/** Intent: the stored kept sessions, each as its key and whether it is pinned. */
+/** The stored kept sessions, each as its key and whether it is pinned. */
 async function keptPins(page: Page): Promise<string[]> {
   return (await keyedRecords(page, 'sessionSummaries')).map(
     ({ key, value }) => `${key} ${String((value as { pinned?: unknown }).pinned)}`,

@@ -77,7 +77,7 @@ export const GAP_WEIGHTS: readonly number[] = deepFreeze([
 const UNITS_TO_THOUSANDTHS_SHIFT = 3
 
 /**
- * Intent: the draw's seed for a doodle: FNV-1a over the domain string, then each note as
+ * The draw's seed for a doodle: FNV-1a over the domain string, then each note as
  * `|start,length,pitch` in the doodle's order.
  */
 // @spec-link [[rule_suggestion_same_doodle_same_answer]]
@@ -89,7 +89,7 @@ export function keySuggestionSeed(doodle: QuantizedDoodle): number {
 }
 
 /**
- * Intent: a kept candidate's draw weight from its gap to the best, in the scores' units (eighths
+ * A kept candidate's draw weight from its gap to the best, in the scores' units (eighths
  * of a beat, a kept gap at most 693 × 8). A wider gap is a caller defect and throws.
  */
 // @spec-link [[rule_suggestion_same_doodle_same_answer]]
@@ -103,7 +103,7 @@ export function gapWeight(gap: number): number {
 }
 
 /**
- * Intent: the drawn candidate: the one `seed % total` falls in, walking the kept candidates in
+ * The drawn candidate: the one `seed % total` falls in, walking the kept candidates in
  * their order with their weights, the first being the best. No kept candidate is a caller defect.
  */
 // @spec-link [[rule_suggestion_same_doodle_same_answer]]

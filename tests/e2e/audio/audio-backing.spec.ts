@@ -43,7 +43,7 @@ const PHRASE_BEATS = 16
 const RUN_BEATS = COUNT_IN_BEATS + 2 * PHRASE_BEATS
 
 /**
- * Intent: generate the phrase, start a session at 120 BPM from the Start click and queue the
+ * Generate the phrase, start a session at 120 BPM from the Start click and queue the
  * shown phrase as the backing of phrases 1 and 2; return the timeline and the queued harmony.
  */
 async function startWithTwoPhrases(page: Page): Promise<{
@@ -60,14 +60,14 @@ async function startWithTwoPhrases(page: Page): Promise<{
 }
 
 /**
- * Intent: advance the fake clock until the run's last beat is past, with the look-ahead window
+ * Advance the fake clock until the run's last beat is past, with the look-ahead window
  * still short of the next beat, so exactly the run's clicks and backing are scheduled.
  */
 async function playRun(page: Page, startAt: number): Promise<void> {
   await advanceAudioTo(page, startAt + (RUN_BEATS - 1) * BEAT_SECONDS + 0.1)
 }
 
-/** Intent: the triad's pitch classes of the harmony event sounding on beat `beat` of a phrase. */
+/** The triad's pitch classes of the harmony event sounding on beat `beat` of a phrase. */
 function triadOnBeat(
   harmony: readonly WorkspaceHarnessQueuedHarmonyEvent[],
   beat: number,
@@ -80,7 +80,7 @@ function triadOnBeat(
   return event.pitchClasses
 }
 
-/** Intent: the voice, pitch and times of each scheduled note, for comparing runs. */
+/** The voice, pitch and times of each scheduled note, for comparing runs. */
 function noteTimes(notes: readonly WorkspaceHarnessBackingNote[]) {
   return notes.map(({ voice, pitch, at, until }) => ({ voice, pitch, at, until }))
 }

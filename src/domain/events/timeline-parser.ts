@@ -23,7 +23,7 @@ export class TimelineParseError extends Error {
 const TIMELINE_ALLOWED_KEYS = new Set(['measures'])
 
 /**
- * Intent: parse one untrusted timeline record: an array of untrusted measures. Rejects a
+ * Parse one untrusted timeline record: an array of untrusted measures. Rejects a
  * non-object input, unexpected extra fields, a non-array measures field, any individual measure
  * that fails ./measure-parser.ts, and a well-formed measure list that still fails the fixed
  * four-measure ordered structure — always as a typed TimelineParseError, never a partial

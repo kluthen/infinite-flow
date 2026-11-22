@@ -76,13 +76,13 @@ export interface MyInstrumentSheetHost {
   ) => Promise<MyInstrumentBatchOutcome>
 }
 
-/** Intent: an action's outcome as the sheet and the check take it. */
+/** An action's outcome as the sheet and the check take it. */
 function batchOutcome(outcome: MyInstrumentChangeOutcome): MyInstrumentBatchOutcome {
   return outcome === 'refused' || outcome === 'saving-off' ? outcome : 'done'
 }
 
 /**
- * Intent: host the sheet over the Idle session and the counted sessions of my instrument. Opening
+ * Host the sheet over the Idle session and the counted sessions of my instrument. Opening
  * while a session runs is a defect: the button is disabled then. Opening loads the sheet, then
  * shows it with the props the session's state gives at that moment, once the sessions are counted.
  */
@@ -94,20 +94,20 @@ export function useMyInstrumentSheet(deps: MyInstrumentSheetDeps): MyInstrumentS
   const sessions = computed(deps.sessions)
   const { actions } = deps.session
 
-  /** Intent: the sessions counted now; asking before the controller loaded is a defect. */
+  /** The sessions counted now; asking before the controller loaded is a defect. */
   function counted(): MyInstrumentSessionCount {
     const now = sessions.value
     if (now === null) throw new Error('my instrument: its sessions are not counted yet')
     return now
   }
 
-  /** Intent: close the sheet and put focus on `instrument-actions` once it has left. */
+  /** Close the sheet and put focus on `instrument-actions` once it has left. */
   function close(): void {
     opened.value = null
     void nextTick(deps.focusInstrumentActions)
   }
 
-  /** Intent: the sheet's batch's outcome, the sheet closing once it is done. */
+  /** The sheet's batch's outcome, the sheet closing once it is done. */
   async function closedOnce(change: Promise<MyInstrumentChangeOutcome>) {
     const outcome = batchOutcome(await change)
     if (outcome === 'done') close()

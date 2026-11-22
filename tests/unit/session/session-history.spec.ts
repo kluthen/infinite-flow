@@ -29,13 +29,13 @@ import {
 } from './session-harness'
 import { driveTempoSession, phraseStartAt, tempoDriver, tempoMap } from './tempo-session'
 
-/** Intent: a driver at 240 BPM (a 1 s measure) started at 0, so phrase 2's deadline is 1. */
+/** A driver at 240 BPM (a 1 s measure) started at 0, so phrase 2's deadline is 1. */
 function fastDriver(): SessionDriver {
   const settings = sessionSettings({ tempo: 240 })
   return new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
 }
 
-/** Intent: a history for the driver's session, fed every output the driver has logged so far. */
+/** A history for the driver's session, fed every output the driver has logged so far. */
 function historyOf(driver: SessionDriver): SessionHistory {
   const history = createSessionHistory(
     driver.settings,
@@ -48,7 +48,7 @@ function historyOf(driver: SessionDriver): SessionHistory {
 }
 
 /**
- * Intent: phrase 2 accepted in the count-in, phrase 1 then phrase 2 sounding, phrase 3 accepted
+ * Phrase 2 accepted in the count-in, phrase 1 then phrase 2 sounding, phrase 3 accepted
  * and shown as read-ahead, then Stop before phrase 3 sounds.
  */
 function sessionWithReadAheadAtStop(): SessionDriver {
@@ -61,7 +61,7 @@ function sessionWithReadAheadAtStop(): SessionDriver {
   return driver
 }
 
-/** Intent: the phrase-sounding outputs a driver logged, in order. */
+/** The phrase-sounding outputs a driver logged, in order. */
 function soundings(driver: SessionDriver): readonly OutputOf<'phrase-sounding'>[] {
   return driver.all('phrase-sounding')
 }
@@ -134,7 +134,7 @@ describe('what the session history records', () => {
   })
 })
 
-/** Intent: a wall clock that reads the given epoch milliseconds, one second later on each read. */
+/** A wall clock that reads the given epoch milliseconds, one second later on each read. */
 function steppingWallClock(firstReading: number): Mock<() => number> {
   let reading = firstReading
   return vi.fn(() => {
@@ -238,7 +238,7 @@ describe("the session's seed", () => {
   })
 })
 
-/** Intent: a driver at 240 BPM for the E♭ alto sax: phrase 2 accepted, two phrases, then Stop. */
+/** A driver at 240 BPM for the E♭ alto sax: phrase 2 accepted, two phrases, then Stop. */
 function altoDriver(): SessionDriver {
   const settings = sessionSettings({ tempo: 240, instrumentProfileId: 'eb-alto' })
   const driver = new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
@@ -281,7 +281,7 @@ describe("the session's instrument profile", () => {
   })
 })
 
-/** Intent: a driver at 60 BPM with a chosen density, a window reading and phrase 1's density. */
+/** A driver at 60 BPM with a chosen density, a window reading and phrase 1's density. */
 function densityDriver(options: {
   readonly chosen: GenerationControls['noteDensity']
   readonly below: boolean
@@ -335,7 +335,7 @@ describe('a repeat in the history', () => {
   })
 })
 
-/** Intent: a phrase-sounding output carrying a copy of `phrase` with another number and time. */
+/** A phrase-sounding output carrying a copy of `phrase` with another number and time. */
 function renumbered(
   output: OutputOf<'phrase-sounding'>,
   phraseNumber: number,
@@ -419,7 +419,7 @@ describe('outputs the history refuses', () => {
 })
 
 /**
- * Intent: an adaptive-tempo session from 90 BPM driven until phrase 6 sounds, then Stop, so its
+ * An adaptive-tempo session from 90 BPM driven until phrase 6 sounds, then Stop, so its
  * phrases rise 5 BPM every two phrases: 90, 90, 95, 95, 100, 100.
  */
 function risingSession(): SessionDriver {

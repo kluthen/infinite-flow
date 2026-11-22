@@ -25,12 +25,12 @@ const REPLAYED_SEEDS = 50
 /** Generous timeout for the tests that generate whole sessions for every replayed seed. */
 const SESSIONS_TIMEOUT_MS = 60_000
 
-/** Intent: the flag on with a numeric mutation seed. */
+/** The flag on with a numeric mutation seed. */
 function mutationOn(seed: number): SettingsMutationFlag {
   return { kind: 'on', seed: makeSeed(seed) }
 }
 
-/** Intent: the mutations a session logged: where each landed and what it stepped. */
+/** The mutations a session logged: where each landed and what it stepped. */
 function mutationSeries(driver: SessionDriver): readonly unknown[] {
   return settingsChanges(driver).map((change) =>
     change.cause === 'mutation'
@@ -82,7 +82,7 @@ describe('a session replayed from its inputs', () => {
 const PLAN_SESSION_SEED = makeSeed(0x2468ace0)
 
 /**
- * Intent: a fast session from the session seed with Vary settings on (its mutation seed derived
+ * A fast session from the session seed with Vary settings on (its mutation seed derived
  * from the session seed) and Tension across phrases on, run to phrase 12 with every third
  * phrase's first attempt failed.
  */
@@ -120,7 +120,7 @@ describe('a session replayed from phrase 1 and its session seed', () => {
   it('gives different phrase-2 seeds for a different session seed', () => {
     const one = fastDriver({ sessionSeed: makeSeed(1) })
     const two = fastDriver({ sessionSeed: makeSeed(2) })
-    /** Intent: the seed of phrase 2's first request. */
+    /** The seed of phrase 2's first request. */
     const seedOf = (driver: SessionDriver) => driver.requests(2)[0]!.intent.seed
     expect(seedOf(one)).toBe(phraseAttemptSeed(makeSeed(1), 2, 4))
     expect(seedOf(two)).toBe(phraseAttemptSeed(makeSeed(2), 2, 4))

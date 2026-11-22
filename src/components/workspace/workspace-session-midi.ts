@@ -104,7 +104,7 @@ export interface SessionMidi {
 }
 
 /**
- * Intent: build the controller's MIDI side, listening to the MIDI controller's state and notes at
+ * Build the controller's MIDI side, listening to the MIDI controller's state and notes at
  * once and until `dispose`. A note at Idle starts a session only when it is the starting note and
  * the starting note is named; any other note, or the starting note while nothing is named, does
  * nothing at all.
@@ -123,7 +123,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   const idleStartingNote = createIdleStartingNote({ ...deps, midiState: () => midiState.value })
 
   /**
-   * Intent: at Idle, the starting note played while the audio is still locked: after the page's
+   * At Idle, the starting note played while the audio is still locked: after the page's
    * first click it makes the audio context (Chromium allows it once the page has had that click),
    * so the note is then read and starts the session; before that click, and for any other note,
    * nothing is made and the note is dropped.
@@ -141,7 +141,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   }
 
   /**
-   * Intent: at Idle while session mode is held, every note's event, played or ended, goes to the
+   * At Idle while session mode is held, every note's event, played or ended, goes to the
    * holding code's route first (a tap while tap tempo listens); then a played note the route means
    * `start` by starts what it starts. As session mode's starting note, it arms the silence timer
    * of a session it starts with phrase 1 (a Jam on the kept doodle, started on phrase 1's first
@@ -166,7 +166,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   }
 
   /**
-   * Intent: at Idle, start the session from the starting note, exactly as Start does: with a stale
+   * At Idle, start the session from the starting note, exactly as Start does: with a stale
    * phrase 1 the controller's start opens the prompt instead, and nothing starts.
    */
   // @spec-link [[rule_starting_note_only_starts_count_in]]
@@ -197,7 +197,7 @@ export function createSessionMidi(deps: SessionMidiDependencies): SessionMidi {
   })
 
   /**
-   * Intent: a session started while the controller is not connected reads no note and has no
+   * A session started while the controller is not connected reads no note and has no
    * timer; an away device is held from reattaching until the session ends.
    */
   // @spec-link [[rule_controllerless_session_never_gains_controller]]

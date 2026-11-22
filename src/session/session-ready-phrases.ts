@@ -52,7 +52,7 @@ export const MAX_READY_PHRASES = 4
 /** The phrase number of the first ready phrase: phrase 1 is the Idle phrase itself. */
 const FIRST_READY_PHRASE = 2
 
-/** Intent: refuse one ready phrase that is not the one expected at its place in the list. */
+/** Refuse one ready phrase that is not the one expected at its place in the list. */
 function requireReadyPhrase(ready: ReadyPhrase, index: number): void {
   const expected = FIRST_READY_PHRASE + index
   if (ready.phraseNumber !== expected)
@@ -70,7 +70,7 @@ function requireReadyPhrase(ready: ReadyPhrase, index: number): void {
 }
 
 /**
- * Intent: the ready phrases a start or a plan is given, checked and deep-frozen: phrase numbers
+ * The ready phrases a start or a plan is given, checked and deep-frozen: phrase numbers
  * consecutive from 2, at most four, each rung on the failure ladder and each outcome a success.
  * Anything else is a caller bug and throws.
  */
@@ -88,7 +88,7 @@ export function requireReadyPhrases(readyPhrases: readonly ReadyPhrase[]): reado
 }
 
 /**
- * Intent: re-derive a ready phrase's intent at its place, after `previous`, from the basis its
+ * Re-derive a ready phrase's intent at its place, after `previous`, from the basis its
  * look-ahead was opened with: its rung's intent built through the very path a request takes, with
  * the window read now, the step-down memory given, the phrase's rhythm lock groups and the ready
  * phrase's own request id, drawing no request id. The rebuilt intent, with the step-down memory
@@ -106,7 +106,7 @@ export function rederivedReadyPhrase(
   steppedDown: boolean,
   rhythmLock: PhraseRhythmLock | undefined,
 ): RungIntent | undefined {
-  /** Intent: the ready phrase's own request id, so the rebuild draws none from the provider. */
+  /** The ready phrase's own request id, so the rebuild draws none from the provider. */
   const ownRequestId = () => ready.intent.requestId
   const own = { ...seams, providers: { nextRequestId: ownRequestId } }
   const rung = LADDER[ready.rung]
@@ -116,7 +116,7 @@ export function rederivedReadyPhrase(
 }
 
 /**
- * Intent: the session record of a spent ready phrase, with the origin its rung's step gives and
+ * The session record of a spent ready phrase, with the origin its rung's step gives and
  * the re-lock mark when its intent carries the re-lock group.
  */
 // @spec-link [[module_session_ready_phrases]]
@@ -136,7 +136,7 @@ export function spentPhrase(
 }
 
 /**
- * Intent: the engine's step for a look-ahead it has just opened at `at`. While no ready phrase was
+ * The engine's step for a look-ahead it has just opened at `at`. While no ready phrase was
  * refused, a ready phrase with its number whose intent re-derives identically is decided at once,
  * with the step-down memory that building it gives and no generation request; the first one that
  * differs is refused with every later one, and the phrase is requested from its first rung, as is

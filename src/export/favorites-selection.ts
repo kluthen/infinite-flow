@@ -30,7 +30,7 @@ export class FavoritesSelectionError extends Error {
 }
 
 /**
- * Intent: the positions in `records` of the favorite phrases, in session order. Throws a
+ * The positions in `records` of the favorite phrases, in session order. Throws a
  * FavoritesSelectionError on no favorite (the scope is unavailable then) or on a favorite the
  * session does not hold.
  */
@@ -53,7 +53,7 @@ function favoritePositions(
   return positions
 }
 
-/** Intent: the positions grouped into runs of phrases that followed each other in the session. */
+/** The positions grouped into runs of phrases that followed each other in the session. */
 function runsOf(positions: readonly number[]): number[][] {
   const runs: number[][] = []
   for (const position of positions) {
@@ -65,7 +65,7 @@ function runsOf(positions: readonly number[]): number[][] {
 }
 
 /**
- * Intent: a played note moved by `shift` seconds; when `cutAt` is set, null for a note played at
+ * A played note moved by `shift` seconds; when `cutAt` is set, null for a note played at
  * or after it, and a note held past it stopped there.
  */
 function movedNote(
@@ -81,7 +81,7 @@ function movedNote(
 }
 
 /**
- * Intent: one run's phrases moved by `shift` seconds, and cut at the run's end unless the run ends
+ * One run's phrases moved by `shift` seconds, and cut at the run's end unless the run ends
  * the session; a run neither moved nor cut is handed back as it is.
  */
 function movedRun<R extends ScopedPhrase>(
@@ -102,7 +102,7 @@ function movedRun<R extends ScopedPhrase>(
 }
 
 /**
- * Intent: the phrases `scope` exports from `records` (the session's phrases in order): all of them
+ * The phrases `scope` exports from `records` (the session's phrases in order): all of them
  * as they are for the whole session; for favorites only, the favorite phrases in session order with
  * their session numbers, laid out back to back from the first one's start, each run of phrases
  * that followed each other in the session moved as one and cut at its end when the next phrase is

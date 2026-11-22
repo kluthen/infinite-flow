@@ -25,7 +25,7 @@ beforeEach(() => {
   resetFakeEngraver()
 })
 
-/** Intent: build a coordinator with spy-wrapped reporter callbacks for assertion convenience. */
+/** Build a coordinator with spy-wrapped reporter callbacks for assertion convenience. */
 function buildCoordinator() {
   const reportNotationFailure = vi.fn(() => true)
   const reportNotationRecovered = vi.fn(() => true)
@@ -210,7 +210,7 @@ const PHONE_INPUTS: StaffLayoutInputs = {
   viewport: { layout: 'split', heightBudgetPx: 300 },
 }
 
-/** Intent: the key signature a real written phrase carries, as the session passes to checkRoom. */
+/** The key signature a real written phrase carries, as the session passes to checkRoom. */
 function realSignature() {
   const result = buildWorkspaceSessionResult()
   return transformToWrittenPhrase(

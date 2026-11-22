@@ -6,7 +6,7 @@ import type { ControllerStatusForm } from '@/midi/controller-status'
 
 const KEYS = { id: 'port-a', name: 'Acme Keys 49 with a very long name', manufacturer: 'Acme' }
 
-/** Intent: mount the header element in one form, enabled unless `disabled`. */
+/** Mount the header element in one form, enabled unless `disabled`. */
 function mountStatus(form: ControllerStatusForm, disabled = false) {
   return mount(ControllerStatus, { props: { form, disabled }, attachTo: document.body })
 }

@@ -28,7 +28,7 @@ export interface ReviewExportPorts {
   readonly download: (file: ExportFile) => void
 }
 
-/** Intent: the page's own ports: the lazy export code, and a download made through `doc`. */
+/** The page's own ports: the lazy export code, and a download made through `doc`. */
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
 // @spec-link [[module_review_export_pipeline]]
@@ -47,7 +47,7 @@ export interface GeneratedNotesExportRequest extends GeneratedNotesRequest {
 }
 
 /**
- * Intent: build the one file `request` asks for from the phrases its scope picks from `history`
+ * Build the one file `request` asks for from the phrases its scope picks from `history`
  * and hand it to the browser, a Jam's file opening with `doodle` (built by Jam's code; null for a
  * session that is no Jam); the same history, request and doodle always give the same bytes.
  * Resolves once the download is handed over; any failure on the way rejects, with nothing
@@ -82,7 +82,7 @@ export interface PlayedNotesExportRequest {
 }
 
 /**
- * Intent: build the session's played-notes MIDI file from the phrases the scope picks from
+ * Build the session's played-notes MIDI file from the phrases the scope picks from
  * `history`, as `request` asks (very short notes left out unless included), and hand it to the
  * browser, as a file of its own, a Jam's opening with `doodle` (built by Jam's code; null for a
  * session that is no Jam); the same history, request and doodle always give the same bytes.

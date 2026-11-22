@@ -35,7 +35,7 @@ const SETTINGS: SessionSettings = lockSettings(RHYTHM_CHANGE_KINDS, {
   tension: 'Lift',
 })
 
-/** Intent: whether bars hold a note or rest starting or lasting off the two-tick grid. */
+/** Whether bars hold a note or rest starting or lasting off the two-tick grid. */
 function offEighthGrid(bars: readonly LockedRhythmMeasure[]): boolean {
   return bars.some((measure) =>
     measure.some((event) => event.startTick % 2 === 1 || event.durationTicks % 2 === 1),
@@ -43,7 +43,7 @@ function offEighthGrid(bars: readonly LockedRhythmMeasure[]): boolean {
 }
 
 /**
- * Intent: the first phrase 1 from Idle seed 1 on whose bars use sixteenth notes, or do not, as
+ * The first phrase 1 from Idle seed 1 on whose bars use sixteenth notes, or do not, as
  * asked; a deterministic search over real generation. A phrase 1 at Sixteenth always uses them
  * with these controls, so one without is the Idle phrase a narrow window gave at Eighth, which
  * Start takes stale, the window wide again.
@@ -58,7 +58,7 @@ function phraseOneWith(sixteenthNotes: boolean): SessionStart['phraseOne'] {
 }
 
 /**
- * Intent: a session at the fast tempo, wide at Start, whose phrase 2 is generated at Sixteenth and
+ * A session at the fast tempo, wide at Start, whose phrase 2 is generated at Sixteenth and
  * decided in the count-in; the window narrows before phrase 2 sounds, so phrase 3 is requested
  * with Eighth.
  */
@@ -80,7 +80,7 @@ function relockSession(sixteenthNotes: boolean): SessionDriver {
   return driver
 }
 
-/** Intent: let phrases `from` to `to` start sounding, each answering the phrase after it. */
+/** Let phrases `from` to `to` start sounding, each answering the phrase after it. */
 function soundAndSettle(driver: SessionDriver, from: number, to: number): void {
   for (let phraseNumber = from; phraseNumber <= to; phraseNumber += 1) {
     const at = soundingAt(phraseNumber)
@@ -90,7 +90,7 @@ function soundAndSettle(driver: SessionDriver, from: number, to: number): void {
   }
 }
 
-/** Intent: the decided phrase with this number (the last decided, if several). */
+/** The decided phrase with this number (the last decided, if several). */
 function decided(driver: SessionDriver, phraseNumber: number): SessionPhrase {
   const phrase = decidedPhrases(driver)
     .filter((entry) => entry.phraseNumber === phraseNumber)
@@ -99,7 +99,7 @@ function decided(driver: SessionDriver, phraseNumber: number): SessionPhrase {
   return phrase!
 }
 
-/** Intent: expect every request of a phrase to carry this group, given its own tenser flag. */
+/** Expect every request of a phrase to carry this group, given its own tenser flag. */
 function expectRequestsCarry(
   driver: SessionDriver,
   phraseNumber: number,

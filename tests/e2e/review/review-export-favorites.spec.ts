@@ -50,14 +50,14 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: one of the export scope's two choices. */
+/** One of the export scope's two choices. */
 function scopeOption(page: Page, label: 'Whole session' | 'Favorites only') {
   return reviewPanel(page)
     .getByRole('radiogroup', { name: 'Export' })
     .getByRole('radio', { name: label, exact: true })
 }
 
-/** Intent: assert `Export played notes` is disabled, described by `reason`. */
+/** Assert `Export played notes` is disabled, described by `reason`. */
 async function expectPlayedExportOff(page: Page, reason: string): Promise<void> {
   await expect(exportPlayedButton(page)).toBeDisabled()
   await expect(exportPlayedButton(page)).toHaveAccessibleDescription(reason)

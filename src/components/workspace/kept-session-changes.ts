@@ -35,13 +35,13 @@ export type KeptChangeCodec = Pick<
 /** The facts of a session-wide record a change may change, as the codec takes them. */
 export type KeptSummaryEdit = Parameters<KeptChangeCodec['rewriteKeptSummary']>[1]
 
-/** Intent: load the kept-session codec, which the first draw never needs. */
+/** Load the kept-session codec, which the first draw never needs. */
 function loadCodec(): Promise<KeptChangeCodec> {
   return import('@/storage/records/kept-session-record')
 }
 
 /**
- * Intent: a change that reads the session-wide record under `key` at the change and, when it is
+ * A change that reads the session-wide record under `key` at the change and, when it is
  * stored and readable, rewrites it with `edit` applied, the `alongside` changes in the same batch;
  * nothing otherwise. The reusable shape of every change to one session after its save.
  */
@@ -65,7 +65,7 @@ export function keptSummaryChanges(
 }
 
 /**
- * Intent: the change that keeps the played notes of the session under `key`, read from its
+ * The change that keeps the played notes of the session under `key`, read from its
  * history in memory, and for a fresh Jam (`fresh` given) its raw doodle notes with them, timed
  * from its count-in: its played-notes record written, and its session-wide record saying so.
  */
@@ -85,7 +85,7 @@ export function keepPlayedNotesChanges(
 }
 
 /**
- * Intent: the change that deletes the played notes of the session under `key`, and nothing else:
+ * The change that deletes the played notes of the session under `key`, and nothing else:
  * its played-notes record deleted, and its session-wide record saying they are not kept.
  */
 // @spec-link [[module_kept_session_changes]]
@@ -100,7 +100,7 @@ export function deletePlayedNotesChanges(
 }
 
 /**
- * Intent: the change that deletes every kept played note: every stored played-notes record,
+ * The change that deletes every kept played note: every stored played-notes record,
  * read by its key only (an unreadable session's included), and every readable session-wide record
  * that said they were kept rewritten to say they are not; an unreadable one is left as it is.
  */
@@ -130,13 +130,13 @@ export function deleteEveryPlayedNoteChanges(
   }
 }
 
-/** Intent: the number of sessions whose played notes are kept: the played-notes records stored. */
+/** The number of sessions whose played notes are kept: the played-notes records stored. */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[rule_kept_played_notes_deletable]]
 export const keptPlayedNotesCount: KeptRead<number> = async (reader) =>
   (await reader.readKeys('playedNotes')).length
 
-/** Intent: run a change built with the codec through the visit's saves; resolve its outcome. */
+/** Run a change built with the codec through the visit's saves; resolve its outcome. */
 async function changed(
   saves: Pick<KeptSessionChanges, 'changeKept'>,
   build: (codec: KeptChangeCodec) => KeptChanges,
@@ -146,7 +146,7 @@ async function changed(
 }
 
 /**
- * Intent: keep the played notes of the session under `key` after its save, a fresh Jam's raw
+ * Keep the played notes of the session under `key` after its save, a fresh Jam's raw
  * doodle notes with them (`fresh` given); a refusal is told by the notice row, the change holding
  * in memory.
  */
@@ -165,7 +165,7 @@ export function keepSessionPlayedNotes(
   )
 }
 
-/** Intent: delete the played notes of the session under `key`; its sheet tells a refusal. */
+/** Delete the played notes of the session under `key`; its sheet tells a refusal. */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[rule_kept_played_notes_deletable]]
 export function deleteSessionPlayedNotes(
@@ -175,7 +175,7 @@ export function deleteSessionPlayedNotes(
   return changed(saves, (codec) => deletePlayedNotesChanges(codec, key, APP_VERSION), 'caller')
 }
 
-/** Intent: delete every kept played note, across sessions; its sheet tells a refusal. */
+/** Delete every kept played note, across sessions; its sheet tells a refusal. */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[rule_kept_played_notes_deletable]]
 export function deleteEveryKeptPlayedNote(
@@ -185,7 +185,7 @@ export function deleteEveryKeptPlayedNote(
 }
 
 /**
- * Intent: the number of sessions whose played notes are kept, read at the switch whichever tab
+ * The number of sessions whose played notes are kept, read at the switch whichever tab
  * kept them; a refused read is told by the notice row.
  */
 // @spec-link [[module_kept_session_changes]]

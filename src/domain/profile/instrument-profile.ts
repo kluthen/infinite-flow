@@ -86,7 +86,7 @@ const TRANSPOSITION_LETTER_COUNT = 7
 const NATURAL_PC_BY_LETTER_INDEX: readonly number[] = [0, 2, 4, 5, 7, 9, 11]
 
 /**
- * Intent: reject a chromatic/diatonic transposition pair that is not mutually consistent — one
+ * Reject a chromatic/diatonic transposition pair that is not mutually consistent — one
  * that would require more than a double accidental to reconcile a diatonic letter-step move from
  * C with the declared chromatic semitone count.
  */
@@ -113,7 +113,7 @@ function assertConsistentTransposition(transposition: {
   }
 }
 
-/** Intent: reject a derived candidate whose window is not fully contained in the active range. */
+/** Reject a derived candidate whose window is not fully contained in the active range. */
 function assertCandidatesContained(
   candidates: readonly RegisterWindowCandidate[],
   range: ActiveConcertRange,
@@ -127,7 +127,7 @@ function assertCandidatesContained(
   }
 }
 
-/** Intent: reject any adjacent pair of canonically-ordered candidates that do not intersect. */
+/** Reject any adjacent pair of canonically-ordered candidates that do not intersect. */
 function assertAdjacentCandidatesIntersect(candidates: readonly RegisterWindowCandidate[]): void {
   for (let index = 1; index < candidates.length; index += 1) {
     const previous = candidates[index - 1]
@@ -140,7 +140,7 @@ function assertAdjacentCandidatesIntersect(candidates: readonly RegisterWindowCa
 }
 
 /**
- * Intent: construct an immutable, deep-frozen InstrumentProfile from already-typed input,
+ * Construct an immutable, deep-frozen InstrumentProfile from already-typed input,
  * proving the declared policy is valid: a non-empty identity, an unsupported algorithm rejected,
  * a valid active concert range (delegated to makeActiveConcertRange), and every derived candidate
  * window contained in that range with each adjacent pair intersecting. Rejects any violation
@@ -191,7 +191,7 @@ export function makeInstrumentProfile(input: InstrumentProfileInput): Instrument
   })
 }
 
-/** Intent: narrow an unknown value to a plain, non-null, non-array object record. */
+/** Narrow an unknown value to a plain, non-null, non-array object record. */
 function asRecord(input: unknown, context: string): Record<string, unknown> {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) {
     throw new InstrumentProfileParseError(`${context} must be a plain object, got ${typeof input}.`)
@@ -199,7 +199,7 @@ function asRecord(input: unknown, context: string): Record<string, unknown> {
   return input as Record<string, unknown>
 }
 
-/** Intent: reject any key on the untrusted record that is not part of the given allowlist. */
+/** Reject any key on the untrusted record that is not part of the given allowlist. */
 function assertNoUnknownKeys(
   record: Record<string, unknown>,
   allowedKeys: ReadonlySet<string>,
@@ -229,7 +229,7 @@ const REGISTER_WINDOWS_ALLOWED_KEYS = new Set([
 const TRANSPOSITION_ALLOWED_KEYS = new Set(['chromatic', 'diatonic'])
 
 /**
- * Intent: parse one untrusted instrument-profile boundary object, rejecting a non-object input,
+ * Parse one untrusted instrument-profile boundary object, rejecting a non-object input,
  * any unexpected extra field at any level, any missing/malformed required field, and any
  * downstream validation failure from makeInstrumentProfile — always as a typed
  * InstrumentProfileParseError, never as a partial or coerced profile.

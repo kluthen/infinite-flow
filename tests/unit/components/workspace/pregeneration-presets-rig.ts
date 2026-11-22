@@ -40,12 +40,12 @@ export const MY_REEL: Preset = makePreset({
   kind: 'player',
 })
 
-/** Intent: a player preset holding Neutral's values under `restriction`. */
+/** A player preset holding Neutral's values under `restriction`. */
 export function neutralCopy(id: string, name: string, restriction: Preset['restriction']): Preset {
   return makePreset({ ...builtInPreset('neutral'), id, name, restriction, kind: 'player' })
 }
 
-/** Intent: the settings `preset` holds in C, the mode its own, else Ionian, selected as given. */
+/** The settings `preset` holds in C, the mode its own, else Ionian, selected as given. */
 export function settingsOf(
   preset: Preset,
   selection: SessionSettings['selection'],
@@ -78,7 +78,7 @@ export interface PresetRigStart {
 }
 
 /**
- * Intent: the rig at Idle under `start`'s settings and player presets, phrase 1 generated under
+ * The rig at Idle under `start`'s settings and player presets, phrase 1 generated under
  * them, Vary settings as asked (off unless said), its queue holding phrases 2 to 5.
  */
 export async function presetRig(start: PresetRigStart): Promise<PresetPregenerationRig> {
@@ -113,7 +113,7 @@ export async function presetRig(start: PresetRigStart): Promise<PresetPregenerat
   return { rig, actions, presets }
 }
 
-/** Intent: let the queue fill again: phrases 2 to 5 ready, nothing failed, nothing in flight. */
+/** Let the queue fill again: phrases 2 to 5 ready, nothing failed, nothing in flight. */
 export async function refill(rig: PregenerationRig): Promise<void> {
   await flush()
   await answerAll(rig)
@@ -122,7 +122,7 @@ export async function refill(rig: PregenerationRig): Promise<void> {
 }
 
 /**
- * Intent: `change` empties the full queue: one new attempt, for phrase 2 from phrase 1, in
+ * `change` empties the full queue: one new attempt, for phrase 2 from phrase 1, in
  * flight, and Start takes nothing.
  */
 export async function expectDiscarded(rig: PregenerationRig, change: () => unknown): Promise<void> {
@@ -135,7 +135,7 @@ export async function expectDiscarded(rig: PregenerationRig, change: () => unkno
   expect(rig.queue.take('one-system')).toEqual([])
 }
 
-/** Intent: `change` keeps the full queue: no new attempt, and Start takes the same phrases. */
+/** `change` keeps the full queue: no new attempt, and Start takes the same phrases. */
 export async function expectKept(rig: PregenerationRig, change: () => unknown): Promise<void> {
   const full = rig.calls.length
   const before = rig.queue.take('one-system')

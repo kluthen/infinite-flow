@@ -99,7 +99,7 @@ const HALF_MEASURE_TICKS = 8
 const LEAP_HALF_STEPS = 5
 const WIDE_LEAP_HALF_STEPS = 7
 
-/** Intent: a reading of the doodle's value, or of the first-visit value when it shows none. */
+/** A reading of the doodle's value, or of the first-visit value when it shows none. */
 function reading<T>(shown: T | null, firstVisit: T): DoodleReading<T> {
   return shown === null
     ? { value: firstVisit, source: 'default' }
@@ -107,7 +107,7 @@ function reading<T>(shown: T | null, firstVisit: T): DoodleReading<T> {
 }
 
 /**
- * Intent: the contour checkpoints: in each half measure of the doodle, in order, the pitch of the
+ * The contour checkpoints: in each half measure of the doodle, in order, the pitch of the
  * first note starting in it; a half measure where none starts is skipped.
  */
 function contourCheckpoints(doodle: QuantizedDoodle): number[] {
@@ -122,7 +122,7 @@ function contourCheckpoints(doodle: QuantizedDoodle): number[] {
 }
 
 /**
- * Intent: the contour the doodle shows, from its checkpoints: Rising when they never go down and
+ * The contour the doodle shows, from its checkpoints: Rising when they never go down and
  * the last is above the first; Falling, the mirror; Arch when one checkpoint is the single highest
  * and is neither the first nor the last; else Wandering. Null (not shown) for fewer than three
  * checkpoints or all equal.
@@ -145,7 +145,7 @@ export function doodleContour(doodle: QuantizedDoodle): Contour | null {
 }
 
 /**
- * Intent: the leapiness the doodle shows, from the moves between neighbouring notes in half steps:
+ * The leapiness the doodle shows, from the moves between neighbouring notes in half steps:
  * w the widest, L the number of 5 or more, K the number of 7 or more, the counts scaled to four
  * measures. Smooth when w ≤ 4; Shaped when w ≤ 7, 4 × L ≤ 2 × M and 4 × K ≤ M; Leaping when
  * w ≤ 10, 4 × L ≤ 4 × M and 4 × K ≤ 2 × M; else Angular. Null (not shown) for fewer than two notes.
@@ -169,7 +169,7 @@ export function doodleLeapiness(doodle: QuantizedDoodle): Leapiness | null {
 }
 
 /**
- * Intent: how far a pitch lies from a window's centre, doubled so it stays a whole number:
+ * How far a pitch lies from a window's centre, doubled so it stays a whole number:
  * |2 × pitch − (lowest + highest)|.
  */
 function doubledCentreDistance(candidate: RegisterWindowCandidate, pitch: number): number {
@@ -177,7 +177,7 @@ function doubledCentreDistance(candidate: RegisterWindowCandidate, pitch: number
 }
 
 /**
- * Intent: the register the doodle shows, from its last note and the selected instrument's three
+ * The register the doodle shows, from its last note and the selected instrument's three
  * register windows (as deriveRegisterWindowCandidates gives them): the window holding the last
  * note, the nearest by its centre when several do, Middle on a tie (Middle is always among the
  * tied, as the windows are derived); Varying, with no window, when none holds it. The reading
@@ -204,7 +204,7 @@ export function readDoodleRegister(
 }
 
 /**
- * Intent: the rhythmic variety that makes the four rhythm values a supported combination, judged
+ * The rhythmic variety that makes the four rhythm values a supported combination, judged
  * by the generator's own rule with the note density as read (a Sixteenth as Sixteenth, at no
  * window width): the given variety, stepped up (Strict to Slightly varied to Heavily varied) only
  * while the combination is unsupported. Heavily varied supports every combination, and no
@@ -226,7 +226,7 @@ export function supportedRhythmicVariety(setting: RhythmSetting): RhythmicVariet
 }
 
 /**
- * Intent: the seven controls read from a quantized doodle (after the very-short-note filter), for
+ * The seven controls read from a quantized doodle (after the very-short-note filter), for
  * the selected instrument's register windows, and no window context: note density first, then the
  * other rhythm values, contour, leapiness and register, each control the doodle cannot show taking
  * session mode's first-visit value, marked as such; then rhythmic variety steps up while the

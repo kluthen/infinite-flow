@@ -5,7 +5,7 @@ import { useControllerStatus } from '@/components/workspace/use-controller-statu
 import { createControllerRig, KEYS_A, PAD_B } from '../../midi/midi-controller-rig'
 
 /**
- * Intent: run the composable in its own effect scope over `midi`, with a session flag and a
+ * Run the composable in its own effect scope over `midi`, with a session flag and a
  * lost-in-session flag to flip.
  */
 function statusOver(midi: ReturnType<typeof createControllerRig>['controller']) {

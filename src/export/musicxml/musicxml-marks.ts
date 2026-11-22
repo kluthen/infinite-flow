@@ -28,7 +28,7 @@ const MODE_BY_COLLECTION: Readonly<Record<Collection, string>> = {
   Locrian: 'locrian',
 }
 
-/** Intent: a written key as a key element: signed sharp/flat count, then the mode. */
+/** A written key as a key element: signed sharp/flat count, then the mode. */
 // @spec-link [[rule_generated_notes_musicxml_export]]
 export function keyElement(key: WrittenKey): XmlElement {
   const count = key.signature.accidental === 'flat' ? -key.signature.count : key.signature.count
@@ -39,7 +39,7 @@ export function keyElement(key: WrittenKey): XmlElement {
   )
 }
 
-/** Intent: whether two written keys print the same key element. */
+/** Whether two written keys print the same key element. */
 export function sameKey(a: WrittenKey, b: WrittenKey): boolean {
   return (
     a.signature.accidental === b.signature.accidental &&
@@ -49,7 +49,7 @@ export function sameKey(a: WrittenKey, b: WrittenKey): boolean {
 }
 
 /**
- * Intent: the instrument's transposition as a transpose element, or null for an instrument that
+ * The instrument's transposition as a transpose element, or null for an instrument that
  * does not transpose. The instrument profile says how far written pitch sits above concert pitch;
  * MusicXML asks the opposite, what to add to the written pitch to get the sounding pitch, so both
  * counts change sign. Whole octaves go to `octave-change`, leaving `diatonic` and `chromatic`
@@ -72,7 +72,7 @@ export function transposeElement(transposition: InstrumentTransposition): XmlEle
 }
 
 /**
- * Intent: a clef as a clef element: a G clef on the second line for treble clef, an F clef on the
+ * A clef as a clef element: a G clef on the second line for treble clef, an F clef on the
  * fourth line for bass clef.
  */
 // @spec-link [[rule_generated_notes_musicxml_export]]
@@ -82,7 +82,7 @@ export function clefElement(clef: InstrumentClef): XmlElement {
     : element('clef', [], [textElement('sign', 'G'), textElement('line', 2)])
 }
 
-/** Intent: the attributes of the score's first measure, in the phrase's own clef. */
+/** The attributes of the score's first measure, in the phrase's own clef. */
 // @spec-link [[rule_generated_notes_musicxml_export]]
 export function openingAttributes(
   key: WrittenKey,
@@ -103,13 +103,13 @@ export function openingAttributes(
   )
 }
 
-/** Intent: the attributes of a phrase's first measure when its key differs from the one before. */
+/** The attributes of a phrase's first measure when its key differs from the one before. */
 export function keyChangeAttributes(key: WrittenKey): XmlElement {
   return element('attributes', [], [keyElement(key)])
 }
 
 /**
- * Intent: the rehearsal mark that opens a phrase, holding its session phrase number, or, in a
+ * The rehearsal mark that opens a phrase, holding its session phrase number, or, in a
  * Jam's file, the one that opens the doodle, "Doodle".
  */
 // @spec-link [[rule_generated_notes_musicxml_export]]
@@ -126,7 +126,7 @@ export function rehearsalMark(label: number | string): XmlElement {
 // @spec-link [[rule_jam_exports_open_with_doodle]]
 export const DOODLE_REHEARSAL = 'Doodle'
 
-/** Intent: a metronome mark (quarter note = tempo) with the matching playback tempo. */
+/** A metronome mark (quarter note = tempo) with the matching playback tempo. */
 // @spec-link [[rule_generated_notes_musicxml_export]]
 export function metronomeMark(tempo: number): XmlElement {
   return element(
@@ -149,14 +149,14 @@ export function metronomeMark(tempo: number): XmlElement {
   )
 }
 
-/** Intent: the double barline (light-light) that closes every phrase but the session's last. */
+/** The double barline (light-light) that closes every phrase but the session's last. */
 // @spec-link [[rule_generated_notes_musicxml_export]]
 export function phraseEndBarline(): XmlElement {
   return element('barline', [['location', 'right']], [textElement('bar-style', 'light-light')])
 }
 
 /**
- * Intent: the final barline (light-heavy: a thin line then a thick one) that closes the session's
+ * The final barline (light-heavy: a thin line then a thick one) that closes the session's
  * last phrase, the sign printed music ends on.
  */
 // @spec-link [[rule_generated_notes_musicxml_export]]

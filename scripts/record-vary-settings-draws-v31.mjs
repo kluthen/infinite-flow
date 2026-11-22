@@ -49,7 +49,7 @@ const ABOUT = [
 const LOAD_CONFIG = { configFile: false, logLevel: 'silent', resolve: { alias: { '@': SRC_DIR } } }
 
 /**
- * Intent: load a TypeScript module through Vite and return it.
+ * Load a TypeScript module through Vite and return it.
  * @param {string} path
  * @returns {Promise<Record<string, any>>}
  */
@@ -59,7 +59,7 @@ async function load(path) {
 }
 
 /**
- * Intent: an entry list as text, one compact entry per line, indented under its key.
+ * An entry list as text, one compact entry per line, indented under its key.
  * @param {readonly unknown[]} entries
  * @returns {string}
  */
@@ -68,7 +68,7 @@ function entryLines(entries) {
 }
 
 /**
- * Intent: the fixture text: the top level readable, each context, start, seed and row compact on
+ * The fixture text: the top level readable, each context, start, seed and row compact on
  * one line, valid JSON ending with a newline. Crashes if the text does not parse back to the
  * fixture.
  * @param {{ recordedOn: string, recordedOnAppVersion: string, about: string[], lastPhrase: number,
@@ -111,7 +111,7 @@ function fixtureText(fixture) {
 }
 
 /**
- * Intent: run every session twice, crash when the runs differ, and write the fixture with the
+ * Run every session twice, crash when the runs differ, and write the fixture with the
  * version it was recorded on.
  */
 async function main() {

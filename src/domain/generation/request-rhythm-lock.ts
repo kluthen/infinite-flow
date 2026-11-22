@@ -75,21 +75,21 @@ const EVENT_KINDS: readonly string[] = ['note', 'rest']
 const EVENT_KEYS = ['kind', 'startTick', 'durationTicks', 'tieContinuation'] as const
 const CONTEXT = 'RequestRhythmLock'
 
-/** Intent: refuse a value of the named field that is not an array. */
+/** Refuse a value of the named field that is not an array. */
 function requireArray(value: unknown, field: string): readonly unknown[] {
   if (!Array.isArray(value))
     throw new RequestRhythmLockError(`${field} must be an array, got ${JSON.stringify(value)}.`)
   return value
 }
 
-/** Intent: refuse a value of the named field that is not a non-null object. */
+/** Refuse a value of the named field that is not a non-null object. */
 function requireObject(value: unknown, field: string): Record<string, unknown> {
   if (typeof value !== 'object' || value === null)
     throw new RequestRhythmLockError(`${field} must be an object, got ${JSON.stringify(value)}.`)
   return value as Record<string, unknown>
 }
 
-/** Intent: refuse a duration that is not a positive whole number of ticks. */
+/** Refuse a duration that is not a positive whole number of ticks. */
 function requireDuration(value: unknown, field: string): number {
   if (typeof value !== 'number' || !Number.isInteger(value) || value <= 0)
     throw new RequestRhythmLockError(
@@ -99,7 +99,7 @@ function requireDuration(value: unknown, field: string): number {
 }
 
 /**
- * Intent: a validated copy of one locked measure: at least one event, the first at tick 0, each
+ * A validated copy of one locked measure: at least one event, the first at tick 0, each
  * next one starting where the one before ends, the last ending on tick 16, each a note or a rest
  * with a boolean tie flag. The phrase's very first event cannot continue a tie.
  */
@@ -144,7 +144,7 @@ function copyMeasure(measure: unknown, measureIndex: number): LockedRhythmEvent[
   return copy
 }
 
-/** Intent: a validated copy of the lock's state: pending, or locked with exactly four bars. */
+/** A validated copy of the lock's state: pending, or locked with exactly four bars. */
 function copyState(input: unknown): RhythmLockState {
   const state = requireObject(input, `${CONTEXT}.state`)
   if (state.kind === 'pending') return { kind: 'pending' }
@@ -161,7 +161,7 @@ function copyState(input: unknown): RhythmLockState {
 }
 
 /**
- * Intent: a validated copy of the allowed changes: known kinds, each once, in RHYTHM_CHANGE_KINDS
+ * A validated copy of the allowed changes: known kinds, each once, in RHYTHM_CHANGE_KINDS
  * order. An out-of-order list is refused, never reordered, so the group has one canonical form.
  */
 function copyAllowedChanges(input: unknown): RhythmChangeKind[] {
@@ -185,7 +185,7 @@ function copyAllowedChanges(input: unknown): RhythmChangeKind[] {
 }
 
 /**
- * Intent: build one immutable rhythm lock group, a fresh deep-frozen copy of the input in field
+ * Build one immutable rhythm lock group, a fresh deep-frozen copy of the input in field
  * order, refusing as a RequestRhythmLockError naming the field and value: an unknown state kind;
  * locked bars that are not four measures each tiling its sixteen ticks from tick 0 with positive
  * whole durations (an empty measure among them); an unknown event kind; a tie flag that is not a
@@ -204,7 +204,7 @@ export function makeRequestRhythmLock(input: RequestRhythmLock): RequestRhythmLo
   return deepFreeze({ state, allowedChanges, tenserPhrase: input.tenserPhrase })
 }
 
-/** Intent: narrow an untrusted value to a plain record holding exactly the expected keys. */
+/** Narrow an untrusted value to a plain record holding exactly the expected keys. */
 function exactRecord(
   input: unknown,
   keys: readonly string[],
@@ -224,7 +224,7 @@ function exactRecord(
   return record
 }
 
-/** Intent: parse an untrusted state: exactly a kind, plus the bars when it is locked. */
+/** Parse an untrusted state: exactly a kind, plus the bars when it is locked. */
 function parseState(input: unknown): RhythmLockState {
   const field = `${CONTEXT}.state`
   const kind = requireObject(input, field).kind
@@ -239,7 +239,7 @@ function parseState(input: unknown): RhythmLockState {
 }
 
 /**
- * Intent: parse an untrusted value (a structured clone, which drops freezing) into a rhythm lock
+ * Parse an untrusted value (a structured clone, which drops freezing) into a rhythm lock
  * group, refusing any missing or extra field at every level and any non-array list, then
  * re-validating it through `makeRequestRhythmLock`. Every refusal is a RequestRhythmLockError.
  */

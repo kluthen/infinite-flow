@@ -24,13 +24,13 @@ import { connectKeys, lift, press, rigStartingNote, unplugKeys } from './session
 import { controllerRig, outputsOf, playTo, type ControllerRig } from './session-controller-rig'
 import { END_SAMPLES } from './session-end-samples'
 
-/** Intent: when phrase `n` of a 240 BPM rig session starts sounding. */
+/** When phrase `n` of a 240 BPM rig session starts sounding. */
 function phraseStart(n: number): number {
   return 6.1 + 4 * (n - 1)
 }
 
 /**
- * Intent: a rig with `Vary settings` on and a session started, after `before` set the rig up: the
+ * A rig with `Vary settings` on and a session started, after `before` set the rig up: the
  * phrase its first mutation lands on, from the mutation seed the session seed plan derives from
  * phrase 1's session seed.
  */
@@ -46,7 +46,7 @@ async function startedVarying(
   return { rig, landsOn: mutationPhrase(mutationSeed, 1) }
 }
 
-/** Intent: the rig's settings with one control changed, as an automatic change would give. */
+/** The rig's settings with one control changed, as an automatic change would give. */
 function withLeapiness(rig: ControllerRig): SessionSettings {
   const leapiness = rig.settings.controls.leapiness === 'Angular' ? 'Smooth' : 'Angular'
   return {
@@ -57,7 +57,7 @@ function withLeapiness(rig: ControllerRig): SessionSettings {
 }
 
 /**
- * Intent: the player chose the Neutral preset at Idle and changed nothing since, so Neutral is
+ * The player chose the Neutral preset at Idle and changed nothing since, so Neutral is
  * selected, not Custom; the rig's phrase 1 stays as it is.
  */
 function playerChoseNeutral(rig: ControllerRig): void {
@@ -75,7 +75,7 @@ function playerChoseNeutral(rig: ControllerRig): void {
   rig.idle.selection = chosen.selection
 }
 
-/** Intent: tap one note (not the starting note's pitch) now. */
+/** Tap one note (not the starting note's pitch) now. */
 function tap(rig: ControllerRig): void {
   const pitch = rigStartingNote(rig).concertPitch + 1
   press(rig, pitch)
@@ -99,14 +99,14 @@ const VARIED_ENDS: readonly VariedEnd[] = [
   {
     name: 'Stop',
     cause: 'stop',
-    /** Intent: the player presses Stop. */
+    /** The player presses Stop. */
     trigger: (rig) => rig.controller.stop(),
   },
   ...END_SAMPLES,
   {
     name: 'the session staff failing to engrave',
     cause: 'staff-not-shown',
-    /** Intent: the session staff reports that it failed to engrave. */
+    /** The session staff reports that it failed to engrave. */
     trigger: (rig) =>
       rig.staff.sessionStaffFailed(new NotationError('notation_engraving_failed', 'failed', {})),
   },
@@ -114,7 +114,7 @@ const VARIED_ENDS: readonly VariedEnd[] = [
     name: 'more than 30 s without a played note',
     cause: 'silence-timeout',
     before: connectKeys,
-    /** Intent: one note arms the silence timer, then nothing is played for over 30 s. */
+    /** One note arms the silence timer, then nothing is played for over 30 s. */
     trigger: async (rig) => {
       tap(rig)
       await playTo(rig, rig.audioRig.now() + 30.25)
@@ -124,7 +124,7 @@ const VARIED_ENDS: readonly VariedEnd[] = [
     name: 'the controller away for 30 s',
     cause: 'controller-lost',
     before: connectKeys,
-    /** Intent: the keyboard is unplugged and stays away past its 30-second countdown. */
+    /** The keyboard is unplugged and stays away past its 30-second countdown. */
     trigger: async (rig) => {
       unplugKeys(rig)
       await playTo(rig, rig.audioRig.now() + 30.25)

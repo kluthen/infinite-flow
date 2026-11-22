@@ -46,7 +46,7 @@ interface CancelRig {
 }
 
 /**
- * Intent: a runner at `tempo` (240 BPM by default) whose generate calls wait for the test and
+ * A runner at `tempo` (240 BPM by default) whose generate calls wait for the test and
  * whose fit checks always fit.
  */
 function cancelRig(tempo = 240): CancelRig {
@@ -83,13 +83,13 @@ function cancelRig(tempo = 240): CancelRig {
   return { runner, clock, log, errors, generations }
 }
 
-/** Intent: let every settled seam promise run its continuation. */
+/** Let every settled seam promise run its continuation. */
 function settle(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 /**
- * Intent: bring the rig to phrase 2 sounding at 5 s with phrase 3's first attempt pending, then
+ * Bring the rig to phrase 2 sounding at 5 s with phrase 3's first attempt pending, then
  * supersede that attempt with a settings change at 6 s; returns the superseded and new attempts.
  */
 async function superseded(r: CancelRig): Promise<[PendingGeneration, PendingGeneration]> {

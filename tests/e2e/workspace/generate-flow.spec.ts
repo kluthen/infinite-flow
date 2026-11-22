@@ -38,7 +38,7 @@ const WORKSPACE_REPLAY_KEY_LINE =
   /^\[Infinite Flow\] phrase replay key · workspace phrase · (seed1-[0-9a-f]{8}) · (ifk5\.[A-Za-z0-9_-]+)$/
 
 /**
- * Intent: read a version-5 replay key's 10-tuple Node-side (unpadded base64url of UTF-8 JSON), so
+ * Read a version-5 replay key's 10-tuple Node-side (unpadded base64url of UTF-8 JSON), so
  * the line's seed code can be checked against the seed the key itself holds.
  */
 function replayKeyTuple(key: string): unknown[] {
@@ -60,7 +60,7 @@ const DEFAULT_FIGURE_LEVELS = {
 }
 
 /**
- * Intent: check one workspace replay-key line, its key holding the line's seed, the default
+ * Check one workspace replay-key line, its key holding the line's seed, the default
  * profile's figure levels, phrase number 1, no carry-in, the built-in marker, no rhythm lock group,
  * no steering block and the Seventh chords level at Off, and return that key.
  */

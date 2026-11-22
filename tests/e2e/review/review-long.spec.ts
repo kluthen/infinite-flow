@@ -56,7 +56,7 @@ interface EngravingWindowReading {
 }
 
 /**
- * Intent: read every review item's distance from the visible area (as the Review's scheduler
+ * Read every review item's distance from the visible area (as the Review's scheduler
  * measures it) and whether its staff is engraved. A 1 px margin keeps an item sitting exactly on
  * a window's edge out of either check.
  */
@@ -81,7 +81,7 @@ function readEngravingWindow(page: Page): Promise<EngravingWindowReading> {
 }
 
 /**
- * Intent: wait until the lazy window has settled where the page is scrolled to: every near item
+ * Wait until the lazy window has settled where the page is scrolled to: every near item
  * engraved and no far one; returns that reading.
  */
 async function settledWindow(page: Page): Promise<EngravingWindowReading> {
@@ -107,7 +107,7 @@ type TimingWindow = Window & {
 }
 
 /**
- * Intent: click `target` and return the milliseconds, on `performance.now()`, from the click to
+ * Click `target` and return the milliseconds, on `performance.now()`, from the click to
  * the first animation frame where the Review is open with all its items and phrase 1 engraved,
  * or closed. The loop is armed before the click and stamps the click in the capture phase.
  */
@@ -151,13 +151,13 @@ async function clickAndTime(page: Page, target: Locator, until: TimedUntil): Pro
   return timing.doneAt - timing.startedAt
 }
 
-/** Intent: Chromium's performance counters now, by name (DevTools protocol). */
+/** Chromium's performance counters now, by name (DevTools protocol). */
 async function performanceMetrics(cdp: CDPSession): Promise<Record<string, number>> {
   const { metrics } = await cdp.send('Performance.getMetrics')
   return Object.fromEntries(metrics.map((metric) => [metric.name, metric.value]))
 }
 
-/** Intent: the longest main-thread task the probe recorded from `since` on, in ms; 0 for none. */
+/** The longest main-thread task the probe recorded from `since` on, in ms; 0 for none. */
 async function longestTaskSince(page: Page, since: number): Promise<number> {
   return page.evaluate(
     (from) =>
@@ -171,7 +171,7 @@ async function longestTaskSince(page: Page, since: number): Promise<number> {
   )
 }
 
-/** Intent: a duration in seconds, as Chromium's counters give it, in whole milliseconds. */
+/** A duration in seconds, as Chromium's counters give it, in whole milliseconds. */
 function ms(seconds: number): number {
   return Math.round(seconds * 1000)
 }

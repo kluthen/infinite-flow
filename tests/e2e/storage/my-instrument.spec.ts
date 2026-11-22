@@ -81,7 +81,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: the instrument control's segments' labels, in order. */
+/** The instrument control's segments' labels, in order. */
 function instrumentLabels(page: Page): Promise<string[]> {
   return page
     .getByRole('radiogroup', { name: INSTRUMENT_GROUP })
@@ -90,7 +90,7 @@ function instrumentLabels(page: Page): Promise<string[]> {
     .then((labels) => labels.map((label) => label.trim()))
 }
 
-/** Intent: seed `instrument` with the saved selection naming it, then reload so the load reads them. */
+/** Seed `instrument` with the saved selection naming it, then reload so the load reads them. */
 async function loadWithMyInstrument(
   page: Page,
   instrument: WorkspaceHarnessMyInstrumentInput,
@@ -102,19 +102,19 @@ async function loadWithMyInstrument(
   await reloadHarness(page)
 }
 
-/** Intent: the clef glyphs every staff SVG inside `scope` draws, in document order. */
+/** The clef glyphs every staff SVG inside `scope` draws, in document order. */
 function clefGlyphs(scope: Locator): Promise<string[]> {
   return scope
     .locator('svg.staff-svg g.vf-clef > text')
     .evaluateAll((texts) => texts.map((text) => text.textContent ?? ''))
 }
 
-/** Intent: the clef glyphs the workspace's staff draws now. */
+/** The clef glyphs the workspace's staff draws now. */
 function staffClefs(page: Page): Promise<string[]> {
   return clefGlyphs(page.locator('.score-panel > div > .staff-viewport'))
 }
 
-/** Intent: every attacked note's concert pitch in a concert timeline (JSON). */
+/** Every attacked note's concert pitch in a concert timeline (JSON). */
 function timelinePitches(timeline: string): number[] {
   const parsed = JSON.parse(timeline) as {
     measures: { events: { kind: string; pitch?: number }[] }[]
@@ -126,7 +126,7 @@ function timelinePitches(timeline: string): number[] {
   )
 }
 
-/** Intent: assert every note of `timeline` sounds inside `range`, and that it has notes. */
+/** Assert every note of `timeline` sounds inside `range`, and that it has notes. */
 function expectInside(timeline: string, range: { minMidi: number; maxMidi: number }): void {
   const pitches = timelinePitches(timeline)
   expect(pitches.length).toBeGreaterThan(0)
@@ -134,7 +134,7 @@ function expectInside(timeline: string, range: { minMidi: number; maxMidi: numbe
   expect(Math.max(...pitches)).toBeLessThanOrEqual(range.maxMidi)
 }
 
-/** Intent: the latest player request's record (no abort signal: the Idle phrase's own). */
+/** The latest player request's record (no abort signal: the Idle phrase's own). */
 async function latestIdleRequest(page: Page): Promise<WorkspaceHarnessGenerationRequest> {
   const records = (await generationRecords(page)).filter((record) => !record.signal)
   const latest = records.at(-1)

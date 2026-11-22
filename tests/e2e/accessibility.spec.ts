@@ -80,7 +80,7 @@ import {
 /** A tablet in landscape, at bp-tablet-landscape (64rem = 1024 px): the one-system layout. */
 const TABLET = { width: 1024, height: 768 } as const
 
-/** Intent: format axe violations into a readable failure message rather than a raw object dump. */
+/** Format axe violations into a readable failure message rather than a raw object dump. */
 function describeViolations(violations: readonly { id: string; help: string }[]): string {
   return violations.map((violation) => `${violation.id}: ${violation.help}`).join('\n')
 }
@@ -556,7 +556,7 @@ interface ReviewToolsScan {
   readonly reach: (page: Page) => Promise<void>
 }
 
-/** Intent: turn `Keep my played notes` on and wait until the session's played notes are kept. */
+/** Turn `Keep my played notes` on and wait until the session's played notes are kept. */
 async function keepPlayedNotes(page: Page): Promise<void> {
   await keepPlayedNotesToggle(page).click()
   await expect(keepPlayedNotesToggle(page)).toHaveAttribute('aria-pressed', 'true')
@@ -727,7 +727,7 @@ interface FreshJamScan {
   readonly reach: (page: Page) => Promise<unknown>
 }
 
-/** Intent: start a fresh Jam with `Start Jam` and play a one-measure doodle: the capture. */
+/** Start a fresh Jam with `Start Jam` and play a one-measure doodle: the capture. */
 async function freshJamCapture(page: Page): Promise<JamGrid> {
   await startJamByClick(page)
   const grid = await jamGrid(page)
@@ -736,7 +736,7 @@ async function freshJamCapture(page: Page): Promise<JamGrid> {
   return grid
 }
 
-/** Intent: from the capture, the doodle's silent barline: the generation measure (`jam-writing`). */
+/** From the capture, the doodle's silent barline: the generation measure (`jam-writing`). */
 async function freshJamWriting(page: Page): Promise<JamGrid> {
   const grid = await freshJamCapture(page)
   await clockTo(page, grid.barline(1) + PAST_BARLINE)
@@ -744,7 +744,7 @@ async function freshJamWriting(page: Page): Promise<JamGrid> {
   return grid
 }
 
-/** Intent: from Jam mode's Idle, a fresh Jam whose every attempt failed ends under `jam-notice`. */
+/** From Jam mode's Idle, a fresh Jam whose every attempt failed ends under `jam-notice`. */
 async function jamNoticeShown(page: Page): Promise<void> {
   await failNextGeneration(page, 'search_limit_exceeded', 0, 50)
   const grid = await freshJamWriting(page)
@@ -754,7 +754,7 @@ async function jamNoticeShown(page: Page): Promise<void> {
   await expect(sessionAction(page)).toHaveAttribute('aria-describedby', 'jam-notice')
 }
 
-/** Intent: from Jam mode's Idle, a fresh Jam at Session running, `doodle-readings` filled. */
+/** From Jam mode's Idle, a fresh Jam at Session running, `doodle-readings` filled. */
 async function freshJamRunning(page: Page): Promise<void> {
   await startJamByClick(page)
   await jamToRunning(page)

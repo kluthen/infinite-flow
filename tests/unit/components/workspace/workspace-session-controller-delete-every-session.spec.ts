@@ -37,7 +37,7 @@ const FRESH: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: the stored summary of the recorded session started at `startedAt`, with `facts`. */
+/** The stored summary of the recorded session started at `startedAt`, with `facts`. */
 function summaryAt(key: string, startedAt: number, facts: Partial<KeptSessionFacts> = {}) {
   const shifted = { ...history, phrases: () => history.phrases(), startedAt }
   const records = storedRecords(encodeKeptSession(shifted, { ...FRESH, ...facts }, APP_VERSION))
@@ -58,7 +58,7 @@ interface FakeKept {
   changeOutcome: KeptChangeOutcome
 }
 
-/** Intent: a fake seam over the loaded summaries, saving on, every change saved. */
+/** A fake seam over the loaded summaries, saving on, every change saved. */
 function fakeKept(summaries: readonly StoredEntry[] = LOADED): FakeKept {
   const fake: FakeKept = {
     seam: {},
@@ -82,7 +82,7 @@ function fakeKept(summaries: readonly StoredEntry[] = LOADED): FakeKept {
   return fake
 }
 
-/** Intent: a rig over `fake` whose two-phrase session ended with a Review, its save `outcome`. */
+/** A rig over `fake` whose two-phrase session ended with a Review, its save `outcome`. */
 async function afterSession(
   fake: FakeKept,
   outcome: SessionSaveOutcome = { status: 'saved' },
@@ -102,7 +102,7 @@ async function afterSession(
   return rig
 }
 
-/** Intent: the keys of the controller's rows, in order. */
+/** The keys of the controller's rows, in order. */
 function rowKeys(rig: ControllerRig): string[] {
   return rig.controller.state.keptRows.map((row) => row.key)
 }

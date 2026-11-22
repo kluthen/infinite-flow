@@ -123,7 +123,7 @@ export type PhraseReplayContext =
 
 const KEY_PATTERN = /^ifk[1-5]\.[A-Za-z0-9_-]+$/u
 
-/** Intent: reject a phrase number that is not a positive integer, never coercing or defaulting it. */
+/** Reject a phrase number that is not a positive integer, never coercing or defaulting it. */
 function requirePositivePhraseNumber(phraseNumber: number): void {
   if (!Number.isSafeInteger(phraseNumber) || phraseNumber < 1) {
     throw new PhraseReplayKeyError(
@@ -133,7 +133,7 @@ function requirePositivePhraseNumber(phraseNumber: number): void {
 }
 
 /**
- * Intent: enforce the phrase-number rules: a positive integer, and, when a carry-in from a phrase
+ * Enforce the phrase-number rules: a positive integer, and, when a carry-in from a phrase
  * is present, exactly one more than the number of the phrase that produced that carry-in. A
  * carry-in from no phrase (the doodle has no number) joins into phrase 1, so the number is 1.
  */
@@ -160,7 +160,7 @@ export function requireConsistentPhraseNumber(
   }
 }
 
-/** Intent: encode bytes as unpadded base64url (A-Z a-z 0-9 - _) without any Node-only API. */
+/** Encode bytes as unpadded base64url (A-Z a-z 0-9 - _) without any Node-only API. */
 // @spec-link [[module_phrase_replay_key]]
 export function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = ''
@@ -169,7 +169,7 @@ export function bytesToBase64Url(bytes: Uint8Array): string {
 }
 
 /**
- * Intent: my instrument's owning profile fields as the intent's profile holds them: its display
+ * My instrument's owning profile fields as the intent's profile holds them: its display
  * name, concert range and transposition. Never its id, register windows, clef, template, written
  * range as entered or input kind: the id is in the controls, the windows derive from the range,
  * and the rest is not part of the generator-facing profile.
@@ -185,13 +185,13 @@ function myInstrumentEntry(intent: GenerationIntent): PhraseReplayKeyMyInstrumen
   ]
 }
 
-/** Intent: the figure levels as an `ifk5.` key stores them, the seven ids in FIGURE_IDS order. */
+/** The figure levels as an `ifk5.` key stores them, the seven ids in FIGURE_IDS order. */
 function figureLevelsEntry(levels: FigureLevels): Record<string, string> {
   return Object.fromEntries(FIGURE_IDS.map((figure) => [figure, levels[figure]]))
 }
 
 /**
- * Intent: the chord families as an `ifk5.` key stores them: each capability's name mapped to its
+ * The chord families as an `ifk5.` key stores them: each capability's name mapped to its
  * level, in CHORD_FAMILY_IDS order.
  */
 // @spec-link [[module_phrase_replay_key]]
@@ -201,7 +201,7 @@ function chordFamiliesEntry(families: ChordFamilies): Record<string, string> {
 }
 
 /**
- * Intent: encode one generation intent and its phrase number into an `ifk5.` phrase replay key,
+ * Encode one generation intent and its phrase number into an `ifk5.` phrase replay key,
  * whatever its instrument and its Seventh chords level, over the 10-tuple the file header states:
  * request id, seed, the controls in the codec's fixed order with the written tonal center in the
  * tonal-center slot, the figure levels by figure id, the phrase number, the carry-in of either
@@ -237,7 +237,7 @@ export function encodePhraseReplayKey(intent: GenerationIntent, phraseNumber: nu
   return `${PHRASE_REPLAY_KEY_V5_PREFIX}${bytesToBase64Url(bytes)}`
 }
 
-/** Intent: the plain words naming which accepted phrase a key line belongs to. */
+/** The plain words naming which accepted phrase a key line belongs to. */
 function contextText(context: PhraseReplayContext): string {
   if (context.source === 'workspace') return 'workspace phrase'
   requirePositivePhraseNumber(context.phraseNumber)
@@ -245,7 +245,7 @@ function contextText(context: PhraseReplayContext): string {
 }
 
 /**
- * Intent: render the single console line that announces one accepted phrase's replay key, naming
+ * Render the single console line that announces one accepted phrase's replay key, naming
  * the phrase, its seed in `seed1-` form and the key. A key that is not a well-formed key of one of
  * the five versions (`ifk1.` to `ifk5.`) is rejected, so the line can never span more than one
  * line.
@@ -261,7 +261,7 @@ export function phraseReplayKeyLine(key: string, context: PhraseReplayContext, s
 }
 
 /**
- * Intent: encode one accepted phrase's replay key and hand its single line to the injected log
+ * Encode one accepted phrase's replay key and hand its single line to the injected log
  * sink exactly once. A workspace phrase is phrase 1; a session phrase uses its own number, and its
  * origin must agree with whether the intent carries a carry-in.
  */

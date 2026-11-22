@@ -64,18 +64,18 @@ const CHANGE_ON_PHRASE_4 = 74
 /** The phrase that seed changes the rhythm of. */
 const CHANGED_PHRASE = 4
 
-/** Intent: the five toggles shown off, in order. */
+/** The five toggles shown off, in order. */
 function allOff(): string[] {
   return RHYTHM_CHANGES.map(({ label }) => `${label}: false`)
 }
 
-/** Intent: allow every rhythm change with a click on each toggle. */
+/** Allow every rhythm change with a click on each toggle. */
 async function allowEveryChange(page: Page): Promise<void> {
   for (const { label } of RHYTHM_CHANGES) await flipChange(page, label)
 }
 
 /**
- * Intent: try to activate a read-only control both ways a player's click could reach it: a real
+ * Try to activate a read-only control both ways a player's click could reach it: a real
  * click at its place (forced, as the read-only group takes the pointer there) and a click event
  * dispatched on the control itself, which its own script must refuse.
  */
@@ -84,20 +84,20 @@ async function refuseActivation(control: Locator): Promise<void> {
   await control.dispatchEvent('click')
 }
 
-/** Intent: every `generate` call's record since the page loaded. */
+/** Every `generate` call's record since the page loaded. */
 function requests(page: Page): Promise<readonly WorkspaceHarnessGenerationRequest[]> {
   return page.evaluate(() => window.__workspaceHarness.generationRequests())
 }
 
 /**
- * Intent: format axe violations into a readable failure message rather than a raw object dump,
+ * Format axe violations into a readable failure message rather than a raw object dump,
  * as the accessibility spec does.
  */
 function describeViolations(violations: readonly { id: string; help: string }[]): string {
   return violations.map((violation) => `${violation.id}: ${violation.help}`).join('\n')
 }
 
-/** Intent: run axe on the whole page once no CSS transition is running, and expect nothing. */
+/** Run axe on the whole page once no CSS transition is running, and expect nothing. */
 async function expectNoAxeViolations(page: Page, when: string): Promise<void> {
   await page.waitForFunction(() =>
     document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
@@ -118,7 +118,7 @@ interface ViewMarks {
   readonly mentions: readonly string[]
 }
 
-/** Intent: read the live view's marks (see ViewMarks) now. */
+/** Read the live view's marks (see ViewMarks) now. */
 function viewMarks(page: Page): Promise<ViewMarks> {
   return page.evaluate(() => {
     const elements = new Set<string>()
@@ -154,7 +154,7 @@ function viewMarks(page: Page): Promise<ViewMarks> {
 }
 
 /**
- * Intent: from now on, log every text a live region (`aria-live`, or a status, alert or log role)
+ * From now on, log every text a live region (`aria-live`, or a status, alert or log role)
  * of the page takes on, with the session's phase, so a spec can tell what was announced.
  */
 async function startLiveRegionLog(page: Page): Promise<void> {
@@ -174,7 +174,7 @@ async function startLiveRegionLog(page: Page): Promise<void> {
   })
 }
 
-/** Intent: the live-region texts logged since `startLiveRegionLog`. */
+/** The live-region texts logged since `startLiveRegionLog`. */
 function liveRegionLog(page: Page): Promise<string[]> {
   return page.evaluate(() => (window as unknown as { __liveRegionLog: string[] }).__liveRegionLog)
 }

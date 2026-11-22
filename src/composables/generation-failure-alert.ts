@@ -13,7 +13,7 @@ import { GenerationFailedError } from './workspace-session-result'
 const GENERIC_GENERATION_FAILURE_ALERT_TEXT = "Generation couldn't complete. Try again."
 
 /**
- * Intent: map one failure to the score-toolbar alert's exact text. A typed `GenerationFailedError`
+ * Map one failure to the score-toolbar alert's exact text. A typed `GenerationFailedError`
  * resolves through its `GenerationFailureCode`; every other error (a generation-Worker crash, a
  * Worker transport failure, or any other unrecognized error) shows the shared generic string.
  */
@@ -23,7 +23,7 @@ export function generationFailureAlertText(error: Error): string {
   return alertTextForFailureCode(error.code)
 }
 
-/** Intent: exhaustive per-code copy -- a new `GenerationFailureCode` must be handled here, or the switch's missing return breaks the typecheck. */
+/** Exhaustive per-code copy -- a new `GenerationFailureCode` must be handled here, or the switch's missing return breaks the typecheck. */
 function alertTextForFailureCode(code: GenerationFailureCode): string {
   switch (code) {
     case 'no_legal_harmony_plan':

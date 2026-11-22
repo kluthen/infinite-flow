@@ -90,7 +90,7 @@ const directoryScopedApis = [
 ]
 
 /**
- * Intent: every authored source file under `directory`, recursively, as absolute paths.
+ * Every authored source file under `directory`, recursively, as absolute paths.
  *
  * @param {string} directory
  * @returns {Promise<string[]>}
@@ -112,7 +112,7 @@ async function authoredSourceFiles(directory) {
 }
 
 /**
- * Intent: the boundary labels one authored source file breaks, given its path relative to the
+ * The boundary labels one authored source file breaks, given its path relative to the
  * application source root (forward slashes, e.g. `audio/transport.ts`) and its contents.
  *
  * @param {string} relativePath
@@ -141,7 +141,7 @@ export function sourceBoundaryViolations(relativePath, contents) {
 }
 
 /**
- * Intent: every file under `directory`, recursively, whatever its extension, as absolute paths.
+ * Every file under `directory`, recursively, whatever its extension, as absolute paths.
  *
  * @param {string} directory
  * @returns {Promise<string[]>}
@@ -158,7 +158,7 @@ async function everyFile(directory) {
 }
 
 /**
- * Intent: the boundary labels one build-output file breaks, given its path relative to the build
+ * The boundary labels one build-output file breaks, given its path relative to the build
  * output root (forward slashes, e.g. `assets/index-abc.js`).
  *
  * @param {string} relativePath
@@ -173,7 +173,7 @@ export function buildOutputBoundaryViolations(relativePath) {
 }
 
 /**
- * Intent: scan every file under `outputRoot` (the directory that stands for the build output
+ * Scan every file under `outputRoot` (the directory that stands for the build output
  * `dist/`) and report each boundary it breaks, with paths relative to `outputRoot` in forward
  * slashes, so the same scan runs over the real `dist/` or over a test tree laid out like it.
  *
@@ -192,7 +192,7 @@ export async function scanBuildOutputBoundaries(outputRoot) {
 }
 
 /**
- * Intent: scan every authored source file under `sourceRoot` (the directory that stands for the
+ * Scan every authored source file under `sourceRoot` (the directory that stands for the
  * application's `src/`) and report each boundary it breaks. Paths are reported relative to
  * `sourceRoot` with forward slashes, which is also how directory allowlists are matched, so the
  * same scan runs over the real `src/` or over a fixture tree laid out like it.
@@ -229,7 +229,7 @@ export async function scanSourceBoundaries(sourceRoot) {
 const jamSourceDirectory = 'src/jam/'
 
 /**
- * Intent: the build's module graph, read from `<outputRoot>/.vite/module-graph.json`. A missing
+ * The build's module graph, read from `<outputRoot>/.vite/module-graph.json`. A missing
  * file fails loudly (ENOENT), like a missing dist/sw.js: the check needs a production build.
  *
  * @param {string} outputRoot the directory that stands for the build output `dist/`
@@ -245,7 +245,7 @@ export async function readModuleGraph(outputRoot) {
 }
 
 /**
- * Intent: the chunks of the first load: every entry chunk and every chunk they import statically,
+ * The chunks of the first load: every entry chunk and every chunk they import statically,
  * transitively. Chunks imported only dynamically load on demand and stay out of it.
  *
  * @param {ModuleGraph} graph
@@ -268,7 +268,7 @@ function firstLoadChunks(graph) {
 }
 
 /**
- * Intent: every src/jam/ module the first load holds (see firstLoadChunks), with the chunk that
+ * Every src/jam/ module the first load holds (see firstLoadChunks), with the chunk that
  * holds it: Jam's code must load only on demand, through its loader, so the list is empty in a
  * sound build.
  *
@@ -285,7 +285,7 @@ export function firstLoadJamViolations(graph) {
 }
 
 /**
- * Intent: the chunks that hold Jam's code (any src/jam/ module), by file name, for the check's
+ * The chunks that hold Jam's code (any src/jam/ module), by file name, for the check's
  * report of their sizes.
  *
  * @param {ModuleGraph} graph
@@ -299,7 +299,7 @@ export function jamChunkFileNames(graph) {
 }
 
 /**
- * Intent: the byte sizes of the given chunks of the build output, as `<file name> <size> B`
+ * The byte sizes of the given chunks of the build output, as `<file name> <size> B`
  * separated by commas, for the check's report.
  *
  * @param {string} outputRoot the directory that stands for the build output `dist/`
@@ -316,7 +316,7 @@ async function chunkSizes(outputRoot, fileNames) {
 }
 
 /**
- * Intent: the JavaScript the browser loads at startup, as the first-load budget counts it: the
+ * The JavaScript the browser loads at startup, as the first-load budget counts it: the
  * entry chunk `index-*.js` and every chunk it imports statically, transitively (see
  * firstLoadChunks), in minified bytes on disk. Chunks reached only through a dynamic `import()`
  * load on demand and are not counted. Gives the total, which the budget gates, and the entry
@@ -344,7 +344,7 @@ export async function startupJavaScriptBytes(outputRoot, graph) {
 }
 
 /**
- * Intent: the full boundary verification run by `npm run verify:boundaries`: the authored-source
+ * The full boundary verification run by `npm run verify:boundaries`: the authored-source
  * scan of `src/`, the Workbox runtime-caching setting, the precache manifest, the build output's
  * audio-asset scan, the first-load budget (all JavaScript loaded at startup), the per-chunk size
  * budgets and Jam's code boundary (no src/jam/ module in the first

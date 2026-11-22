@@ -84,7 +84,7 @@ interface Groups {
   readonly carryIn?: CarryIn
 }
 
-/** Intent: a real intent for a built-in or my instrument, holding the given groups. */
+/** A real intent for a built-in or my instrument, holding the given groups. */
 function intentWith(seed: number, groups: Groups, mine = false): GenerationIntent {
   const input = {
     requestId: makeRequestId(`ifk4-${seed}`),
@@ -104,25 +104,25 @@ function intentWith(seed: number, groups: Groups, mine = false): GenerationInten
     : makeCarryInGenerationIntent({ ...input, carryIn: groups.carryIn })
 }
 
-/** Intent: the carry-in phrase 1 (seed 11) of the same instrument hands forward to phrase 2. */
+/** The carry-in phrase 1 (seed 11) of the same instrument hands forward to phrase 2. */
 function phraseCarryIn(mine: boolean): CarryIn {
   const first = intentWith(11, {}, mine)
   return carryInAfter(first, generateSuccess(first), 1)
 }
 
-/** Intent: unpadded base64url of raw bytes, for hand-built payloads. */
+/** Unpadded base64url of raw bytes, for hand-built payloads. */
 function base64Url(bytes: Uint8Array): string {
   let binary = ''
   for (const byte of bytes) binary += String.fromCharCode(byte)
   return btoa(binary).replace(/\+/gu, '-').replace(/\//gu, '_').replace(/=+$/u, '')
 }
 
-/** Intent: encode any JSON value as a key of the given version, bypassing the codec's encoder. */
+/** Encode any JSON value as a key of the given version, bypassing the codec's encoder. */
 function rawKey(version: string, payload: unknown): string {
   return `${version}.${base64Url(new TextEncoder().encode(JSON.stringify(payload)))}`
 }
 
-/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+/** The JSON payload of a key, read back without the codec's decoder. */
 function payloadOf(key: string): unknown[] {
   const payload = key
     .slice(key.indexOf('.') + 1)
@@ -133,13 +133,13 @@ function payloadOf(key: string): unknown[] {
   return JSON.parse(new TextDecoder().decode(bytes)) as unknown[]
 }
 
-/** Intent: the valid `ifk4.` 9-tuple of a Jam's phrase 1, as a mutable array to corrupt. */
+/** The valid `ifk4.` 9-tuple of a Jam's phrase 1, as a mutable array to corrupt. */
 function validNoPhraseTuple(): unknown[] {
   const intent = intentWith(14, { carryIn: NO_PHRASE_CARRY_IN, steering: SAMPLE_STEERING })
   return payloadOf(encodeIfk4PhraseReplayKey(intent, 1))
 }
 
-/** Intent: a valid `ifk4.` tuple of a locked phrase 1 with one slot replaced. */
+/** A valid `ifk4.` tuple of a locked phrase 1 with one slot replaced. */
 function lockedTupleWith(index: number, value: unknown): unknown[] {
   const tuple = payloadOf(
     encodeIfk4PhraseReplayKey(intentWith(5, { rhythmLock: SAMPLE_RHYTHM_LOCK }), 1),
@@ -148,14 +148,14 @@ function lockedTupleWith(index: number, value: unknown): unknown[] {
   return tuple
 }
 
-/** Intent: what a key replays to through the headless worker path, failing loudly on a crash. */
+/** What a key replays to through the headless worker path, failing loudly on a crash. */
 function replayedRaw(key: string): unknown {
   const report = replayPhraseKey(key)
   if (report.output.kind === 'crash') throw new Error(report.output.message)
   return report.output.raw
 }
 
-/** Intent: the doodle's join into phrase 1 of the same instrument, inside its Middle window. */
+/** The doodle's join into phrase 1 of the same instrument, inside its Middle window. */
 function noPhraseCarryIn(mine: boolean): CarryIn {
   if (!mine) return NO_PHRASE_CARRY_IN
   const candidate = intentWith(14, {}, mine).registerIntent.candidates.find(
@@ -365,7 +365,7 @@ const RECORDED_CORPORA = [
   'v3.2-corpus.json',
 ] as const
 
-/** Intent: every key a recorded corpus file holds. */
+/** Every key a recorded corpus file holds. */
 function recordedKeys(file: string): readonly string[] {
   const corpus = JSON.parse(
     readFileSync(

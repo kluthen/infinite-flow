@@ -46,7 +46,7 @@ const PROFILES: ReadonlyArray<readonly [InstrumentProfile, string]> = [
   [EB_ALTO_PROFILE, 'E-flat alto saxophone'],
 ]
 
-/** Intent: the copy the check produces when the controller plays `offset` away from expected. */
+/** The copy the check produces when the controller plays `offset` away from expected. */
 function copyFor(profile: InstrumentProfile, offset: number) {
   const played = expectedConcertPitch(profile, checkWrittenNote(profile)) + offset
   return transpositionCheckCopy(

@@ -44,7 +44,7 @@ afterEach(() => {
 const NOTE =
   'Adds 5 BPM every 2 phrases, up to 240 BPM. The tempo goes back to your setting when the session ends.'
 
-/** Intent: mount the shell over a ready Idle and `controller` (null while it loads). */
+/** Mount the shell over a ready Idle and `controller` (null while it loads). */
 function mountShell(controller: SessionController | null) {
   const session: GenerationSession<WorkspaceSessionResult> =
     fakeGenerationSession(readyState()).session
@@ -72,12 +72,12 @@ function mountShell(controller: SessionController | null) {
 
 type Shell = ReturnType<typeof mountShell>
 
-/** Intent: the `Rising tempo` radiogroup. */
+/** The `Rising tempo` radiogroup. */
 function group(wrapper: Shell) {
   return wrapper.get('[role="radiogroup"][aria-label="Rising tempo"]')
 }
 
-/** Intent: a `Rising tempo` segment by its label. */
+/** A `Rising tempo` segment by its label. */
 function segment(wrapper: Shell, label: 'Off' | 'On') {
   const found = group(wrapper)
     .findAll('[role="radio"]')
@@ -86,7 +86,7 @@ function segment(wrapper: Shell, label: 'Off' | 'On') {
   return found
 }
 
-/** Intent: the checked `Rising tempo` segment's label. */
+/** The checked `Rising tempo` segment's label. */
 function checked(wrapper: Shell): string | undefined {
   return group(wrapper)
     .findAll('[role="radio"]')
@@ -94,7 +94,7 @@ function checked(wrapper: Shell): string | undefined {
     ?.text()
 }
 
-/** Intent: the field-group holding the tempo stepper. */
+/** The field-group holding the tempo stepper. */
 function tempoField(wrapper: Shell) {
   const field = wrapper
     .findAll('.field-group')
@@ -103,12 +103,12 @@ function tempoField(wrapper: Shell) {
   return field
 }
 
-/** Intent: the tempo stepper's shown value. */
+/** The tempo stepper's shown value. */
 function stepperValue(wrapper: Shell): string {
   return wrapper.get('[role="spinbutton"] .input-stepper-value').text()
 }
 
-/** Intent: start a session through the header's session action, as the player does. */
+/** Start a session through the header's session action, as the player does. */
 async function startSession(wrapper: Shell, fake: FakeSessionController, hasController: boolean) {
   await wrapper.get('.header-actions > button.session-action').trigger('click')
   fake.state.sessionHasController = hasController
@@ -124,7 +124,7 @@ async function startSession(wrapper: Shell, fake: FakeSessionController, hasCont
   await nextTick()
 }
 
-/** Intent: end a running session (phrase 1 sounded), opening the Review. */
+/** End a running session (phrase 1 sounded), opening the Review. */
 async function stopSession(fake: FakeSessionController) {
   fake.state.phase = 'running'
   fake.state.sessionHasController = null

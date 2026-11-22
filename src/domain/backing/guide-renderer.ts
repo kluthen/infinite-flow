@@ -53,7 +53,7 @@ const BEATS_PER_WHOLE_NOTE = FOUR_FOUR_METER.beatUnit
 const OCTAVE = 12
 
 /**
- * Intent: the melody guide's notes: every fresh attack starts a note at its position, at its
+ * The melody guide's notes: every fresh attack starts a note at its position, at its
  * concert pitch; a tie continuation lengthens the note it continues, across a barline too; a rest
  * starts nothing and clears the sounding note. Throws a GuideRenderError on a tie continuation
  * that opens the phrase, follows a rest, or is at another pitch than the note it continues.
@@ -96,7 +96,7 @@ function melodyGuideNotes(timeline: ConcertEventTimeline): GuideNote[] {
 }
 
 /**
- * Intent: whether harmony event `event` holds position `start`: its span, in quarter beats from
+ * Whether harmony event `event` holds position `start`: its span, in quarter beats from
  * the phrase's first downbeat, is [barIndex * 4 + startBeat, + durationBeats), compared exactly by
  * cross-multiplying over the start's positive denominator.
  */
@@ -108,7 +108,7 @@ function eventHolds(event: HarmonyEvent, start: Rational): boolean {
 }
 
 /**
- * Intent: the rhythm guide's pitch for a note starting at `start`: the root of the harmony event
+ * The rhythm guide's pitch for a note starting at `start`: the root of the harmony event
  * holding the start, in the C4-B4 octave. Throws a GuideRenderError when no event holds the start
  * or the root is not an integer pitch class 0-11.
  */
@@ -130,7 +130,7 @@ function rhythmGuidePitch(harmony: readonly HarmonyEvent[], start: Rational): Co
 }
 
 /**
- * Intent: render one phrase's guides from its concert timeline and harmony events: the melody
+ * Render one phrase's guides from its concert timeline and harmony events: the melody
  * guide's notes at concert pitch with their tied lengths, and the rhythm guide's, one per melody
  * note with the same start and length, on the root of the chord in effect at the start (a note
  * held across a chord change keeps the root it started on). Deterministic and pure; the result is

@@ -4,7 +4,7 @@ declare global {
   }
 }
 
-/** Intent: create each Web Audio context kind: the live context and the offline renderer. */
+/** Create each Web Audio context kind: the live context and the offline renderer. */
 export function createAudioContexts(): { live: AudioContext; offline: OfflineAudioContext } {
   return {
     live: new AudioContext(),
@@ -12,7 +12,7 @@ export function createAudioContexts(): { live: AudioContext; offline: OfflineAud
   }
 }
 
-/** Intent: reach the prefixed legacy constructor older Chromium builds exposed. */
+/** Reach the prefixed legacy constructor older Chromium builds exposed. */
 export function legacyAudioContextConstructor(): typeof AudioContext | undefined {
   return window.webkitAudioContext
 }

@@ -41,7 +41,7 @@ export interface MyInstrumentRecord extends RecordVersions {
 }
 
 /**
- * Intent: the record holding what `instrument` is built from, written by the app at `appVersion`.
+ * The record holding what `instrument` is built from, written by the app at `appVersion`.
  * Takes the fields as given, unchecked: a saved my instrument was built, so checked, already. An
  * empty app version is a caller defect and throws: no app could read such a record.
  */

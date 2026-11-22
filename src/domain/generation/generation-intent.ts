@@ -117,7 +117,7 @@ export function getInstrumentProfile(
 }
 
 /**
- * Intent: the instrument profile an intent embeds. A built-in id resolves from the built-in table
+ * The instrument profile an intent embeds. A built-in id resolves from the built-in table
  * and refuses a supplied profile; `my-instrument` requires the supplied profile, whose id must be
  * `my-instrument`. Every refusal is a GenerationIntentError; nothing is ever substituted.
  */
@@ -152,7 +152,7 @@ export function resolveInstrumentProfile(
 }
 
 /**
- * Intent: the profile of the instrument `id` names, as the screen shows and checks it: my
+ * The profile of the instrument `id` names, as the screen shows and checks it: my
  * instrument's own, given as data, or a built-in's from the table. Naming my instrument while none
  * exists is a caller defect and throws a GenerationIntentError, as resolving its intent would.
  */
@@ -164,7 +164,7 @@ export function selectedInstrumentProfile(
   return resolveInstrumentProfile(id, id === MY_INSTRUMENT_ID ? myInstrument?.profile : undefined)
 }
 
-/** Intent: reduce an integer pitch-class arithmetic result into the closed 0..11 index range. */
+/** Reduce an integer pitch-class arithmetic result into the closed 0..11 index range. */
 function pcIndexMod12(value: number): number {
   return ((value % 12) + 12) % 12
 }

@@ -22,7 +22,7 @@ function validSession(): PlayedNotesMidiInput {
   )
 }
 
-/** Intent: the valid session with phrase `index` replaced by what `change` makes of it. */
+/** The valid session with phrase `index` replaced by what `change` makes of it. */
 function withPhrase(
   index: number,
   change: (phrase: PlayedNotesMidiPhrase) => object,
@@ -33,7 +33,7 @@ function withPhrase(
   return { phrases } as PlayedNotesMidiInput
 }
 
-/** Intent: the valid session with phrase `index`'s only note replaced by what `change` makes. */
+/** The valid session with phrase `index`'s only note replaced by what `change` makes. */
 function withNote(index: number, change: (note: MidiPlayedNote) => object): PlayedNotesMidiInput {
   return withPhrase(index, (phrase) => ({
     ...phrase,
@@ -41,7 +41,7 @@ function withNote(index: number, change: (note: MidiPlayedNote) => object): Play
   }))
 }
 
-/** Intent: assert the validator refuses `input` with a MidiExportError. */
+/** Assert the validator refuses `input` with a MidiExportError. */
 function expectRefused(input: unknown): void {
   expect(() => validatePlayedNotesMidiInput(input as PlayedNotesMidiInput)).toThrow(MidiExportError)
 }
@@ -211,19 +211,19 @@ describe('validatePlayedNotesMidiInput: played notes', () => {
 })
 
 /**
- * Intent: a Jam's doodle section before the valid session: one measure at 120 BPM from 0.5 s, so
+ * A Jam's doodle section before the valid session: one measure at 120 BPM from 0.5 s, so
  * it ends at 2.5 s and a sixteenth note lasts 0.125 s, one raw note in it.
  */
 function validDoodle(): PlayedNotesDoodleSection {
   return { measureCount: 1, tempo: 120, startedAt: 0.5, playedNotes: [playedNote(67, 70, 1, 1.5)] }
 }
 
-/** Intent: the valid session opened by `doodle`, the valid doodle unless given. */
+/** The valid session opened by `doodle`, the valid doodle unless given. */
 function jamSession(doodle: object = validDoodle()): PlayedNotesMidiInput {
   return { ...validSession(), doodle } as PlayedNotesMidiInput
 }
 
-/** Intent: the valid Jam session with its doodle's only raw note replaced by what `change` makes. */
+/** The valid Jam session with its doodle's only raw note replaced by what `change` makes. */
 function withDoodleNote(change: (note: MidiPlayedNote) => object): PlayedNotesMidiInput {
   const doodle = validDoodle()
   return jamSession({ ...doodle, playedNotes: doodle.playedNotes.map(change) })
@@ -236,7 +236,7 @@ describe("validatePlayedNotesMidiInput: a Jam's doodle section", () => {
   // @test-link [[rule_jam_exports_open_with_doodle]]
   it('in a Jam, refuses an onset before its phrase starts or at or after the next phrase starts', () => {
     const nextStart = 3 + phraseLength(100)
-    /** Intent: the valid Jam session with phrase `index`'s only note replaced by `change`'s. */
+    /** The valid Jam session with phrase `index`'s only note replaced by `change`'s. */
     const jamWithNote = (index: number, change: (note: MidiPlayedNote) => object) =>
       ({ ...withNote(index, change), doodle: validDoodle() }) as PlayedNotesMidiInput
 
@@ -307,7 +307,7 @@ describe("validatePlayedNotesMidiInput: a Jam's doodle section", () => {
   // @test-link [[rule_raw_doodle_notes_are_played_notes]]
   // @test-link [[rule_played_notes_export_unquantized_timing]]
   it('accepts an onset up to a sixteenth note before the first barline, and refuses one earlier', () => {
-    /** Intent: a check that the valid Jam session with its raw note's onset at `onsetAt` passes. */
+    /** A check that the valid Jam session with its raw note's onset at `onsetAt` passes. */
     const accepted = (onsetAt: number) => () =>
       validatePlayedNotesMidiInput(withDoodleNote((note) => ({ ...note, onsetAt })))
 

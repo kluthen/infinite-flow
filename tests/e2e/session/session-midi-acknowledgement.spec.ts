@@ -40,7 +40,7 @@ test.beforeEach(({ page }) => {
 test.afterEach(() => expectNoPageErrors())
 
 /**
- * Intent: from a fresh page with the keyboard connected, start a session with Start and move the
+ * From a fresh page with the keyboard connected, start a session with Start and move the
  * clock to the onset of phrase 1's third note, once phrase 2 is readied and drawn (so nothing
  * on the staff changes while the clock stays put). Returns phrase 1's expected notes and the
  * target note.

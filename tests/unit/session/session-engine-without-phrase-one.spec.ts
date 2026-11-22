@@ -34,7 +34,7 @@ const TEMPO = 120
 const SETTINGS: SessionSettings = sessionSettings({ tempo: TEMPO })
 const PHRASE_ONE = phraseOneFor(SETTINGS)
 
-/** Intent: a start without phrase 1 at START_AT with the test settings. */
+/** A start without phrase 1 at START_AT with the test settings. */
 function startWithoutPhraseOne(): SessionStartWithoutPhraseOne {
   return {
     at: START_AT,
@@ -46,7 +46,7 @@ function startWithoutPhraseOne(): SessionStartWithoutPhraseOne {
   }
 }
 
-/** Intent: an engine started without phrase 1, with fresh seams. */
+/** An engine started without phrase 1, with fresh seams. */
 function engineWithoutPhraseOne(): SessionEngine {
   return createSessionEngine(
     { providers: queuedProviders(), viewport: fakeViewport(false), display: fakeDisplay() },
@@ -54,7 +54,7 @@ function engineWithoutPhraseOne(): SessionEngine {
   )
 }
 
-/** Intent: ask the engine for one phrase 1 attempt at `at`, with the test phrase 1's intent. */
+/** Ask the engine for one phrase 1 attempt at `at`, with the test phrase 1's intent. */
 function askAttempt(
   engine: SessionEngine,
   at: number,
@@ -71,14 +71,14 @@ function askAttempt(
   })
 }
 
-/** Intent: run attempt `attemptId` to a phrase that fits, at `at`. */
+/** Run attempt `attemptId` to a phrase that fits, at `at`. */
 function fitAttempt(engine: SessionEngine, attemptId: number, at: number): void {
   const outcome = successFor(PHRASE_ONE.intent)
   engine.handle({ kind: 'generation-result', at, attemptId, outcome })
   engine.handle({ kind: 'fit-result', at, attemptId, fits: true })
 }
 
-/** Intent: the count-in end output a session ended at `at` for `cause` before phrase 1 gives. */
+/** The count-in end output a session ended at `at` for `cause` before phrase 1 gives. */
 function countInEnd(at: number, cause: SessionEndCause): SessionOutput {
   return { kind: 'ended', at, cause, phase: 'count-in', soundedPhraseCount: 0 }
 }
@@ -239,7 +239,7 @@ describe('phrase 1 handed over', () => {
   const HANDED_AT = START_AT + 4
   const SOUNDS_AT = START_AT + 6 * measureSeconds(TEMPO)
 
-  /** Intent: an engine whose phrase 1 attempt (a `step` one) fitted and is handed over now. */
+  /** An engine whose phrase 1 attempt (a `step` one) fitted and is handed over now. */
   function handed(step: 'carry-in' | 'standalone' = 'carry-in'): {
     readonly engine: SessionEngine
     readonly outputs: readonly SessionOutput[]

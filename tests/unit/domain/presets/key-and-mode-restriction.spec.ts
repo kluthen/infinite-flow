@@ -28,7 +28,7 @@ const LABELS: RestrictionLabels = {
   mode: (mode) => mode,
 }
 
-/** Intent: an untrusted restriction value, for the refusal tests. */
+/** An untrusted restriction value, for the refusal tests. */
 function untrusted(value: unknown): KeyAndModeRestriction {
   return value as KeyAndModeRestriction
 }

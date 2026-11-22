@@ -24,7 +24,7 @@ const SIXTEENTH_ONLY_BLOCKED = {
   syncopation: 'Active displacement',
 } as const
 
-/** Intent: a staff-layout failure as the engraver raises it on a redraw. */
+/** A staff-layout failure as the engraver raises it on a redraw. */
 function layoutFailure(code: 'notation_no_room' | 'notation_notes_too_wide'): NotationError {
   return new NotationError(code, `layout failure ${code}`, {})
 }
@@ -38,7 +38,7 @@ interface NoticeSetup {
   readonly configure?: (session: FitSession) => void
 }
 
-/** Intent: a session whose first run failed every attempt, so the too-many-notes notice shows. */
+/** A session whose first run failed every attempt, so the too-many-notes notice shows. */
 async function afterFailedRound(setup: NoticeSetup = {}) {
   const built = createFitSession(setup)
   setup.configure?.(built.session)
@@ -50,7 +50,7 @@ async function afterFailedRound(setup: NoticeSetup = {}) {
   return built
 }
 
-/** Intent: a session showing the no-room notice after a phrase on screen lost its room. */
+/** A session showing the no-room notice after a phrase on screen lost its room. */
 async function underNoRoomNotice(setup: NoticeSetup = {}) {
   const built = createFitSession(setup)
   setup.configure?.(built.session)
@@ -62,7 +62,7 @@ async function underNoRoomNotice(setup: NoticeSetup = {}) {
   return built
 }
 
-/** Intent: apply the combination that blocks generation from `bp-tablet-landscape` up. */
+/** Apply the combination that blocks generation from `bp-tablet-landscape` up. */
 function useSixteenthOnlyBlocked(session: FitSession): void {
   for (const [key, value] of Object.entries(SIXTEENTH_ONLY_BLOCKED)) {
     session.actions.setControl(key as keyof typeof SIXTEENTH_ONLY_BLOCKED, value)
@@ -439,7 +439,7 @@ describe('no-room notice and layout failures of the phrase on screen', () => {
   })
 })
 
-/** Intent: a session under the no-room notice whose every room check waits for the test. */
+/** A session under the no-room notice whose every room check waits for the test. */
 async function underNoRoomNoticeWithHeldChecks() {
   const checks: Deferred<StaffRoomVerdict>[] = []
   const built = await underNoRoomNotice({

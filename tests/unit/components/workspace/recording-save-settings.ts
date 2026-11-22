@@ -12,13 +12,13 @@ export interface RecordingSaveSettings {
   readonly saves: SettingChanges[]
 }
 
-/** Intent: a saver recording every batch it is given, in order. */
+/** A saver recording every batch it is given, in order. */
 export function recordingSaveSettings(): RecordingSaveSettings {
   const saves: SettingChanges[] = []
   return { saveSettings: (changes) => void saves.push(changes), saves }
 }
 
-/** Intent: the `global.provide` entry handing a mounted component `saveSettings`. */
+/** The `global.provide` entry handing a mounted component `saveSettings`. */
 export function provideSaveSettings(
   saveSettings: SaveSettings = recordingSaveSettings().saveSettings,
 ): Record<symbol, SaveSettings> {

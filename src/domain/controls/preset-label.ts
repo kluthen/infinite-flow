@@ -10,7 +10,7 @@ import { BUILT_IN_PRESETS } from '../presets/built-in-presets'
 import { findPreset, type Preset, type PresetSelection } from '../presets/preset-selection'
 import type { ProfileSelection } from './profile-selection'
 
-/** Intent: whether a selection is v3.0's musical profile selection, not a preset selection. */
+/** Whether a selection is v3.0's musical profile selection, not a preset selection. */
 function isProfileSelection(
   selection: PresetSelection | ProfileSelection,
 ): selection is ProfileSelection {
@@ -18,7 +18,7 @@ function isProfileSelection(
 }
 
 /**
- * Intent: the preset label of a selection. A v3.0 musical profile selection: the profile's name,
+ * The preset label of a selection. A v3.0 musical profile selection: the profile's name,
  * or "Custom, based on {profile}" when it is custom. A preset selection, named from the presets the
  * session knows: the preset's name; Custom with a base found, "Custom, based on {name}"; Custom
  * with no base, or a base no preset has (deleted), just "Custom". A selected preset id no preset

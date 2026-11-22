@@ -30,7 +30,7 @@ import {
 } from './settings-record-fixtures'
 import { freshFactory } from './storage-test-doubles'
 
-/** Intent: an object that holds itself, which `JSON.stringify` refuses. */
+/** An object that holds itself, which `JSON.stringify` refuses. */
 function circularValue(): Record<string, unknown> {
   const circular: Record<string, unknown> = { label: 'Dorian' }
   circular.self = circular
@@ -50,12 +50,12 @@ const CONTROL_KEYS: readonly SettingKey[] = SETTING_KEYS.filter((key) =>
   key.startsWith(CONTROL_PREFIX),
 )
 
-/** Intent: the control field a control's record key names. */
+/** The control field a control's record key names. */
 function controlField(key: SettingKey): keyof GenerationControls {
   return key.slice(CONTROL_PREFIX.length) as keyof GenerationControls
 }
 
-/** Intent: NON_DEFAULT with only the control of `key` at its first-load value. */
+/** NON_DEFAULT with only the control of `key` at its first-load value. */
 function afterControlFallback(key: SettingKey): SavedSettings {
   const field = controlField(key)
   return {

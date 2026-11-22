@@ -38,17 +38,17 @@ const PHRASES: readonly WrittenPhrase[] = [1, 2, 3, 4, 5].map((seed) => {
   )
 })
 
-/** Intent: the written phrase standing for phrase `n`. */
+/** The written phrase standing for phrase `n`. */
 function phrase(n: number): WrittenPhrase {
   return PHRASES[n - 1]!
 }
 
-/** Intent: a session system showing `part` of phrase `n`. */
+/** A session system showing `part` of phrase `n`. */
 function system(n: number, part: SystemPart): SessionSystem {
   return { phraseNumber: n, part, phrase: phrase(n) }
 }
 
-/** Intent: a session staff in `layout`. */
+/** A session staff in `layout`. */
 function staff(
   layout: StaffLayout,
   top: SessionSystem | null,
@@ -71,7 +71,7 @@ let fadesAnimate = true
 /** The scores mounted by the current test, unmounted after it. */
 const mounted: { unmount: () => void }[] = []
 
-/** Intent: stub what jsdom lacks: ResizeObserver, matchMedia, layout and Web Animations. */
+/** Stub what jsdom lacks: ResizeObserver, matchMedia, layout and Web Animations. */
 function stubBrowser(): void {
   vi.stubGlobal(
     'ResizeObserver',
@@ -102,7 +102,7 @@ function stubBrowser(): void {
   })
 }
 
-/** Intent: let a fading unit's fade-out animation finish, then settle what waited on it. */
+/** Let a fading unit's fade-out animation finish, then settle what waited on it. */
 async function finishFade(unit: Element): Promise<void> {
   const resolve = fades.get(unit)
   if (resolve === undefined) throw new Error('That unit is not fading.')
@@ -110,13 +110,13 @@ async function finishFade(unit: Element): Promise<void> {
   await flushPromises()
 }
 
-/** Intent: wait for the next animation frame and settle the promises it started. */
+/** Wait for the next animation frame and settle the promises it started. */
 async function nextFrame(): Promise<void> {
   await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
   await flushPromises()
 }
 
-/** Intent: mount PhraseScore inside a staff-frame, idle on phrase 1, with reactive props. */
+/** Mount PhraseScore inside a staff-frame, idle on phrase 1, with reactive props. */
 async function mountScore() {
   const session = shallowRef<SessionStaff | null>(null)
   const overlays = shallowRef<ScoreOverlays>(NO_SCORE_OVERLAYS)
@@ -137,20 +137,20 @@ async function mountScore() {
   mounted.push(wrapper)
   await flushPromises()
   const score = wrapper.getComponent(PhraseScore)
-  /** Intent: the units in a position, fading ones included. */
+  /** The units in a position, fading ones included. */
   const units = (position: 'top' | 'bottom') =>
     Array.from(
       document.body.querySelectorAll<HTMLElement>(
         `[data-system-position="${position}"] > .staff-content`,
       ),
     )
-  /** Intent: the one settled unit in a position, crashing if there is not exactly one. */
+  /** The one settled unit in a position, crashing if there is not exactly one. */
   const unit = (position: 'top' | 'bottom') => {
     const settled = units(position).filter((each) => !each.classList.contains('is-fading-out'))
     if (settled.length !== 1) throw new Error(`${position} holds ${settled.length} settled units.`)
     return settled[0]!
   }
-  /** Intent: set the session prop and settle what it started. */
+  /** Set the session prop and settle what it started. */
   const setSession = async (next: SessionStaff | null) => {
     session.value = next
     await flushPromises()
@@ -158,7 +158,7 @@ async function mountScore() {
   return { wrapper, score, units, unit, setSession, overlays }
 }
 
-/** Intent: the phrase numbers the session engraver drew, in call order. */
+/** The phrase numbers the session engraver drew, in call order. */
 function systemsEngraved(): string[] {
   return fakePhraseEngraver.engravePhraseSystem.mock.calls.map(
     ([, , phraseNumber, part]) => `${phraseNumber}:${part}`,

@@ -54,7 +54,7 @@ type HeldOutcome =
   { readonly kind: 'engraved' } | { readonly kind: 'error'; readonly error: NotationError }
 
 /**
- * Intent: whether the staff's inputs were measured for the layout the window's width selects now.
+ * Whether the staff's inputs were measured for the layout the window's width selects now.
  * Right after a breakpoint crossing they were not: the staff re-measures on its next frame and
  * reports, and that report is judged instead.
  */
@@ -63,7 +63,7 @@ function inputsMatchWindow(inputs: StaffLayoutInputs, shape: WindowShapeReading)
 }
 
 /**
- * Intent: whether the window, as it stands, ends the session. A portrait-shaped view below
+ * Whether the window, as it stands, ends the session. A portrait-shaped view below
  * bp-desktop ends it at once; the held layout's room is judged once phrase 1's fixed parts are
  * measured and the staff's inputs match the window, with the small viewport height, so a browser
  * toolbar showing or hiding changes nothing, and the shared system-position size the staff
@@ -97,7 +97,7 @@ function windowEndsNow(
 }
 
 /**
- * Intent: start watching one session's other ends: the page hidden ends it with `hidden-tab`; a
+ * Start watching one session's other ends: the page hidden ends it with `hidden-tab`; a
  * window change or a layout report the session window rule rejects, a layout report at which a
  * phrase shown or waiting no longer fits, any notation error of phrase 1's engraving and a session
  * staff failure end it with `staff-not-shown`. The staff's reports are held from the Idle
@@ -114,7 +114,7 @@ export function watchSessionEnds(deps: SessionEndWatchDependencies): SessionEndW
   let held: HeldOutcome | null = null
   let stopped = false
 
-  /** Intent: judge the window as it stands now; a rejected one ends the session. */
+  /** Judge the window as it stands now; a rejected one ends the session. */
   function judgeWindow(): boolean {
     if (stopped) return false
     const shape = browser.windowShape.read()
@@ -128,7 +128,7 @@ export function watchSessionEnds(deps: SessionEndWatchDependencies): SessionEndW
   }
 
   /**
-   * Intent: judge a staff layout report: the window first, then, when it ends nothing and the
+   * Judge a staff layout report: the window first, then, when it ends nothing and the
    * inputs were measured for the window as it stands, whether every phrase shown or waiting still
    * fits the held layout at them; any misfit ends the session like Stop. A check failure is loud.
    */
@@ -145,7 +145,7 @@ export function watchSessionEnds(deps: SessionEndWatchDependencies): SessionEndW
     )
   }
 
-  /** Intent: hold an engraving outcome of phrase 1; a failed one means the staff is not shown. */
+  /** Hold an engraving outcome of phrase 1; a failed one means the staff is not shown. */
   function holdOutcome(outcome: HeldOutcome): void {
     held = outcome
     if (outcome.kind === 'error') deps.end('staff-not-shown')

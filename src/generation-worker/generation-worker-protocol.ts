@@ -72,7 +72,7 @@ const GENERATION_FAILURE_CODES: readonly GenerationFailureCode[] = [
   'result_validation_failed',
 ]
 
-/** Intent: narrow an unknown value to a plain, non-null, non-array object record. */
+/** Narrow an unknown value to a plain, non-null, non-array object record. */
 // @spec-link [[module_generation_worker_protocol]]
 export function asPlainRecord(input: unknown, context: string): Record<string, unknown> {
   if (typeof input !== 'object' || input === null || Array.isArray(input)) {
@@ -83,7 +83,7 @@ export function asPlainRecord(input: unknown, context: string): Record<string, u
   return input as Record<string, unknown>
 }
 
-/** Intent: reject any record key outside the given allowed set, never silently ignoring extras. */
+/** Reject any record key outside the given allowed set, never silently ignoring extras. */
 // @spec-link [[module_generation_worker_protocol]]
 export function requireAllowedKeys(
   record: Record<string, unknown>,
@@ -97,7 +97,7 @@ export function requireAllowedKeys(
   }
 }
 
-/** Intent: parse an untrusted correlation id, rejecting anything but a finite integer. */
+/** Parse an untrusted correlation id, rejecting anything but a finite integer. */
 // @spec-link [[module_generation_worker_protocol]]
 export function parseCorrelationId(input: unknown, context: string): number {
   if (typeof input !== 'number' || !Number.isInteger(input)) {
@@ -123,7 +123,7 @@ const RHYTHM_LOCK_OUTCOMES: readonly unknown[] = ['rhythm_change', 'locked_bars'
 const RHYTHM_CHANGE_RECORDS: readonly unknown[] = [...RHYTHM_CHANGE_KINDS, 'no_change_available']
 
 /**
- * Intent: minimally validate an untrusted wire GenerationProvenance. No existing boundary parser
+ * Minimally validate an untrusted wire GenerationProvenance. No existing boundary parser
  * covers HarmonyCandidate/RhythmCandidate/ConcreteTensionBinding (nothing upstream ever accepted
  * them as untrusted input before this worker boundary), so this checks only that the three
  * expected fields are present as plain objects, that the rhythm lock's outcome, when present, is
@@ -163,7 +163,7 @@ const DIAGNOSTICS_ALLOWED_KEYS = new Set([
 ])
 
 /**
- * Intent: minimally validate an untrusted wire GenerationDiagnostics. No existing boundary parser
+ * Minimally validate an untrusted wire GenerationDiagnostics. No existing boundary parser
  * covers this internal-only diagnostics shape; this checks the versioned tag and the top-level
  * field types/arity and rejects any other shape.
  */
@@ -199,7 +199,7 @@ const OUTCOME_FAILURE_ALLOWED_KEYS = new Set(['kind', 'code', 'diagnostics'])
 const GENERATION_RESULT_ALLOWED_KEYS = new Set(['requestId', 'seed', 'timeline'])
 
 /**
- * Intent: parse an untrusted wire GenerationOutcome. A success outcome re-validates its retained
+ * Parse an untrusted wire GenerationOutcome. A success outcome re-validates its retained
  * `request` through `parseGenerationRequestTakingSeventh` (its carry-in's carried chord may hold
  * its same-degree seventh, which the worker's messages carry unchanged) and its `result.timeline`
  * through `parseConcertEventTimeline` — the two existing boundary parsers that cover
@@ -265,7 +265,7 @@ export function parseGenerationOutcome(input: unknown): GenerationOutcome {
 }
 
 /**
- * Intent: parse an untrusted response envelope received back from the worker. An `outcome`
+ * Parse an untrusted response envelope received back from the worker. An `outcome`
  * response re-validates its outcome via `parseGenerationOutcome`; a `crash` response requires a
  * string `name`/`message`. Any other shape is a typed GenerationWorkerProtocolError.
  */

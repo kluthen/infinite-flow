@@ -71,7 +71,7 @@ interface RowOptions {
   readonly declined?: boolean
 }
 
-/** Intent: mount the row attached to the document, so focus can be checked. */
+/** Mount the row attached to the document, so focus can be checked. */
 function mountRow(options: RowOptions = {}) {
   const wrapper = mount(SuggestionRow, {
     props: {
@@ -88,7 +88,7 @@ function mountRow(options: RowOptions = {}) {
 
 type Wrapper = ReturnType<typeof mountRow>
 
-/** Intent: the row's sentence and its buttons' words, or null when the row is absent. */
+/** The row's sentence and its buttons' words, or null when the row is absent. */
 function rowText(wrapper: Wrapper): { sentence: string; buttons: string[] } | null {
   const row = wrapper.find('.suggestion-row')
   if (!row.exists()) return null

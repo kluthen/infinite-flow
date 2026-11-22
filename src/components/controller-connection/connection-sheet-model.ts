@@ -131,14 +131,14 @@ export class ConnectionSheetError extends Error {
   }
 }
 
-/** Intent: the sheet before it ever opens: closed, with the controller's current snapshot. */
+/** The sheet before it ever opens: closed, with the controller's current snapshot. */
 // @spec-link [[rule_controller_connects_between_sessions]]
 export function initialSheetModel(controller: MidiControllerChange): SheetModel {
   return closedModel(controller)
 }
 
 /**
- * Intent: reduce one event. The sheet opens at Requesting access (connect() already started) or
+ * Reduce one event. The sheet opens at Requesting access (connect() already started) or
  * at Connected; Requesting access resolves on connect-settled only, so a late answer after close
  * opens nothing; device changes follow the screen handoff's rules; a played note fills the
  * check's Prompt; every action or choice the current stage does not offer throws.
@@ -172,22 +172,22 @@ export function reduceSheet(model: SheetModel, event: SheetEvent): SheetStep {
   }
 }
 
-/** Intent: a frozen model at this stage, no picker list and no device-change line. */
+/** A frozen model at this stage, no picker list and no device-change line. */
 function sheet(controller: MidiControllerChange, stage: SheetStage): SheetModel {
   return Object.freeze({ stage, pickerDevices: Object.freeze([]), unplugged: null, controller })
 }
 
-/** Intent: the closed sheet: nothing listed, no line, the snapshot kept. */
+/** The closed sheet: nothing listed, no line, the snapshot kept. */
 function closedModel(controller: MidiControllerChange): SheetModel {
   return sheet(controller, { kind: 'closed' })
 }
 
-/** Intent: a frozen step from a model (frozen too) and its effects. */
+/** A frozen step from a model (frozen too) and its effects. */
 function step(model: SheetModel, effects: readonly SheetEffect[] = []): SheetStep {
   return Object.freeze({ model: Object.freeze(model), effects: Object.freeze(effects) })
 }
 
-/** Intent: Requesting access, Checking, keeping the controller remembered as it begins, if any. */
+/** Requesting access, Checking, keeping the controller remembered as it begins, if any. */
 function requestingStage(controller: MidiControllerChange): SheetStage {
   const remembered = controller.remembered
   return remembered === null
@@ -195,7 +195,7 @@ function requestingStage(controller: MidiControllerChange): SheetStage {
     : { kind: 'requesting', waiting: false, remembered }
 }
 
-/** Intent: Connected for the controller's connected device; any other state is a caller bug. */
+/** Connected for the controller's connected device; any other state is a caller bug. */
 function connectedStage(state: MidiControllerState): SheetStage {
   if (state.kind !== 'connected') {
     throw new ConnectionSheetError(`Cannot show Connected: the controller is ${state.kind}.`)
@@ -203,7 +203,7 @@ function connectedStage(state: MidiControllerState): SheetStage {
   return { kind: 'connected', device: state.device }
 }
 
-/** Intent: the stage, narrowed to one of `kinds`; any other stage throws (crash early). */
+/** The stage, narrowed to one of `kinds`; any other stage throws (crash early). */
 function requireStage<K extends SheetStage['kind']>(
   model: SheetModel,
   what: string,
@@ -216,19 +216,19 @@ function requireStage<K extends SheetStage['kind']>(
   return stage as Extract<SheetStage, { kind: K }>
 }
 
-/** Intent: the id of the device the controller has selected and opening or open, else null. */
+/** The id of the device the controller has selected and opening or open, else null. */
 function selectedOpenId(state: MidiControllerState): string | null {
   return state.kind === 'opening' || state.kind === 'connected' ? state.device.id : null
 }
 
-/** Intent: Waiting for your browser once the permission is known to be `prompt`, while requesting. */
+/** Waiting for your browser once the permission is known to be `prompt`, while requesting. */
 function onPermission(model: SheetModel, permission: MidiPermissionState): SheetStep {
   if (model.stage.kind !== 'requesting' || permission !== 'prompt') return step(model)
   return step({ ...model, stage: { ...model.stage, waiting: true } })
 }
 
 /**
- * Intent: resolve Requesting access from the settled snapshot: unsupported, denied, or by the
+ * Resolve Requesting access from the settled snapshot: unsupported, denied, or by the
  * inputs present when access was granted. Anywhere else (a late answer after close) it only
  * stores the snapshot. A controller still requesting or never asked breaks connect()'s contract.
  */
@@ -251,7 +251,7 @@ function onConnectSettled(model: SheetModel, controller: MidiControllerChange): 
 }
 
 /**
- * Intent: resolve by the inputs present, as Try again would: none → No device found; exactly one
+ * Resolve by the inputs present, as Try again would: none → No device found; exactly one
  * → its check, selected unless already the controller's opening or open selection; two or more →
  * the picker in browser order. The device-change line is cleared.
  */
@@ -266,21 +266,21 @@ function resolveDevices(model: SheetModel): SheetStep {
   })
 }
 
-/** Intent: the check's Prompt for this device, selecting it unless it is already selected. */
+/** The check's Prompt for this device, selecting it unless it is already selected. */
 function checkFor(model: SheetModel, device: MidiDevice): SheetStep {
   const next = sheet(model.controller, { kind: 'check', device, played: null })
   if (selectedOpenId(model.controller.state) === device.id) return step(next)
   return step(next, [{ kind: 'select', deviceId: device.id }])
 }
 
-/** Intent: the first played note in the check's Prompt is its result; any other is ignored. */
+/** The first played note in the check's Prompt is its result; any other is ignored. */
 function onNotePlayed(model: SheetModel, pitch: number): SheetStep {
   const stage = model.stage
   if (stage.kind !== 'check' || stage.played !== null) return step(model)
   return step({ ...model, stage: { ...stage, played: pitch } })
 }
 
-/** Intent: in the picker, the chosen listed device goes to its check (selected if not already). */
+/** In the picker, the chosen listed device goes to its check (selected if not already). */
 function onChoose(model: SheetModel, deviceId: string): SheetStep {
   requireStage(model, 'choose a device', 'picker')
   const device = model.pickerDevices.find((listed) => listed.id === deviceId)
@@ -291,7 +291,7 @@ function onChoose(model: SheetModel, deviceId: string): SheetStep {
 }
 
 /**
- * Intent: run a named action, only from the stages offering it (screen handoff, Named actions):
+ * Run a named action, only from the stages offering it (screen handoff, Named actions):
  * Check again and Try again request access again; Continue, Run check again and Use this for my
  * instrument need a check result (Run check again also from Connected); Back is the
  * confirmation's; Choose a different device, Disconnect and Done are on Connected; Close works
@@ -334,7 +334,7 @@ function onAction(model: SheetModel, action: SheetAction): SheetStep {
   }
 }
 
-/** Intent: the played note of a check showing its result; before one, the action is a bug. */
+/** The played note of a check showing its result; before one, the action is a bug. */
 function played(stage: Extract<SheetStage, { kind: 'check' }>): number {
   if (stage.played === null) {
     throw new ConnectionSheetError('Cannot use the check before it has a result.')
@@ -343,7 +343,7 @@ function played(stage: Extract<SheetStage, { kind: 'check' }>): number {
 }
 
 /**
- * Intent: from the Use for my instrument confirmation, back to the result it came from, nothing
+ * From the Use for my instrument confirmation, back to the result it came from, nothing
  * changed, marked so focus returns to its action.
  */
 // @spec-link [[rule_transposition_check_sets_my_instrument]]
@@ -355,7 +355,7 @@ function backToResult(model: SheetModel, what: string): SheetStep {
   )
 }
 
-/** Intent: the confirmed use reaches Connected, with the line naming my instrument. */
+/** The confirmed use reaches Connected, with the line naming my instrument. */
 // @spec-link [[rule_transposition_check_sets_my_instrument]]
 function onUsed(model: SheetModel, name: string): SheetStep {
   const stage = requireStage(model, 'confirm a use', 'use')
@@ -364,7 +364,7 @@ function onUsed(model: SheetModel, name: string): SheetStep {
   )
 }
 
-/** Intent: the checked device of a check showing its result; any other stage throws. */
+/** The checked device of a check showing its result; any other stage throws. */
 function checkResult(model: SheetModel, action: SheetAction): MidiDevice {
   const stage = requireStage(model, action, 'check')
   if (stage.played === null) {
@@ -374,7 +374,7 @@ function checkResult(model: SheetModel, action: SheetAction): MidiDevice {
 }
 
 /**
- * Intent: close from any open stage but the Use for my instrument confirmation, where it does
+ * Close from any open stage but the Use for my instrument confirmation, where it does
  * what Back does; a close while the controller still requests abandons it.
  */
 function onClose(model: SheetModel): SheetStep {
@@ -386,7 +386,7 @@ function onClose(model: SheetModel): SheetStep {
 }
 
 /**
- * Intent: follow a controller change (already stored), by stage, per the screen handoff's Device
+ * Follow a controller change (already stored), by stage, per the screen handoff's Device
  * changes while the sheet is open: Requesting access, Unsupported browser, Permission denied (and
  * a closed sheet) only keep the snapshot.
  */
@@ -413,7 +413,7 @@ function onControllerChanged(model: SheetModel): SheetStep {
  */
 type Return = 'returned' | 'returning' | 'absent'
 
-/** Intent: whether the unplugged device is back as the controller's selection (see Return). */
+/** Whether the unplugged device is back as the controller's selection (see Return). */
 function returnOf(model: SheetModel): Return {
   const unplugged = model.unplugged
   const state = model.controller.state
@@ -422,7 +422,7 @@ function returnOf(model: SheetModel): Return {
 }
 
 /**
- * Intent: the unplugged device back: Connected again if it had reached it (reattached, no new
+ * The unplugged device back: Connected again if it had reached it (reattached, no new
  * check), else its check from the Prompt; the line is cleared, and nothing is selected (the
  * controller kept the selection).
  */
@@ -435,7 +435,7 @@ function onReturn(model: SheetModel, unplugged: NonNullable<SheetModel['unplugge
 }
 
 /**
- * Intent: on No device found, the unplugged device back returns where it was (waiting while it
+ * On No device found, the unplugged device back returns where it was (waiting while it
  * reopens); otherwise any input present resolves as Try again would, with no new request.
  */
 // @spec-link [[rule_same_controller_reattaches]]
@@ -447,7 +447,7 @@ function onNoDeviceChange(model: SheetModel): SheetStep {
 }
 
 /**
- * Intent: in the picker, the unplugged device back returns where it was; otherwise the list
+ * In the picker, the unplugged device back returns where it was; otherwise the list
  * follows the present inputs (kept in place, new ones appended, gone ones removed), and an empty
  * list becomes No device found, keeping the device-change line.
  */
@@ -467,7 +467,7 @@ function onPickerChange(model: SheetModel): SheetStep {
 }
 
 /**
- * Intent: during the check (its Use for my instrument confirmation included, which then saves
+ * During the check (its Use for my instrument confirmation included, which then saves
  * nothing) or at Connected, the chosen device away ends the connection: the picker with the
  * present inputs, or No device found, with the device-change line remembering whether it had
  * reached Connected. The sheet never switches device by itself; any other change shows nothing.

@@ -35,7 +35,7 @@ export interface PlanSeams extends PregenerationSeams {
   readonly viewport: FakeViewport
 }
 
-/** Intent: a plan's seams: queued providers and a window that starts wide unless told otherwise. */
+/** A plan's seams: queued providers and a window that starts wide unless told otherwise. */
 export function planSeams(below = false): PlanSeams {
   return { providers: queuedProviders(), viewport: fakeViewport(below) }
 }
@@ -51,7 +51,7 @@ export interface PlanStartOptions {
   readonly multiPhraseTensionArc?: boolean
 }
 
-/** Intent: a plan's start, 60 BPM base settings and their real phrase 1 unless told otherwise. */
+/** A plan's start, 60 BPM base settings and their real phrase 1 unless told otherwise. */
 export function planStart(options: PlanStartOptions = {}): PregenerationStart {
   const settings = options.settings ?? sessionSettings({ tempo: 60 })
   return {
@@ -66,7 +66,7 @@ export function planStart(options: PlanStartOptions = {}): PregenerationStart {
   }
 }
 
-/** Intent: an attempt's real result: its generation's success, which fits, or its failure code. */
+/** An attempt's real result: its generation's success, which fits, or its failure code. */
 export function realResult(attempt: PregenerationAttempt): PregenerationResult {
   const outcome = realOutcomeFor(attempt.intent)
   return outcome.kind === 'generation_success'
@@ -81,7 +81,7 @@ export interface PlanRun {
 }
 
 /**
- * Intent: step a plan, answering each attempt it asks for, until it stops; a plan that never
+ * Step a plan, answering each attempt it asks for, until it stops; a plan that never
  * stops within a generous bound fails the test.
  */
 export function runPlan(
@@ -98,7 +98,7 @@ export function runPlan(
   return { plan: current, attempts }
 }
 
-/** Intent: the ready phrases a fresh plan from these seams and start makes with real results. */
+/** The ready phrases a fresh plan from these seams and start makes with real results. */
 export function plannedReadyPhrases(
   seams: PregenerationSeams,
   start: PregenerationStart,

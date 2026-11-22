@@ -138,7 +138,7 @@ export const DEFAULT_REVIEW_PREFERENCES: ReviewPreferences = deepFreeze({
 export const DEFAULT_KEEP_PLAYED_NOTES = false
 
 /**
- * Intent: every setting's default, with the audio mix's first-load levels passed in (they come
+ * Every setting's default, with the audio mix's first-load levels passed in (they come
  * from the design tokens, read at start-up). What a first visit starts from, and what each
  * unreadable saved setting falls back to.
  */

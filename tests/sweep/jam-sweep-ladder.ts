@@ -183,13 +183,13 @@ export interface PhraseOneLadder {
   readonly run: (input: LadderInput) => LadderResult
 }
 
-/** Intent: phrase 1's deadline at a tempo, in seconds from the generation measure's start. */
+/** Phrase 1's deadline at a tempo, in seconds from the generation measure's start. */
 export function phraseOneDeadlineSeconds(tempo: number): number {
   return PHRASE_ONE_DEADLINE_MEASURES * measureSeconds(tempo)
 }
 
 /**
- * Intent: how many whole measures phrase 1 ready at `readyAt` extends the wait by: it is shown at
+ * How many whole measures phrase 1 ready at `readyAt` extends the wait by: it is shown at
  * the first barline at or after it is ready (C5.7), so none when it is ready within the
  * generation measure.
  */
@@ -199,7 +199,7 @@ export function extendedWaitMeasures(readyAt: number, tempo: number): number {
 }
 
 /**
- * Intent: phrase 1's intent at a seed under some settings, exactly as the sweep builds it at Idle,
+ * Phrase 1's intent at a seed under some settings, exactly as the sweep builds it at Idle,
  * with the steering block and the lock group added when given (absent, the very intent of v3.1),
  * at the settings' Seventh chords level either way.
  */
@@ -222,7 +222,7 @@ export function jamPhraseOneIntent(
 }
 
 /**
- * Intent: Jam phrase 1's rhythm lock group with the lock on: pending (nothing locked yet: phrase 1
+ * Jam phrase 1's rhythm lock group with the lock on: pending (nothing locked yet: phrase 1
  * sets the locked rhythm) with the allowed changes, not a tenser phrase.
  */
 export function phraseOneLockGroup(
@@ -235,7 +235,7 @@ export function phraseOneLockGroup(
   })
 }
 
-/** Intent: one timed `generatePhrase` call, with its wall time in seconds. */
+/** One timed `generatePhrase` call, with its wall time in seconds. */
 function timed(run: () => GenerationOutcome): { outcome: GenerationOutcome; seconds: number } {
   const startedAt = performance.now()
   const outcome = run()
@@ -243,7 +243,7 @@ function timed(run: () => GenerationOutcome): { outcome: GenerationOutcome; seco
 }
 
 /**
- * Intent: the generator of one Jam's phrase-1 attempts. With a cold domain, the first attempt runs
+ * The generator of one Jam's phrase-1 attempts. With a cold domain, the first attempt runs
  * on a fresh rhythm-domain memo, so it builds the domain itself, and is never cached; every other
  * attempt runs warm: the shared memo is filled for its rhythm setting first, off the clock, so
  * only the generation is timed. Each attempt is generated and timed afresh, so a warm time is
@@ -317,7 +317,7 @@ export const JAM_LADDER_ATTEMPTS = 6
 const BLOCK_ATTEMPT_INDEX = 4
 const STANDALONE_ATTEMPT_INDEX = 5
 
-/** Intent: the rung of one of the ladder's six attempts (C11's index). */
+/** The rung of one of the ladder's six attempts (C11's index). */
 export function rungOfAttemptIndex(index: number): LadderRung {
   if (!Number.isInteger(index) || index < 0 || index >= JAM_LADDER_ATTEMPTS)
     throw new Error(`A Jam phrase 1 attempt index runs from 0 to 5, got ${index}.`)
@@ -326,7 +326,7 @@ export function rungOfAttemptIndex(index: number): LadderRung {
 }
 
 /**
- * Intent: the seed of one of a fresh Jam's phrase 1 attempts, as C11 sets it: derived from the
+ * The seed of one of a fresh Jam's phrase 1 attempts, as C11 sets it: derived from the
  * session seed drawn at Start by the seed plan's one derivation (the session seed XOR the FNV-1a
  * 32-bit hash of the label, unsigned), under the label `session-seed-plan-v1:jam-phrase-one:rung:<r>`.
  */
@@ -338,7 +338,7 @@ export function jamAttemptSeed(sessionSeed: number, index: number): Seed {
 }
 
 /**
- * Intent: what a doodle gives Jam's phrase 1 under a sweep case's settings (C5.9, C5.16, C7.1):
+ * What a doodle gives Jam's phrase 1 under a sweep case's settings (C5.9, C5.16, C7.1):
  * the seven controls read from the quantized doodle for the case's instrument, at no window width
  * (chunk 28's mapping) set into the settings, with Jam's lock; the steering block from the doodle
  * and the drift; the join from the doodle's last note (chunk 7). Rung 1's attempt joins the doodle
@@ -406,7 +406,7 @@ export function doodlePhraseOne(
 }
 
 /**
- * Intent: the attempt after a failed one (C5.7): rung 3 once less than the reserve is left before
+ * The attempt after a failed one (C5.7): rung 3 once less than the reserve is left before
  * the deadline; rung 2 after a rung-1 attempt whose search covered every candidate
  * (`no_legal_pitch_plan`: its retries would fail the same way, whatever the seed); otherwise the
  * next attempt (a retry of rung 1, then rung 2, then rung 3); none after rung 3.

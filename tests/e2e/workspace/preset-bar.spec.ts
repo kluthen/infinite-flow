@@ -60,7 +60,7 @@ const PRESET_HELD =
   )
 
 /**
- * Intent: the ten controls as shown, from one preset's column of B6.5 written in the controls'
+ * The ten controls as shown, from one preset's column of B6.5 written in the controls'
  * own labels, `value | value | ...` in the rows' order.
  */
 function controlsOf(column: string): ShownPresetControls {
@@ -70,7 +70,7 @@ function controlsOf(column: string): ShownPresetControls {
 }
 
 /**
- * Intent: one built-in as master spec B6.5 gives it, chosen from D Aeolian: its name and fixed id,
+ * One built-in as master spec B6.5 gives it, chosen from D Aeolian: its name and fixed id,
  * the mode its restriction leaves (Aeolian itself under "any"), its column of controls and its
  * description line.
  */
@@ -142,7 +142,7 @@ const BUILT_INS = [
   ),
 ]
 
-/** Intent: the built-in case named `name`; a name no case has is a defect of the spec. */
+/** The built-in case named `name`; a name no case has is a defect of the spec. */
 function builtInNamed(name: string): (typeof BUILT_INS)[number] {
   const found = BUILT_INS.find((builtIn) => builtIn.name === name)
   if (found === undefined) throw new Error(`no built-in case is named ${name}`)
@@ -155,7 +155,7 @@ const BUILT_IN_GROUPS = [
   { label: 'Styles', options: ['Jazz', 'Bebop', 'Pop song', 'Reel', 'Modal (Dorian)'] },
 ] as const
 
-/** Intent: the box's groups as listed: each `optgroup`'s label and its options' text. */
+/** The box's groups as listed: each `optgroup`'s label and its options' text. */
 function listedGroups(page: Page) {
   return presetBox(page)
     .locator('optgroup')
@@ -169,7 +169,7 @@ function listedGroups(page: Page) {
     )
 }
 
-/** Intent: a player preset holding Neutral's values under `name`, for any key and mode. */
+/** A player preset holding Neutral's values under `name`, for any key and mode. */
 function playerPreset(id: string, name: string): WorkspaceHarnessPresetInput {
   return {
     id,
@@ -200,22 +200,22 @@ function playerPreset(id: string, name: string): WorkspaceHarnessPresetInput {
   }
 }
 
-/** Intent: seed player preset records for the next load, through the harness's preset codec. */
+/** Seed player preset records for the next load, through the harness's preset codec. */
 function seedPresets(page: Page, presets: readonly WorkspaceHarnessPresetInput[]): Promise<void> {
   return page.evaluate((seeded) => window.__workspaceHarness.storage.seedPresets(seeded), presets)
 }
 
-/** Intent: one radio is the checked option of its group. */
+/** One radio is the checked option of its group. */
 async function expectChecked(page: Page, group: string, option: string): Promise<void> {
   await expect(radio(page, group, option)).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: every control of `controls` shows its value checked. */
+/** Every control of `controls` shows its value checked. */
 async function expectControls(page: Page, controls: ShownPresetControls): Promise<void> {
   for (const [group, option] of Object.entries(controls)) await expectChecked(page, group, option)
 }
 
-/** Intent: check, in each control of `controls`, an option other than the one given there. */
+/** Check, in each control of `controls`, an option other than the one given there. */
 async function moveAwayFrom(page: Page, controls: ShownPresetControls): Promise<void> {
   for (const [group, option] of Object.entries(controls)) {
     const labels = await page
@@ -229,7 +229,7 @@ async function moveAwayFrom(page: Page, controls: ShownPresetControls): Promise<
   }
 }
 
-/** Intent: every radiogroup of the page has exactly one checked segment. */
+/** Every radiogroup of the page has exactly one checked segment. */
 async function expectEveryGroupChecked(page: Page): Promise<void> {
   const groups = page.getByRole('radiogroup')
   const count = await groups.count()
@@ -244,7 +244,7 @@ async function expectEveryGroupChecked(page: Page): Promise<void> {
 }
 
 /**
- * Intent: with the box read-only, focus it and press ArrowDown then ArrowUp: the box keeps showing
+ * With the box read-only, focus it and press ArrowDown then ArrowUp: the box keeps showing
  * `name` with its description, and no control moves.
  */
 async function expectKeyboardRefused(
@@ -278,7 +278,7 @@ const LIVE_REGION =
   '[aria-live]:not([aria-live="off"]), [role="status"], [role="alert"], [role="log"]'
 
 /**
- * Intent: record, from now, every text change of every live region of the page (a polite or
+ * Record, from now, every text change of every live region of the page (a polite or
  * assertive `aria-live`, a `status`, `alert` or `log` role), each entry the region's class and
  * its new text.
  */
@@ -486,15 +486,15 @@ for (const viewport of BAR_VIEWPORTS) {
     for (const shown of [label, presetBox(page), presetDescription(page)])
       await expect(shown).toBeVisible()
 
-    /** Intent: the bar's geometry: its parts' boxes, whether any is cut, and the page's width. */
+    /** The bar's geometry: its parts' boxes, whether any is cut, and the page's width. */
     const measure = () =>
       bar.evaluate((element) => {
-        /** Intent: a node's box edges in the viewport. */
+        /** A node's box edges in the viewport. */
         const rect = (node: Element) => {
           const box = node.getBoundingClientRect()
           return { left: box.left, right: box.right, top: box.top, bottom: box.bottom }
         }
-        /** Intent: the bar's part under `selector`; one missing is a defect of the page. */
+        /** The bar's part under `selector`; one missing is a defect of the page. */
         const part = (selector: string) => {
           const node = element.querySelector(selector)
           if (node === null) throw new Error(`no ${selector} in the preset bar`)

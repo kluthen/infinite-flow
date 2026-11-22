@@ -25,12 +25,12 @@ import {
 /** Generous timeout: each session regenerates three or four phrases. */
 const TIMEOUT_MS = 120_000
 
-/** Intent: one stored file's bytes. */
+/** One stored file's bytes. */
 function stored(name: string): Buffer {
   return readFileSync(`${SESSION_FILES_DIR}${name}`)
 }
 
-/** Intent: the stored files of the corpus, the README aside. */
+/** The stored files of the corpus, the README aside. */
 function storedNames(): readonly string[] {
   return readdirSync(SESSION_FILES_DIR)
     .filter((name) => name !== 'README.md')
@@ -40,7 +40,7 @@ function storedNames(): readonly string[] {
 /** Each session's files, rendered once and shared by the tests that compare them. */
 const RENDERED = new Map<string, readonly SessionFile[]>()
 
-/** Intent: the file a session renders under the given suffix, failing when it renders none. */
+/** The file a session renders under the given suffix, failing when it renders none. */
 function fileOf(session: CorpusSession, suffix: string): SessionFile {
   const files = RENDERED.get(session.name) ?? corpusSessionFiles(session)
   RENDERED.set(session.name, files)

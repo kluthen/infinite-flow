@@ -62,17 +62,17 @@ const REEL_REDRAWN_ON_PHRASE_3 = 44
 /** From Modal (Dorian), the mutation seed whose move to Aeolian on phrase 3 is drawn again. */
 const MODAL_REDRAWN_ON_PHRASE_3 = 40
 
-/** Intent: queue the session seed whose Vary settings mutation seed is `mutationSeed`. */
+/** Queue the session seed whose Vary settings mutation seed is `mutationSeed`. */
 async function queueMutationSeed(page: Page, mutationSeed: number): Promise<void> {
   await queueSessionSeeds(page, [await settingsMutationSeed(page, mutationSeed)])
 }
 
-/** Intent: a radiogroup of the control section by its exact accessible name. */
+/** A radiogroup of the control section by its exact accessible name. */
 function radiogroup(page: Page, name: string): Locator {
   return page.getByRole('radiogroup', { name, exact: true })
 }
 
-/** Intent: the label of a radiogroup's checked segment, or null when none is checked. */
+/** The label of a radiogroup's checked segment, or null when none is checked. */
 async function checkedIn(page: Page, name: string): Promise<string | null> {
   const checked = radiogroup(page, name).locator('[role="radio"][aria-checked="true"]')
   return (await checked.count()) === 0 ? null : checked.innerText()
@@ -90,13 +90,13 @@ const REEL_DESCRIPTION =
 const MODAL_DESCRIPTION =
   'A steady two-chord bed in Dorian, so its color note is heard in the melody. Also try raising Seventh chords, for a richer, jazzier bed.'
 
-/** Intent: the preset box shows `text` and its description line reads `description`. */
+/** The preset box shows `text` and its description line reads `description`. */
 async function expectPreset(page: Page, text: string, description: string): Promise<void> {
   await expectPresetShown(page, text)
   await expect(presetDescription(page)).toHaveText(description)
 }
 
-/** Intent: nothing in the preset bar is a live region, so no change of it is announced. */
+/** Nothing in the preset bar is a live region, so no change of it is announced. */
 async function expectPresetBarSilent(page: Page): Promise<void> {
   await expect(
     page.locator(
@@ -105,19 +105,19 @@ async function expectPresetBarSilent(page: Page): Promise<void> {
   ).toHaveCount(0)
 }
 
-/** Intent: turn `Vary settings` on with a click on its `On` segment. */
+/** Turn `Vary settings` on with a click on its `On` segment. */
 async function turnVarySettingsOn(page: Page): Promise<void> {
   await radiogroup(page, 'Vary settings').getByRole('radio', { name: 'On' }).click()
   expect(await checkedIn(page, 'Vary settings')).toBe('On')
 }
 
-/** Intent: when phrase `n` starts sounding, at the default 90 BPM. */
+/** When phrase `n` starts sounding, at the default 90 BPM. */
 async function phraseStart(page: Page, n: number): Promise<number> {
   return (await sessionTimeline(page)).countInEndsAt + 4 * (n - 1) * MEASURE
 }
 
 /**
- * Intent: move the clock phrase by phrase to `offset` seconds from phrase `n`'s start, holding it
+ * Move the clock phrase by phrase to `offset` seconds from phrase `n`'s start, holding it
  * at each phrase's start until the session has readied the next: a generation slower than the
  * fake clock would otherwise be cancelled before its phrase sounds.
  */
@@ -130,7 +130,7 @@ async function clockToReadied(page: Page, n: number, offset: number): Promise<vo
 }
 
 /**
- * Intent: the box of every element of the control section, in document order (its classes may
+ * The box of every element of the control section, in document order (its classes may
  * change, its geometry may not), but a select's options and groups, which the select draws and
  * which take no box (Custom's option comes and goes inside the preset box), the page's scroll and
  * the animations running in the section, read in one task.
@@ -151,7 +151,7 @@ function controlSectionLayout(page: Page) {
   })
 }
 
-/** Intent: the settings of the latest `generate` call made after `count` earlier ones. */
+/** The settings of the latest `generate` call made after `count` earlier ones. */
 async function requestAfter(page: Page, count: number): Promise<WorkspaceHarnessGenerationRequest> {
   let latest: WorkspaceHarnessGenerationRequest | undefined
   await expect
@@ -164,7 +164,7 @@ async function requestAfter(page: Page, count: number): Promise<WorkspaceHarness
   return latest!
 }
 
-/** Intent: how many `generate` calls the page has made. */
+/** How many `generate` calls the page has made. */
 async function requestCount(page: Page): Promise<number> {
   return (await page.evaluate(() => window.__workspaceHarness.generationRequests())).length
 }

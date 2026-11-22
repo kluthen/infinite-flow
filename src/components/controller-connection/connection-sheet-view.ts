@@ -44,7 +44,7 @@ const CONTINUE_WITHOUT: SheetActionButton = {
 }
 
 /**
- * Intent: the title naming the stage in plain language; Requesting access has two (Checking, or
+ * The title naming the stage in plain language; Requesting access has two (Checking, or
  * Waiting for your browser).
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
@@ -71,7 +71,7 @@ export function sheetTitle(stage: OpenSheetStage): string {
 }
 
 /**
- * Intent: the stage's action buttons, the primary one first. `Choose a different device` shows on
+ * The stage's action buttons, the primary one first. `Choose a different device` shows on
  * Connected only once more than one input has been seen this page session; `Use this for my
  * instrument` shows on a check result only when `useOffered` (a result that is not a match, whose
  * instrument would sound inside the MIDI note range); the confirmation's action reads `Use and
@@ -118,7 +118,7 @@ export function sheetActions(
   }
 }
 
-/** Intent: a check result's actions: Continue (main), Use this for my instrument if offered, Run check again. */
+/** A check result's actions: Continue (main), Use this for my instrument if offered, Run check again. */
 function checkResultActions(useOffered: boolean): readonly SheetActionButton[] {
   const use: readonly SheetActionButton[] = useOffered
     ? [{ action: 'use-this', label: 'Use this for my instrument', primary: false }]
@@ -130,7 +130,7 @@ function checkResultActions(useOffered: boolean): readonly SheetActionButton[] {
   ]
 }
 
-/** Intent: Connected's actions: Done (main), Run check again, the conditional choice, Disconnect. */
+/** Connected's actions: Done (main), Run check again, the conditional choice, Disconnect. */
 function connectedActions(seenDeviceCount: number): readonly SheetActionButton[] {
   const choose: readonly SheetActionButton[] =
     seenDeviceCount > 1
@@ -145,7 +145,7 @@ function connectedActions(seenDeviceCount: number): readonly SheetActionButton[]
 }
 
 /**
- * Intent: the stage's main focus target: the picker's tab stop in the picker; `Back` on the Use
+ * The stage's main focus target: the picker's tab stop in the picker; `Back` on the Use
  * for my instrument confirmation, never its confirming action; `Use this for my instrument` on a
  * result come back from it; else the primary action where there is one, else `sheet-close`
  * (Requesting access, the check's Prompt).

@@ -87,20 +87,20 @@ interface CorpusCase {
   readonly timeline: unknown
 }
 
-/** Intent: the recorded cases of a replay-key corpus file, read Node-side (never written). */
+/** The recorded cases of a replay-key corpus file, read Node-side (never written). */
 function readCorpusCases(fileName: string): readonly CorpusCase[] {
   const path = fileURLToPath(new URL(`../../fixtures/replay-keys/${fileName}`, import.meta.url))
   const corpus = JSON.parse(readFileSync(path, 'utf8')) as { readonly cases: readonly CorpusCase[] }
   return corpus.cases
 }
 
-/** Intent: every `step`-th case of a corpus, from the first: a deterministic spread. */
+/** Every `step`-th case of a corpus, from the first: a deterministic spread. */
 function everyNth(cases: readonly CorpusCase[], step: number): readonly CorpusCase[] {
   return cases.filter((_, index) => index % step === 0)
 }
 
 /**
- * Intent: a recorded (`ifk1.`, `ifk2.` or `ifk3.`) key's raw tuple, read Node-side without the codec, so
+ * A recorded (`ifk1.`, `ifk2.` or `ifk3.`) key's raw tuple, read Node-side without the codec, so
  * the slice's coverage is checked on what the key itself holds.
  */
 function recordedTuple(key: string): readonly unknown[] {
@@ -112,7 +112,7 @@ function recordedTuple(key: string): readonly unknown[] {
 }
 
 /**
- * Intent: what a recorded key's tuple names: its version, profile (an `ifk3.` key holds levels,
+ * What a recorded key's tuple names: its version, profile (an `ifk3.` key holds levels,
  * no profile), instrument kind and carry-in.
  */
 function coverageOf(key: string): readonly string[] {
@@ -133,7 +133,7 @@ function coverageOf(key: string): readonly string[] {
 }
 
 /**
- * Intent: replay each case in the browser, as recorded and as its `ifk5.` re-encoding, and expect
+ * Replay each case in the browser, as recorded and as its `ifk5.` re-encoding, and expect
  * both to give the stored timeline's JSON text exactly.
  */
 async function expectSliceReplays(
@@ -250,7 +250,7 @@ interface HeadlessReplayModule {
   }
 }
 
-/** Intent: load the headless replay module, failing loudly if a function it needs is missing. */
+/** Load the headless replay module, failing loudly if a function it needs is missing. */
 async function loadHeadlessReplay(): Promise<HeadlessReplayModule> {
   const loaded: unknown = await import(HEADLESS_REPLAY_MODULE_URL)
   if (typeof loaded !== 'object' || loaded === null) {
@@ -265,7 +265,7 @@ async function loadHeadlessReplay(): Promise<HeadlessReplayModule> {
 }
 
 /**
- * Intent: the headless replay's answer for a key, shaped as the browser replay answers: its
+ * The headless replay's answer for a key, shaped as the browser replay answers: its
  * timeline's JSON text, or its generation failure's description; a crash fails loudly.
  */
 function headlessReplayAnswer(
@@ -307,7 +307,7 @@ const NEUTRAL_LEVELS = {
   chromaticEnclosure: 'off',
 }
 
-/** Intent: the 14 controls in the key's order: C major on the C keyboard, the given tension. */
+/** The 14 controls in the key's order: C major on the C keyboard, the given tension. */
 function handControls(tension: string): readonly unknown[] {
   return [
     90,
@@ -327,12 +327,12 @@ function handControls(tension: string): readonly unknown[] {
   ]
 }
 
-/** Intent: one locked rhythm event, in ticks of a sixteenth. */
+/** One locked rhythm event, in ticks of a sixteenth. */
 function event(kind: 'note' | 'rest', startTick: number, durationTicks: number, tie = false) {
   return { kind, startTick, durationTicks, tieContinuation: tie }
 }
 
-/** Intent: four quarter notes. */
+/** Four quarter notes. */
 function quarters() {
   return [event('note', 0, 4), event('note', 4, 4), event('note', 8, 4), event('note', 12, 4)]
 }
@@ -385,7 +385,7 @@ const JOIN_FROM_NO_PHRASE = {
   finalHarmony: null,
 }
 
-/** Intent: an `ifk4.` key written by hand from its nine entries. */
+/** An `ifk4.` key written by hand from its nine entries. */
 function handKey(
   requestId: string,
   seed: number,
@@ -408,7 +408,7 @@ function handKey(
   return `ifk4.${Buffer.from(JSON.stringify(tuple), 'utf8').toString('base64url')}`
 }
 
-/** Intent: the lock group locked on these bars with these allowed changes. */
+/** The lock group locked on these bars with these allowed changes. */
 function lockedOn(bars: unknown, allowedChanges: readonly string[], tenserPhrase = false) {
   return { state: { kind: 'locked', bars }, allowedChanges, tenserPhrase }
 }
@@ -481,7 +481,7 @@ test('hand-written ifk4 keys replay in the browser to the same phrase as the hea
   }
 })
 
-/** Intent: an `ifk5.` key written by hand from its ten entries: C major, Settled, a level. */
+/** An `ifk5.` key written by hand from its ten entries: C major, Settled, a level. */
 function handKeyV5(
   requestId: string,
   seed: number,
@@ -504,7 +504,7 @@ function handKeyV5(
   return `ifk5.${Buffer.from(JSON.stringify(tuple), 'utf8').toString('base64url')}`
 }
 
-/** Intent: the headless replay's phrase for a key: its timeline, its form per event, its carry-out. */
+/** The headless replay's phrase for a key: its timeline, its form per event, its carry-out. */
 function headlessPhrase(replay: HeadlessReplayModule, key: string, label: string) {
   const { output } = replay.replayPhraseKey(key)
   if (output.kind === 'crash' || output.raw.kind !== 'generation_success')

@@ -41,7 +41,7 @@ export interface ClickPlan {
 }
 
 /**
- * Intent: the click track of a session whose beat 0 (the count-in's first click) falls at
+ * The click track of a session whose beat 0 (the count-in's first click) falls at
  * `startAt`, at `tempo` BPM, in 4/4 with a one-measure count-in. Throws on a start that is not a
  * finite time or a tempo that is not a finite positive number.
  */
@@ -63,7 +63,7 @@ export function createClickPlan(startAt: AudioTime, tempo: number): ClickPlan {
 }
 
 /**
- * Intent: the segment of the tempo map beat `k` falls in: the last change at or before it, or
+ * The segment of the tempo map beat `k` falls in: the last change at or before it, or
  * the starting tempo from beat 0 (also for a beat before 0).
  */
 function segmentAtBeat(plan: ClickPlan, k: number): TempoChange {
@@ -75,7 +75,7 @@ function segmentAtBeat(plan: ClickPlan, k: number): TempoChange {
 }
 
 /**
- * Intent: the segment of the tempo map time `time` falls in: the last change whose beat falls at
+ * The segment of the tempo map time `time` falls in: the last change whose beat falls at
  * or before it, or the starting tempo (also for a time before beat 0).
  */
 function segmentAtTime(plan: ClickPlan, time: AudioTime): TempoChange {
@@ -87,7 +87,7 @@ function segmentAtTime(plan: ClickPlan, time: AudioTime): TempoChange {
 }
 
 /**
- * Intent: `plan` with the click running at `tempo` BPM from session beat `beat` on. The change's
+ * `plan` with the click running at `tempo` BPM from session beat `beat` on. The change's
  * start is the previous segment's start plus that whole segment's length, one multiplication, so
  * the change beat and every beat before it keep the very time they had. A change to the tempo
  * already in effect returns `plan` itself. Throws on a beat that is not a whole number, falls in
@@ -115,7 +115,7 @@ export function withTempoFrom(plan: ClickPlan, beat: number, tempo: number): Cli
   return { ...plan, tempoChanges: [...plan.tempoChanges, { beat, tempo, at }] }
 }
 
-/** Intent: the tempo in effect on session beat `k`, in BPM: the one its beat length follows. */
+/** The tempo in effect on session beat `k`, in BPM: the one its beat length follows. */
 // @spec-link [[rule_click_track]]
 // @spec-link [[module_session_transport_tempo_map]]
 export function tempoAtBeat(plan: ClickPlan, k: number): number {
@@ -123,7 +123,7 @@ export function tempoAtBeat(plan: ClickPlan, k: number): number {
 }
 
 /**
- * Intent: when beat `k` falls, computed by one multiplication from the start of its tempo segment
+ * When beat `k` falls, computed by one multiplication from the start of its tempo segment
  * rather than by adding beat lengths, so a long session never drifts; with no tempo change that
  * start is the session's. Everything placed on the beat grid (the clicks and the backing) goes
  * through it, so a sound on beat `k` falls at the very same time.
@@ -137,7 +137,7 @@ export function beatAt(plan: ClickPlan, k: number): AudioTime {
 }
 
 /**
- * Intent: the first beat at or after `from`. The estimate, from the tempo segment `from` falls
+ * The first beat at or after `from`. The estimate, from the tempo segment `from` falls
  * in, is corrected with `beatAt` itself, so the half-open rule holds exactly for the times
  * `clicksBetween` compares, across a tempo change too.
  */
@@ -151,7 +151,7 @@ function firstBeatFrom(plan: ClickPlan, from: AudioTime): number {
 }
 
 /**
- * Intent: the clicks with `from <= at < to`, through the tempo map. The window is half-open, so
+ * The clicks with `from <= at < to`, through the tempo map. The window is half-open, so
  * consecutive windows never repeat or drop a beat. Beat 1 of each measure is accented; the count-in's beats take
  * the `count-in` route, which bypasses the click on/off gate. Throws on a backwards window.
  */
@@ -171,7 +171,7 @@ export function clicksBetween(plan: ClickPlan, from: AudioTime, to: AudioTime): 
 }
 
 /**
- * Intent: the moment the count-in is over and phrase 1 starts sounding, the session engine's
+ * The moment the count-in is over and phrase 1 starts sounding, the session engine's
  * `count-in-over`. No tempo change falls in the count-in, so it ends at the starting tempo.
  */
 // @spec-link [[rule_count_in_always_clicks]]

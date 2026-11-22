@@ -13,7 +13,7 @@ import { mutationPhrase } from '@/session/settings-mutation'
 import { groupsOn } from '../../session/vary-settings-groups-cases'
 import { controllerRig, outputsOf, playTo } from './session-controller-rig'
 
-/** Intent: when phrase `n` of a 240 BPM rig session starts sounding. */
+/** When phrase `n` of a 240 BPM rig session starts sounding. */
 function phraseStart(n: number): number {
   return 6.1 + 4 * (n - 1)
 }

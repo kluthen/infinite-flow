@@ -50,7 +50,7 @@ export function jamLikeSettings(): SessionSettings {
   return sessionSettings({ tempo: 60 })
 }
 
-/** Intent: a Jam phrase 1 written from the kept doodle at `seed`, as Jam's Idle publishes it. */
+/** A Jam phrase 1 written from the kept doodle at `seed`, as Jam's Idle publishes it. */
 export function keptPhraseFor(
   settings: SessionSettings = jamLikeSettings(),
   seed = 11,
@@ -98,7 +98,7 @@ export interface JamPregenerationRigOptions {
   readonly doodle?: QuantizedDoodle | null
 }
 
-/** Intent: the rig, Jam mode showing with a doodle kept and its phrase 1 shown, unless told. */
+/** The rig, Jam mode showing with a doodle kept and its phrase 1 shown, unless told. */
 export function jamPregenerationRig(options: JamPregenerationRigOptions = {}): JamPregenerationRig {
   const settings = jamLikeSettings()
   const phrase = shallowReactive<IdlePhraseState<KeptDoodlePhraseResult>>({

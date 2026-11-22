@@ -19,7 +19,7 @@ import {
 } from '../../session/session-harness'
 
 /**
- * Intent: a 240 BPM session (a 1 s measure) on the B-flat tenor whose phrase 2 misses its
+ * A 240 BPM session (a 1 s measure) on the B-flat tenor whose phrase 2 misses its
  * deadline, so the failure ladder repeats phrase 1 as phrase 2; phrase 3 is generated in time.
  */
 function sessionWithRepeat(): SessionDriver {
@@ -37,7 +37,7 @@ function sessionWithRepeat(): SessionDriver {
 let recorded: readonly SessionHistoryRecord[] | null = null
 
 /**
- * Intent: the three real records of that session (phrase 2 the repeat), with an acknowledgement
+ * The three real records of that session (phrase 2 the repeat), with an acknowledgement
  * and a played note in every phrase; built once, since the session is deterministic.
  */
 export function recordedRecords(): readonly SessionHistoryRecord[] {
@@ -69,7 +69,7 @@ export function recordedRecords(): readonly SessionHistoryRecord[] {
   return recorded
 }
 
-/** Intent: `count` records, renumbered 1..count, cycling through the recorded ones in order. */
+/** `count` records, renumbered 1..count, cycling through the recorded ones in order. */
 export function longHistory(count: number): readonly SessionHistoryRecord[] {
   const source = recordedRecords()
   return Array.from({ length: count }, (_, index) => ({
@@ -110,7 +110,7 @@ export const resizeObservers: FakeResizeObserver[] = []
 /** Each list item's index, indexed once per list (a list's items never move). */
 let indexes = new WeakMap<Element, number>()
 
-/** Intent: the index of a `review-phrase` among its list's items. */
+/** The index of a `review-phrase` among its list's items. */
 export function itemIndex(item: Element): number {
   const known = indexes.get(item)
   if (known !== undefined) return known
@@ -120,27 +120,27 @@ export function itemIndex(item: Element): number {
   return indexes.get(item)!
 }
 
-/** Intent: an item's top and bottom relative to the window, from the scroll model. */
+/** An item's top and bottom relative to the window, from the scroll model. */
 function itemBox(index: number): { readonly top: number; readonly bottom: number } {
   const top = index * page.itemHeightPx - page.scrollTopPx
   return { top, bottom: top + page.itemHeightPx }
 }
 
-/** Intent: the block margin, in px, a rootMargin like '100% 0px' adds above and below the window. */
+/** The block margin, in px, a rootMargin like '100% 0px' adds above and below the window. */
 function marginPx(rootMargin: string): number {
   const match = /^(\d+)%/u.exec(rootMargin)
   if (match === null) throw new Error(`Unexpected rootMargin ${rootMargin}.`)
   return (Number(match[1]) / 100) * page.viewportHeightPx
 }
 
-/** Intent: whether an item intersects the window grown by the observer's block margin. */
+/** Whether an item intersects the window grown by the observer's block margin. */
 function intersects(index: number, rootMargin: string): boolean {
   const margin = marginPx(rootMargin)
   const box = itemBox(index)
   return box.bottom > -margin && box.top < page.viewportHeightPx + margin
 }
 
-/** Intent: the items whose top is within the window grown by a margin of `viewports` heights. */
+/** The items whose top is within the window grown by a margin of `viewports` heights. */
 export function itemsWithin(viewports: number, count: number): number[] {
   return Array.from({ length: count }, (_, index) => index).filter((index) =>
     intersects(index, `${viewports * 100}% 0px`),
@@ -151,7 +151,7 @@ export function itemsWithin(viewports: number, count: number): number[] {
 const reported = new WeakMap<FakeIntersectionObserver, Map<Element, boolean>>()
 
 /**
- * Intent: deliver to every live intersection observer the entries whose state changed (all of
+ * Deliver to every live intersection observer the entries whose state changed (all of
  * them on the first delivery after `observe`), as the browser does after layout or a scroll.
  */
 export function deliverIntersections(): void {
@@ -170,7 +170,7 @@ export function deliverIntersections(): void {
   }
 }
 
-/** Intent: fire every live resize observer, as the browser does after the list's box changed. */
+/** Fire every live resize observer, as the browser does after the list's box changed. */
 export function deliverResize(): void {
   for (const observer of resizeObservers) {
     if (observer.disconnected) continue
@@ -180,7 +180,7 @@ export function deliverResize(): void {
 }
 
 /**
- * Intent: stub IntersectionObserver, ResizeObserver, the window height and the element
+ * Stub IntersectionObserver, ResizeObserver, the window height and the element
  * measurements the panel reads (every element is the list's width; a `review-phrase`'s box comes
  * from the scroll model).
  */

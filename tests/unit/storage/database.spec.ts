@@ -41,7 +41,7 @@ const V3_0_MIGRATIONS = PRODUCTION_MIGRATIONS.slice(0, 1)
 /** The number of production migration steps, the code's data version. */
 const STEP_COUNT = PRODUCTION_MIGRATIONS.length
 
-/** Intent: the production step 1, recorded in `ran` before it runs. */
+/** The production step 1, recorded in `ran` before it runs. */
 function recordedStepOne(ran: number[]): MigrationStep {
   const [stepOne] = PRODUCTION_MIGRATIONS
   if (stepOne === undefined) throw new Error('the production migrations have no step 1')

@@ -60,7 +60,7 @@ const EVERY_REQUEST: readonly GeneratedNotesRequest[] = [
 ]
 
 /**
- * Intent: phrase `phraseNumber` of a C keyboard session at `level`, generated from the first seed
+ * Phrase `phraseNumber` of a C keyboard session at `level`, generated from the first seed
  * from `seed` up that generates, joined from `before` when given.
  */
 function phraseAt(
@@ -91,7 +91,7 @@ function phraseAt(
 }
 
 /**
- * Intent: a three-phrase session at Always: phrase 1 (seed 5) every event a seventh chord, ending
+ * A three-phrase session at Always: phrase 1 (seed 5) every event a seventh chord, ending
  * on G7, which phrase 2 carries, phrase 3 joined from phrase 2.
  */
 function mostlySession(): readonly SessionHistoryRecord[] {
@@ -100,13 +100,13 @@ function mostlySession(): readonly SessionHistoryRecord[] {
   return [first, second, phraseAt('stronglyFavored', 13, 3, second)]
 }
 
-/** Intent: phrase 1 at Always (seed 5), then phrase 2 at Off joined after its carried G7. */
+/** Phrase 1 at Always (seed 5), then phrase 2 at Off joined after its carried G7. */
 function offAfterCarriedSeventh(): readonly SessionHistoryRecord[] {
   const first = phraseAt('stronglyFavored', 5, 1)
   return [first, phraseAt('off', 12, 2, first)]
 }
 
-/** Intent: the session stored values decode to, failing the test unless they read as current. */
+/** The session stored values decode to, failing the test unless they read as current. */
 function decoded(stored: StoredKeptSession): KeptSession {
   const reading = decodeKeptSession(stored)
   if (reading.reading !== 'current')
@@ -115,7 +115,7 @@ function decoded(stored: StoredKeptSession): KeptSession {
 }
 
 /**
- * Intent: the stored records of a session over recorded phrases on the C keyboard, phrase 2 a
+ * The stored records of a session over recorded phrases on the C keyboard, phrase 2 a
  * favorite when it has one.
  */
 function keptRecords(records: readonly SessionHistoryRecord[]): StoredKeptSession {
@@ -123,24 +123,24 @@ function keptRecords(records: readonly SessionHistoryRecord[]): StoredKeptSessio
   return storedRecords(encodeKeptSession(historyOf(records, 'c-keyboard'), facts, APP_VERSION))
 }
 
-/** Intent: the review's notation input of every phrase, as text. */
+/** The review's notation input of every phrase, as text. */
 function notationText(phrases: readonly ReviewedPhrase[]): string {
   return JSON.stringify(
     phrases.map((phrase) => notationInputFromOutcome(phrase.outcome, phrase.intent, phrase.clef)),
   )
 }
 
-/** Intent: the bytes of every generated-notes export of phrases, from a session start. */
+/** The bytes of every generated-notes export of phrases, from a session start. */
 function exportBytes(phrases: readonly ReviewedPhrase[], startedAt: number): readonly Uint8Array[] {
   const history = {
-    /** Intent: the phrases, as the exports read a history's. */
+    /** The phrases, as the exports read a history's. */
     phrases: () => phrases,
     startedAt,
   }
   return EVERY_REQUEST.map((request) => buildGeneratedNotesFile(history, request).bytes)
 }
 
-/** Intent: the number of seventh-form events in phrases' harmonies. */
+/** The number of seventh-form events in phrases' harmonies. */
 function seventhCount(
   harmonies: readonly SessionHistoryRecord['outcome']['provenance']['harmony'][],
 ): number {
@@ -149,7 +149,7 @@ function seventhCount(
     .filter((event) => event.seventh !== undefined).length
 }
 
-/** Intent: expect each decoded phrase to regenerate from its decoded intent to the same outcome. */
+/** Expect each decoded phrase to regenerate from its decoded intent to the same outcome. */
 function expectReplays(session: KeptSession): void {
   for (const phrase of session.phrases) {
     const replayed = generatePhrase(phrase.intent)
@@ -290,7 +290,7 @@ describe("a stored harmony event's seventh", () => {
     found = { index, event: events[index]! }
   }, 60_000)
 
-  /** Intent: the stored harmony with the found event's seventh replaced, or removed. */
+  /** The stored harmony with the found event's seventh replaced, or removed. */
   function withSeventh(seventh: unknown): unknown {
     return edited(harmony, ['events', found.index, 'seventh'], seventh)
   }

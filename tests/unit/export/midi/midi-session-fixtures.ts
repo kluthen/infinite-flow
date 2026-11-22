@@ -80,7 +80,7 @@ function backingNote(pitch: number, startQuarters: number, quarters: number): Mi
   }
 }
 
-/** Intent: render a chord list to backing notes, bass first, then the triad, in time order. */
+/** Render a chord list to backing notes, bass first, then the triad, in time order. */
 function backingOf(chords: readonly BackingChord[]): MidiBackingNote[] {
   return chords.flatMap((chord) => {
     const start = chord.measure * 4 + chord.beat
@@ -114,7 +114,7 @@ export function plainBacking(): MidiBackingNote[] {
   ])
 }
 
-/** Intent: one session phrase record. */
+/** One session phrase record. */
 export function midiPhrase(
   number: number,
   timeline: ConcertEventTimeline,

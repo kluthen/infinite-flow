@@ -132,7 +132,7 @@ const EARLY_MORNING: WorkspaceHarnessPresetInput = {
   kind: 'player',
 }
 
-/** Intent: the settings records that hold a preset's ten controls and seven levels, as saved. */
+/** The settings records that hold a preset's ten controls and seven levels, as saved. */
 function savedValuesOf(preset: WorkspaceHarnessPresetInput): Record<string, unknown> {
   return {
     ...Object.fromEntries(
@@ -144,12 +144,12 @@ function savedValuesOf(preset: WorkspaceHarnessPresetInput): Record<string, unkn
   }
 }
 
-/** Intent: seed player preset records for the next load, through the harness's preset codec. */
+/** Seed player preset records for the next load, through the harness's preset codec. */
 function seedPresets(page: Page, presets: readonly WorkspaceHarnessPresetInput[]): Promise<void> {
   return page.evaluate((seeded) => window.__workspaceHarness.storage.seedPresets(seeded), presets)
 }
 
-/** Intent: seed raw preset records for the next load, straight to IndexedDB. */
+/** Seed raw preset records for the next load, straight to IndexedDB. */
 function seedRawPresets(page: Page, entries: readonly WorkspaceHarnessRawRecord[]): Promise<void> {
   return page.evaluate(
     (seeded) => window.__workspaceHarness.storage.seedRawPresets(seeded),
@@ -157,19 +157,19 @@ function seedRawPresets(page: Page, entries: readonly WorkspaceHarnessRawRecord[
   )
 }
 
-/** Intent: the stored settings record under `key`, as stored, read through the seam. */
+/** The stored settings record under `key`, as stored, read through the seam. */
 async function storedRecord(page: Page, key: string): Promise<Record<string, unknown> | undefined> {
   const records = await page.evaluate(() => window.__workspaceHarness.storage.records('settings'))
   return records.find((record) => (record as { key?: unknown }).key === key) as
     Record<string, unknown> | undefined
 }
 
-/** Intent: how many changes reached the app's storage port since the load. */
+/** How many changes reached the app's storage port since the load. */
 function portChanges(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.storage.portChanges())
 }
 
-/** Intent: the load's outcome and saving state, as the harness reports them. */
+/** The load's outcome and saving state, as the harness reports them. */
 function loadReport(page: Page) {
   return page.evaluate(() => ({
     outcome: window.__workspaceHarness.storage.loadOutcome(),
@@ -177,23 +177,23 @@ function loadReport(page: Page) {
   }))
 }
 
-/** Intent: one radio is the checked option of its group. */
+/** One radio is the checked option of its group. */
 async function expectChecked(page: Page, group: string, option: string): Promise<void> {
   await expect(radio(page, group, option)).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: the muted control-summary line shows `text`. */
+/** The muted control-summary line shows `text`. */
 async function expectSummary(page: Page, text: string): Promise<void> {
   await expect(page.locator('.control-summary')).toHaveText(text)
 }
 
-/** Intent: open the harness at `search` (an injected read, say), the load ended and mounted. */
+/** Open the harness at `search` (an injected read, say), the load ended and mounted. */
 async function gotoWith(page: Page, search: string): Promise<void> {
   await page.goto(`${WORKSPACE_HARNESS_URL}${search}`)
   await harnessReady(page)
 }
 
-/** Intent: the player presets and the Late night selection seeded, for the next load. */
+/** The player presets and the Late night selection seeded, for the next load. */
 async function seedLateNightSelected(page: Page): Promise<void> {
   await seedPresets(page, [LATE_NIGHT, EARLY_MORNING])
   await seedSettings(page, {
@@ -386,7 +386,7 @@ test('a v3.0 database with Jazz selected and Tension at Build opens as Custom ba
   page,
 }) => {
   await gotoHeldLoad(page)
-  /** Intent: a settings record as v3.0 stored it, at data version 1. */
+  /** A settings record as v3.0 stored it, at data version 1. */
   const v30 = (key: string, value: unknown): WorkspaceHarnessVersionOneSetting => ({
     key,
     dataVersion: 1,

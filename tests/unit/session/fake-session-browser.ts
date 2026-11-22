@@ -57,14 +57,14 @@ interface FakeLockCore extends FakeScreenLockControls {
   readonly release: () => void
 }
 
-/** Intent: the outcome a behaviour answers with. */
+/** The outcome a behaviour answers with. */
 function outcomeOf(behaviour: FakeScreenLockBehaviour): ScreenLockOutcome {
   if (behaviour === 'grant') return { kind: 'held' }
   if (behaviour === 'refuse') return { kind: 'refused', reason: 'NotAllowedError' }
   return { kind: 'unsupported' }
 }
 
-/** Intent: one fake lock named `name`, granting until told otherwise. */
+/** One fake lock named `name`, granting until told otherwise. */
 // @test-link [[rule_screen_wake_lock_during_session]]
 // @test-link [[rule_landscape_lock_during_session]]
 function createFakeLockCore(name: string): FakeLockCore {
@@ -104,13 +104,13 @@ function createFakeLockCore(name: string): FakeLockCore {
   }
 }
 
-/** Intent: a fake screen wake lock (`request` / `release`). */
+/** A fake screen wake lock (`request` / `release`). */
 // @test-link [[rule_screen_wake_lock_during_session]]
 export function createFakeScreenWakeLock(): FakeScreenWakeLock {
   return createFakeLockCore('screen wake lock')
 }
 
-/** Intent: a fake landscape orientation lock (`lock` / `unlock`). */
+/** A fake landscape orientation lock (`lock` / `unlock`). */
 // @test-link [[rule_landscape_lock_during_session]]
 export function createFakeOrientationLock(): FakeOrientationLock {
   const core = createFakeLockCore('landscape orientation lock')
@@ -125,7 +125,7 @@ export interface FakePageVisibility extends PageVisibility {
   readonly listenerCount: () => number
 }
 
-/** Intent: a fake visible page. */
+/** A fake visible page. */
 // @test-link [[rule_hidden_tab_ends_session]]
 export function createFakePageVisibility(): FakePageVisibility {
   let hidden = false
@@ -156,7 +156,7 @@ export interface FakePageLeaving extends PageLeaving {
 }
 
 /**
- * Intent: a fake page that stays until the test calls `leave`, then is going away until it calls
+ * A fake page that stays until the test calls `leave`, then is going away until it calls
  * `comeBack`; a watch reads set at once if the page is going away at the call, or else once
  * `leave` is called after it, and then stays set, as the browser adapter's does.
  */
@@ -194,7 +194,7 @@ export const FAKE_DESKTOP_WINDOW: WindowShapeReading = {
   remPx: 16,
 }
 
-/** Intent: a fake window of the given shape (a desktop window by default). */
+/** A fake window of the given shape (a desktop window by default). */
 // @test-link [[rule_session_ends_on_portrait_view]]
 // @test-link [[rule_session_ends_when_staff_too_small]]
 export function createFakeWindowShape(
@@ -229,7 +229,7 @@ export interface FakeSessionBrowser extends SessionBrowserPorts {
 }
 
 /**
- * Intent: a full set of fake session browser ports: locks granted, page visible and staying, desktop window,
+ * A full set of fake session browser ports: locks granted, page visible and staying, desktop window,
  * the page not yet activated.
  */
 // @test-link [[service_session_controller]]
@@ -250,7 +250,7 @@ export interface FakePageActivation extends PageActivation {
   readonly activate: () => void
 }
 
-/** Intent: a fake page activation, not active until the test calls `activate`. */
+/** A fake page activation, not active until the test calls `activate`. */
 export function createFakePageActivation(): FakePageActivation {
   let active = false
   const listeners = new Set<() => void>()

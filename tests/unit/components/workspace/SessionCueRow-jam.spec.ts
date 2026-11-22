@@ -26,7 +26,7 @@ import {
 } from './fake-session-controller'
 import { provideSaveSettings } from './recording-save-settings'
 
-/** Intent: mount the cue row at Idle with Jam's Idle cue `jamCue`. */
+/** Mount the cue row at Idle with Jam's Idle cue `jamCue`. */
 function mountRow(jamCue: JamCue | null, fake = createFakeSessionController()) {
   return mount(SessionCueRow, {
     props: {
@@ -102,7 +102,7 @@ describe('SessionCueRow in Jam mode', () => {
 /** Jam's cue row parts as Jam's loaded code gives them. */
 const PARTS: JamSessionCue['parts'] = { JamCapture, JamWriting }
 
-/** Intent: mount the cue row while a fresh Jam runs in `phase`, the controller in `fake`. */
+/** Mount the cue row while a fresh Jam runs in `phase`, the controller in `fake`. */
 function mountJamRow(phase: JamPhase, fake = createFakeSessionController({ phase: 'count-in' })) {
   return mount(SessionCueRow, {
     props: {
@@ -116,7 +116,7 @@ function mountJamRow(phase: JamPhase, fake = createFakeSessionController({ phase
   })
 }
 
-/** Intent: which of the row's cues shows: its class, `count-in`, `jam-capture` or `jam-writing`. */
+/** Which of the row's cues shows: its class, `count-in`, `jam-capture` or `jam-writing`. */
 function shownCue(wrapper: ReturnType<typeof mountJamRow>): string[] {
   return ['.count-in', '.jam-capture', '.jam-writing']
     .filter((selector) => wrapper.find(`.session-cue-row > ${selector}`).exists())

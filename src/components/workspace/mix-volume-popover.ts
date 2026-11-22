@@ -50,7 +50,7 @@ export interface MixVolumePopover {
 }
 
 /**
- * Intent: build the closed volume popover named `id`. Focus moves only on Escape (to the opener)
+ * Build the closed volume popover named `id`. Focus moves only on Escape (to the opener)
  * and on a session start that closes it while focus was inside it (to the opener, unscrolled).
  */
 // @spec-link [[req_session_audio_mix]]
@@ -59,7 +59,7 @@ export function createMixVolumePopover(id: string): MixVolumePopover {
   const openers: Record<MixVolumeOpener, HTMLElement | null> = { toolbar: null, compact: null }
   let panel: HTMLElement | null = null
 
-  /** Intent: the button of the opener the popover is open from; throws if it is not mounted. */
+  /** The button of the opener the popover is open from; throws if it is not mounted. */
   function openButton(): HTMLElement | null {
     if (state.openedBy === null) return null
     const button = openers[state.openedBy]
@@ -67,13 +67,13 @@ export function createMixVolumePopover(id: string): MixVolumePopover {
     return button
   }
 
-  /** Intent: whether focus is inside the popover now. */
+  /** Whether focus is inside the popover now. */
   function focusInside(): boolean {
     if (panel === null) return false
     return panel.contains(panel.ownerDocument.activeElement)
   }
 
-  /** Intent: open the popover from `opener`; throws when that opener is not mounted. */
+  /** Open the popover from `opener`; throws when that opener is not mounted. */
   function openFrom(opener: MixVolumeOpener): void {
     if (openers[opener] === null) throw new Error(`mix volume: the ${opener} Volume is not mounted`)
     state.openedBy = opener

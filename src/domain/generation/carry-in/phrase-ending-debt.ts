@@ -42,7 +42,7 @@ const CARRY_IN_PHRASE_ENDING: PhraseEndingDebtAllowance = deepFreeze({
   tenseNote: true,
 })
 
-/** Intent: the debts a phrase may end owing, decided only by whether it has a carry-in. */
+/** The debts a phrase may end owing, decided only by whether it has a carry-in. */
 // @spec-link [[rule_no_carry_in_output_matches_v1]]
 // @spec-link [[rule_leap_recovery]]
 // @spec-link [[rule_open_phrase_ending]]
@@ -59,18 +59,18 @@ export interface PitchBounds {
   readonly maxMidi: number
 }
 
-/** Intent: the pitch class of a MIDI value. */
+/** The pitch class of a MIDI value. */
 function pitchClassOf(midi: number): number {
   return ((midi % 12) + 12) % 12
 }
 
-/** Intent: the tonic triad's pitch classes (collection degrees 1, 3 and 5) of a collection. */
+/** The tonic triad's pitch classes (collection degrees 1, 3 and 5) of a collection. */
 // @spec-link [[rule_join_tense_note_resolution]]
 export function tonicTriadPitchClasses(collection: readonly number[]): readonly number[] {
   return [collection[0]!, collection[2]!, collection[4]!]
 }
 
-/** Intent: true when `to` repays a large leap in `leapDirection` that arrived at `from`. */
+/** True when `to` repays a large leap in `leapDirection` that arrived at `from`. */
 // @spec-link [[rule_join_inherits_leap_recovery]]
 export function recoveryLandsOn(from: number, to: number, leapDirection: -1 | 1): boolean {
   const interval = to - from
@@ -80,7 +80,7 @@ export function recoveryLandsOn(from: number, to: number, leapDirection: -1 | 1)
 }
 
 /**
- * Intent: true when `to` resolves the tense note `from`: a step of 1-2 semitones between two
+ * True when `to` resolves the tense note `from`: a step of 1-2 semitones between two
  * collection members, landing on a tone of the chord sounding under `to`.
  */
 // @spec-link [[rule_join_tense_note_resolution]]
@@ -100,7 +100,7 @@ export function resolvesOnto(
   )
 }
 
-/** Intent: every MIDI value inside the bounds that sounds a tone of the collection's tonic triad. */
+/** Every MIDI value inside the bounds that sounds a tone of the collection's tonic triad. */
 function tonicTriadMidis(collection: readonly number[], bounds: PitchBounds): readonly number[] {
   const triad = tonicTriadPitchClasses(collection)
   const midis: number[] = []
@@ -110,7 +110,7 @@ function tonicTriadMidis(collection: readonly number[], bounds: PitchBounds): re
 }
 
 /**
- * Intent: true when a recovery owed at `midi` for a large leap in `leapDirection` can be repaid
+ * True when a recovery owed at `midi` for a large leap in `leapDirection` can be repaid
  * by the next phrase's first note on a tonic-triad tone inside the bounds.
  */
 // @spec-link [[rule_join_inherits_leap_recovery]]
@@ -124,7 +124,7 @@ export function owedRecoveryCanSettle(
 }
 
 /**
- * Intent: true when the tense note `midi` can be resolved by the next phrase's first note onto a
+ * True when the tense note `midi` can be resolved by the next phrase's first note onto a
  * tonic-triad tone inside the bounds.
  */
 // @spec-link [[rule_join_tense_note_resolution]]

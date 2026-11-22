@@ -78,7 +78,7 @@ export interface WorkspaceModeState {
 }
 
 /**
- * Intent: the workspace's mode, session mode at creation and never saved, changed only by the
+ * The workspace's mode, session mode at creation and never saved, changed only by the
  * switch's presses at Idle; it reports session mode's hold synchronously as it changes.
  */
 // @spec-link [[module_workspace_mode]]
@@ -94,7 +94,7 @@ export function useWorkspaceMode(deps: WorkspaceModeDependencies): WorkspaceMode
 
   const checked = computed<WorkspaceMode>(() => (opening.value ? 'jam' : mode.value))
   /**
-   * Intent: the switch is read-only during Loading in either mode, a session and the review
+   * The switch is read-only during Loading in either mode, a session and the review
    * mode; never while Jam mode opens, when `Session` stays pressable and cancels.
    */
   // @spec-link [[rule_mode_button_at_idle_only]]
@@ -107,7 +107,7 @@ export function useWorkspaceMode(deps: WorkspaceModeDependencies): WorkspaceMode
   )
   watch(held, (next) => deps.onHeldChange(next), { flush: 'sync', immediate: true })
 
-  /** Intent: Jam mode shows at once, any load-failure notice gone with the opening. */
+  /** Jam mode shows at once, any load-failure notice gone with the opening. */
   function showJam(): void {
     mode.value = 'jam'
     opening.value = false
@@ -115,7 +115,7 @@ export function useWorkspaceMode(deps: WorkspaceModeDependencies): WorkspaceMode
   }
 
   /**
-   * Intent: the first press of `Jam` in a visit: `Jam` checked while Jam's code loads. Loaded
+   * The first press of `Jam` in a visit: `Jam` checked while Jam's code loads. Loaded
    * while still opening, Jam mode shows; loaded after a cancel, the code is kept silently, so a
    * later press waits for nothing. Failed while opening, session mode stays as it was and the
    * notice shows; failed after a cancel, nothing shows.
@@ -124,7 +124,7 @@ export function useWorkspaceMode(deps: WorkspaceModeDependencies): WorkspaceMode
   function open(): void {
     opening.value = true
     const current = ++openings
-    /** Intent: this opening is still the one under way: not cancelled, not superseded. */
+    /** This opening is still the one under way: not cancelled, not superseded. */
     const stillOpening = (): boolean => opening.value && current === openings
     deps.load().then(
       (loaded) => {
@@ -141,7 +141,7 @@ export function useWorkspaceMode(deps: WorkspaceModeDependencies): WorkspaceMode
   }
 
   /**
-   * Intent: a press of a segment: refused while read-only. `Jam` shows Jam mode at once once its
+   * A press of a segment: refused while read-only. `Jam` shows Jam mode at once once its
    * code has loaded, else opens it; `Session` cancels an opening, or leaves Jam mode with session
    * mode exactly as it was left.
    */

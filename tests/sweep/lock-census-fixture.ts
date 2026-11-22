@@ -38,7 +38,7 @@ export const RELOCKED_TIED = phrase(['n8 n4 ~n4', 'n8 n8', 'n8 n8', 'n8 n8'])
 /** What a hand-written phrase may set beyond its number and bars. */
 type Extra = Partial<Omit<CensusPhrase, 'phraseNumber' | 'bars'>>
 
-/** Intent: one phrase of a hand-written session: no repeat, no re-lock, at Build, not tenser. */
+/** One phrase of a hand-written session: no repeat, no re-lock, at Build, not tenser. */
 export function at(
   phraseNumber: number,
   bars: readonly RhythmBar[],
@@ -55,7 +55,7 @@ export function at(
   }
 }
 
-/** Intent: a phrase whose provenance says it kept the locked bars. */
+/** A phrase whose provenance says it kept the locked bars. */
 export function kept(
   phraseNumber: number,
   bars: readonly RhythmBar[],
@@ -64,7 +64,7 @@ export function kept(
   return at(phraseNumber, bars, { rhythmLockOutcome: 'locked_bars', ...extra })
 }
 
-/** Intent: a phrase whose provenance says it took a drawn change of the given kind. */
+/** A phrase whose provenance says it took a drawn change of the given kind. */
 export function changed(
   phraseNumber: number,
   bars: readonly RhythmBar[],
@@ -78,7 +78,7 @@ export function changed(
   })
 }
 
-/** Intent: a phrase whose provenance says it took a forced bend. */
+/** A phrase whose provenance says it took a forced bend. */
 export function bent(
   phraseNumber: number,
   bars: readonly RhythmBar[],
@@ -148,14 +148,14 @@ export const MISMATCHES: readonly (readonly [string, CensusPhrase, readonly Rhyt
     ['a draw with nothing allowed', kept(2, LOCKED, { rhythmChange: 'no_change_available' }), []],
   ]
 
-/** Intent: an availability record with the named kinds available. */
+/** An availability record with the named kinds available. */
 export function available(...kinds: RhythmChangeKind[]): ChangeAvailability {
   return Object.fromEntries(
     RHYTHM_CHANGE_KINDS.map((kind) => [kind, kinds.includes(kind)]),
   ) as ChangeAvailability
 }
 
-/** Intent: the same phrase at another tension, with a Vary settings step from `vary` when given. */
+/** The same phrase at another tension, with a Vary settings step from `vary` when given. */
 export function tensed(entry: CensusPhrase, tension: TensionArc, vary?: TensionArc): CensusPhrase {
   const step = vary === undefined ? {} : { varyTensionStep: { from: vary, to: tension } }
   return { ...entry, tension, ...step }

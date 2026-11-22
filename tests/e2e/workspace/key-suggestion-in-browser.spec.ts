@@ -16,7 +16,7 @@ import { gotoWorkspaceHarness } from '../release/harness-helpers'
 /** A recorded case: its input and the seed, kept candidates and answer recorded in Node. */
 type GoldenCase = WorkspaceHarnessKeySuggestionCase & WorkspaceHarnessKeySuggestionDescription
 
-/** Intent: the golden list's cases, read Node-side from the fixture. */
+/** The golden list's cases, read Node-side from the fixture. */
 function goldenCases(): readonly GoldenCase[] {
   const path = fileURLToPath(
     new URL('../../fixtures/key-suggestion/golden-answers.json', import.meta.url),

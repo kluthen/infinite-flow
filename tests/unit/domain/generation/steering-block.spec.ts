@@ -9,7 +9,7 @@ import {
   type SteeringBlock,
 } from '@/domain/generation/steering-block'
 
-/** Intent: a full, valid steering block: every start kind, every move shape, an empty measure. */
+/** A full, valid steering block: every start kind, every move shape, an empty measure. */
 function fullBlock(): SteeringBlock {
   return {
     targetRhythm: {
@@ -45,29 +45,29 @@ interface RawBlock {
   moves: Record<string, unknown>[]
 }
 
-/** Intent: a JSON copy of the full block, as an untrusted value whose fields a test may change. */
+/** A JSON copy of the full block, as an untrusted value whose fields a test may change. */
 function rawBlock(): RawBlock {
   return JSON.parse(JSON.stringify(fullBlock())) as RawBlock
 }
 
-/** Intent: remove one key from a record. */
+/** Remove one key from a record. */
 function drop(record: Record<string, unknown>, key: string): void {
   delete record[key]
 }
 
-/** Intent: set one key of a record to any value, whatever type the field normally has. */
+/** Set one key of a record to any value, whatever type the field normally has. */
 function put(record: Record<string, unknown>, key: string, value: unknown): void {
   record[key] = value
 }
 
-/** Intent: the block a test gets by handing the constructor a changed copy of the full block. */
+/** The block a test gets by handing the constructor a changed copy of the full block. */
 function makeChanged(change: (raw: RawBlock) => void): () => SteeringBlock {
   const raw = rawBlock()
   change(raw)
   return () => makeSteeringBlock(raw as unknown as SteeringBlock)
 }
 
-/** Intent: every key name anywhere inside a value, at every depth. */
+/** Every key name anywhere inside a value, at every depth. */
 function allKeys(value: unknown): string[] {
   if (Array.isArray(value)) return value.flatMap(allKeys)
   if (typeof value !== 'object' || value === null) return []

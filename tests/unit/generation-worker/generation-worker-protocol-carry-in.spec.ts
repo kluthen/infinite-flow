@@ -29,7 +29,7 @@ import {
 import { SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
 import { seventhOf } from '../domain/harmony/seventh-chord-fixtures'
 
-/** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
+/** A real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
 function carryInIntent() {
   const firstIntent = buildIntent({ seed: 11 })
   const carryIn = carryInAfter(firstIntent, generateSuccess(firstIntent), 1)
@@ -147,7 +147,7 @@ describe('generation worker protocol with a carry-in whose harmony was dropped',
   })
 })
 
-/** Intent: phrase 1's carry-in (seed 11), its carried G (degree 5 of C major) as G7. */
+/** Phrase 1's carry-in (seed 11), its carried G (degree 5 of C major) as G7. */
 function carriedG7(): CarryIn {
   const firstIntent = buildIntent({ seed: 11 })
   const carryIn = carryInAfter(firstIntent, generateSuccess(firstIntent), 1)
@@ -157,7 +157,7 @@ function carriedG7(): CarryIn {
   })
 }
 
-/** Intent: a structured-clone copy of a value holding a carry-in, its carried seventh replaced. */
+/** A structured-clone copy of a value holding a carry-in, its carried seventh replaced. */
 function withWireSeventh(value: unknown, seventh: unknown) {
   const copy = structuredClone(value) as { carryIn: { finalHarmony: Record<string, unknown> } }
   copy.carryIn.finalHarmony.seventh = seventh
@@ -209,7 +209,7 @@ describe('generation worker protocol with a carried seventh chord', () => {
   })
 })
 
-/** Intent: the posted message of a Middle phrase 1 receiving the doodle's join, with steering. */
+/** The posted message of a Middle phrase 1 receiving the doodle's join, with steering. */
 function noPhraseMessage() {
   const carryIn = makeCarryIn({
     origin: 'none',

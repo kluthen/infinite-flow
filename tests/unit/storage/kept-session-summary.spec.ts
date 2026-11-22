@@ -33,7 +33,7 @@ const FACTS: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: a decoded session-wide record, failing the test unless it reads as current. */
+/** A decoded session-wide record, failing the test unless it reads as current. */
 function decodedSummary(value: unknown): KeptSessionSummary {
   const reading = decodeKeptSessionSummary(value)
   if (reading.reading !== 'current')

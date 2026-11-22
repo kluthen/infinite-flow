@@ -19,7 +19,7 @@ let failedEntryUrl: string | null = null
 let retries = 0
 
 /**
- * Intent: the URL of the module whose dynamic import failed, from the failure Chromium (the one
+ * The URL of the module whose dynamic import failed, from the failure Chromium (the one
  * browser the app supports) reports, "Failed to fetch dynamically imported module: <url>", without
  * its query; null when the failure names none.
  */
@@ -31,7 +31,7 @@ export function failedModuleUrl(cause: unknown): string | null {
 }
 
 /**
- * Intent: import Jam's code entry. The browser remembers a failed dynamic import for the rest of
+ * Import Jam's code entry. The browser remembers a failed dynamic import for the rest of
  * the visit and never fetches its URL again, so once one has failed each retry imports the same
  * built file under a URL it has never seen (a `retry` query); the chunk's own imports are of the
  * entry chunk, already loaded.
@@ -43,7 +43,7 @@ function importJamEntry(): Promise<JamModeModule> {
   return import(/* @vite-ignore */ `${failedEntryUrl}?retry=${retries}`)
 }
 
-/** Intent: Jam's code, loaded once on demand and shared by every caller; a failed load is retried. */
+/** Jam's code, loaded once on demand and shared by every caller; a failed load is retried. */
 // @spec-link [[module_jam_code_boundary]]
 // @spec-link [[rule_jam_code_loaded_on_demand]]
 export function loadJamMode(): Promise<JamModeModule> {
@@ -62,7 +62,7 @@ export function loadJamMode(): Promise<JamModeModule> {
 }
 
 /**
- * Intent: Jam's code, if it has already loaded in this visit (Jam mode opened, or a Jam session's
+ * Jam's code, if it has already loaded in this visit (Jam mode opened, or a Jam session's
  * Review loaded it), so what needs it shows it at once; null before.
  */
 // @spec-link [[rule_jam_code_loaded_on_demand]]

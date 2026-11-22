@@ -22,7 +22,7 @@ import { TEST_APP_VERSION } from '../../storage/storage-test-doubles'
 /** Jam's code entry, as Jam's loader gives it once loaded. */
 const JAM_MODULE: JamModeModule = jamMode
 
-/** Intent: the workspace's Jam settings over a session mode, a Jam mode and records the test sets. */
+/** The workspace's Jam settings over a session mode, a Jam mode and records the test sets. */
 function jamSettingsRig(records: readonly unknown[] = []) {
   const controls = shallowRef<GenerationControls>({
     ...DEFAULT_GENERATION_CONTROLS,
@@ -41,7 +41,7 @@ function jamSettingsRig(records: readonly unknown[] = []) {
     instrumentProfileId: () => controls.value.instrumentProfileId,
     saveSettings: (changes) => batches.push(changes),
   })
-  /** Intent: Jam mode shows, its code loaded. */
+  /** Jam mode shows, its code loaded. */
   const showJam = async (): Promise<void> => {
     workspaceModule.value = JAM_MODULE
     jamShowing.value = true

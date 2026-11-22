@@ -61,7 +61,7 @@ export interface QueuedProviders extends GenerationIntentProviders {
 }
 
 /**
- * Intent: providers that hand out a fixed queue of seeds (`firstSeed`, `firstSeed + 1`, ...) and
+ * Providers that hand out a fixed queue of seeds (`firstSeed`, `firstSeed + 1`, ...) and
  * request ids `session-1`, `session-2`, ..., failing loudly once the queue is empty, so a run is
  * deterministic and every attempt's seed is fresh.
  */
@@ -87,7 +87,7 @@ export const DEFAULT_SESSION_SEED: Seed = makeSeed(0x5eed_0001)
 /** The epoch milliseconds a fixed test wall clock reads: 2026-09-30 at 12:00 UTC. */
 export const SESSION_START_EPOCH_MS = Date.UTC(2026, 8, 30, 12)
 
-/** Intent: a wall clock stuck at `SESSION_START_EPOCH_MS`, for tests that ignore the start time. */
+/** A wall clock stuck at `SESSION_START_EPOCH_MS`, for tests that ignore the start time. */
 export function fixedWallClock(): number {
   return SESSION_START_EPOCH_MS
 }
@@ -98,7 +98,7 @@ export interface FakeViewport {
   readonly isBelowTabletLandscape: () => boolean
 }
 
-/** Intent: a window-width reading that starts below or at/above the tablet-landscape width. */
+/** A window-width reading that starts below or at/above the tablet-landscape width. */
 export function fakeViewport(below: boolean): FakeViewport {
   const viewport: FakeViewport = { below, isBelowTabletLandscape: () => viewport.below }
   return viewport
@@ -110,7 +110,7 @@ export interface FakeDisplay extends SessionDisplayReading {
   readonly asked: number[]
 }
 
-/** Intent: a display reading that answers `onScreen` for every phrase and logs each question. */
+/** A display reading that answers `onScreen` for every phrase and logs each question. */
 export function fakeDisplay(onScreen = false): FakeDisplay {
   const display: FakeDisplay = {
     onScreen,
@@ -133,7 +133,7 @@ export const UNREAD_DISPLAY: SessionDisplayReading = Object.freeze({
   },
 })
 
-/** Intent: chosen session settings: the base carry-in controls with the given overrides. */
+/** Chosen session settings: the base carry-in controls with the given overrides. */
 export function sessionSettings(overrides: Partial<GenerationControls> = {}): SessionSettings {
   return {
     controls: makeGenerationControls({ ...BASE_CONTROLS, ...overrides }),
@@ -149,7 +149,7 @@ export function sessionSettings(overrides: Partial<GenerationControls> = {}): Se
 const phraseOneCache = new Map<string, SessionStart['phraseOne']>()
 
 /**
- * Intent: a real phrase 1 generated at Idle from the settings' controls (with optional overrides,
+ * A real phrase 1 generated at Idle from the settings' controls (with optional overrides,
  * such as the density the Idle window gave it), their Seventh chords level and a seed; cached,
  * since generation is pure.
  */
@@ -170,7 +170,7 @@ export function phraseOneFor(
 }
 
 /**
- * Intent: a real generation failure outcome with the given code and empty diagnostics. The default
+ * A real generation failure outcome with the given code and empty diagnostics. The default
  * code is a search allowance cutoff, a failure every rung of the ladder retries.
  */
 export function failureOutcome(
@@ -191,7 +191,7 @@ export function failureOutcome(
 
 const successCache = new Map<GenerationIntent, SuccessfulOutcome>()
 
-/** Intent: the real successful outcome of an intent the engine requested; cached per intent. */
+/** The real successful outcome of an intent the engine requested; cached per intent. */
 export function successFor(intent: GenerationIntent): SuccessfulOutcome {
   const cached = successCache.get(intent)
   if (cached !== undefined) return cached
@@ -203,7 +203,7 @@ export function successFor(intent: GenerationIntent): SuccessfulOutcome {
 const outcomeCache = new Map<string, GenerationOutcome>()
 
 /**
- * Intent: the real outcome of an intent, a success or a failure, cached by the intent's content,
+ * The real outcome of an intent, a success or a failure, cached by the intent's content,
  * so two runs of the same session share each generation.
  */
 export function realOutcomeFor(intent: GenerationIntent): GenerationOutcome {
@@ -215,7 +215,7 @@ export function realOutcomeFor(intent: GenerationIntent): GenerationOutcome {
   return outcome
 }
 
-/** Intent: an intent without its tempo, for comparing intents built at different tempos. */
+/** An intent without its tempo, for comparing intents built at different tempos. */
 export function withoutTempo(intent: GenerationIntent): unknown {
   const { tempo, ...controls } = intent.controls
   void tempo
@@ -223,7 +223,7 @@ export function withoutTempo(intent: GenerationIntent): unknown {
 }
 
 /**
- * Intent: a JSON-shaped copy of a value with every `requestId` field removed, at any depth, for
+ * A JSON-shaped copy of a value with every `requestId` field removed, at any depth, for
  * comparing intents, outcomes and phrases built from different request-identity providers.
  */
 export function withoutRequestIds(value: unknown): unknown {
@@ -262,7 +262,7 @@ export class SessionDriver {
   readonly start: SessionStart
   readonly startOutputs: readonly SessionOutput[]
 
-  /** Intent: start one engine from the options, keeping its start outputs. */
+  /** Start one engine from the options, keeping its start outputs. */
   constructor(options: DriverOptions = {}) {
     this.settings = options.settings ?? sessionSettings()
     this.phraseOne = options.phraseOne ?? phraseOneFor(this.settings)
@@ -290,33 +290,33 @@ export class SessionDriver {
     this.log.push(...this.startOutputs)
   }
 
-  /** Intent: feed one event, log its outputs and return them. */
+  /** Feed one event, log its outputs and return them. */
   send(event: SessionEvent): readonly SessionOutput[] {
     const outputs = this.engine.handle(event)
     this.log.push(...outputs)
     return outputs
   }
 
-  /** Intent: every logged output of one kind, in order. */
+  /** Every logged output of one kind, in order. */
   all<K extends SessionOutput['kind']>(kind: K): readonly OutputOf<K>[] {
     return this.log.filter((output): output is OutputOf<K> => output.kind === kind)
   }
 
-  /** Intent: every logged request, optionally only those for one phrase. */
+  /** Every logged request, optionally only those for one phrase. */
   requests(phraseNumber?: number): readonly GenerationRequestOutput[] {
     return this.all('request-generation').filter(
       (request) => phraseNumber === undefined || request.phraseNumber === phraseNumber,
     )
   }
 
-  /** Intent: the latest logged request, failing the test's assertion when there is none. */
+  /** The latest logged request, failing the test's assertion when there is none. */
   lastRequest(): GenerationRequestOutput {
     const request = this.requests().at(-1)
     expect(request, 'the engine has requested a generation').toBeDefined()
     return request!
   }
 
-  /** Intent: answer the latest request with a real generation failure with the given code. */
+  /** Answer the latest request with a real generation failure with the given code. */
   fail(
     at: AudioTime,
     attemptId = this.lastRequest().attemptId,
@@ -325,18 +325,18 @@ export class SessionDriver {
     return this.send({ kind: 'generation-result', at, attemptId, outcome: failureOutcome(code) })
   }
 
-  /** Intent: report the latest request's generate call as rejected. */
+  /** Report the latest request's generate call as rejected. */
   crash(at: AudioTime, attemptId = this.lastRequest().attemptId): readonly SessionOutput[] {
     return this.send({ kind: 'generation-crashed', at, attemptId })
   }
 
-  /** Intent: answer the latest request with the real successful outcome of its intent. */
+  /** Answer the latest request with the real successful outcome of its intent. */
   succeed(at: AudioTime, request = this.lastRequest()): readonly SessionOutput[] {
     const outcome = successFor(request.intent)
     return this.send({ kind: 'generation-result', at, attemptId: request.attemptId, outcome })
   }
 
-  /** Intent: answer the latest request's fit check. */
+  /** Answer the latest request's fit check. */
   fit(
     at: AudioTime,
     fits: boolean,
@@ -345,13 +345,13 @@ export class SessionDriver {
     return this.send({ kind: 'fit-result', at, attemptId, fits })
   }
 
-  /** Intent: answer the latest request with a success that fits, both at the same time. */
+  /** Answer the latest request with a success that fits, both at the same time. */
   accept(at: AudioTime): readonly SessionOutput[] {
     return [...this.succeed(at), ...this.fit(at, true)]
   }
 
   /**
-   * Intent: answer every attempt of the latest requested phrase at the given time with its real
+   * Answer every attempt of the latest requested phrase at the given time with its real
    * outcome, a success fitting, until the phrase is decided or its ladder is exhausted.
    */
   settle(at: AudioTime): void {
@@ -367,45 +367,45 @@ export class SessionDriver {
     }
   }
 
-  /** Intent: fail every remaining rung of the latest phrase's ladder at the given time. */
+  /** Fail every remaining rung of the latest phrase's ladder at the given time. */
   exhaust(at: AudioTime): void {
     const phraseNumber = this.lastRequest().phraseNumber
     while (this.requests(phraseNumber).length < 5) this.fail(at)
     this.fail(at)
   }
 
-  /** Intent: let time reach the given moment. */
+  /** Let time reach the given moment. */
   tick(at: AudioTime): readonly SessionOutput[] {
     return this.send({ kind: 'tick', at })
   }
 
-  /** Intent: the count-in ends and phrase 1 starts sounding. */
+  /** The count-in ends and phrase 1 starts sounding. */
   countInOver(at: AudioTime): readonly SessionOutput[] {
     return this.send({ kind: 'count-in-over', at })
   }
 
-  /** Intent: phrase N (2 or more) starts sounding. */
+  /** Phrase N (2 or more) starts sounding. */
   sounding(at: AudioTime, phraseNumber: number): readonly SessionOutput[] {
     return this.send({ kind: 'phrase-started-sounding', at, phraseNumber })
   }
 
-  /** Intent: a settings change puts these settings in effect. */
+  /** A settings change puts these settings in effect. */
   change(at: AudioTime, settings: SessionSettings): readonly SessionOutput[] {
     return this.send({ kind: 'settings-change', at, settings })
   }
 
-  /** Intent: a controller lost mid-session goes away, or reconnects. */
+  /** A controller lost mid-session goes away, or reconnects. */
   controller(at: AudioTime, attached: boolean): readonly SessionOutput[] {
     return this.send({ kind: 'controller', at, attached })
   }
 
-  /** Intent: the session ends for the given cause. */
+  /** The session ends for the given cause. */
   end(at: AudioTime, cause: SessionEndCause = 'stop'): readonly SessionOutput[] {
     return this.send({ kind: 'end', at, cause })
   }
 }
 
-/** Intent: the kinds of a list of outputs, in order, for compact assertions. */
+/** The kinds of a list of outputs, in order, for compact assertions. */
 export function kinds(outputs: readonly SessionOutput[]): readonly SessionOutput['kind'][] {
   return outputs.map((output) => output.kind)
 }

@@ -73,7 +73,7 @@ interface LevelSpread {
  */
 const FIGURE_OFFSETS = [1, 2, 3, 0, 1, 3, 3] as const
 
-/** Intent: the levels of spread `s`: figure `f` at level `(s + offset of f) mod 4`. */
+/** The levels of spread `s`: figure `f` at level `(s + offset of f) mod 4`. */
 function spreadLevels(s: number): FigureLevels {
   return Object.fromEntries(
     FIGURE_IDS.map((figure, f) => [figure, pick(FIGURE_LEVEL_IDS, s + FIGURE_OFFSETS[f]!)]),
@@ -94,7 +94,7 @@ interface HeldSettings {
 }
 
 /**
- * Intent: every preset case: built-in preset × instrument, each phrase 1. The player holds a
+ * Every preset case: built-in preset × instrument, each phrase 1. The player holds a
  * rotating tempo, written key and mode, then chooses the preset: its ten controls and seven levels
  * replace the held ones, and a mode its restriction does not allow moves to the restriction's
  * first. A built-in preset never holds a blocked rhythm setting; one would crash the corpus.
@@ -137,7 +137,7 @@ function presetCases(): readonly ReplayKeyCorpusV32Case[] {
 }
 
 /**
- * Intent: the non-instrument controls of the standalone case at mode index `c`, instrument index
+ * The non-instrument controls of the standalone case at mode index `c`, instrument index
  * `i` and spread index `s`. Over the nine modes of one (spread, instrument) pair, `c + s + 1`
  * walks every harmonic motion, `c + i + 1` every tension, `c + 2i + s + 1` every leapiness and
  * `c + i + s + 1` every arpeggio chaos; note density cycles eighth, sixteenth, quarter with `c`,
@@ -165,7 +165,7 @@ function standaloneControls(c: number, i: number, s: number): CorpusControls {
   })
 }
 
-/** Intent: every standalone case: level spread × instrument × mode, each phrase 1. */
+/** Every standalone case: level spread × instrument × mode, each phrase 1. */
 function standaloneCases(): readonly ReplayKeyCorpusV32Case[] {
   return SPREADS.flatMap((spread, s) =>
     INSTRUMENTS.flatMap((instrument, i) =>
@@ -184,7 +184,7 @@ function standaloneCases(): readonly ReplayKeyCorpusV32Case[] {
 }
 
 /**
- * Intent: a three-phrase chain per instrument for spreads 1 and 2, each instrument in its own
+ * A three-phrase chain per instrument for spreads 1 and 2, each instrument in its own
  * mode: phrase 1, phrase 2 receiving phrase 1's carry-in, phrase 3 receiving phrase 2's. All three
  * are cases, so the backing and file corpus can hold the chain as a session.
  */
@@ -223,7 +223,7 @@ function chainCases(): readonly ReplayKeyCorpusV32Case[] {
 }
 
 /**
- * Intent: per instrument for spreads 0 and 3, a D Lydian phrase 1 and a G# Phrygian phrase 2
+ * Per instrument for spreads 0 and 3, a D Lydian phrase 1 and a G# Phrygian phrase 2
  * receiving its carry-in with the final harmony dropped (null), as a session does when the key
  * changes between phrases.
  */
@@ -257,7 +257,7 @@ function keyChangeCases(): readonly ReplayKeyCorpusV32Case[] {
   )
 }
 
-/** Intent: every case of the v3.2 corpus, in a fixed order. */
+/** Every case of the v3.2 corpus, in a fixed order. */
 export function replayKeyCorpusV32Cases(): readonly ReplayKeyCorpusV32Case[] {
   return [
     ...presetCases(),

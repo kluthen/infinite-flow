@@ -73,13 +73,13 @@ const scratch = {
   next: new Float64Array(STATE_COUNT),
 }
 
-/** Intent: the combined cost of one edit involving one tick, or two ticks for a move. */
+/** The combined cost of one edit involving one tick, or two ticks for a move. */
 function editCost(tick: number, other: number = tick): number {
   return EDIT_WEIGHT + (STRONG[tick]! | STRONG[other]!)
 }
 
 /**
- * Intent: write the start kind code at each tick of the measure into `kinds`. Throws unless the
+ * Write the start kind code at each tick of the measure into `kinds`. Throws unless the
  * starts are integer ticks of the measure in strictly increasing order.
  */
 function kindsByTick(starts: MeasureStarts, kinds: Uint8Array): Uint8Array {
@@ -98,7 +98,7 @@ function kindsByTick(starts: MeasureStarts, kinds: Uint8Array): Uint8Array {
 }
 
 /**
- * Intent: drop the starts the two lists share exactly (same tick, same kind) from both tick
+ * Drop the starts the two lists share exactly (same tick, same kind) from both tick
  * tables, and tell whether any start is left. Matching a shared start to itself is always part of
  * some best solution: any solution that uses it otherwise can be rewritten with it matched to
  * itself without more edits or more strong edits, so only the differing starts need the search.
@@ -114,14 +114,14 @@ function dropSharedStarts(a: Uint8Array, b: Uint8Array): boolean {
   return left
 }
 
-/** Intent: whether some search state other than "nothing open" is still reachable. */
+/** Whether some search state other than "nothing open" is still reachable. */
 function anyOpen(costs: Float64Array): boolean {
   for (let state = 1; state < STATE_COUNT; state += 1) if (costs[state] !== Infinity) return true
   return false
 }
 
 /**
- * Intent: whether a choice can settle a list's start of kind `own` at `tick`, given the other
+ * Whether a choice can settle a list's start of kind `own` at `tick`, given the other
  * list's kinds and which of its starts one and two ticks back are still open.
  */
 function allowed(
@@ -140,7 +140,7 @@ function allowed(
   return otherOpen2 && other[tick - MAX_MOVE] === own
 }
 
-/** Intent: the cost of a move choice (one or two ticks back) for a start at `tick`; else 0. */
+/** The cost of a move choice (one or two ticks back) for a start at `tick`; else 0. */
 function moveCost(choice: number, tick: number): number {
   if (choice === BACK_1) return editCost(tick, tick - 1)
   if (choice === BACK_2) return editCost(tick, tick - MAX_MOVE)
@@ -148,7 +148,7 @@ function moveCost(choice: number, tick: number): number {
 }
 
 /**
- * Intent: advance the search by one tick from one state: settle this tick's starts of both lists
+ * Advance the search by one tick from one state: settle this tick's starts of both lists
  * every consistent way, charge the open starts two ticks back that can no longer be matched, and
  * relax the next tick's states.
  */
@@ -185,7 +185,7 @@ function relaxState(
   }
 }
 
-/** Intent: the cost of the starts still open after the last tick, which become adds or removes. */
+/** The cost of the starts still open after the last tick, which become adds or removes. */
 function closingCost(state: number): number {
   const last = TICKS_PER_BAR - 1
   return (
@@ -197,7 +197,7 @@ function closingCost(state: number): number {
 }
 
 /**
- * Intent: the fewest edits between two measures, and among the fewest the fewest touching a
+ * The fewest edits between two measures, and among the fewest the fewest touching a
  * strong beat. Exact over every matching of the two lists' starts, crossing pairs included (a
  * note and the rest beside it can each move past the other's place, which an order-preserving
  * alignment would miss): shared starts are matched to themselves, then a search over the ticks in
@@ -229,7 +229,7 @@ export function measureEdits(a: MeasureStarts, b: MeasureStarts): MeasureEdits {
 }
 
 /**
- * Intent: the band of two measures: no edit is Same; one edit away from ticks 0 and 8 is Close;
+ * The band of two measures: no edit is Same; one edit away from ticks 0 and 8 is Close;
  * one edit touching tick 0 or 8, or two edits neither touching them, is Near; anything else is
  * beyond.
  */
@@ -242,13 +242,13 @@ export function measureBand(a: MeasureStarts, b: MeasureStarts): RhythmBand {
   return 'beyond'
 }
 
-/** Intent: reject two rhythms that do not have the same number of measures. */
+/** Reject two rhythms that do not have the same number of measures. */
 function requireSameMeasureCount(a: readonly MeasureStarts[], b: readonly MeasureStarts[]): void {
   if (a.length !== b.length)
     throw new Error(`Cannot compare rhythms of ${a.length} and ${b.length} measures.`)
 }
 
-/** Intent: the band of each measure of two rhythms, measure by measure. */
+/** The band of each measure of two rhythms, measure by measure. */
 // @spec-link [[rule_rhythm_distance]]
 export function measureBands(
   a: readonly MeasureStarts[],
@@ -258,7 +258,7 @@ export function measureBands(
   return Object.freeze(a.map((measure, index) => measureBand(measure, b[index]!)))
 }
 
-/** Intent: the total number of edits between two rhythms over all their measures. */
+/** The total number of edits between two rhythms over all their measures. */
 // @spec-link [[rule_rhythm_distance]]
 export function rhythmDistance(a: readonly MeasureStarts[], b: readonly MeasureStarts[]): number {
   requireSameMeasureCount(a, b)

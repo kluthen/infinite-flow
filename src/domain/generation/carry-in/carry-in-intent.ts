@@ -24,7 +24,7 @@ export type CarryInGenerationIntentInput = GenerationIntentInput & {
 }
 
 /**
- * Intent: build the intent exactly as the plain factory does (same validation, same concert-pitch
+ * Build the intent exactly as the plain factory does (same validation, same concert-pitch
  * conversion, same register intent), then refuse, as a CarryInError, a carry-in the finished
  * intent cannot honour, and otherwise keep the carry-in unchanged. The Seventh chords level is the
  * one the input gives, kept as the plain factory keeps it. A carry-in from no phrase (the

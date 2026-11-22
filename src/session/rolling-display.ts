@@ -66,7 +66,7 @@ export interface PlayheadTempoSegment {
 // @spec-link [[rule_playhead_follows_audio_clock]]
 export type PlayheadTempoMap = readonly PlayheadTempoSegment[]
 
-/** Intent: reject a tempo map no session has: a caller bug. */
+/** Reject a tempo map no session has: a caller bug. */
 function assertTempoMap(map: PlayheadTempoMap): void {
   if (map[0]?.phraseNumber !== 1) {
     throw new Error('rolling display: a tempo map must start with phrase 1')
@@ -93,13 +93,13 @@ function assertTempoMap(map: PlayheadTempoMap): void {
   })
 }
 
-/** Intent: the index of measure `k` (counted from phrase 1's first) where `segment` begins. */
+/** The index of measure `k` (counted from phrase 1's first) where `segment` begins. */
 function firstMeasureOf(segment: PlayheadTempoSegment): number {
   return (segment.phraseNumber - 1) * PHRASE_MEASURE_COUNT
 }
 
 /**
- * Intent: the time of barline k (counted from phrase 1's first) inside `segment`, by
+ * The time of barline k (counted from phrase 1's first) inside `segment`, by
  * multiplication from the segment's start so no error accumulates over a session.
  */
 function barlineAt(segment: PlayheadTempoSegment, k: number): AudioTime {
@@ -107,7 +107,7 @@ function barlineAt(segment: PlayheadTempoSegment, k: number): AudioTime {
 }
 
 /**
- * Intent: the measure being played at a heard time, or null before phrase 1's first barline (the
+ * The measure being played at a heard time, or null before phrase 1's first barline (the
  * count-in), through the session's tempo map: in the segment the time falls in, barline k lies at
  * the segment's start plus its measures since then at its own length, and a segment's first
  * barline is its very start. The floor estimate is corrected against those very barline times,
@@ -137,7 +137,7 @@ export function playheadAt(heardTime: AudioTime, map: PlayheadTempoMap): Playhea
   }
 }
 
-/** Intent: reject a phrase number that is not a positive integer, a caller bug. */
+/** Reject a phrase number that is not a positive integer, a caller bug. */
 function assertPhraseNumber(phraseNumber: number, what: string): void {
   if (!(Number.isInteger(phraseNumber) && phraseNumber >= 1)) {
     throw new Error(`rolling display: ${what} ${phraseNumber} is not a phrase number`)
@@ -145,7 +145,7 @@ function assertPhraseNumber(phraseNumber: number, what: string): void {
 }
 
 /**
- * Intent: the phrase being played, 1 during the count-in, after rejecting the caller bugs: an
+ * The phrase being played, 1 during the count-in, after rejecting the caller bugs: an
  * unknown layout, a malformed playhead, or a readiness behind the playhead's phrase.
  */
 function currentPhrase(
@@ -171,7 +171,7 @@ function currentPhrase(
 }
 
 /**
- * Intent: what the two positions show. One system: phrase n lives on top when odd, below when
+ * What the two positions show. One system: phrase n lives on top when odd, below when
  * even; the phrase being played shows in its position, the other shows the next phrase once it is
  * readied. Split: in measures 1-2 (and the count-in) the phrase's opening is on top and its
  * closing below; from measure 3 the closing stays and the top takes the next phrase's opening once
@@ -200,23 +200,23 @@ export function systemsAt(
   return { top: next === null ? null : { phraseNumber: next, part: 'opening' }, bottom: closing }
 }
 
-/** Intent: the parts a layout splits a phrase into, in reading order. */
+/** The parts a layout splits a phrase into, in reading order. */
 function partsOf(layout: StaffLayout): readonly SystemPart[] {
   return layout === 'one-system' ? ['whole'] : ['opening', 'closing']
 }
 
-/** Intent: a measure's 0-based position across the whole session. */
+/** A measure's 0-based position across the whole session. */
 function absoluteMeasure(phraseNumber: number, measureIndex: number): number {
   return (phraseNumber - 1) * PHRASE_MEASURE_COUNT + measureIndex
 }
 
-/** Intent: the shown slots of a plan, top first. */
+/** The shown slots of a plan, top first. */
 function shownSlots(systems: RollingSystems): SystemSlot[] {
   return [systems.top, systems.bottom].filter((slot): slot is SystemSlot => slot !== null)
 }
 
 /**
- * Intent: the readied material no position shows yet: every part of every readied phrase from the
+ * The readied material no position shows yet: every part of every readied phrase from the
  * one being played on that is neither shown nor already played, in phrase then part order. The
  * phrase after next can be readied while the heard playhead is still in the current phrase's last
  * measure; it waits here until the playhead reaches the phrase before it. Throws on the caller
@@ -244,7 +244,7 @@ export function waitingMaterial(
 }
 
 /**
- * Intent: the distinct phrase numbers, ascending, that are shown or waiting: the phrases whose fit
+ * The distinct phrase numbers, ascending, that are shown or waiting: the phrases whose fit
  * the held viewport must still guarantee. Throws on the caller bugs `systemsAt` rejects.
  */
 // @spec-link [[module_session_rolling_display]]
@@ -261,14 +261,14 @@ export function phrasesShownOrWaiting(
   return [...new Set(slots.map((slot) => slot.phraseNumber))].sort((a, b) => a - b)
 }
 
-/** Intent: the position holding the playhead's measure in a layout. */
+/** The position holding the playhead's measure in a layout. */
 function positionOf(layout: StaffLayout, playhead: PlayheadPosition): Position {
   if (layout === 'one-system') return playhead.phraseNumber % 2 === 1 ? 'top' : 'bottom'
   return playhead.measureIndex < 2 ? 'top' : 'bottom'
 }
 
 /**
- * Intent: how many measures are on screen after the one being played: the rest of the playhead's
+ * How many measures are on screen after the one being played: the rest of the playhead's
  * system, plus the other system's measures when it holds the slot that comes next in reading
  * order. Throws on the caller bugs `systemsAt` rejects.
  */
@@ -294,7 +294,7 @@ export function readAheadMeasures(
 }
 
 /**
- * Intent: whether any part of phrase `phraseNumber` is shown on either position. Throws on a
+ * Whether any part of phrase `phraseNumber` is shown on either position. Throws on a
  * phrase number that is not a positive integer and on the caller bugs `systemsAt` rejects.
  */
 // @spec-link [[module_session_rolling_display]]
@@ -309,7 +309,7 @@ export function isPhraseOnScreen(
   return shown.some((slot) => slot.phraseNumber === phraseNumber)
 }
 
-/** Intent: a slot's identity, `${phraseNumber}:${part}`, so a position can tell a refill. */
+/** A slot's identity, `${phraseNumber}:${part}`, so a position can tell a refill. */
 // @spec-link [[module_session_rolling_display]]
 export function slotKey(slot: SystemSlot): string {
   return `${slot.phraseNumber}:${slot.part}`

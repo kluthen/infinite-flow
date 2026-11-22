@@ -30,11 +30,11 @@ export interface ControlPanelActions {
   readonly selectPreset: (id: PresetId) => void
 }
 
-/** Intent: build the handlers that forward the control panel's setting events onto `session`. */
+/** Build the handlers that forward the control panel's setting events onto `session`. */
 export function useControlPanelActions(
   session: GenerationSession<WorkspaceSessionResult>,
 ): ControlPanelActions {
-  /** Intent: forward one control-group's validated set-control event onto the session's action. */
+  /** Forward one control-group's validated set-control event onto the session's action. */
   function setControl<K extends SettableControlKey>(payload: {
     readonly key: K
     readonly value: GenerationControls[K]
@@ -43,7 +43,7 @@ export function useControlPanelActions(
   }
 
   /**
-   * Intent: forward a figure level change onto the session's one figure-level action, which makes
+   * Forward a figure level change onto the session's one figure-level action, which makes
    * Custom and, through the queue's key, discards the pre-generated phrases; the phrase on screen
    * stays.
    */
@@ -57,7 +57,7 @@ export function useControlPanelActions(
   }
 
   /**
-   * Intent: forward a Seventh chords level change onto the Idle session's one level action, the
+   * Forward a Seventh chords level change onto the Idle session's one level action, the
    * routing point: it makes Custom, saves the level and, through the queue's key, discards the
    * pre-generated phrases; the phrase on screen stays.
    */
@@ -70,12 +70,12 @@ export function useControlPanelActions(
     session.actions.setChordFamilyLevel(payload.family, payload.level)
   }
 
-  /** Intent: forward an instrument-profile selection onto the session's dedicated action. */
+  /** Forward an instrument-profile selection onto the session's dedicated action. */
   function selectInstrumentProfile(id: GenerationControls['instrumentProfileId']): void {
     void session.actions.selectInstrumentProfile(id)
   }
 
-  /** Intent: forward a preset choice onto the session's own action; the phrase on screen stays. */
+  /** Forward a preset choice onto the session's own action; the phrase on screen stays. */
   // @spec-link [[rule_choosing_preset_sets_its_settings]]
   function selectPreset(id: PresetId): void {
     session.actions.selectPreset(id)

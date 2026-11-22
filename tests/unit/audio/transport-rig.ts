@@ -19,7 +19,7 @@ export const RIG_START = 5
 /** Seconds per beat at 120 BPM. */
 export const BEAT = 0.5
 
-/** Intent: the real stylesheet's `--mix-*` tokens, as a computed-style lookup would give them. */
+/** The real stylesheet's `--mix-*` tokens, as a computed-style lookup would give them. */
 export function themeMixTokens(): DesignTokenSource {
   const css = readFileSync('src/styles/theme.css', 'utf8')
   const tokens = new Map<string, string>()
@@ -29,7 +29,7 @@ export function themeMixTokens(): DesignTokenSource {
   return { getPropertyValue: (name) => tokens.get(name) ?? '' }
 }
 
-/** Intent: the mix design read from the real stylesheet's `--mix-*` tokens. */
+/** The mix design read from the real stylesheet's `--mix-*` tokens. */
 export function themeDesign(): AudioMixDesign {
   return readAudioMixDesign(themeMixTokens())
 }
@@ -41,7 +41,7 @@ export interface TransportRig {
   readonly readMixDesign: Mock<() => AudioMixDesign>
 }
 
-/** Intent: a fresh transport on a fresh fake rig whose clock starts at `RIG_START`. */
+/** A fresh transport on a fresh fake rig whose clock starts at `RIG_START`. */
 // @test-link [[rule_audio_unlocked_by_player_click]]
 export function transportRig(outputLatency = 0): TransportRig {
   const rig = createFakeAudioRig({ startTime: RIG_START, outputLatency })
@@ -54,12 +54,12 @@ export function transportRig(outputLatency = 0): TransportRig {
   return { rig, transport, readMixDesign }
 }
 
-/** Intent: the moment beat `k` of a session started at `startAt` falls on, at 120 BPM. */
+/** The moment beat `k` of a session started at `startAt` falls on, at 120 BPM. */
 export function beat(startAt: AudioTime, k: number): AudioTime {
   return startAt + k * BEAT
 }
 
-/** Intent: every event other than a click, the calls a mix change may make. */
+/** Every event other than a click, the calls a mix change may make. */
 export function nonClickEvents(events: readonly FakeAudioEvent[]): FakeAudioEvent[] {
   return events.filter((event) => event.kind !== 'click')
 }

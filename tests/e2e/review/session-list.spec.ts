@@ -71,7 +71,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: add `text` as the shown Review's comment, through its editor, and wait until stored. */
+/** Add `text` as the shown Review's comment, through its editor, and wait until stored. */
 async function addComment(page: Page, key: string, text: string): Promise<void> {
   const comment = reviewPanel(page).locator('.review-comment')
   await comment.getByRole('button', { name: 'Add a comment', exact: true }).click()
@@ -80,7 +80,7 @@ async function addComment(page: Page, key: string, text: string): Promise<void> 
   await expect.poll(async () => (await storedSummary(page, key)).comment).toBe(text)
 }
 
-/** Intent: play two sessions (the first starred, so pinned with a favorite), then reload. */
+/** Play two sessions (the first starred, so pinned with a favorite), then reload. */
 async function twoKeptSessions(page: Page): Promise<[string, string]> {
   await gotoStorageHarness(page)
   await sessionAt(page, startAt(1))
@@ -93,7 +93,7 @@ async function twoKeptSessions(page: Page): Promise<[string, string]> {
   return [first, await keyStartedAt(page, startAt(2))]
 }
 
-/** Intent: confirm the open sheet titled `title` with its action `action`. */
+/** Confirm the open sheet titled `title` with its action `action`. */
 async function confirmSheet(page: Page, title: string, action: string): Promise<void> {
   await expect(sheet(page)).toHaveAccessibleName(title)
   await sheetAction(page, action).click()
@@ -130,9 +130,9 @@ test('five kept sessions: one row each, newest first, exactly as designed, no pe
   await reloadHarness(page)
   await showListFromCueRow(page)
 
-  /** Intent: the session date of the `n`th start. */
+  /** The session date of the `n`th start. */
   const date = (n: number) => sessionDateOf(page, startAt(n))
-  /** Intent: the detail and status lines of the session stored under `key`. */
+  /** The detail and status lines of the session stored under `key`. */
   const lines = async (key: string) => expectedLines(await storedSummary(page, key))
   const copied = await storedSummary(page, 'session-copy-older')
   expect(await shownRows(page)).toEqual([

@@ -43,12 +43,12 @@ const ANCHORS: readonly LaneMeasureAnchors[] = [0, 1, 2, 3].map((measureIndex) =
 
 const SOURCE: PlayedNotesLaneSource = { phrase: PHRASE, anchors: ANCHORS, systemOffsetsPx: [0] }
 
-/** Intent: the recording's notes as recorded played notes. */
+/** The recording's notes as recorded played notes. */
 function playedNotes(notes: readonly FixtureNote[]): RecordedPlayedNote[] {
   return notes.map((note) => ({ ...note, pitch: makeConcertPitch(note.pitch) }))
 }
 
-/** Intent: a record holding `notes` from time 0, at a tempo that fits them all in its 16 beats. */
+/** A record holding `notes` from time 0, at a tempo that fits them all in its 16 beats. */
 function recordOf(notes: readonly RecordedPlayedNote[]): PlayedNotesLaneRecord {
   const end = Math.max(...notes.map((note) => note.releaseAt)) + 1
   return { startedAt: 0, tempo: (16 * 60) / end, playedNotes: notes }

@@ -50,11 +50,11 @@ const SIXTEENTH_UNAVAILABLE_NOTE = "Sixteenth isn't available on small screens."
 
 const sixteenthNoteId = useId()
 
-/** Intent: whether the window is below `bp-tablet-landscape`, where `Sixteenth` can't be chosen. */
+/** Whether the window is below `bp-tablet-landscape`, where `Sixteenth` can't be chosen. */
 // @spec-link [[rule_sixteenth_unavailable_below_tablet_width]]
 const sixteenthUnavailable = computed(() => props.noteDensityContext.belowTabletLandscape)
 
-/** Intent: the note-density segments, with `Sixteenth` unavailable below `bp-tablet-landscape`. */
+/** The note-density segments, with `Sixteenth` unavailable below `bp-tablet-landscape`. */
 // @spec-link [[rule_sixteenth_unavailable_below_tablet_width]]
 const densityOptions = computed(() =>
   noteDensityOptions().map((option) =>
@@ -64,7 +64,7 @@ const densityOptions = computed(() =>
   ),
 )
 
-/** Intent: the checked density segment: the density a phrase would be generated with now. */
+/** The checked density segment: the density a phrase would be generated with now. */
 // @spec-link [[rule_generated_density_follows_window_width]]
 const shownNoteDensity = computed(() =>
   resolveGeneratedNoteDensity(props.controls.noteDensity, props.noteDensityContext),
@@ -75,7 +75,7 @@ const emit = defineEmits<{
 }>()
 
 /**
- * Intent: report a note-density change, re-validating against its catalog. Choosing the checked
+ * Report a note-density change, re-validating against its catalog. Choosing the checked
  * segment while it stands in for a chosen `Sixteenth` changes nothing, so the chosen `Sixteenth`
  * is kept.
  */
@@ -88,7 +88,7 @@ function handleNoteDensity(value: string): void {
   })
 }
 
-/** Intent: report a rhythmic-variety change, re-validating against its catalog. */
+/** Report a rhythmic-variety change, re-validating against its catalog. */
 function handleRhythmicVariety(value: string): void {
   emit('set-control', {
     key: 'rhythmicVariety',
@@ -96,7 +96,7 @@ function handleRhythmicVariety(value: string): void {
   })
 }
 
-/** Intent: report a syncopation change, re-validating against its catalog. */
+/** Report a syncopation change, re-validating against its catalog. */
 function handleSyncopation(value: string): void {
   emit('set-control', {
     key: 'syncopation',
@@ -104,7 +104,7 @@ function handleSyncopation(value: string): void {
   })
 }
 
-/** Intent: report a silence-density change, re-validating against its catalog. */
+/** Report a silence-density change, re-validating against its catalog. */
 function handleSilenceDensity(value: string): void {
   emit('set-control', {
     key: 'silenceDensity',
@@ -112,7 +112,7 @@ function handleSilenceDensity(value: string): void {
   })
 }
 
-/** Intent: name the rhythm-setting subset of the current controls that the block rule reads. */
+/** Name the rhythm-setting subset of the current controls that the block rule reads. */
 const rhythmSetting = computed(() => ({
   noteDensity: props.controls.noteDensity,
   rhythmicVariety: props.controls.rhythmicVariety,
@@ -120,13 +120,13 @@ const rhythmSetting = computed(() => ({
   syncopation: props.controls.syncopation,
 }))
 
-/** Intent: whether the chosen setting blocks generation, judged on the density generated with. */
+/** Whether the chosen setting blocks generation, judged on the density generated with. */
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 const isBlocked = computed(() =>
   isRhythmSettingBlocked(rhythmSetting.value, props.noteDensityContext),
 )
 
-/** Intent: the notice and a suggestion computed from the setting a phrase would be generated from. */
+/** The notice and a suggestion computed from the setting a phrase would be generated from. */
 // @spec-link [[rule_unsupported_rhythm_settings_block_generation]]
 const blockedMessage = computed(() => {
   if (!isBlocked.value) return null
@@ -136,7 +136,7 @@ const blockedMessage = computed(() => {
   return `${UNSUPPORTED_RHYTHM_SETTING_MESSAGE} ${describeRhythmSettingSuggestion(suggestion)}`
 })
 
-/** Intent: the persistent live-region text -- empty (not absent) whenever the setting is supported. */
+/** The persistent live-region text -- empty (not absent) whenever the setting is supported. */
 const liveRegionText = computed(() => blockedMessage.value ?? '')
 </script>
 

@@ -63,7 +63,7 @@ const INTERNED_STARTS: Readonly<Record<RhythmEventKind, readonly RhythmStart[]>>
 })
 
 /**
- * Intent: the compact key of one measure as written: per event, in order, its kind letter (n or
+ * The compact key of one measure as written: per event, in order, its kind letter (n or
  * r), start tick and length, with `~` before a tie continuation, e.g. `n0.2,~n2.2,r4.4`. Tie chain
  * names are left out, so two measures have equal keys exactly when they are written alike.
  */
@@ -78,14 +78,14 @@ export function measureBarKey(bar: Pick<WrittenMeasure, 'events'>): string {
     .join(',')
 }
 
-/** Intent: the bar key of a whole rhythm: its measure keys joined with `|`. */
+/** The bar key of a whole rhythm: its measure keys joined with `|`. */
 // @spec-link [[entity_rhythm_candidate_domain]]
 export function rhythmBarKey(bars: readonly Pick<WrittenMeasure, 'events'>[]): string {
   return bars.map(measureBarKey).join('|')
 }
 
 /**
- * Intent: one measure's start list: one entry per event that is not a tie continuation, in tick
+ * One measure's start list: one entry per event that is not a tie continuation, in tick
  * order. Throws when the events do not start in strictly increasing order inside the measure,
  * which only a malformed bar can do.
  */
@@ -109,14 +109,14 @@ export function measureStarts(bar: WrittenMeasure): MeasureStarts {
   return Object.freeze(list)
 }
 
-/** Intent: the start list of every measure of a rhythm, in measure order. */
+/** The start list of every measure of a rhythm, in measure order. */
 // @spec-link [[entity_rhythm_candidate_domain]]
 export function rhythmStarts(bars: readonly WrittenMeasure[]): readonly MeasureStarts[] {
   return Object.freeze(bars.map(measureStarts))
 }
 
 /**
- * Intent: key a domain's candidates by bars. The list must be a whole domain in order (each
+ * Key a domain's candidates by bars. The list must be a whole domain in order (each
  * candidate's index is its position); it is read, never changed. Measures written alike share one
  * start list. Every returned list is frozen; the map is exposed read-only.
  */
@@ -160,7 +160,7 @@ export function keyRhythmCandidates(candidates: readonly RhythmCandidate[]): Bar
 const keyedDomains = new WeakMap<readonly RhythmCandidate[], BarsKeyedRhythmDomain>()
 
 /**
- * Intent: the domain keyed by bars for this exact candidate list, built on first use and then
+ * The domain keyed by bars for this exact candidate list, built on first use and then
  * shared, so a lookup by bars beside the canonical domain memo costs one map access. The list
  * must be frozen (as the memo's lists are): a list that could change would leave its keyed
  * domain stale.

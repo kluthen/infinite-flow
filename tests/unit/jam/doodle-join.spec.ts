@@ -62,17 +62,17 @@ const MAX_INTERVAL: Readonly<Record<Leapiness, number>> = {
   Angular: 12,
 }
 
-/** Intent: the register windows of an instrument, as the generator derives them. */
+/** The register windows of an instrument, as the generator derives them. */
 function windowsOf(instrument: InstrumentProfile) {
   return deriveRegisterWindowCandidates(instrument.concertRange, instrument.registerWindows)
 }
 
-/** Intent: phrase 1's join from a doodle for an instrument, with the register read from it. */
+/** Phrase 1's join from a doodle for an instrument, with the register read from it. */
 function joinFor(doodle: QuantizedDoodle, instrument: InstrumentProfile) {
   return doodleJoin(doodle, instrument, readDoodleRegister(doodle, windowsOf(instrument)))
 }
 
-/** Intent: a one-measure doodle of a few steps ending on `last`, its earlier notes held near it. */
+/** A one-measure doodle of a few steps ending on `last`, its earlier notes held near it. */
 function endingOn(last: number): QuantizedDoodle {
   return doodleOf(1, [
     [0, 4, last - 2],
@@ -82,7 +82,7 @@ function endingOn(last: number): QuantizedDoodle {
 }
 
 /**
- * Intent: phrase 1's intent input for a doodle on an instrument, in C Ionian: the controls the
+ * Phrase 1's intent input for a doodle on an instrument, in C Ionian: the controls the
  * doodle sets (the register the reading carries among them), the rest at session mode's
  * first-visit values, and the steering block at Near, Jam's first drift.
  */
@@ -123,7 +123,7 @@ function phraseOneInput(
   }
 }
 
-/** Intent: generate a phrase, failing the test with its code when the generator fails. */
+/** Generate a phrase, failing the test with its code when the generator fails. */
 function generated(intent: GenerationIntent): SuccessOutcome {
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success')
@@ -131,7 +131,7 @@ function generated(intent: GenerationIntent): SuccessOutcome {
   return outcome
 }
 
-/** Intent: the independent validator's verdict on an outcome of an intent. */
+/** The independent validator's verdict on an outcome of an intent. */
 function verdictOf(intent: GenerationIntent, outcome: SuccessOutcome) {
   return validateGenerationResult({
     intent,
@@ -267,7 +267,7 @@ interface JoinRecord {
 const joinsMade: JoinRecord[] = []
 
 /**
- * Intent: phrase 1 of one doodle on one instrument, generated with the join: valid by the
+ * Phrase 1 of one doodle on one instrument, generated with the join: valid by the
  * independent validator (which judges the join by the in-phrase rules), its first interval within
  * the leapiness ceiling, inside the joined window, owing the doodle nothing; and the carry-in
  * phrase 1 hands phrase 2 is v2's, numbered 1, which phrase 2's request accepts.

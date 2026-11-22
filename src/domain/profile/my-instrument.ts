@@ -132,13 +132,13 @@ export const MY_INSTRUMENT_RANGE_BOUNDS: Readonly<Record<InstrumentClef, Written
 const LOWEST_MIDI_NOTE = 0
 const HIGHEST_MIDI_NOTE = 127
 
-/** Intent: a refusal value with its reason and message. */
+/** A refusal value with its reason and message. */
 function refusal(reason: MyInstrumentRefusalReason, message: string): MyInstrumentRefusal {
   return deepFreeze({ reason, message })
 }
 
 /**
- * Intent: check a written range that is already known to hold whole numbers against the range
+ * Check a written range that is already known to hold whole numbers against the range
  * limits: the lowest note below the highest, a span of at least two octaves, and both concert
  * ends, the written range moved by the chromatic count, inside MIDI notes 0 to 127. Written notes
  * have no bound of their own.
@@ -167,7 +167,7 @@ function findRangeRefusal(range: WrittenRange, chromatic: number): MyInstrumentR
 }
 
 /**
- * Intent: the refusal of a written range outside its clef's bound, both ends included, naming the
+ * The refusal of a written range outside its clef's bound, both ends included, naming the
  * clef and the notes out of bound; nothing when both ends lie inside it.
  */
 // @spec-link [[rule_my_instrument_range_limits]]
@@ -187,7 +187,7 @@ export function findClefBoundRefusal(
 }
 
 /**
- * Intent: the first rule an input breaks, or nothing when my instrument can be built from it.
+ * The first rule an input breaks, or nothing when my instrument can be built from it.
  * Checked in a fixed order: a blank name, a template that names no built-in, a malformed
  * transposition, endpoints that are not whole numbers, the range limits, then the clef's bound.
  */
@@ -198,7 +198,7 @@ export function findMyInstrumentRefusal(input: MyInstrumentInput): MyInstrumentR
 }
 
 /**
- * Intent: the first rule but the clef's bound an input breaks, in the same order: what deriving
+ * The first rule but the clef's bound an input breaks, in the same order: what deriving
  * the generator-facing profile, which carries no clef, can check.
  */
 // @spec-link [[rule_my_instrument_range_limits]]
@@ -226,7 +226,7 @@ function findProfileRefusal(input: MyInstrumentProfileInput): MyInstrumentRefusa
 }
 
 /**
- * Intent: build my instrument, refusing any input `findMyInstrumentRefusal` refuses as a typed
+ * Build my instrument, refusing any input `findMyInstrumentRefusal` refuses as a typed
  * MyInstrumentError. The profile carries the fixed id, the display name, the concert range (the
  * written range minus the chromatic count, as written = concert + chromatic), the built-in
  * profiles' window policy and the chromatic/diatonic pair from the interval table. The clef is
@@ -263,7 +263,7 @@ export function makeMyInstrument(input: MyInstrumentInput): MyInstrument {
 }
 
 /**
- * Intent: the generator-facing profile my instrument derives from its input without its clef,
+ * The generator-facing profile my instrument derives from its input without its clef,
  * refusing as `makeMyInstrument` does every rule but the clef's bound, which needs the clef the
  * profile never carries. What the generation worker checks a supplied profile against.
  */
@@ -275,7 +275,7 @@ export function makeMyInstrumentProfile(input: MyInstrumentProfileInput): Instru
   return builtProfile(input)
 }
 
-/** Intent: the profile of an input already checked: concert range, window policy, transposition. */
+/** The profile of an input already checked: concert range, window policy, transposition. */
 function builtProfile(input: MyInstrumentProfileInput): InstrumentProfile {
   const transposition = instrumentTranspositionFor(input.transposition)
   const writtenRange = input.writtenRange
@@ -292,7 +292,7 @@ function builtProfile(input: MyInstrumentProfileInput): InstrumentProfile {
 }
 
 /**
- * Intent: the starting point a built-in gives my instrument: its id as the template, its written
+ * The starting point a built-in gives my instrument: its id as the template, its written
  * range (the concert range plus the chromatic count) and its transposition in octaves, semitones
  * and a direction. Refuses an id that names no built-in, and a built-in whose diatonic count the
  * interval table would spell differently.

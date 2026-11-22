@@ -37,7 +37,7 @@ interface Size {
   readonly height: number
 }
 
-/** Intent: start a session at `size` and move to phrase 1's second measure, phrase 2 readied. */
+/** Start a session at `size` and move to phrase 1's second measure, phrase 2 readied. */
 async function runningAtBarTwo(page: Page, size: Size, layout: Layout): Promise<StaffReading> {
   await gotoSessionHarness(page, size)
   await readyToStart(page)
@@ -51,7 +51,7 @@ async function runningAtBarTwo(page: Page, size: Size, layout: Layout): Promise<
 }
 
 /**
- * Intent: resize to `size` and wait until both systems are re-engraved there (each SVG's width
+ * Resize to `size` and wait until both systems are re-engraved there (each SVG's width
  * changed); return the settled reading.
  */
 async function resizeAndReengrave(
@@ -73,7 +73,7 @@ async function resizeAndReengrave(
 }
 
 /**
- * Intent: assert a resize re-engraved the staff in place: still running in the held layout, the
+ * Assert a resize re-engraved the staff in place: still running in the held layout, the
  * same slot in each position, the same unit holding a new SVG, the same notes, no unit faded out
  * or entered, and the one band on the same measure of the same system.
  */

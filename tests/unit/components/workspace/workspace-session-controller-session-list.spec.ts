@@ -37,7 +37,7 @@ const FRESH: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: the stored records of the recorded session started at `startedAt`, with `facts`. */
+/** The stored records of the recorded session started at `startedAt`, with `facts`. */
 function recordsAt(startedAt: number, facts: Partial<KeptSessionFacts> = {}): StoredKeptSession {
   const shifted = { ...history, phrases: () => history.phrases(), startedAt }
   return storedRecords(encodeKeptSession(shifted, { ...FRESH, ...facts }, APP_VERSION))
@@ -50,7 +50,7 @@ interface Deferred<T> {
   readonly fail: (error: unknown) => void
 }
 
-/** Intent: a promise the test settles by hand. */
+/** A promise the test settles by hand. */
 function deferred<T>(): Deferred<T> {
   let settle: (value: T) => void = () => {}
   let fail: (error: unknown) => void = () => {}
@@ -81,7 +81,7 @@ const LOADED: readonly [string, StoredKeptSession][] = [
   ['newest', recordsAt(3_000)],
 ]
 
-/** Intent: a fake seam over `entries` (the three loaded by default), saving on. */
+/** A fake seam over `entries` (the three loaded by default), saving on. */
 function fakeKept(entries: readonly [string, StoredKeptSession][] = LOADED): FakeKept {
   const stored = new Map(entries)
   const fake: FakeKept = {
@@ -128,12 +128,12 @@ function fakeKept(entries: readonly [string, StoredKeptSession][] = LOADED): Fak
   return fake
 }
 
-/** Intent: a rig after a reload that loaded `fake`'s kept sessions. */
+/** A rig after a reload that loaded `fake`'s kept sessions. */
 function reloaded(fake: FakeKept): ControllerRig {
   return controllerRig(undefined, undefined, { keptSessions: fake.seam })
 }
 
-/** Intent: the keys of the controller's rows, in order. */
+/** The keys of the controller's rows, in order. */
 function rowKeys(rig: ControllerRig): string[] {
   return rig.controller.state.keptRows.map((row) => row.key)
 }
@@ -407,7 +407,7 @@ describe('session controller: opening a kept session by its key', () => {
 // @test-link [[module_kept_session_reach]]
 // @test-link [[module_kept_session_changes]]
 describe('session controller: a pin, an unpin and Delete session from a row, not held in memory', () => {
-  /** Intent: the row under `key`'s summary fact `fact`. */
+  /** The row under `key`'s summary fact `fact`. */
   function rowFact(rig: ControllerRig, key: string, fact: 'pinned'): unknown {
     const row = rig.controller.state.keptRows.find((candidate) => candidate.key === key)
     return row?.kind === 'current' ? row.summary[fact] : undefined
@@ -553,7 +553,7 @@ describe("session controller: a Jam session's Keep mine from its row, not held i
     ],
   ]
 
-  /** Intent: the Jam row's suggestion declined, as its summary says. */
+  /** The Jam row's suggestion declined, as its summary says. */
   function rowDeclined(rig: ControllerRig): unknown {
     const row = rig.controller.state.keptRows.find((candidate) => candidate.key === 'jam')
     return row?.kind === 'current' ? row.summary.suggestionDeclined : undefined

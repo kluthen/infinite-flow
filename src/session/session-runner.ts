@@ -88,7 +88,7 @@ export interface SessionRunner {
 }
 
 /**
- * Intent: whether a generate rejection is a worker failure (a crash on that request or a dead
+ * Whether a generate rejection is a worker failure (a crash on that request or a dead
  * worker), which the session treats as a failed attempt rather than a programming error.
  */
 // @spec-link [[rule_session_generation_failure_ladder]]
@@ -99,7 +99,7 @@ function isWorkerFailure(error: unknown): boolean {
 }
 
 /**
- * Intent: start one session engine from `start` and run it: forward its start outputs, execute
+ * Start one session engine from `start` and run it: forward its start outputs, execute
  * its generation requests and fit checks through the seams, and feed their results back stamped
  * with `now()`. A generate rejection that is a worker crash or a transport error becomes a
  * `generation-crashed` event, a failed attempt that never ends the session; any other rejection,
@@ -120,7 +120,7 @@ export function createSessionRunner(
   /** The abort controller of each attempt whose generate request has not settled yet. */
   const inFlight = new Map<number, AbortController>()
 
-  /** Intent: forward each output in order, executing the requests and fit checks among them. */
+  /** Forward each output in order, executing the requests and fit checks among them. */
   function run(outputs: readonly SessionOutput[]): void {
     for (const output of outputs) {
       deps.onOutput(output)
@@ -135,7 +135,7 @@ export function createSessionRunner(
     }
   }
 
-  /** Intent: feed a result event back; an error while handling it goes to the owner. */
+  /** Feed a result event back; an error while handling it goes to the owner. */
   function feedBack(event: SessionEvent): void {
     try {
       run(engine.handle(event))
@@ -145,7 +145,7 @@ export function createSessionRunner(
   }
 
   /**
-   * Intent: generate one attempt under its own abort signal and feed back its outcome, or its
+   * Generate one attempt under its own abort signal and feed back its outcome, or its
    * worker failure; once the attempt is cancelled, whatever it settles with is dropped.
    */
   // @spec-link [[rule_dropped_attempt_cancelled]]
@@ -170,7 +170,7 @@ export function createSessionRunner(
     )
   }
 
-  /** Intent: fit-check one attempt's outcome with its intent and feed back whether it fits. */
+  /** Fit-check one attempt's outcome with its intent and feed back whether it fits. */
   function requestFitCheck(attemptId: number, candidate: FitCandidate, phraseNumber: number): void {
     void deps.checkFit(candidate, phraseNumber).then(
       (fits) => feedBack({ kind: 'fit-result', at: deps.now(), attemptId, fits }),

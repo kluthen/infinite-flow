@@ -34,7 +34,7 @@ import type { Mulberry32Generator } from '@/domain/random/prng'
 import type { SessionSettings } from '@/session/session-types'
 import { EVERY_GROUP_SUBSET, pick } from './vary-settings-groups-cases'
 
-/** Intent: a restriction half: any, or the current value with up to two others. */
+/** A restriction half: any, or the current value with up to two others. */
 function randomHalf<T extends string>(
   random: Mulberry32Generator,
   catalog: readonly T[],
@@ -48,7 +48,7 @@ function randomHalf<T extends string>(
 }
 
 /**
- * Intent: a restriction holding the current key and mode, as one frozen at a session's start
+ * A restriction holding the current key and mode, as one frozen at a session's start
  * does, or none when both halves allow anything.
  */
 function randomRestriction(
@@ -62,9 +62,9 @@ function randomRestriction(
   return makeKeyAndModeRestriction({ keys, modes })
 }
 
-/** Intent: settings with every mutable control and figure level drawn at random. */
+/** Settings with every mutable control and figure level drawn at random. */
 export function randomSettings(random: Mulberry32Generator): SessionSettings {
-  /** Intent: one value of a catalog, drawn at random. */
+  /** One value of a catalog, drawn at random. */
   const draw = <T>(catalog: readonly T[]): T => pick(catalog, random.nextFloat())
   const controls: GenerationControls = {
     ...DEFAULT_GENERATION_CONTROLS,

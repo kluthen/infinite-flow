@@ -51,7 +51,7 @@ const ON_KEPT_DOODLE: KeptJamFacts = { doodle: KEPT_DOODLE, suggestionDeclined: 
 /** The fresh Jam's clock: seconds from the count-in's first beat (at 0.25 s; phrase 1 at 7.25 s). */
 const CLOCK = { doodleFirstBarline: 1, phraseOneStart: 7 }
 
-/** Intent: the session stored values decode to, failing the test unless they read as current. */
+/** The session stored values decode to, failing the test unless they read as current. */
 function decoded(stored: StoredKeptSession): KeptSession {
   const reading = decodeKeptSession(stored)
   if (reading.reading !== 'current')
@@ -59,7 +59,7 @@ function decoded(stored: StoredKeptSession): KeptSession {
   return reading.value
 }
 
-/** Intent: the stored records of the session over `records` with the facts and Jam facts given. */
+/** The stored records of the session over `records` with the facts and Jam facts given. */
 function kept(
   records: readonly SessionHistoryRecord[],
   facts: KeptSessionFacts,
@@ -69,7 +69,7 @@ function kept(
   return storedRecords(encodeKeptSession(historyOf(records, 'c-keyboard'), all, APP_VERSION))
 }
 
-/** Intent: the stored played notes' onsets, in stored order. */
+/** The stored played notes' onsets, in stored order. */
 function storedOnsets(stored: StoredKeptSession): readonly number[] {
   return (stored.playedNotes as { notes: readonly { onset: number }[] }).notes.map((n) => n.onset)
 }
@@ -136,7 +136,7 @@ describe('a kept fresh Jam', () => {
   // @test-link [[rule_raw_doodle_notes_are_played_notes]]
   it('keeps after its save the very played notes its save writes when they are kept', () => {
     const history = {
-      /** Intent: the recorded phrases, as a finished session's history hands them. */
+      /** The recorded phrases, as a finished session's history hands them. */
       phrases: () => records,
     }
     const later = structuredClone(encodeKeptPlayedNotes(history, APP_VERSION, freshJam()))
@@ -282,7 +282,7 @@ describe("the encoder over a fresh Jam's moments out of order", () => {
     records = jamSessionRecordsWithPlayedNotes()
   }, 60_000)
 
-  /** Intent: encode the session as a fresh Jam with `fresh`'s moments, its notes kept or not. */
+  /** Encode the session as a fresh Jam with `fresh`'s moments, its notes kept or not. */
   function encodeFresh(fresh: KeptJamFacts['fresh'], facts: KeptSessionFacts): unknown {
     const jam = { ...FRESH, fresh }
     return encodeKeptSession(historyOf(records, 'c-keyboard'), { ...facts, jam }, APP_VERSION)

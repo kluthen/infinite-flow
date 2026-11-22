@@ -42,7 +42,7 @@ import { makeRational } from '@/domain/time/rational'
 /** A written range every transposition below can sound inside MIDI 0 to 127: C3 to C6. */
 const WRITTEN_RANGE = { minMidi: 48, maxMidi: 76 } as const
 
-/** Intent: build my instrument on the C MIDI keyboard template with one transposition and clef. */
+/** Build my instrument on the C MIDI keyboard template with one transposition and clef. */
 function myInstrumentWith(
   transposition: MyInstrumentTransposition,
   clef: InstrumentClef = 'treble',
@@ -69,22 +69,22 @@ function everyTransposition(): readonly MyInstrumentTransposition[] {
   return all
 }
 
-/** Intent: the pitch class of a pitch-class name. */
+/** The pitch class of a pitch-class name. */
 function pcOf(name: PitchClass): PitchClassNumber {
   return PITCH_CLASSES.indexOf(name) as PitchClassNumber
 }
 
-/** Intent: the MIDI note a spelled written pitch stands for (B♯3 and C4 are both 60). */
+/** The MIDI note a spelled written pitch stands for (B♯3 and C4 are both 60). */
 function midiOf(pitch: SpelledPitch): number {
   return (pitch.octave + 1) * 12 + naturalPitchClassOf(pitch.letter) + pitch.alter
 }
 
-/** Intent: the pitch class a spelled pitch class stands for. */
+/** The pitch class a spelled pitch class stands for. */
 function spelledPc(pitch: SpelledPitchClass): number {
   return (((naturalPitchClassOf(pitch.letter) + pitch.alter) % 12) + 12) % 12
 }
 
-/** Intent: one concert note of `sixteenths` sixteenth notes, never a tie continuation. */
+/** One concert note of `sixteenths` sixteenth notes, never a tie continuation. */
 function concertNote(pitch: number, sixteenths: number): MeasureEvent {
   return makeNoteEvent({
     duration: makeRational(sixteenths, 16),
@@ -94,7 +94,7 @@ function concertNote(pitch: number, sixteenths: number): MeasureEvent {
 }
 
 /**
- * Intent: a concert timeline in the concert key: measure 0 climbs the collection from the concert
+ * A concert timeline in the concert key: measure 0 climbs the collection from the concert
  * tonic in eighth notes (eight notes, the tonic an octave up last), measures 1 to 3 hold the
  * tonic, its fourth degree and its fifth degree as whole notes.
  */
@@ -109,7 +109,7 @@ function concertScaleTimeline(concertTonicMidi: number, collection: Collection) 
   ])
 }
 
-/** Intent: chord symbols on the concert I, IV, V and VI degrees, one per measure's downbeat. */
+/** Chord symbols on the concert I, IV, V and VI degrees, one per measure's downbeat. */
 function concertChords(concertTonic: PitchClassNumber, collection: Collection) {
   const offsets = COLLECTION_OFFSETS[collection]
   return [0, 3, 4, 5].map((degree, measureIndex): ConcertChordSymbol => ({
@@ -121,7 +121,7 @@ function concertChords(concertTonic: PitchClassNumber, collection: Collection) {
   }))
 }
 
-/** Intent: the written phrase of a concert phrase for my instrument, in a chosen written key. */
+/** The written phrase of a concert phrase for my instrument, in a chosen written key. */
 function writtenFor(
   myInstrument: MyInstrument,
   writtenTonalCenter: PitchClass,
@@ -145,7 +145,7 @@ function writtenFor(
 }
 
 /**
- * Intent: check one written measure against its concert source: every note at its concert pitch
+ * Check one written measure against its concert source: every note at its concert pitch
  * plus the chromatic count, spelled as one of the written key's seven degrees (the concert notes
  * are all in the concert key), and every chord root moved by the same count, a degree of the key.
  */
@@ -283,7 +283,7 @@ describe('transformToWrittenPhrase for my instrument: 6 semitones higher, writte
   })
 })
 
-/** Intent: a written phrase with its clef and stem directions blanked, the only parts a clef moves. */
+/** A written phrase with its clef and stem directions blanked, the only parts a clef moves. */
 function withoutClefAndStems(phrase: WrittenPhrase) {
   return {
     ...phrase,
@@ -297,7 +297,7 @@ function withoutClefAndStems(phrase: WrittenPhrase) {
   }
 }
 
-/** Intent: every glyph's stem direction across the phrase, null for a rest. */
+/** Every glyph's stem direction across the phrase, null for a rest. */
 function stemsOf(phrase: WrittenPhrase): readonly (string | null)[] {
   return phrase.measures.flatMap((measure) =>
     measure.events.map((event) => (event.kind === 'note' ? event.stemDirection : null)),

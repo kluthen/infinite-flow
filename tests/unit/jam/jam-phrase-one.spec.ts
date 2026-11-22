@@ -19,7 +19,7 @@ import {
   type GenerationPlan,
 } from './jam-phrase-one-rig'
 
-/** Intent: barline `k` of a run, 0 at the count-in's end. */
+/** Barline `k` of a run, 0 at the count-in's end. */
 const barline = rigBarline
 
 // @test-link [[rule_two_measures_before_jam_phrase_one]]
@@ -69,7 +69,7 @@ describe('phrase 1 from an instant generator', () => {
 })
 
 /**
- * Intent: a slow double at 120 BPM: every rung 1 attempt fails after 1 s, rung 2 runs on for 2 s,
+ * A slow double at 120 BPM: every rung 1 attempt fails after 1 s, rung 2 runs on for 2 s,
  * rung 3 answers after 0.3 s.
  */
 function slow(request: GenerationRequestOutput): GenerationPlan {

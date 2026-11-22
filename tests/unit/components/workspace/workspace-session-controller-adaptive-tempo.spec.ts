@@ -23,12 +23,12 @@ const START_TEMPO = 120
 /** Where phrase 3's tempo is fixed in a session at 120 BPM: phrase 2's last measure, 21.1 s. */
 const PHRASE_THREE_FIXED_AT = 21.1
 
-/** Intent: a controller at Idle whose sessions start at 120 BPM. */
+/** A controller at Idle whose sessions start at 120 BPM. */
 function rig120(): ControllerRig {
   return controllerRig(undefined, undefined, { tempo: START_TEMPO })
 }
 
-/** Intent: a 120 BPM controller at Idle with KEYS attached and the flag on. */
+/** A 120 BPM controller at Idle with KEYS attached and the flag on. */
 async function flagOnWithKeys(): Promise<ControllerRig> {
   const rig = rig120()
   await connectKeys(rig)
@@ -36,14 +36,14 @@ async function flagOnWithKeys(): Promise<ControllerRig> {
   return rig
 }
 
-/** Intent: run a started session until phrase 5 sounds, stop it and give its phrases' tempos. */
+/** Run a started session until phrase 5 sounds, stop it and give its phrases' tempos. */
 async function tempos(rig: ControllerRig): Promise<number[]> {
   await playTo(rig, 40)
   rig.controller.stop()
   return rig.controller.state.lastHistory?.phrases().map((record) => record.tempo) ?? []
 }
 
-/** Intent: the controller events the controller sent the engine, in order. */
+/** The controller events the controller sent the engine, in order. */
 function controllerEvents(rig: ControllerRig): boolean[] {
   return rig.events.flatMap((event) => (event.kind === 'controller' ? [event.attached] : []))
 }
@@ -206,7 +206,7 @@ describe('session controller: the controller lost across a due rise', () => {
   })
 })
 
-/** Intent: run the started session `seconds` more of audio, then stop it. */
+/** Run the started session `seconds` more of audio, then stop it. */
 async function runAndStop(rig: ControllerRig, seconds: number): Promise<void> {
   await playTo(rig, rig.audioRig.now() + seconds)
   rig.controller.stop()

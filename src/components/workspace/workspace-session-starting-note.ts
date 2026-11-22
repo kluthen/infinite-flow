@@ -40,7 +40,7 @@ export interface IdleStartingNote {
 }
 
 /**
- * Intent: name the starting note from phrase 1's first fresh attack while a session may start, the
+ * Name the starting note from phrase 1's first fresh attack while a session may start, the
  * controller is connected, nothing is open over the workspace (a sheet, or the stale-phrase prompt,
  * while which no note starts anything), session mode is not held (while Jam mode opens or shows,
  * no note starts a session) and the staff shows Idle's phrase; and follow the page's
@@ -72,7 +72,7 @@ export function createIdleStartingNote(deps: IdleStartingNoteDependencies): Idle
   })
 
   /**
-   * Intent: whether the named starting note waits for the page's first click: the audio is still
+   * Whether the named starting note waits for the page's first click: the audio is still
    * locked and the page has had none (any click that unlocks the audio is one).
    */
   // @spec-link [[rule_midi_starting_note]]

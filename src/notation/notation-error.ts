@@ -44,7 +44,7 @@ export class NotationError extends Error {
   }
 }
 
-/** Intent: tell the staff layout's two failures apart from a notation error a retry can cure. */
+/** Tell the staff layout's two failures apart from a notation error a retry can cure. */
 // @spec-link [[module_notation_layout_preflight]]
 export function isStaffLayoutFailure(
   error: NotationError,

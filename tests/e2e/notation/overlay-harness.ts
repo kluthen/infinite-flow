@@ -15,7 +15,7 @@ export const NONE: NotationHarnessOverlays = {
 
 export type Identity = NotationHarnessNoteIdentity
 
-/** Intent: open the harness at a viewport with the given query and wait until it is ready. */
+/** Open the harness at a viewport with the given query and wait until it is ready. */
 // @test-link [[module_notation_note_identity_overlays]]
 export async function openHarness(
   page: Page,
@@ -32,7 +32,7 @@ export async function openHarness(
   return harness
 }
 
-/** Intent: set the overlay state, returning the rejection's error name, or null when it drew. */
+/** Set the overlay state, returning the rejection's error name, or null when it drew. */
 export async function setOverlays(
   page: Page,
   overlays: NotationHarnessOverlays,
@@ -47,12 +47,12 @@ export async function setOverlays(
   }, overlays)
 }
 
-/** Intent: the attribute value an identity is written as. */
+/** The attribute value an identity is written as. */
 export function keyOf(identity: Identity): string {
   return `${identity.phraseNumber}:${identity.measureIndex}:${identity.eventIndex}`
 }
 
-/** Intent: the first glyph identity whose written facts pass `match`, crashing when none does. */
+/** The first glyph identity whose written facts pass `match`, crashing when none does. */
 export function findIdentity(
   harness: NotationHarnessState,
   match: (fact: NotationHarnessGlyphFact, identity: Identity, measureIndex: number) => boolean,

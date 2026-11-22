@@ -24,13 +24,13 @@ interface PendingLoad {
   readonly reject: (cause: unknown) => void
 }
 
-/** Intent: let every settled promise's handlers run. */
+/** Let every settled promise's handlers run. */
 async function settle(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 /**
- * Intent: the Review's Jam code over a shown session the test changes (null: none, or no Jam),
+ * The Review's Jam code over a shown session the test changes (null: none, or no Jam),
  * Jam's code loaded in the visit or not, and a loader recording each load it starts.
  */
 function jamCodeRig(options: { readonly loaded?: boolean; readonly session?: object | null } = {}) {
@@ -126,7 +126,7 @@ describe('useReviewJamCode', () => {
   })
 })
 
-/** Intent: whether `promise` has settled yet, after letting pending handlers run. */
+/** Whether `promise` has settled yet, after letting pending handlers run. */
 async function hasSettled(promise: Promise<unknown>): Promise<boolean> {
   let settled = false
   void promise.then(() => (settled = true))

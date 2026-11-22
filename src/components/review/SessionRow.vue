@@ -28,22 +28,22 @@ const emit = defineEmits<{
   delete: []
 }>()
 
-/** Intent: the row's text, as the design writes it. */
+/** The row's text, as the design writes it. */
 // @spec-link [[req_kept_session_list]]
 const text = computed(() => sessionRowText(props.row, props.mostRecent, props.savingOff))
 
-/** Intent: the session's pin, offered on a row this version reads; null on a newer one. */
+/** The session's pin, offered on a row this version reads; null on a newer one. */
 // @spec-link [[rule_pinned_session_kept]]
 const pinned = computed(() => (props.row.kind === 'current' ? props.row.summary.pinned : null))
 
-/** Intent: the session date the actions' accessible names end with. */
+/** The session date the actions' accessible names end with. */
 const date = computed(() => text.value.title.replace(/ · Last session$/, ''))
 
 const openEl = ref<HTMLButtonElement | null>(null)
 const pinEl = ref<HTMLButtonElement | null>(null)
 const deleteEl = ref<HTMLButtonElement | null>(null)
 
-/** Intent: move focus to `element`, which must be rendered. */
+/** Move focus to `element`, which must be rendered. */
 function focusRendered(element: HTMLButtonElement | null, name: string): void {
   if (element === null) throw new Error(`session row: ${name} is not rendered`)
   element.focus()

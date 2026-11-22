@@ -72,12 +72,12 @@ const NO_PHRASE_CARRY_IN = makeCarryIn({
   finalHarmony: null,
 })
 
-/** Intent: the chord families holding one Seventh chords level. */
+/** The chord families holding one Seventh chords level. */
 function familiesAt(level: ChordFamilyLevel): ChordFamilies {
   return { 'seventh-chords': level }
 }
 
-/** Intent: a real C major phrase intent at a level, built-in or my instrument, with a carry-in. */
+/** A real C major phrase intent at a level, built-in or my instrument, with a carry-in. */
 function intentAt(
   seed: number,
   level: ChordFamilyLevel,
@@ -108,7 +108,7 @@ function intentAt(
 }
 
 /**
- * Intent: the carry-in an Always phrase 1 (seed 5, every event in seventh form) hands forward: its
+ * The carry-in an Always phrase 1 (seed 5, every event in seventh form) hands forward: its
  * final chord G7, the key's own seventh on degree 5, carried with its seventh.
  */
 function carriedSeventhCarryIn(): CarryIn {
@@ -121,19 +121,19 @@ function carriedSeventhCarryIn(): CarryIn {
   return carryIn
 }
 
-/** Intent: unpadded base64url of raw bytes, for hand-built payloads. */
+/** Unpadded base64url of raw bytes, for hand-built payloads. */
 function base64Url(bytes: Uint8Array): string {
   let binary = ''
   for (const byte of bytes) binary += String.fromCharCode(byte)
   return btoa(binary).replace(/\+/gu, '-').replace(/\//gu, '_').replace(/=+$/u, '')
 }
 
-/** Intent: encode any JSON value as a key of the given version, bypassing the codec's encoder. */
+/** Encode any JSON value as a key of the given version, bypassing the codec's encoder. */
 function rawKey(version: string, payload: unknown): string {
   return `${version}.${base64Url(new TextEncoder().encode(JSON.stringify(payload)))}`
 }
 
-/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+/** The JSON payload of a key, read back without the codec's decoder. */
 function payloadOf(key: string): unknown[] {
   const payload = key
     .slice(key.indexOf('.') + 1)
@@ -144,21 +144,21 @@ function payloadOf(key: string): unknown[] {
   return JSON.parse(new TextDecoder().decode(bytes)) as unknown[]
 }
 
-/** Intent: what a key replays to through the headless worker path, failing loudly on a crash. */
+/** What a key replays to through the headless worker path, failing loudly on a crash. */
 function replayedRaw(key: string): unknown {
   const report = replayPhraseKey(key)
   if (report.output.kind === 'crash') throw new Error(report.output.message)
   return report.output.raw
 }
 
-/** Intent: the valid `ifk5.` 10-tuple of a phrase 2 joined after a carried seventh, to corrupt. */
+/** The valid `ifk5.` 10-tuple of a phrase 2 joined after a carried seventh, to corrupt. */
 function carriedSeventhTuple(): unknown[] {
   return payloadOf(
     encodePhraseReplayKey(intentAt(12, 'favored', { carryIn: carriedSeventhCarryIn() }), 2),
   )
 }
 
-/** Intent: a valid `ifk5.` tuple of a plain Sometimes phrase with one slot replaced. */
+/** A valid `ifk5.` tuple of a plain Sometimes phrase with one slot replaced. */
 function tupleWith(index: number, value: unknown): unknown[] {
   const tuple = payloadOf(encodePhraseReplayKey(intentAt(6, 'sometimes'), 1))
   tuple[index] = value
@@ -362,7 +362,7 @@ const RECORDED_CORPORA = [
   'v3.2-corpus.json',
 ] as const
 
-/** Intent: every key a recorded corpus file holds. */
+/** Every key a recorded corpus file holds. */
 function recordedKeys(file: string): readonly string[] {
   const corpus = JSON.parse(
     readFileSync(

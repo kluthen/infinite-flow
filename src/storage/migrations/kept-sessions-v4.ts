@@ -37,7 +37,7 @@ import { rewriteInOrder, type StoreRewrite } from './rewrite-each'
 const FROM_VERSION = 2
 
 /**
- * Intent: the data version 4 session-wide record of a stored data version 2 one, v3.1's, written
+ * The data version 4 session-wide record of a stored data version 2 one, v3.1's, written
  * by `appVersion`: the session no Jam, with no declined suggestion, every other field (the app
  * version that recorded the session included) as stored; null for any record not at data version
  * 2 or not readable by the data version 2 reader, which is then left as it is. Never throws: any
@@ -63,7 +63,7 @@ export function upgradedKeptSummaryV4(
 }
 
 /**
- * Intent: the data version 4 body of a stored data version 2 one, v3.1's, written by
+ * The data version 4 body of a stored data version 2 one, v3.1's, written by
  * `appVersion`: no doodle and no played-notes clock, its phrases as read, each favorite mark and every other field (the
  * timelines included) as stored; null for any body not at data version 2 or not readable by the
  * data version 2 reader (one whose stored request holds a rhythm lock group or a steering block
@@ -95,19 +95,19 @@ export function upgradedKeptBodyV4(
 }
 
 /**
- * Intent: the stores the step rewrites, in the order it walks them (the session-wide records
+ * The stores the step rewrites, in the order it walks them (the session-wide records
  * first, then the bodies), each record's rewrite written by `appVersion`.
  */
 function keptSessionRewrites(appVersion: string): readonly StoreRewrite[] {
   return [
     {
       store: 'sessionSummaries',
-      /** Intent: the session-wide record's data version 4 rewrite, null to leave it as it is. */
+      /** The session-wide record's data version 4 rewrite, null to leave it as it is. */
       upgraded: (stored) => upgradedKeptSummaryV4(stored, appVersion),
     },
     {
       store: 'sessionBodies',
-      /** Intent: the body's data version 4 rewrite, null to leave it as it is. */
+      /** The body's data version 4 rewrite, null to leave it as it is. */
       upgraded: (stored) => upgradedKeptBodyV4(stored, appVersion),
     },
   ]

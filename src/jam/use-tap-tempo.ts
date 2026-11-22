@@ -66,7 +66,7 @@ export interface TapTempo {
 }
 
 /**
- * Intent: tap tempo over its readings. A press opens the audio output, then taps at the audio
+ * Tap tempo over its readings. A press opens the audio output, then taps at the audio
  * clock's time; a controller tap counts only while listening. Taps of a run are kept in time order
  * (a held note is reported at its release with its onset, possibly before a later press). From a
  * run's fourth tap, each tap sets the tempo its last four give (never a set to the tempo Jam
@@ -83,19 +83,19 @@ export function createTapTempo(deps: TapTempoDependencies): TapTempo {
   let run: AudioTime[] = []
   let timer: ReturnType<typeof setTimeout> | null = null
 
-  /** Intent: clear the end-of-listening timer, if any. */
+  /** Clear the end-of-listening timer, if any. */
   function clearTimer(): void {
     if (timer === null) return
     clearTimeout(timer)
     timer = null
   }
 
-  /** Intent: the audio time the current run ends at: its last tap plus the listening time. */
+  /** The audio time the current run ends at: its last tap plus the listening time. */
   function deadline(): AudioTime {
     return run[run.length - 1]! + TAP_LISTENING_SECONDS
   }
 
-  /** Intent: end the current run now; a note still counting rests, a tempo set stays. */
+  /** End the current run now; a note still counting rests, a tempo set stays. */
   function finish(): void {
     clearTimer()
     run = []
@@ -104,7 +104,7 @@ export function createTapTempo(deps: TapTempoDependencies): TapTempo {
   }
 
   /**
-   * Intent: wait, on the wall clock, for the time left until the run's deadline on the audio clock;
+   * Wait, on the wall clock, for the time left until the run's deadline on the audio clock;
    * then end the run if the audio clock has reached it, else wait again for what is left.
    */
   function arm(): void {
@@ -121,7 +121,7 @@ export function createTapTempo(deps: TapTempoDependencies): TapTempo {
     )
   }
 
-  /** Intent: add a tap at `at` to the run in time order; from the fourth, set the run's tempo. */
+  /** Add a tap at `at` to the run in time order; from the fourth, set the run's tempo. */
   function addTap(at: AudioTime): void {
     const index = run.findIndex((each) => each > at)
     if (index === -1) run.push(at)
@@ -137,7 +137,7 @@ export function createTapTempo(deps: TapTempoDependencies): TapTempo {
     arm()
   }
 
-  /** Intent: whether it listens now, ending a run whose deadline the audio clock has reached. */
+  /** Whether it listens now, ending a run whose deadline the audio clock has reached. */
   function isListening(): boolean {
     if (!listening.value) return false
     if (deps.now() >= deadline()) {
@@ -147,7 +147,7 @@ export function createTapTempo(deps: TapTempoDependencies): TapTempo {
     return true
   }
 
-  /** Intent: a press: open the audio output, then tap now, starting or continuing a run. */
+  /** A press: open the audio output, then tap now, starting or continuing a run. */
   function press(): void {
     deps.unlockAudio()
     isListening()
@@ -155,7 +155,7 @@ export function createTapTempo(deps: TapTempoDependencies): TapTempo {
   }
 
   /**
-   * Intent: a controller tap at its onset, counted only while listening and only from the run's
+   * A controller tap at its onset, counted only while listening and only from the run's
    * first tap on (a run always starts with a press, so a note begun in an earlier run is not one
    * of its taps).
    */
@@ -163,12 +163,12 @@ export function createTapTempo(deps: TapTempoDependencies): TapTempo {
     if (isListening() && at >= run[0]!) addTap(at)
   }
 
-  /** Intent: a tempo changed another way: a note naming another tempo rests. */
+  /** A tempo changed another way: a note naming another tempo rests. */
   function tempoChanged(tempo: number): void {
     if (note.value.kind === 'set' && note.value.tempo !== tempo) note.value = REST
   }
 
-  /** Intent: Jam mode left: the run ends and the note rests. */
+  /** Jam mode left: the run ends and the note rests. */
   function leave(): void {
     finish()
     note.value = REST

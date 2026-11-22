@@ -41,7 +41,7 @@ const CORPUS: Corpus = JSON.parse(
 /** Generous timeout: the whole corpus replays in a few seconds on a developer machine. */
 const TIMEOUT_MS = 120_000
 
-/** Intent: the timeline a key replays to through a fresh worker runtime, or a loud failure. */
+/** The timeline a key replays to through a fresh worker runtime, or a loud failure. */
 function replayTimeline(key: string): unknown {
   const report = replayDecodedPhraseKey(key, decodePhraseReplayKey(key))
   if (

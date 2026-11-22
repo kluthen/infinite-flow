@@ -53,7 +53,7 @@ export const KEPT_PLAYED_NOTE_KEYS = Object.freeze([
 /** The highest MIDI velocity; a played note's velocity is 1 to this. */
 const MAX_VELOCITY = 127
 
-/** Intent: a played note copied by name, its times rebased to seconds from `origin`. */
+/** A played note copied by name, its times rebased to seconds from `origin`. */
 function keptNote(note: RecordedPlayedNote, origin: number): KeptPlayedNote {
   return {
     pitch: note.pitch,
@@ -64,7 +64,7 @@ function keptNote(note: RecordedPlayedNote, origin: number): KeptPlayedNote {
 }
 
 /**
- * Intent: the played-notes record of a session's phrases: the notes played before phrase 1 that
+ * The played-notes record of a session's phrases: the notes played before phrase 1 that
  * are kept (a fresh Jam's raw doodle notes; none otherwise), then every note placed in a phrase,
  * each copied by name with its times rebased to seconds from `origin` (on the audio clock, phrase
  * 1's scheduled start, or a fresh Jam's count-in's first beat), in onset order, equal onsets
@@ -89,7 +89,7 @@ export function keptPlayedNotesRecord(
   return { dataVersion: KEPT_PLAYED_NOTES_DATA_VERSION, appVersion, notes }
 }
 
-/** Intent: one stored played note, as a session note in session seconds, or a refusal. */
+/** One stored played note, as a session note in session seconds, or a refusal. */
 function parseNote(value: unknown, context: string): RecordedPlayedNote {
   const record = exactRecord(value, KEPT_PLAYED_NOTE_KEYS, context)
   const onsetAt = finiteAtLeast(record.onset, 0, `${context}.onset`)
@@ -102,7 +102,7 @@ function parseNote(value: unknown, context: string): RecordedPlayedNote {
 }
 
 /**
- * Intent: read a current played-notes record back into the session's played notes, with times in
+ * Read a current played-notes record back into the session's played notes, with times in
  * seconds from phrase 1's start, or from a fresh Jam's count-in's first beat: exactly its keys,
  * every note valid (none before 0, so none before phrase 1's start unless the body holds a fresh
  * Jam's clock; none released before its onset) and the notes in onset order. Returns a fresh
@@ -133,7 +133,7 @@ export interface SplitPlayedNotes {
 }
 
 /**
- * Intent: split a fresh Jam's played notes, read in seconds from its count-in's first beat, at
+ * Split a fresh Jam's played notes, read in seconds from its count-in's first beat, at
  * `phraseOneStart` on that clock: each note whose onset is before it is a raw doodle note, kept as
  * read; every other note is rebased to seconds from phrase 1's start. Order is kept. Returns fresh
  * deep-frozen lists.

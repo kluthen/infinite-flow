@@ -31,7 +31,7 @@ import {
 } from './session-harness'
 import { requestIn, settingsWith, threeRequested } from './settings-change-session'
 
-/** Intent: a driver at 60 BPM (a 4 s measure, phrase 2's deadline at 4) with a Varying register. */
+/** A driver at 60 BPM (a 4 s measure, phrase 2's deadline at 4) with a Varying register. */
 function varyingDriver(): SessionDriver {
   const settings = sessionSettings({ tempo: 60, register: 'Varying' })
   return new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
@@ -124,13 +124,13 @@ describe('failure ladder before the deadline', () => {
   })
 })
 
-/** Intent: the step and retry of each request, for compact ladder assertions. */
+/** The step and retry of each request, for compact ladder assertions. */
 function rungsOf(requests: readonly GenerationRequestOutput[]): readonly object[] {
   return requests.map(({ step, retry }) => ({ step, retry }))
 }
 
 /**
- * Intent: the standalone request of phrase 2 on a driver like `varyingDriver`'s whose four carry-in
+ * The standalone request of phrase 2 on a driver like `varyingDriver`'s whose four carry-in
  * attempts were all stopped by their search allowance, so every carry-in retry ran.
  */
 function standaloneAfterThreeRetries(): GenerationRequestOutput {
@@ -142,7 +142,7 @@ function standaloneAfterThreeRetries(): GenerationRequestOutput {
   return standalone
 }
 
-/** Intent: one way to fail the latest attempt of a driver. */
+/** One way to fail the latest attempt of a driver. */
 type FailAttempt = (driver: SessionDriver, at: number) => void
 
 /** The failures that keep their carry-in retries, by name. */
@@ -238,7 +238,7 @@ describe('skipping carry-in retries after an exhausted carry-in search', () => {
   })
 })
 
-/** Intent: a generation failure with the given code. */
+/** A generation failure with the given code. */
 function generationFailure(code: GenerationFailureCode): AttemptFailure {
   return { kind: 'generation-failure', code }
 }
@@ -297,7 +297,7 @@ describe('the rung after a failed attempt', () => {
   })
 })
 
-/** Intent: an attempt on a rung, with a step and a stage, built from a real requested intent. */
+/** An attempt on a rung, with a step and a stage, built from a real requested intent. */
 function attemptOn(rungIndex: number, step: Attempt['step'], stage: Attempt['stage']): Attempt {
   const { intent } = varyingDriver().lastRequest()
   const base = { attemptId: 1, rung: LADDER[rungIndex]!, step, intent, relock: false }

@@ -24,7 +24,7 @@ interface Deferred<T> {
   readonly reject: (error: unknown) => void
 }
 
-/** Intent: a promise the test settles by hand. */
+/** A promise the test settles by hand. */
 function deferred<T>(): Deferred<T> {
   let resolve!: (value: T) => void
   let reject!: (error: unknown) => void
@@ -43,7 +43,7 @@ interface StandInSentinel extends WakeLockSentinelLike {
 }
 
 /**
- * Intent: a sentinel the browser would hand out, counting `release()` calls. Like a real one, it
+ * A sentinel the browser would hand out, counting `release()` calls. Like a real one, it
  * fires `release` to its listeners when released, whether by the app or dropped by the browser.
  */
 function standInSentinel(): StandInSentinel {
@@ -69,7 +69,7 @@ function standInSentinel(): StandInSentinel {
   }
 }
 
-/** Intent: a page whose visibility the test sets, visible to begin with. */
+/** A page whose visibility the test sets, visible to begin with. */
 function standInDocument(): { visibilityState: DocumentVisibilityState } {
   return { visibilityState: 'visible' }
 }
@@ -77,7 +77,7 @@ function standInDocument(): { visibilityState: DocumentVisibilityState } {
 /** A visible page, for the tests where visibility plays no part. */
 const visiblePage: VisibilityDocumentLike = { visibilityState: 'visible' }
 
-/** Intent: let every browser answer already given reach the adapter. */
+/** Let every browser answer already given reach the adapter. */
 function settleAnswers(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
@@ -88,7 +88,7 @@ interface StandInWakeLockNavigator {
   readonly requests: string[]
 }
 
-/** Intent: a navigator whose `wakeLock.request` records its type and answers with `answer()`. */
+/** A navigator whose `wakeLock.request` records its type and answers with `answer()`. */
 function wakeLockNavigator(answer: () => Promise<WakeLockSentinelLike>): StandInWakeLockNavigator {
   const requests: string[] = []
   return {
@@ -283,7 +283,7 @@ interface StandInOrientation {
   readonly calls: string[]
 }
 
-/** Intent: an orientation whose `lock` records its type and answers with `answer()`. */
+/** An orientation whose `lock` records its type and answers with `answer()`. */
 function standInOrientation(answer: () => Promise<void>): StandInOrientation {
   const calls: string[] = []
   return {

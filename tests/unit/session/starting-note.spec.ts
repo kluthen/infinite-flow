@@ -29,7 +29,7 @@ import { phraseFromBars } from '../domain/acknowledgement/acknowledgement-fixtur
 /** Four quarter notes in every bar: the first attack opens measure 0. */
 const QUARTERS = ['q q q q', 'q q q q', 'q q q q', 'q q q q'] as const
 
-/** Intent: one C major chord at every downbeat, the minimum the display transform accepts. */
+/** One C major chord at every downbeat, the minimum the display transform accepts. */
 function downbeatChords(): readonly ConcertChordSymbol[] {
   return [0, 1, 2, 3].map((measureIndex) => ({
     measureIndex: measureIndex as MeasureIndex,
@@ -40,7 +40,7 @@ function downbeatChords(): readonly ConcertChordSymbol[] {
   }))
 }
 
-/** Intent: the written phrase the staff shows for a concert timeline under a profile and key. */
+/** The written phrase the staff shows for a concert timeline under a profile and key. */
 function writtenOf(
   timeline: ConcertEventTimeline,
   profile: InstrumentProfile,
@@ -57,7 +57,7 @@ function writtenOf(
   })
 }
 
-/** Intent: the starting note of a quarter-note phrase whose first pitch is `firstPitch`. */
+/** The starting note of a quarter-note phrase whose first pitch is `firstPitch`. */
 function startingNoteFor(
   firstPitch: number,
   profile: InstrumentProfile,

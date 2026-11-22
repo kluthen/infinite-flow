@@ -62,13 +62,13 @@ interface MarkerPlan {
   readonly path: string
 }
 
-/** Intent: every element matching `selector` across the systems, in system then document order. */
+/** Every element matching `selector` across the systems, in system then document order. */
 function queryAll(svgs: readonly SVGSVGElement[], selector: string): Element[] {
   return svgs.flatMap((svg) => Array.from(svg.querySelectorAll(selector)))
 }
 
 /**
- * Intent: check an identity names an attack of the engraved phrase and return its key: its phrase
+ * Check an identity names an attack of the engraved phrase and return its key: its phrase
  * number is the score's, and some part carries its key. A rest, a tie continuation's own index or
  * an index past the measure's events carries none.
  */
@@ -92,14 +92,14 @@ function requireAttackKey(
   return key
 }
 
-/** Intent: the first element matching `selector` under `root`, crashing if the engraving lacks it. */
+/** The first element matching `selector` under `root`, crashing if the engraving lacks it. */
 function requireOne(root: Element, selector: string): Element {
   const element = root.querySelector(selector)
   if (element === null) throw new Error(`Engraved score has no "${selector}" where expected.`)
   return element
 }
 
-/** Intent: the nearest ancestor-or-self matching `selector`, crashing if the engraving lacks it. */
+/** The nearest ancestor-or-self matching `selector`, crashing if the engraving lacks it. */
 function requireClosest(element: Element, selector: string): Element {
   const found = element.closest(selector)
   if (found === null) throw new Error(`Engraved score part lies outside any "${selector}".`)
@@ -107,7 +107,7 @@ function requireClosest(element: Element, selector: string): Element {
 }
 
 /**
- * Intent: the drawn ink of one glyph text, measured on a canvas in the text's own font, since an
+ * The drawn ink of one glyph text, measured on a canvas in the text's own font, since an
  * SVG text's box is the font's whole line box, far taller than a music glyph. VexFlow draws every
  * text from its `x`/`y` baseline, anchored at the start.
  */
@@ -129,7 +129,7 @@ function textInk(text: SVGTextElement, canvas: CanvasRenderingContext2D): InkBox
   }
 }
 
-/** Intent: the drawn extent of one shape: its geometry, widened by half its stroke if stroked. */
+/** The drawn extent of one shape: its geometry, widened by half its stroke if stroked. */
 function shapeInk(shape: SVGGraphicsElement): InkBox {
   const box = shape.getBBox()
   const style = getComputedStyle(shape)
@@ -142,7 +142,7 @@ function shapeInk(shape: SVGGraphicsElement): InkBox {
   }
 }
 
-/** Intent: the union of drawn extents, or null for none. */
+/** The union of drawn extents, or null for none. */
 function union(boxes: readonly InkBox[]): InkBox | null {
   if (boxes.length === 0) return null
   return {
@@ -153,7 +153,7 @@ function union(boxes: readonly InkBox[]): InkBox | null {
   }
 }
 
-/** Intent: the drawn ink of elements: every text and shape they are or hold, invisible ones aside. */
+/** The drawn ink of elements: every text and shape they are or hold, invisible ones aside. */
 function inkOf(elements: readonly Element[], canvas: CanvasRenderingContext2D): InkBox | null {
   const shapes = elements.flatMap((element) =>
     element.matches(DRAWN_SHAPES) ? [element] : Array.from(element.querySelectorAll(DRAWN_SHAPES)),
@@ -170,7 +170,7 @@ function inkOf(elements: readonly Element[], canvas: CanvasRenderingContext2D): 
 }
 
 /**
- * Intent: the beam group over the attack's stem, or null if its stem is its own (an unbeamed note)
+ * The beam group over the attack's stem, or null if its stem is its own (an unbeamed note)
  * or it has none (a whole note). A beamed stem is drawn inside the beam's group, among the
  * measure's; should a tie continuation in the same measure also be beamed, the attack's stem is
  * the one nearest its notehead.
@@ -189,7 +189,7 @@ function attackBeam(stavenote: Element, key: string, head: InkBox): Element | nu
 }
 
 /**
- * Intent: place the start marker over an attack, from the ink drawn now. The reference edge is the
+ * Place the start marker over an attack, from the ink drawn now. The reference edge is the
  * higher of the note's own ink (notehead, stem, flag, accidental, dot, its ledger lines, and the
  * beam group on its stem) and the staff's top line. The marker's lowest point, its apex, sits
  * half a space above that edge; over a chord symbol, only where the gap from that edge up to the
@@ -233,7 +233,7 @@ function planStartMarker(
 }
 
 /**
- * Intent: the playhead band for a measure: the rectangle its `g.measure-slot` records, in that
+ * The playhead band for a measure: the rectangle its `g.measure-slot` records, in that
  * measure's own system. A measure the score does not draw is the caller's error.
  */
 function planBand(svgs: readonly SVGSVGElement[], measureIndex: MeasureIndex): BandPlan {
@@ -255,7 +255,7 @@ function planBand(svgs: readonly SVGSVGElement[], measureIndex: MeasureIndex): B
   return { svg: requireClosest(slot, 'svg') as SVGSVGElement, attributes }
 }
 
-/** Intent: remove every mark a previous state drew: the marker, the band and every note-ack class. */
+/** Remove every mark a previous state drew: the marker, the band and every note-ack class. */
 function clearOverlays(svgs: readonly SVGSVGElement[]): void {
   for (const mark of queryAll(svgs, '.start-note-marker, .playhead-band')) mark.remove()
   for (const part of queryAll(svgs, '.note-ack')) {
@@ -265,7 +265,7 @@ function clearOverlays(svgs: readonly SVGSVGElement[]): void {
   }
 }
 
-/** Intent: draw the band as the first child of its system, so it paints behind every glyph there. */
+/** Draw the band as the first child of its system, so it paints behind every glyph there. */
 function drawBand(plan: BandPlan): void {
   const rect = document.createElementNS(SVG_NS, 'rect')
   rect.setAttribute('class', 'playhead-band')
@@ -273,7 +273,7 @@ function drawBand(plan: BandPlan): void {
   plan.svg.insertBefore(rect, plan.svg.firstChild)
 }
 
-/** Intent: draw the marker last in its system, over every glyph. */
+/** Draw the marker last in its system, over every glyph. */
 function drawMarker(plan: MarkerPlan): void {
   const path = document.createElementNS(SVG_NS, 'path')
   path.setAttribute('class', 'start-note-marker')
@@ -281,7 +281,7 @@ function drawMarker(plan: MarkerPlan): void {
   plan.svg.appendChild(path)
 }
 
-/** Intent: a 2D canvas context to measure glyph ink with. */
+/** A 2D canvas context to measure glyph ink with. */
 function measuringCanvas(): CanvasRenderingContext2D {
   const context = document.createElement('canvas').getContext('2d')
   if (context === null) throw new Error('No 2D canvas to measure the engraved glyphs with.')

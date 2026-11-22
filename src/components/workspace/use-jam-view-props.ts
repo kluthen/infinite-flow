@@ -68,7 +68,7 @@ export interface WorkspaceJamViewProps {
 }
 
 /**
- * Intent: what Jam's view is given: Jam's written key and collection, the shared instrument choice
+ * What Jam's view is given: Jam's written key and collection, the shared instrument choice
  * (my instrument included), the shared system-position size, and what Jam's Idle prewarm reads:
  * the prewarm port and the controls and figure levels a Jam is generated with. Session mode's
  * values stand in only before Jam's settings exist, while Jam's view does not show.
@@ -92,7 +92,7 @@ function jamViewProps(seams: JamViewPropsSeams): JamWorkspaceProps {
 }
 
 /**
- * Intent: what Jam's controls are given: Jam's settings, the shared instrument, the controls'
+ * What Jam's controls are given: Jam's settings, the shared instrument, the controls'
  * read-only state and `instrument-actions`' as session mode's, and the doodle readings: a running
  * fresh Jam's once phrase 1 enters, else the kept doodle's, none with no doodle kept.
  */
@@ -116,7 +116,7 @@ function jamControlsProps(seams: JamViewPropsSeams): JamControlsProps | null {
 }
 
 /**
- * Intent: Jam's view's and controls' props over their seams, and the controls' component and
+ * Jam's view's and controls' props over their seams, and the controls' component and
  * Jam's tempo only while Jam mode shows.
  */
 // @spec-link [[module_workspace_mode]]

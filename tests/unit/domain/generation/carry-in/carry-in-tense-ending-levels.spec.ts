@@ -39,7 +39,7 @@ function freeTonesOff(cell: MatrixCell): FigureLevels {
   }
 }
 
-/** Intent: the real intent of one cell's phrase `phraseNumber` under the three-Off levels. */
+/** The real intent of one cell's phrase `phraseNumber` under the three-Off levels. */
 function phraseIntent(cell: MatrixCell, phraseNumber: number, carryIn?: CarryIn): GenerationIntent {
   const input = {
     requestId: makeRequestId(`tense-levels-${cell.label}-phrase-${phraseNumber}`),
@@ -57,14 +57,14 @@ function phraseIntent(cell: MatrixCell, phraseNumber: number, carryIn?: CarryIn)
     : makeCarryInGenerationIntent({ ...input, carryIn })
 }
 
-/** Intent: true when the phrase's final attack is a tone of its final harmony event. */
+/** True when the phrase's final attack is a tone of its final harmony event. */
 function endsOnChordTone(outcome: SuccessOutcome): boolean {
   const final = attackMidis(outcome.result.timeline.measures).at(-1)!
   const chord = outcome.provenance.harmony.events.at(-1)!.triad.pitchClasses as readonly number[]
   return chord.includes(final % 12)
 }
 
-/** Intent: assert one successful phrase passes the result validator and reproduces itself. */
+/** Assert one successful phrase passes the result validator and reproduces itself. */
 function assertValidAndReproduced(intent: GenerationIntent, outcome: SuccessOutcome): void {
   expect(
     validateGenerationResult({
@@ -83,14 +83,14 @@ const failures: string[] = []
 const failureCodes = new Map<string, number>()
 const tenseEndings: string[] = []
 
-/** Intent: record one failed generation and its code. */
+/** Record one failed generation and its code. */
 function recordFailure(cell: MatrixCell, phraseNumber: number, code: string): void {
   failures.push(`${cell.label} phrase ${phraseNumber}: ${code}`)
   failureCodes.set(code, (failureCodes.get(code) ?? 0) + 1)
 }
 
 /**
- * Intent: run one cell's six-phrase chain under the three-Off levels, asserting every successful
+ * Run one cell's six-phrase chain under the three-Off levels, asserting every successful
  * phrase. A failed generation is recorded and ends the chain.
  */
 function runChain(cell: MatrixCell): void {

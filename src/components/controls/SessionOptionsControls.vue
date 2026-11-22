@@ -56,18 +56,18 @@ const risingTempoNoteId = useId()
 const risingTempoUnavailableNoteId = useId()
 const tensionAcrossPhrasesNoteId = useId()
 
-/** Intent: the `Rising tempo` segments, `On` disabled and naming the reason while unavailable. */
+/** The `Rising tempo` segments, `On` disabled and naming the reason while unavailable. */
 // @spec-link [[req_adaptive_tempo]]
 const risingTempoOptions = computed(() =>
   offOnOptions(props.risingTempoAvailable, risingTempoUnavailableNoteId),
 )
 
-/** Intent: the checked `Rising tempo` segment: `Off` while unavailable, else the player's choice. */
+/** The checked `Rising tempo` segment: `Off` while unavailable, else the player's choice. */
 // @spec-link [[req_adaptive_tempo]]
 const shownRisingTempo = computed(() => shownOffOn(props.risingTempo, props.risingTempoAvailable))
 
 /**
- * Intent: report the player's `Rising tempo` choice. Choosing the `Off` that stands in for a kept
+ * Report the player's `Rising tempo` choice. Choosing the `Off` that stands in for a kept
  * `On` while unavailable changes nothing, so the kept `On` shows again once a controller attaches.
  */
 // @spec-link [[req_adaptive_tempo]]
@@ -77,7 +77,7 @@ function handleRisingTempo(value: string): void {
 }
 
 /**
- * Intent: report the player's `Tension across phrases` choice, refusing a value that is no
+ * Report the player's `Tension across phrases` choice, refusing a value that is no
  * segment.
  */
 // @spec-link [[req_multi_phrase_tension_arc]]

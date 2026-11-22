@@ -25,12 +25,12 @@ const DOODLES = loadDoodleSet()
 /** The fewest doodles whose first measure is a listening rhythm. */
 const MIN_LISTENING_MEASURES = 5
 
-/** Intent: the doodles for which a predicate on their traits holds. */
+/** The doodles for which a predicate on their traits holds. */
 function withTraits(predicate: (doodle: DoodleFixture) => boolean): string[] {
   return DOODLES.filter(predicate).map((doodle) => doodle.name)
 }
 
-/** Intent: the rhythm of a doodle's first measure: each note's start and length, as text. */
+/** The rhythm of a doodle's first measure: each note's start and length, as text. */
 function firstMeasureRhythm(doodle: DoodleFixture): string {
   return doodle.quantized.notes
     .filter((note) => note.startTick < 16)
@@ -104,7 +104,7 @@ describe('what the doodle set covers', () => {
   })
 
   it('aims at the rhythm settings C5.16.1 should read', () => {
-    /** Intent: the doodles aimed at one note density, syncopation and silence density. */
+    /** The doodles aimed at one note density, syncopation and silence density. */
     const aimed = (density: string, syncopation: string, silence: string): string[] =>
       withTraits(({ traits: { aimedAt } }) => {
         return (
@@ -145,7 +145,7 @@ describe('what the doodle set covers', () => {
 describe('the doodle set loader', () => {
   let directory: string | null = null
 
-  /** Intent: a scratch directory holding one copy of a real doodle file, changed by `edit`. */
+  /** A scratch directory holding one copy of a real doodle file, changed by `edit`. */
   function scratchSet(edit: (fixture: Record<string, unknown>) => void): string {
     directory = mkdtempSync(join(tmpdir(), 'doodle-set-'))
     const fixture = JSON.parse(

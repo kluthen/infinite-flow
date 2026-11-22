@@ -28,34 +28,34 @@ import { RAW_DOODLE_NOTES, jamHistory, reviewedJamPart } from './reviewed-jam-pa
 /** The Jam-style session's favorites-only scope, phrase 2 its only favorite. */
 const FAVORITE_TWO: ExportScope = { kind: 'favoritesOnly', favorites: [2] }
 
-/** Intent: the played-notes request under `scope`, very short notes included or not. */
+/** The played-notes request under `scope`, very short notes included or not. */
 function request(scope: ExportScope, include: boolean): PlayedNotesExportRequest {
   return { includeVeryShortNotes: include, scope }
 }
 
-/** Intent: `notes` made very short: each released 12 ms after its onset. */
+/** `notes` made very short: each released 12 ms after its onset. */
 function veryShort<N extends RecordedPlayedNote>(notes: readonly N[]): N[] {
   return notes.map((note) => ({ ...note, releaseAt: note.onsetAt + 0.012 }))
 }
 
-/** Intent: the Jam-style session's records, nothing played in its phrases. */
+/** The Jam-style session's records, nothing played in its phrases. */
 function silentPhrases(): readonly SessionHistoryRecord[] {
   return jamHistory(false).phrases()
 }
 
-/** Intent: the Jam-style session's records, each phrase's two played notes very short. */
+/** The Jam-style session's records, each phrase's two played notes very short. */
 function veryShortPhrases(): SessionHistoryRecord[] {
   return jamHistory(true)
     .phrases()
     .map((record) => ({ ...record, playedNotes: veryShort(record.playedNotes) }))
 }
 
-/** Intent: what the reasons read of a Jam: its raw doodle notes, Jam's code loaded or failed. */
+/** What the reasons read of a Jam: its raw doodle notes, Jam's code loaded or failed. */
 function jam(doodleNotes: readonly RecordedPlayedNote[], codeFailed = false) {
   return { doodleNotes, codeFailed }
 }
 
-/** Intent: ports over the real lazy export code, recording every file handed to the browser. */
+/** Ports over the real lazy export code, recording every file handed to the browser. */
 function recordingPorts() {
   const downloads: ExportFile[] = []
   const ports: ReviewExportPorts = {
@@ -174,7 +174,7 @@ describe('the Review played-notes export in a Jam', () => {
   // @test-link [[rule_played_notes_export_omits_stray_notes]]
   it('keeps the reasons of a session that is no Jam', () => {
     const records = sevenPhraseRecords([[[60, 1, 1.25]], [], [[62, 1, 1.01]]])
-    /** Intent: the favorites-only scope of the given phrase numbers. */
+    /** The favorites-only scope of the given phrase numbers. */
     const favorites = (...numbers: number[]): ExportScope => ({
       kind: 'favoritesOnly',
       favorites: numbers,

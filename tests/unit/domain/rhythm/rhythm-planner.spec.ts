@@ -37,7 +37,7 @@ function domainFor(
 }
 
 /**
- * Intent: every one of the 324 rhythm settings, note density outermost, then rhythmic variety,
+ * Every one of the 324 rhythm settings, note density outermost, then rhythmic variety,
  * silence density, syncopation and tension arc innermost.
  */
 function everyRhythmSetting() {

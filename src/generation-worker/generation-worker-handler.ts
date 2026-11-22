@@ -18,7 +18,7 @@ import type {
 export type GeneratePhraseFn = (intent: GenerationIntent) => GenerationOutcome
 
 /**
- * Intent: answer one already-parsed generate request with exactly one response. Any exception
+ * Answer one already-parsed generate request with exactly one response. Any exception
  * `generate` throws is caught and reported as a typed `crash` response carrying the underlying
  * error's name/message, never swallowed. Performs no parsing of its own.
  */
@@ -37,7 +37,7 @@ export function handleGenerationWorkerRequest(
 }
 
 /**
- * Intent: handle one raw generate message end to end with the default generator: parse it, then
+ * Handle one raw generate message end to end with the default generator: parse it, then
  * answer it through `handleGenerationWorkerRequest`. A malformed request throws (crashing the
  * worker loudly, per parseGenerationWorkerRequest) rather than invent a correlation id for a
  * response.

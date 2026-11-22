@@ -60,7 +60,7 @@ function midisOf(entries: readonly { readonly candidate: PitchCandidate }[]): re
   return entries.map((entry) => entry.candidate.midi)
 }
 
-/** Intent: compare two rank tuples written as comma-joined numbers, lexicographically. */
+/** Compare two rank tuples written as comma-joined numbers, lexicographically. */
 function compareRanks(a: string, b: string): number {
   const left = a.split(',').map(Number)
   const right = b.split(',').map(Number)

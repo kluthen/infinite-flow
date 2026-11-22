@@ -139,7 +139,7 @@ function seventhsShape(offset: number): {
   return { timeline: plainShape(offset).timeline, chords }
 }
 
-/** Intent: run one shape through the real display transform for an instrument and written key. */
+/** Run one shape through the real display transform for an instrument and written key. */
 function written(
   shape: { timeline: ConcertEventTimeline; chords: readonly ConcertChordSymbol[] },
   instrument: InstrumentProfile,
@@ -157,7 +157,7 @@ function written(
   })
 }
 
-/** Intent: one session phrase record. */
+/** One session phrase record. */
 function phrase(
   number: number,
   writtenPhrase: WrittenPhrase,
@@ -230,7 +230,7 @@ export function bbTenorSeventhsSession(): GeneratedNotesMusicXmlInput {
   }
 }
 
-/** Intent: a session of `count` "plain" C-keyboard phrases at the given tempos (one per phrase). */
+/** A session of `count` "plain" C-keyboard phrases at the given tempos (one per phrase). */
 export function cKeyboardPlainSession(tempos: readonly number[]): GeneratedNotesMusicXmlInput {
   return {
     instrument: C_KEYBOARD_PROFILE,
@@ -260,7 +260,7 @@ export function myTenorSession(clef: InstrumentClef): GeneratedNotesMusicXmlInpu
   }
 }
 
-/** Intent: a written phrase for a given instrument, for input-contract tests. */
+/** A written phrase for a given instrument, for input-contract tests. */
 export function plainPhraseFor(instrument: InstrumentProfile): WrittenPhrase {
   const offset = instrument.transposition.chromatic === 0 ? 0 : -12
   return written(plainShape(offset), instrument, 'C')

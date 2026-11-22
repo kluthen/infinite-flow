@@ -38,7 +38,7 @@ import { rewriteInOrder } from './rewrite-each'
 const FROM_VERSION = 1
 
 /**
- * Intent: the data version 2 session-wide record, v3.1's, of a stored data version 1 one, written
+ * The data version 2 session-wide record, v3.1's, of a stored data version 1 one, written
  * by `appVersion`, its preset label the one its musical profile selection names; null for any
  * record not at data version 1 or not readable, which is then left as it is. Never throws: any
  * error reading the stored value gives null.
@@ -60,7 +60,7 @@ export function upgradedKeptSummary(
 }
 
 /**
- * Intent: the data version 2 body, v3.1's, of a stored data version 1 one, written by
+ * The data version 2 body, v3.1's, of a stored data version 1 one, written by
  * `appVersion`: its phrases as read, each intent holding its figure levels only, each favorite
  * mark and every other field (the timelines included) as stored; null for any body not at data
  * version 1 or not readable, which is then left as it is. Never throws: any error reading the
@@ -100,12 +100,12 @@ export const KEPT_SESSIONS_V2: MigrationStep = {
       [
         {
           store: 'sessionSummaries',
-          /** Intent: the session-wide record's data version 2 rewrite, null to leave it. */
+          /** The session-wide record's data version 2 rewrite, null to leave it. */
           upgraded: (stored) => upgradedKeptSummary(stored, appVersion),
         },
         {
           store: 'sessionBodies',
-          /** Intent: the body's data version 2 rewrite, null to leave it as it is. */
+          /** The body's data version 2 rewrite, null to leave it as it is. */
           upgraded: (stored) => upgradedKeptBody(stored, appVersion),
         },
       ],

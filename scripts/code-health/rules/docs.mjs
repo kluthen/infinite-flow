@@ -8,13 +8,13 @@ import { attachedComments, commentTextLines, createFinding, lineOf } from '../so
  * @typedef {import('../sources.mjs').ScriptBlock} ScriptBlock
  * @typedef {{ docNodes: ts.Node[], nameNode: ts.Node | undefined, name: string,
  *   exported: boolean }} DocTarget
- *   A function that needs an intent comment: the comment may sit on any of `docNodes`; a finding
+ *   A function that needs an doc comment: the comment may sit on any of `docNodes`; a finding
  *   is reported at `nameNode` (at the first doc node when the function has no name).
  * @typedef {{ block: ScriptBlock, exportedNames: Set<string>, inSetup: boolean }} BlockScope
  *   What target detection needs to know about the block being walked.
  */
 
-/** Starts of comment lines that are ATD links or tool directives, never intent prose. */
+/** Starts of comment lines that are ATD links or tool directives, never doc prose. */
 const directivePrefixes = [
   '@spec-link',
   '@test-link',
@@ -26,7 +26,7 @@ const directivePrefixes = [
 ]
 
 /**
- * Intent: the documentation rule: every function that needs an intent comment and has none
+ * The documentation rule: every function that needs an doc comment and has none
  * in its attached comments is reported, ERROR when exported and WARN otherwise.
  *
  * Contract: pure; reads the file only through `source` and the sources.mjs helpers (`lineOf`,
@@ -50,7 +50,7 @@ export function checkDocs(source) {
 }
 
 /**
- * Intent: the finding for one undocumented function, at the line of its name.
+ * The finding for one undocumented function, at the line of its name.
  *
  * @param {ParsedSource} source
  * @param {ScriptBlock} block
@@ -61,12 +61,12 @@ function missingDocFinding(source, block, target) {
   const position = target.nameNode ?? target.docNodes[0]
   const line = position ? lineOf(block, position.getStart(block.sourceFile)) : 1
   const kind = target.exported ? 'exported function' : 'function'
-  const message = `docs: missing intent comment on ${kind} ${target.name}`
+  const message = `docs: missing doc comment on ${kind} ${target.name}`
   return createFinding(source, 'docs', target.exported ? 'ERROR' : 'WARN', line, message)
 }
 
 /**
- * Intent: whether the comments attached to `node` hold real text: at least one line, outside ATD
+ * Whether the comments attached to `node` hold real text: at least one line, outside ATD
  * links and tool directives, with a letter in it once any JSDoc tag syntax is removed (so
  * `@param x the value` counts, `@param {string} x` and `@returns {number}` do not).
  *
@@ -88,7 +88,7 @@ function hasIntentDoc(block, node) {
 const namedTags = new Set(['param', 'arg', 'argument', 'property', 'prop'])
 
 /**
- * Intent: the prose of one comment line: the line itself, or for a JSDoc tag line what remains
+ * The prose of one comment line: the line itself, or for a JSDoc tag line what remains
  * after the tag, its `{type}` expression and, for `@param`/`@property`, the name.
  *
  * @param {string} line
@@ -102,7 +102,7 @@ function jsDocProse(line) {
 }
 
 /**
- * Intent: `text` without a leading `{type}` expression (braces balanced); an expression left
+ * `text` without a leading `{type}` expression (braces balanced); an expression left
  * open on the line swallows the rest of it.
  *
  * @param {string} text
@@ -120,7 +120,7 @@ function withoutTypeExpression(text) {
 }
 
 /**
- * Intent: the names a module exports from its own scope through `export { a, b as c }` (without
+ * The names a module exports from its own scope through `export { a, b as c }` (without
  * `from`) or `export default name`, by their local name.
  *
  * @param {ts.SourceFile} sourceFile
@@ -141,7 +141,7 @@ function locallyExportedNames(sourceFile) {
 }
 
 /**
- * Intent: every function of a block that needs an intent comment, in source order, nested ones
+ * Every function of a block that needs an doc comment, in source order, nested ones
  * included.
  *
  * @param {BlockScope} scope
@@ -151,7 +151,7 @@ function targetsIn(scope) {
   /** @type {DocTarget[]} */
   const targets = []
   /**
-   * Intent: record the node if it is a function needing a doc, then visit its children.
+   * Record the node if it is a function needing a doc, then visit its children.
    *
    * @param {ts.Node} node
    */
@@ -165,7 +165,7 @@ function targetsIn(scope) {
 }
 
 /**
- * Intent: the doc target `node` stands for, if it is a function with a body that needs a doc:
+ * The doc target `node` stands for, if it is a function with a body that needs a doc:
  * a function declaration, a class or object-literal method or accessor, or a function/arrow
  * expression bound to a name. Constructors, bodiless signatures, anonymous callbacks and members
  * of typed object literals (see `isTypedLiteral`) have none.
@@ -188,7 +188,7 @@ function docTargetOf(scope, node) {
 }
 
 /**
- * Intent: the target of a function declaration with a body; a doc on its first overload signature
+ * The target of a function declaration with a body; a doc on its first overload signature
  * covers it, and findings point at that signature.
  *
  * @param {BlockScope} scope
@@ -206,7 +206,7 @@ function declarationTarget(scope, node) {
 }
 
 /**
- * Intent: the first of the bodiless signatures of the same name directly preceding a function
+ * The first of the bodiless signatures of the same name directly preceding a function
  * implementation, or the implementation itself when it has no overloads.
  *
  * @param {ts.FunctionDeclaration} node
@@ -233,7 +233,7 @@ function firstOverloadOf(node) {
 }
 
 /**
- * Intent: the target of a function/arrow expression bound to a name — the initializer of a
+ * The target of a function/arrow expression bound to a name — the initializer of a
  * variable declarator, an object property or a class property, or a default export — once type
  * assertions and parentheses around it are looked through. Anything else is an anonymous callback.
  *
@@ -264,7 +264,7 @@ function expressionTarget(scope, node) {
 }
 
 /**
- * Intent: the outermost expression that is only `node` wrapped in parentheses, `as`, `satisfies`,
+ * The outermost expression that is only `node` wrapped in parentheses, `as`, `satisfies`,
  * a type assertion or a non-null assertion.
  *
  * @param {ts.Node} node
@@ -285,8 +285,8 @@ function outermostWrapper(node) {
 }
 
 /**
- * Intent: whether `member` (an object-literal method, accessor or property) belongs to a typed
- * object literal and so needs no intent comment of its own.
+ * Whether `member` (an object-literal method, accessor or property) belongs to a typed
+ * object literal and so needs no doc comment of its own.
  *
  * @param {ts.Node} member
  * @returns {boolean}
@@ -296,7 +296,7 @@ function isContractMember(member) {
 }
 
 /**
- * Intent: whether an object literal is typed by its context, so its function-valued members
+ * Whether an object literal is typed by its context, so its function-valued members
  * implement a declared contract. Rationale: the declared type documents the contract — such
  * members are mostly factories and fakes implementing a documented interface. Once parentheses,
  * `as`, `satisfies`, `<T>` and `!` are looked through, the literal is typed when it is:
@@ -327,7 +327,7 @@ function isTypedLiteral(literal) {
 }
 
 /**
- * Intent: whether one of the wrappers from `node` (excluded) up to `outer` (included) is an `as`,
+ * Whether one of the wrappers from `node` (excluded) up to `outer` (included) is an `as`,
  * `satisfies` or `<T>` type assertion.
  *
  * @param {ts.Node} node
@@ -347,7 +347,7 @@ function hasTypeAssertionBetween(node, outer) {
 }
 
 /**
- * Intent: the target of a method, accessor or function-valued class property: an object-literal
+ * The target of a method, accessor or function-valued class property: an object-literal
  * member is never exported (WARN); a class member is exported when it is public and its class is.
  *
  * @param {BlockScope} scope
@@ -370,7 +370,7 @@ function memberTarget(scope, member) {
 }
 
 /**
- * Intent: the name a class goes by: its own, else the variable it is assigned to.
+ * The name a class goes by: its own, else the variable it is assigned to.
  *
  * @param {ts.ClassLikeDeclaration} node
  * @returns {string}
@@ -382,7 +382,7 @@ function className(node) {
 }
 
 /**
- * Intent: whether a class is part of the module's interface: an exported or default-exported
+ * Whether a class is part of the module's interface: an exported or default-exported
  * declaration, a class listed in a local `export { }`, or a class expression assigned to an
  * exported variable or default-exported.
  *
@@ -399,7 +399,7 @@ function isExportedClass(scope, node) {
 }
 
 /**
- * Intent: whether a declaration statement is exported: it carries `export`, or it is at the top
+ * Whether a declaration statement is exported: it carries `export`, or it is at the top
  * level and its name is listed in a local `export { }` / `export default name`.
  *
  * @param {BlockScope} scope
@@ -419,7 +419,7 @@ function isExportedStatement(scope, statement, nameNode) {
 }
 
 /**
- * Intent: whether a node carries the modifier keyword of the given kind.
+ * Whether a node carries the modifier keyword of the given kind.
  *
  * @param {ts.Node} node
  * @param {ts.SyntaxKind} kind

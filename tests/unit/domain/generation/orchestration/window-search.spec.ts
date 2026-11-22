@@ -30,7 +30,7 @@ interface CallIdentity {
   readonly bindingIndex: number
 }
 
-/** Intent: enumerate the full nested ranked-order (harmony, rhythm, binding) triple sequence a
+/** Enumerate the full nested ranked-order (harmony, rhythm, binding) triple sequence a
  * real search would visit, exactly mirroring production's nesting, for order assertions. */
 function enumerateNestedOrder(fixture: WindowSearchFixture): readonly CallIdentity[] {
   const triples: CallIdentity[] = []
@@ -46,7 +46,7 @@ function enumerateNestedOrder(fixture: WindowSearchFixture): readonly CallIdenti
   return triples
 }
 
-/** Intent: locate a candidate's ranked-array position by its stable identity string. */
+/** Locate a candidate's ranked-array position by its stable identity string. */
 function indexByIdentity<T extends { readonly identity: string }>(
   candidates: readonly T[],
   identity: string,
@@ -55,7 +55,7 @@ function indexByIdentity<T extends { readonly identity: string }>(
 }
 
 /**
- * Intent: a realistic no-legal-plan stub that mirrors the pitch planner's own fuel contract: it
+ * A realistic no-legal-plan stub that mirrors the pitch planner's own fuel contract: it
  * needs exactly `desiredFuel` units to conclusively determine no_legal_pitch_plan, and reports
  * search_limit_exceeded using up its entire grant when handed less than that.
  */
@@ -67,7 +67,7 @@ function makeExactFuelPlanPitch(desiredFuel: number): WindowSearchDeps['planPitc
   }
 }
 
-/** Intent: build a tiny, real (non-fabricated) two-rhythm-candidate domain for exhaustion tests. */
+/** Build a tiny, real (non-fabricated) two-rhythm-candidate domain for exhaustion tests. */
 function tinyWindowSearchInput(fixture: WindowSearchFixture): WindowSearchInput {
   const rankedRhythm: RankedRhythmCache = {
     kind: 'ranked_rhythm_cache',

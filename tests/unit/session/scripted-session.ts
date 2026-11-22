@@ -21,7 +21,7 @@ import {
 /** The fast tempo every scripted session runs at: one measure is one second. */
 export const FAST_TEMPO = 240
 
-/** Intent: the moment phrase N (1 or more) starts sounding in a fast session started at 0. */
+/** The moment phrase N (1 or more) starts sounding in a fast session started at 0. */
 export function soundingAt(phraseNumber: number): number {
   return measureSeconds(FAST_TEMPO) * (1 + 4 * (phraseNumber - 1))
 }
@@ -37,7 +37,7 @@ export interface FastDriverOptions {
   readonly multiPhraseTensionArc?: boolean
 }
 
-/** Intent: a driver at 240 BPM started at 0, so phrase 2's deadline is 1 s and N+1's is 3 s on. */
+/** A driver at 240 BPM started at 0, so phrase 2's deadline is 1 s and N+1's is 3 s on. */
 export function fastDriver(options: FastDriverOptions = {}): SessionDriver {
   const settings = options.settings ?? sessionSettings({ tempo: FAST_TEMPO })
   const phraseOne = phraseOneFor(
@@ -60,14 +60,14 @@ export function fastDriver(options: FastDriverOptions = {}): SessionDriver {
   })
 }
 
-/** Intent: answer the latest phrase, failing its first attempt when the script says so. */
+/** Answer the latest phrase, failing its first attempt when the script says so. */
 function answer(driver: SessionDriver, at: number, failFirst: boolean): void {
   if (failFirst) driver.fail(at)
   driver.settle(at)
 }
 
 /**
- * Intent: run a fast session until phrase `lastSounding` has started sounding (and phrase
+ * Run a fast session until phrase `lastSounding` has started sounding (and phrase
  * `lastSounding + 1` has been answered): phrase 2 during the count-in, then each phrase N+1 half a
  * measure after N starts sounding, any phrase still undecided repeated at its deadline. The
  * script may fail the first attempt of chosen phrases.
@@ -89,13 +89,13 @@ export function driveSession(
   }
 }
 
-/** Intent: every settings-changed output a driver logged. */
+/** Every settings-changed output a driver logged. */
 export function settingsChanges(driver: SessionDriver): readonly OutputOf<'settings-changed'>[] {
   return driver.all('settings-changed')
 }
 
 /**
- * Intent: the settings in effect for each requested phrase, from the chosen settings and every
+ * The settings in effect for each requested phrase, from the chosen settings and every
  * settings-changed output logged so far.
  */
 export function settingsFor(

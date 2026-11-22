@@ -16,7 +16,7 @@ export type MyInstrumentSheetOpening = typeof import('./my-instrument-sheet-open
 let sheetPromise: Promise<MyInstrumentSheetOpening> | null = null
 
 /**
- * Intent: the My instrument sheet's opening (its component and its props), loaded once and shared
+ * The My instrument sheet's opening (its component and its props), loaded once and shared
  * by every caller, with the session's actions on my instrument loaded alongside.
  */
 // @spec-link [[req_my_instrument]]

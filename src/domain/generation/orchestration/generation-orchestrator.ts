@@ -74,7 +74,7 @@ interface OrderingsTimer {
   elapsedMs: number
 }
 
-/** Intent: build the exact structural harmony domain input the whole-result validator re-derives. */
+/** Build the exact structural harmony domain input the whole-result validator re-derives. */
 // @spec-link [[service_generation_orchestration]]
 export function buildHarmonyDomain(intent: GenerationIntent): HarmonyPlanResult {
   return makeHarmonyCandidateDomain({
@@ -86,7 +86,7 @@ export function buildHarmonyDomain(intent: GenerationIntent): HarmonyPlanResult 
 }
 
 /**
- * Intent: the rhythm-domain memo input of one intent: its five rhythm-relevant controls, the only
+ * The rhythm-domain memo input of one intent: its five rhythm-relevant controls, the only
  * part of the intent the seed-independent canonical rhythm domain depends on.
  */
 // @spec-link [[service_generation_orchestration]]
@@ -101,7 +101,7 @@ export function rhythmDomainInputOf(intent: GenerationIntent): RhythmExpansionIn
 }
 
 /**
- * Intent: look up the seed-independent canonical rhythm domain for the intent's rhythm-relevant
+ * Look up the seed-independent canonical rhythm domain for the intent's rhythm-relevant
  * controls in the given memo, expanding the Step 6 grammar only on a memo miss.
  */
 function buildRhythmDomain(
@@ -112,7 +112,7 @@ function buildRhythmDomain(
 }
 
 /**
- * Intent: build the deep-frozen internal diagnostics for one `generatePhrase` call. Built as a
+ * Build the deep-frozen internal diagnostics for one `generatePhrase` call. Built as a
  * separate value once the algorithm has already decided its outcome; nothing above ever reads it
  * back to decide anything.
  */
@@ -139,7 +139,7 @@ function buildDiagnostics(
 }
 
 /**
- * Intent: the rhythm lock's order for an intent holding locked bars, built once for every window
+ * The rhythm lock's order for an intent holding locked bars, built once for every window
  * of the request (so its forced bend's order is computed at most once), with the phrase's rhythm
  * change draw when the request allows a change; undefined otherwise, the lock off or "on, nothing
  * locked yet", whose windows walk v3.1's order and never draw.
@@ -173,7 +173,7 @@ function rhythmLockOrderFor(
 }
 
 /**
- * Intent: the lock's order with its forced bend timed: the first call, the one that builds the
+ * The lock's order with its forced bend timed: the first call, the one that builds the
  * forced bend's order, adds its time to the timer; later calls return the memoized order untimed.
  */
 // @spec-link [[entity_generation_diagnostics]]
@@ -194,7 +194,7 @@ function withTimedForcedBend(order: RhythmLockOrder, timer: OrderingsTimer): Rhy
 }
 
 /**
- * Intent: the rhythm lock's order of an intent, its building timed into the timer when the caller
+ * The rhythm lock's order of an intent, its building timed into the timer when the caller
  * passed a clock (the order then times its forced bend too); without one, exactly the untimed
  * order, the clock never read.
  */
@@ -214,7 +214,7 @@ function timedRhythmLockOrderFor(
 }
 
 /**
- * Intent: the rhythm order the windows walk when no locked bars order it: the seeded ranking
+ * The rhythm order the windows walk when no locked bars order it: the seeded ranking
  * steered by the request's steering block, by its band with the lock off, or nearest the target
  * whatever the band with the lock on and nothing locked yet; the seeded ranking itself without a
  * block. Never called for an intent holding locked bars, whose lock's order stands.
@@ -238,7 +238,7 @@ function steeredRhythmFor(
 }
 
 /**
- * Intent: the steered rhythm order of an intent without a lock order, its building timed into
+ * The steered rhythm order of an intent without a lock order, its building timed into
  * the timer when the caller passed a clock and the intent holds a steering block; without either,
  * exactly the untimed order, the clock never read.
  */
@@ -258,7 +258,7 @@ function timedSteeredRhythmFor(
   return steered
 }
 
-/** Intent: run one independent, freshly-ledgered `searchWindow` for every resolved core request. */
+/** Run one independent, freshly-ledgered `searchWindow` for every resolved core request. */
 function runWindows(
   intent: GenerationIntent,
   requests: readonly GenerationRequest[],
@@ -274,17 +274,17 @@ function runWindows(
   )
 }
 
-/** Intent: true when any window's outcome is a claimed plan that failed independent validation. */
+/** True when any window's outcome is a claimed plan that failed independent validation. */
 function anyValidationFailed(reports: readonly WindowSearchReport[]): boolean {
   return reports.some((report) => report.outcome.kind === 'window_result_validation_failed')
 }
 
-/** Intent: true when any window's outcome is an incomplete (fuel-cut-off) search. */
+/** True when any window's outcome is an incomplete (fuel-cut-off) search. */
 function anyLimitExceeded(reports: readonly WindowSearchReport[]): boolean {
   return reports.some((report) => report.outcome.kind === 'window_search_limit_exceeded')
 }
 
-/** Intent: the successful window reports, in the same resolution order they were searched in. */
+/** The successful window reports, in the same resolution order they were searched in. */
 function successfulReports(
   reports: readonly WindowSearchReport[],
 ): readonly Extract<WindowSearchReport['outcome'], { kind: 'window_success' }>[] {
@@ -297,7 +297,7 @@ function successfulReports(
 }
 
 /**
- * Intent: choose the outcome to return once no window is validation-failed or limit-exceeded.
+ * Choose the outcome to return once no window is validation-failed or limit-exceeded.
  * A fixed intent has exactly one window and returns its success verbatim; a Varying intent
  * selects one register among the successful windows and reuses that window's already-validated
  * request/result/provenance without re-running any search.
@@ -313,7 +313,7 @@ function chooseSuccess(
 }
 
 /**
- * Intent: the typed no-selection failure code, distinct for one resolved window (a fixed register,
+ * The typed no-selection failure code, distinct for one resolved window (a fixed register,
  * or any intent with a carry-in) versus a Varying search over every window.
  */
 function noSelectionFailureCode(
@@ -323,7 +323,7 @@ function noSelectionFailureCode(
 }
 
 /**
- * Intent: apply the documented outcome precedence to a completed set of window reports: any
+ * Apply the documented outcome precedence to a completed set of window reports: any
  * result-validation failure beats any search-limit cutoff, which beats a non-empty successful
  * set, which beats the typed "no window resolved" failure. Never inspects diagnostics.
  */
@@ -337,7 +337,7 @@ function resolveOutcomeKind(
 }
 
 /**
- * Intent: the harmony candidates the phrase may use, in domain order. Without a carry-in, or with
+ * The harmony candidates the phrase may use, in domain order. Without a carry-in, or with
  * one whose harmony a key or collection change dropped (null), the whole domain is open, exactly
  * as for a phrase with no carried chord; otherwise only the candidates that follow the carried
  * chord.
@@ -354,7 +354,7 @@ function harmonyCandidatesAfterCarryIn(
 }
 
 /**
- * Intent: the harmony list every window searches, rebuilt from the intent's Seventh chords level
+ * The harmony list every window searches, rebuilt from the intent's Seventh chords level
  * and seed as the result validator rebuilds it: the plans the carry-in leaves open, ranked by the
  * seeded tie key on their triad identity, then their plan variants. At Off that is the ranked
  * list itself, object for object, and no draw is made; above Off each plan with a drawn seventh is
@@ -375,7 +375,7 @@ export function searchedHarmonyOrder(
 }
 
 /**
- * Intent: the search policy every window of one generation searches under, picked from the intent
+ * The search policy every window of one generation searches under, picked from the intent
  * alone: the carry-in policy for an intent with a carry-in, and the first release's policy for every
  * intent without one, so that generation stays byte-identical to the first release. Replaying a
  * decoded intent therefore derives the same policy.
@@ -389,7 +389,7 @@ function searchPolicyFor(intent: GenerationIntent): GenerationSearchPolicy {
 }
 
 /**
- * Intent: generate one four-measure phrase for one outer GenerationIntent: expand and rank the
+ * Generate one four-measure phrase for one outer GenerationIntent: expand and rank the
  * structural harmony and rhythm domains once, resolve the intent's one-or-three core requests,
  * search every window independently, and resolve the documented outcome precedence among them.
  * With a carry-in, the harmony starts from the carried chord (if one was carried) and the one

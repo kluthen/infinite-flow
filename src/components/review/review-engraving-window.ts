@@ -54,7 +54,7 @@ export interface ReviewEngravingWindow {
 }
 
 /**
- * Intent: create the scheduler for one list of `itemCount` items, every item blank. Work starts
+ * Create the scheduler for one list of `itemCount` items, every item blank. Work starts
  * on the next microtask after a report, so a whole observer callback's reports are queued before
  * the nearest item is picked.
  */
@@ -77,21 +77,21 @@ export function createReviewEngravingWindow(
   let scheduled = false
   let disposed = false
 
-  /** Intent: refuse an index the list does not have: the caller's mapping is broken. */
+  /** Refuse an index the list does not have: the caller's mapping is broken. */
   function assertIndex(index: number): void {
     if (!Number.isInteger(index) || index < 0 || index >= itemCount) {
       throw new RangeError(`Review item ${index} is outside the list of ${itemCount}.`)
     }
   }
 
-  /** Intent: record what an item shows. */
+  /** Record what an item shows. */
   function setState(index: number, state: ReviewItemState): void {
     states[index] = state
     if (state === 'blank') shown.delete(index)
     else shown.add(index)
   }
 
-  /** Intent: blank an item that shows something, and undo any engraving of it under way. */
+  /** Blank an item that shows something, and undo any engraving of it under way. */
   function release(index: number): void {
     releases[index] = (releases[index] ?? 0) + 1
     queued.delete(index)
@@ -100,7 +100,7 @@ export function createReviewEngravingWindow(
     env.release(index)
   }
 
-  /** Intent: the queued item nearest the visible area, the earlier in the list on a tie. */
+  /** The queued item nearest the visible area, the earlier in the list on a tie. */
   function nearestQueued(): number | null {
     let best: number | null = null
     let bestDistance = Infinity
@@ -115,7 +115,7 @@ export function createReviewEngravingWindow(
   }
 
   /**
-   * Intent: record an engraving that finished: undone if the item was released meanwhile, queued
+   * Record an engraving that finished: undone if the item was released meanwhile, queued
    * again if the inputs changed meanwhile and it is still near.
    */
   function settle(
@@ -132,7 +132,7 @@ export function createReviewEngravingWindow(
     if (inputs !== inputsAtStart && near[index] === 1) queued.add(index)
   }
 
-  /** Intent: engrave the queued items one at a time, nearest first, until none is left. */
+  /** Engrave the queued items one at a time, nearest first, until none is left. */
   async function run(): Promise<void> {
     running = true
     try {
@@ -157,7 +157,7 @@ export function createReviewEngravingWindow(
     }
   }
 
-  /** Intent: start the run on the next microtask unless one is running or about to. */
+  /** Start the run on the next microtask unless one is running or about to. */
   function schedule(): void {
     if (scheduled || running || disposed) return
     scheduled = true

@@ -73,7 +73,7 @@ const LETTER_SEMITONES: Readonly<Record<string, number>> = {
   B: 11,
 }
 
-/** Intent: the MIDI number of a label such as `B♭4` (octave 4 starting on middle C, MIDI 60). */
+/** The MIDI number of a label such as `B♭4` (octave 4 starting on middle C, MIDI 60). */
 function labelMidi(label: string): number {
   const match = /^([A-G])(𝄫|𝄪|♭|♯)?(-?\d+)$/u.exec(label)
   if (match === null) throw new Error(`not a pitch label: "${label}"`)
@@ -81,7 +81,7 @@ function labelMidi(label: string): number {
   return (Number(match[3]) + 1) * 12 + LETTER_SEMITONES[match[1]!]! + alter
 }
 
-/** Intent: a label in the words the staff's text description uses (`B♭4` → `B flat 4`). */
+/** A label in the words the staff's text description uses (`B♭4` → `B flat 4`). */
 function labelWords(label: string): string {
   return label
     .replace(/𝄪/gu, ' double sharp ')
@@ -94,7 +94,7 @@ function labelWords(label: string): string {
 }
 
 /**
- * Intent: the first written note the staff shows, as its text description words it (`B flat 4`):
+ * The first written note the staff shows, as its text description words it (`B flat 4`):
  * the first token of the measures that is neither a chord announcement nor a rest, without its
  * duration or a displayed natural.
  */
@@ -115,7 +115,7 @@ async function staffFirstNoteWords(page: Page): Promise<string> {
 }
 
 /**
- * Intent: what the workspace shows and holds, to compare before and after a note: the phrase,
+ * What the workspace shows and holds, to compare before and after a note: the phrase,
  * the operation, the engravings, the header actions, the session's state and every recorded audio
  * call (a start schedules count-in clicks).
  */
@@ -140,7 +140,7 @@ async function workspaceState(page: Page): Promise<unknown> {
   }
 }
 
-/** Intent: play `pitches` on `device`, one tap each, now, and assert nothing changed at all. */
+/** Play `pitches` on `device`, one tap each, now, and assert nothing changed at all. */
 async function expectNotesChangeNothing(
   page: Page,
   device: WorkspaceHarnessMidiDevice,

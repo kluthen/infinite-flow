@@ -90,7 +90,7 @@ export interface SessionOptionChoices {
   readonly varySettingsAvailable: boolean
 }
 
-/** Intent: the player's v3.2 session choices as the session controller holds them now. */
+/** The player's v3.2 session choices as the session controller holds them now. */
 export async function sessionChoices(page: Page): Promise<SessionOptionChoices> {
   const state = await sessionState(page)
   return {
@@ -102,32 +102,32 @@ export async function sessionChoices(page: Page): Promise<SessionOptionChoices> 
   }
 }
 
-/** Intent: the "During a session" control group. */
+/** The "During a session" control group. */
 export function sessionGroup(page: Page): Locator {
   return page.locator('.control-group-session')
 }
 
-/** Intent: the `Allowed rhythm changes` toggle list, by its accessible name. */
+/** The `Allowed rhythm changes` toggle list, by its accessible name. */
 export function allowedChangesList(page: Page): Locator {
   return page.getByRole('group', { name: 'Allowed rhythm changes', exact: true })
 }
 
-/** Intent: the `What may vary` toggle list, by its accessible name. */
+/** The `What may vary` toggle list, by its accessible name. */
 export function whatMayVaryList(page: Page): Locator {
   return page.getByRole('group', { name: 'What may vary', exact: true })
 }
 
-/** Intent: one allowed rhythm change's toggle, by its name. */
+/** One allowed rhythm change's toggle, by its name. */
 export function changeToggle(page: Page, label: RhythmChangeLabel): Locator {
   return allowedChangesList(page).getByRole('button', { name: label, exact: true })
 }
 
-/** Intent: one Vary settings group's toggle, by its name. */
+/** One Vary settings group's toggle, by its name. */
 export function groupToggle(page: Page, label: VaryGroupLabel): Locator {
   return whatMayVaryList(page).getByRole('button', { name: label, exact: true })
 }
 
-/** Intent: the label of a radiogroup's checked segment, or null when none is checked. */
+/** The label of a radiogroup's checked segment, or null when none is checked. */
 export async function checkedIn(page: Page, name: string): Promise<string | null> {
   const checked = page
     .getByRole('radiogroup', { name, exact: true })
@@ -136,7 +136,7 @@ export async function checkedIn(page: Page, name: string): Promise<string | null
 }
 
 /**
- * Intent: each toggle of a toggle list as `{name}: {aria-pressed}`, plus `(disabled)` for a
+ * Each toggle of a toggle list as `{name}: {aria-pressed}`, plus `(disabled)` for a
  * natively disabled one, in the order shown; the hidden on/off word is left out of the name.
  */
 export function toggleStates(list: Locator): Promise<string[]> {
@@ -153,19 +153,19 @@ export function toggleStates(list: Locator): Promise<string[]> {
   )
 }
 
-/** Intent: turn `Rhythm lock` on or off with a click, waiting until the controller holds it. */
+/** Turn `Rhythm lock` on or off with a click, waiting until the controller holds it. */
 export async function setRhythmLock(page: Page, on: boolean): Promise<void> {
   await radio(page, 'Rhythm lock', on ? 'On' : 'Off').click()
   await expect.poll(async () => (await sessionChoices(page)).rhythmLockOn).toBe(on)
 }
 
-/** Intent: turn `Vary settings` on or off with a click, waiting until the controller holds it. */
+/** Turn `Vary settings` on or off with a click, waiting until the controller holds it. */
 export async function setVarySettings(page: Page, on: boolean): Promise<void> {
   await radio(page, 'Vary settings', on ? 'On' : 'Off').click()
   await expect.poll(async () => (await sessionChoices(page)).varySettings).toBe(on)
 }
 
-/** Intent: flip one allowed rhythm change with a click, waiting until its toggle shows it. */
+/** Flip one allowed rhythm change with a click, waiting until its toggle shows it. */
 export async function flipChange(page: Page, label: RhythmChangeLabel): Promise<void> {
   const toggle = changeToggle(page, label)
   const pressed = await toggle.getAttribute('aria-pressed')
@@ -173,7 +173,7 @@ export async function flipChange(page: Page, label: RhythmChangeLabel): Promise<
   await expect(toggle).toHaveAttribute('aria-pressed', pressed === 'true' ? 'false' : 'true')
 }
 
-/** Intent: flip one Vary settings group with a click, waiting until its toggle shows it. */
+/** Flip one Vary settings group with a click, waiting until its toggle shows it. */
 export async function flipGroup(page: Page, label: VaryGroupLabel): Promise<void> {
   const toggle = groupToggle(page, label)
   const pressed = await toggle.getAttribute('aria-pressed')
@@ -182,7 +182,7 @@ export async function flipGroup(page: Page, label: VaryGroupLabel): Promise<void
 }
 
 /**
- * Intent: move the fake clock to just past phrase `phraseNumber`'s start, after waiting until the
+ * Move the fake clock to just past phrase `phraseNumber`'s start, after waiting until the
  * session has readied it: a generation slower than the fake clock would otherwise be cancelled
  * before its phrase sounds. Call it phrase after phrase from 2.
  */
@@ -192,7 +192,7 @@ export async function toPhraseStart(page: Page, phraseNumber: number): Promise<v
 }
 
 /**
- * Intent: the Vary settings groups whose settings differ between two shown setting sets: each
+ * The Vary settings groups whose settings differ between two shown setting sets: each
  * mutable control by its group, the figure levels as the Figures group.
  */
 export function movedGroups(
@@ -210,7 +210,7 @@ export function movedGroups(
 }
 
 /**
- * Intent: what a generation request carries of one group's settings, as one comparable string:
+ * What a generation request carries of one group's settings, as one comparable string:
  * Key and mode by the written key and the collection (its tonal center is in concert pitch), the
  * Figures group by the figure levels, any other group by its controls.
  */

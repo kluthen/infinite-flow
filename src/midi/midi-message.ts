@@ -40,7 +40,7 @@ export class MidiMessageError extends Error {
 const IGNORED: MidiMessage = Object.freeze({ kind: 'ignored' })
 
 /**
- * Intent: read one Web MIDI message into a note-on, a note-off or an ignored message. A 0x9n with
+ * Read one Web MIDI message into a note-on, a note-off or an ignored message. A 0x9n with
  * velocity 0 is a note-off. Web MIDI delivers only complete messages with a status byte, so an
  * empty message, a message starting with a data byte, a note message that is not exactly three
  * bytes, or a note data byte with the status bit set is a broken boundary and throws.
@@ -69,7 +69,7 @@ export function parseMidiMessage(data: Uint8Array): MidiMessage {
   return Object.freeze({ kind: 'note-off', channel, pitch })
 }
 
-/** Intent: read a note message's pitch and velocity, rejecting a wrong length or a non-data byte. */
+/** Read a note message's pitch and velocity, rejecting a wrong length or a non-data byte. */
 function readNoteData(data: Uint8Array): { pitch: ConcertPitch; velocity: number } {
   if (data.length !== NOTE_MESSAGE_LENGTH) {
     throw new MidiMessageError(

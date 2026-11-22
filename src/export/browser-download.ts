@@ -21,7 +21,7 @@ export class BrowserDownloadError extends Error {
 }
 
 /**
- * Intent: hand one export file to the browser as a download under its file name, through the
+ * Hand one export file to the browser as a download under its file name, through the
  * given document: a Blob of its bytes and MIME type behind an object URL, one click on a temporary
  * `<a download>` anchor, then the URL revoked and the anchor removed, so nothing is left behind.
  * Throws a BrowserDownloadError on a document with no window.

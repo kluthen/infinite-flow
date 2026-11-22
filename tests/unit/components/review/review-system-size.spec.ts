@@ -20,7 +20,7 @@ function lowKeys(clef: 'treble' | 'bass') {
   })
 }
 
-/** Intent: the recorded phrases as played with `instrument` in `clef`. */
+/** The recorded phrases as played with `instrument` in `clef`. */
 function playedWith(instrument: ReturnType<typeof lowKeys>, clef: 'treble' | 'bass') {
   return recordedRecords().map((record) => ({
     ...record,

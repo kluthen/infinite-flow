@@ -76,7 +76,7 @@ export interface MyInstrumentProfileFields {
 }
 
 /**
- * Intent: the profile my instrument derives from its display name, its written range (the concert
+ * The profile my instrument derives from its display name, its written range (the concert
  * range moved by the chromatic count) and its transposition, built by `makeMyInstrumentProfile`,
  * so every rule of the profile applies: a span of two octaves, both ends sounding inside MIDI,
  * letter steps from the interval table, the built-in window policy. It takes no clef and no
@@ -101,7 +101,7 @@ export function deriveMyInstrumentProfile(fields: MyInstrumentProfileFields): In
   })
 }
 
-/** Intent: the untrusted profile record parsed by the domain's profile parser, its tags checked. */
+/** The untrusted profile record parsed by the domain's profile parser, its tags checked. */
 function parseTaggedProfile(input: unknown): InstrumentProfile {
   const record = asPlainRecord(input, MY_INSTRUMENT_PROFILE_CONTEXT)
   requireAllowedKeys(record, MY_INSTRUMENT_PROFILE_ALLOWED_KEYS, MY_INSTRUMENT_PROFILE_CONTEXT)
@@ -129,7 +129,7 @@ function parseTaggedProfile(input: unknown): InstrumentProfile {
 }
 
 /**
- * Intent: parse my instrument's profile, carried as data in an untrusted wire intent: the domain's
+ * Parse my instrument's profile, carried as data in an untrusted wire intent: the domain's
  * profile parser checks its shape and the profile's own invariants, then the profile my instrument
  * derives from the same written range, transposition and name must equal it field for field, so a
  * profile no my instrument can have (windows set by hand, letter steps off the interval table, a
@@ -175,7 +175,7 @@ const GENERATION_INTENT_ALLOWED_KEYS = new Set([
 const FIGURE_LEVELS_CONTEXT = 'GenerationWorkerRequest.intent.figureLevels'
 
 /**
- * Intent: parse an untrusted wire intent's figure levels through the domain's parser: a missing
+ * Parse an untrusted wire intent's figure levels through the domain's parser: a missing
  * field or any FigureLevelsError (a missing or unknown figure, an unknown level, a non-object) is
  * a GenerationWorkerProtocolError naming the field and the cause.
  */
@@ -200,7 +200,7 @@ function parseWireFigureLevels(record: Record<string, unknown>): FigureLevels {
 const CHORD_FAMILIES_CONTEXT = 'GenerationWorkerRequest.intent.chordFamilies'
 
 /**
- * Intent: parse an untrusted wire intent's Seventh chords level through the domain's parser: a
+ * Parse an untrusted wire intent's Seventh chords level through the domain's parser: a
  * missing field or any ChordFamiliesError (a missing, unknown or extra family, an unknown level, a
  * non-object) is a GenerationWorkerProtocolError naming the field and the cause. The worker's
  * reader of the level for `rebuildGenerationWorkerIntent`: a sent intent always holds it.
@@ -224,7 +224,7 @@ function parseWireChordFamilies(record: Record<string, unknown>): ChordFamilies 
 }
 
 /**
- * Intent: parse an untrusted wire intent's optional rhythm lock group and steering block, each
+ * Parse an untrusted wire intent's optional rhythm lock group and steering block, each
  * only when its key is present (a key holding nothing is refused, never read as absent), through
  * the domain's own parsers. Any RequestRhythmLockError or SteeringBlockError is a
  * GenerationWorkerProtocolError naming the field and the cause.
@@ -256,7 +256,7 @@ function parseWireRequestGroups(record: Record<string, unknown>): {
 }
 
 /**
- * Intent: validate the owning fields of an untrusted GenerationIntent record (requestId, seed,
+ * Validate the owning fields of an untrusted GenerationIntent record (requestId, seed,
  * writtenTonalCenter, controls, figureLevels, chordFamilies and an optional carryIn) through the
  * existing domain constructors and rebuild the full intent via `makeGenerationIntent`, or
  * `makeCarryInGenerationIntent` when the record holds a carry-in, with no default for a missing or
@@ -341,7 +341,7 @@ export function rebuildGenerationWorkerIntent(
 }
 
 /**
- * Intent: parse an untrusted wire carry-in of either origin as the worker's messages hold it: its
+ * Parse an untrusted wire carry-in of either origin as the worker's messages hold it: its
  * carried chord a triad or a triad holding its same-degree seventh.
  */
 // @spec-link [[entity_phrase_carry_in]]
@@ -351,7 +351,7 @@ function parseCarryInTakingSeventh(input: unknown): CarryIn {
 }
 
 /**
- * Intent: parse one untrusted wire GenerationIntent by rejecting any unknown field (a
+ * Parse one untrusted wire GenerationIntent by rejecting any unknown field (a
  * `musicalProfile` among them: the intent holds none), rebuilding the intent from its owning
  * fields via `rebuildGenerationWorkerIntent` (which requires the `figureLevels` and parses them
  * through the domain's figure-levels parser, and is told to require the `chordFamilies` and parse
@@ -388,7 +388,7 @@ export function parseGenerationWorkerIntent(input: unknown): GenerationIntent {
 }
 
 /**
- * Intent: parse one untrusted request envelope posted to the worker. Rejects a wrong `type`, an
+ * Parse one untrusted request envelope posted to the worker. Rejects a wrong `type`, an
  * unparsable `id` (never inventing one), or an invalid `intent` as a typed
  * GenerationWorkerProtocolError so a malformed request crashes the worker loudly.
  */
@@ -407,7 +407,7 @@ export function parseGenerationWorkerRequest(input: unknown): GenerationWorkerRe
 }
 
 /**
- * Intent: parse one untrusted prewarm message posted to the worker: exactly `type` and `intent`,
+ * Parse one untrusted prewarm message posted to the worker: exactly `type` and `intent`,
  * the intent parsed exactly like a generate request's. Any other shape throws a typed
  * GenerationWorkerProtocolError so a malformed prewarm crashes the worker as loudly as a
  * malformed generate request.
@@ -426,7 +426,7 @@ export function parseGenerationWorkerPrewarm(input: unknown): GenerationWorkerPr
 }
 
 /**
- * Intent: parse any untrusted worker-bound message, dispatching on its `type` to the generate
+ * Parse any untrusted worker-bound message, dispatching on its `type` to the generate
  * request or the prewarm parser. A non-object or an unknown `type` throws a typed
  * GenerationWorkerProtocolError, never guessing which message was meant.
  */

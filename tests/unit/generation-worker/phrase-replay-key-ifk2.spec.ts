@@ -51,7 +51,7 @@ import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 const TIMEOUT_MS = 120_000
 
 /**
- * Intent: my instrument written C3 to E5, inside both clefs' bounds, sounding a minor third lower,
+ * My instrument written C3 to E5, inside both clefs' bounds, sounding a minor third lower,
  * in the given clef.
  */
 function hornInA(clef: InstrumentClef = 'treble'): MyInstrument {
@@ -73,12 +73,12 @@ const BARITONE = makeMyInstrument({
   transposition: { octaves: 1, semitones: 2, direction: 'lower' },
 })
 
-/** Intent: the baritone, as a recorded key's instrument. */
+/** The baritone, as a recorded key's instrument. */
 function baritone(): MyInstrument {
   return BARITONE
 }
 
-/** Intent: a real intent for my instrument with a seed and an optional carry-in. */
+/** A real intent for my instrument with a seed and an optional carry-in. */
 function myInstrumentIntent(
   instrument: MyInstrument,
   seed: number,
@@ -101,19 +101,19 @@ function myInstrumentIntent(
     : makeCarryInGenerationIntent({ ...input, carryIn })
 }
 
-/** Intent: unpadded base64url of raw bytes, for hand-built payloads. */
+/** Unpadded base64url of raw bytes, for hand-built payloads. */
 function base64Url(bytes: Uint8Array): string {
   let binary = ''
   for (const byte of bytes) binary += String.fromCharCode(byte)
   return btoa(binary).replace(/\+/gu, '-').replace(/\//gu, '_').replace(/=+$/u, '')
 }
 
-/** Intent: a key of the given version over any JSON value, bypassing the codec's encoder. */
+/** A key of the given version over any JSON value, bypassing the codec's encoder. */
 function rawKey(version: 'ifk1' | 'ifk2' | 'ifk3', payload: unknown): string {
   return `${version}.${base64Url(new TextEncoder().encode(JSON.stringify(payload)))}`
 }
 
-/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+/** The JSON payload of a key, read back without the codec's decoder. */
 function payloadOf(key: string): unknown[] {
   const payload = key
     .slice(key.indexOf('.') + 1)
@@ -125,7 +125,7 @@ function payloadOf(key: string): unknown[] {
 }
 
 /**
- * Intent: the seven `ifk1.` entries v3.0 wrote for an intent and phrase number, its profile slots
+ * The seven `ifk1.` entries v3.0 wrote for an intent and phrase number, its profile slots
  * holding the customized Neutral every intent here is built with.
  */
 function ifk1EntriesOf(intent: GenerationIntent, phraseNumber: number): unknown[] {
@@ -144,7 +144,7 @@ function ifk1EntriesOf(intent: GenerationIntent, phraseNumber: number): unknown[
   ) as unknown[]
 }
 
-/** Intent: my instrument's owning profile fields as a key stores them. */
+/** My instrument's owning profile fields as a key stores them. */
 function entryOf(instrument: MyInstrument): readonly unknown[] {
   const { displayName, concertRange, transposition } = instrument.profile
   return [
@@ -252,19 +252,19 @@ const RECORDED_IFK1_BUILT_IN_KEYS = {
   ].join(''),
 } as const
 
-/** Intent: the baritone's phrase 2 (seed 12), carrying the carry-in of its phrase 1 (seed 11). */
+/** The baritone's phrase 2 (seed 12), carrying the carry-in of its phrase 1 (seed 11). */
 function baritonePhraseTwo(): GenerationIntent {
   const first = myInstrumentIntent(BARITONE, 11)
   const carryIn = carryInAfter(first, generateSuccess(first), 1)
   return myInstrumentIntent(BARITONE, 12, carryIn)
 }
 
-/** Intent: the valid `ifk2.` 8-tuple of the horn in A's phrase 1, as a mutable array to corrupt. */
+/** The valid `ifk2.` 8-tuple of the horn in A's phrase 1, as a mutable array to corrupt. */
 function validTuple(): unknown[] {
   return payloadOf(RECORDED_IFK2_KEYS[1]!.key)
 }
 
-/** Intent: the valid 8-tuple with its my-instrument slot replaced. */
+/** The valid 8-tuple with its my-instrument slot replaced. */
 function tupleWithProfile(profile: unknown): unknown[] {
   const tuple = validTuple()
   tuple[7] = profile
@@ -272,7 +272,7 @@ function tupleWithProfile(profile: unknown): unknown[] {
 }
 
 /**
- * Intent: the valid `ifk3.` 7-tuple of the horn in A's phrase 1 (the first seven entries of the
+ * The valid `ifk3.` 7-tuple of the horn in A's phrase 1 (the first seven entries of the
  * `ifk4.` key v3.2 wrote), its slot 6 replaced.
  */
 function ifk3TupleWithProfile(profile: unknown): unknown[] {
@@ -284,12 +284,12 @@ function ifk3TupleWithProfile(profile: unknown): unknown[] {
   return tuple
 }
 
-/** Intent: an `ifk2.` and an `ifk3.` key of the horn in A holding the given my-instrument entry. */
+/** An `ifk2.` and an `ifk3.` key of the horn in A holding the given my-instrument entry. */
 function keysWithProfile(profile: unknown): readonly string[] {
   return [rawKey('ifk2', tupleWithProfile(profile)), rawKey('ifk3', ifk3TupleWithProfile(profile))]
 }
 
-/** Intent: assert a decoded key holds the intent and number exactly, and no musical profile. */
+/** Assert a decoded key holds the intent and number exactly, and no musical profile. */
 function expectDecodedEqual(
   key: string,
   version: 'ifk1' | 'ifk2' | 'ifk3' | 'ifk4',
@@ -304,14 +304,14 @@ function expectDecodedEqual(
   expect(Object.keys(decoded.intent)).not.toContain('musicalProfile')
 }
 
-/** Intent: assert encode→decode yields an `ifk4` key and the original intent and number exactly. */
+/** Assert encode→decode yields an `ifk4` key and the original intent and number exactly. */
 function expectIfk4RoundTrip(intent: GenerationIntent, phraseNumber: number): void {
   const key = encodeIfk4PhraseReplayKey(intent, phraseNumber)
   expect(key.startsWith('ifk4.')).toBe(true)
   expectDecodedEqual(key, 'ifk4', intent, phraseNumber)
 }
 
-/** Intent: the timeline-bearing outcome a key replays to, failing loudly on a worker crash. */
+/** The timeline-bearing outcome a key replays to, failing loudly on a worker crash. */
 function replayedRaw(key: string): unknown {
   const report = replayPhraseKey(key)
   if (report.output.kind === 'crash') throw new Error(report.output.message)

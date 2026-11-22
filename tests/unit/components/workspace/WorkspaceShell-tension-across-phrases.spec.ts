@@ -39,7 +39,7 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: mount the shell over `session` and `controller` (null while it loads). */
+/** Mount the shell over `session` and `controller` (null while it loads). */
 function mountShell(
   session: GenerationSession<WorkspaceSessionResult>,
   controller: SessionController | null,
@@ -66,12 +66,12 @@ function mountShell(
   })
 }
 
-/** Intent: the radiogroup of a control by its accessible name. */
+/** The radiogroup of a control by its accessible name. */
 function group(wrapper: ReturnType<typeof mountShell>, name: string) {
   return wrapper.get(`[role="radiogroup"][aria-label="${name}"]`)
 }
 
-/** Intent: the checked segment's label in a radiogroup, or null. */
+/** The checked segment's label in a radiogroup, or null. */
 function checked(wrapper: ReturnType<typeof mountShell>, name: string): string | null {
   const segment = group(wrapper, name)
     .findAll('[role="radio"]')

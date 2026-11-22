@@ -47,7 +47,7 @@ const SAVE = {
   jam: null,
 } as const
 
-/** Intent: the closed history of a driven session, fed every output the driver logged. */
+/** The closed history of a driven session, fed every output the driver logged. */
 function historyOf(driver: SessionDriver): SessionHistory {
   const history = createSessionHistory(
     driver.settings,
@@ -59,7 +59,7 @@ function historyOf(driver: SessionDriver): SessionHistory {
   return history
 }
 
-/** Intent: the closed history of a session at 240 BPM stopped once phrase 1 has sounded. */
+/** The closed history of a session at 240 BPM stopped once phrase 1 has sounded. */
 function history(): SessionHistory {
   const driver = new SessionDriver({ at: 0, settings: sessionSettings({ tempo: 240 }) })
   driver.countInOver(1)

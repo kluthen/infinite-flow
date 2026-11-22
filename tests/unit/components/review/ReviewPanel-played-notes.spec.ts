@@ -26,7 +26,7 @@ interface PanelOptions {
 
 const mounted: VueWrapper[] = []
 
-/** Intent: mount the panel of a session holding played notes, attached so focus can be checked. */
+/** Mount the panel of a session holding played notes, attached so focus can be checked. */
 function mountPanel(options: PanelOptions = {}) {
   const wrapper = mount(ReviewPanel, {
     props: {
@@ -63,7 +63,7 @@ interface Deferred {
   readonly reject: (error: unknown) => void
 }
 
-/** Intent: a promise with its settle functions exposed. */
+/** A promise with its settle functions exposed. */
 function deferred(): Deferred {
   let resolve: () => void = () => {}
   let reject: (error: unknown) => void = () => {}
@@ -74,17 +74,17 @@ function deferred(): Deferred {
   return { promise, resolve, reject }
 }
 
-/** Intent: the `Export generated notes` button, inside the generated-notes group. */
+/** The `Export generated notes` button, inside the generated-notes group. */
 function generatedButton(wrapper: VueWrapper) {
   return wrapper.get<HTMLButtonElement>('.review-export > button.review-export-action')
 }
 
-/** Intent: the `Export played notes` button, in the played-notes group. */
+/** The `Export played notes` button, in the played-notes group. */
 function playedButton(wrapper: VueWrapper) {
   return wrapper.get<HTMLButtonElement>('.review-export-played > button.review-export-action')
 }
 
-/** Intent: the `Played notes` switch. */
+/** The `Played notes` switch. */
 function playedNotesSwitch(wrapper: VueWrapper) {
   return wrapper.get<HTMLButtonElement>('.review-view > button.toggle-button')
 }

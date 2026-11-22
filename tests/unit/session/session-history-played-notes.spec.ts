@@ -25,7 +25,7 @@ import {
 } from './session-harness'
 
 /**
- * Intent: a 240 BPM session (a 1 s measure) started at 0 whose phrases 1, 2 and 3 start sounding
+ * A 240 BPM session (a 1 s measure) started at 0 whose phrases 1, 2 and 3 start sounding
  * at 1, 5 and 9, then Stop at 10.
  */
 function threePhraseDriver(): SessionDriver {
@@ -40,7 +40,7 @@ function threePhraseDriver(): SessionDriver {
   return driver
 }
 
-/** Intent: the driver's outputs split into the phrase-sounding ones, in order, and its end. */
+/** The driver's outputs split into the phrase-sounding ones, in order, and its end. */
 function outputsOf(driver: SessionDriver): {
   readonly sounding: readonly SessionOutput[]
   readonly ended: SessionOutput
@@ -51,7 +51,7 @@ function outputsOf(driver: SessionDriver): {
   }
 }
 
-/** Intent: a history for the driver's session fed every output but its end. */
+/** A history for the driver's session fed every output but its end. */
 function openHistory(driver: SessionDriver): SessionHistory {
   const history = createSessionHistory(
     driver.settings,
@@ -63,12 +63,12 @@ function openHistory(driver: SessionDriver): SessionHistory {
   return history
 }
 
-/** Intent: a played note at middle C (or the given pitch) with velocity 80 over the given span. */
+/** A played note at middle C (or the given pitch) with velocity 80 over the given span. */
 function played(onsetAt: number, releaseAt: number, pitch = 60, velocity = 80): RecordedPlayedNote {
   return { pitch: makeConcertPitch(pitch), velocity, onsetAt, releaseAt }
 }
 
-/** Intent: the identity of an expected note of the given phrase, measure 0. */
+/** The identity of an expected note of the given phrase, measure 0. */
 function expected(phraseNumber: number, eventIndex: number): ExpectedNoteIdentity {
   return { phraseNumber, measureIndex: 0, eventIndex }
 }
@@ -76,7 +76,7 @@ function expected(phraseNumber: number, eventIndex: number): ExpectedNoteIdentit
 /** A copy of a record type whose fields the test may overwrite after handing it in. */
 type Mutable<T> = { -readonly [K in keyof T]: T[K] }
 
-/** Intent: the onsets of each recorded phrase's played notes, phrase by phrase. */
+/** The onsets of each recorded phrase's played notes, phrase by phrase. */
 function onsetsByPhrase(history: SessionHistory): number[][] {
   return history.phrases().map((record) => record.playedNotes.map((note) => note.onsetAt))
 }

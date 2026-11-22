@@ -193,14 +193,14 @@ const review = useReviewHost({
 const reviewShowing = review.showing
 
 /**
- * Intent: the running session's staff, which PhraseScore shows instead of the Idle phrase; null
+ * The running session's staff, which PhraseScore shows instead of the Idle phrase; null
  * with no session (or no controller loaded yet), so it shows Idle.
  */
 // @spec-link [[module_session_rolling_display]]
 const sessionStaff = computed(() => props.controller?.state.sessionStaff ?? null)
 
 /**
- * Intent: whether a fresh Jam's phrase 1 has entered the session's staff (its read-in, then its
+ * Whether a fresh Jam's phrase 1 has entered the session's staff (its read-in, then its
  * session): Jam mode shows and the controller's session staff is set.
  */
 // @spec-link [[module_session_rolling_display]]
@@ -217,7 +217,7 @@ const sessionStaffAway = computed(
 /** Jam's view has reported it left as phrase 1 entered; cleared when the session staff goes. */
 const jamLeft = ref(false)
 
-/** Intent: the session staff gone (the session ended), Jam's view comes back in sight. */
+/** The session staff gone (the session ended), Jam's view comes back in sight. */
 watch(jamPhraseOneIn, (entered) => {
   if (!entered) jamLeft.value = false
 })
@@ -252,7 +252,7 @@ const bannerAway = computed(
 const roomNoticeElement = ref<HTMLElement | null>(null)
 
 /**
- * Intent: move focus to `room-notice` (a session ended during its count-in into Needs more room);
+ * Move focus to `room-notice` (a session ended during its count-in into Needs more room);
  * it must be on screen. In Jam mode, Jam's staff's (a Jam ended before phrase 1 into it).
  */
 // @spec-link [[rule_count_in_ending_returns_to_idle]]
@@ -276,7 +276,7 @@ const reviewArea = ref<{ readonly focusReviewTitle: () => void } | null>(null)
 /** A `review-title` focus asked for before the area had mounted. */
 let reviewTitleFocusPending = false
 
-/** Intent: hand the `review-title` focus to the area now if it is mounted, else once it mounts. */
+/** Hand the `review-title` focus to the area now if it is mounted, else once it mounts. */
 function focusPendingReviewTitle(): void {
   if (!reviewTitleFocusPending || reviewArea.value === null) return
   reviewTitleFocusPending = false
@@ -284,7 +284,7 @@ function focusPendingReviewTitle(): void {
 }
 
 /**
- * Intent: move focus to `review-title` (Review last session), as soon as the area's and the
+ * Move focus to `review-title` (Review last session), as soon as the area's and the
  * panel's lazy chunks have loaded and they have mounted; a Review closed meanwhile drops it.
  */
 // @spec-link [[req_last_session_review]]
@@ -304,7 +304,7 @@ const jamViewInstance = ref<{
   readonly focusRoomNotice: () => void
 } | null>(null)
 
-/** Intent: `Retry notation` in Jam mode: Jam's view engraves its staff again; it must be shown. */
+/** `Retry notation` in Jam mode: Jam's view engraves its staff again; it must be shown. */
 function retryJamNotation(): void {
   if (jamViewInstance.value === null) throw new Error("score panel: Jam's view is not shown")
   jamViewInstance.value.retryNotation()
@@ -318,7 +318,7 @@ const notationStatusText = ref('')
 let roomNoticeAnnouncement = 0
 
 /**
- * Intent: the Review showing silences both live regions: they empty as it opens (cancelling a
+ * The Review showing silences both live regions: they empty as it opens (cancelling a
  * room notice still to be announced) and announce nothing while it shows; its close announces
  * nothing either, the player seeing the staff and focus landing per the flow.
  */
@@ -342,7 +342,7 @@ watch(reviewShowing, (showing) => {
 let announceOnIdle = false
 
 /**
- * Intent: announce only the three defined generation-status transitions, once per run however
+ * Announce only the three defined generation-status transitions, once per run however
  * many attempts it makes: the operation stays `generating` between attempts, and a retry after a
  * too-wide draw only sets the same text again, which changes nothing on screen. Tracked with
  * `announceOnIdle` rather than the immediately-preceding operation value alone, because a
@@ -376,7 +376,7 @@ watch(
 )
 
 /**
- * Intent: announce a notation failure whenever `notationError` becomes set, whatever set it -- a
+ * Announce a notation failure whenever `notationError` becomes set, whatever set it -- a
  * fresh generation's own engraving step, Retry notation, or an out-of-band redraw -- by watching
  * the error itself rather than any call site, except out of sight under the Review. Recovery stays
  * silent: a cleared error only empties the region, never announces.
@@ -391,7 +391,7 @@ watch(
 )
 
 /**
- * Intent: the room-notice sentence on screen now: for the no-room cause, the one the stylesheet
+ * The room-notice sentence on screen now: for the no-room cause, the one the stylesheet
  * shows by the notation layout's width query; for the too-many-notes cause, its own sentence.
  */
 // @spec-link [[rule_staff_needs_room_notice]]
@@ -403,7 +403,7 @@ function visibleRoomNoticeSentence(): string | null {
 }
 
 /**
- * Intent: announce the notice's visible sentence each time the session asks for it (the notice
+ * Announce the notice's visible sentence each time the session asks for it (the notice
  * beginning, or a round under it ending with every attempt too wide), except out of sight under
  * the Review. The region is emptied and the DOM flushed first, so the same sentence announced
  * again is a change a screen reader hears.
@@ -424,7 +424,7 @@ watch(
   },
 )
 
-/** Intent: the notice's clearing is silent: the region only empties, as a notation recovery does. */
+/** The notice's clearing is silent: the region only empties, as a notation recovery does. */
 // @spec-link [[rule_staff_notice_gives_way_to_new_phrase]]
 watch(
   () => announced.value.roomNotice,
@@ -446,7 +446,7 @@ const staffFrameStateClass = computed(() =>
 )
 
 /**
- * Intent: show the instruction whenever no phrase is shown, as v1 did -- Empty, and a Loading that
+ * Show the instruction whenever no phrase is shown, as v1 did -- Empty, and a Loading that
  * shows no score yet (the first Generate's, or a replacement's) -- but never under the room notice,
  * which holds the staff in its place.
  */
@@ -456,7 +456,7 @@ const showEmptyInstruction = computed(
 )
 
 /**
- * Intent: surface the retained notation failure as the staff-frame's replacement error content;
+ * Surface the retained notation failure as the staff-frame's replacement error content;
  * never over the room notice, since a staff with no room is never a notation error.
  */
 // @spec-link [[module_notation_layout_preflight]]
@@ -468,22 +468,22 @@ const notationErrorMessage = computed(() =>
 )
 
 /**
- * Intent: the notice's cause, for the markup: which sentence `room-notice` holds; none while a
+ * The notice's cause, for the markup: which sentence `room-notice` holds; none while a
  * fresh Jam's phrase 1 shows.
  */
 const roomNotice = computed(() => (jamPhraseOneIn.value ? null : state.value.roomNotice))
 
-/** Intent: the controller's marks PhraseScore draws on the score; see useScoreOverlays. */
+/** The controller's marks PhraseScore draws on the score; see useScoreOverlays. */
 const overlays = useScoreOverlays(() => props.controller)
 
-/** Intent: keep the staff's viewport for the Review, then pass the report on to the workspace. */
+/** Keep the staff's viewport for the Review, then pass the report on to the workspace. */
 // @spec-link [[req_last_session_review]]
 function handleStaffLayoutInputs(inputs: StaffLayoutInputs): void {
   review.noteLayoutInputs(inputs)
   props.handleLayoutInputs(inputs)
 }
 
-/** Intent: the D29 alert-banner text, mapped by failure kind rather than a "Generation failed: " prefix concatenated onto the error's own message. */
+/** The D29 alert-banner text, mapped by failure kind rather than a "Generation failed: " prefix concatenated onto the error's own message. */
 // @spec-link [[rule_generation_failure_alert_copy]]
 const generationErrorAlertText = computed(() =>
   announced.value.generationError !== null

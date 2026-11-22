@@ -32,17 +32,17 @@ export type {
 let failureArmed = false
 let filesBuilt = 0
 
-/** Intent: make the next file the export builds throw instead; one shot. */
+/** Make the next file the export builds throw instead; one shot. */
 export function armNextExportFailure(): void {
   failureArmed = true
 }
 
-/** Intent: how many files the export has built since the page loaded. */
+/** How many files the export has built since the page loaded. */
 export function exportsBuilt(): number {
   return filesBuilt
 }
 
-/** Intent: run one file build, throwing instead when a failure is armed, and count it if built. */
+/** Run one file build, throwing instead when a failure is armed, and count it if built. */
 function counted(build: () => ExportFile): ExportFile {
   if (failureArmed) {
     failureArmed = false
@@ -54,7 +54,7 @@ function counted(build: () => ExportFile): ExportFile {
 }
 
 /**
- * Intent: the real module, both its file builders counted and failing when armed, each handed
+ * The real module, both its file builders counted and failing when armed, each handed
  * every argument it was given (the export scope among them).
  */
 function wrapModule(real: GeneratedNotesExportModule): GeneratedNotesExportModule {
@@ -65,7 +65,7 @@ function wrapModule(real: GeneratedNotesExportModule): GeneratedNotesExportModul
   }
 }
 
-/** Intent: the real lazy load (its own memo and failure handling), with the module wrapped. */
+/** The real lazy load (its own memo and failure handling), with the module wrapped. */
 // @test-link [[req_session_export]]
 // @test-link [[req_played_notes_export]]
 export async function loadGeneratedNotesExport(): Promise<GeneratedNotesExportModule> {

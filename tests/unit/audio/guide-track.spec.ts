@@ -14,7 +14,7 @@ import type { GuideNote, RenderedGuide } from '@/domain/backing/guide-renderer'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeRational } from '@/domain/time/rational'
 
-/** Intent: a guide note from a MIDI pitch and a start and length as whole-note fractions. */
+/** A guide note from a MIDI pitch and a start and length as whole-note fractions. */
 function guideNote(
   pitch: number,
   [startN, startD]: readonly [number, number],
@@ -27,7 +27,7 @@ function guideNote(
   }
 }
 
-/** Intent: the time of every click of `plan` up to session beat `lastBeat`, indexed by beat. */
+/** The time of every click of `plan` up to session beat `lastBeat`, indexed by beat. */
 function clickTimes(plan: ClickPlan, lastBeat: number): number[] {
   const slowest = Math.min(plan.tempo, ...plan.tempoChanges.map((change) => change.tempo))
   const end = plan.startAt + ((lastBeat + 0.5) * 60) / slowest
@@ -80,12 +80,12 @@ const OFF_BEATS: RenderedGuide = {
   ],
 }
 
-/** Intent: a whole-note position as quarter beats, read with plain floating division. */
+/** A whole-note position as quarter beats, read with plain floating division. */
 function beatsOf(time: { readonly numerator: number; readonly denominator: number }): number {
   return (time.numerator / time.denominator) * 4
 }
 
-/** Intent: the notes of `guide` in the role order the placement uses, melody first. */
+/** The notes of `guide` in the role order the placement uses, melody first. */
 function rolesAndNotes(guide: RenderedGuide): [ScheduledGuideNote['role'], GuideNote][] {
   return [
     ...guide.melody.map(
@@ -97,7 +97,7 @@ function rolesAndNotes(guide: RenderedGuide): [ScheduledGuideNote['role'], Guide
   ]
 }
 
-/** Intent: the placed note for one rendered note, found by role, pitch and start time. */
+/** The placed note for one rendered note, found by role, pitch and start time. */
 function placedFor(
   placed: readonly ScheduledGuideNote[],
   role: ScheduledGuideNote['role'],

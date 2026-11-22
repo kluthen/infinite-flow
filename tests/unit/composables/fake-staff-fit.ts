@@ -35,7 +35,7 @@ export interface FakeStaffFit<TResult> {
   readonly roomChecks: StaffKeySignature[]
 }
 
-/** Intent: build fake staff-fit seams where every phrase fits and the staff has room by default. */
+/** Build fake staff-fit seams where every phrase fits and the staff has room by default. */
 export function createFakeStaffFit<TResult>(): FakeStaffFit<TResult> {
   const queue: StaffFitVerdict[] = []
   let fallbackFit: StaffFitVerdict = FITS
@@ -82,7 +82,7 @@ export function createFakeStaffFit<TResult>(): FakeStaffFit<TResult> {
 }
 
 /**
- * Intent: the staff-fit options for a session test that is not about fitting: every phrase fits,
+ * The staff-fit options for a session test that is not about fitting: every phrase fits,
  * the staff always has room, no layout report ever arrives, and dropping the presented phrase does
  * nothing. Spread first so a test's own `clearPresentedPhrase` still wins.
  */

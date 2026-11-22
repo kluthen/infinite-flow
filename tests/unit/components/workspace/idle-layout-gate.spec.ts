@@ -26,7 +26,7 @@ interface SpiedReports extends SessionStaffReports {
   readonly sessionStaffFailed: Mock<SessionStaffReports['sessionStaffFailed']>
 }
 
-/** Intent: four spied report handlers. */
+/** Four spied report handlers. */
 function spiedReports(): SpiedReports {
   return {
     layoutInputs: vi.fn<StaffReports['layoutInputs']>(),
@@ -36,7 +36,7 @@ function spiedReports(): SpiedReports {
   }
 }
 
-/** Intent: send one of each report through `reports`. */
+/** Send one of each report through `reports`. */
 function reportAll(reports: StaffReports, error: NotationError): void {
   reports.layoutInputs(INPUTS)
   reports.engraved()

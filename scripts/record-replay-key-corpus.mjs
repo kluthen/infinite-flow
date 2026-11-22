@@ -34,7 +34,7 @@ const PACKAGE_PATH = fileURLToPath(new URL('../package.json', import.meta.url))
 const LOAD_CONFIG = { configFile: false, logLevel: 'silent', resolve: { alias: { '@': SRC_DIR } } }
 
 /**
- * Intent: load a TypeScript module through Vite and return the named functions, crashing when one
+ * Load a TypeScript module through Vite and return the named functions, crashing when one
  * is missing.
  * @template {string} Name
  * @param {string} path
@@ -54,7 +54,7 @@ async function loadFunctions(path, names) {
 }
 
 /**
- * Intent: replay one key and return the timeline it gives, crashing on anything but a successful
+ * Replay one key and return the timeline it gives, crashing on anything but a successful
  * phrase: the corpus only records phrases that generate.
  * @param {Function} replayPhraseKey
  * @param {string} label
@@ -71,7 +71,7 @@ function replayedTimeline(replayPhraseKey, label, key) {
 }
 
 /**
- * Intent: build every case, encode and replay it, and write the fixture with the package version
+ * Build every case, encode and replay it, and write the fixture with the package version
  * the corpus was recorded on.
  */
 async function main() {

@@ -11,7 +11,7 @@ import type { DoodleMeasureCount } from '@/domain/doodle/quantized-doodle'
 import JamCapture from '@/jam/JamCapture.vue'
 import JamWriting from '@/jam/JamWriting.vue'
 
-/** Intent: each beat item's number and lit state, in order, for the doodle's measure `measure`. */
+/** Each beat item's number and lit state, in order, for the doodle's measure `measure`. */
 function beatsAt(measure: DoodleMeasureCount | null) {
   const wrapper = mount(JamCapture, { props: { doodleMeasure: measure } })
   return wrapper.findAll('.jam-capture > ol.count-in > li.count-in-beat').map((beat) => {

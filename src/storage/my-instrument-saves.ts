@@ -44,13 +44,13 @@ export type SubmitToPolicy = (call: (policy: SavePolicy) => void) => void
 /** A change to kept sessions made in the line of the visit's saves, resolving its outcome. */
 export type ChangeKept = (changes: KeptChanges, refusal: KeptRefusal) => Promise<KeptChangeOutcome>
 
-/** Intent: the batch of `record`, my instrument's record change, with the deletes `sessions` build. */
+/** The batch of `record`, my instrument's record change, with the deletes `sessions` build. */
 function withRecord(record: StorageChange, sessions: KeptChanges): KeptChanges {
   return async (reader) => [record, ...(await sessions(reader))]
 }
 
 /**
- * Intent: my instrument's saves over the visit's line of calls to the policy, so each reaches it
+ * My instrument's saves over the visit's line of calls to the policy, so each reaches it
  * in the order made: the record saved before the selection that names it, and a batch after every
  * session save asked for before it. The plain write's refusal is told by the policy, my instrument
  * still applying for the visit; a batch's refusal is resolved to its caller alone.

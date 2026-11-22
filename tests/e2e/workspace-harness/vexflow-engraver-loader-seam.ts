@@ -37,38 +37,38 @@ let engravingsRun = 0
 let roomChecksRun = 0
 let wrappedModule: VexflowEngraverModule | null = null
 
-/** Intent: arm exactly one forced failure, with this code, for the next engraving call. */
+/** Arm exactly one forced failure, with this code, for the next engraving call. */
 export function armNextNotationFailure(
   code: WorkspaceHarnessNotationFailureCode = 'notation_engraving_failed',
 ): void {
   armedFailureCode = code
 }
 
-/** Intent: append forced verdicts the next `planWrittenPhraseFit()` calls return, in order. */
+/** Append forced verdicts the next `planWrittenPhraseFit()` calls return, in order. */
 export function queueForcedFitVerdicts(verdicts: readonly WorkspaceHarnessFitVerdict[]): void {
   forcedFitVerdicts.push(...verdicts)
 }
 
-/** Intent: how many fit checks have run since the page loaded, forced or real. */
+/** How many fit checks have run since the page loaded, forced or real. */
 export function fitCheckCount(): number {
   return fitChecksRun
 }
 
 /**
- * Intent: how many engravings (draws and redraws, of a whole phrase or of one system part) have
+ * How many engravings (draws and redraws, of a whole phrase or of one system part) have
  * been attempted since the page loaded.
  */
 export function engravingCount(): number {
   return engravingsRun
 }
 
-/** Intent: how many phrase-independent room checks have run since the page loaded. */
+/** How many phrase-independent room checks have run since the page loaded. */
 export function roomCheckCount(): number {
   return roomChecksRun
 }
 
 /**
- * Intent: count one engraving attempt and, when a failure is armed, disarm it and throw it in
+ * Count one engraving attempt and, when a failure is armed, disarm it and throw it in
  * place of the real engraving.
  */
 function countEngravingOrFail(): void {
@@ -83,7 +83,7 @@ function countEngravingOrFail(): void {
   )
 }
 
-/** Intent: the aliased drop-in for the real loader, wrapping both engravings and both checks. */
+/** The aliased drop-in for the real loader, wrapping both engravings and both checks. */
 export async function loadVexflowEngraver(): Promise<VexflowEngraverModule> {
   const real = await loadRealVexflowEngraver()
   if (wrappedModule === null) {

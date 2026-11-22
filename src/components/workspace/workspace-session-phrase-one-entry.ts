@@ -24,7 +24,7 @@ import type { SessionEnds } from './workspace-session-ends'
 import { createSessionPhrases } from './workspace-session-phrases'
 
 /**
- * Intent: the fit check of phrase 1's attempts: the attempt's written phrase, in the session's
+ * The fit check of phrase 1's attempts: the attempt's written phrase, in the session's
  * clef, against the held layout at the staff's latest layout inputs once the planner is ready, as
  * the rolling display checks every later phrase; a check before the staff ever reported is a
  * defect.
@@ -37,7 +37,7 @@ export function phraseOneFitCheck(
   clef: InstrumentClef,
 ): (candidate: FitCandidate) => Promise<boolean> {
   const { deps } = core
-  /** Intent: the staff's latest layout inputs; a check before the staff ever reported is a defect. */
+  /** The staff's latest layout inputs; a check before the staff ever reported is a defect. */
   const requireInputs = () => {
     const inputs = deps.idleLayout.latestInputs()
     if (inputs === null) throw new Error('session controller: the staff never reported its layout')
@@ -52,7 +52,7 @@ export function phraseOneFitCheck(
 }
 
 /**
- * Intent: what a session started without phrase 1 takes when the engine readies phrase 1, at the
+ * What a session started without phrase 1 takes when the engine readies phrase 1, at the
  * hand-over, its start already on the transport: phrase 1's backing and guide notes at the
  * starting tempo, its
  * notes added for acknowledgement (which also sets when the silence timer may arm), the rolling

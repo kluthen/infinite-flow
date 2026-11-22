@@ -41,7 +41,7 @@ const REGISTER_SUBSETS: readonly (readonly RegisterId[])[] = [
   ['Low', 'Middle', 'High'],
 ]
 
-/** Intent: a planPitch dep that delegates to the real planner only for registers in `subset`. */
+/** A planPitch dep that delegates to the real planner only for registers in `subset`. */
 function makeSubsetPlanPitch(subset: readonly RegisterId[]): WindowSearchDeps['planPitch'] {
   return (input: BoundPitchPlannerInput): PitchPlanResult => {
     if (subset.includes(input.request.register)) return planPitchPhrase(input)

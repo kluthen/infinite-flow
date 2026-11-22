@@ -43,7 +43,7 @@ const USAGE =
  */
 
 /**
- * Intent: the value after an option, crashing when it is missing or another option.
+ * The value after an option, crashing when it is missing or another option.
  * @param {readonly string[]} args
  * @param {number} index
  * @param {string} what
@@ -56,7 +56,7 @@ function valueAt(args, index, what) {
 }
 
 /**
- * Intent: the output folder and the requested phrases, crashing on any other argument.
+ * The output folder and the requested phrases, crashing on any other argument.
  * @param {readonly string[]} args
  * @returns {Arguments}
  */
@@ -82,7 +82,7 @@ function parseArguments(args) {
 }
 
 /**
- * Intent: crash unless the output folder is absent, empty or this script's own (marked), so
+ * Crash unless the output folder is absent, empty or this script's own (marked), so
  * nothing else is ever deleted; checked before the slow build.
  * @param {string} out
  */
@@ -94,7 +94,7 @@ function assertOwnOut(out) {
 }
 
 /**
- * Intent: replace the output folder by an empty one holding only the marker.
+ * Replace the output folder by an empty one holding only the marker.
  * @param {string} out
  */
 function resetOut(out) {
@@ -105,7 +105,7 @@ function resetOut(out) {
 }
 
 /**
- * Intent: the named export of the loaded module, crashing when it is not a function.
+ * The named export of the loaded module, crashing when it is not a function.
  * @param {unknown} loaded
  * @param {string} name
  * @returns {Function}

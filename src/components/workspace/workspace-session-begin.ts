@@ -26,7 +26,7 @@ import { onSessionOutput } from './workspace-session-outputs'
 import { createSessionPhrases } from './workspace-session-phrases'
 
 /**
- * Intent: show the count-in row as it stands at audio time `at`, for the measure counted in from
+ * Show the count-in row as it stands at audio time `at`, for the measure counted in from
  * `startAt` (the session's count-in by default; a fresh Jam's read-in measure, before phrase 1
  * sounds, too), and schedule its next change on the audio clock; the row empties once that
  * measure is over.
@@ -50,7 +50,7 @@ export function showCountIn(
 }
 
 /**
- * Intent: on each wake-up, fire every scheduled event the audio clock has reached. The timer is
+ * On each wake-up, fire every scheduled event the audio clock has reached. The timer is
  * stopped at every end, so a wake-up with no session is one already in flight: it has nothing to do.
  */
 // @spec-link [[service_session_controller]]
@@ -64,7 +64,7 @@ function onWake(core: SessionControllerCore, ends: SessionEnds): void {
   }
 }
 
-/** Intent: start the controller's wake-up timer (built at the first start) for this session. */
+/** Start the controller's wake-up timer (built at the first start) for this session. */
 // @spec-link [[service_session_controller]]
 export function startWakeUps(core: SessionControllerCore, ends: SessionEnds): void {
   const timer = (core.timer ??= core.deps.clock.createWakeTimer())
@@ -98,7 +98,7 @@ export interface SessionBeginning {
 }
 
 /**
- * Intent: the rest of a start, once the transport runs and phrase 1's backing is queued: make
+ * The rest of a start, once the transport runs and phrase 1's backing is queued: make
  * `session` the running one, begin its MIDI handling (with or without the controller, fixed now),
  * show its count-in and its staff (phrase 1, the very phrase Idle shows), schedule the count-in's
  * end, start the wake-ups, the display's frame loop, the runner (from phrase 1 and its session

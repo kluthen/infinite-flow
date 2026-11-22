@@ -65,20 +65,20 @@ const varySettingsUnavailableNoteId = useId()
 const allowedGroupsLabelId = useId()
 const rhythmGroupLockedNoteId = useId()
 
-/** Intent: the `Vary settings` segments, `On` disabled and naming the reason while unavailable. */
+/** The `Vary settings` segments, `On` disabled and naming the reason while unavailable. */
 // @spec-link [[rule_vary_settings_needs_legal_move]]
 const varySettingsOptions = computed(() =>
   offOnOptions(props.varySettingsAvailable, varySettingsUnavailableNoteId),
 )
 
-/** Intent: the checked `Vary settings` segment: `Off` while unavailable, else the choice. */
+/** The checked `Vary settings` segment: `Off` while unavailable, else the choice. */
 // @spec-link [[rule_vary_settings_needs_legal_move]]
 const shownVarySettings = computed(() =>
   shownOffOn(props.varySettings, props.varySettingsAvailable),
 )
 
 /**
- * Intent: whether What may vary shows: while Vary settings shows `On`, and while it is unavailable
+ * Whether What may vary shows: while Vary settings shows `On`, and while it is unavailable
  * for lack of a move, so the cause can be fixed.
  */
 // @spec-link [[ui_field_dependent]]
@@ -88,7 +88,7 @@ const allowedGroupsShown = computed(
 )
 
 /**
- * Intent: the six toggles in VARY_SETTINGS_GROUPS order, each pressed while its group is allowed;
+ * The six toggles in VARY_SETTINGS_GROUPS order, each pressed while its group is allowed;
  * under the rhythm lock, `Rhythm` disabled, shown off and naming the reason.
  */
 // @spec-link [[rule_vary_settings_allowed_groups]]
@@ -108,7 +108,7 @@ const groupItems = computed((): readonly ToggleListItem[] =>
 )
 
 /**
- * Intent: report the player's `Vary settings` choice. Choosing the `Off` that stands in for a kept
+ * Report the player's `Vary settings` choice. Choosing the `Off` that stands in for a kept
  * `On` while unavailable changes nothing, so the kept `On` shows again once a move exists.
  */
 // @spec-link [[req_settings_mutation_flag]]
@@ -119,7 +119,7 @@ function handleVarySettings(value: string): void {
 }
 
 /**
- * Intent: report the six groups with the toggled one flipped, the others as stored (a `Rhythm`
+ * Report the six groups with the toggled one flipped, the others as stored (a `Rhythm`
  * held by the lock included), refusing a value that is no group.
  */
 // @spec-link [[rule_vary_settings_allowed_groups]]

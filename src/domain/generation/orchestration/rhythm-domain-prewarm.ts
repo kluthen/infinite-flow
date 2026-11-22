@@ -15,7 +15,7 @@ import {
 import { buildHarmonyDomain, rhythmDomainInputOf } from './generation-orchestrator'
 
 /**
- * Intent: begin (or resume) the memo build of the canonical rhythm domain `generatePhrase` would
+ * Begin (or resume) the memo build of the canonical rhythm domain `generatePhrase` would
  * look up for this intent, keyed by the same rhythm input. Returns undefined when that entry is
  * already memoized, or when `generatePhrase` never reaches the rhythm domain for this intent (its
  * harmony domain, from `harmonyDomainOf`, is the typed no-plan result). Every prewarm replaces the

@@ -33,7 +33,7 @@ const MINE_SELECTED = makeGenerationControls({
   instrumentProfileId: 'my-instrument',
 })
 
-/** Intent: a session on fakes started with `myInstrument` and `controls`, recording its intents. */
+/** A session on fakes started with `myInstrument` and `controls`, recording its intents. */
 function session(controls = MINE_SELECTED, myInstrument: MyInstrument | null = LOW_TENOR) {
   let counter = 0
   const prewarm = vi.fn<(intent: GenerationIntent) => void>()
@@ -131,12 +131,12 @@ const NO_SESSIONS: MyInstrumentSessions = {
   stay: () => undefined,
 }
 
-/** Intent: my instrument with some fields changed. */
+/** My instrument with some fields changed. */
 function changed(changes: Partial<Parameters<typeof makeMyInstrument>[0]>): MyInstrument {
   return makeMyInstrument({ ...LOW_TENOR, ...changes })
 }
 
-/** Intent: a session with a phrase on screen, its records cleared. */
+/** A session with a phrase on screen, its records cleared. */
 async function withPhrase(controls = MINE_SELECTED, myInstrument: MyInstrument | null = LOW_TENOR) {
   const rig = session(controls, myInstrument)
   await rig.created.actions.generate()

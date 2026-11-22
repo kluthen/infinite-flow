@@ -96,7 +96,7 @@ export const INSTRUMENTS: readonly CorpusInstrument[] = [
   },
 ]
 
-/** Intent: the corpus instrument of a label; an unknown label is a corpus defect and throws. */
+/** The corpus instrument of a label; an unknown label is a corpus defect and throws. */
 export function corpusInstrument(label: string): CorpusInstrument {
   const instrument = INSTRUMENTS.find((entry) => entry.label === label)
   if (instrument === undefined) throw new Error(`No corpus instrument is labelled ${label}.`)
@@ -109,7 +109,7 @@ export const SEEDS = [3, 19, 64] as const
 /** The seeds a search for a phrase with a given outcome tries, in order. */
 export const SEARCH_SEEDS: readonly number[] = Array.from({ length: 40 }, (_, index) => 101 + index)
 
-/** Intent: the value of a catalog at an index, wrapping around; crashes on an empty catalog. */
+/** The value of a catalog at an index, wrapping around; crashes on an empty catalog. */
 export function pick<T>(values: readonly T[], index: number): T {
   const value = values[index % values.length]
   if (value === undefined) throw new Error('Corpus rotation picked from an empty catalog.')
@@ -129,7 +129,7 @@ export interface CorpusIntentOptions {
 }
 
 /**
- * Intent: build one real intent from written controls and a seed, with a carry-in, a rhythm lock
+ * Build one real intent from written controls and a seed, with a carry-in, a rhythm lock
  * group and a steering block when given.
  */
 export function corpusIntent(options: CorpusIntentOptions): GenerationIntent {
@@ -154,7 +154,7 @@ export function corpusIntent(options: CorpusIntentOptions): GenerationIntent {
     : makeCarryInGenerationIntent({ ...input, carryIn: options.carryIn })
 }
 
-/** Intent: generate a phrase that must succeed; a failure means an unusable corpus case. */
+/** Generate a phrase that must succeed; a failure means an unusable corpus case. */
 export function generated(label: string, intent: GenerationIntent): SuccessOutcome {
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') {
@@ -163,7 +163,7 @@ export function generated(label: string, intent: GenerationIntent): SuccessOutco
   return outcome
 }
 
-/** Intent: the carry-in a phrase that must generate hands forward as the given phrase number. */
+/** The carry-in a phrase that must generate hands forward as the given phrase number. */
 export function carryInFrom(
   label: string,
   intent: GenerationIntent,
@@ -173,7 +173,7 @@ export function carryInFrom(
 }
 
 /**
- * Intent: the first intent, over the search seeds in order, that generates a phrase the predicate
+ * The first intent, over the search seeds in order, that generates a phrase the predicate
  * accepts, with that phrase; crashes when no search seed gives one, so the corpus never silently
  * holds a case of the wrong kind.
  */
@@ -191,7 +191,7 @@ export function searchSeed(
 }
 
 /**
- * Intent: the controls with a rhythm setting the workspace blocks (no legal four-bar plan, under
+ * The controls with a rhythm setting the workspace blocks (no legal four-bar plan, under
  * any seed) replaced by the workspace's suggested change, which is always a lighter syncopation;
  * controls the workspace allows come back unchanged.
  */

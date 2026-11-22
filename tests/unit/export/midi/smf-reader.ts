@@ -134,7 +134,7 @@ function readTrack(body: Uint8Array): SmfEvent[] {
   return events
 }
 
-/** Intent: read a whole Standard MIDI File, throwing on any malformed structure. */
+/** Read a whole Standard MIDI File, throwing on any malformed structure. */
 // @test-link [[rule_generated_notes_midi_export]]
 export function readSmf(bytes: Uint8Array): SmfFile {
   const cursor = new ByteCursor(bytes)
@@ -153,7 +153,7 @@ export function readSmf(bytes: Uint8Array): SmfFile {
   return { format, division, tracks }
 }
 
-/** Intent: the text of every meta event of `type` in a track, with its tick. */
+/** The text of every meta event of `type` in a track, with its tick. */
 export function metaTexts(
   track: readonly SmfEvent[],
   type: number,
@@ -165,7 +165,7 @@ export function metaTexts(
   )
 }
 
-/** Intent: a track's tempo map, as microseconds per quarter note at each tempo event's tick. */
+/** A track's tempo map, as microseconds per quarter note at each tempo event's tick. */
 export function tempoMap(
   track: readonly SmfEvent[],
 ): { tick: number; microsecondsPerQuarter: number }[] {
@@ -178,7 +178,7 @@ export function tempoMap(
 }
 
 /**
- * Intent: pair a track's note-ons with their note-offs into notes, in onset order. A note-on with
+ * Pair a track's note-ons with their note-offs into notes, in onset order. A note-on with
  * velocity 0 is a note-off. Throws on a note-off with nothing sounding, on a second note-on of a
  * pitch already sounding on the same channel, and on a note left sounding at the end.
  */
@@ -211,7 +211,7 @@ interface RawChunks {
 }
 
 /**
- * Intent: split a Standard MIDI File into its raw chunks without interpreting any event, so two
+ * Split a Standard MIDI File into its raw chunks without interpreting any event, so two
  * files' chunks can be compared byte for byte.
  */
 // @test-link [[rule_played_notes_export_aligns_with_generated_midi]]

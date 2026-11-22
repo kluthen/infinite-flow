@@ -61,7 +61,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: the markers a Jam's MIDI file opens with for a `measures`-measure doodle. */
+/** The markers a Jam's MIDI file opens with for a `measures`-measure doodle. */
 function doodleMarkers(measures: number, firstPhrase = 1) {
   return [
     { tick: 0, text: 'Doodle' },
@@ -69,7 +69,7 @@ function doodleMarkers(measures: number, firstPhrase = 1) {
   ]
 }
 
-/** Intent: the rehearsal marks of a MusicXML file, each with the number of its measure. */
+/** The rehearsal marks of a MusicXML file, each with the number of its measure. */
 function rehearsals(xml: string): string[] {
   return [...xml.matchAll(/<measure number="(\d+)"[^>]*>([\s\S]*?)<\/measure>/gu)].flatMap(
     ([, number, body]) =>
@@ -79,7 +79,7 @@ function rehearsals(xml: string): string[] {
   )
 }
 
-/** Intent: one of the export scope's two choices. */
+/** One of the export scope's two choices. */
 function scopeOption(page: Page, label: 'Whole session' | 'Favorites only') {
   return reviewPanel(page)
     .getByRole('radiogroup', { name: 'Export' })
@@ -161,7 +161,7 @@ test.describe('the raw doodle notes are played notes', () => {
   })
 })
 
-/** Intent: assert both exports are disabled, each named by the failure sentence, nothing in error. */
+/** Assert both exports are disabled, each named by the failure sentence, nothing in error. */
 async function expectExportsNeedDoodle(page: Page): Promise<void> {
   for (const button of [exportButton(page), exportPlayedButton(page)]) {
     await expect(button).toBeDisabled()

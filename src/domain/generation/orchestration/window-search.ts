@@ -101,7 +101,7 @@ type StepResult =
     }
 
 /**
- * Intent: build the pitch policy for one binding attempt from the request's outer controls and
+ * Build the pitch policy for one binding attempt from the request's outer controls and
  * figure levels.
  */
 function bindingPitchPolicy(input: WindowSearchInput, searchFuel: number) {
@@ -118,7 +118,7 @@ function bindingPitchPolicy(input: WindowSearchInput, searchFuel: number) {
 }
 
 /**
- * Intent: what the rhythm lock did to the phrase, for its provenance: nothing without a lock step
+ * What the rhythm lock did to the phrase, for its provenance: nothing without a lock step
  * (v3.1's walk); otherwise the step's tier, and, when the phrase drew a rhythm change, the kind of
  * the change it took, or `no_change_available` when it kept the lock's order (the walk sets the
  * kind exactly on the change's tier).
@@ -138,7 +138,7 @@ function rhythmLockProvenance(
 }
 
 /**
- * Intent: assemble and independently validate the phrase for one accepted pitch plan, producing
+ * Assemble and independently validate the phrase for one accepted pitch plan, producing
  * the final `resolved` step: window_success on a valid result, window_result_validation_failed
  * with its failure codes otherwise. Never retried; the caller stops the whole search either way.
  */
@@ -186,7 +186,7 @@ function resolvePlannedPhrase(
 }
 
 /**
- * Intent: attempt one concrete tension binding of one harmony/rhythm pair: spend its ledger unit,
+ * Attempt one concrete tension binding of one harmony/rhythm pair: spend its ledger unit,
  * plan a pitch phrase under the remaining fuel, and either continue to the next binding
  * (no_legal_pitch_plan), stop the whole search on a fuel cutoff, or resolve the search on the
  * first accepted plan (validated success or failure).
@@ -222,7 +222,7 @@ function tryBinding(
 }
 
 /**
- * Intent: attempt one harmony/rhythm pair: spend its ledger unit, derive the concrete tension
+ * Attempt one harmony/rhythm pair: spend its ledger unit, derive the concrete tension
  * binding domain, and try each binding in stable order until one resolves the search, a fuel
  * cutoff stops it, or the domain is exhausted (no legal binding domain counts as immediately
  * exhausted).
@@ -249,7 +249,7 @@ function tryPair(
   return { kind: 'continue' }
 }
 
-/** Intent: build the frozen diagnostics for one finished window search from its accumulator. */
+/** Build the frozen diagnostics for one finished window search from its accumulator. */
 function buildDiagnostics(
   input: WindowSearchInput,
   acc: SearchAccumulator,
@@ -278,7 +278,7 @@ function buildDiagnostics(
 }
 
 /**
- * Intent: the rhythm lock order the search walks, present exactly when the request holds locked
+ * The rhythm lock order the search walks, present exactly when the request holds locked
  * bars. Throws when the request and the input disagree, so a locked request is never searched in
  * v3.1's order, nor an unlocked one in the lock's.
  */
@@ -292,7 +292,7 @@ function rhythmLockOrderOf(input: WindowSearchInput): RhythmLockOrder | undefine
 }
 
 /**
- * Intent: v3.1's walk, harmony-major: each harmony candidate with every rhythm candidate, in
+ * v3.1's walk, harmony-major: each harmony candidate with every rhythm candidate, in
  * ranked order, before the next harmony candidate. Returns the first step that is not
  * `continue`, or `continue` once every pair is exhausted.
  */
@@ -311,7 +311,7 @@ function walkHarmonyMajor(
 }
 
 /**
- * Intent: the rhythm lock's walk, rhythm-major: each rhythm in the lock's order (the drawn rhythm
+ * The rhythm lock's walk, rhythm-major: each rhythm in the lock's order (the drawn rhythm
  * change's candidates, the locked bars, then the forced bend's order) with every harmony
  * candidate, in ranked order, before the next rhythm, so the locked rhythm gives way only when no
  * chord plan makes a phrase with it. Same pairs, same ledger, same fuel as the harmony-major walk.
@@ -334,7 +334,7 @@ function walkRhythmMajor(
 }
 
 /**
- * Intent: search one resolved window's full harmony/rhythm/tension-binding/pitch candidate space
+ * Search one resolved window's full harmony/rhythm/tension-binding/pitch candidate space
  * depth-first, without replacement, in already-ranked order, under one wall-clock-independent
  * FuelLedger. Returns the first independently validated plan found as window_success, a claimed
  * plan that fails independent validation as window_result_validation_failed (search stops either

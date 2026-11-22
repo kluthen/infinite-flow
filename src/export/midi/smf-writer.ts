@@ -25,7 +25,7 @@ const NOTE_ON = 0x90
 const RELEASE_VELOCITY = 64
 const MAX_TEMPO_MICROSECONDS = 0xffffff
 
-/** Intent: the bytes of a text string, crashing on any character outside printable ASCII. */
+/** The bytes of a text string, crashing on any character outside printable ASCII. */
 function asciiBytes(text: string): number[] {
   return Array.from(text, (character) => {
     const code = character.charCodeAt(0)
@@ -36,7 +36,7 @@ function asciiBytes(text: string): number[] {
   })
 }
 
-/** Intent: a value as a MIDI variable-length quantity, seven bits per byte, high bytes first. */
+/** A value as a MIDI variable-length quantity, seven bits per byte, high bytes first. */
 // @spec-link [[rule_generated_notes_midi_export]]
 export function variableLengthQuantity(value: number): number[] {
   if (!Number.isInteger(value) || value < 0 || value > MAX_VARIABLE_LENGTH) {
@@ -51,29 +51,29 @@ export function variableLengthQuantity(value: number): number[] {
   return bytes
 }
 
-/** Intent: an unsigned integer as `length` big-endian bytes. */
+/** An unsigned integer as `length` big-endian bytes. */
 function bigEndian(value: number, length: number): number[] {
   return Array.from({ length }, (_, index) => (value >>> (8 * (length - 1 - index))) & 0xff)
 }
 
-/** Intent: a meta event of `type` with its data, length-prefixed. */
+/** A meta event of `type` with its data, length-prefixed. */
 function metaEvent(type: number, data: readonly number[]): number[] {
   return [META, type, ...variableLengthQuantity(data.length), ...data]
 }
 
-/** Intent: the track-name meta event. */
+/** The track-name meta event. */
 // @spec-link [[rule_generated_notes_midi_export]]
 export function trackNameEvent(name: string): number[] {
   return metaEvent(META_TRACK_NAME, asciiBytes(name))
 }
 
-/** Intent: a marker meta event, the label a DAW shows on its timeline. */
+/** A marker meta event, the label a DAW shows on its timeline. */
 // @spec-link [[rule_generated_notes_midi_export]]
 export function markerEvent(text: string): number[] {
   return metaEvent(META_MARKER, asciiBytes(text))
 }
 
-/** Intent: a tempo meta event: microseconds per quarter note in three bytes. */
+/** A tempo meta event: microseconds per quarter note in three bytes. */
 // @spec-link [[rule_generated_notes_midi_export]]
 export function tempoEvent(microsecondsPerQuarterNote: number): number[] {
   if (
@@ -87,7 +87,7 @@ export function tempoEvent(microsecondsPerQuarterNote: number): number[] {
 }
 
 /**
- * Intent: the 4/4 time-signature meta event: 4 beats, a quarter-note beat (2 as a power of two),
+ * The 4/4 time-signature meta event: 4 beats, a quarter-note beat (2 as a power of two),
  * a metronome click every 24 MIDI clocks (one quarter note), and 8 thirty-second notes per quarter.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
@@ -95,7 +95,7 @@ export function fourFourTimeSignatureEvent(): number[] {
   return metaEvent(META_TIME_SIGNATURE, [4, 2, 24, 8])
 }
 
-/** Intent: crash early unless a channel event's values fit their seven- and four-bit fields. */
+/** Crash early unless a channel event's values fit their seven- and four-bit fields. */
 function assertChannelValues(channel: number, pitch: number, velocity: number): void {
   const fits = (value: number, max: number): boolean =>
     Number.isInteger(value) && value >= 0 && value <= max
@@ -106,14 +106,14 @@ function assertChannelValues(channel: number, pitch: number, velocity: number): 
   }
 }
 
-/** Intent: a note-on event on a zero-based channel. */
+/** A note-on event on a zero-based channel. */
 // @spec-link [[rule_generated_notes_midi_export]]
 export function noteOnEvent(channel: number, pitch: number, velocity: number): number[] {
   assertChannelValues(channel, pitch, velocity)
   return [NOTE_ON | channel, pitch, velocity]
 }
 
-/** Intent: a note-off event on a zero-based channel, at the neutral release velocity 64. */
+/** A note-off event on a zero-based channel, at the neutral release velocity 64. */
 // @spec-link [[rule_generated_notes_midi_export]]
 export function noteOffEvent(channel: number, pitch: number): number[] {
   assertChannelValues(channel, pitch, RELEASE_VELOCITY)
@@ -121,7 +121,7 @@ export function noteOffEvent(channel: number, pitch: number): number[] {
 }
 
 /**
- * Intent: one track chunk from events already in time order, closed by its end-of-track event at
+ * One track chunk from events already in time order, closed by its end-of-track event at
  * `endTick`. Crashes on an event out of order or after the end.
  */
 // @spec-link [[rule_generated_notes_midi_export]]
@@ -140,7 +140,7 @@ export function trackChunk(events: readonly TimedMidiEvent[], endTick: number): 
   return [...asciiBytes('MTrk'), ...bigEndian(body.length, 4), ...body]
 }
 
-/** Intent: the header chunk of a type 1 file with `trackCount` tracks at the given resolution. */
+/** The header chunk of a type 1 file with `trackCount` tracks at the given resolution. */
 // @spec-link [[rule_generated_notes_midi_export]]
 export function typeOneHeaderChunk(trackCount: number, ticksPerQuarterNote: number): number[] {
   return [

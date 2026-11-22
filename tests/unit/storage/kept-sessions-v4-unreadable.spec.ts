@@ -52,13 +52,13 @@ const FACTS: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: a three-phrase tenor session's values as v3.1 kept them. */
+/** A three-phrase tenor session's values as v3.1 kept them. */
 function v31Session(): StoredKeptSession {
   const phrases = recordedKeptSession('bb-tenor', 3).phrases()
   return v2Session(encodeKeptSession(historyOf(phrases, 'bb-tenor'), FACTS, V31_APP_VERSION))
 }
 
-/** Intent: the port of a v3.3 tab over the factory's database, every production step run. */
+/** The port of a v3.3 tab over the factory's database, every production step run. */
 function openV33(factory: IDBFactory) {
   return openStoragePort({ factory, appVersion: '3.3.0-test' })
 }
@@ -169,19 +169,19 @@ describe('a data version 3 database holding v3.1 session-wide records step 4 can
   )
 })
 
-/** Intent: a value nested `depth` objects deep. */
+/** A value nested `depth` objects deep. */
 function nested(depth: number): unknown {
   let value: unknown = 'bottom'
   for (let level = 0; level < depth; level++) value = { inner: value }
   return value
 }
 
-/** Intent: the envelope of a data version 2 record around the given fields. */
+/** The envelope of a data version 2 record around the given fields. */
 function v2Envelope(fields: Record<string, unknown>): Record<string, unknown> {
   return { dataVersion: 2, appVersion: V31_APP_VERSION, ...fields }
 }
 
-/** Intent: every malformed body, by name, over a valid v3.1 one. */
+/** Every malformed body, by name, over a valid v3.1 one. */
 function malformedBodies(body: unknown): readonly (readonly [string, unknown])[] {
   return [
     ['a string', 'a kept session'],

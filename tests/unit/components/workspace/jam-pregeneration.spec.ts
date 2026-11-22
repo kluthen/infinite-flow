@@ -36,7 +36,7 @@ import {
   takenNumbers,
 } from './pregeneration-rig'
 
-/** Intent: Jam's phrase 1 the rig shows; it must be there. */
+/** Jam's phrase 1 the rig shows; it must be there. */
 function shownPhrase(rig: JamPregenerationRig) {
   const result = rig.phrase.result
   if (result === null) throw new Error('no Jam phrase 1 is shown')

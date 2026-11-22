@@ -56,7 +56,7 @@ test.afterEach(() => {
   expect(pageErrors, `Unexpected page errors:\n${pageErrors.join('\n')}`).toEqual([])
 })
 
-/** Intent: land on the fake-MIDI harness with `devices` plugged in, then connect. */
+/** Land on the fake-MIDI harness with `devices` plugged in, then connect. */
 async function connectWith(
   page: Page,
   devices: readonly WorkspaceHarnessMidiDevice[],
@@ -66,7 +66,7 @@ async function connectWith(
   await connectMidi(page)
 }
 
-/** Intent: expect the played notes to be exactly these (pitch, velocity, onset to 6 digits). */
+/** Expect the played notes to be exactly these (pitch, velocity, onset to 6 digits). */
 function expectPlayed(
   actual: readonly WorkspaceHarnessPlayedNote[],
   expected: readonly WorkspaceHarnessPlayedNote[],
@@ -77,7 +77,7 @@ function expectPlayed(
   actual.forEach((note, k) => expect(note.onsetAt).toBeCloseTo(expected[k]!.onsetAt, DIGITS))
 }
 
-/** Intent: expect the ended notes to be exactly these (times to 6 digits). */
+/** Expect the ended notes to be exactly these (times to 6 digits). */
 function expectEnded(
   actual: readonly WorkspaceHarnessEndedNote[],
   expected: readonly WorkspaceHarnessEndedNote[],
@@ -289,7 +289,7 @@ test.describe('A lost controller', () => {
   })
 })
 
-/** Intent: one scripted run: connect, play, lose and get back the controller, play again. */
+/** One scripted run: connect, play, lose and get back the controller, play again. */
 async function scriptedRun(page: Page): Promise<{
   readonly played: readonly WorkspaceHarnessPlayedNote[]
   readonly ended: readonly WorkspaceHarnessEndedNote[]

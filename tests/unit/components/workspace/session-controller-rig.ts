@@ -123,7 +123,7 @@ export interface ControllerRigOptions {
   readonly keptSessions?: Partial<KeptSessionsSeam>
 }
 
-/** Intent: a pre-generation builder under the disabled policy: no background attempt, ever. */
+/** A pre-generation builder under the disabled policy: no background attempt, ever. */
 export const disabledPregeneration: WorkspacePregenerationFactory = (seams) =>
   createWorkspacePregeneration({
     ...seams,
@@ -137,13 +137,13 @@ export const disabledPregeneration: WorkspacePregenerationFactory = (seams) =>
 /** The generate seam a spec scripts: from a request's intent to its outcome. */
 export type GenerateScript = (intent: GenerationIntent) => GenerationOutcome
 
-/** Intent: a script answering every request with the real seeded success of its intent. */
+/** A script answering every request with the real seeded success of its intent. */
 export const alwaysSucceed: GenerateScript = (intent) => successFor(intent)
 
-/** Intent: a script answering every request with a real generation failure. */
+/** A script answering every request with a real generation failure. */
 export const alwaysFail: GenerateScript = () => failureOutcome()
 
-/** Intent: a script failing every carry-in attempt and succeeding the standalone retry. */
+/** A script failing every carry-in attempt and succeeding the standalone retry. */
 export const onlyStandaloneSucceeds: GenerateScript = (intent) =>
   intent.carryIn === undefined ? successFor(intent) : failureOutcome()
 
@@ -258,13 +258,13 @@ export interface ControllerRig {
   readonly sessionSaves: SessionChanges[]
 }
 
-/** Intent: let every pending promise (generation answers, fit checks, lock outcomes) settle. */
+/** Let every pending promise (generation answers, fit checks, lock outcomes) settle. */
 export function flush(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 /**
- * Intent: move the fake clock to `target` in quarter-second slices, letting promises settle and
+ * Move the fake clock to `target` in quarter-second slices, letting promises settle and
  * then running one display frame after each, so generation answers arrive between wake-ups and
  * the playhead follows as they would in a browser.
  */
@@ -278,7 +278,7 @@ export async function playTo(rig: ControllerRig, target: AudioTime): Promise<voi
 }
 
 /**
- * Intent: a controller at Idle with a real, engraved phrase 1, every lock granting, the staff
+ * A controller at Idle with a real, engraved phrase 1, every lock granting, the staff
  * having reported `WIDE_STAFF`, and phrase 1's fixed parts measuring as `fixedParts` answers.
  */
 // @test-link [[service_session_controller]]
@@ -364,13 +364,13 @@ export function controllerRig(
   const sessionSaves: SessionChanges[] = []
   let wallClockReads = 0
 
-  /** Intent: log a hold or release of the player's saves with what the controller showed then. */
+  /** Log a hold or release of the player's saves with what the controller showed then. */
   function logSaveHold(call: SaveHoldCall['call']): void {
     if (built === null) throw new Error(`rig: a save ${call} came before the controller`)
     saveHolds.push({ call, phase: built.state.phase, audioRunning: transport.isRunning() })
   }
 
-  /** Intent: log what the controller shows when it asks for a fresh phrase; Idle stays as it is. */
+  /** Log what the controller shows when it asks for a fresh phrase; Idle stays as it is. */
   function startFreshPhrase(): Promise<boolean> {
     if (built === null) throw new Error('rig: a fresh phrase was asked for before the controller')
     freshPhraseRequests.push({
@@ -383,7 +383,7 @@ export function controllerRig(
   }
 
   /**
-   * Intent: a real workspace runner (the mutation flag as the controller's start says, the display
+   * A real workspace runner (the mutation flag as the controller's start says, the display
    * reading the controller's) on the scripted generate seam, logging what passes through it.
    */
   function createRunner(input: WorkspaceSessionRunnerInput): SessionRunner {
@@ -560,7 +560,7 @@ export function controllerRig(
   }
 }
 
-/** Intent: the outputs of one kind, narrowed. */
+/** The outputs of one kind, narrowed. */
 export function outputsOf<K extends SessionOutput['kind']>(
   rig: ControllerRig,
   kind: K,
@@ -570,7 +570,7 @@ export function outputsOf<K extends SessionOutput['kind']>(
   })
 }
 
-/** Intent: the phrase numbers the controller told the runner started sounding, in order. */
+/** The phrase numbers the controller told the runner started sounding, in order. */
 export function soundingEvents(rig: ControllerRig): number[] {
   return rig.events.flatMap((event) =>
     event.kind === 'phrase-started-sounding' ? [event.phraseNumber] : [],

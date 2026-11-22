@@ -88,7 +88,7 @@ export interface NoPhraseCarryIn {
 // @spec-link [[rule_jam_phrase_one_joins_doodle]]
 export type CarryIn = PhraseCarryIn | NoPhraseCarryIn
 
-/** Intent: true when a carry-in comes from a phrase, which has no `origin` key. */
+/** True when a carry-in comes from a phrase, which has no `origin` key. */
 // @spec-link [[entity_phrase_carry_in]]
 // @spec-link [[rule_jam_phrase_one_joins_doodle]]
 export function isPhraseCarryIn(carryIn: CarryIn): carryIn is PhraseCarryIn {
@@ -143,13 +143,13 @@ const SEVENTH_SHAPES: readonly { readonly above: string; readonly quality: Seven
 ]
 const SEVENTH_QUALITIES: readonly SeventhQuality[] = SEVENTH_SHAPES.map((shape) => shape.quality)
 
-/** Intent: the pitch class of a MIDI value. */
+/** The pitch class of a MIDI value. */
 function pitchClassOf(midi: number): number {
   return ((midi % 12) + 12) % 12
 }
 
 /**
- * Intent: true when the carried pitch is a tone of the carried chord's triad. A carried seventh
+ * True when the carried pitch is a tone of the carried chord's triad. A carried seventh
  * chord is read as its triad, so a pitch on its seventh is a tone of none. With the harmonic part
  * dropped there is no carried chord, so the pitch is a tone of none.
  */
@@ -165,7 +165,7 @@ export function carriedPitchOnCarriedChord(
 }
 
 /**
- * Intent: true when the carried pitch is a tense note the next phrase must resolve: a pitch off
+ * True when the carried pitch is a tense note the next phrase must resolve: a pitch off
  * the carried chord's triad, a pitch on a carried seventh among them, which must therefore have
  * been reached by a step. With the harmonic part dropped nothing is tense, so no resolution is
  * owed.
@@ -177,7 +177,7 @@ export function carriedPitchIsTense(carryIn: Pick<CarryIn, 'lastPitch' | 'finalH
   return carryIn.finalHarmony !== null && !carriedPitchOnCarriedChord(carryIn)
 }
 
-/** Intent: validate the arriving interval and the recovery it may still owe. */
+/** Validate the arriving interval and the recovery it may still owe. */
 function assertLeapState(lastPitch: CarriedPitch, tense: boolean): void {
   const { arrivingInterval, recovery } = lastPitch
   if (
@@ -205,7 +205,7 @@ function assertLeapState(lastPitch: CarriedPitch, tense: boolean): void {
 }
 
 /**
- * Intent: the quality of the seventh chord the triad and `seventh` stack into, root first, or null
+ * The quality of the seventh chord the triad and `seventh` stack into, root first, or null
  * when the four pitch classes form none of the four diatonic seventh-chord shapes.
  */
 function stackedSeventhQuality(triad: readonly number[], seventh: number): SeventhQuality | null {
@@ -215,7 +215,7 @@ function stackedSeventhQuality(triad: readonly number[], seventh: number): Seven
 }
 
 /**
- * Intent: validate a carried seventh: a pitch class 0-11 and a known quality, stacking on the
+ * Validate a carried seventh: a pitch class 0-11 and a known quality, stacking on the
  * triad into the seventh chord of the triad's own degree, whose quality it must name.
  */
 function assertCarriedSeventh(triad: readonly number[], seventh: ChordSeventh): void {
@@ -240,7 +240,7 @@ function assertCarriedSeventh(triad: readonly number[], seventh: ChordSeventh): 
 }
 
 /**
- * Intent: validate the carried chord's shape: a triad, or a triad holding exactly the seventh of
+ * Validate the carried chord's shape: a triad, or a triad holding exactly the seventh of
  * its own degree with that seventh chord's quality. Its fit to a collection is checked by the
  * intent, by the triad alone.
  */
@@ -266,7 +266,7 @@ function assertCarriedHarmony(harmony: CarriedHarmony): void {
 }
 
 /**
- * Intent: build one immutable carry-in. From a phrase, from its four items, refusing a pitch
+ * Build one immutable carry-in. From a phrase, from its four items, refusing a pitch
  * outside the carried window, an inconsistent leap state, a malformed chord, a harmony that is
  * neither a chord nor an explicit null, or an ordinal that is not a positive whole number. A
  * carried pitch off the carried chord is a tense note and must have been reached by a step;
@@ -291,7 +291,7 @@ export function makeCarryIn(input: CarryIn): CarryIn {
 }
 
 /**
- * Intent: the unguarded body of `makeCarryIn` for a carry-in from no phrase: the origin, the
+ * The unguarded body of `makeCarryIn` for a carry-in from no phrase: the origin, the
  * pitch inside the window, and the fixed parts exactly as the form has them.
  */
 // @spec-link [[rule_jam_phrase_one_joins_doodle]]
@@ -324,7 +324,7 @@ function buildNoPhraseCarryIn(input: NoPhraseCarryIn): NoPhraseCarryIn {
   })
 }
 
-/** Intent: the unguarded body of `makeCarryIn` for a carry-in from a phrase, as v3.1 built it. */
+/** The unguarded body of `makeCarryIn` for a carry-in from a phrase, as v3.1 built it. */
 function buildCarryIn(input: PhraseCarryIn): PhraseCarryIn {
   const midi = makeConcertPitch(input.lastPitch.midi)
   if (!registerWindowContainsPitch(input.registerWindow, midi))
@@ -357,7 +357,7 @@ function buildCarryIn(input: PhraseCarryIn): PhraseCarryIn {
 }
 
 /**
- * Intent: a plain copy of a validated carried harmony, ready to be frozen with its carry-in; a
+ * A plain copy of a validated carried harmony, ready to be frozen with its carry-in; a
  * carried seventh is copied after the triad, and a triad gets no seventh key at all.
  */
 function copyCarriedHarmony(harmony: CarriedHarmony): CarriedHarmony {
@@ -376,7 +376,7 @@ function copyCarriedHarmony(harmony: CarriedHarmony): CarriedHarmony {
   }
 }
 
-/** Intent: narrow an untrusted value to a plain record holding exactly the expected keys. */
+/** Narrow an untrusted value to a plain record holding exactly the expected keys. */
 function exactRecord(
   input: unknown,
   keys: readonly string[],
@@ -392,7 +392,7 @@ function exactRecord(
   return record
 }
 
-/** Intent: parse an untrusted wire recovery state. */
+/** Parse an untrusted wire recovery state. */
 function parseRecovery(input: unknown): CarriedRecovery {
   const record = input as Record<string, unknown> | null
   if (record?.kind === 'settled') {
@@ -408,7 +408,7 @@ function parseRecovery(input: unknown): CarriedRecovery {
   throw new CarryInError('CarryIn.lastPitch.recovery.kind must be "settled" or "owed".')
 }
 
-/** Intent: parse an untrusted wire last pitch; the constructor checks its values. */
+/** Parse an untrusted wire last pitch; the constructor checks its values. */
 function parseCarriedPitch(input: unknown): CarriedPitch {
   const record = exactRecord(input, ['midi', 'arrivingInterval', 'recovery'], 'CarryIn.lastPitch')
   if (typeof record.midi !== 'number')
@@ -423,7 +423,7 @@ function parseCarriedPitch(input: unknown): CarriedPitch {
 }
 
 /**
- * Intent: narrow an untrusted wire carried harmony to its keys under the reading: a triad only,
+ * Narrow an untrusted wire carried harmony to its keys under the reading: a triad only,
  * refusing a `seventh` key with its own reason, or a triad that may hold one.
  */
 function carriedHarmonyRecord(
@@ -438,7 +438,7 @@ function carriedHarmonyRecord(
 }
 
 /**
- * Intent: parse an untrusted wire carried harmony, its seventh only under the reading that takes
+ * Parse an untrusted wire carried harmony, its seventh only under the reading that takes
  * one, keeping the seventh's keys exact; the constructor checks its values.
  */
 function parseCarriedHarmony(input: unknown, reading: CarriedChordReading): CarriedHarmony {
@@ -471,7 +471,7 @@ function parseCarriedHarmony(input: unknown, reading: CarriedChordReading): Carr
   }
 }
 
-/** Intent: parse an untrusted wire register window, keeping its own `kind` tag exact. */
+/** Parse an untrusted wire register window, keeping its own `kind` tag exact. */
 function parseCarriedWindow(input: unknown): RegisterWindow {
   const record = exactRecord(input, ['kind', 'minMidi', 'maxMidi'], 'CarryIn.registerWindow')
   if (record.kind !== 'RegisterWindow')
@@ -482,7 +482,7 @@ function parseCarriedWindow(input: unknown): RegisterWindow {
 }
 
 /**
- * Intent: parse an untrusted wire value (a structured clone, which drops freezing) into a carry-in
+ * Parse an untrusted wire value (a structured clone, which drops freezing) into a carry-in
  * from a phrase exactly as v3.1 parsed every carry-in, rejecting any missing or extra field at
  * every level (an `origin` key among them), then re-validating it through `makeCarryIn`. The
  * harmony is a carried chord or an explicit null; a missing or undefined one is refused. The
@@ -513,7 +513,7 @@ export function parsePhraseCarryIn(
 }
 
 /**
- * Intent: parse an untrusted wire carry-in from no phrase, with exactly its keys at every level
+ * Parse an untrusted wire carry-in from no phrase, with exactly its keys at every level
  * and its fixed parts exactly null, settled and null, then re-validate it through `makeCarryIn`.
  */
 // @spec-link [[rule_jam_phrase_one_joins_doodle]]
@@ -552,7 +552,7 @@ function parseNoPhraseCarryIn(input: unknown): NoPhraseCarryIn {
 }
 
 /**
- * Intent: parse an untrusted wire carry-in of either origin: a record holding its own `origin` key
+ * Parse an untrusted wire carry-in of either origin: a record holding its own `origin` key
  * is read as a carry-in from no phrase, any other value exactly as v3.1 read a carry-in, its
  * carried chord under the reading (a triad only by default).
  */

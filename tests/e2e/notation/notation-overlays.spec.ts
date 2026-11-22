@@ -23,12 +23,12 @@ import { waitForStaffFadeSettled } from './staff-fade-settle'
 
 test.use({ baseURL: 'http://127.0.0.1:4174' })
 
-/** Intent: every system SVG's markup, in system order. */
+/** Every system SVG's markup, in system order. */
 async function markup(page: Page): Promise<string[]> {
   return page.$$eval('svg.staff-svg', (svgs) => svgs.map((svg) => svg.outerHTML))
 }
 
-/** Intent: every element's on-screen box in the system SVGs, in document order. */
+/** Every element's on-screen box in the system SVGs, in document order. */
 async function boxes(page: Page): Promise<number[][]> {
   return page.$$eval('svg.staff-svg, svg.staff-svg *', (elements) =>
     elements.map((element) => {
@@ -38,18 +38,18 @@ async function boxes(page: Page): Promise<number[][]> {
   )
 }
 
-/** Intent: remove the note-ack class token from every class attribute in a markup string. */
+/** Remove the note-ack class token from every class attribute in a markup string. */
 function stripAck(html: string): string {
   return html.replace(/ class="note-ack"/g, '').replace(/ ?\bnote-ack\b/g, '')
 }
 
-/** Intent: remove the playhead band rectangle from a markup string. */
+/** Remove the playhead band rectangle from a markup string. */
 function stripBand(html: string): string {
   return html.replace(/<rect class="playhead-band"[^>]*><\/rect>/g, '')
 }
 
 /**
- * Intent: read the lit and unlit colours: each colour token resolved to rgb, the computed fill of
+ * Read the lit and unlit colours: each colour token resolved to rgb, the computed fill of
  * every part tagged with `key` (and of its glyph text or stroke of its stem path), and the computed
  * colours of the beams, ledger lines, ties and chord symbols, which never light.
  */
@@ -85,7 +85,7 @@ async function readColours(page: Page, key: string) {
   }, key)
 }
 
-/** Intent: whether an attack is continued by a tie into a later measure. */
+/** Whether an attack is continued by a tie into a later measure. */
 function tiedAcrossBarline(harness: NotationHarnessState, identity: Identity): boolean {
   return harness
     .glyphIdentities!.slice(identity.measureIndex + 1)
@@ -172,7 +172,7 @@ test.describe('acknowledgement lights only the note’s own parts', () => {
   }
 })
 
-/** Intent: read the one playhead band drawn, with its system and its measure's band attributes. */
+/** Read the one playhead band drawn, with its system and its measure's band attributes. */
 async function readBand(page: Page, measureIndex: number) {
   return page.evaluate((index) => {
     const svgs = Array.from(document.querySelectorAll('svg.staff-svg'))

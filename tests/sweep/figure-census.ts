@@ -74,13 +74,13 @@ const APPOGGIATURA_LEAP = 3
  * what a phrase holds, whatever figure levels it was generated with.
  */
 
-/** Intent: true when two consecutive moves go the same non-zero direction. */
+/** True when two consecutive moves go the same non-zero direction. */
 function sameDirection(first: SoundingFact, middle: SoundingFact, last: SoundingFact): boolean {
   const before = Math.sign(middle.midi - first.midi)
   return before !== 0 && before === Math.sign(last.midi - middle.midi)
 }
 
-/** Intent: true when attacks sound back to back under one unchanged harmony. */
+/** True when attacks sound back to back under one unchanged harmony. */
 function tightGroup(group: readonly SoundingFact[]): boolean {
   return group.every(
     (attack, index) =>
@@ -90,7 +90,7 @@ function tightGroup(group: readonly SoundingFact[]): boolean {
 }
 
 /**
- * Intent: the chromatic ornament explaining the out-of-collection attack `index`, as its member
+ * The chromatic ornament explaining the out-of-collection attack `index`, as its member
  * indices, in the validator's shape order (`[i, i+1]`, `[i-1, i]`, `[i]`): two members a half step
  * above and below the chord-tone attack after them, or one member a half step from it, every
  * member no longer than the target and the whole group back to back under one harmony.
@@ -113,13 +113,13 @@ function chromaticOrnament(
   return undefined
 }
 
-/** Intent: true for an in-collection attack outside its chord. */
+/** True for an in-collection attack outside its chord. */
 function diatonicNonChord(attack: SoundingFact | undefined): attack is SoundingFact {
   return attack !== undefined && attack.inCollection && !attack.chordTone
 }
 
 /**
- * Intent: true when attacks `index` and `index + 1` are a diatonic enclosure: two in-collection
+ * True when attacks `index` and `index + 1` are a diatonic enclosure: two in-collection
  * non-chord attacks, one a collection step above and one a collection step below the chord-tone
  * attack after them, in either order, the three back to back under one harmony.
  */
@@ -134,7 +134,7 @@ function diatonicEnclosure(attacks: readonly SoundingFact[], index: number): boo
 }
 
 /**
- * Intent: true when attack `index` is a free appoggiatura: entered by a leap of 3 half steps or
+ * True when attack `index` is a free appoggiatura: entered by a leap of 3 half steps or
  * more, on a strong onset, resolved by one collection step onto the next attack, a chord tone
  * under the same harmony.
  */
@@ -152,7 +152,7 @@ function appoggiatura(attacks: readonly SoundingFact[], index: number): boolean 
 }
 
 /**
- * Intent: the free diatonic figure of a single non-chord attack `index`, mirroring the
+ * The free diatonic figure of a single non-chord attack `index`, mirroring the
  * validator's `freeDiatonicFigure`: a passing tone (collection step in and out, same direction, onto
  * a chord tone; accented on a strong onset) or a neighbor tone (collection step in and out, from a
  * chord tone back to the same MIDI); otherwise unexplained.
@@ -167,7 +167,7 @@ function steppedFigure(attacks: readonly SoundingFact[], index: number): CensusF
   return 'unexplained'
 }
 
-/** Intent: the figure of the diatonic non-chord attack `index`, with the attacks it covers. */
+/** The figure of the diatonic non-chord attack `index`, with the attacks it covers. */
 function diatonicFigure(
   attacks: readonly SoundingFact[],
   index: number,
@@ -180,7 +180,7 @@ function diatonicFigure(
 }
 
 /**
- * Intent: label every non-chord attack of a phrase, sorted by first attack. Tension's scheduled
+ * Label every non-chord attack of a phrase, sorted by first attack. Tension's scheduled
  * figure comes first, from the generator's own binding; then each out-of-collection attack is a
  * chromatic enclosure or approach (an enclosure covers its diatonic member too) or unexplained;
  * then each remaining in-collection non-chord attack is a diatonic enclosure, an appoggiatura, an
@@ -193,12 +193,12 @@ export function classifyFigures(
 ): readonly FigureInstance[] {
   const instances: FigureInstance[] = []
   const claimed = new Set<number>()
-  /** Intent: keep an instance and claim its attacks, so no later rule labels them again. */
+  /** Keep an instance and claim its attacks, so no later rule labels them again. */
   const record = (instance: FigureInstance): void => {
     instances.push(instance)
     instance.attackIndices.forEach((index) => claimed.add(index))
   }
-  /** Intent: the bar an instance sits in: the bar of its first attack. */
+  /** The bar an instance sits in: the bar of its first attack. */
   const barOf = (indices: readonly number[]): number => attacks[indices[0]!]!.barIndex
   if (binding.attackIndices.length > 0) {
     if (binding.figureKind === undefined)
@@ -231,7 +231,7 @@ export function classifyFigures(
   return instances.sort((left, right) => left.attackIndices[0]! - right.attackIndices[0]!)
 }
 
-/** Intent: count the instances of each census label. */
+/** Count the instances of each census label. */
 function tally(instances: readonly FigureInstance[]): Record<CensusFigure, number> {
   const counts = Object.fromEntries(CENSUS_FIGURES.map((figure) => [figure, 0])) as Record<
     CensusFigure,
@@ -242,7 +242,7 @@ function tally(instances: readonly FigureInstance[]): Record<CensusFigure, numbe
 }
 
 /**
- * Intent: the census of a phrase given as a validation context and its attack MIDIs, through the
+ * The census of a phrase given as a validation context and its attack MIDIs, through the
  * same fact reconstruction the v3.0 validator uses.
  */
 export function censusOfContext(
@@ -259,7 +259,7 @@ export function censusOfContext(
 }
 
 /**
- * Intent: the validation context of a successful outcome, built field for field as the whole-result
+ * The validation context of a successful outcome, built field for field as the whole-result
  * validator's `melodicFailures` builds it (that function is private, so it is mirrored here).
  */
 export function contextOf(
@@ -287,7 +287,7 @@ export function contextOf(
 }
 
 /**
- * Intent: the census of one generation outcome for a standalone phrase, or its failure code. A
+ * The census of one generation outcome for a standalone phrase, or its failure code. A
  * carry-in intent is refused: a carry-in phrase may end on a tense note its next phrase resolves,
  * which the census does not model, so it would be miscounted as unexplained.
  */

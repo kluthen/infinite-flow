@@ -20,7 +20,7 @@ const SPLIT_ON_PHONE = { layout: 'split', heightBudgetPx: PHONE_BUDGET_PX } as c
 /** The two system positions' height, in engraving units (NOTATION_SYSTEM_POSITION_UNITS each). */
 const TWO_POSITIONS_UNITS = 2 * 160
 
-/** Intent: open the harness with no phrase, so only the hook under test engraves. */
+/** Open the harness with no phrase, so only the hook under test engraves. */
 async function openHarness(page: Page): Promise<void> {
   await page.setViewportSize(PHONE_VIEWPORT)
   await page.goto('/?source=empty&width=700')

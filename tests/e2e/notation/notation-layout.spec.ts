@@ -18,14 +18,14 @@ const DESKTOP_VIEWPORT = { width: 1280, height: 800 } as const
 /** The harness frame's outer width on the phone viewport (the app's staff frame is about this wide). */
 const PHONE_FRAME_WIDTH = 700
 
-/** Intent: wait until the harness publishes a settled (ready or error) engrave outcome. */
+/** Wait until the harness publishes a settled (ready or error) engrave outcome. */
 async function waitForHarnessSettled(page: Page): Promise<void> {
   await page.waitForFunction(
     () => window.__notationHarness && window.__notationHarness.state !== 'pending',
   )
 }
 
-/** Intent: open a fixture at a viewport and frame width, and return the settled harness state. */
+/** Open a fixture at a viewport and frame width, and return the settled harness state. */
 async function engraveFixture(
   page: Page,
   viewport: { readonly width: number; readonly height: number },
@@ -38,7 +38,7 @@ async function engraveFixture(
   return page.evaluate(() => window.__notationHarness)
 }
 
-/** Intent: read the two system positions (the staff-systems root's first two children). */
+/** Read the two system positions (the staff-systems root's first two children). */
 async function readPositions(page: Page) {
   return page.evaluate(() => {
     const positions = Array.from(document.querySelectorAll('[data-system-position]'))
@@ -294,7 +294,7 @@ test('a browser toolbar showing or hiding never re-engraves; a real height chang
   expect(afterResize.engraved!.staffSpacePx).toBeLessThan(first.engraved!.staffSpacePx)
 })
 
-/** Intent: read the frame's rendered block size and block padding, and each position's block size. */
+/** Read the frame's rendered block size and block padding, and each position's block size. */
 async function readFrame(page: Page) {
   return page.evaluate(() => {
     const frame = document.querySelector('.staff-frame')!

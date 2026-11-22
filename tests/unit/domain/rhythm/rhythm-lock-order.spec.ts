@@ -27,12 +27,12 @@ const BUILD = lockTestDomain('Build')
 const LIFT = lockTestDomain('Lift')
 const SEED = makeSeed(11)
 
-/** Intent: the starts of locked bars, as the rhythm distance reads them. */
+/** The starts of locked bars, as the rhythm distance reads them. */
 function lockedStarts(bars: readonly LockedRhythmMeasure[]): readonly MeasureStarts[] {
   return rhythmStarts(bars.map((events, barIndex) => ({ barIndex, events })))
 }
 
-/** Intent: a bar key written by two candidates or more of the Build domain. */
+/** A bar key written by two candidates or more of the Build domain. */
 function sharedKeyCandidate(): RhythmCandidate {
   const counts = new Map<string, number>()
   for (const candidate of BUILD) {
@@ -44,7 +44,7 @@ function sharedKeyCandidate(): RhythmCandidate {
   return found
 }
 
-/** Intent: a distance dependency that counts its calls. */
+/** A distance dependency that counts its calls. */
 function countingDeps(): { deps: RhythmLockOrderDeps; calls: () => number } {
   let count = 0
   return {
@@ -182,7 +182,7 @@ describe('walking the order', () => {
   })
 })
 
-/** Intent: a Build candidate whose bars offer a change of some kind, with those candidates. */
+/** A Build candidate whose bars offer a change of some kind, with those candidates. */
 function lockedWithChange(seeded: readonly RhythmCandidate[]) {
   for (const locked of BUILD) {
     const lockedBars = lockedBarsOf(locked)

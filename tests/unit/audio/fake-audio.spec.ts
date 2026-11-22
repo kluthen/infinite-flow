@@ -14,7 +14,7 @@ import {
   recordAudioOutput,
 } from './fake-audio'
 
-/** Intent: an inner output made of spies, whose clock the test sets through `clock.t`. */
+/** An inner output made of spies, whose clock the test sets through `clock.t`. */
 function spyOutput() {
   const clock = { t: 3 }
   const bus = {

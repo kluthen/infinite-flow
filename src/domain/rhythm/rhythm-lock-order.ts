@@ -87,12 +87,12 @@ export interface RhythmLockStep {
   readonly changeKind?: RhythmChangeKind
 }
 
-/** Intent: locked bars as written measures, for the bar key and the start lists. */
+/** Locked bars as written measures, for the bar key and the start lists. */
 function writtenMeasures(bars: readonly LockedRhythmMeasure[]): readonly WrittenMeasure[] {
   return bars.map((events, barIndex) => ({ barIndex, events }))
 }
 
-/** Intent: the bar key of the locked bars, equal to the key of a candidate written alike. */
+/** The bar key of the locked bars, equal to the key of a candidate written alike. */
 // @spec-link [[module_rhythm_lock_order]]
 // @spec-link [[rule_rhythm_lock_strict]]
 export function lockedBarsKey(bars: readonly LockedRhythmMeasure[]): string {
@@ -100,7 +100,7 @@ export function lockedBarsKey(bars: readonly LockedRhythmMeasure[]): string {
 }
 
 /**
- * Intent: the forced bend's order: every candidate but the drawn change's and the locked bars', by
+ * The forced bend's order: every candidate but the drawn change's and the locked bars', by
  * total edits from the locked bars, then seeded order. Measured once per bar key, since candidates
  * written alike are at the same distance (and are drawn together).
  */
@@ -131,7 +131,7 @@ function forcedBendOrder(
 }
 
 /**
- * Intent: build one request's rhythm lock order. The drawn change's candidates come as the draw
+ * Build one request's rhythm lock order. The drawn change's candidates come as the draw
  * gives them, in seeded order; the locked bars' candidates are found through the domain's bar key
  * and kept in seeded order; the forced bend's order waits for its first use. Throws when the
  * seeded order is not the whole domain.
@@ -168,7 +168,7 @@ export function makeRhythmLockOrder(
 }
 
 /**
- * Intent: walk a lock order rhythm by rhythm: the drawn change's candidates with their kind, the
+ * Walk a lock order rhythm by rhythm: the drawn change's candidates with their kind, the
  * locked bars' candidates, then the forced bend's order, each tagged with its tier. The forced
  * bend's order is reached, and so computed, only when the walk goes past the locked bars.
  */

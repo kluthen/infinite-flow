@@ -26,16 +26,16 @@
 
 /** One independent Mulberry32 generator instance with its own private 32-bit state. */
 export interface Mulberry32Generator {
-  /** Intent: produce the next value as an unsigned 32-bit integer in [0, 0xffffffff]. */
+  /** Produce the next value as an unsigned 32-bit integer in [0, 0xffffffff]. */
   readonly nextUint32: () => number
-  /** Intent: produce the next value as a float in [0, 1), derived from nextUint32. */
+  /** Produce the next value as a float in [0, 1), derived from nextUint32. */
   readonly nextFloat: () => number
 }
 
 const UINT32_MODULUS = 4294967296 // 2**32
 
 /**
- * Intent: create one independent Mulberry32 generator seeded from a raw 32-bit value. Each
+ * Create one independent Mulberry32 generator seeded from a raw 32-bit value. Each
  * instance owns its own closed-over state, so instances never interfere with one another
  * regardless of how many values are drawn from any other instance.
  */

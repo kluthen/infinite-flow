@@ -79,7 +79,7 @@ export interface EngineCore {
 }
 
 /**
- * Intent: open the engine of a session started without phrase 1 on the phrase 1 its caller
+ * Open the engine of a session started without phrase 1 on the phrase 1 its caller
  * handed over: decided under the settings it was generated with, which are the settings in effect
  * from then on, its origin the step its attempt took, and phrase 2 requested at once, due at the
  * start of phrase 1's last measure, counted from the time phrase 1 starts sounding. Phrase 1
@@ -119,7 +119,7 @@ function openOnHandedPhraseOne(
 }
 
 /**
- * Intent: a session started without phrase 1: until its caller hands phrase 1 over, every event
+ * A session started without phrase 1: until its caller hands phrase 1 over, every event
  * goes to the phase before phrase 1 (./session-before-phrase-one.ts); from the hand-over on, to the
  * engine opened on that phrase 1, which stays in its count-in phase until `count-in-over`, the
  * moment phrase 1 starts sounding. Its start requests nothing and has no output.

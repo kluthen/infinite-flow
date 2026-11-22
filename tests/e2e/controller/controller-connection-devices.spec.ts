@@ -46,12 +46,12 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: the sheet's title. */
+/** The sheet's title. */
 function title(page: Parameters<typeof sheet>[0]) {
   return sheet(page).locator('#sheet-title')
 }
 
-/** Intent: reach Connected for `device`, from a sheet at its check's Prompt. */
+/** Reach Connected for `device`, from a sheet at its check's Prompt. */
 async function continueToConnected(
   page: Parameters<typeof sheet>[0],
   device: WorkspaceHarnessMidiDevice,

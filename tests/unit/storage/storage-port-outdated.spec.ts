@@ -21,7 +21,7 @@ import {
   withRawDatabase,
 } from './storage-test-doubles'
 
-/** Intent: assert that `operation` rejects with a storage error of the given kind. */
+/** Assert that `operation` rejects with a storage error of the given kind. */
 async function expectRefusal(operation: Promise<unknown>, kind: StorageErrorKind): Promise<void> {
   const error: unknown = await operation.then(
     () => undefined,
@@ -31,14 +31,14 @@ async function expectRefusal(operation: Promise<unknown>, kind: StorageErrorKind
   expect((error as StorageError).kind).toBe(kind)
 }
 
-/** Intent: assert that an outdated port refuses every write, delete and delete everything. */
+/** Assert that an outdated port refuses every write, delete and delete everything. */
 async function expectNoWriteOfAnyKind(port: StoragePort): Promise<void> {
   await expectRefusal(port.write('settings', 'theme', sampleRecord('Light')), 'outdated')
   await expectRefusal(port.delete('settings', 'theme'), 'outdated')
   await expectRefusal(port.deleteEverything(), 'outdated')
 }
 
-/** Intent: count the outdated notices a port gives. */
+/** Count the outdated notices a port gives. */
 function countOutdated(port: StoragePort): { readonly count: () => number } {
   let count = 0
   port.onOutdated(() => {
@@ -47,7 +47,7 @@ function countOutdated(port: StoragePort): { readonly count: () => number } {
   return { count: () => count }
 }
 
-/** Intent: an older port at the code's data version holding a saved theme, and its outdated counter. */
+/** An older port at the code's data version holding a saved theme, and its outdated counter. */
 async function olderTabWithTheme(factory: IDBFactory) {
   const older = await openStoragePort({ factory, appVersion: '3.0.0' })
   await older.write('settings', 'theme', sampleRecord('Dark'))
@@ -151,7 +151,7 @@ describe('another tab deleting everything while this tab is open', () => {
 })
 
 describe('a newer tab raising the data version in meta without an upgrade', () => {
-  /** Intent: rewrite meta as a newer tab does, at the same IndexedDB version. */
+  /** Rewrite meta as a newer tab does, at the same IndexedDB version. */
   async function raiseMeta(factory: IDBFactory): Promise<void> {
     await withRawDatabase(
       factory,

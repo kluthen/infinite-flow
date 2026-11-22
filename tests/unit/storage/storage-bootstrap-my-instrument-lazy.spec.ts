@@ -38,7 +38,7 @@ const MIX_DESIGN: AudioMixDesign = readAudioMixDesign({
     })[name] ?? '',
 })
 
-/** Intent: the dependencies of a load over `openPort`, whose start-up wait never ends. */
+/** The dependencies of a load over `openPort`, whose start-up wait never ends. */
 function dependencies(openPort: () => Promise<StoragePort>): SavedDataLoadDependencies {
   return { openPort, startupWait: () => new Promise<void>(() => {}), mixDesign: () => MIX_DESIGN }
 }

@@ -35,7 +35,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: open the sheet at Connected with two inputs seen, so all four actions show. */
+/** Open the sheet at Connected with two inputs seen, so all four actions show. */
 async function openConnectedWithFourActions(page: Page): Promise<void> {
   await connectThroughSheet(page, [KEYS, PAD])
   await deviceOption(page, KEYS.name).click()
@@ -44,7 +44,7 @@ async function openConnectedWithFourActions(page: Page): Promise<void> {
   await expect(sheet(page).locator('.sheet-actions > button')).toHaveCount(4)
 }
 
-/** Intent: the action buttons' boxes, in markup order, and the actions row's box. */
+/** The action buttons' boxes, in markup order, and the actions row's box. */
 async function actionBoxes(page: Page) {
   const row = await sheet(page).locator('.sheet-actions').boundingBox()
   const buttons = await sheet(page)
@@ -66,7 +66,7 @@ async function actionBoxes(page: Page) {
 }
 
 /**
- * Intent: assert the wide-screen actions sit on `rowCount` rows, each aligned to the end of the
+ * Assert the wide-screen actions sit on `rowCount` rows, each aligned to the end of the
  * actions row, in markup order (top row first, left to right within a row), primary first.
  */
 function expectEndAlignedRows(
@@ -91,7 +91,7 @@ function expectEndAlignedRows(
   for (const line of rows) expect(line.at(-1)!.right).toBeCloseTo(row.x + row.width, 0)
 }
 
-/** Intent: the sheet's and the page's scroll extents. */
+/** The sheet's and the page's scroll extents. */
 function scrollExtents(page: Page) {
   return sheet(page).evaluate((panel) => ({
     sheetScrollWidth: panel.scrollWidth,

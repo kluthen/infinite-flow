@@ -51,17 +51,17 @@ const FACTS: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: a three-phrase C keyboard session's records. */
+/** A three-phrase C keyboard session's records. */
 function keyboardRecords(): readonly SessionHistoryRecord[] {
   return recordedKeptSession('c-keyboard', 3).phrases()
 }
 
-/** Intent: a session's values as v3.2 kept them. */
+/** A session's values as v3.2 kept them. */
 function v32Session(records: readonly SessionHistoryRecord[]): StoredKeptSession {
   return v4Session(encodeKeptSession(historyOf(records, 'c-keyboard'), FACTS, V32_APP_VERSION))
 }
 
-/** Intent: the port of the v3.3 tab over the factory's database, every production step run. */
+/** The port of the v3.3 tab over the factory's database, every production step run. */
 function openV33(factory: IDBFactory) {
   return openStoragePort({ factory, appVersion: V33_APP_VERSION })
 }
@@ -75,7 +75,7 @@ const LATE_NIGHT = makePreset({
 })
 
 /**
- * Intent: a stored copy of a body whose phrase at `index` holds `value` at `path` inside its part
+ * A stored copy of a body whose phrase at `index` holds `value` at `path` inside its part
  * `part` only, that part replaced whole: a stored body's request and intent share their carry-in
  * until it is written to the database.
  */
@@ -90,7 +90,7 @@ function withInPart(
   return edited(body, ['phrases', index, part], edited(stored, path, value))
 }
 
-/** Intent: each body step 5 cannot read, by name, over a valid v3.2 one. */
+/** Each body step 5 cannot read, by name, over a valid v3.2 one. */
 function unreadableBodies(
   body: unknown,
   records: readonly SessionHistoryRecord[],
@@ -172,14 +172,14 @@ describe('a data version 4 database holding v3.2 bodies step 5 cannot read', () 
   })
 })
 
-/** Intent: a value nested `depth` objects deep. */
+/** A value nested `depth` objects deep. */
 function nested(depth: number): unknown {
   let value: unknown = 'bottom'
   for (let level = 0; level < depth; level++) value = { inner: value }
   return value
 }
 
-/** Intent: every player preset record step 5 cannot read, by key, over a valid v3.2 one. */
+/** Every player preset record step 5 cannot read, by key, over a valid v3.2 one. */
 function unreadablePresets(
   record: Record<string, unknown>,
 ): readonly (readonly [string, unknown])[] {
@@ -228,7 +228,7 @@ describe('a data version 4 database holding player preset records step 5 cannot 
   })
 })
 
-/** Intent: every malformed body, by name, over a valid v3.2 one. */
+/** Every malformed body, by name, over a valid v3.2 one. */
 function malformedBodies(body: unknown): readonly (readonly [string, unknown])[] {
   const envelope = { dataVersion: 4, appVersion: V32_APP_VERSION }
   return [

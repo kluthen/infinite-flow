@@ -28,13 +28,13 @@ import type {
   ReviewedSession,
 } from './workspace-session-controller-types'
 
-/** Intent: whether a session held in memory was played with my instrument. */
+/** Whether a session held in memory was played with my instrument. */
 function playedWithMyInstrument(session: ReviewedSession): boolean {
   return session.history.phrases()[0]?.intent.instrumentProfile.id === MY_INSTRUMENT_ID
 }
 
 /**
- * Intent: count the kept sessions of my instrument over the controller's state and saving state,
+ * Count the kept sessions of my instrument over the controller's state and saving state,
  * the list's rows and the review mode's cancelling of a pending opening; each count holds its
  * sessions' deletes and their leaving memory, by the keys it counted, whatever changes after it,
  * with whether the Review on screen is one of them and whether saving off withholds erasing them.
@@ -54,7 +54,7 @@ export function createMyInstrumentSessions(
   const { state } = core
   const kept = core.deps.keptSessions
 
-  /** Intent: the sessions held in memory: the most recent one, and the one a Review draws. */
+  /** The sessions held in memory: the most recent one, and the one a Review draws. */
   const heldSessions = (): ReviewedSession[] => {
     const held: ReviewedSession[] = []
     const recent = state.mostRecent
@@ -64,7 +64,7 @@ export function createMyInstrumentSessions(
     return held
   }
 
-  /** Intent: the sessions under `keys` leave memory, as `Delete session` makes one leave. */
+  /** The sessions under `keys` leave memory, as `Delete session` makes one leave. */
   const leave = (keys: readonly string[]): void => {
     if (state.openingKey !== null && keys.includes(state.openingKey)) cancelOpening()
     rows.removed(keys)

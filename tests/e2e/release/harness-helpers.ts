@@ -10,24 +10,24 @@ import { primaryButton } from '../workspace/helpers'
 
 export const WORKSPACE_HARNESS_URL = 'http://127.0.0.1:4175/'
 
-/** Intent: land on the harness's empty workspace state with its deterministic API ready. */
+/** Land on the harness's empty workspace state with its deterministic API ready. */
 export async function gotoWorkspaceHarness(page: Page, search = ''): Promise<void> {
   await page.goto(`${WORKSPACE_HARNESS_URL}${search}`)
   await page.waitForFunction(() => typeof window.__workspaceHarness !== 'undefined')
 }
 
-/** Intent: read the harness's current session snapshot (requestId/seed/timeline/operation/mode). */
+/** Read the harness's current session snapshot (requestId/seed/timeline/operation/mode). */
 export function harnessSnapshot(page: Page): Promise<WorkspaceHarnessSnapshot> {
   return page.evaluate(() => window.__workspaceHarness.snapshot())
 }
 
-/** Intent: queue the exact seeds the next N generations must draw, in order. */
+/** Queue the exact seeds the next N generations must draw, in order. */
 export function queueSeeds(page: Page, seeds: readonly number[]): Promise<void> {
   return page.evaluate((values) => window.__workspaceHarness.queueSeeds(values), seeds)
 }
 
 /**
- * Intent: queue the exact session seeds the next published phrase 1s must draw, in order; every
+ * Queue the exact session seeds the next published phrase 1s must draw, in order; every
  * seed a session then uses derives from the one drawn with its phrase 1.
  */
 export function queueSessionSeeds(page: Page, seeds: readonly number[]): Promise<void> {
@@ -35,7 +35,7 @@ export function queueSessionSeeds(page: Page, seeds: readonly number[]): Promise
 }
 
 /**
- * Intent: the session seed plan's seed of rung `rung` of phrase `phraseNumber`, computed in the
+ * The session seed plan's seed of rung `rung` of phrase `phraseNumber`, computed in the
  * page; its own inverse, so given a wanted attempt seed it is the session seed to queue.
  */
 export function phraseAttemptSeed(
@@ -52,7 +52,7 @@ export function phraseAttemptSeed(
 }
 
 /**
- * Intent: the session seed plan's Vary settings mutation seed, computed in the page; its own
+ * The session seed plan's Vary settings mutation seed, computed in the page; its own
  * inverse, so given a wanted mutation seed it is the session seed to queue.
  */
 export function settingsMutationSeed(page: Page, seed: number): Promise<number> {
@@ -60,30 +60,30 @@ export function settingsMutationSeed(page: Page, seed: number): Promise<number> 
 }
 
 /**
- * Intent: replay a phrase replay key in the page: decoded by the app's decoder, replayed through
+ * Replay a phrase replay key in the page: decoded by the app's decoder, replayed through
  * the real browser generation worker, answered as its timeline's JSON text or a failure's description.
  */
 export function replayKeyInBrowser(page: Page, key: string): Promise<WorkspaceHarnessReplayAnswer> {
   return page.evaluate((value) => window.__workspaceHarness.replay.replayKey(value), key)
 }
 
-/** Intent: a phrase replay key's `ifk5.` re-encoding, decoded and encoded again in the page. */
+/** A phrase replay key's `ifk5.` re-encoding, decoded and encoded again in the page. */
 export function reEncodeKeyInBrowser(page: Page, key: string): Promise<string> {
   return page.evaluate((value) => window.__workspaceHarness.replay.reEncodeKey(value), key)
 }
 
-/** Intent: hold every subsequent generate() call before it reaches the real worker. */
+/** Hold every subsequent generate() call before it reaches the real worker. */
 export function holdGeneration(page: Page): Promise<void> {
   return page.evaluate(() => window.__workspaceHarness.holdGeneration())
 }
 
-/** Intent: release a hold; every gated generate() call resumes immediately. */
+/** Release a hold; every gated generate() call resumes immediately. */
 export function releaseGeneration(page: Page): Promise<void> {
   return page.evaluate(() => window.__workspaceHarness.releaseGeneration())
 }
 
 /**
- * Intent: arm forced generation failures with a real orchestration failure code, for the `count`
+ * Arm forced generation failures with a real orchestration failure code, for the `count`
  * (default 1) generate() calls in a row after `skip` more (default 0) have gone through for real.
  */
 export function failNextGeneration(
@@ -99,13 +99,13 @@ export function failNextGeneration(
   ] as const)
 }
 
-/** Intent: how many generate() calls have returned (forced failures and answers) since load. */
+/** How many generate() calls have returned (forced failures and answers) since load. */
 export function generationsSettled(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.generationsSettled())
 }
 
 /**
- * Intent: arm exactly one forced notation failure on the next engraving, with this code (the
+ * Arm exactly one forced notation failure on the next engraving, with this code (the
  * retryable `notation_engraving_failed` by default, or a staff layout failure).
  */
 export function failNextNotation(
@@ -115,7 +115,7 @@ export function failNextNotation(
   return page.evaluate((c) => window.__workspaceHarness.failNextNotation(c), code)
 }
 
-/** Intent: force the next pre-draw fit checks' verdicts, in order; the real planner answers after. */
+/** Force the next pre-draw fit checks' verdicts, in order; the real planner answers after. */
 export function queueFitVerdicts(
   page: Page,
   verdicts: readonly WorkspaceHarnessFitVerdict[],
@@ -123,32 +123,32 @@ export function queueFitVerdicts(
   return page.evaluate((values) => window.__workspaceHarness.queueFitVerdicts(values), verdicts)
 }
 
-/** Intent: how many phrase seeds have been drawn since the page loaded (one per Idle attempt). */
+/** How many phrase seeds have been drawn since the page loaded (one per Idle attempt). */
 export function seedsDrawn(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.seedsDrawn())
 }
 
-/** Intent: how many session seeds have been drawn since the page loaded (one per phrase 1). */
+/** How many session seeds have been drawn since the page loaded (one per phrase 1). */
 export function sessionSeedsDrawn(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.sessionSeedsDrawn())
 }
 
-/** Intent: how many pre-draw fit checks have run since the page loaded, forced or real. */
+/** How many pre-draw fit checks have run since the page loaded, forced or real. */
 export function fitChecks(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.fitChecks())
 }
 
-/** Intent: how many engravings (draws and redraws) have been attempted since the page loaded. */
+/** How many engravings (draws and redraws) have been attempted since the page loaded. */
 export function engravings(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.engravings())
 }
 
-/** Intent: how many phrase-independent room checks have run since the page loaded. */
+/** How many phrase-independent room checks have run since the page loaded. */
 export function roomChecks(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.roomChecks())
 }
 
-/** Intent: let two animation frames pass: a media-query change, then the coalesced staff redraw. */
+/** Let two animation frames pass: a media-query change, then the coalesced staff redraw. */
 export async function settleFrames(page: Page): Promise<void> {
   await page.evaluate(
     () =>
@@ -158,7 +158,7 @@ export async function settleFrames(page: Page): Promise<void> {
   )
 }
 
-/** Intent: resize the window and let every redraw and run it causes settle to an idle session. */
+/** Resize the window and let every redraw and run it causes settle to an idle session. */
 export async function resizeAndSettle(
   page: Page,
   size: { readonly width: number; readonly height: number },
@@ -170,19 +170,19 @@ export async function resizeAndSettle(
     .toBe('idle')
 }
 
-/** Intent: wait until the session is idle again after an action, however long its run takes. */
+/** Wait until the session is idle again after an action, however long its run takes. */
 export async function awaitIdle(page: Page): Promise<void> {
   await expect
     .poll(async () => (await harnessSnapshot(page)).operation, { timeout: 30_000 })
     .toBe('idle')
 }
 
-/** Intent: the "staff needs more room" notice inside the staff frame. */
+/** The "staff needs more room" notice inside the staff frame. */
 export function roomNotice(page: Page): Locator {
   return page.locator('.staff-frame p.room-notice')
 }
 
-/** Intent: the notice's visible sentence, as assistive technology reads it (hidden spans excluded). */
+/** The notice's visible sentence, as assistive technology reads it (hidden spans excluded). */
 export function roomNoticeSentence(page: Page): Promise<string> {
   return roomNotice(page).evaluate((notice) => {
     const spans = [...notice.querySelectorAll<HTMLElement>('span')]
@@ -214,7 +214,7 @@ export const NO_ROOM_WIDE_SENTENCE = 'The staff needs more room. Make the window
 export const NO_ROOM_NARROW_SENTENCE = 'This screen is too small to show the staff.'
 
 /**
- * Intent: record every text value one live region takes on from now: one entry per change, the
+ * Record every text value one live region takes on from now: one entry per change, the
  * value it had before excluded. Observing a region again replaces its previous observer, so no
  * change is ever logged twice (a sentence announced again is still a change: it is emptied first).
  */
@@ -233,12 +233,12 @@ export async function observeLiveRegion(page: Page, region: LiveRegion): Promise
   }, region)
 }
 
-/** Intent: every text value the region has taken on since it was last observed. */
+/** Every text value the region has taken on since it was last observed. */
 export function readLiveRegionLog(page: Page, region: LiveRegion): Promise<string[]> {
   return page.evaluate((selector) => window.__liveRegionLogs?.[selector] ?? [], region)
 }
 
-/** Intent: how many times the region has changed to exactly this text since it was observed. */
+/** How many times the region has changed to exactly this text since it was observed. */
 export async function announcedCount(
   page: Page,
   region: LiveRegion,
@@ -249,7 +249,7 @@ export async function announcedCount(
 }
 
 /**
- * Intent: assert the staff shows neither a score nor the notation error: no engraved staff, no
+ * Assert the staff shows neither a score nor the notation error: no engraved staff, no
  * `staff-error` frame, and no "Notation error" wording announced or shown anywhere.
  */
 export async function expectNoScoreAndNoNotationError(page: Page): Promise<void> {
@@ -257,14 +257,14 @@ export async function expectNoScoreAndNoNotationError(page: Page): Promise<void>
   await expectNoNotationError(page)
 }
 
-/** Intent: assert the notation error shows nowhere: not as a frame state, text or announcement. */
+/** Assert the notation error shows nowhere: not as a frame state, text or announcement. */
 export async function expectNoNotationError(page: Page): Promise<void> {
   await expect(page.locator('.staff-frame')).not.toHaveClass(/staff-error/)
   await expect(page.getByText('Notation error', { exact: false })).toHaveCount(0)
   await expect(page.locator('.notation-status')).not.toHaveText(/Notation error/)
 }
 
-/** Intent: the unsupported-rhythm alert in the rhythm controls. */
+/** The unsupported-rhythm alert in the rhythm controls. */
 export function unsupportedRhythmAlert(page: Page): Locator {
   return page
     .locator('.inline-alert.alert-notice')
@@ -272,7 +272,7 @@ export function unsupportedRhythmAlert(page: Page): Locator {
 }
 
 /**
- * Intent: assert the workspace shows **Empty** with the unsupported-rhythm alert: no phrase, no
+ * Assert the workspace shows **Empty** with the unsupported-rhythm alert: no phrase, no
  * notice, no generation-failure banner, and `Generate phrase` disabled.
  */
 export async function expectEmptyWithUnsupportedAlert(page: Page): Promise<void> {
@@ -288,7 +288,7 @@ export async function expectEmptyWithUnsupportedAlert(page: Page): Promise<void>
 }
 
 /**
- * Intent: from Empty or Ready, reach the too-many-notes notice: queue four seeds, force all four
+ * From Empty or Ready, reach the too-many-notes notice: queue four seeds, force all four
  * attempts too wide, click the phrase action, and wait for the run to end under the notice.
  */
 export async function showTooManyNotesNotice(page: Page, seeds: readonly number[]): Promise<void> {

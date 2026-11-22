@@ -23,7 +23,7 @@ interface SchedulerRig {
 }
 
 /**
- * Intent: a rig at `startTime` and a scheduler on its clock and timer. The timer is wrapped to
+ * A rig at `startTime` and a scheduler on its clock and timer. The timer is wrapped to
  * keep the listeners it was started with, so a test can deliver a wake-up that arrives after
  * `halt`, as a timer message already in flight would.
  */

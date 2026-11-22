@@ -22,7 +22,7 @@ export interface FakeFrames {
   readonly cancelled: () => number
 }
 
-/** Intent: a frame port whose frames run only when the test calls `run`. */
+/** A frame port whose frames run only when the test calls `run`. */
 export function createFakeFrames(): FakeFrames {
   const waiting = new Map<number, () => void>()
   let nextHandle = 1
@@ -67,7 +67,7 @@ export interface FakePlanner {
   readonly queue: (...verdicts: StaffFitVerdict[]) => void
 }
 
-/** Intent: a planner where every phrase fits until the test says otherwise. */
+/** A planner where every phrase fits until the test says otherwise. */
 export function createFakePlanner(): FakePlanner {
   const plans: PlannedFit[] = []
   const queued: StaffFitVerdict[] = []

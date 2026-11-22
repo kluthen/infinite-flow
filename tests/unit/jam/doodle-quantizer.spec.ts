@@ -29,17 +29,17 @@ const ORIGIN = 10
 /** The capture tempo of the captures below: a tick (sixteenth note) lasts 125 ms. */
 const TEMPO = 120
 
-/** Intent: the audio-clock time of a grid tick (fractions allowed) at 120 BPM. */
+/** The audio-clock time of a grid tick (fractions allowed) at 120 BPM. */
 function at(tick: number): number {
   return ORIGIN + tick * 0.125
 }
 
-/** Intent: a raw played note of `pitch` from `onsetAt` to `releaseAt`, in audio-clock seconds. */
+/** A raw played note of `pitch` from `onsetAt` to `releaseAt`, in audio-clock seconds. */
 function note(pitch: number, onsetAt: number, releaseAt: number): RawDoodleNote {
   return { pitch: makeConcertPitch(pitch), onsetAt, releaseAt }
 }
 
-/** Intent: a capture at 120 BPM from ORIGIN, ended at the barline that starts `endMeasure`. */
+/** A capture at 120 BPM from ORIGIN, ended at the barline that starts `endMeasure`. */
 function capture(notes: readonly RawDoodleNote[], endMeasure: number): DoodleCapture {
   return { gridOriginAt: ORIGIN, tempoBpm: TEMPO, notes, endMeasure }
 }
@@ -68,7 +68,7 @@ interface SourceOperations {
 const NUMBER_CONVERSIONS = new Set(['parseFloat', 'Number', 'toFixed', 'toPrecision'])
 
 /**
- * Intent: every Math access, decimal or exponent literal, number conversion and division in a
+ * Every Math access, decimal or exponent literal, number conversion and division in a
  * TypeScript source, each with the named function declaration it sits in.
  */
 function operationsIn(sourceText: string): SourceOperations {
@@ -80,7 +80,7 @@ function operationsIn(sourceText: string): SourceOperations {
     numberConversions: [],
     divisions: [],
   }
-  /** Intent: record what `node` holds, then walk its children inside the same function. */
+  /** Record what `node` holds, then walk its children inside the same function. */
   const visit = (node: ts.Node, inFunction: string | undefined): void => {
     let enclosing = inFunction
     if (ts.isFunctionDeclaration(node) && node.name !== undefined) {
@@ -121,7 +121,7 @@ function operationsIn(sourceText: string): SourceOperations {
   return found
 }
 
-/** Intent: the operations found outside the body of toMicroseconds. */
+/** The operations found outside the body of toMicroseconds. */
 function outsideConversion(operations: readonly SourceOperation[]): SourceOperation[] {
   return operations.filter((operation) => operation.inFunction !== 'toMicroseconds')
 }
@@ -353,7 +353,7 @@ describe('determinism', () => {
       note(74, at(30), at(36)),
       note(76, at(33), at(34)),
     ]
-    /** Intent: every third note, from `offset`, in input order. */
+    /** Every third note, from `offset`, in input order. */
     const everyThird = (offset: number) => notes.filter((_, index) => index % 3 === offset)
     const shuffled = [...everyThird(2), ...everyThird(0), ...everyThird(1).reverse()]
     expect(shuffled).toHaveLength(notes.length)

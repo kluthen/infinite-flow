@@ -189,7 +189,7 @@ export interface ParsedKeptBody {
 export type KeptBodyJamParts = Pick<ParsedKeptBody, 'doodle' | 'playedNotesClock'>
 
 /**
- * Intent: an intent as a current (data version 5) kept phrase stores it, each key copied by name
+ * An intent as a current (data version 5) kept phrase stores it, each key copied by name
  * in the order every intent holds them: the fields every intent holds, its Seventh chords level at
  * any level right after its figure levels, as the intent factory places it, then the carry-in, the
  * rhythm lock group and the steering block, each only when the intent holds it.
@@ -215,7 +215,7 @@ function keptIntentRecord(intent: GenerationIntent): KeptIntentRecord {
 }
 
 /**
- * Intent: an intent as a data version 2 or 4 kept phrase stores it: the current shape's keys in
+ * An intent as a data version 2 or 4 kept phrase stores it: the current shape's keys in
  * the same order without the Seventh chords level, which those versions read at Off. A level
  * above Off throws, as a caller defect, rather than being stored as Off: the upgrade steps that
  * write these versions only ever carry intents read at Off.
@@ -233,7 +233,7 @@ function keptIntentRecordV4(intent: GenerationIntent): KeptIntentRecordV4 {
 }
 
 /**
- * Intent: one recorded phrase as kept, every field copied by name from the history record (the
+ * One recorded phrase as kept, every field copied by name from the history record (the
  * clef too, as the history recorded it, never looked up from the instrument as it is now), its
  * start rebased to seconds from `origin` (phrase 1's scheduled start on the audio clock).
  */
@@ -260,7 +260,7 @@ function keptPhraseRecord(
 }
 
 /**
- * Intent: the Jam entries of a body: its doodle for a Jam session, its played-notes clock beside
+ * The Jam entries of a body: its doodle for a Jam session, its played-notes clock beside
  * it for a fresh Jam, none for a session that is not a Jam. Throws, as a caller defect, on a clock
  * without a doodle.
  */
@@ -277,7 +277,7 @@ function jamEntries({
 }
 
 /**
- * Intent: the body of a session's recorded phrases, written at the body's data version (5), each
+ * The body of a session's recorded phrases, written at the body's data version (5), each
  * marked a favorite when its number is in `favorites`, with every start rebased to seconds from
  * phrase 1's scheduled start, each intent with its Seventh chords level whatever it is and each
  * harmony, request and carry-in as the outcome and the intent hold them (seventh chords
@@ -306,7 +306,7 @@ export function keptSessionBodyRecord(
 }
 
 /**
- * Intent: phrases read back, each copied by name (its start as `startsAt`, its intent through
+ * Phrases read back, each copied by name (its start as `startsAt`, its intent through
  * `intentRecord`) with its new mark.
  */
 function rewrittenPhrases<Intent extends KeptIntentRecordV4>(
@@ -330,7 +330,7 @@ function rewrittenPhrases<Intent extends KeptIntentRecordV4>(
 }
 
 /**
- * Intent: a body read back, encoded again at the body's data version (5) by `appVersion`: its
+ * A body read back, encoded again at the body's data version (5) by `appVersion`: its
  * phrases each copied by name as read (its start as `startsAt`, its intent with its Seventh chords
  * level), with the favorite mark `favorite` gives it by its number, and its doodle and
  * played-notes clock as read, none when it has none: a stored body encoded again after the
@@ -354,7 +354,7 @@ export function rewrittenKeptBodyRecord(
 }
 
 /**
- * Intent: a data version 2 body read back, encoded as v3.2's body at data version 4 by
+ * A data version 2 body read back, encoded as v3.2's body at data version 4 by
  * `appVersion`: its phrases each copied by name as read, their intents without the Seventh chords
  * level, with the favorite mark `favorite` gives it, and its doodle and played-notes clock as
  * read, none when it has none: the body the upgrade step to data version 4 writes, which the step
@@ -377,7 +377,7 @@ export function rewrittenKeptBodyRecordV4(
 }
 
 /**
- * Intent: phrases read back, encoded as v3.1's body at data version 2 by `appVersion`, each copied
+ * Phrases read back, encoded as v3.1's body at data version 2 by `appVersion`, each copied
  * by name with the favorite mark `favorite` gives it, their intents without the Seventh chords
  * level, and no doodle: the body the upgrade step to data version 2 writes for a data version 1
  * body it read, which the step to data version 4 then carries on. Throws for an empty app version
@@ -397,7 +397,7 @@ export function rewrittenKeptBodyRecordV2(
   }
 }
 
-/** Intent: a stored repeat mark: `repeatOf` present exactly on a repeat, naming an earlier phrase. */
+/** A stored repeat mark: `repeatOf` present exactly on a repeat, naming an earlier phrase. */
 function parseRepeatMark(
   record: Record<string, unknown>,
   phraseNumber: number,
@@ -419,14 +419,14 @@ function parseRepeatMark(
  */
 type CarryInOrigin = 'absent' | 'phrase' | 'none'
 
-/** Intent: the origin of a carry-in a request or an intent holds, or `absent`. */
+/** The origin of a carry-in a request or an intent holds, or `absent`. */
 function carryInOrigin(carryIn: CarryIn | undefined): CarryInOrigin {
   if (carryIn === undefined) return 'absent'
   return isPhraseCarryIn(carryIn) ? 'phrase' : 'none'
 }
 
 /**
- * Intent: refuse a stored request and intent that disagree on the request id or the seed, on
+ * Refuse a stored request and intent that disagree on the request id or the seed, on
  * whether they hold a rhythm lock group, on whether they hold a steering block, or on the origin of
  * their carry-in. Presence only, never the groups' values: the request is the intent resolved,
  * kept for display, and the phrase replays from its intent.
@@ -448,7 +448,7 @@ function assertRequestMatchesIntent(
 }
 
 /**
- * Intent: a stored request as v3.1's reader read it: through the generation request's parser, a
+ * A stored request as v3.1's reader read it: through the generation request's parser, a
  * rhythm lock group or a steering block refused.
  */
 function parseRequestV2(value: unknown, context: string): GenerationRequest {
@@ -465,7 +465,7 @@ export interface PhraseReaders {
   readonly harmony: (input: unknown) => HarmonyCandidate
 }
 
-/** Intent: a stored harmony of a data version before 5: triads only, a seventh refused. */
+/** A stored harmony of a data version before 5: triads only, a seventh refused. */
 export function parseKeptTriadHarmony(input: unknown): HarmonyCandidate {
   return parseKeptHarmony(input, 'triad')
 }
@@ -487,7 +487,7 @@ const PHRASE_V1: PhraseReaders = {
 }
 
 /**
- * Intent: one stored phrase read back through the domain's parsers, its request and intent
+ * One stored phrase read back through the domain's parsers, its request and intent
  * through `readers`, agreeing, a carry-in from no phrase only on phrase 1; or a refusal.
  */
 function parsePhrase(value: unknown, context: string, readers: PhraseReaders): ParsedKeptPhrase {
@@ -521,7 +521,7 @@ function parsePhrase(value: unknown, context: string, readers: PhraseReaders): P
   }
 }
 
-/** Intent: refuse phrases whose numbers or starts do not strictly increase from phrase 1 at 0. */
+/** Refuse phrases whose numbers or starts do not strictly increase from phrase 1 at 0. */
 function assertSoundingOrder(phrases: readonly ParsedKeptPhrase[]): void {
   if (phrases[0]!.startedAt !== 0)
     throw new KeptRecordError('Kept session body: the first phrase must start at 0.')
@@ -533,7 +533,7 @@ function assertSoundingOrder(phrases: readonly ParsedKeptPhrase[]): void {
   })
 }
 
-/** Intent: a stored body's phrases, read through `readers`, in sounding order, or a refusal. */
+/** A stored body's phrases, read through `readers`, in sounding order, or a refusal. */
 export function parseKeptPhrases(
   record: Record<string, unknown>,
   readers: PhraseReaders,
@@ -546,7 +546,7 @@ export function parseKeptPhrases(
 }
 
 /**
- * Intent: read a data version 2 body, v3.1's, back into its phrases, as the upgrade step to data
+ * Read a data version 2 body, v3.1's, back into its phrases, as the upgrade step to data
  * version 4 reads it: exactly v3.1's keys (no doodle, no clock), each phrase read as
  * `parseKeptSessionBodyV4` reads it but with v3.1's intent, its carry-in only from a phrase, and a
  * stored request holding a rhythm lock group or a steering block refused, as v3.1's reader refused
@@ -561,7 +561,7 @@ export function parseKeptSessionBodyV2(value: unknown): readonly ParsedKeptPhras
 }
 
 /**
- * Intent: read a data version 1 body back into its phrases, as the upgrade step to data version 2
+ * Read a data version 1 body back into its phrases, as the upgrade step to data version 2
  * reads it: the same reading as `parseKeptSessionBodyV2`, each phrase's intent in any of data
  * version 1's three shapes. Returns a fresh deep-frozen list; throws a refusal for anything
  * invalid, never repairing it.

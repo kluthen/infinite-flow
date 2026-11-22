@@ -26,7 +26,7 @@ export interface ReviewExportAction {
 }
 
 /**
- * Intent: the state and action of one export button of the mounted Review panel; call it from the
+ * The state and action of one export button of the mounted Review panel; call it from the
  * panel's setup.
  */
 // @spec-link [[req_session_export]]
@@ -40,7 +40,7 @@ export function useReviewExportAction(options: ReviewExportActionOptions): Revie
   })
 
   /**
-   * Intent: once the export ends, give focus back to the enabled button if it was there, or fell
+   * Once the export ends, give focus back to the enabled button if it was there, or fell
    * to the page while the button was disabled; focus the player moved elsewhere stays there.
    */
   function returnFocus(): void {
@@ -50,7 +50,7 @@ export function useReviewExportAction(options: ReviewExportActionOptions): Revie
     if (active === null || active === document.body || active === button) button.focus()
   }
 
-  /** Intent: build the file, the error leaving as it starts and showing if it fails. */
+  /** Build the file, the error leaving as it starts and showing if it fails. */
   async function start(): Promise<void> {
     if (running.value) return
     options.failed.value = false

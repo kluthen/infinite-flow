@@ -18,7 +18,7 @@ const NARROW_SENTENCE = 'This screen is too small to show the staff.'
 const TOO_MANY_NOTES_SENTENCE =
   'These notes need more room. Make the window larger, or choose a lower note density.'
 
-/** Intent: record every text a live region shows, in order, as a screen reader would hear them. */
+/** Record every text a live region shows, in order, as a screen reader would hear them. */
 function recordTexts(element: Element): string[] {
   const texts: string[] = []
   new MutationObserver(() => texts.push(element.textContent?.trim() ?? '')).observe(element, {

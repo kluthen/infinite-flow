@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { databaseBytes } from '@/storage/storage-estimate'
 
-/** Intent: a browser estimate carrying the usage details some browsers add to it. */
+/** A browser estimate carrying the usage details some browsers add to it. */
 function estimateWith(usageDetails: Record<string, number>): StorageEstimate {
   return { usage: 9_000_000, quota: 50_000_000, usageDetails } as StorageEstimate
 }

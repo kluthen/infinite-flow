@@ -28,7 +28,7 @@ export interface YourDataHost {
 let sheetPromise: Promise<Component> | null = null
 
 /**
- * Intent: the Your data sheet's component, loaded once and shared by every opening; a failed
+ * The Your data sheet's component, loaded once and shared by every opening; a failed
  * import clears the memo before rethrowing, so the next opening tries again.
  */
 // @spec-link [[req_your_data]]
@@ -44,13 +44,13 @@ function loadYourDataSheet(): Promise<Component> {
 }
 
 /**
- * Intent: host the sheet for the workspace, and provide its opener to the session list. Opening
+ * Host the sheet for the workspace, and provide its opener to the session list. Opening
  * during a session is a defect: every opener is disabled then.
  */
 // @spec-link [[req_your_data]]
 export function useYourData(sessionActive: () => boolean): YourDataHost {
   const sheet = shallowRef<Component | null>(null)
-  /** Intent: load the sheet, then show it; never during a session. */
+  /** Load the sheet, then show it; never during a session. */
   const open = (): void => {
     if (sessionActive()) throw new Error('your data: opened during a session')
     void loadYourDataSheet().then((component) => {
@@ -68,7 +68,7 @@ export function useYourData(sessionActive: () => boolean): YourDataHost {
 }
 
 /**
- * Intent: the opener the workspace provides, for the session list's `Your data`; throws at the
+ * The opener the workspace provides, for the session list's `Your data`; throws at the
  * press when nothing provided it, a wiring defect.
  */
 // @spec-link [[req_your_data]]

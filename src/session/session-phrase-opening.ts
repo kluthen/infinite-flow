@@ -76,7 +76,7 @@ export interface RungIntent extends BuiltIntent {
 }
 
 /**
- * Intent: open the phrase after the course's latest decided one. A mutation scheduled on it is
+ * Open the phrase after the course's latest decided one. A mutation scheduled on it is
  * decided first, from the window read now, the step-down memory and the register whose window the
  * carry-in holds, and is in effect from it on; the phrase is generated under those settings with
  * its tension-arc cycle step, which never reaches the settings in effect. Its rhythm lock groups
@@ -108,7 +108,7 @@ export function openNextPhrase(seams: PhraseOpeningSeams, course: PhraseCourse):
 }
 
 /**
- * Intent: build the intent of one rung of the phrase after `previous` from its basis: the attempt
+ * Build the intent of one rung of the phrase after `previous` from its basis: the attempt
  * that rung makes (carry-in, or standalone with its register), with a request id drawn now, the
  * window read now, the step-down memory updated, the planned seed of that phrase's rung and the
  * phrase's rhythm lock group (the re-lock group when the rung is built with Eighth by the

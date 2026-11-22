@@ -70,7 +70,7 @@ export interface FakeOutputTimestamp {
   readonly performanceTime?: number
 }
 
-/** Intent: a fake parameter starting at `initial` that records every automation call. */
+/** A fake parameter starting at `initial` that records every automation call. */
 function fakeParam(initial: number): FakeParam {
   const calls: ParamCall[] = []
   return {
@@ -84,7 +84,7 @@ function fakeParam(initial: number): FakeParam {
   }
 }
 
-/** Intent: a fake node labelled `label` that records its connections and disconnection. */
+/** A fake node labelled `label` that records its connections and disconnection. */
 function fakeNode(label: string): FakeNode {
   const outputs: FakeNode[] = []
   let disconnected = false
@@ -102,7 +102,7 @@ function fakeNode(label: string): FakeNode {
   }
 }
 
-/** Intent: a fake oscillator that records its start and stop times and can fire `ended`. */
+/** A fake oscillator that records its start and stop times and can fire `ended`. */
 function fakeOscillator(label: string): FakeOscillatorNode {
   const endedListeners: (() => void)[] = []
   let startedAt: number | undefined
@@ -133,7 +133,7 @@ function fakeOscillator(label: string): FakeOscillatorNode {
  */
 const UNSET_GAIN = Number.NaN
 
-/** Intent: a fake audio context in `initialState`, with every member read on it recorded. */
+/** A fake audio context in `initialState`, with every member read on it recorded. */
 export function createFakeWebAudioContext(initialState = 'running'): FakeWebAudioContext {
   const destination = fakeNode('destination')
   const gains: FakeGainNode[] = []
@@ -199,7 +199,7 @@ export function createFakeWebAudioContext(initialState = 'running'): FakeWebAudi
 }
 
 /**
- * Intent: the chain of nodes from `node` to the destination, each hop being the node's one and
+ * The chain of nodes from `node` to the destination, each hop being the node's one and
  * only output. Throws if a node on the way has no output or more than one.
  */
 export function pathToDestination(node: FakeNode, destination: FakeNode): FakeNode[] {
@@ -216,7 +216,7 @@ export function pathToDestination(node: FakeNode, destination: FakeNode): FakeNo
 }
 
 /**
- * Intent: the one fake gain node behind the mix gain `gain`, found by the automation a probe
+ * The one fake gain node behind the mix gain `gain`, found by the automation a probe
  * `setGain` call leaves on it; the probe's calls are then cleared. Throws unless exactly one node
  * took the probe.
  */
@@ -238,7 +238,7 @@ export function mixNode(
   return hit
 }
 
-/** Intent: the envelope gain node a click's oscillator feeds. Throws if it feeds no gain node. */
+/** The envelope gain node a click's oscillator feeds. Throws if it feeds no gain node. */
 export function envelopeOf(
   fake: FakeWebAudioContext,
   oscillator: FakeOscillatorNode,

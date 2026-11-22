@@ -28,7 +28,7 @@ const NO_SESSIONS = {
   stay: () => undefined,
 }
 
-/** Intent: the sheet mounted on the page, opened as `start`, with no session of my instrument. */
+/** The sheet mounted on the page, opened as `start`, with no session of my instrument. */
 function mountSheet(start: MyInstrumentFormStart, selected = false) {
   const remove = vi.fn(() => Promise.resolve('done' as const))
   const saveAndErase = vi.fn(() => Promise.resolve('done' as const))
@@ -39,7 +39,7 @@ function mountSheet(start: MyInstrumentFormStart, selected = false) {
   return Object.assign(wrapper, { remove, saveAndErase })
 }
 
-/** Intent: the sheet's action button whose text is `label`. */
+/** The sheet's action button whose text is `label`. */
 function button(wrapper: ReturnType<typeof mountSheet>, label: string) {
   const found = wrapper.findAll('button').find((candidate) => candidate.text() === label)
   if (found === undefined) throw new Error(`no "${label}" button`)

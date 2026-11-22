@@ -84,7 +84,7 @@ export interface ReviewArea extends ReviewExports, ReviewPlayedNotes, ReviewSess
 }
 
 /**
- * Intent: the review area of one score panel: what its Review is given, read from the showing
+ * The review area of one score panel: what its Review is given, read from the showing
  * Review the host names, its exports downloading through the ports and reading the host's
  * `Include very short notes`, with its played-notes side and its session tools.
  */
@@ -93,7 +93,7 @@ export interface ReviewArea extends ReviewExports, ReviewPlayedNotes, ReviewSess
 // @spec-link [[rule_session_data_never_sent_or_stored]]
 export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
   const { host } = deps
-  /** Intent: the Review's history while it shows; null otherwise. */
+  /** The Review's history while it shows; null otherwise. */
   const shownHistory = computed(
     (): ReviewedHistory | null => host.shownReview.value?.history ?? null,
   )
@@ -106,7 +106,7 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
   // @spec-link [[req_last_session_review]]
   const isJam = computed(() => host.shownReview.value?.jam !== undefined)
   const startedAt = computed(() => shownHistory.value?.startedAt ?? null)
-  /** Intent: the showing Review's length, by the function its kept record is stored with. */
+  /** The showing Review's length, by the function its kept record is stored with. */
   // @spec-link [[req_kept_session_review]]
   const lengthSeconds = computed(() => {
     const phrases = records.value
@@ -115,7 +115,7 @@ export function useReviewArea(deps: ReviewAreaDependencies): ReviewArea {
     return first === undefined || last === undefined ? null : sessionLengthSeconds(first, last)
   })
   const keeping = computed(() => host.shownReview.value?.keeping ?? null)
-  /** Intent: whether the showing Review draws the most recent session (titled "Last session"). */
+  /** Whether the showing Review draws the most recent session (titled "Last session"). */
   const mostRecent = computed(() => {
     const recent = deps.controller()?.state.mostRecent ?? null
     const history = shownHistory.value

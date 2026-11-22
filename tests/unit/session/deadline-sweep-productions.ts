@@ -48,7 +48,7 @@ export const TIME_RULE_PRODUCTIONS: ReadonlySet<PhraseProduction> = new Set([
 ])
 
 /**
- * Intent: how a standalone phrase came about, from the requests made for it (after its last
+ * How a standalone phrase came about, from the requests made for it (after its last
  * discard): which request was the first standalone one, and what the request before it became.
  */
 function standaloneProduction(
@@ -74,7 +74,7 @@ function standaloneProduction(
 }
 
 /**
- * Intent: how each phrase of a timed run after phrase 1 was produced, in phrase order, from the
+ * How each phrase of a timed run after phrase 1 was produced, in phrase order, from the
  * engine's outputs alone: the requests made for it since its last discard, the cancellations, and
  * the origin of the phrase that became ready for it last.
  */

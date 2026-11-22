@@ -107,13 +107,13 @@ export interface PresetRecord extends RecordVersions {
   readonly restriction: KeyAndModeRestriction
 }
 
-/** Intent: a restriction half copied: "any", or a fresh list in the same order. */
+/** A restriction half copied: "any", or a fresh list in the same order. */
 function copiedHalf<T>(half: RestrictionHalf<T>): RestrictionHalf<T> {
   return half === 'any' ? 'any' : [...half]
 }
 
 /**
- * Intent: the whole record of a player preset, written by the app at `appVersion`: its id and
+ * The whole record of a player preset, written by the app at `appVersion`: its id and
  * name, the ten controls in preset order, the seven levels in figure order, its Seventh chords
  * level, at any level, by chord family id, and its restriction. A built-in preset or an empty app
  * version is a caller defect and throws: a built-in is never stored, and no app could read a
@@ -165,7 +165,7 @@ const HELD_CONTROL_CATALOGS: {
   arpeggioChaos: { values: ARPEGGIO_CHAOS_VALUES, name: 'Arpeggio chaos' },
 })
 
-/** Intent: whether a value is a plain object, as a stored record or object field is. */
+/** Whether a value is a plain object, as a stored record or object field is. */
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
   const prototype: unknown = Object.getPrototypeOf(value)
@@ -173,7 +173,7 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Intent: one stored control's value when its catalog holds it, else that control's first-load
+ * One stored control's value when its catalog holds it, else that control's first-load
  * value. A value that is not a string is in no catalog, and falls back before the validator,
  * whose refusal message would fail to write a circular or BigInt value. Only the catalog's own
  * refusal falls back; any other error is a defect and is rethrown.
@@ -192,7 +192,7 @@ function heldControl(stored: unknown, key: PresetHeldControlKey): string {
 }
 
 /**
- * Intent: the ten controls of a stored record, each read on its own; a missing or invalid one,
+ * The ten controls of a stored record, each read on its own; a missing or invalid one,
  * or every one when the field is not an object, takes its first-load value.
  */
 function readHeldControls(stored: unknown): PresetHeldControls {
@@ -203,7 +203,7 @@ function readHeldControls(stored: unknown): PresetHeldControls {
 }
 
 /**
- * Intent: the level a record lacks for a figure: Off when the figure did not exist yet at the
+ * The level a record lacks for a figure: Off when the figure did not exist yet at the
  * record's data version (as for an older phrase replay key), otherwise the figure's first-load
  * level, since its absence then makes the field invalid.
  */
@@ -214,7 +214,7 @@ export function missingLevel(figure: FigureId, recordDataVersion: number): Figur
 }
 
 /**
- * Intent: the seven levels of a stored record, each read on its own: a known level is kept, an
+ * The seven levels of a stored record, each read on its own: a known level is kept, an
  * unknown or ill-typed one takes its first-load level, and a missing one (every one when the
  * field is not an object) reads as `missingLevel` says. Other keys are ignored.
  */
@@ -230,7 +230,7 @@ function readLevels(stored: unknown, recordDataVersion: number): FigureLevels {
 }
 
 /**
- * Intent: the Seventh chords level of a stored record, each chord family read on its own: a known
+ * The Seventh chords level of a stored record, each chord family read on its own: a known
  * level is kept, and a missing, unknown or ill-typed one (every one when the field is missing or
  * not an object) reads Off. Other keys are ignored.
  */
@@ -249,7 +249,7 @@ function readChordFamilies(stored: unknown): ChordFamilies {
 }
 
 /**
- * Intent: one stored restriction half: "any", or the known entries of a stored list, the first
+ * One stored restriction half: "any", or the known entries of a stored list, the first
  * occurrence of each kept in order; an empty result, or anything else, reads "any".
  */
 function readHalf<T extends string>(catalog: readonly T[], stored: unknown): RestrictionHalf<T> {
@@ -263,13 +263,13 @@ function readHalf<T extends string>(catalog: readonly T[], stored: unknown): Res
   return first === undefined ? 'any' : [first, ...rest]
 }
 
-/** Intent: a stored restriction, half by half; a missing or ill-typed one reads any key and mode. */
+/** A stored restriction, half by half; a missing or ill-typed one reads any key and mode. */
 function readRestriction(stored: unknown): KeyAndModeRestriction {
   if (!isPlainRecord(stored)) return ANY_KEY_AND_MODE
   return { keys: readHalf(PITCH_CLASSES, stored.keys), modes: readHalf(COLLECTIONS, stored.modes) }
 }
 
-/** Intent: a stored name when it is one a player could save, trimmed; null for a missing one. */
+/** A stored name when it is one a player could save, trimmed; null for a missing one. */
 function readName(stored: unknown): string | null {
   if (typeof stored !== 'string') return null
   const check = checkPresetName(stored, [])
@@ -280,7 +280,7 @@ function readName(stored: unknown): string | null {
 type ReadRecord = Omit<Preset, 'name' | 'kind'> & { readonly name: string | null }
 
 /**
- * Intent: the stored value of one entry when it can be read at all at `dataVersion`, null
+ * The stored value of one entry when it can be read at all at `dataVersion`, null
  * otherwise: not a record, a damaged envelope or one of another data version, or an id that is
  * missing, not the entry's key or a built-in's.
  */
@@ -296,7 +296,7 @@ function readableValue(entry: StoredEntry, dataVersion: number): Record<string, 
 }
 
 /**
- * Intent: the fields of one stored entry, or null when it cannot be read at all: not a record, a
+ * The fields of one stored entry, or null when it cannot be read at all: not a record, a
  * damaged, earlier or newer envelope, or an id that is missing, not the entry's key or a
  * built-in's.
  */
@@ -314,7 +314,7 @@ function readRecord(entry: StoredEntry): ReadRecord | null {
   }
 }
 
-/** Intent: the player preset of a readable record, under the name it loads with. */
+/** The player preset of a readable record, under the name it loads with. */
 function playerPreset(record: ReadRecord, name: string): Preset {
   return makePreset({ ...record, name, kind: 'player' })
 }
@@ -330,7 +330,7 @@ export type CarriedOverPresetRecord = RecordVersions & {
 } & Readonly<Record<string, unknown>>
 
 /**
- * Intent: the data version 5 record of a data version 3 one, v3.1's or v3.2's, stored under `key`,
+ * The data version 5 record of a data version 3 one, v3.1's or v3.2's, stored under `key`,
  * as the upgrade step to data version 5 writes it by `appVersion`: every field it stored kept as
  * it is, never read and written again, so nothing a tolerant read would change is changed, with
  * the Seventh chords level at Off and the upgrading app's envelope. Null for a record the codec
@@ -358,7 +358,7 @@ export function carriedOverPresetRecord(
 }
 
 /**
- * Intent: the player presets of the `presets` store's entries, in entry order, each read on its
+ * The player presets of the `presets` store's entries, in entry order, each read on its
  * own and field by field. An entry that cannot be read at all is not listed, with no notice, and
  * is never changed. A missing name becomes a numbered one: each nameless preset, in entry order,
  * takes the first suggested name no built-in, named or already numbered preset has. Each player

@@ -79,12 +79,12 @@ const staffEl = ref<HTMLElement | null>(null)
 const laneSource = shallowRef<PlayedNotesLaneSource | null>(null)
 let unmounted = false
 
-/** Intent: the review staff's reserved block size, its lanes' included while Played notes is on. */
+/** The review staff's reserved block size, its lanes' included while Played notes is on. */
 // @spec-link [[module_review_played_notes_lane]]
 const staffStyle = computed(() => reviewStaffStyle(props.reservation, props.playedNotesShown))
 
 /**
- * Intent: the lanes to render under the positions while Played notes is on, none otherwise: drawn
+ * The lanes to render under the positions while Played notes is on, none otherwise: drawn
  * from the kept engraving and the record's played notes on the session's pitch scale, so turning
  * the switch on after engraving draws them at once without engraving again; blank while the phrase
  * holds no engraving. Every bar looks the same: nothing marks a note matched or not.
@@ -103,7 +103,7 @@ const lanes = computed((): PlayedNotesLaneView[] => {
   })
 })
 
-/** Intent: the reserved positions, top first, each with its lane, if one is rendered. */
+/** The reserved positions, top first, each with its lane, if one is rendered. */
 const positionSlots = computed(() =>
   Array.from({ length: props.reservation?.positionCount ?? 0 }, (_, index) => ({
     position: index === 0 ? 'top' : 'bottom',
@@ -115,14 +115,14 @@ onBeforeUnmount(() => {
   unmounted = true
 })
 
-/** Intent: the reserved positions rendered in the review staff now, top first. */
+/** The reserved positions rendered in the review staff now, top first. */
 function renderedPositions(): HTMLElement[] {
   const staff = staffEl.value
   if (staff === null) return []
   return Array.from(staff.querySelectorAll<HTMLElement>(':scope > [data-system-position]'))
 }
 
-/** Intent: the reserved positions on screen now, crashing if they disagree with the reservation. */
+/** The reserved positions on screen now, crashing if they disagree with the reservation. */
 function positionHosts(reservation: ReviewStaffReservation): HTMLElement[] {
   const hosts = renderedPositions()
   if (hosts.length !== reservation.positionCount) {
@@ -131,14 +131,14 @@ function positionHosts(reservation: ReviewStaffReservation): HTMLElement[] {
   return hosts
 }
 
-/** Intent: blank every reserved position and its lane. */
+/** Blank every reserved position and its lane. */
 function clearPositions(): void {
   laneSource.value = null
   renderedPositions().forEach((host) => host.replaceChildren())
 }
 
 /**
- * Intent: give the top system's SVG the phrase's accessible name, and hide the split layout's
+ * Give the top system's SVG the phrase's accessible name, and hide the split layout's
  * bottom system, which the same name covers, as the workspace staff does.
  */
 function labelSystems(svgs: readonly SVGSVGElement[], summary: string): void {
@@ -149,7 +149,7 @@ function labelSystems(svgs: readonly SVGSVGElement[], summary: string): void {
 }
 
 /**
- * Intent: draw the phrase as it was shown, its written phrase computed from the stored outcome and
+ * Draw the phrase as it was shown, its written phrase computed from the stored outcome and
  * intent only now, in the clef the record carries, into a new `staff-content` in each reserved
  * position, at the review staff's content width in the current viewport and shared system-position
  * size, replacing what was there. A layout failure (no room, or notes too wide at this width) shows
@@ -210,14 +210,14 @@ async function engrave(engraver: ReviewEngraver): Promise<ReviewEngravingOutcome
   }
 }
 
-/** Intent: show the "couldn't be drawn" note without drawing (the engraver failed to load). */
+/** Show the "couldn't be drawn" note without drawing (the engraver failed to load). */
 // @spec-link [[req_last_session_review]]
 function showFailure(): void {
   clearPositions()
   note.value = 'failed'
 }
 
-/** Intent: remove the engraving or note, leaving the reserved space blank. */
+/** Remove the engraving or note, leaving the reserved space blank. */
 // @spec-link [[req_last_session_review]]
 function release(): void {
   clearPositions()

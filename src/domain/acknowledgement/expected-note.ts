@@ -61,7 +61,7 @@ export interface PhrasePlacement {
 }
 
 /**
- * Intent: list a phrase's expected notes in time order, on the audio clock. Rejects a placement
+ * List a phrase's expected notes in time order, on the audio clock. Rejects a placement
  * with a phrase number below 1 or not whole, a start time that is not a finite number, or a tempo
  * that is not a positive finite number; rejects a phrase whose tie continuation follows a rest or
  * opens the phrase, or carries a different pitch from the note it continues. Never guesses around
@@ -106,7 +106,7 @@ export function deriveExpectedNotes(
   return deepFreeze(notes)
 }
 
-/** Intent: reject a phrase number, start time or tempo that cannot place a phrase on the clock. */
+/** Reject a phrase number, start time or tempo that cannot place a phrase on the clock. */
 function assertPlacement(placement: PhrasePlacement): void {
   if (!Number.isInteger(placement.phraseNumber) || placement.phraseNumber < 1) {
     throw new ExpectedNoteDerivationError(
@@ -126,7 +126,7 @@ function assertPlacement(placement: PhrasePlacement): void {
 }
 
 /**
- * Intent: the conversion from a position in the phrase, in whole notes from its first downbeat,
+ * The conversion from a position in the phrase, in whole notes from its first downbeat,
  * to the audio clock. In 4/4 a whole note is four quarter-note beats, so it lasts 240 / tempo
  * seconds.
  */
@@ -138,7 +138,7 @@ function wholeNotesToSeconds(placement: PhrasePlacement): (position: Rational) =
 }
 
 /**
- * Intent: lengthen the sounding note a tie continuation belongs to, so its sounding span ends
+ * Lengthen the sounding note a tie continuation belongs to, so its sounding span ends
  * where the continuation ends. Rejects a continuation with no note sounding just before it (it
  * opens the phrase or follows a rest) or at a different pitch from that note.
  */

@@ -57,7 +57,7 @@ describe('verify-boundaries source scan over the fixture tree', () => {
     scan = await scanSourceBoundaries(fixtureSourceRoot)
   })
 
-  /** Intent: the boundaries one fixture file breaks; throws if the scan never saw that file. */
+  /** The boundaries one fixture file breaks; throws if the scan never saw that file. */
   function boundariesOf(file: string): string[] {
     if (!scan.files.includes(file)) {
       throw new Error(`fixture ${file} was not scanned; scanned: ${scan.files.join(', ')}`)
@@ -284,7 +284,7 @@ describe('verify-boundaries build-output check for audio and sample assets', () 
 describe("verify-boundaries Jam's code boundary over the build's module graph", () => {
   type ModuleGraph = Awaited<ReturnType<typeof readModuleGraph>>
 
-  /** Intent: one module-graph fixture, parsed. */
+  /** One module-graph fixture, parsed. */
   async function moduleGraphFixture(name: string): Promise<ModuleGraph> {
     return JSON.parse(await readFile(new URL(name, moduleGraphFixtures), 'utf8')) as ModuleGraph
   }
@@ -345,7 +345,7 @@ describe("verify-boundaries Jam's code boundary over the build's module graph", 
 describe('verify-boundaries first-load budget: all JavaScript loaded at startup', () => {
   type ModuleGraph = Awaited<ReturnType<typeof readModuleGraph>>
 
-  /** Intent: one graph chunk with no modules, which the startup total does not read. */
+  /** One graph chunk with no modules, which the startup total does not read. */
   function chunk(
     fileName: string,
     isEntry: boolean,

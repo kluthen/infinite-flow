@@ -1,113 +1,126 @@
-# Upsilon — Universal Coding Standard
+# Coding Standard
 
-**Scope:** every Upsilon project — the umbrella and *all* submodules (`upsilonhub`,
-`upsilonapi`, `upsilonbattleui`, `upsiloncli`, `upsilonbattle`, `upsilonmapmaker`, tooling, and
-every service that spawns during v3.0). These rules are **transverse**: they hold regardless of
-which repo, language, or layer you are in. They go **beyond ATD** (which governs *documentation
-traceability*); this doc governs *how code is written and changed*.
+**Scope:** any project, any language, any layer. These rules govern *how code is written and
+changed*. What the product must do, and why, lives in the project's declared intent (§1), never in
+this file and never in code comments.
 
-> **Precedence.** **This file is the canonical source for the universal principles below**; any
-> other document that restates one of them wins only on local mechanics, never on the principle
-> itself.
+> **Precedence.** This file is the canonical source for the principles below. A project document
+> may set local mechanics (commands, paths, thresholds, tool names) and wins on those only, never on
+> the principle itself.
 
 The seven non-negotiables. Each is **MUST/NEVER**, not a preference.
 
-## 1. ATD adherence
+## 1. Declared intent adherence
 
-- **No business-layer code change without its ATD anchor.** Before altering a MECHANIC/REQUIREMENT
-  behavior, the governing atom must exist and be settled. Follow the `atd-pre-code-change` flow.
-- **One CONTRACT + one VISION atom per project** — not size-constrained, settled *before* any
-  business atom of that project changes. A project never holds `contract_x` + `contract_y`; if two
-  things need separate contracts, they are two projects.
-- Every source file that carries business behaviour carries ≥1 ATD link (`@spec-link`/`@test-link`),
-  atop the exact function/type — never on package/file headers. Test files use `@test-link` only.
-  No phantom links.
-- **ATD is for business behaviour only.** Tooling, scripts, debug, logging, diagnostics, app
-  bootstrap and test plumbing (fixtures, harnesses, shared helpers) stand outside it: they get no
-  atoms and need no links. They still follow every other rule in this file.
-- **Games never import games.** Cross-game influence flows only through platform state, shared
-  vocabularies (item/effects/events), or the event bus — enforced by the import-boundary lint.
+A project declares its intent in one of two backends, named in its `CLAUDE.md` / `AGENTS.md`:
+**ATD** (atoms in `docs/*.atom.md`, code links `@spec-link` / `@test-link`) or the **intent
+register** (entries in `intent/*.md`, code links `@intent <id>`). A project with neither skips this
+section until one is started.
 
-## 2. Observability — OpenTelemetry native, from day one
+- **No business behaviour change without its governing intent.** Before altering business
+  behaviour, the atom or entry that governs it must exist and be settled. Leaders gate every change
+  through `documentalist` (skill `intent-gating-protocol`).
+- **One Contract and one Vision per project**, settled *before* any business intent of that project
+  changes. If two things need separate contracts, they are two projects.
+- Every source file that carries business behaviour carries ≥1 intent link, atop the exact
+  function/type — never on package/file headers. Test files use test links only (`@test-link` in
+  ATD). No phantom links.
+- **Declared intent is for business behaviour only.** Tooling, scripts, debug, logging,
+  diagnostics, app bootstrap and test plumbing (fixtures, harnesses, shared helpers) stand outside
+  it: they get no intent and need no links. They still follow every other rule in this file.
+- **The link is the only place code carries intent.** A comment never restates the purpose or the
+  rule of the intent it links (see §6).
+- **Module boundaries the project declares are enforced by a check** (an import-boundary lint or
+  equivalent), not by convention.
 
-- **Every new service is born instrumented.** Greenfield instrumentation is near-free; retrofitting
-  mature code is expensive. Do not defer it to "later."
-- Instrument all three edges: **HTTP** (`otelgin`/`otelhttp`), **DB** (`otelpgx`), and **outbound
-  clients** (`otelhttp` transport). Export **OTLP** to the shared collector.
-- **Propagate W3C `traceparent`** across every service hop; map the existing `X-Request-ID` ⇄
-  `traceparent` and record `upsilon.request_id` as a span attribute. Correlation must survive
-  service boundaries (and the future HTTP→MQ swap, where it becomes message metadata).
-- **Never call `time.Now()` directly and never spawn ad-hoc goroutines/tickers for scheduled work.**
-  Time comes from the injected world clock (fakeable in tests); scheduled work goes through the
-  durable job queue. This is what makes idle/narrative mechanics testable and restart-safe.
-- **Known debt:** only `upsilonhub` is instrumented today; `upsilonapi` and the rest are not. New
-  code does not add to that debt — instrument as you touch a service.
+## 2. Observability and determinism
+
+- **Every new service is born instrumented** with the project's tracing standard (OpenTelemetry
+  unless the project says otherwise): inbound requests, data stores and outbound calls. Retrofitting
+  is expensive; do not defer it to "later", and do not add to existing debt — instrument what you
+  touch.
+- **Correlation survives every hop.** Propagate the trace context (W3C `traceparent`) and the
+  request id across each service or message boundary.
+- **Core logic takes time and randomness as injected sources**, fakeable in tests; only boundary
+  code reads the real clock or random generator. Behaviour that must be reproducible (seeded
+  generation, replays) is reproducible from its inputs alone.
+- **Scheduled work goes through the project's durable mechanism**, never an ad-hoc timer, ticker
+  or background loop, so it survives restarts and can be tested.
 
 ## 3. Crash early, fail fast
 
 - **Defaulting hides critical errors.** No silent failures, no catch-all default values in core
-  logic to "keep things running." A clear panic/rejection beats undefined behavior.
+  logic to "keep things running." A clear rejection or exception beats undefined behaviour.
 - Validate inputs at the boundary and reject the invalid loudly. Where garbage input can only mean a
-  caller bug, let it surface (panic → recovery 500) rather than papering over it.
-- Errors are values to handle or propagate, never to swallow. No empty `catch`/`_ = err`.
+  caller bug, let it surface rather than papering over it.
+- Errors are values to handle or propagate, never to swallow. No empty `catch`, no discarded error.
 
 ## 4. Strict contract adherence — no defaulting to save the day
 
 - **Honor the API/interface contract exactly.** Do not invent fallbacks, coerce types, or fill
-  missing fields to make a call "work." If the contract is violated, fail per the contract — do not
-  rescue it with a guessed default. (Parity work is byte-level: reproduce the documented behavior,
-  quirks included, rather than "improving" it silently.)
-- The response **envelope** (`{request_id, message, success, data, meta}`) is a hard contract. Never
-  modify serialization or the bridge/API contract without an explicit user-approved warning, and
-  a matching update to `communication.md`, Postman, and the relevant ATD atoms.
-- Cross-service references are **by UUID through the owning domain's interface** — never a reach
-  across a seam (no cross-schema joins, no reading another domain's tables) to shortcut a contract.
-- **DTOs must never use `any`/`interface{}` fields for input or output.** Every field must have a
-  concrete type describing its structure.
+  missing fields to make a call "work." If the contract is violated, fail per the contract. Parity
+  work reproduces the documented behaviour, quirks included, rather than "improving" it silently.
+- **Never change a public contract** (an API, a wire or storage format, a serialization envelope)
+  without the user's explicit approval, and update its documentation and governing intent in the
+  same change.
+- Cross-module and cross-service references go **through the owning module's interface** — never a
+  reach across a seam (another module's internals, another domain's tables) to shortcut a contract.
+- **Boundary types are concrete.** Inputs and outputs that cross a module or service boundary never
+  use an escape type (`any`, `interface{}`, untyped maps); every field has a type describing its
+  structure.
 
 ## 5. Test-first when fixing bugs
 
 - **Reproduce the error as a test before fixing it.** On any new bug, first write a test at the
   nearest concerned module that fails *because of* the bug. Only then make it pass. The test is the
   proof the bug existed and the guard that it stays dead.
-- Tests exercise production code — **no test-only branches in production files** (rare observability
-  exceptions only). Feature tests hit real dependencies; only external engines are doubled.
-- Prefer targeted runs (`scripts/trigger_one_ci_test.sh`, unit suites) over the full destructive CI
-  sweep.
+- Tests exercise production code — **no test-only branches in production files** (rare
+  observability exceptions only). Only external engines and services are doubled.
+- Prefer targeted runs (one spec, one suite) over the full sweep while iterating; the full suite
+  runs before the change is called done.
 
 ## 6. Code health — zero-error standard
 
-Enforced by `scripts/code-health-check.mjs`; treat its errors as blocking.
+Enforced by the project's health checker; treat its errors as blocking. The thresholds below are the
+defaults; a project changes them only in its checker's configuration, with the reason written there.
 
 - **File size:** warn >400 effective LOC, error >600. Split along domain seams before trimming.
 - **Nesting depth:** ≤4 levels; refactor beyond.
-- **Doc density:** every function has an intent comment; missing docs on exported functions is an
-  error. Match the surrounding file's comment density and idiom.
-- **ATD density:** ≥1 link per business file, ≤10 distinct atoms (warn >5 distinct); repeated links
-  to the same atom count once. Files outside ATD scope (§1) are exempt. Bypass tokens (`@lint-ignore-*`) are for genuine exceptions (third-party/generated
-  code), not for silencing your own.
+- **Doc comments:** every function has a doc comment; a missing one on an exported function is an
+  error. The comment says what the function does for whoever calls or changes it: what it takes,
+  what it returns, its side effects, what it assumes and how it fails. Start with that description
+  itself — no label such as `Intent:`, `Purpose:` or `Summary:`. Match the surrounding file's
+  comment density and idiom.
+- **Comments never restate declared intent.** The business purpose and rules live in the linked
+  atom or entry; a comment that copies them drifts unnoticed, because intent syncs compare the
+  record with the code, never with its comments. Write what the code does and how; let the link
+  carry why.
+- **Intent link density:** ≥1 link per business file, ≤10 distinct atoms or entries (warn >5
+  distinct); repeated links to the same id count once. Files outside intent scope (§1) are exempt.
+  Bypass tokens are for genuine exceptions (third-party or generated code), never for silencing your
+  own.
 
 ## 7. Change discipline
 
-- **Docs move with code.** Any change to an API path/payload/behavior updates `communication.md`,
-  Postman, and the ATD atom in the same change. Observability and contracts docs likewise.
+- **Docs move with code.** Any change to an API path, payload or behaviour updates its API
+  documentation and the governing intent in the same change. Observability and contract docs
+  likewise.
 - **Documentation is self-sufficient — no external references.** No doc (in-code comment, README,
-  `communication.md`, ATD atom, architecture doc, anything under `.agent/`) may point a reader at
-  issues, failure reports, tickets, PRs, chat threads, or other out-of-band material to understand
-  it. A doc must stand on its own for whoever reads it next, without chasing a link that may be
-  stale, private, or gone. The only exception is a **hard link between parts of the same split
-  document** (an index linking to its subject files, a subject file linking back to its index) —
-  never a link out to a different kind of artifact.
-- Commit/push only when asked; branch off the default branch first. Binaries go to `bin/` (git-
-  ignored), never committed.
-- **New features and major updates start in a new git worktree**, not the checked-out working
-  copy. Isolates in-progress feature/refactor work from whatever else is live in the primary
-  checkout, and keeps the umbrella + submodule tree clean for concurrent work. Small fixes and
-  targeted bug patches don't need one — use judgment on "major."
+  API doc, intent record, architecture doc) may point a reader at issues, failure reports, tickets,
+  PRs, chat threads, or other out-of-band material to understand it. A doc must stand on its own for
+  whoever reads it next, without chasing a link that may be stale, private, or gone. The only
+  exception is a **hard link between parts of the same split document** (an index linking to its
+  subject files, a subject file linking back to its index) — never a link out to a different kind
+  of artifact.
+- Commit/push only when asked; branch off the default branch first. Build outputs and binaries are
+  never committed.
+- **New features and major updates start in a new git worktree**, not the checked-out working copy,
+  so in-progress work stays isolated from whatever else is live in the primary checkout. Small fixes
+  and targeted bug patches don't need one — use judgment on "major."
 - Report outcomes faithfully — if a test fails or a step was skipped, say so with the evidence.
 
 ---
 
 *When in doubt: crash loud, honor the contract, write the test first, keep the trace flowing, and
-anchor it in ATD. If a rule seems to force worse code, raise it with the user — do not quietly
-route around it.*
+anchor behaviour in declared intent — never in a comment. If a rule seems to force worse code, raise
+it with the user — do not quietly route around it.*

@@ -109,7 +109,7 @@ interface ReplayKeyFields {
 }
 
 /**
- * Intent: decode a strict, canonical, unpadded base64url payload into bytes, rejecting any other
+ * Decode a strict, canonical, unpadded base64url payload into bytes, rejecting any other
  * character, any padding, an impossible length or non-zero trailing bits.
  */
 function base64UrlToBytes(payload: string): Uint8Array {
@@ -127,7 +127,7 @@ function base64UrlToBytes(payload: string): Uint8Array {
   return bytes
 }
 
-/** Intent: decode strict UTF-8 bytes and parse them as JSON, as a typed failure when either fails. */
+/** Decode strict UTF-8 bytes and parse them as JSON, as a typed failure when either fails. */
 function parsePayloadJson(bytes: Uint8Array): unknown {
   let text: string
   try {
@@ -142,12 +142,12 @@ function parsePayloadJson(bytes: Uint8Array): unknown {
   }
 }
 
-/** Intent: whether a decoded value is a plain, non-null, non-array JSON object. */
+/** Whether a decoded value is a plain, non-null, non-array JSON object. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/** Intent: whether a value is my instrument's entry: a name then four numbers, nothing else. */
+/** Whether a value is my instrument's entry: a name then four numbers, nothing else. */
 function isMyInstrumentEntry(value: unknown): boolean {
   return (
     Array.isArray(value) &&
@@ -157,37 +157,37 @@ function isMyInstrumentEntry(value: unknown): boolean {
   )
 }
 
-/** Intent: whether a value is a JSON string. */
+/** Whether a value is a JSON string. */
 function isString(value: unknown): boolean {
   return typeof value === 'string'
 }
 
-/** Intent: whether a value is a JSON number. */
+/** Whether a value is a JSON number. */
 function isNumber(value: unknown): boolean {
   return typeof value === 'number'
 }
 
-/** Intent: whether a value is a JSON boolean. */
+/** Whether a value is a JSON boolean. */
 function isBoolean(value: unknown): boolean {
   return typeof value === 'boolean'
 }
 
-/** Intent: whether a value is the controls array, one value per control in the codec's order. */
+/** Whether a value is the controls array, one value per control in the codec's order. */
 function isControlValues(value: unknown): boolean {
   return Array.isArray(value) && value.length === PHRASE_REPLAY_KEY_CONTROL_ORDER.length
 }
 
-/** Intent: whether a value is a carry-in slot's: a plain object, or null for none. */
+/** Whether a value is a carry-in slot's: a plain object, or null for none. */
 function isCarryInOrNull(value: unknown): boolean {
   return value === null || isPlainObject(value)
 }
 
-/** Intent: whether a value is an `ifk3.` to `ifk5.` my-instrument slot's: an entry, or null. */
+/** Whether a value is an `ifk3.` to `ifk5.` my-instrument slot's: an entry, or null. */
 function isMyInstrumentEntryOrNull(value: unknown): boolean {
   return value === null || isMyInstrumentEntry(value)
 }
 
-/** Intent: whether a value is an `ifk4.` or `ifk5.` group slot's: a plain object, or null. */
+/** Whether a value is an `ifk4.` or `ifk5.` group slot's: a plain object, or null. */
 function isGroupOrNull(value: unknown): boolean {
   return value === null || isPlainObject(value)
 }
@@ -237,7 +237,7 @@ const TUPLE_SLOTS_BY_VERSION: Readonly<Record<PhraseReplayKeyVersion, readonly T
 }
 
 /**
- * Intent: check the decoded JSON is its version's tuple (seven entries for `ifk1` and `ifk3`,
+ * Check the decoded JSON is its version's tuple (seven entries for `ifk1` and `ifk3`,
  * eight for `ifk2`, nine for `ifk4`, ten for `ifk5`) with the right slot types, naming any faulty
  * slot.
  */
@@ -260,7 +260,7 @@ function requireTuple(value: unknown, version: PhraseReplayKeyVersion): readonly
 }
 
 /**
- * Intent: the levels an `ifk1` or `ifk2` key's musical profile name gives through
+ * The levels an `ifk1` or `ifk2` key's musical profile name gives through
  * `levelsForProfile`, whatever its customized flag; a name that is no musical profile is refused
  * naming slot 3.
  */
@@ -277,7 +277,7 @@ function profileSlotLevels(name: string): FigureLevels {
 }
 
 /**
- * Intent: the levels an `ifk3` key stores in slot 3, read through the figure-levels parser; a
+ * The levels an `ifk3` key stores in slot 3, read through the figure-levels parser; a
  * missing or unknown figure, or an unknown level, is refused naming slot 3 and the reason.
  */
 // @spec-link [[module_phrase_replay_key]]
@@ -296,7 +296,7 @@ function levelsSlotLevels(value: unknown): FigureLevels {
 }
 
 /**
- * Intent: an `ifk5` key's chord families (slot 9), read through the chord families' parser; an
+ * An `ifk5` key's chord families (slot 9), read through the chord families' parser; an
  * unknown capability, a missing one, or an unknown level of a known one is refused naming slot 9
  * and the reason, rather than replayed without it.
  */
@@ -315,7 +315,7 @@ function chordFamiliesSlot(value: unknown): ChordFamilies {
 }
 
 /**
- * Intent: an `ifk4` or `ifk5` key's rhythm lock group (slot 7) or steering block (slot 8), read through the
+ * An `ifk4` or `ifk5` key's rhythm lock group (slot 7) or steering block (slot 8), read through the
  * domain's own parser when not null; a malformed group is refused naming its slot and the reason.
  */
 // @spec-link [[module_phrase_replay_key]]
@@ -341,7 +341,7 @@ function groupSlot<Group>(
 }
 
 /**
- * Intent: read a checked tuple's owning fields by its version's slot order: an `ifk3`, `ifk4` or
+ * Read a checked tuple's owning fields by its version's slot order: an `ifk3`, `ifk4` or
  * `ifk5` key's levels from slot 3 and its my-instrument entry or null from slot 6, an `ifk4` or
  * `ifk5` key's rhythm lock group and steering block from slots 7 and 8, an `ifk5` key's chord
  * families from slot 9; an `ifk1` or `ifk2` key's levels from its profile name, its my-instrument
@@ -380,7 +380,7 @@ function fieldsOf(tuple: readonly unknown[], version: PhraseReplayKeyVersion): R
 }
 
 /**
- * Intent: split a trimmed key into its version and payload, rejecting a missing prefix or a
+ * Split a trimmed key into its version and payload, rejecting a missing prefix or a
  * version other than `ifk1` to `ifk5`.
  */
 function keyParts(key: string): {
@@ -405,7 +405,7 @@ function keyParts(key: string): {
 }
 
 /**
- * Intent: why a key's my-instrument entry disagrees with the instrument its controls name: an
+ * Why a key's my-instrument entry disagrees with the instrument its controls name: an
  * `ifk1` key cannot name my instrument, an `ifk2` key must, and an `ifk3`, `ifk4` or `ifk5` key
  * holds my instrument's entry exactly when its controls name it, `null` otherwise.
  */
@@ -428,7 +428,7 @@ function instrumentMismatchMessage(
 }
 
 /**
- * Intent: the instrument-profile field a key supplies to the intent rebuild. A key naming a
+ * The instrument-profile field a key supplies to the intent rebuild. A key naming a
  * built-in, whose profile its id gives, must hold no my-instrument entry; a key naming my
  * instrument must hold one, from which its profile is rebuilt by the protocol's own my-instrument
  * derivation (no clef). A disagreement is refused as the version words it; the derivation's
@@ -455,7 +455,7 @@ function suppliedInstrumentProfile(
 }
 
 /**
- * Intent: read an `ifk5` key's carry-in as the worker reads it: either origin, its carried chord a
+ * Read an `ifk5` key's carry-in as the worker reads it: either origin, its carried chord a
  * triad or a triad holding its same-degree seventh, the seventh's stack and quality checked and its
  * fit judged by the triad, as the triad's is.
  */
@@ -466,7 +466,7 @@ function parseCarryInTakingSeventh(input: unknown): CarryIn {
 }
 
 /**
- * Intent: the carry-in parser a key's version reads with: an `ifk5` key's carry-in may come from a
+ * The carry-in parser a key's version reads with: an `ifk5` key's carry-in may come from a
  * phrase or from no phrase, its carried chord may hold its seventh; an `ifk4` key's either origin,
  * its carried chord a triad only; an older key's only from a phrase, in v3.1's exact form.
  */
@@ -478,7 +478,7 @@ function carryInReaderFor(version: PhraseReplayKeyVersion): (input: unknown) => 
 }
 
 /**
- * Intent: decode a phrase replay key of any of the five versions back into the exact generation
+ * Decode a phrase replay key of any of the five versions back into the exact generation
  * intent and phrase number. The prefix and version are checked first, then the base64url, UTF-8,
  * JSON and the version's tuple shape (each a PhraseReplayKeyError), then the levels (an `ifk3` to
  * `ifk5` key's through the figure-levels parser, an older key's profile name through

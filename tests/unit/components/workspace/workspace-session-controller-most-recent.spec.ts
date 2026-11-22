@@ -26,7 +26,7 @@ import {
   type ControllerRigOptions,
 } from './session-controller-rig'
 
-/** Intent: a rig whose first session sounded `phrases` phrases, then ended by Stop. */
+/** A rig whose first session sounded `phrases` phrases, then ended by Stop. */
 async function afterSoundedEnd(
   phrases: number,
   options: ControllerRigOptions,
@@ -39,12 +39,12 @@ async function afterSoundedEnd(
   return rig
 }
 
-/** Intent: a promise and the function that settles it, for a save the test resolves by hand. */
+/** A promise and the function that settles it, for a save the test resolves by hand. */
 function deferredOutcome(): {
   promise: Promise<SessionSaveOutcome>
   settle: (outcome: SessionSaveOutcome) => void
 } {
-  /** Intent: settle the save; replaced once the save's promise exists. */
+  /** Settle the save; replaced once the save's promise exists. */
   let settle: (outcome: SessionSaveOutcome) => void = () => {
     throw new Error('the save was never asked for')
   }
@@ -135,7 +135,7 @@ interface LoadedKept {
   readonly pinned: boolean
 }
 
-/** Intent: the kept sessions' summaries and a read of their records, as a reload gives them. */
+/** The kept sessions' summaries and a read of their records, as a reload gives them. */
 function reloadedKept(sessions: readonly LoadedKept[]) {
   const stored = new Map(
     sessions.map(({ key, history, startedAt, pinned }) => [

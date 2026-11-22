@@ -45,19 +45,19 @@ function inputOf(key: string): RhythmExpansionInput {
   } as RhythmExpansionInput
 }
 
-/** Intent: the number of gestures a setting's derivation visits, skipped ones included. */
+/** The number of gestures a setting's derivation visits, skipped ones included. */
 function gestureCount(input: RhythmExpansionInput): number {
   return [...enumerateGestureDerivations(normalizeRhythmExpansionInput(input))].length
 }
 
-/** Intent: step a builder until it completes; the number of steps run. */
+/** Step a builder until it completes; the number of steps run. */
 function buildToEnd(builder: RhythmDomainBuilder): number {
   let steps = 1
   while (!builder.step()) steps += 1
   return steps
 }
 
-/** Intent: run a fresh builder of one setting to completion; its step count and result. */
+/** Run a fresh builder of one setting to completion; its step count and result. */
 function buildStepped(input: RhythmExpansionInput) {
   const builder = createRhythmDomainBuilder(input)
   const steps = buildToEnd(builder)

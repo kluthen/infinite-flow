@@ -87,7 +87,7 @@ const NO_CHANGE: RhythmChangeDraw = deepFreeze({ changes: false })
 const NO_CANDIDATES: readonly RhythmChangeCandidate[] = deepFreeze([])
 
 /**
- * Intent: the hash tie key of the draw: FNV-1a 32-bit over the versioned prefix and the seed's
+ * The hash tie key of the draw: FNV-1a 32-bit over the versioned prefix and the seed's
  * documented string encoding, unsigned.
  */
 // @spec-link [[module_rhythm_change_draw]]
@@ -97,7 +97,7 @@ export function rhythmChangeHash(seed: Seed): number {
 }
 
 /**
- * Intent: whether a phrase draws a change: when the top 16 bits of its tie key fall under the
+ * Whether a phrase draws a change: when the top 16 bits of its tie key fall under the
  * share, 1 in 2, or 3 in 4 on a tenser phrase. Reads nothing but the seed and the flag.
  */
 // @spec-link [[module_rhythm_change_draw]]
@@ -108,7 +108,7 @@ export function isRhythmChangeDrawn(seed: Seed, tenserPhrase: boolean): boolean 
 }
 
 /**
- * Intent: the lookup keys of a rhythm, from its four measure keys: for each measure, the other
+ * The lookup keys of a rhythm, from its four measure keys: for each measure, the other
  * three (a change inside that measure keeps them); for each gesture and answer pair, the other two
  * (a repeated change keeps them). A measure key is never empty, so the blank marks the free place.
  */
@@ -133,7 +133,7 @@ const changeIndexes = new WeakMap<
 >()
 
 /**
- * Intent: a domain's bar keys grouped by lookup key, built on first use and then shared; one
+ * A domain's bar keys grouped by lookup key, built on first use and then shared; one
  * entry per distinct bar key, so candidates written alike are grouped once. The list must be
  * frozen, as the canonical domain memo's lists are.
  */
@@ -154,7 +154,7 @@ function changeIndexOf(domain: readonly RhythmCandidate[]): ReadonlyMap<string, 
 }
 
 /**
- * Intent: the candidates whose written bars differ from the locked bars by exactly one change of
+ * The candidates whose written bars differ from the locked bars by exactly one change of
  * an allowed kind, always measured from the locked bars, every allowed kind pooled, in seeded
  * order. Each bar key sharing the locked bars' other measures is compared once, and candidates
  * written alike come together. Locked bars missing from the domain are matched by their bars.
@@ -194,7 +194,7 @@ export function rhythmChangeCandidates(
 }
 
 /**
- * Intent: one phrase's draw. None without an allowed kind (nor, at the caller, without locked
+ * One phrase's draw. None without an allowed kind (nor, at the caller, without locked
  * bars); otherwise no change, or a change with its candidates in seeded order, possibly none.
  */
 // @spec-link [[module_rhythm_change_draw]]

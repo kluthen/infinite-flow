@@ -44,24 +44,24 @@ const NOTE_VALUE_TICKS: Readonly<Record<NoteDensity, number>> = {
   Sixteenth: 1,
 }
 
-/** Intent: a note's position: its start in ticks from the start of its measure. */
+/** A note's position: its start in ticks from the start of its measure. */
 function positionOf(note: DoodleNote): number {
   return note.startTick % TICKS_PER_BAR
 }
 
-/** Intent: whether a note starts in the doodle measure `measureIndex` (counted from 0). */
+/** Whether a note starts in the doodle measure `measureIndex` (counted from 0). */
 function startsInMeasure(note: DoodleNote, measureIndex: number): boolean {
   const from = measureIndex * TICKS_PER_BAR
   return note.startTick >= from && note.startTick < from + TICKS_PER_BAR
 }
 
-/** Intent: the doodle's measure indices, 0 to M - 1. */
+/** The doodle's measure indices, 0 to M - 1. */
 function measureIndices(doodle: QuantizedDoodle): number[] {
   return Array.from({ length: doodle.measureCount }, (_, index) => index)
 }
 
 /**
- * Intent: the note density the doodle shows, the finest grid at least a quarter of its note
+ * The note density the doodle shows, the finest grid at least a quarter of its note
  * starts need: Sixteenth when 4 × (starts at an odd position) ≥ n, else Eighth when 4 × (starts
  * at a position not divisible by 4) ≥ n, else Quarter; null (not shown) for fewer than two notes.
  */
@@ -76,7 +76,7 @@ export function doodleNoteDensity(doodle: QuantizedDoodle): NoteDensity | null {
 }
 
 /**
- * Intent: the value, in ticks, of the note density the doodle's readings and rests use: the one
+ * The value, in ticks, of the note density the doodle's readings and rests use: the one
  * it shows (4 for Quarter, 2 for Eighth, 1 for Sixteenth), or the first-visit value's (Quarter's)
  * when it shows none. Never the density a phrase generates with: a Sixteenth read on a narrow
  * screen still counts 1.
@@ -87,7 +87,7 @@ export function doodleNoteValueTicks(doodle: QuantizedDoodle): number {
   return NOTE_VALUE_TICKS[doodleNoteDensity(doodle) ?? DEFAULT_GENERATION_CONTROLS.noteDensity]
 }
 
-/** Intent: which ticks of one doodle measure a note sounds in, a held note's carried ones too. */
+/** Which ticks of one doodle measure a note sounds in, a held note's carried ones too. */
 function soundingTicks(doodle: QuantizedDoodle, measureIndex: number): boolean[] {
   const from = measureIndex * TICKS_PER_BAR
   const sounding = Array.from({ length: TICKS_PER_BAR }, () => false)
@@ -100,7 +100,7 @@ function soundingTicks(doodle: QuantizedDoodle, measureIndex: number): boolean[]
 }
 
 /**
- * Intent: the silences of one doodle measure, each a stretch [startTick, endTick) in which no note
+ * The silences of one doodle measure, each a stretch [startTick, endTick) in which no note
  * sounds; one crossing a barline starts again at the measure's tick 0.
  */
 function measureSilences(doodle: QuantizedDoodle, measureIndex: number): DoodleRest[] {
@@ -119,7 +119,7 @@ function measureSilences(doodle: QuantizedDoodle, measureIndex: number): DoodleR
 }
 
 /**
- * Intent: the rest a silence holds (C5.9): from the first multiple of the note value at which a
+ * The rest a silence holds (C5.9): from the first multiple of the note value at which a
  * whole rest of that value fits in the silence, to the silence's end; none when no such span fits,
  * the shorter silence then being part of the note before it.
  */
@@ -131,7 +131,7 @@ function restIn(silence: DoodleRest, value: number): DoodleRest | null {
 }
 
 /**
- * Intent: the rests of one doodle measure (`measureIndex` from 0), as C5.9 defines them: in each
+ * The rests of one doodle measure (`measureIndex` from 0), as C5.9 defines them: in each
  * silence of the measure, a rest from the first grid tick of the doodle's note value at which a
  * whole rest of that value fits, to the silence's end. A shorter silence, and the part of a
  * silence before that tick, hold none. The one reading both the steering block's rest starts and
@@ -152,7 +152,7 @@ export function doodleMeasureRests(
 }
 
 /**
- * Intent: the rhythmic variety the doodle shows: a gap (from a note's start to the next one's)
+ * The rhythmic variety the doodle shows: a gap (from a note's start to the next one's)
  * counts as the main value when it equals the note value, or is twice it with the note sounding
  * no longer than the value. Strict when every gap does; Slightly varied when 4 × (gaps that do) ≥
  * 3 × (gaps); else Heavily varied. Null (not shown) for fewer than three notes.
@@ -174,7 +174,7 @@ export function doodleRhythmicVariety(doodle: QuantizedDoodle): RhythmicVariety 
 }
 
 /**
- * Intent: whether a note makes its measure syncopated: it starts off the note density's grid
+ * Whether a note makes its measure syncopated: it starts off the note density's grid
  * (under Sixteenth never), or starts off a beat and still sounds at the next beat.
  */
 function isSyncopatedNote(note: DoodleNote, value: number): boolean {
@@ -186,7 +186,7 @@ function isSyncopatedNote(note: DoodleNote, value: number): boolean {
 }
 
 /**
- * Intent: the syncopation the doodle shows: a measure is syncopated when a note starting in it is
+ * The syncopation the doodle shows: a measure is syncopated when a note starting in it is
  * (isSyncopatedNote). Straight when none is; Occasional offbeats when at least one is and 2 ×
  * (syncopated measures) ≤ M; else Active displacement. Null (not shown) for fewer than two notes.
  */
@@ -204,7 +204,7 @@ export function doodleSyncopation(doodle: QuantizedDoodle): Syncopation | null {
 }
 
 /**
- * Intent: R, the ticks of the doodle's rests (doodleMeasureRests), each from its start to its
+ * R, the ticks of the doodle's rests (doodleMeasureRests), each from its start to its
  * silence's end; a silence holding no rest counts nothing.
  */
 // @spec-link [[rule_doodle_silence_density_reading]]
@@ -215,7 +215,7 @@ export function doodleRestTicks(doodle: QuantizedDoodle): number {
 }
 
 /**
- * Intent: the silence density the doodle shows, R scaled to a phrase's four measures against the
+ * The silence density the doodle shows, R scaled to a phrase's four measures against the
  * midpoints between the bands of 4–8, 12–20 and 24–32 ticks: Sparse when 4 × R ≤ 10 × M;
  * Conversational when 4 × R ≤ 22 × M; else Breath-heavy. Null (not shown) for fewer than two notes.
  */
@@ -228,7 +228,7 @@ export function doodleSilenceDensity(doodle: QuantizedDoodle): SilenceDensity | 
 }
 
 /**
- * Intent: the four rhythm values the doodle shows, note density first, before the step to a
+ * The four rhythm values the doodle shows, note density first, before the step to a
  * supported combination; null for each it cannot show.
  */
 // @spec-link [[module_doodle_controls]]

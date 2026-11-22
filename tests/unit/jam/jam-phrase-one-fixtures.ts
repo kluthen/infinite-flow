@@ -14,7 +14,7 @@ export const ONE_MEASURE: readonly BeatNote[] = [
   [65, 3, 1],
 ]
 
-/** Intent: the hand-over the ladder made, failing when none was made. */
+/** The hand-over the ladder made, failing when none was made. */
 export function handover(run: JamRun) {
   const events = run.ladder.flatMap((output) =>
     output.kind === 'session-event' && output.event.kind === 'phrase-one' ? [output.event] : [],
@@ -23,7 +23,7 @@ export function handover(run: JamRun) {
   return events[0]!
 }
 
-/** Intent: phrase 1's attempts as their seed-plan index (the request's retry) and start time. */
+/** Phrase 1's attempts as their seed-plan index (the request's retry) and start time. */
 export function attemptsOf(run: JamRun): [number, number][] {
   return phraseOneRequests(run).map(({ at, request }) => [request.retry, at])
 }

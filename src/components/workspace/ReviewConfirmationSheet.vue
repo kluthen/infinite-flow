@@ -24,7 +24,7 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-/** Intent: the words of the open confirmation, as the sheet shows them. */
+/** The words of the open confirmation, as the sheet shows them. */
 const copy = computed(() => reviewConfirmationCopy(props.confirmation))
 </script>
 

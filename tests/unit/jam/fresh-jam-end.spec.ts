@@ -25,7 +25,7 @@ interface RigJam {
   readonly countInEndsAt: AudioTime
 }
 
-/** Intent: a connected rig with a fresh Jam started under the rig's settings. */
+/** A connected rig with a fresh Jam started under the rig's settings. */
 async function startJam(): Promise<RigJam> {
   const rig = controllerRig()
   await connectKeys(rig)
@@ -37,7 +37,7 @@ async function startJam(): Promise<RigJam> {
   return { rig, jam, countInEndsAt: jam.session.timeline.countInEndsAt }
 }
 
-/** Intent: a one-measure doodle of four quarter notes from the count-in's end, played live. */
+/** A one-measure doodle of four quarter notes from the count-in's end, played live. */
 async function playOneMeasure(run: RigJam): Promise<void> {
   for (const [index, pitch] of [60, 62, 64, 65].entries()) {
     await playTo(run.rig, run.countInEndsAt + index * 0.25 + 0.01)

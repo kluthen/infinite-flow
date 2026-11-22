@@ -40,18 +40,18 @@ const titleId = useId()
 const dialog = ref<HTMLElement | null>(null)
 const wayBack = ref<HTMLButtonElement | null>(null)
 
-/** Intent: a press on the backdrop itself, not inside the sheet, is the way back. */
+/** A press on the backdrop itself, not inside the sheet, is the way back. */
 function handleBackdropClick(event: MouseEvent): void {
   if (event.target === event.currentTarget) emit('cancel')
 }
 
-/** Intent: the sheet's enabled buttons, in order: Close, then the actions. */
+/** The sheet's enabled buttons, in order: Close, then the actions. */
 function tabStops(): HTMLElement[] {
   if (dialog.value === null) throw new Error('confirmation sheet: the dialog is not rendered')
   return Array.from(dialog.value.querySelectorAll<HTMLElement>('button:not([disabled])'))
 }
 
-/** Intent: Tab and Shift+Tab cycle through the sheet's buttons, wrapping at both ends. */
+/** Tab and Shift+Tab cycle through the sheet's buttons, wrapping at both ends. */
 function cycleFocus(direction: 1 | -1): void {
   const stops = tabStops()
   const at = stops.findIndex((stop) => stop === document.activeElement)
@@ -61,7 +61,7 @@ function cycleFocus(direction: 1 | -1): void {
   next.focus()
 }
 
-/** Intent: while the sheet is open, Escape is the way back and Tab stays trapped in it. */
+/** While the sheet is open, Escape is the way back and Tab stays trapped in it. */
 function handleKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     event.preventDefault()
@@ -72,14 +72,14 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 }
 
-/** Intent: on open, listen for Escape and Tab, and put focus on the way back. */
+/** On open, listen for Escape and Tab, and put focus on the way back. */
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
   if (wayBack.value === null) throw new Error('confirmation sheet: the way back is not rendered')
   wayBack.value.focus()
 })
 
-/** Intent: stop listening for keys once the sheet leaves the page. */
+/** Stop listening for keys once the sheet leaves the page. */
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
 })

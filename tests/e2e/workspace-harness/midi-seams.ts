@@ -27,7 +27,7 @@ interface MidiModeParts {
   readonly fake: FakeMidiAccess | null
 }
 
-/** Intent: the MIDI mode the page URL asks for: `?midi=unsupported|real`, or the fake by default. */
+/** The MIDI mode the page URL asks for: `?midi=unsupported|real`, or the fake by default. */
 // @test-link [[req_midi_controller_input]]
 export function harnessMidiMode(search: string): WorkspaceHarnessMidiMode {
   const mode = new URLSearchParams(search).get('midi')
@@ -47,7 +47,7 @@ interface FakeMidiAtLoad {
 const PERMISSIONS: readonly MidiPermissionState[] = ['granted', 'prompt', 'denied']
 
 /**
- * Intent: the fake browser's MIDI state at load from the URL (`?midiPermission=`, `?midiDevices=`
+ * The fake browser's MIDI state at load from the URL (`?midiPermission=`, `?midiDevices=`
  * as a JSON array of `{ id, name, manufacturer }`); none given leaves the fake as a fresh browser.
  * A malformed value throws: a spec bug.
  */
@@ -58,7 +58,7 @@ export function fakeMidiAtLoad(search: string): FakeMidiAtLoad {
     throw new Error(`Workspace harness: ?midiPermission=${permission} is not granted|prompt|denied`)
   }
   const devices: unknown = JSON.parse(params.get('midiDevices') ?? '[]')
-  // Intent: whether a parsed value is a device: an id, a name and a manufacturer, all strings.
+  // Whether a parsed value is a device: an id, a name and a manufacturer, all strings.
   const valid = (device: unknown): device is WorkspaceHarnessMidiDevice =>
     typeof device === 'object' &&
     device !== null &&
@@ -72,7 +72,7 @@ export function fakeMidiAtLoad(search: string): FakeMidiAtLoad {
 }
 
 /**
- * Intent: the access provider of `mode`: a fake with or without Web MIDI, set to the URL's state
+ * The access provider of `mode`: a fake with or without Web MIDI, set to the URL's state
  * at load, or the browser's.
  */
 function midiModeParts(mode: WorkspaceHarnessMidiMode): MidiModeParts {
@@ -84,7 +84,7 @@ function midiModeParts(mode: WorkspaceHarnessMidiMode): MidiModeParts {
   return { provider: fake, fake }
 }
 
-/** Intent: a plain copy of the controller's state, for the page boundary. */
+/** A plain copy of the controller's state, for the page boundary. */
 function stateView(state: MidiControllerState): WorkspaceHarnessMidiState {
   return 'device' in state
     ? { kind: state.kind, device: { ...state.device } }
@@ -92,7 +92,7 @@ function stateView(state: MidiControllerState): WorkspaceHarnessMidiState {
 }
 
 /**
- * Intent: build the harness's MIDI in `mode`: the production controller on that mode's access,
+ * Build the harness's MIDI in `mode`: the production controller on that mode's access,
  * reading `audio`'s transport clock, with its states and notes recorded, and the API a spec drives
  * it through. `connect` does the "Connect controller" click's work: on the fake audio clock it
  * unlocks the audio first; with `?audio=real` a real click must have unlocked it already. The
@@ -126,7 +126,7 @@ export function createHarnessMidi(
     else ended.push({ ...event.note })
   })
 
-  /** Intent: the fake MIDI access, or a clear failure for a fake-only control with real MIDI. */
+  /** The fake MIDI access, or a clear failure for a fake-only control with real MIDI. */
   function fakeAccess(control: string): FakeMidiAccess {
     if (fake === null) {
       throw new Error(`Workspace harness: midi.${control}() needs the fake MIDI, not ?midi=real`)
@@ -134,7 +134,7 @@ export function createHarnessMidi(
     return fake
   }
 
-  /** Intent: the "Connect controller" click's audio unlock; real audio needs a real click first. */
+  /** The "Connect controller" click's audio unlock; real audio needs a real click first. */
   function unlockAudioForConnect(): void {
     if (audio.api.mode() === 'fake') {
       audio.transport.unlock()

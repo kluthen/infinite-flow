@@ -20,7 +20,7 @@ import {
 } from './workspace-session-active'
 
 /**
- * Intent: an output as the history keeps it: a phrase starting to sound is placed at its
+ * An output as the history keeps it: a phrase starting to sound is placed at its
  * scheduled start on the transport, where the phrases sit exactly back to back, not at the
  * engine's time, which the floor may have raised past it before the wake-up fired; every other
  * output is kept as it is.
@@ -36,7 +36,7 @@ function historyOutput(
 }
 
 /**
- * Intent: a phrase started sounding: the tempo shown becomes its own, the exact tempo in effect,
+ * A phrase started sounding: the tempo shown becomes its own, the exact tempo in effect,
  * while the Idle tempo control is never written, so it shows the starting tempo again at the
  * end; the controls show the settings it was generated with, a change reported for it (or for a
  * repeat before it) appearing now, with nothing else on screen moving.
@@ -53,7 +53,7 @@ function onSounding(
 }
 
 /**
- * Intent: record one runner output in the history, a sounding phrase at its scheduled start,
+ * Record one runner output in the history, a sounding phrase at its scheduled start,
  * then act on it: a phrase is shown when ready and scheduled at its tempo, and a discarded one
  * taken back before its tempo; a settings change is kept until the phrase it applies to sounds; a
  * mutation skipped at a dead end goes to the history and nowhere else, so nothing shown changes.

@@ -31,31 +31,31 @@ import {
 } from '../domain/generation/carry-in/carry-in-fixture'
 import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
-/** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
+/** A real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
 function carryInIntent(): GenerationIntent {
   const firstIntent = buildIntent({ seed: 11, label: 'replay' })
   const carryIn = carryInAfter(firstIntent, generateSuccess(firstIntent), 1)
   return buildIntent({ seed: 12, label: 'replay', carryIn })
 }
 
-/** Intent: unpadded base64url of raw bytes, for hand-built payloads. */
+/** Unpadded base64url of raw bytes, for hand-built payloads. */
 function base64Url(bytes: Uint8Array): string {
   let binary = ''
   for (const byte of bytes) binary += String.fromCharCode(byte)
   return btoa(binary).replace(/\+/gu, '-').replace(/\//gu, '_').replace(/=+$/u, '')
 }
 
-/** Intent: encode any JSON value as an `ifk1.` key, bypassing the codec's own encoder. */
+/** Encode any JSON value as an `ifk1.` key, bypassing the codec's own encoder. */
 function rawKey(payload: unknown): string {
   return `ifk1.${base64Url(new TextEncoder().encode(JSON.stringify(payload)))}`
 }
 
-/** Intent: encode any JSON value as an `ifk3.` key, bypassing the codec's own encoder. */
+/** Encode any JSON value as an `ifk3.` key, bypassing the codec's own encoder. */
 function rawIfk3Key(payload: unknown): string {
   return `ifk3.${base64Url(new TextEncoder().encode(JSON.stringify(payload)))}`
 }
 
-/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+/** The JSON payload of a key, read back without the codec's decoder. */
 function payloadOf(key: string): unknown[] {
   const payload = key
     .slice(key.indexOf('.') + 1)
@@ -67,7 +67,7 @@ function payloadOf(key: string): unknown[] {
 }
 
 /**
- * Intent: the `ifk1.` 7-tuple v3.0 wrote for an intent and phrase number, its profile slots
+ * The `ifk1.` 7-tuple v3.0 wrote for an intent and phrase number, its profile slots
  * holding the given profile (a customized Neutral by default, as buildIntent's).
  */
 function tupleOf(
@@ -90,7 +90,7 @@ function tupleOf(
 }
 
 /**
- * Intent: the valid `ifk3.` 7-tuple of a plain built-in intent: the first seven entries of the
+ * The valid `ifk3.` 7-tuple of a plain built-in intent: the first seven entries of the
  * `ifk4.` 9-tuple v3.2 wrote, which keep the `ifk3.` order and meaning.
  */
 function validIfk3Tuple(): unknown[] {
@@ -100,7 +100,7 @@ function validIfk3Tuple(): unknown[] {
   )
 }
 
-/** Intent: a valid `ifk3.` tuple with one slot replaced. */
+/** A valid `ifk3.` tuple with one slot replaced. */
 function ifk3TupleWith(index: number, value: unknown): unknown[] {
   const tuple = validIfk3Tuple()
   tuple[index] = value

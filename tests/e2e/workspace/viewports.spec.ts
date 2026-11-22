@@ -10,7 +10,7 @@ import { expect, test } from '@playwright/test'
 
 import { generateAndAwaitReady, gotoWorkspace, primaryButton, radio, statusRegion } from './helpers'
 
-/** Intent: the current document has no horizontal scroll (within a 1px rounding tolerance). */
+/** The current document has no horizontal scroll (within a 1px rounding tolerance). */
 async function expectNoHorizontalOverflow(page: import('@playwright/test').Page): Promise<void> {
   const overflow = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
@@ -22,7 +22,7 @@ async function expectNoHorizontalOverflow(page: import('@playwright/test').Page)
 }
 
 /**
- * Intent: the engraved score is visible: its top system, which every layout draws (below the
+ * The engraved score is visible: its top system, which every layout draws (below the
  * tablet-landscape breakpoint the split layout adds a second system SVG under it).
  */
 async function expectScoreVisible(page: import('@playwright/test').Page): Promise<void> {

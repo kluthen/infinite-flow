@@ -71,13 +71,13 @@ export const MUTATION_GAP_MAX = 4
 export type SettingsMutationFlag =
   { readonly kind: 'off' } | { readonly kind: 'on'; readonly seed: Seed }
 
-/** Intent: the flag turned off. */
+/** The flag turned off. */
 // @spec-link [[req_settings_mutation_flag]]
 export const SETTINGS_MUTATION_OFF: SettingsMutationFlag = deepFreeze<SettingsMutationFlag>({
   kind: 'off',
 })
 
-/** Intent: the flag's default: off (D176). */
+/** The flag's default: off (D176). */
 // @spec-link [[req_settings_mutation_flag]]
 export const SETTINGS_MUTATION_DEFAULT: SettingsMutationFlag = SETTINGS_MUTATION_OFF
 
@@ -118,11 +118,11 @@ export interface MutationDeadEnd {
   readonly kind: 'dead-end'
 }
 
-/** Intent: the one dead end every mutation with no move returns, the same for the same inputs. */
+/** The one dead end every mutation with no move returns, the same for the same inputs. */
 // @spec-link [[module_settings_mutation]]
 export const MUTATION_DEAD_END: MutationDeadEnd = deepFreeze<MutationDeadEnd>({ kind: 'dead-end' })
 
-/** Intent: whether a drawn mutation is the dead end rather than a move. */
+/** Whether a drawn mutation is the dead end rather than a move. */
 // @spec-link [[module_settings_mutation]]
 export function isMutationDeadEnd(
   drawn: SettingsMutationResult | MutationDeadEnd,
@@ -143,7 +143,7 @@ const MAX_MUTATION_DRAWS = 10_000
 export type MutationDrawsObserver = (draws: number) => void
 
 /**
- * Intent: the session's start settings with the restriction in force frozen into them, worked out
+ * The session's start settings with the restriction in force frozen into them, worked out
  * from their selection, written key and collection against the presets the session knows: the
  * selected preset's, or Custom's base's, while the key and mode are inside it. None in force, or
  * one that allows every key and mode, leaves the settings without one, so a session started there
@@ -163,14 +163,14 @@ export function withRestrictionAtStart(
   return { ...rest, restriction: makeKeyAndModeRestriction(inForce) }
 }
 
-/** Intent: crash on a number that cannot be a mutation or phrase number (an integer from 1). */
+/** Crash on a number that cannot be a mutation or phrase number (an integer from 1). */
 function requirePositiveInteger(value: number, name: string): void {
   if (!Number.isSafeInteger(value) || value < 1)
     throw new SettingsMutationError(`${name} must be an integer ≥ 1, got ${value}.`)
 }
 
 /**
- * Intent: the number of phrases before mutation k (k = 1, 2, …), counted from phrase 1 for k = 1
+ * The number of phrases before mutation k (k = 1, 2, …), counted from phrase 1 for k = 1
  * and from mutation k - 1 otherwise: from 2 to 4, from a stream of (seed, k) alone, so each
  * landing phrase is known without replaying earlier mutations.
  */
@@ -184,7 +184,7 @@ export function mutationGap(seed: Seed, k: number): number {
   return MUTATION_GAP_MIN + Math.floor(stream.nextFloat() * span)
 }
 
-/** Intent: the phrase mutation k lands on: p(1) = 1 + g(1), p(k + 1) = p(k) + g(k + 1). */
+/** The phrase mutation k lands on: p(1) = 1 + g(1), p(k + 1) = p(k) + g(k + 1). */
 // @spec-link [[rule_mutation_lands_on_scheduled_phrase]]
 // @spec-link [[module_settings_mutation]]
 export function mutationPhrase(seed: Seed, k: number): number {
@@ -194,7 +194,7 @@ export function mutationPhrase(seed: Seed, k: number): number {
   return phrase
 }
 
-/** Intent: the number k of the mutation landing on a phrase, or undefined when none lands there. */
+/** The number k of the mutation landing on a phrase, or undefined when none lands there. */
 // @spec-link [[rule_mutation_lands_on_scheduled_phrase]]
 // @spec-link [[module_settings_mutation]]
 export function mutationIndexLandingOn(seed: Seed, phraseNumber: number): number | undefined {
@@ -208,7 +208,7 @@ export function mutationIndexLandingOn(seed: Seed, phraseNumber: number): number
 }
 
 /**
- * Intent: whether a key or mode step lands outside the restriction frozen at the session's start.
+ * Whether a key or mode step lands outside the restriction frozen at the session's start.
  * Settings carrying none bound nothing; no other step moves the key or the mode.
  */
 // @spec-link [[rule_vary_settings_stays_inside_restriction]]
@@ -220,7 +220,7 @@ function leavesRestriction(setting: MutableSetting, settings: SessionSettings): 
 }
 
 /**
- * Intent: whether a step may land where it does: its setting's group is allowed (the Rhythm group
+ * Whether a step may land where it does: its setting's group is allowed (the Rhythm group
  * not while the rhythm lock is on), its rhythm combination, judged on the density generated with,
  * is not blocked, a note-density step does not land on `Sixteenth` while it is unavailable (below
  * the width, or once the session stepped down; D177), and a key or mode step stays inside the
@@ -243,7 +243,7 @@ function isSupportedStep(
   return !isRhythmSettingBlocked(settings.controls, context)
 }
 
-/** Intent: one step landing on `settings`, frozen and marked supported or not, figure kept. */
+/** One step landing on `settings`, frozen and marked supported or not, figure kept. */
 function candidateOf(
   step: { readonly setting: MutableSetting; readonly figure?: FigureId },
   from: string,
@@ -262,7 +262,7 @@ function candidateOf(
   }
 }
 
-/** Intent: every step of one control from its current value, each with its landed settings. */
+/** Every step of one control from its current value, each with its landed settings. */
 function controlCandidates<K extends MutableControl>(
   setting: K,
   settings: SessionSettings,
@@ -277,7 +277,7 @@ function controlCandidates<K extends MutableControl>(
 }
 
 /**
- * Intent: every figure step from the current levels, figure by figure in FIGURE_IDS order and
+ * Every figure step from the current levels, figure by figure in FIGURE_IDS order and
  * level by level: one figure one level up or down, never past Off or Strongly favored.
  */
 // @spec-link [[rule_vary_settings_figure_step]]
@@ -301,7 +301,7 @@ function figureCandidates(
 }
 
 /**
- * Intent: every step a mutation of these settings could take, setting by setting in
+ * Every step a mutation of these settings could take, setting by setting in
  * `MUTABLE_SETTINGS` order and neighbour by neighbour (the figure levels' figure by figure), each
  * marked supported or not. Unsupported
  * steps are listed too: the draw lands on them and redraws.
@@ -320,7 +320,7 @@ export function mutationCandidates(
   )
 }
 
-/** Intent: one item drawn uniformly from a non-empty list. */
+/** One item drawn uniformly from a non-empty list. */
 function drawFrom<T>(stream: IndexedStream, items: readonly T[]): T {
   const item = items[Math.floor(stream.nextFloat() * items.length)]
   if (item === undefined) throw new SettingsMutationError('Cannot draw from an empty list.')
@@ -328,7 +328,7 @@ function drawFrom<T>(stream: IndexedStream, items: readonly T[]): T {
 }
 
 /**
- * Intent: the figure steps a draw chooses among: one figure drawn uniformly among the figures
+ * The figure steps a draw chooses among: one figure drawn uniformly among the figures
  * with a step, then that figure's steps. Only a figure-levels draw calls it, so every other
  * setting's draw takes exactly the floats it took when the musical profile held this place.
  */
@@ -342,7 +342,7 @@ function drawnFigureSteps(
   return steps.filter((step) => step.figure === figure)
 }
 
-/** Intent: the result a drawn step gives: the step without its support mark, frozen. */
+/** The result a drawn step gives: the step without its support mark, frozen. */
 function resultOf(step: MutationCandidate): SettingsMutationResult {
   const { setting, from, to, settings } = step
   return deepFreeze({
@@ -355,7 +355,7 @@ function resultOf(step: MutationCandidate): SettingsMutationResult {
 }
 
 /**
- * Intent: draw mutation k from its candidates: one setting uniformly among those with a step;
+ * Draw mutation k from its candidates: one setting uniformly among those with a step;
  * for the figure levels, one figure uniformly among those with a step; then one of its steps
  * uniformly; all redrawn from the same (seed, k) stream while the step lands on something
  * unsupported, outside the restriction frozen at the session's start, or moves a setting whose
@@ -396,7 +396,7 @@ export function drawMutation(
 }
 
 /**
- * Intent: decide mutation k of a session: from the settings in effect, change exactly one eligible
+ * Decide mutation k of a session: from the settings in effect, change exactly one eligible
  * setting by one grade (a figure step, one figure by one level), never tempo or the instrument,
  * landing on a supported combination, a key or mode step inside the restriction the settings
  * carry from the session's start (none bounds nothing), and only a setting of an allowed group,
@@ -427,7 +427,7 @@ export function mutateSettings(
 }
 
 /**
- * Intent: the legal-move check: whether at least one step from the settings in effect lands on a
+ * The legal-move check: whether at least one step from the settings in effect lands on a
  * supported combination inside the allowed groups, under this mutation context. The Rhythm group
  * does not count while the rhythm lock is on, and a key or mode step counts only inside the
  * restriction the settings carry. False exactly when a mutation of these settings is a dead end.

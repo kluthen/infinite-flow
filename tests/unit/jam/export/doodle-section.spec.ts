@@ -35,7 +35,7 @@ function keyboardPhraseOne(): Pick<ReviewedPhrase, 'intent' | 'clef'> {
   return jamHistory(false).phrases()[0]!
 }
 
-/** Intent: phrase 1 of a Jam on the B-flat tenor saxophone, written D major, in treble clef. */
+/** Phrase 1 of a Jam on the B-flat tenor saxophone, written D major, in treble clef. */
 function tenorPhraseOne(): Pick<ReviewedPhrase, 'intent' | 'clef'> {
   const intent = createGenerationIntent({
     requestId: makeRequestId('phrase-1'),
@@ -62,7 +62,7 @@ function tenorPhraseOne(): Pick<ReviewedPhrase, 'intent' | 'clef'> {
   return { intent, clef: 'treble' }
 }
 
-/** Intent: a Jam part's doodle: `doodle` captured at `captureTempo`, with the given raw notes. */
+/** A Jam part's doodle: `doodle` captured at `captureTempo`, with the given raw notes. */
 function sessionDoodle(
   doodle: QuantizedDoodle,
   captureTempo: number,
@@ -77,7 +77,7 @@ function sessionDoodle(
   }
 }
 
-/** Intent: the notes (not rests) of every measure of a written phrase, in order. */
+/** The notes (not rests) of every measure of a written phrase, in order. */
 function writtenNotes(measures: readonly WrittenMeasure[]): WrittenNote[] {
   return measures.flatMap((measure) =>
     measure.events.filter((event): event is WrittenNote => event.kind === 'note'),

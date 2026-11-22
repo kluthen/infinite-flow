@@ -100,7 +100,7 @@ const SETTINGS: readonly ReplaySetting[] = [
 /** The seed sample every setting is replayed over. */
 const SEEDS = [1, 2, 3, 5, 8, 13, 21, 42] as const
 
-/** Intent: the intent of one setting and seed. */
+/** The intent of one setting and seed. */
 function settingIntent(setting: ReplaySetting, seed: number): GenerationIntent {
   return buildIntent({
     controls: setting.controls,
@@ -110,7 +110,7 @@ function settingIntent(setting: ReplaySetting, seed: number): GenerationIntent {
   })
 }
 
-/** Intent: the outcome the worker message handler answers for a JSON-cloned generate request. */
+/** The outcome the worker message handler answers for a JSON-cloned generate request. */
 function handlerOutcome(intent: GenerationIntent): GenerationOutcome {
   const response = handleGenerationWorkerMessage(
     JSON.parse(JSON.stringify({ type: 'generate', id: 1, intent })),
@@ -119,7 +119,7 @@ function handlerOutcome(intent: GenerationIntent): GenerationOutcome {
   return response.outcome
 }
 
-/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+/** The JSON payload of a key, read back without the codec's decoder. */
 function payloadOf(key: string): unknown[] {
   const payload = key
     .slice(key.indexOf('.') + 1)
@@ -131,7 +131,7 @@ function payloadOf(key: string): unknown[] {
 }
 
 /**
- * Intent: the `ifk3.` key v3.1 would have written for an intent without the v3.2 groups: the first
+ * The `ifk3.` key v3.1 would have written for an intent without the v3.2 groups: the first
  * seven entries of the `ifk5.` key the encoder writes, under the `ifk3.` prefix.
  */
 function ifk3KeyOf(intent: GenerationIntent, phraseNumber: number): string {
@@ -139,7 +139,7 @@ function ifk3KeyOf(intent: GenerationIntent, phraseNumber: number): string {
   return `${PHRASE_REPLAY_KEY_V3_PREFIX}${bytesToBase64Url(new TextEncoder().encode(JSON.stringify(tuple)))}`
 }
 
-/** Intent: assert a report's raw outcome equals direct generation and the worker handler's. */
+/** Assert a report's raw outcome equals direct generation and the worker handler's. */
 function expectReplayEqualsGeneration(report: PhraseReplayReport, intent: GenerationIntent): void {
   if (report.output.kind === 'crash') throw new Error(`Replay crashed: ${report.output.message}`)
   const raw = JSON.stringify(report.output.raw)
@@ -147,7 +147,7 @@ function expectReplayEqualsGeneration(report: PhraseReplayReport, intent: Genera
   expect(raw).toBe(JSON.stringify(handlerOutcome(intent)))
 }
 
-/** Intent: the success output of a report, failing the test loudly otherwise. */
+/** The success output of a report, failing the test loudly otherwise. */
 function successOf(report: PhraseReplayReport): PhraseReplaySuccessOutput {
   if (report.output.kind !== 'generation_success')
     throw new Error(`Expected a successful replay, got ${report.output.kind}.`)
@@ -155,7 +155,7 @@ function successOf(report: PhraseReplayReport): PhraseReplaySuccessOutput {
 }
 
 /**
- * Intent: assert the input section holds every intent field verbatim plus the envelope, and no
+ * Assert the input section holds every intent field verbatim plus the envelope, and no
  * musical profile.
  */
 function expectCompleteInput(report: PhraseReplayReport, intent: GenerationIntent): void {
@@ -168,7 +168,7 @@ function expectCompleteInput(report: PhraseReplayReport, intent: GenerationInten
   expect(report.input.workerRequest).toEqual({ type: 'generate', id: 1, intent })
 }
 
-/** Intent: assert the bars restate the timeline, harmony and notation completely. */
+/** Assert the bars restate the timeline, harmony and notation completely. */
 function expectCompleteBars(output: PhraseReplaySuccessOutput, intent: GenerationIntent): void {
   if (output.raw.kind !== 'generation_success') throw new Error('Expected a raw success outcome.')
   const { timeline } = output.raw.result
@@ -196,7 +196,7 @@ function expectCompleteBars(output: PhraseReplaySuccessOutput, intent: Generatio
   })
 }
 
-/** Intent: assert every tie flag pairs a note with a same-pitch continuation right after it. */
+/** Assert every tie flag pairs a note with a same-pitch continuation right after it. */
 function expectConsistentTies(output: PhraseReplaySuccessOutput): number {
   const events = output.bars.flatMap((bar) => bar.events)
   let ties = 0

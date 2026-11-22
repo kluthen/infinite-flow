@@ -119,7 +119,7 @@ const FIGURES = [
   'chromaticEnclosure',
 ] as const
 
-/** Intent: a settings record as v3.0 stored it, at data version 1. */
+/** A settings record as v3.0 stored it, at data version 1. */
 function v30Setting(key: string, value: unknown): WorkspaceHarnessVersionOneSetting {
   return { key, dataVersion: 1, appVersion: '3.0.0', value }
 }
@@ -156,13 +156,13 @@ interface SizedTemplate {
   readonly bodyBytes: number
 }
 
-/** Intent: the size of a stored value as JSON, in bytes. */
+/** The size of a stored value as JSON, in bytes. */
 function jsonBytes(value: unknown): number {
   return Buffer.byteLength(JSON.stringify(value))
 }
 
 /**
- * Intent: a template in an earlier version's shapes lengthened to a body of at least
+ * A template in an earlier version's shapes lengthened to a body of at least
  * `BODY_BYTES`: its phrase 1 first, then its later phrases cycled (phrase 1 may hold a carry-in
  * from no phrase, which only phrase 1 may hold), renumbered 1..N, each starting one phrase length
  * after the one before (the template's own spacing), none a repeat or a favorite; its
@@ -201,7 +201,7 @@ function sizedTemplate(template: StoredSession): SizedTemplate {
   return { template: { summary, body }, phrases: phrases.length, bodyBytes: jsonBytes(body) }
 }
 
-/** Intent: play one Jazz session in a throwaway context and give its stored values as kept. */
+/** Play one Jazz session in a throwaway context and give its stored values as kept. */
 async function playedTemplate(browser: Browser): Promise<StoredSession> {
   const context = await browser.newContext()
   try {
@@ -217,7 +217,7 @@ async function playedTemplate(browser: Browser): Promise<StoredSession> {
 }
 
 /**
- * Intent: play one fresh Jam in a throwaway context (a one-measure doodle, run until phrase 2 has
+ * Play one fresh Jam in a throwaway context (a one-measure doodle, run until phrase 2 has
  * started sounding, then Stopped) and give its stored values as kept.
  */
 async function playedJamTemplate(browser: Browser): Promise<StoredSession> {
@@ -247,13 +247,13 @@ async function playedJamTemplate(browser: Browser): Promise<StoredSession> {
   }
 }
 
-/** Intent: wait until the harness has loaded the saved data and published its API. */
+/** Wait until the harness has loaded the saved data and published its API. */
 async function harnessPublished(page: Page): Promise<void> {
   await page.waitForFunction(() => typeof window.__workspaceHarness !== 'undefined')
 }
 
 /**
- * Intent: the last load's figure, after checking every kept session is upgraded, its session-wide
+ * The last load's figure, after checking every kept session is upgraded, its session-wide
  * record at data version 4 and its body at 5 (waiting for the app's port when the wait ended
  * first).
  */
@@ -266,7 +266,7 @@ async function lastLoad(page: Page, sessions: number): Promise<LoadTiming> {
     .poll(
       () =>
         page.evaluate(async (versions) => {
-          /** Intent: how many records of a store are at its upgraded version; -1 before the port opens. */
+          /** How many records of a store are at its upgraded version; -1 before the port opens. */
           const current = async (store: 'sessionSummaries' | 'sessionBodies') => {
             try {
               const records = await window.__workspaceHarness.storage.records(store)
@@ -287,7 +287,7 @@ async function lastLoad(page: Page, sessions: number): Promise<LoadTiming> {
 }
 
 /**
- * Intent: after the cold load, check steps 4 and 5 carried the first copy of `template` over: its
+ * After the cold load, check steps 4 and 5 carried the first copy of `template` over: its
  * session-wide record at data version 4, no Jam, with no declined suggestion, its preset label and
  * phrase count as seeded; its body at data version 5 with no doodle and no played-notes clock,
  * its phrases as seeded.
@@ -308,7 +308,7 @@ async function expectFirstSessionCarriedOver(page: Page, template: StoredSession
 }
 
 /**
- * Intent: after the cold load, check step 3 carried v3.0's settings over: the preset selection,
+ * After the cold load, check step 3 carried v3.0's settings over: the preset selection,
  * Custom based on Jazz, and the seven level records written at data version 3, v3.0's selection
  * record gone.
  */
@@ -328,7 +328,7 @@ async function expectSettingsCarriedOver(page: Page): Promise<void> {
 }
 
 /**
- * Intent: after the cold load, check step 5 carried v3.2's player presets over (each at data
+ * After the cold load, check step 5 carried v3.2's player presets over (each at data
  * version 5 with the level at Off), left the settings as v3.2 wrote them (no level record), and
  * carried the first Jam copy over (its Jam mark kept, its body at data version 5 with its doodle,
  * each intent at Off).
@@ -359,16 +359,16 @@ async function expectVersionFourCarriedOver(page: Page): Promise<void> {
 interface UpgradePath {
   /** The path's table title. */
   readonly title: string
-  /** Intent: this version's stored session in the earlier version's shapes. */
+  /** This version's stored session in the earlier version's shapes. */
   readonly shaped: (stored: StoredSession) => StoredSession
-  /** Intent: while the load is held, seed `sessions` copies of `template` and any other data. */
+  /** While the load is held, seed `sessions` copies of `template` and any other data. */
   readonly seed: (page: Page, template: StoredSession, sessions: number) => Promise<void>
-  /** Intent: after the cold load, check what the path's steps carried over beside the sessions. */
+  /** After the cold load, check what the path's steps carried over beside the sessions. */
   readonly carriedOver: (page: Page) => Promise<void>
 }
 
 /**
- * Intent: v3.2's data: data version 4, its settings, 50 player presets and kept sessions, half of
+ * v3.2's data: data version 4, its settings, 50 player presets and kept sessions, half of
  * them copies of `jam` (lengthened as the other template), in v3.2's bytes; the open runs step 5.
  */
 function fromV32(jam: StoredSession): UpgradePath {
@@ -413,7 +413,7 @@ const FROM_V30: UpgradePath = {
   carriedOver: expectSettingsCarriedOver,
 }
 
-/** Intent: seed a fresh browser profile with `upgrade`'s data, `sessions` copies of `template`. */
+/** Seed a fresh browser profile with `upgrade`'s data, `sessions` copies of `template`. */
 async function seedProfile(
   profile: string,
   upgrade: UpgradePath,
@@ -430,7 +430,7 @@ async function seedProfile(
   }
 }
 
-/** Intent: time the cold load (the upgrade) after a browser start on `profile`, then warm ones. */
+/** Time the cold load (the upgrade) after a browser start on `profile`, then warm ones. */
 async function timeProfile(
   profile: string,
   upgrade: UpgradePath,
@@ -457,13 +457,13 @@ async function timeProfile(
   }
 }
 
-/** Intent: one load's figure, rounded to a tenth of a millisecond, marked when the wait ended. */
+/** One load's figure, rounded to a tenth of a millisecond, marked when the wait ended. */
 function figure({ ms, read }: LoadTiming): string {
   return `${ms.toFixed(1)}${read ? '' : ' (wait ended)'}`
 }
 
 /**
- * Intent: measure `upgrade` on each count, each on a fresh profile, and print its table under its
+ * Measure `upgrade` on each count, each on a fresh profile, and print its table under its
  * title: the counts, the template's figures, the cold load and the slowest warm one.
  */
 async function measurePath(upgrade: UpgradePath, played: StoredSession): Promise<void> {

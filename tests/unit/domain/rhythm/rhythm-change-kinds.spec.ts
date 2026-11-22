@@ -10,12 +10,12 @@ import type { BarIndex, RhythmBar } from '@/domain/rhythm/rhythm-types'
 
 import { bar } from './rhythm-bar-fixture'
 
-/** Intent: a four-measure phrase repeating one measure spec. */
+/** A four-measure phrase repeating one measure spec. */
 function repeated(spec: string): readonly RhythmBar[] {
   return ([0, 1, 2, 3] as const).map((index) => bar(spec, index))
 }
 
-/** Intent: a copy of `base` with the given measures rewritten as `spec`. */
+/** A copy of `base` with the given measures rewritten as `spec`. */
 function rewrite(
   base: readonly RhythmBar[],
   measures: readonly BarIndex[],

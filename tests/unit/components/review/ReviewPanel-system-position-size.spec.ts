@@ -23,7 +23,7 @@ const ONE_SYSTEM: StaffViewport = { layout: 'one-system', heightBudgetPx: null }
 
 const mounted: VueWrapper[] = []
 
-/** Intent: mount the panel on the recorded phrases at the given size, attached to the document. */
+/** Mount the panel on the recorded phrases at the given size, attached to the document. */
 function mountPanel(systemPositionUnits: number) {
   const wrapper = mount(ReviewPanel, {
     props: {
@@ -54,7 +54,7 @@ function mountPanel(systemPositionUnits: number) {
   return wrapper
 }
 
-/** Intent: let every scheduled engraving run: timer turns and settled promises, until it rests. */
+/** Let every scheduled engraving run: timer turns and settled promises, until it rests. */
 async function settle(): Promise<void> {
   let calls = -1
   let stableRounds = 0
@@ -67,7 +67,7 @@ async function settle(): Promise<void> {
   }
 }
 
-/** Intent: the first review staff's position block sizes. */
+/** The first review staff's position block sizes. */
 function blockSizes(wrapper: VueWrapper): string[] {
   return wrapper
     .get('.review-staff')

@@ -68,7 +68,7 @@ const FILE_EXTENSIONS: Readonly<Record<GeneratedNotesFormat, string>> = {
 }
 
 /**
- * Intent: the file name of a session's generated-notes file,
+ * The file name of a session's generated-notes file,
  * `infinite-flow-{YYYY-MM-DD}-{HHmmss}-generated.musicxml` or `.mid`: the session's export stem
  * (its start in the player's local time), shared with the played-notes file, with `-favorites`
  * after `generated` under the favorites-only scope. Reads no clock. Throws a
@@ -86,7 +86,7 @@ export function generatedNotesFileName(
 }
 
 /**
- * Intent: the backing track's notes for every recorded phrase, numbered like the phrase: the bass
+ * The backing track's notes for every recorded phrase, numbered like the phrase: the bass
  * then the chords the backing renderer gives for the phrase's stored harmony, rendered in 4/4 as
  * the audio transport renders it, so the file's backing equals what sounded.
  */
@@ -102,7 +102,7 @@ export function backingForExport(records: readonly ReviewedPhrase[]): readonly M
 }
 
 /**
- * Intent: the MusicXML file of the recorded phrases, as UTF-8 bytes, a Jam's opening with its
+ * The MusicXML file of the recorded phrases, as UTF-8 bytes, a Jam's opening with its
  * doodle.
  */
 // @spec-link [[rule_generated_notes_musicxml_export]]
@@ -117,7 +117,7 @@ function musicXmlBytes(
 }
 
 /**
- * Intent: the MIDI file of the recorded phrases, with the backing track only when asked for, a
+ * The MIDI file of the recorded phrases, with the backing track only when asked for, a
  * Jam's opening with its doodle. The encoder's bytes are copied into an ArrayBuffer-backed view,
  * the kind a Blob is made from.
  */
@@ -135,7 +135,7 @@ function midiBytes(
 }
 
 /**
- * Intent: the one generated-notes file the player asked for, built from the phrases `scope` picks
+ * The one generated-notes file the player asked for, built from the phrases `scope` picks
  * from the session history (the whole session by default; ./favorites-selection.ts): MusicXML in
  * the session profile's written pitch, or MIDI at concert pitch with the backing track only when
  * asked for. A Jam's file (`doodle` given) opens with its doodle section in either scope, the doodle

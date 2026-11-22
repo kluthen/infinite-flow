@@ -136,7 +136,7 @@ export interface JamRun {
 }
 
 /**
- * Intent: refuse a configuration only a caller bug can give: a cold domain in session mode, a
+ * Refuse a configuration only a caller bug can give: a cold domain in session mode, a
  * steering block or a drift in session mode, a drift without a doodle, or a drift beside a block
  * given by hand.
  */
@@ -149,7 +149,7 @@ function requireConfig(config: JamRunConfig): void {
     throw new Error('A Jam steered by its doodle needs the doodle, and takes no block by hand.')
 }
 
-/** Intent: the measured cost of each session attempt, recording each one's time as it is charged. */
+/** The measured cost of each session attempt, recording each one's time as it is charged. */
 function recordingCost(records: AttemptRecord[]): AttemptCost {
   return (generated, request) => {
     const chargedSeconds = measuredAttemptCost(generated, request)
@@ -167,7 +167,7 @@ function recordingCost(records: AttemptRecord[]): AttemptCost {
   }
 }
 
-/** Intent: a ladder attempt as an attempt record of phrase 1. */
+/** A ladder attempt as an attempt record of phrase 1. */
 function ladderAttemptRecord(attempt: LadderAttempt): AttemptRecord {
   return {
     phraseNumber: 1,
@@ -181,7 +181,7 @@ function ladderAttemptRecord(attempt: LadderAttempt): AttemptRecord {
 }
 
 /**
- * Intent: each phrase that sounded in a run, in phrase order, as the lock census reads it: its
+ * Each phrase that sounded in a run, in phrase order, as the lock census reads it: its
  * repeat and re-lock marks, the written bars and lock record of the generation outcome it sounded
  * with (its provenance), its request's tenser flag, the tension in effect, and the Vary settings
  * tension step that landed on it, when one did. Phrase 1 is the locked rhythm; a repeat sounds its
@@ -218,7 +218,7 @@ export function censusPhrasesOf(run: TimedSession): CensusPhrase[] {
 }
 
 /**
- * Intent: how many of a run's planned phrases (2 to its phrase count) were decided as a repeat, as
+ * How many of a run's planned phrases (2 to its phrase count) were decided as a repeat, as
  * runShortfalls counts them; a look-ahead phrase past the planned end never sounds, so its repeat
  * does not count.
  */
@@ -227,14 +227,14 @@ function repeatCount(run: TimedSession): number {
 }
 
 /**
- * Intent: how phrase 2 of a run was decided (its phrase-ready origin), or null when it never was.
+ * How phrase 2 of a run was decided (its phrase-ready origin), or null when it never was.
  */
 function phraseTwoOriginOf(run: TimedSession): string | null {
   return phraseSlots(run)[0]?.decided?.origin ?? null
 }
 
 /**
- * Intent: a Jam's phrase 1 through its ladder, at the run's tempo, domain, block and lock; for a
+ * A Jam's phrase 1 through its ladder, at the run's tempo, domain, block and lock; for a
  * Jam steered by its doodle, with what the doodle gives phrase 1 (its controls, block and join).
  */
 function jamPhraseOne(config: JamRunConfig): {
@@ -273,7 +273,7 @@ function jamPhraseOne(config: JamRunConfig): {
 }
 
 /**
- * Intent: phrase 1 of a Jam steered by its doodle as the session is handed it (C5.6, C5.7): the
+ * Phrase 1 of a Jam steered by its doodle as the session is handed it (C5.6, C5.7): the
  * attempt that made it, asked for when it started with the doodle's settings and block and the
  * deadline; shown at the first barline at or after it was ready (the generation measure's end at
  * the earliest), sounding one read-in measure later.
@@ -309,7 +309,7 @@ function jamHandover(ready: PhraseOneReady, doodle: DoodlePhraseOne, tempo: numb
 }
 
 /**
- * Intent: play one run: a Jam's phrase 1 through its ladder, then (when it came) phrases 2 to n as
+ * Play one run: a Jam's phrase 1 through its ladder, then (when it came) phrases 2 to n as
  * a session started from it; or a session-mode run from phrase 1 at Idle. Every session attempt is
  * charged its measured cost; with the lock on, the phrases that sounded are classified against
  * phrase 1's rhythm.

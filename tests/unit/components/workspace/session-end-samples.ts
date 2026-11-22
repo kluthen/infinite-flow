@@ -28,7 +28,7 @@ export interface EndSample {
   readonly fades: boolean
 }
 
-/** Intent: a landscape window below bp-tablet-landscape, its staff split with room to spare. */
+/** A landscape window below bp-tablet-landscape, its staff split with room to spare. */
 export function phoneWindow(rig: ControllerRig): void {
   rig.browser.windowShape.resize({ widthPx: 900, smallHeightPx: 500, remPx: 16 })
   rig.staff.layoutInputs({
@@ -99,7 +99,7 @@ export const END_SAMPLES: readonly EndSample[] = [
   },
 ]
 
-/** Intent: a rig whose session has reached `phase`, after `before` set the window up. */
+/** A rig whose session has reached `phase`, after `before` set the window up. */
 export async function sessionIn(phase: Phase, before?: (rig: ControllerRig) => void) {
   const rig = controllerRig()
   before?.(rig)
@@ -109,7 +109,7 @@ export async function sessionIn(phase: Phase, before?: (rig: ControllerRig) => v
   return rig
 }
 
-/** Intent: the end events the controller sent its runners. */
+/** The end events the controller sent its runners. */
 export function endEvents(rig: ControllerRig) {
   return rig.events.filter((event) => event.kind === 'end')
 }

@@ -5,17 +5,17 @@ import { analyzeSource } from '../../../scripts/code-health/analyze.mjs'
 import { checkSize, effectiveLineCount } from '../../../scripts/code-health/rules/size.mjs'
 import { parseSource } from '../../../scripts/code-health/sources.mjs'
 
-/** Intent: the effective line count of a file given its repo-relative path and text. */
+/** The effective line count of a file given its repo-relative path and text. */
 function countOf(path: string, text: string): number {
   return effectiveLineCount(parseSource(path, text))
 }
 
-/** Intent: a module of exactly `count` effective lines of code, one constant per line. */
+/** A module of exactly `count` effective lines of code, one constant per line. */
 function linesOfCode(count: number): string {
   return Array.from({ length: count }, (_, index) => `const value${index} = ${index}`).join('\n')
 }
 
-/** Intent: the size findings of a TypeScript file analyzed with every rule and its bypasses. */
+/** The size findings of a TypeScript file analyzed with every rule and its bypasses. */
 function sizeFindingsOf(text: string) {
   return analyzeSource({ path: 'src/big.ts', text, atomIds: new Set() }).filter(
     (finding) => finding.rule === 'size',

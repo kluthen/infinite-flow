@@ -33,7 +33,7 @@ const NOTE: Record<string, number> = {
   'C♯7': 97,
 }
 
-/** Intent: a written range from two note names. */
+/** A written range from two note names. */
 function range(lowest: string, highest: string) {
   return { minMidi: NOTE[lowest]!, maxMidi: NOTE[highest]! }
 }

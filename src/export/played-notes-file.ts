@@ -40,7 +40,7 @@ export interface PlayedNotesFileOptions {
 const DEFAULT_OPTIONS: PlayedNotesFileOptions = { includeVeryShortNotes: false }
 
 /**
- * Intent: the file name of a session's played-notes file,
+ * The file name of a session's played-notes file,
  * `infinite-flow-{YYYY-MM-DD}-{HHmmss}-played.mid`: the same session stem as the generated-notes
  * file, then its own suffix, so the two files of one session are told apart and never mistaken
  * for one; `-played-favorites.mid` under the favorites-only scope. Reads no clock. Throws a
@@ -58,7 +58,7 @@ export function playedNotesFileName(
 }
 
 /**
- * Intent: the played-notes MIDI file of a session, built from the phrases `scope` picks from its
+ * The played-notes MIDI file of a session, built from the phrases `scope` picks from its
  * history (the whole session by default; ./favorites-selection.ts): exactly the played-notes
  * encoder's bytes for their played-notes input, very short notes left out unless
  * `options.includeVeryShortNotes` (then every note as received), copied into an ArrayBuffer-backed
@@ -92,7 +92,7 @@ export function buildPlayedNotesFile(
 }
 
 /**
- * Intent: a Jam's doodle section with its very short raw notes left out unless the options
+ * A Jam's doodle section with its very short raw notes left out unless the options
  * include them, judged by their length as played.
  */
 // @spec-link [[rule_played_notes_export_omits_stray_notes]]

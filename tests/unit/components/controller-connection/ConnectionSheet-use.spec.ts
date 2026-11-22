@@ -54,14 +54,14 @@ const HOME_ALTO: MyInstrument = makeMyInstrument({
   transposition: { octaves: 0, semitones: 9, direction: 'lower' },
 })
 
-/** Intent: play, on KEYS_A, the note `offset` semitones off what `profile` expects; let it react. */
+/** Play, on KEYS_A, the note `offset` semitones off what `profile` expects; let it react. */
 async function playOff(rig: ControllerRig, profile: InstrumentProfile, offset: number) {
   const expected = checkWrittenNote(profile) - profile.transposition.chromatic
   rig.midi.noteOn(KEYS_A.id, expected + offset, 90, rig.at(1))
   await flushPromises()
 }
 
-/** Intent: the instruments the sheet handed its host to save, in order. */
+/** The instruments the sheet handed its host to save, in order. */
 function used(wrapper: SheetWrapper): MyInstrument[] {
   return (wrapper.emitted('use-for-my-instrument') ?? []).map(
     ([instrument]) => instrument as MyInstrument,

@@ -159,7 +159,7 @@ describe('seventh census on hand-built plans', () => {
 
 describe('the census population: a seed of its own per phrase (D533)', () => {
   const cases = sweepCases()
-  /** Intent: the census population of every sweep case at one level, under both profiles' defaults. */
+  /** The census population of every sweep case at one level, under both profiles' defaults. */
   const population = (level: ChordFamilyLevel) =>
     censusSettings([level]).flatMap((setting) => censusPopulation(cases, setting))
 
@@ -185,7 +185,7 @@ describe('the census population: a seed of its own per phrase (D533)', () => {
 
   it('gives each phrase the same seed at the four levels, and the same under a case limit', () => {
     const [off, ...above] = CHORD_FAMILY_LEVEL_IDS.map(population)
-    /** Intent: a census case without its level and label: the phrase it asks for, and its seed. */
+    /** A census case without its level and label: the phrase it asks for, and its seed. */
     const phrase = ({ caseIndex, controls, musicalProfile, seed }: SeventhCensusCase) => ({
       caseIndex,
       controls,
@@ -314,7 +314,7 @@ interface SweptPhrase {
 }
 
 /**
- * Intent: the reduced sweep: the census population's first cases (each under the nine modes and
+ * The reduced sweep: the census population's first cases (each under the nine modes and
  * both profiles) at one level, each phrase with a seed of its own (the census population's two
  * seeds would give the draw only sixteen bytes to read), generated and censused, failed
  * generations left out.
@@ -344,7 +344,7 @@ function reducedSweep(level: ChordFamilyLevel): readonly SweptPhrase[] {
   return swept
 }
 
-/** Intent: the share of harmony events in their seventh form over a sweep. */
+/** The share of harmony events in their seventh form over a sweep. */
 function seventhShare(swept: readonly SweptPhrase[]): number {
   const events = swept.reduce((sum, phrase) => sum + phrase.census.events.length, 0)
   const sevenths = swept.reduce((sum, phrase) => sum + phrase.census.seventhEvents, 0)

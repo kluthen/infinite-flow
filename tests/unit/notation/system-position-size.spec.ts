@@ -44,12 +44,12 @@ const SPACE = NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
 const MAX_SCALE = NOTATION_MAX_STAFF_SPACE_PX / SPACE
 const FLOOR_SCALE = NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX / SPACE
 
-/** Intent: a written range in treble clef, every built-in profile's clef. */
+/** A written range in treble clef, every built-in profile's clef. */
 function inTreble(writtenRange: InstrumentMidiRange): WrittenRangeInClef {
   return { writtenRange, clef: 'treble' }
 }
 
-/** Intent: a written range in bass clef. */
+/** A written range in bass clef. */
 function inBass(writtenRange: InstrumentMidiRange): WrittenRangeInClef {
   return { writtenRange, clef: 'bass' }
 }
@@ -59,7 +59,7 @@ const KEYBOARD: InstrumentMidiRange = { minMidi: 48, maxMidi: 72 }
 const SAXOPHONES: InstrumentMidiRange = { minMidi: 60, maxMidi: 84 }
 
 /**
- * Intent: the most staff steps a written key spells any interval of up to `semitones` with, over
+ * The most staff steps a written key spells any interval of up to `semitones` with, over
  * every starting note of one octave.
  */
 function widestSpelledSpan(key: WrittenKey, semitones: number): number {
@@ -75,7 +75,7 @@ function widestSpelledSpan(key: WrittenKey, semitones: number): number {
   return widest
 }
 
-/** Intent: the ink a written range can produce, top to bottom, in engraving units. */
+/** The ink a written range can produce, top to bottom, in engraving units. */
 function inkOf(range: InstrumentMidiRange): number {
   const ink = planStaffInk(inTreble(range))
   return ink.aboveTopLineUnits + ink.belowTopLineUnits

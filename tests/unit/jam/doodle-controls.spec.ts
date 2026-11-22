@@ -38,7 +38,7 @@ const WINDOWS = deriveRegisterWindowCandidates(
 const WIDE: NoteDensityContext = { belowTabletLandscape: false, sessionSteppedDown: false }
 const NARROW: NoteDensityContext = { belowTabletLandscape: true, sessionSteppedDown: false }
 
-/** Intent: a doodle of one note per half measure at the given pitches (two to eight of them). */
+/** A doodle of one note per half measure at the given pitches (two to eight of them). */
 function halves(pitches: readonly number[]) {
   const measureCount = pitches.length <= 4 ? 2 : 4
   return legatoDoodle(
@@ -48,7 +48,7 @@ function halves(pitches: readonly number[]) {
   )
 }
 
-/** Intent: the four rhythm values of the readings, as a rhythm setting. */
+/** The four rhythm values of the readings, as a rhythm setting. */
 function rhythmOf(readings: DoodleReadings) {
   return {
     noteDensity: readings.noteDensity.value,
@@ -92,7 +92,7 @@ describe('the contour read from a doodle', () => {
   })
 })
 
-/** Intent: a doodle of `measureCount` measures whose neighbouring notes move by the given widths. */
+/** A doodle of `measureCount` measures whose neighbouring notes move by the given widths. */
 function moving(measureCount: 1 | 2 | 4, widths: readonly number[]) {
   const pitches = widths.reduce<number[]>(
     (line, width, index) => [...line, line[index]! + (index % 2 === 0 ? width : -width)],
@@ -145,7 +145,7 @@ describe('the leapiness read from a doodle', () => {
 
 // @test-link [[rule_jam_register_follows_doodle]]
 describe('the register read from a doodle', () => {
-  /** Intent: the register read from a doodle whose last note is `pitch`. */
+  /** The register read from a doodle whose last note is `pitch`. */
   const endingOn = (pitch: number) =>
     readDoodleRegister(
       doodleOf(1, [
@@ -314,7 +314,7 @@ describe('a supported combination', () => {
   )
 })
 
-/** Intent: the doodle of the set with the given name, quantized. */
+/** The doodle of the set with the given name, quantized. */
 function setDoodle(name: string) {
   return DOODLES.find((each) => each.name === name)!.quantized
 }

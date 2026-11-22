@@ -26,12 +26,12 @@ import {
 /** The block a Jam on the fixture's kept doodle carries, at the Near drift. */
 const STEERING = buildSteeringBlock(KEPT_DOODLE.quantized, 'Near')
 
-/** Intent: a plan start that carries the kept doodle's steering block. */
+/** A plan start that carries the kept doodle's steering block. */
 function steeredStart() {
   return { ...planStart(), steering: STEERING }
 }
 
-/** Intent: an answer failing phrase 2's every carry-in rung, real otherwise. */
+/** An answer failing phrase 2's every carry-in rung, real otherwise. */
 function failingPhraseTwoCarryIn(attempt: PregenerationAttempt): PregenerationResult {
   return attempt.phraseNumber === 2 && attempt.step === 'carry-in'
     ? { kind: 'generation-failure', code: 'search_limit_exceeded' }

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 import { APP_VERSION } from '@/storage/app-version'
 
-/** Intent: the version field of the repository's package.json, read from disk. */
+/** The version field of the repository's package.json, read from disk. */
 function packageVersion(): unknown {
   const manifest: unknown = JSON.parse(
     readFileSync(new URL('../../../package.json', import.meta.url), 'utf8'),

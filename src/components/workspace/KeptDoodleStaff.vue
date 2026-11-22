@@ -35,7 +35,7 @@ const props = defineProps<{
 }>()
 
 /**
- * Intent: the start marker as PhraseScore draws it, kept as the same object while it points at the
+ * The start marker as PhraseScore draws it, kept as the same object while it points at the
  * same note, so nothing is redrawn for an unchanged marker.
  */
 // @spec-link [[rule_starting_note_named]]
@@ -51,14 +51,14 @@ const overlays = computed<ScoreOverlays>((previous) => {
   return same ? kept : { ...NO_SCORE_OVERLAYS, startMarker: marker }
 })
 
-/** Intent: the frame's state class, from phrase 1's Idle state. */
+/** The frame's state class, from phrase 1's Idle state. */
 // @spec-link [[rule_held_doodle_phrase_one_at_idle]]
 const frameClass = computed(() => idleStaffFrameClass(props.view.state))
 
 /** The room notice's cause, for which sentence `room-notice` holds; null with none. */
 const roomNotice = computed(() => props.view.state.roomNotice)
 
-/** Intent: the retained notation failure's message, never over the room notice. */
+/** The retained notation failure's message, never over the room notice. */
 // @spec-link [[rule_staff_needs_room_notice]]
 const notationErrorMessage = computed(() =>
   roomNotice.value === null ? (props.view.state.notationError?.message ?? null) : null,
@@ -66,7 +66,7 @@ const notationErrorMessage = computed(() =>
 
 const roomNoticeElement = ref<HTMLElement | null>(null)
 
-/** Intent: move focus to `room-notice`; it must be on screen. */
+/** Move focus to `room-notice`; it must be on screen. */
 function focusRoomNotice(): void {
   if (roomNoticeElement.value === null) throw new Error("Jam's staff: room-notice is not shown")
   roomNoticeElement.value.focus()

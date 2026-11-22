@@ -28,7 +28,7 @@ export class SessionHistoryExportError extends Error {
 }
 
 /**
- * Intent: the one instrument every recorded phrase was generated for. A history with no phrase
+ * The one instrument every recorded phrase was generated for. A history with no phrase
  * has nothing to export, and records of two instruments cannot come from one session, whose
  * settings are locked at start; both are caller bugs.
  */
@@ -48,7 +48,7 @@ function sessionInstrument(records: readonly ReviewedPhrase[]): InstrumentProfil
 }
 
 /**
- * Intent: the MusicXML encoder input of a recorded session: the session's instrument and, for every
+ * The MusicXML encoder input of a recorded session: the session's instrument and, for every
  * record in order, its phrase number, its stored phrase written as the staff showed it, in the clef
  * the record carries, and its tempo. Throws a SessionHistoryExportError on an empty history or
  * records of two instruments.
@@ -71,7 +71,7 @@ export function musicXmlInputFromHistory(
 }
 
 /**
- * Intent: the MIDI encoder input of a recorded session: for every record in order, its phrase
+ * The MIDI encoder input of a recorded session: for every record in order, its phrase
  * number, its stored concert timeline and its tempo, with the backing the caller asked for
  * (`null` when left off). Throws a SessionHistoryExportError on an empty history or records of two
  * instruments.
@@ -93,7 +93,7 @@ export function midiInputFromHistory(
 }
 
 /**
- * Intent: the played-notes MIDI encoder input of a recorded session: for every record in order,
+ * The played-notes MIDI encoder input of a recorded session: for every record in order,
  * its phrase number, its tempo, the audio-clock time it started sounding and the played notes the
  * history placed in it, each as its pitch, velocity, onset and release, and nothing else. Throws a
  * SessionHistoryExportError on an empty history or records of two instruments.

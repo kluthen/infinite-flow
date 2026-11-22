@@ -25,7 +25,7 @@ export class MidiClockMappingError extends Error {
 }
 
 /**
- * Intent: place a MIDI event timestamp on the audio clock by shifting it by the anchor's offset
+ * Place a MIDI event timestamp on the audio clock by shifting it by the anchor's offset
  * between the two clocks and converting milliseconds to seconds. A timestamp before the anchor
  * maps to an earlier audio time. Rejects any input that is not a finite number.
  */
@@ -37,7 +37,7 @@ export function midiTimestampToAudioTime(timestampMs: number, anchor: ClockAncho
   return anchor.audioTime + (timestampMs - anchor.performanceTimeMs) / MILLISECONDS_PER_SECOND
 }
 
-/** Intent: reject a clock reading that is not a finite number. */
+/** Reject a clock reading that is not a finite number. */
 function assertFinite(name: string, value: number): void {
   if (!Number.isFinite(value)) {
     throw new MidiClockMappingError(`The ${name} must be a finite number, got ${value}.`)

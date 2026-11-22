@@ -10,13 +10,13 @@ import { type Page, expect, test } from '@playwright/test'
 import { generateAndAwaitReady, radio } from '../workspace/helpers'
 import { WORKSPACE_HARNESS_URL, harnessSnapshot, queueSeeds } from './harness-helpers'
 
-/** Intent: open the harness with the given query string and wait for its API. */
+/** Open the harness with the given query string and wait for its API. */
 async function gotoHarnessWith(page: Page, search: string): Promise<void> {
   await page.goto(`${WORKSPACE_HARNESS_URL}${search}`)
   await page.waitForFunction(() => typeof window.__workspaceHarness !== 'undefined')
 }
 
-/** Intent: how many prewarms the page has posted to the real worker so far. */
+/** How many prewarms the page has posted to the real worker so far. */
 function prewarmCount(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.prewarmCount())
 }

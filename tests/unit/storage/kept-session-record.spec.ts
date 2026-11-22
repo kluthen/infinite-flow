@@ -73,7 +73,7 @@ const KEPT_FACTS: KeptSessionFacts = {
 /** Keys no kept record may hold anywhere. */
 const FORBIDDEN_KEYS = ['acknowledgements', 'rhythm', 'tensionBinding', 'diagnostics'] as const
 
-/** Intent: a decoded session, failing the test unless the stored values read as current. */
+/** A decoded session, failing the test unless the stored values read as current. */
 function decoded(stored: StoredKeptSession): KeptSession {
   const reading = decodeKeptSession(stored)
   if (reading.reading !== 'current')
@@ -81,7 +81,7 @@ function decoded(stored: StoredKeptSession): KeptSession {
   return reading.value
 }
 
-/** Intent: the decoded session as the exports read a history. */
+/** The decoded session as the exports read a history. */
 function exportable(session: KeptSession) {
   return { phrases: () => session.phrases, startedAt: session.summary.startedAt }
 }
@@ -343,7 +343,7 @@ describe('what a kept phrase holds in place of the musical profile', () => {
 })
 
 /**
- * Intent: a stored session's data version 1 records carried over by the upgrade steps' rewrites,
+ * A stored session's data version 1 records carried over by the upgrade steps' rewrites,
  * in order: step 2's, then step 4's, then, for the body, step 5's.
  */
 function upgraded(stored: StoredKeptSession, summary: unknown, body: unknown): StoredKeptSession {
@@ -368,7 +368,7 @@ describe('decodeKeptSession of sessions kept by earlier code at data version 1, 
     stored = storedRecords(encodeKeptSession(history, KEPT_FACTS, APP_VERSION))
   })
 
-  /** Intent: the decoded session's review and both exports equal the live history's. */
+  /** The decoded session's review and both exports equal the live history's. */
   function expectReviewAndExportsAsSaved(session: KeptSession): void {
     const records = history.phrases()
     session.phrases.forEach((phrase, index) => {

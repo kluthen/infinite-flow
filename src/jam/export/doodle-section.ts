@@ -22,7 +22,7 @@ import { rawDoodleNotesInSection, type SessionDoodle } from '@/session/session-h
 import { doodleEngravingContext, doodleWrittenPhrase } from '../doodle-engraving'
 
 /**
- * Intent: the quantized doodle as the MusicXML file writes it: the doodle written as the review's
+ * The quantized doodle as the MusicXML file writes it: the doodle written as the review's
  * doodle section engraves it, in the context of the session's phrase 1 (the key and mode the Jam
  * started with, its instrument, its clef), at its capture tempo.
  */
@@ -39,7 +39,7 @@ function musicXmlDoodle(
 }
 
 /**
- * Intent: the quantized doodle as the generated-notes MIDI file holds it: each note at its concert
+ * The quantized doodle as the generated-notes MIDI file holds it: each note at its concert
  * pitch, its start and length (sixteenth-note ticks from the doodle's first barline) in whole
  * notes, at its capture tempo.
  */
@@ -57,7 +57,7 @@ function midiDoodle(doodle: SessionDoodle): MidiDoodleSection {
 }
 
 /**
- * Intent: the doodle section a Jam's export files open with, from the Jam part's doodle and the
+ * The doodle section a Jam's export files open with, from the Jam part's doodle and the
  * session's phrase 1 (whose key, instrument and clef the doodle is written in); the same doodle
  * and phrase always give the same section.
  */
@@ -72,7 +72,7 @@ export function exportDoodleSection(
 }
 
 /**
- * Intent: the doodle section the played-notes file opens with: the doodle's measures at its
+ * The doodle section the played-notes file opens with: the doodle's measures at its
  * capture tempo from its first barline, and its raw notes, each as its pitch, velocity, onset and
  * release, those whose onset could snap inside the doodle (from a sixteenth note before its first
  * barline to its end barline); any other note the Jam part holds (a kept record read back may

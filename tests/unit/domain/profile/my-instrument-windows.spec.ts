@@ -49,7 +49,7 @@ describe('my instrument from a built-in template, unchanged', () => {
   )
 })
 
-/** Intent: the intent of a phrase played on this my instrument, at a fixed request and seed. */
+/** The intent of a phrase played on this my instrument, at a fixed request and seed. */
 function myInstrumentIntent(instrument: MyInstrument, requestId: string, seed: number) {
   return createGenerationIntent({
     requestId: makeRequestId(requestId),
@@ -127,13 +127,13 @@ const PROPERTY_RUNS = 600
 const TEMPLATES: readonly BuiltInInstrumentProfileId[] = ['c-keyboard', 'bb-tenor', 'eb-alto']
 const DIRECTIONS: readonly MyInstrumentDirection[] = ['lower', 'same', 'higher']
 
-/** Intent: a whole number drawn uniformly from [min, max] with the given generator. */
+/** A whole number drawn uniformly from [min, max] with the given generator. */
 function drawInt(next: () => number, min: number, max: number): number {
   return min + Math.floor(next() * (max - min + 1))
 }
 
 /**
- * Intent: one random input of a valid my-instrument profile: a random template, a span of 24 to 60
+ * One random input of a valid my-instrument profile: a random template, a span of 24 to 60
  * semitones, a random transposition, and a written range placed so both concert ends sound inside
  * MIDI 0–127 (the clef's bound, display only, is checked elsewhere).
  */

@@ -23,7 +23,7 @@ interface PanelOptions {
 
 const mounted: VueWrapper[] = []
 
-/** Intent: mount the panel of a session holding played notes, attached so focus can be checked. */
+/** Mount the panel of a session holding played notes, attached so focus can be checked. */
 function mountPanel(options: PanelOptions = {}) {
   const wrapper = mount(ReviewPanel, {
     props: {
@@ -53,7 +53,7 @@ function mountPanel(options: PanelOptions = {}) {
   return wrapper
 }
 
-/** Intent: the buttons of `review-view`, by their visible label. */
+/** The buttons of `review-view`, by their visible label. */
 function viewButtons(wrapper: VueWrapper): string[] {
   return wrapper.findAll('.review-view button').map((button) => {
     const state = button.find('.toggle-button-state')
@@ -65,7 +65,7 @@ function viewButtons(wrapper: VueWrapper): string[] {
   })
 }
 
-/** Intent: the `Keep my played notes` switch. */
+/** The `Keep my played notes` switch. */
 function keepSwitch(wrapper: VueWrapper) {
   const button = wrapper
     .findAll<HTMLButtonElement>('.review-view button')

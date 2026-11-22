@@ -14,13 +14,13 @@ import type { TensionArc } from '@/domain/controls/generation-controls'
 import { DEFAULT_PRESET_SELECTION } from '@/domain/presets/built-in-presets'
 import { controllerRig, outputsOf, playTo, type ControllerRig } from './session-controller-rig'
 
-/** Intent: when phrase `n` of a 240 BPM rig session starts sounding. */
+/** When phrase `n` of a 240 BPM rig session starts sounding. */
 function phraseStart(n: number): number {
   return 6.1 + 4 * (n - 1)
 }
 
 /**
- * Intent: the tension each phrase number was requested with, from every request the session made;
+ * The tension each phrase number was requested with, from every request the session made;
  * every rung of a phrase is requested with that phrase's tension, so one entry per phrase.
  */
 function requestedTension(rig: ControllerRig): ReadonlyMap<number, TensionArc> {

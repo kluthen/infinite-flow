@@ -24,7 +24,7 @@ export interface SystemExtent {
 }
 
 /**
- * Intent: find each system's inked rows, start marker included, in engraving units from its SVG's
+ * Find each system's inked rows, start marker included, in engraving units from its SVG's
  * top edge (the system position's top), by screenshotting the SVG over a transparent page and
  * scanning the alpha channel of the decoded PNG in the page's own canvas; and the drawn start
  * marker's own top edge, in the system that holds it.

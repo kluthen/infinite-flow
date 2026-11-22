@@ -20,7 +20,7 @@ import type {
 
 const CONCERT: InstrumentTransposition = { chromatic: 0, diatonic: 0 }
 
-/** Intent: one concert note event of `ticks` sixteenths at a MIDI pitch, never tied in. */
+/** One concert note event of `ticks` sixteenths at a MIDI pitch, never tied in. */
 function note(pitch: number, ticks: number): MeasureEvent {
   return makeNoteEvent({
     duration: makeRational(ticks, 16),
@@ -29,18 +29,18 @@ function note(pitch: number, ticks: number): MeasureEvent {
   })
 }
 
-/** Intent: one concert rest event of `ticks` sixteenths. */
+/** One concert rest event of `ticks` sixteenths. */
 function rest(ticks: number): MeasureEvent {
   return makeRestEvent({ duration: makeRational(ticks, 16) })
 }
 
-/** Intent: a four-measure timeline whose measure 0 holds `events`, then three whole C4s. */
+/** A four-measure timeline whose measure 0 holds `events`, then three whole C4s. */
 function firstMeasureTimeline(events: readonly MeasureEvent[]): ConcertEventTimeline {
   const wholeC4 = (index: MeasureIndex) => makeMeasure(index, [note(60, 16)])
   return makeConcertEventTimeline([makeMeasure(0, events), wholeC4(1), wholeC4(2), wholeC4(3)])
 }
 
-/** Intent: a root-position C chord symbol on every measure's downbeat. */
+/** A root-position C chord symbol on every measure's downbeat. */
 function tonicChordEachMeasure(): readonly ConcertChordSymbol[] {
   return ([0, 1, 2, 3] as const).map((measureIndex) => ({
     measureIndex,
@@ -51,19 +51,19 @@ function tonicChordEachMeasure(): readonly ConcertChordSymbol[] {
   }))
 }
 
-/** Intent: the stem direction of each glyph of measure 0, null for a rest. */
+/** The stem direction of each glyph of measure 0, null for a rest. */
 function firstMeasureStems(input: NotationPhraseInput): readonly (string | null)[] {
   return transformToWrittenPhrase(input).measures[0]!.events.map((event) =>
     event.kind === 'note' ? event.stemDirection : null,
   )
 }
 
-/** Intent: the first glyph of measure 0, which these tests always make a note. */
+/** The first glyph of measure 0, which these tests always make a note. */
 function firstNote(input: NotationPhraseInput): WrittenNote {
   return transformToWrittenPhrase(input).measures[0]!.events[0] as WrittenNote
 }
 
-/** Intent: the display-transform input for a timeline in a Major key, a C chord on every bar. */
+/** The display-transform input for a timeline in a Major key, a C chord on every bar. */
 function inputOf(
   timeline: ConcertEventTimeline,
   tonalCenter: PitchClass = 'C',

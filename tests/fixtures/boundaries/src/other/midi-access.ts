@@ -1,4 +1,4 @@
-/** Intent: request Web MIDI access. */
+/** Request Web MIDI access. */
 export function requestMidi(): Promise<MIDIAccess> {
   return navigator.requestMIDIAccess()
 }

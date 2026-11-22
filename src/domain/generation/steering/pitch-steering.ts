@@ -25,7 +25,7 @@ const WIDEST_STEP = 2
 const WIDEST_SKIP = 4
 
 /**
- * Intent: the melodic move from one pitch to the next: the same note, or up or down by a step (1
+ * The melodic move from one pitch to the next: the same note, or up or down by a step (1
  * or 2 half steps), a skip (3 or 4) or a leap (5 or more).
  */
 // @spec-link [[rule_jam_melody_follows_doodle_moves]]
@@ -41,7 +41,7 @@ export function melodicMoveBetween(fromMidi: number, toMidi: number): MelodicMov
 }
 
 /**
- * Intent: the term steering the note at `attackIndex`: the block's next move, cycled in order,
+ * The term steering the note at `attackIndex`: the block's next move, cycled in order,
  * counting the moves the phrase makes. A joined phrase's first note is reached by a move from the
  * carried pitch, so the list starts there; an unjoined phrase's first note is reached by none, so
  * the list starts at its second note. No term without a block, at strength none, with an empty
@@ -62,7 +62,7 @@ export function pitchSteeringTerm(
 }
 
 /**
- * Intent: how far a candidate's move from the note before differs from the steering move, lower
+ * How far a candidate's move from the note before differs from the steering move, lower
  * first. Direction only: 0 when the direction agrees (up, down or the same note), else 1. Size and
  * direction: 0 when both agree, 1 when only the direction does, else 2.
  */

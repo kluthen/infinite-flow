@@ -59,7 +59,7 @@ export interface PhraseOneStartSource {
 }
 
 /**
- * Intent: build one controller's Start over its core, sides and ends, with `startBlocker` reading
+ * Build one controller's Start over its core, sides and ends, with `startBlocker` reading
  * the first start condition that does not hold (null when a session may start): session mode's
  * source, its Idle phrase 1 under the player's settings now.
  */
@@ -96,7 +96,7 @@ export function createSessionStart(
 }
 
 /**
- * Intent: build one controller's start with phrase 1 from a source, over its core, sides and
+ * Build one controller's start with phrase 1 from a source, over its core, sides and
  * ends: the in-click part every start with phrase 1 takes, session mode's and a Jam on the kept
  * doodle's.
  */
@@ -110,7 +110,7 @@ export function createStartFromPhraseOne(
   const { audio, browser } = deps
 
   /**
-   * Intent: start a session from the source's phrase 1 (session mode's Idle phrase, or Jam's
+   * Start a session from the source's phrase 1 (session mode's Idle phrase, or Jam's
    * phrase 1 written from the kept doodle, whose session keeps that doodle for its review and runs
    * none of session mode's options), synchronously, inside the player's Start click
    * (or the starting note's MIDI callback, once a Connect-controller click has unlocked the audio):

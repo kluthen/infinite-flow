@@ -61,7 +61,7 @@ const WINDOWS = deriveRegisterWindowCandidates(
   C_KEYBOARD_PROFILE.registerWindows,
 )
 
-/** Intent: a request on the doodle's rhythm controls, carrying the block and the lock if given. */
+/** A request on the doodle's rhythm controls, carrying the block and the lock if given. */
 function intentOf(
   doodle: DoodleFixture,
   seed: number,
@@ -94,26 +94,26 @@ function intentOf(
   })
 }
 
-/** Intent: require a success. */
+/** Require a success. */
 function success(outcome: GenerationOutcome, where: string): Success {
   if (outcome.kind !== 'generation_success')
     throw new Error(`Expected a phrase for ${where}: ${outcome.code}`)
   return outcome
 }
 
-/** Intent: a measure's starts as heard: a rest start right after another rest is dropped. */
+/** A measure's starts as heard: a rest start right after another rest is dropped. */
 function heard(measure: MeasureStarts): MeasureStarts {
   return measure.filter(
     (start, index) => start.kind === 'note' || measure[index - 1]?.kind !== 'rest',
   )
 }
 
-/** Intent: a rhythm's measures as heard. */
+/** A rhythm's measures as heard. */
 function heardRhythm(rhythm: RhythmCandidate): readonly MeasureStarts[] {
   return rhythmStarts(rhythm.bars).map(heard)
 }
 
-/** Intent: whether every measure of the rhythm, as heard, lies inside the target's band. */
+/** Whether every measure of the rhythm, as heard, lies inside the target's band. */
 function insideBand(rhythm: RhythmCandidate, target: SteeringTargetRhythm): boolean {
   const admitted: Readonly<Record<SteeringBand, readonly string[]>> = {
     close: ['Same', 'Close'],
@@ -125,12 +125,12 @@ function insideBand(rhythm: RhythmCandidate, target: SteeringTargetRhythm): bool
   )
 }
 
-/** Intent: the total edits from the rhythm, as heard, to the target. */
+/** The total edits from the rhythm, as heard, to the target. */
 function editsToTarget(rhythm: RhythmCandidate, target: SteeringTargetRhythm): number {
   return rhythmDistance(heardRhythm(rhythm), target.measures)
 }
 
-/** Intent: the intent's whole rhythm domain, in domain order. */
+/** The intent's whole rhythm domain, in domain order. */
 function domainOf(intent: GenerationIntent): readonly RhythmCandidate[] {
   const domain = SHARED_CANONICAL_RHYTHM_DOMAIN_MEMO.lookup(rhythmDomainInputOf(intent))
   if (isNoLegalRhythmPlan(domain)) throw new Error('Fixture setup: the domain has no plan.')
@@ -138,7 +138,7 @@ function domainOf(intent: GenerationIntent): readonly RhythmCandidate[] {
 }
 
 /**
- * Intent: whether some of the rhythms makes a phrase with the chord plan, searched as the window
+ * Whether some of the rhythms makes a phrase with the chord plan, searched as the window
  * would search that one chord plan with those rhythms alone.
  */
 function anyMakesAPhrase(
@@ -172,7 +172,7 @@ interface Case {
   readonly bare: Success
 }
 
-/** Intent: every doodle of the set at every seed, with its phrase generated without a block. */
+/** Every doodle of the set at every seed, with its phrase generated without a block. */
 function cases(): readonly Case[] {
   return DOODLES.flatMap((doodle) =>
     SEEDS.map((seed) => {

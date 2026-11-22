@@ -319,7 +319,7 @@ describe('opening the one audio context', () => {
     vi.restoreAllMocks()
   })
 
-  /** Intent: stub the browser's audio context constructor to hand back `fake`, recording options. */
+  /** Stub the browser's audio context constructor to hand back `fake`, recording options. */
   function stubContext(fake: FakeWebAudioContext): unknown[] {
     const options: unknown[] = []
     vi.stubGlobal(

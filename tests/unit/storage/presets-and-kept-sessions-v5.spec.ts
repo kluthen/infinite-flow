@@ -77,13 +77,13 @@ interface V32Session {
   readonly facts: KeptSessionFacts
 }
 
-/** Intent: a C keyboard history over recorded phrases. */
+/** A C keyboard history over recorded phrases. */
 function keyboardHistory(records: readonly SessionHistoryRecord[]): KeptSessionHistory {
   return historyOf(records, 'c-keyboard')
 }
 
 /**
- * Intent: the two v3.2 sessions: a pinned one with a comment, favorites and its played notes
+ * The two v3.2 sessions: a pinned one with a comment, favorites and its played notes
  * kept, and a fresh Jam with its doodle, its played-notes clock and its played notes kept.
  */
 function v32Sessions(): readonly V32Session[] {
@@ -125,7 +125,7 @@ const V32_PRESETS: readonly Preset[] = [
   }),
 ]
 
-/** Intent: the session stored values decode to, failing the test unless they read as current. */
+/** The session stored values decode to, failing the test unless they read as current. */
 function decoded(stored: StoredKeptSession): KeptSession {
   const reading = decodeKeptSession(stored)
   if (reading.reading !== 'current')
@@ -134,14 +134,14 @@ function decoded(stored: StoredKeptSession): KeptSession {
 }
 
 /**
- * Intent: what v3.2 read of the same session: its records as the codec decodes them, every phrase
+ * What v3.2 read of the same session: its records as the codec decodes them, every phrase
  * at Off as v3.2 played it.
  */
 function keptByV32({ history, facts }: V32Session): KeptSession {
   return decoded(storedRecords(encodeKeptSession(history, facts, V32_APP_VERSION)))
 }
 
-/** Intent: the review's notation input of every phrase of a decoded session, as text. */
+/** The review's notation input of every phrase of a decoded session, as text. */
 function notationText(kept: KeptSession): string {
   return JSON.stringify(
     kept.phrases.map((phrase) =>
@@ -150,10 +150,10 @@ function notationText(kept: KeptSession): string {
   )
 }
 
-/** Intent: the bytes of every export of a decoded session, the played notes' when it keeps them. */
+/** The bytes of every export of a decoded session, the played notes' when it keeps them. */
 function exportBytes(kept: KeptSession): readonly Uint8Array[] {
   const history = {
-    /** Intent: the decoded phrases, as the exports read a history's. */
+    /** The decoded phrases, as the exports read a history's. */
     phrases: () => kept.phrases,
     startedAt: kept.summary.startedAt,
   }
@@ -162,9 +162,9 @@ function exportBytes(kept: KeptSession): readonly Uint8Array[] {
   return files.map((file) => file.bytes)
 }
 
-/** Intent: the writes of v3.2's settings, presets and one record of each other store. */
+/** The writes of v3.2's settings, presets and one record of each other store. */
 function otherStoreWrites(): StorageChange[] {
-  /** Intent: the write of one record under its key. */
+  /** The write of one record under its key. */
   const write = (store: StoreName, key: string, record: RecordVersions): StorageChange => ({
     kind: 'write',
     store,
@@ -195,7 +195,7 @@ function otherStoreWrites(): StorageChange[] {
   ]
 }
 
-/** Intent: the writes of v3.2's player preset records. */
+/** The writes of v3.2's player preset records. */
 function presetWrites(): StorageChange[] {
   return V32_PRESETS.map((preset) => ({
     kind: 'write',
@@ -205,7 +205,7 @@ function presetWrites(): StorageChange[] {
   }))
 }
 
-/** Intent: the port of the v3.3 tab over the factory's database, every production step run. */
+/** The port of the v3.3 tab over the factory's database, every production step run. */
 function openV33(factory: IDBFactory, migrations?: readonly MigrationStep[]) {
   return openStoragePort({
     factory,
@@ -214,7 +214,7 @@ function openV33(factory: IDBFactory, migrations?: readonly MigrationStep[]) {
   })
 }
 
-/** Intent: the production steps, each recorded in `ran` before it runs. */
+/** The production steps, each recorded in `ran` before it runs. */
 function recordedProductionSteps(ran: number[]): MigrationStep[] {
   return PRODUCTION_MIGRATIONS.map((step) => ({
     toVersion: step.toVersion,
@@ -225,14 +225,14 @@ function recordedProductionSteps(ran: number[]): MigrationStep[] {
   }))
 }
 
-/** Intent: the raw values stored under each write's store and key. */
+/** The raw values stored under each write's store and key. */
 function rawValues(factory: IDBFactory, writes: readonly StorageChange[]): Promise<unknown[]> {
   return withRawDatabase(factory, (database) =>
     Promise.all(writes.map((write) => rawGet(database, write.store, write.key))),
   )
 }
 
-/** Intent: a stored intent without its Seventh chords level, as v3.2 stored it. */
+/** A stored intent without its Seventh chords level, as v3.2 stored it. */
 function withoutLevel(intent: Record<string, unknown>): Record<string, unknown> {
   const { chordFamilies, ...earlier } = intent
   void chordFamilies
@@ -399,7 +399,7 @@ describe('a data version 4 database of v3.2 records, opened by v3.3', () => {
   })
 })
 
-/** Intent: a v3.0 kept session's history and facts on the tenor, phrase 2 a favorite. */
+/** A v3.0 kept session's history and facts on the tenor, phrase 2 a favorite. */
 function v30Session(): V32Session {
   return {
     key: 'v30',
@@ -414,7 +414,7 @@ function v30Session(): V32Session {
   }
 }
 
-/** Intent: expect a session reached data version 5 at Off and decodes as v3.2 read it. */
+/** Expect a session reached data version 5 at Off and decodes as v3.2 read it. */
 async function expectCarriedToV5(factory: IDBFactory, kept: V32Session): Promise<void> {
   const after = await rawSession(factory, kept.key)
   expect(after.body).toMatchObject({ dataVersion: 5, appVersion: V33_APP_VERSION })

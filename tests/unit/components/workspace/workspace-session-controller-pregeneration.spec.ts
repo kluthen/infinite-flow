@@ -32,7 +32,7 @@ import {
 } from './session-controller-rig'
 import { createGatedGenerate, type GatedGenerate } from './pregeneration-rig'
 
-/** Intent: when phrase `n` of a 240 BPM rig session starts sounding. */
+/** When phrase `n` of a 240 BPM rig session starts sounding. */
 function phraseStart(n: number): number {
   return 6.1 + 4 * (n - 1)
 }
@@ -52,7 +52,7 @@ const SAVED_LOCK: SessionOptionChoices = {
 }
 
 /**
- * Intent: a controller rig at `tempo` with an enabled pre-generation queue, the controller
+ * A controller rig at `tempo` with an enabled pre-generation queue, the controller
  * starting from `saved` choices (a first visit's by default).
  */
 function pregeneratingRig(
@@ -77,7 +77,7 @@ function pregeneratingRig(
   return { rig, background }
 }
 
-/** Intent: answer every background attempt with its real outcome until none is in flight. */
+/** Answer every background attempt with its real outcome until none is in flight. */
 async function answerBackground(background: GatedGenerate): Promise<void> {
   await flush()
   for (let answered = 0; background.calls.some((call) => !call.settled); answered += 1) {
@@ -94,7 +94,7 @@ async function answerBackground(background: GatedGenerate): Promise<void> {
  */
 const IDENTITY_TEMPO = 60
 
-/** Intent: when phrase `n` of a 60 BPM rig session starts sounding. */
+/** When phrase `n` of a 60 BPM rig session starts sounding. */
 function slowPhraseStart(n: number): number {
   return 9.1 + 16 * (n - 1)
 }
@@ -108,7 +108,7 @@ interface PlayedSession {
 }
 
 /**
- * Intent: play a 60 BPM session started from `saved` to phrase 6 sounding on the fake clock, with
+ * Play a 60 BPM session started from `saved` to phrase 6 sounding on the fake clock, with
  * the background queue answered first when `pregenerated` (its four phrases then spent, never
  * requested), else with no queue at all (the rig's disabled one); what it decided, request ids
  * aside.

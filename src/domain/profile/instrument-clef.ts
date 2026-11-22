@@ -21,14 +21,14 @@ export const INSTRUMENT_CLEFS: readonly InstrumentClef[] = Object.freeze(['trebl
 // @spec-link [[module_notation_display_convention]]
 export const BUILT_IN_INSTRUMENT_CLEF: InstrumentClef = 'treble'
 
-/** Intent: whether a value names one of the clefs an instrument's written part may be drawn in. */
+/** Whether a value names one of the clefs an instrument's written part may be drawn in. */
 // @spec-link [[entity_my_instrument]]
 export function isInstrumentClef(value: unknown): value is InstrumentClef {
   return INSTRUMENT_CLEFS.some((clef) => clef === value)
 }
 
 /**
- * Intent: the clef the instrument `id` names is drawn in: my instrument's own clef when it names
+ * The clef the instrument `id` names is drawn in: my instrument's own clef when it names
  * my instrument, treble for a built-in. Naming my instrument while none exists is a caller defect
  * and throws: a selection of it never outlives it.
  */

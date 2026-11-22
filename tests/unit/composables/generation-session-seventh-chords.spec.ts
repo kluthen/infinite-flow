@@ -43,7 +43,7 @@ const NEUTRAL_SEVENTHS: Preset = makePreset({
   kind: 'player',
 })
 
-/** Intent: a fit session started at Neutral, with the given level and player presets. */
+/** A fit session started at Neutral, with the given level and player presets. */
 function sessionAt(
   chordFamilies: ChordFamilies,
   options: FitSessionOptions = {},
@@ -63,7 +63,7 @@ function sessionAt(
   })
 }
 
-/** Intent: the level of the latest generated intent. */
+/** The level of the latest generated intent. */
 function lastLevel(generated: readonly GenerationIntent[]): ChordFamilyLevel | undefined {
   return generated.at(-1)?.chordFamilies['seventh-chords']
 }

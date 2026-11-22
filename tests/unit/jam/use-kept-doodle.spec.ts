@@ -30,7 +30,7 @@ const OTHER_DOODLE = makeQuantizedDoodle({
   ],
 })
 
-/** Intent: a kept doodle over a fixed instrument and Jam key and mode, each changeable. */
+/** A kept doodle over a fixed instrument and Jam key and mode, each changeable. */
 function keptDoodle(
   instrument: InstrumentProfile = C_KEYBOARD_PROFILE,
   keyAndMode: JamKeyAndMode = { tonalCenter: 'C', collection: 'Major' },
@@ -38,7 +38,7 @@ function keptDoodle(
   return useKeptDoodle({ instrument: () => instrument, keyAndMode: () => keyAndMode })
 }
 
-/** Intent: a kept session's Jam part as read back: no suggestion, no controls. */
+/** A kept session's Jam part as read back: no suggestion, no controls. */
 function readBack(part: ReviewedJamPart = reviewedJamPart()): ReviewedJamPart {
   return { ...part, suggestion: null, doodleControls: null }
 }

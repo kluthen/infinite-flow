@@ -130,7 +130,7 @@ const KEPT_SESSION_SUMMARY_V2_KEYS: readonly string[] = Object.freeze(
   KEPT_SESSION_SUMMARY_KEYS.filter((key) => key !== 'isJam'),
 )
 
-/** Intent: refuse, as a caller defect, a comment longer than a session comment may be. */
+/** Refuse, as a caller defect, a comment longer than a session comment may be. */
 function assertCommentLength(comment: string): void {
   if (comment.length > KEPT_SESSION_COMMENT_MAX_LENGTH)
     throw new Error(
@@ -139,7 +139,7 @@ function assertCommentLength(comment: string): void {
 }
 
 /**
- * Intent: the session-wide record of the given facts, written at the record's data version (4) by
+ * The session-wide record of the given facts, written at the record's data version (4) by
  * the app version given, which is also recorded as the version that recorded the session. Every
  * field is copied by name onto a fresh record. Throws on an empty app version, a comment over 500
  * characters, or a declined suggestion given for a session that is no Jam or missing on a Jam.
@@ -153,7 +153,7 @@ export function keptSessionSummaryRecord(
 }
 
 /**
- * Intent: v3.1's fields of a session-wide record of the given facts, recorded by `recordedBy` and
+ * v3.1's fields of a session-wide record of the given facts, recorded by `recordedBy` and
  * written by `appVersion` at `dataVersion`, every field copied by name onto a fresh record. Throws
  * on an empty app version or a comment over 500 characters.
  */
@@ -185,7 +185,7 @@ function v2Fields(
 }
 
 /**
- * Intent: the session-wide record of the given facts, recorded by `recordedBy` and written by
+ * The session-wide record of the given facts, recorded by `recordedBy` and written by
  * `appVersion` at the session-wide record's data version (4), every field copied by name onto a
  * fresh record, the declined suggestion on a Jam only. Throws on an empty app version, a comment
  * over 500 characters, or a declined suggestion given for a session that is no Jam or missing on
@@ -208,7 +208,7 @@ function summaryRecord(
 }
 
 /**
- * Intent: the session-wide record of a read summary at the record's data version (4), written by
+ * The session-wide record of a read summary at the record's data version (4), written by
  * `appVersion`, the app version that recorded the session, the Jam mark and the declined
  * suggestion kept as read: a stored record encoded again after the session's save, or a data
  * version 2 record the upgrade step to data version 4 read. Throws on an empty app version, a
@@ -226,7 +226,7 @@ export function rewrittenKeptSummaryRecord(
 }
 
 /**
- * Intent: a read v3.1 summary encoded as v3.1's session-wide record at data version 2 by
+ * A read v3.1 summary encoded as v3.1's session-wide record at data version 2 by
  * `appVersion`, the app version that recorded the session kept as read, with no Jam mark: the
  * record the upgrade step to data version 2 writes for a data version 1 record it read, which the
  * step to data version 4 then carries on. Throws on an empty app version or a comment over 500
@@ -255,7 +255,7 @@ export type KeptSummaryEdit = Partial<
 >
 
 /**
- * Intent: a stored session-wide record encoded again after the session's save, with only the
+ * A stored session-wide record encoded again after the session's save, with only the
  * player's change applied to what is stored, so a fact another tab changed since the load stays;
  * the app version that recorded the session stays, the record is written by `appVersion`. Nothing
  * when no record is stored, or it cannot be read, or a newer app wrote it. Throws on an empty app
@@ -274,7 +274,7 @@ export function rewriteKeptSummary(
   return rewrittenKeptSummaryRecord({ ...reading.value, ...edit }, appVersion)
 }
 
-/** Intent: a stored instrument: exactly a known instrument id and a non-empty display name. */
+/** A stored instrument: exactly a known instrument id and a non-empty display name. */
 function parseInstrument(value: unknown): KeptSessionInstrument {
   const record = exactRecord(value, ['id', 'displayName'], 'Kept session.instrument')
   const { id } = record
@@ -286,7 +286,7 @@ function parseInstrument(value: unknown): KeptSessionInstrument {
   }
 }
 
-/** Intent: a stored comment: a string of at most 500 characters, empty until one is written. */
+/** A stored comment: a string of at most 500 characters, empty until one is written. */
 function parseComment(value: unknown): string {
   if (typeof value !== 'string' || value.length > KEPT_SESSION_COMMENT_MAX_LENGTH)
     throw new KeptRecordError(
@@ -295,7 +295,7 @@ function parseComment(value: unknown): string {
   return value
 }
 
-/** Intent: the stored session seed, a number the domain's seed maker accepts. */
+/** The stored session seed, a number the domain's seed maker accepts. */
 function parseSessionSeed(value: unknown): Seed {
   if (typeof value !== 'number')
     throw new KeptRecordError('Kept session.sessionSeed must be a number.')
@@ -311,7 +311,7 @@ const KEPT_SESSION_SUMMARY_V1_KEYS: readonly string[] = Object.freeze(
 )
 
 /**
- * Intent: a stored session-wide record's v3.1 facts, the record's keys already checked, each field
+ * A stored session-wide record's v3.1 facts, the record's keys already checked, each field
  * valid, with the preset label read by the caller. Returns a fresh value; throws a refusal for
  * anything invalid, never repairing it.
  */
@@ -343,7 +343,7 @@ function summaryFacts(record: Record<string, unknown>, label: string): KeptSessi
 }
 
 /**
- * Intent: a stored Jam mark: a boolean, with `suggestionDeclined`, a boolean, present exactly on a
+ * A stored Jam mark: a boolean, with `suggestionDeclined`, a boolean, present exactly on a
  * Jam session.
  */
 function parseJamMark(
@@ -362,7 +362,7 @@ function parseJamMark(
 }
 
 /**
- * Intent: read a current (data version 4) session-wide record's facts, with exactly its
+ * Read a current (data version 4) session-wide record's facts, with exactly its
  * allowlisted keys (the declined suggestion on a Jam session only) and each field valid; the
  * envelope's versions are not part of the facts. Returns a fresh deep-frozen value; throws a
  * refusal for anything invalid, never repairing it.
@@ -378,7 +378,7 @@ export function parseKeptSessionSummary(value: unknown): KeptSessionSummary {
 }
 
 /**
- * Intent: read a data version 2 session-wide record's facts, v3.1's, as the upgrade step to data
+ * Read a data version 2 session-wide record's facts, v3.1's, as the upgrade step to data
  * version 4 reads it: exactly v3.1's keys (no Jam mark), every field as `parseKeptSessionSummary`
  * reads it. Returns a fresh deep-frozen value; throws a refusal for anything invalid, never
  * repairing it.
@@ -392,7 +392,7 @@ export function parseKeptSessionSummaryV2(value: unknown): KeptSessionSummaryV2 
 }
 
 /**
- * Intent: read a data version 1 session-wide record's facts, as the upgrade step to data version
+ * Read a data version 1 session-wide record's facts, as the upgrade step to data version
  * 2 reads it: exactly that version's keys, every field as `parseKeptSessionSummaryV2` reads it, and
  * its musical profile selection (a known profile and a boolean) recorded as the preset label it
  * names. Returns a fresh deep-frozen value; throws a refusal for anything invalid, never
@@ -407,7 +407,7 @@ export function parseKeptSessionSummaryV1(value: unknown): KeptSessionSummaryV2 
 }
 
 /**
- * Intent: a stored session-wide record as the session list reads it: its facts when current and
+ * A stored session-wide record as the session list reads it: its facts when current and
  * valid, `newer` when a newer app wrote it (left unread), `unreadable` otherwise.
  */
 // @spec-link [[module_kept_session_codec]]
@@ -458,7 +458,7 @@ const NEWER_FACT_READERS: {
 }
 
 /**
- * Intent: read what this version can of a session-wide record a newer version wrote, for its row:
+ * Read what this version can of a session-wide record a newer version wrote, for its row:
  * each fact the list shows, field by field, a field this version refuses left out (this tolerant
  * read is the outdated tab's, never a repair: the record is never written back). Returns a fresh
  * deep-frozen value; a value that is not a record gives no fact.

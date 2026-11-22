@@ -47,7 +47,7 @@ export type {
 } from './rhythm-types'
 
 /**
- * Intent: normalize a raw rhythm-expansion input to its validated, frozen canonical form (default
+ * Normalize a raw rhythm-expansion input to its validated, frozen canonical form (default
  * grammar version applied, every control validated against its closed catalog). Exported so the
  * Step 9 canonical-rhythm-domain memo can key its memo on exactly the same normalized shape this
  * module expands from, without duplicating validation.
@@ -401,7 +401,7 @@ export interface RhythmDomainBuilder {
 }
 
 /**
- * Intent: build what `makeRhythmCandidateDomain` plus a full drain of its first replay produce, in
+ * Build what `makeRhythmCandidateDomain` plus a full drain of its first replay produce, in
  * steps of at most one gesture unit, over the same derivation: the fast pass, then, if it found
  * nothing, the exact re-run (also stepped per gesture unit) that reports the complete code set. A
  * setting with G gestures completes in G + 1 steps, or 2 (G + 1) when it has no plan.

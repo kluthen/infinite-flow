@@ -12,7 +12,7 @@ import {
   type StaffViewport,
 } from '@/notation/notation-layout-policy'
 
-/** Intent: find the enclosing `staff-frame`, whose computed style carries the height budget. */
+/** Find the enclosing `staff-frame`, whose computed style carries the height budget. */
 function staffFrame(root: HTMLElement): HTMLElement {
   const frame = root.closest<HTMLElement>('.staff-frame')
   if (!frame) {
@@ -22,7 +22,7 @@ function staffFrame(root: HTMLElement): HTMLElement {
 }
 
 /**
- * Intent: read the viewport as the planner needs it, for a staff whose root is `root`: from the
+ * Read the viewport as the planner needs it, for a staff whose root is `root`: from the
  * breakpoint up, the one-system layout with no height budget; below it, the split layout in the
  * window's height budget, which is the frame's computed `max-block-size` (viewport units already
  * resolved to CSS px) minus its block padding and border; a frame without a maximum there means
@@ -48,7 +48,7 @@ export function readStaffViewport(root: HTMLElement): StaffViewport {
 }
 
 /**
- * Intent: each reserved position's block size, in CSS px, for the viewport and the shared
+ * Each reserved position's block size, in CSS px, for the viewport and the shared
  * system-position size, whatever the staff shows. With no room in the window's height budget, the
  * two positions share the whole budget, so the frame sits at its maximum; only a height budget
  * can leave no room for the positions.

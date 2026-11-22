@@ -22,7 +22,7 @@ import { makeSeed } from '@/domain/random/seed'
 import { NO_ROOM, ROOM, createFakeStaffFit } from './fake-staff-fit'
 import { createDeferred, flushAsync } from './fit-session-harness'
 
-/** Intent: a ladder phrase over fakes; drawings settle when the test says, or at once. */
+/** A ladder phrase over fakes; drawings settle when the test says, or at once. */
 function ladderPhrase() {
   const staff = createFakeStaffFit<GenerationIntent>()
   const log: string[] = []

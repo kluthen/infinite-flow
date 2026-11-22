@@ -25,12 +25,12 @@ import {
   settled,
 } from './sheet-model-fixtures'
 
-/** Intent: one controller change while the sheet is open. */
+/** One controller change while the sheet is open. */
 function changed(model: SheetModel, controller: MidiControllerChange) {
   return reduceSheet(model, { kind: 'controller-changed', controller })
 }
 
-/** Intent: KEYS (the chosen device) unplugged while the sheet is at `model`, PAD maybe present. */
+/** KEYS (the chosen device) unplugged while the sheet is at `model`, PAD maybe present. */
 function unplugKeys(model: SheetModel, others: readonly (typeof PAD)[] = []): SheetModel {
   return changed(model, change(selected('away', KEYS), others)).model
 }

@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test'
 
 test.use({ baseURL: 'http://127.0.0.1:4174' })
 
-/** Intent: wait until the harness publishes a settled (ready or error) engrave outcome. */
+/** Wait until the harness publishes a settled (ready or error) engrave outcome. */
 async function waitForHarnessSettled(page: import('@playwright/test').Page): Promise<void> {
   await page.waitForFunction(
     () => window.__notationHarness && window.__notationHarness.state !== 'pending',

@@ -14,7 +14,7 @@ import {
 } from '@/audio/wake-timer-protocol'
 import { createWorkerWakeTimer, type WakeTimerWorkerPort } from '@/audio/worker-wake-timer'
 
-/** Intent: a fake of the worker's interval functions and `postMessage`, recording each call. */
+/** A fake of the worker's interval functions and `postMessage`, recording each call. */
 function fakeWorkerScope() {
   const intervals: { readonly callback: () => void; readonly intervalMs: number }[] = []
   const cleared: number[] = []
@@ -28,7 +28,7 @@ function fakeWorkerScope() {
 }
 
 /**
- * Intent: a fake worker port recording what was posted and how often it was terminated, with a
+ * A fake worker port recording what was posted and how often it was terminated, with a
  * way to deliver a message back.
  */
 function fakeWakeTimerPort() {

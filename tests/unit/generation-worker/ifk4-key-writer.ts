@@ -20,7 +20,7 @@ import {
 /** The number of entries an `ifk4.` tuple holds: the `ifk5.` tuple's without the chord families. */
 const IFK4_TUPLE_LENGTH = 9
 
-/** Intent: the JSON tuple of an `ifk5.` key, read back without the codec's decoder. */
+/** The JSON tuple of an `ifk5.` key, read back without the codec's decoder. */
 function ifk5Tuple(key: string): unknown[] {
   const payload = key
     .slice(PHRASE_REPLAY_KEY_V5_PREFIX.length)
@@ -32,7 +32,7 @@ function ifk5Tuple(key: string): unknown[] {
 }
 
 /**
- * Intent: encode an intent and its phrase number as the `ifk4.` key v3.2 wrote for it, refusing an
+ * Encode an intent and its phrase number as the `ifk4.` key v3.2 wrote for it, refusing an
  * intent above Off or a carry-in holding a carried seventh, neither of which an `ifk4.` key can
  * hold, with the reason.
  */

@@ -33,7 +33,7 @@ export interface PresetSaves {
 }
 
 /**
- * Intent: the player presets' saves over the visit's line of calls to the policy, so each reaches
+ * The player presets' saves over the visit's line of calls to the policy, so each reaches
  * it in the order made: a preset's record before the selection that names it. Each resolves the
  * policy's outcome of its one batch (a defect rejects); a save as new or of changes asks for
  * persistent storage right after its write, as my instrument's write does.
@@ -42,7 +42,7 @@ export interface PresetSaves {
 // @spec-link [[rule_player_presets_saved_on_device]]
 // @spec-link [[rule_persistent_storage_requested]]
 export function createPresetSaves(submit: SubmitToPolicy, appVersion: string): PresetSaves {
-  /** Intent: apply `change` as one batch in line, then ask for protection when `protect` says. */
+  /** Apply `change` as one batch in line, then ask for protection when `protect` says. */
   const saved = (change: StorageChange, protect: boolean): Promise<SaveOutcome> =>
     new Promise((resolve, reject) => {
       submit((policy) => {
@@ -51,7 +51,7 @@ export function createPresetSaves(submit: SubmitToPolicy, appVersion: string): P
       })
     })
 
-  /** Intent: the write of a player preset's whole record, under its id. */
+  /** The write of a player preset's whole record, under its id. */
   const written = (preset: Preset): StorageChange => ({
     kind: 'write',
     store: 'presets',

@@ -82,11 +82,11 @@ interface V31Session {
 }
 
 /**
- * Intent: the five v3.1 sessions: plain, pinned with a comment, with favorites, with its played
+ * The five v3.1 sessions: plain, pinned with a comment, with favorites, with its played
  * notes kept, and one played on my instrument.
  */
 async function v31Sessions(): Promise<readonly V31Session[]> {
-  /** Intent: a recorded Neutral session's history on the instrument. */
+  /** A recorded Neutral session's history on the instrument. */
   const neutral = (id: 'bb-tenor' | 'eb-alto' | 'c-keyboard', count: number) =>
     historyOf(recordedKeptSession(id, count).phrases(), id)
   return [
@@ -110,7 +110,7 @@ async function v31Sessions(): Promise<readonly V31Session[]> {
   ]
 }
 
-/** Intent: the session stored values decode to, failing the test unless they read as current. */
+/** The session stored values decode to, failing the test unless they read as current. */
 function decoded(stored: StoredKeptSession): KeptSession {
   const reading = decodeKeptSession(stored)
   if (reading.reading !== 'current')
@@ -118,12 +118,12 @@ function decoded(stored: StoredKeptSession): KeptSession {
   return reading.value
 }
 
-/** Intent: what v3.1 read of the same session: its records, as the codec decodes them. */
+/** What v3.1 read of the same session: its records, as the codec decodes them. */
 function keptByV31({ history, facts }: V31Session): KeptSession {
   return decoded(storedRecords(encodeKeptSession(history, facts, V31_APP_VERSION)))
 }
 
-/** Intent: the review's notation input of every phrase of a decoded session, as text. */
+/** The review's notation input of every phrase of a decoded session, as text. */
 function notationText(kept: KeptSession): string {
   return JSON.stringify(
     kept.phrases.map((phrase) =>
@@ -132,10 +132,10 @@ function notationText(kept: KeptSession): string {
   )
 }
 
-/** Intent: the bytes of every export of a decoded session, the played notes' when it keeps them. */
+/** The bytes of every export of a decoded session, the played notes' when it keeps them. */
 function exportBytes(kept: KeptSession): readonly Uint8Array[] {
   const history = {
-    /** Intent: the decoded phrases, as the exports read a history's. */
+    /** The decoded phrases, as the exports read a history's. */
     phrases: () => kept.phrases,
     startedAt: kept.summary.startedAt,
   }
@@ -144,7 +144,7 @@ function exportBytes(kept: KeptSession): readonly Uint8Array[] {
   return files.map((file) => file.bytes)
 }
 
-/** Intent: the writes of one record of each store but the kept sessions', by v3.1. */
+/** The writes of one record of each store but the kept sessions', by v3.1. */
 function otherStoreWrites(): StorageChange[] {
   const lateNight = makePreset({
     ...builtInPreset('jazz'),
@@ -183,12 +183,12 @@ function otherStoreWrites(): StorageChange[] {
   ]
 }
 
-/** Intent: the port of the v3.3 tab over the factory's database, every production step run. */
+/** The port of the v3.3 tab over the factory's database, every production step run. */
 function openV33(factory: IDBFactory) {
   return openStoragePort({ factory, appVersion: V33_APP_VERSION })
 }
 
-/** Intent: the production steps, each recorded in `ran` before it runs. */
+/** The production steps, each recorded in `ran` before it runs. */
 function recordedProductionSteps(ran: number[]): MigrationStep[] {
   return PRODUCTION_MIGRATIONS.map((step) => ({
     toVersion: step.toVersion,
@@ -214,7 +214,7 @@ describe('a data version 3 database of v3.1 kept sessions, opened by v3.2', () =
   /** Each session's stored values once v3.3 has carried its body on to data version 5. */
   let carried: Map<string, StoredKeptSession>
 
-  /** Intent: each session's stored values, read raw. */
+  /** Each session's stored values, read raw. */
   async function rawSessions(): Promise<Map<string, StoredKeptSession>> {
     return new Map(
       await Promise.all(

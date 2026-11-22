@@ -18,7 +18,7 @@ import { lengthOf, strayNoteFixtures } from './stray-note-fixtures'
 /** A sixteenth note at 240 BPM, the shortest note the app writes, in seconds. */
 const SIXTEENTH_AT_240_BPM = 0.0625
 
-/** Intent: a note from `onsetAt` lasting `seconds`. */
+/** A note from `onsetAt` lasting `seconds`. */
 function noteOf(onsetAt: number, seconds: number, pitch = 60) {
   return { pitch, onsetAt, releaseAt: onsetAt + seconds }
 }

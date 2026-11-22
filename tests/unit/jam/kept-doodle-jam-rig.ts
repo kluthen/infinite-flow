@@ -43,7 +43,7 @@ export const KEPT_SUGGESTION: DoodleSuggestion = {
   collection: 'Dorian',
 }
 
-/** Intent: the kept doodle as Jam's code keeps it, its suggestion declined or not. */
+/** The kept doodle as Jam's code keeps it, its suggestion declined or not. */
 export function keptDoodleOf(
   doodle: QuantizedDoodle = KEPT_DOODLE.quantized,
   suggestionDeclined = false,
@@ -71,7 +71,7 @@ export interface KeptPhraseOptions {
 }
 
 /**
- * Intent: phrase 1 written at Idle from `doodle` under Jam's `settings` (Near drift), climbing the
+ * Phrase 1 written at Idle from `doodle` under Jam's `settings` (Near drift), climbing the
  * kept doodle's rungs with real generation from fixed providers, as Jam's Idle publishes it.
  */
 export function keptPhraseOneFrom(
@@ -131,7 +131,7 @@ export interface KeptDoodleJamRigOptions {
   readonly prepared?: boolean
 }
 
-/** Intent: a connected controller rig with a doodle kept and its phrase 1 shown at Jam's Idle. */
+/** A connected controller rig with a doodle kept and its phrase 1 shown at Jam's Idle. */
 export async function keptDoodleJamRig(
   options: KeptDoodleJamRigOptions = {},
 ): Promise<KeptDoodleJamRig> {

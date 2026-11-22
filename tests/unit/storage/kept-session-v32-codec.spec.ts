@@ -66,7 +66,7 @@ const FACTS: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: the session stored values decode to, failing the test unless they read as current. */
+/** The session stored values decode to, failing the test unless they read as current. */
 function decoded(stored: StoredKeptSession): KeptSession {
   const reading = decodeKeptSession(stored)
   if (reading.reading !== 'current')
@@ -74,13 +74,13 @@ function decoded(stored: StoredKeptSession): KeptSession {
   return reading.value
 }
 
-/** Intent: the stored records of a session over recorded phrases on the C keyboard. */
+/** The stored records of a session over recorded phrases on the C keyboard. */
 function keptRecords(records: readonly SessionHistoryRecord[]): StoredKeptSession {
   return storedRecords(encodeKeptSession(historyOf(records, 'c-keyboard'), FACTS, APP_VERSION))
 }
 
 /**
- * Intent: the stored records of the Jam-style session, its body holding the doodle as the test
+ * The stored records of the Jam-style session, its body holding the doodle as the test
  * writes it.
  */
 function jamRecords(records: readonly SessionHistoryRecord[]): StoredKeptSession {
@@ -291,7 +291,7 @@ describe("a body of another data version than the body's shape", () => {
 })
 
 /**
- * Intent: a stored value's bytes, key order and keys holding `undefined` included, so two bodies
+ * A stored value's bytes, key order and keys holding `undefined` included, so two bodies
  * compare as exactly the same stored record.
  */
 function storedBytes(value: unknown): string {
@@ -300,7 +300,7 @@ function storedBytes(value: unknown): string {
   )
 }
 
-/** Intent: an intent as v3.2 built it, before the Seventh chords level existed. */
+/** An intent as v3.2 built it, before the Seventh chords level existed. */
 function withoutChordFamilies(intent: GenerationIntent): Omit<GenerationIntent, 'chordFamilies'> {
   const { chordFamilies, ...earlier } = intent
   void chordFamilies
@@ -308,7 +308,7 @@ function withoutChordFamilies(intent: GenerationIntent): Omit<GenerationIntent, 
 }
 
 /**
- * Intent: a body as a writer wrote it when it stored each phrase's intent whole: the very intent it
+ * A body as a writer wrote it when it stored each phrase's intent whole: the very intent it
  * was written from, its Seventh chords level kept (data version 5) or dropped (data versions 2
  * and 4).
  */
@@ -326,7 +326,7 @@ function writtenWhole(
   }
 }
 
-/** Intent: a recorded phrase whose intent carries the given Seventh chords level. */
+/** A recorded phrase whose intent carries the given Seventh chords level. */
 function withChordFamilies(
   record: SessionHistoryRecord,
   chordFamilies: ChordFamilies,
@@ -335,7 +335,7 @@ function withChordFamilies(
   return { ...record, intent }
 }
 
-/** Intent: a read-back phrase whose intent carries the given Seventh chords level. */
+/** A read-back phrase whose intent carries the given Seventh chords level. */
 function parsedWithChordFamilies(
   phrase: ParsedKeptPhrase,
   chordFamilies: ChordFamilies,
@@ -344,7 +344,7 @@ function parsedWithChordFamilies(
   return { ...phrase, intent }
 }
 
-/** Intent: whether a stored body's phrases hold a `chordFamilies` key in their intent. */
+/** Whether a stored body's phrases hold a `chordFamilies` key in their intent. */
 function storesChordFamilies(body: unknown): boolean {
   return (body as KeptSessionBodyRecordV4).phrases.some((phrase) =>
     Object.hasOwn(phrase.intent, 'chordFamilies'),
@@ -367,7 +367,7 @@ describe("a body's intents and the Seventh chords level, by the data version wri
     ]
   }, 60_000)
 
-  /** Intent: the body of recorded phrases, phrase 2 a favorite, no doodle. */
+  /** The body of recorded phrases, phrase 2 a favorite, no doodle. */
   function bodyOf(records: readonly SessionHistoryRecord[]): KeptSessionBodyRecord {
     return keptSessionBodyRecord(
       records,
@@ -474,7 +474,7 @@ describe('a kept session and the Seventh chords level', () => {
     ]
   }, 60_000)
 
-  /** Intent: the stored records of a session as v3.2 saved it: its body at data version 4. */
+  /** The stored records of a session as v3.2 saved it: its body at data version 4. */
   function savedOnV32(records: readonly SessionHistoryRecord[]): StoredKeptSession {
     const stored = keptRecords(records)
     return { ...stored, body: v4Body(stored.body) }
@@ -557,7 +557,7 @@ describe('a kept session and the Seventh chords level', () => {
   })
 })
 
-/** Intent: the error a call throws, or null when it throws none. */
+/** The error a call throws, or null when it throws none. */
 function catchError(call: () => unknown): unknown {
   try {
     call()

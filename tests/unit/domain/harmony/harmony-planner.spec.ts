@@ -28,7 +28,7 @@ function domainFor(input: Partial<HarmonyPlannerInput>): HarmonyCandidateDomain 
 }
 
 /**
- * Intent: one swept harmony setting gives the same domain each time it is built (the planner reads
+ * One swept harmony setting gives the same domain each time it is built (the planner reads
  * no musical profile, so Neutral and Jazz share it), with candidates
  * indexed in order, serializable and frozen, events starting in the first measure with whole
  * half-measure durations, and at most one bar role per outer bar and two per inner bar.

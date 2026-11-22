@@ -12,13 +12,13 @@ import { createControllerRig, KEYS_A, KEYS_A2, PAD_B } from './midi-controller-r
 const C4 = makeConcertPitch(60)
 const E4 = makeConcertPitch(64)
 
-/** Intent: let every pending promise callback run. */
+/** Let every pending promise callback run. */
 function settled(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 /**
- * Intent: run `act` and return the rejections left unhandled meanwhile. While a listener of the
+ * Run `act` and return the rejections left unhandled meanwhile. While a listener of the
  * test's own is on the process, Vitest treats an unhandled rejection as handled by the test
  * instead of failing the run; the listener is removed afterwards.
  */
@@ -34,7 +34,7 @@ async function unhandledRejectionsDuring(act: () => Promise<void>): Promise<unkn
   return reasons
 }
 
-/** Intent: a rig connected to KEYS_A, with PAD_B also present when `withPad` is set. */
+/** A rig connected to KEYS_A, with PAD_B also present when `withPad` is set. */
 async function connectedToKeys(withPad = false, reopensOnReplug = true) {
   const devices = withPad ? [KEYS_A, PAD_B] : [KEYS_A]
   const rig = createControllerRig({ devices, reopensOnReplug })

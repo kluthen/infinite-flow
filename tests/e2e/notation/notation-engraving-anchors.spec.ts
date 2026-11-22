@@ -38,20 +38,20 @@ interface DrawnSvg {
   readonly noteheadXs: readonly (readonly number[])[]
 }
 
-/** Intent: open the harness with no phrase, so only the hook under test engraves. */
+/** Open the harness with no phrase, so only the hook under test engraves. */
 async function openHarness(page: Page): Promise<void> {
   await page.setViewportSize(PHONE_VIEWPORT)
   await page.goto('/?source=empty&width=700')
   await page.waitForFunction(() => window.__notationSystems !== undefined)
 }
 
-/** Intent: the CSS px per SVG user unit of a drawn system: its width over its viewBox width. */
+/** The CSS px per SVG user unit of a drawn system: its width over its viewBox width. */
 function svgScale(svg: DrawnSvg): number {
   return Number(svg.width) / Number(svg.viewBox!.split(' ')[2])
 }
 
 /**
- * Intent: check every reported anchor entry against the drawn systems: entries name the expected
+ * Check every reported anchor entry against the drawn systems: entries name the expected
  * measures and systems in phrase order; each has one start per written event, at its drawn
  * notehead or rest glyph x (scaled into CSS px), strictly increasing, past the box start and
  * before the closing barline, which is the box's right edge.

@@ -80,24 +80,24 @@ const SESSION_SEED = 4242
 /** From Neutral, the mutation seed that steps the accented passing tone up one level on phrase 3. */
 const FIGURE_STEP_ON_PHRASE_3 = 12
 
-/** Intent: the Embellishments group. */
+/** The Embellishments group. */
 function figuresGroup(page: Page): Locator {
   return page.locator('.control-group-figures')
 }
 
-/** Intent: a figure's level control, by its exact accessible name. */
+/** A figure's level control, by its exact accessible name. */
 function levelControl(page: Page, figure: FigureLabel): Locator {
   return page.getByRole('radiogroup', { name: figure, exact: true })
 }
 
-/** Intent: choose `level` for `figure` and wait until the control shows it checked. */
+/** Choose `level` for `figure` and wait until the control shows it checked. */
 async function chooseLevel(page: Page, figure: FigureLabel, level: string): Promise<void> {
   const segment = levelControl(page, figure).getByRole('radio', { name: level, exact: true })
   await segment.click()
   await expect(segment).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: the checked segment's label of each figure's control. */
+/** The checked segment's label of each figure's control. */
 async function shownLevels(page: Page): Promise<Record<FigureLabel, string>> {
   const shown = {} as Record<FigureLabel, string>
   for (const figure of FIGURES) {
@@ -108,13 +108,13 @@ async function shownLevels(page: Page): Promise<Record<FigureLabel, string>> {
   return shown
 }
 
-/** Intent: how many `generate` calls the page has made. */
+/** How many `generate` calls the page has made. */
 async function requestCount(page: Page): Promise<number> {
   return (await generationRecords(page)).length
 }
 
 /**
- * Intent: regenerate phrase 1 with `seed` and return the player request it was made from, never a
+ * Regenerate phrase 1 with `seed` and return the player request it was made from, never a
  * background attempt the harness's pre-generation mode may have made meanwhile.
  */
 async function regenerate(page: Page, seed: number): Promise<WorkspaceHarnessGenerationRequest> {
@@ -126,7 +126,7 @@ async function regenerate(page: Page, seed: number): Promise<WorkspaceHarnessGen
   return records.at(-1)!
 }
 
-/** Intent: the seven fields' boxes, in the group's order, read in one task. */
+/** The seven fields' boxes, in the group's order, read in one task. */
 function fieldBoxes(page: Page) {
   return page.evaluate(() =>
     [...document.querySelectorAll('.control-group-figures > .field-group')].map((field) => {
@@ -150,7 +150,7 @@ function fieldBoxes(page: Page) {
   )
 }
 
-/** Intent: axe finds nothing inside the Embellishments group, with the theme settled. */
+/** Axe finds nothing inside the Embellishments group, with the theme settled. */
 async function expectNoAxeViolations(page: Page, context: string): Promise<void> {
   await page.waitForFunction(() =>
     document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),

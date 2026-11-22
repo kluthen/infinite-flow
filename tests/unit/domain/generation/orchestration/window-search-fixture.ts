@@ -40,7 +40,7 @@ export interface WindowSearchFixture {
 }
 
 /**
- * Intent: build a real, cheap-to-search window-search fixture for a given seed: a Middle-register
+ * Build a real, cheap-to-search window-search fixture for a given seed: a Middle-register
  * intent/request pair and its fully ranked harmony and rhythm candidate domains. Throws if the
  * deliberately cheap controls stop yielding a harmony or rhythm plan, since that would silently
  * invalidate every test built on this fixture.

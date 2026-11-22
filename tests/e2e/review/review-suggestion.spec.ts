@@ -55,32 +55,32 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: axe's violations, one per line, for a failing assertion's message. */
+/** Axe's violations, one per line, for a failing assertion's message. */
 function describeViolations(violations: readonly { id: string; help: string }[]): string {
   return violations.map((violation) => `${violation.id}: ${violation.help}`).join('\n')
 }
 
-/** Intent: the Review's doodle section. */
+/** The Review's doodle section. */
 function doodleSection(page: Page): Locator {
   return reviewPanel(page).locator('section.review-doodle')
 }
 
-/** Intent: the doodle section's suggestion row. */
+/** The doodle section's suggestion row. */
 function suggestionRow(page: Page): Locator {
   return doodleSection(page).locator(':scope > .suggestion-row')
 }
 
-/** Intent: `Jam again on this doodle`. */
+/** `Jam again on this doodle`. */
 function jamAgain(page: Page): Locator {
   return doodleSection(page).getByRole('button', { name: 'Jam again on this doodle' })
 }
 
-/** Intent: the radio checked in the radiogroup `name` of the controls shown below the staff. */
+/** The radio checked in the radiogroup `name` of the controls shown below the staff. */
 function checkedIn(page: Page, name: 'Written key' | 'Collection'): Locator {
   return page.getByRole('radiogroup', { name, exact: true }).getByRole('radio', { checked: true })
 }
 
-/** Intent: land on Jam mode's Idle, Jam's key and mode set to C Major there. */
+/** Land on Jam mode's Idle, Jam's key and mode set to C Major there. */
 async function gotoJamInCMajor(page: Page): Promise<void> {
   await gotoJamIdle(page)
   await page
@@ -91,7 +91,7 @@ async function gotoJamInCMajor(page: Page): Promise<void> {
 }
 
 /**
- * Intent: from Jam mode's Idle, a fresh Jam whose two-measure doodle is `pitches`, one on each
+ * From Jam mode's Idle, a fresh Jam whose two-measure doodle is `pitches`, one on each
  * beat, run until phrase 1 sounds, then Stopped: the Review shows.
  */
 async function jamReviewed(page: Page, pitches: readonly number[]): Promise<void> {
@@ -108,7 +108,7 @@ async function jamReviewed(page: Page, pitches: readonly number[]): Promise<void
   await expect(reviewTitle(page)).toBeVisible()
 }
 
-/** Intent: assert the row offers A Major against Jam's C Major, its two plain buttons. */
+/** Assert the row offers A Major against Jam's C Major, its two plain buttons. */
 async function expectOffered(page: Page): Promise<void> {
   await expect(suggestionRow(page).locator(':scope > p')).toHaveText(
     'Your doodle sounds like A Major.',

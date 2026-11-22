@@ -34,7 +34,7 @@ import {
 } from './cost-guard'
 import { machineBlock } from './figure-census-sweep'
 
-/** Intent: the case limit `COST_LIMIT` sets, or none; anything but a positive integer fails. */
+/** The case limit `COST_LIMIT` sets, or none; anything but a positive integer fails. */
 function caseLimit(raw: string | undefined): number | undefined {
   if (raw === undefined) return undefined
   const limit = Number(raw)

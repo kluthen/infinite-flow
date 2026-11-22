@@ -167,7 +167,7 @@ describe('lock census runner plumbing', () => {
     expect([group.sessions, group.completed]).toEqual([4, 3])
     const figures = group.groups()
     expect(figures).toHaveLength(TENSION_ACROSS_PHRASES.length * ALLOWED_SETS.length)
-    /** Intent: the figures of one allowed list with Tension across phrases on. */
+    /** The figures of one allowed list with Tension across phrases on. */
     const arcOn = (index: number) =>
       figures.find(
         (entry) => entry.tensionAcrossPhrases && entry.allowed === ALLOWED_SETS[index]!.kinds,

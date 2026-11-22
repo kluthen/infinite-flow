@@ -9,7 +9,7 @@ const OPTIONS = [
   { value: 'c', label: 'Option C' },
 ]
 
-/** Intent: mount the three-option group with `modelValue` checked. */
+/** Mount the three-option group with `modelValue` checked. */
 function mountControl(modelValue: string | null, readonly = false) {
   return mount(SegmentedControl, {
     props: { label: 'Test group', options: OPTIONS, modelValue, readonly },
@@ -113,7 +113,7 @@ describe('SegmentedControl', () => {
       { value: 'c', label: 'Option C', disabled: true, describedBy: 'c-note' },
     ]
 
-    /** Intent: mount the group whose third option is unavailable. */
+    /** Mount the group whose third option is unavailable. */
     function mountWithDisabled(modelValue: string | null, readonly = false) {
       return mount(SegmentedControl, {
         props: { label: 'Test group', options: WITH_DISABLED, modelValue, readonly },
@@ -179,7 +179,7 @@ describe('SegmentedControl', () => {
       { value: 'c', label: 'Option C', marked: true },
     ]
 
-    /** Intent: mount the group whose first and third options are marked, its note named. */
+    /** Mount the group whose first and third options are marked, its note named. */
     function mountWithMarked(modelValue: string | null, readonly = false) {
       return mount(SegmentedControl, {
         props: {
@@ -193,7 +193,7 @@ describe('SegmentedControl', () => {
       })
     }
 
-    /** Intent: whether each segment carries the mark, in option order. */
+    /** Whether each segment carries the mark, in option order. */
     function marks(wrapper: ReturnType<typeof mountWithMarked>): boolean[] {
       return wrapper.findAll('[role="radio"]').map((radio) => radio.classes().includes('is-marked'))
     }

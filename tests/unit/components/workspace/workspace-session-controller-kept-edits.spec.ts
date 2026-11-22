@@ -30,7 +30,7 @@ interface FakeKept {
   changeOutcome: () => Promise<KeptChangeOutcome>
 }
 
-/** Intent: a fake seam over saving on (unless `savingOff`), logging changes and requests. */
+/** A fake seam over saving on (unless `savingOff`), logging changes and requests. */
 function fakeKept(savingOff = false): FakeKept {
   const fake: FakeKept = {
     calls: [],
@@ -57,7 +57,7 @@ function fakeKept(savingOff = false): FakeKept {
   return fake
 }
 
-/** Intent: a rig whose two-phrase session ended with a Review, its save resolving `outcome`. */
+/** A rig whose two-phrase session ended with a Review, its save resolving `outcome`. */
 async function afterSession(
   fake: FakeKept,
   outcomes: (() => Promise<SessionSaveOutcome>)[] = [],
@@ -73,21 +73,21 @@ async function afterSession(
   return rig
 }
 
-/** Intent: the Review's session, which must exist. */
+/** The Review's session, which must exist. */
 function reviewed(rig: ControllerRig): ReviewedSession {
   const review = rig.controller.state.review
   if (review === null) throw new Error('no Review exists')
   return review
 }
 
-/** Intent: the most recent session, which must be held in memory. */
+/** The most recent session, which must be held in memory. */
 function mostRecent(rig: ControllerRig): ReviewedSession {
   const recent = rig.controller.state.mostRecent
   if (recent?.kind !== 'held') throw new Error('no most recent session is held')
   return recent.session
 }
 
-/** Intent: the session-wide record the `index`th session save wrote, from no kept summary. */
+/** The session-wide record the `index`th session save wrote, from no kept summary. */
 function savedSummary(rig: ControllerRig, index: number): Record<string, unknown> {
   const changes = rig.sessionSaves[index]
   if (changes === undefined) throw new Error(`no session save ${index} was asked for`)

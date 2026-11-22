@@ -30,7 +30,7 @@ declare global {
 }
 
 /**
- * Intent: read every control's shown value from the page's DOM: checked and disabled radios by
+ * Read every control's shown value from the page's DOM: checked and disabled radios by
  * group, pressed toggles and spinbutton values, and the theme attribute.
  */
 const readShownControls: ShownControlsReader = () => {
@@ -55,13 +55,13 @@ const readShownControls: ShownControlsReader = () => {
   }
 }
 
-/** Intent: the controls the page shows now. */
+/** The controls the page shows now. */
 export function shownControls(page: Page): Promise<ShownControls> {
   return page.evaluate(`(${readShownControls.toString()})()`) as Promise<ShownControls>
 }
 
 /**
- * Intent: before any page script runs, on every load of the page, record the controls at the
+ * Before any page script runs, on every load of the page, record the controls at the
  * first DOM change that shows a radiogroup, which is the workspace's first draw, in the same task
  * and so before the browser paints it, into `window.__firstDraw`.
  */
@@ -77,32 +77,32 @@ export async function recordFirstDraw(page: Page): Promise<void> {
   })()`)
 }
 
-/** Intent: the controls recorded at the workspace's first draw. */
+/** The controls recorded at the workspace's first draw. */
 export async function firstDraw(page: Page): Promise<ShownControls> {
   const recorded = await page.evaluate(() => window.__firstDraw ?? null)
   if (recorded === null) throw new Error('the first draw was not recorded')
   return recorded
 }
 
-/** Intent: wait until the harness has loaded the saved data, mounted, and built its controller. */
+/** Wait until the harness has loaded the saved data, mounted, and built its controller. */
 export async function harnessReady(page: Page): Promise<void> {
   await page.waitForFunction(() => window.__workspaceHarness?.session.loaded() === true)
 }
 
-/** Intent: open the harness with `search`, ready. */
+/** Open the harness with `search`, ready. */
 export async function gotoStorageHarness(page: Page, search = ''): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto(`${WORKSPACE_HARNESS_URL}${search}`)
   await harnessReady(page)
 }
 
-/** Intent: seed settings records for the next load, through the harness's storage seam. */
+/** Seed settings records for the next load, through the harness's storage seam. */
 export function seedSettings(page: Page, values: Readonly<Record<string, unknown>>): Promise<void> {
   return page.evaluate((seeded) => window.__workspaceHarness.storage.seedSettings(seeded), values)
 }
 
 /**
- * Intent: seed the my-instrument record built from `input` for the next load, through the
+ * Seed the my-instrument record built from `input` for the next load, through the
  * harness's storage seam and the record's codec; the input is not checked.
  */
 export function seedMyInstrument(
@@ -115,13 +115,13 @@ export function seedMyInstrument(
   )
 }
 
-/** Intent: reload the page, so the load reads what is stored, and wait until it is ready. */
+/** Reload the page, so the load reads what is stored, and wait until it is ready. */
 export async function reloadHarness(page: Page): Promise<void> {
   await page.reload()
   await harnessReady(page)
 }
 
-/** Intent: every stored settings record's value, by its record key, read through the seam. */
+/** Every stored settings record's value, by its record key, read through the seam. */
 export async function storedSettings(page: Page): Promise<Record<string, unknown>> {
   const records = await page.evaluate(() => window.__workspaceHarness.storage.records('settings'))
   return Object.fromEntries(
@@ -133,7 +133,7 @@ export async function storedSettings(page: Page): Promise<Record<string, unknown
 }
 
 /**
- * Intent: wait until the settings store holds each of `expected`'s values under its key, so a
+ * Wait until the settings store holds each of `expected`'s values under its key, so a
  * reload made next reads the saved change rather than racing its write.
  */
 export async function untilStored(
@@ -144,7 +144,7 @@ export async function untilStored(
 }
 
 /**
- * Intent: every record of every store of the app's database (its seven data stores and `meta`), by
+ * Every record of every store of the app's database (its seven data stores and `meta`), by
  * store name, read in the page straight from IndexedDB.
  */
 export function databaseRecords(page: Page): Promise<Record<string, unknown[]>> {
@@ -175,7 +175,7 @@ export function databaseRecords(page: Page): Promise<Record<string, unknown[]>> 
 }
 
 /**
- * Intent: the settings stored in the app's database, by record key, read in the page straight
+ * The settings stored in the app's database, by record key, read in the page straight
  * from IndexedDB: for the production build (port 4173), which has no harness seam.
  */
 export async function databaseSettings(page: Page): Promise<Record<string, unknown>> {

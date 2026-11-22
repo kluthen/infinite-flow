@@ -23,12 +23,12 @@ export const NEWER_DATA_VERSION = DATABASE_DATA_VERSION + 1
 /** The database name the port opens by default. */
 export const DATABASE = 'infinite-flow'
 
-/** Intent: a fresh, empty in-memory IndexedDB, so no test sees another's data. */
+/** A fresh, empty in-memory IndexedDB, so no test sees another's data. */
 export function freshFactory(): IDBFactory {
   return new IDBFactory()
 }
 
-/** Intent: a record a store would hold, with valid versions and a payload. */
+/** A record a store would hold, with valid versions and a payload. */
 export function sampleRecord(
   payload: unknown,
   dataVersion = 1,
@@ -36,7 +36,7 @@ export function sampleRecord(
   return { dataVersion, appVersion: TEST_APP_VERSION, payload }
 }
 
-/** Intent: a synthetic step 1 -> 2 that rewrites nothing, recorded in `ran` when it runs. */
+/** A synthetic step 1 -> 2 that rewrites nothing, recorded in `ran` when it runs. */
 export function syntheticStep(toVersion: number, ran: number[] = []): MigrationStep {
   return {
     toVersion,
@@ -46,14 +46,14 @@ export function syntheticStep(toVersion: number, ran: number[] = []): MigrationS
   }
 }
 
-/** Intent: the production steps followed by synthetic steps up to `version`. */
+/** The production steps followed by synthetic steps up to `version`. */
 export function migrationsUpTo(version: number): MigrationStep[] {
   const steps: MigrationStep[] = [...PRODUCTION_MIGRATIONS]
   for (let next = steps.length + 1; next <= version; next += 1) steps.push(syntheticStep(next))
   return steps
 }
 
-/** Intent: the result of one raw IndexedDB request, as a promise. */
+/** The result of one raw IndexedDB request, as a promise. */
 function settle<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result)
@@ -62,7 +62,7 @@ function settle<T>(request: IDBRequest<T>): Promise<T> {
 }
 
 /**
- * Intent: run `inspect` on a raw connection to an existing database, opened without a version,
+ * Run `inspect` on a raw connection to an existing database, opened without a version,
  * and close it afterwards so it never blocks a later upgrade.
  */
 export async function withRawDatabase<T>(
@@ -79,12 +79,12 @@ export async function withRawDatabase<T>(
   }
 }
 
-/** Intent: one value read straight from a store, bypassing the port. */
+/** One value read straight from a store, bypassing the port. */
 export function rawGet(database: IDBDatabase, store: string, key: string): Promise<unknown> {
   return settle(database.transaction(store, 'readonly').objectStore(store).get(key))
 }
 
-/** Intent: one value written straight to a store, bypassing the port, once committed. */
+/** One value written straight to a store, bypassing the port, once committed. */
 export function rawPut(
   database: IDBDatabase,
   store: string,
@@ -99,7 +99,7 @@ export function rawPut(
   })
 }
 
-/** Intent: the names of the databases the factory holds. */
+/** The names of the databases the factory holds. */
 export async function databaseNames(factory: IDBFactory): Promise<string[]> {
   const databases = await factory.databases()
   return databases.map((database) => database.name ?? '')
@@ -109,7 +109,7 @@ export async function databaseNames(factory: IDBFactory): Promise<string[]> {
 export type PutFailurePath = 'request' | 'transaction'
 
 /**
- * Intent: make every `put` of one transaction fail with `failure`, the way a browser out of space
+ * Make every `put` of one transaction fail with `failure`, the way a browser out of space
  * does: thrown at the call, or by aborting the transaction with that error. The transaction hands
  * out one handle per store, so each is made to fail once.
  */
@@ -137,7 +137,7 @@ function failPuts(transaction: IDBTransaction, failure: DOMException, path: PutF
 }
 
 /**
- * Intent: a factory over an in-memory IndexedDB (a fresh one unless `real` is given, so a test can
+ * A factory over an in-memory IndexedDB (a fresh one unless `real` is given, so a test can
  * fill it first) whose connections' `put` always fails with the error `makeFailure` gives, through
  * `path`. Everything else is the real fake database.
  */
@@ -169,7 +169,7 @@ export function failingPutFactory(
 }
 
 /**
- * Intent: a factory whose `open` throws, as a browser with storage blocked does, over a fresh
+ * A factory whose `open` throws, as a browser with storage blocked does, over a fresh
  * in-memory IndexedDB that still deletes databases.
  */
 export function blockedOpenFactory(): { factory: IDBFactory; real: IDBFactory } {
@@ -191,7 +191,7 @@ export interface RecordingManager {
   readonly calls: string[]
 }
 
-/** Intent: a storage manager answering fixed values and recording each call by name. */
+/** A storage manager answering fixed values and recording each call by name. */
 export function recordingManager(): RecordingManager {
   const calls: string[] = []
   const manager: StorageManagerLike = {

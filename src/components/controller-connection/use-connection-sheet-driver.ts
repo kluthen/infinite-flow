@@ -26,7 +26,7 @@ export interface ConnectionSheetDriver {
 type DriverProps = Pick<ConnectionSheetProps, 'midi' | 'openAt' | 'connecting'>
 
 /**
- * Intent: drive the sheet over `props.midi`. Opened at Requesting access, it follows the click's
+ * Drive the sheet over `props.midi`. Opened at Requesting access, it follows the click's
  * connect attempt (the permission first, so a browser prompt shows its waiting sub-state); with no
  * attempt (a browser without Web MIDI) it settles at once. Opened at Connected, it asks nothing.
  * `onClosed` runs exactly once, on the step into `closed`, after that step's effects: what the
@@ -43,7 +43,7 @@ export function useConnectionSheetDriver(
   const midi = props.midi
   let mounted = true
 
-  /** Intent: the controller's current state, devices and remembered controller, for the reducer. */
+  /** The controller's current state, devices and remembered controller, for the reducer. */
   function snapshot(): MidiControllerChange {
     return midi.change()
   }
@@ -55,7 +55,7 @@ export function useConnectionSheetDriver(
     }).model,
   )
 
-  /** Intent: one reducer step: store the model, run its effects, tell the host if it just closed. */
+  /** One reducer step: store the model, run its effects, tell the host if it just closed. */
   function dispatch(event: SheetEvent): void {
     const wasClosed = model.value.stage.kind === 'closed'
     const step = reduceSheet(model.value, event)
@@ -64,7 +64,7 @@ export function useConnectionSheetDriver(
     if (!wasClosed && step.model.stage.kind === 'closed') onClosed()
   }
 
-  /** Intent: run one effect on the controller; a rejected select propagates, unhandled. */
+  /** Run one effect on the controller; a rejected select propagates, unhandled. */
   function runEffect(effect: SheetEffect): void {
     switch (effect.kind) {
       case 'connect':
@@ -83,7 +83,7 @@ export function useConnectionSheetDriver(
   }
 
   /**
-   * Intent: feed a connect attempt's permission, then its outcome, to the reducer while the sheet
+   * Feed a connect attempt's permission, then its outcome, to the reducer while the sheet
    * is mounted. A rejected attempt propagates, unhandled (crash early).
    */
   function follow(connecting: SheetConnecting): void {
@@ -113,7 +113,7 @@ export function useConnectionSheetDriver(
     dispatch({ kind: 'note-played', pitch })
   })
 
-  /** Intent: stop listening to the controller and ignore late outcomes once the sheet is gone. */
+  /** Stop listening to the controller and ignore late outcomes once the sheet is gone. */
   onBeforeUnmount(() => {
     mounted = false
     unsubscribeChanges()

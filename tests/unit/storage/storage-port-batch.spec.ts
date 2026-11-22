@@ -26,7 +26,7 @@ import {
   withRawDatabase,
 } from './storage-test-doubles'
 
-/** Intent: assert that `operation` rejects with a storage error of the given kind. */
+/** Assert that `operation` rejects with a storage error of the given kind. */
 async function expectRefusal(operation: Promise<unknown>, kind: StorageErrorKind): Promise<void> {
   const error: unknown = await operation.then(
     () => undefined,
@@ -36,7 +36,7 @@ async function expectRefusal(operation: Promise<unknown>, kind: StorageErrorKind
   expect((error as StorageError).kind).toBe(kind)
 }
 
-/** Intent: assert that `operation` rejects with a plain Error, a caller defect, not a refusal. */
+/** Assert that `operation` rejects with a plain Error, a caller defect, not a refusal. */
 async function expectDefect(operation: Promise<unknown>): Promise<void> {
   const error: unknown = await operation.then(
     () => undefined,
@@ -46,7 +46,7 @@ async function expectDefect(operation: Promise<unknown>): Promise<void> {
   expect(error).not.toBeInstanceOf(StorageError)
 }
 
-/** Intent: a ready port at data version 1 over `factory`, holding a theme and played notes. */
+/** A ready port at data version 1 over `factory`, holding a theme and played notes. */
 async function filledPort(factory: IDBFactory): Promise<StoragePort> {
   const port = await openStoragePort({ factory, appVersion: TEST_APP_VERSION })
   await port.write('settings', 'theme', sampleRecord('Dark'))
@@ -54,7 +54,7 @@ async function filledPort(factory: IDBFactory): Promise<StoragePort> {
   return port
 }
 
-/** Intent: assert the database still holds exactly what `filledPort` stored, read raw. */
+/** Assert the database still holds exactly what `filledPort` stored, read raw. */
 async function expectUntouched(factory: IDBFactory): Promise<void> {
   await withRawDatabase(factory, async (database) => {
     expect(await rawGet(database, 'settings', 'theme')).toEqual(sampleRecord('Dark'))
@@ -70,17 +70,17 @@ const MIXED_BATCH: readonly StorageChange[] = [
   { kind: 'write', store: 'settings', key: 'theme', record: sampleRecord('Light') },
 ]
 
-/** Intent: the error a browser out of space fails with. */
+/** The error a browser out of space fails with. */
 function lackOfSpace(): DOMException {
   return new DOMException('quota exceeded', 'QuotaExceededError')
 }
 
-/** Intent: the error of a storage failure other than a lack of space. */
+/** The error of a storage failure other than a lack of space. */
 function diskFailure(): DOMException {
   return new DOMException('disk failure', 'UnknownError')
 }
 
-/** Intent: a port over a database already holding a theme and played notes, whose puts fail. */
+/** A port over a database already holding a theme and played notes, whose puts fail. */
 async function portWhosePutsFail(
   failure: () => DOMException,
   path: 'request' | 'transaction',
@@ -182,7 +182,7 @@ describe('a batch that fails part-way', () => {
 })
 
 describe('a batch on a port that may not save', () => {
-  /** Intent: rewrite meta as a newer tab does, at the same IndexedDB version. */
+  /** Rewrite meta as a newer tab does, at the same IndexedDB version. */
   async function raiseMeta(factory: IDBFactory): Promise<void> {
     await withRawDatabase(
       factory,

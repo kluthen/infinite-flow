@@ -27,7 +27,7 @@ import { connectKeys, expectedNotesOf, lift, press } from './session-controller-
 const START_TEMPO = 120
 const PHRASE_TEMPOS = [120, 120, 125, 125, 130]
 
-/** Intent: a 120 BPM controller with a controller attached and the adaptive-tempo flag on. */
+/** A 120 BPM controller with a controller attached and the adaptive-tempo flag on. */
 async function risingRig(): Promise<ControllerRig> {
   const rig = controllerRig(undefined, undefined, { tempo: START_TEMPO })
   await connectKeys(rig)
@@ -43,7 +43,7 @@ interface QueuedBacking {
   readonly onOutput: SessionOutput | undefined
 }
 
-/** Intent: log every backing the controller queues, with the runner output it was acting on. */
+/** Log every backing the controller queues, with the runner output it was acting on. */
 function logQueuedBacking(rig: ControllerRig): QueuedBacking[] {
   const queued: QueuedBacking[] = []
   const queue = rig.transport.queueBacking
@@ -61,7 +61,7 @@ function logQueuedBacking(rig: ControllerRig): QueuedBacking[] {
   return queued
 }
 
-/** Intent: the deadline of phrase N + 1: the start of phrase N's last measure, at N's tempo. */
+/** The deadline of phrase N + 1: the start of phrase N's last measure, at N's tempo. */
 function deadlineAfter(rig: ControllerRig, phraseNumber: number): number {
   const tempo = PHRASE_TEMPOS[phraseNumber - 1]!
   return rig.transport.phraseStartsAt(phraseNumber) + 3 * measureSeconds(tempo)

@@ -70,13 +70,13 @@ import {
 import { NOTICE_AT_START, noticeAtEnd, noticeOnSounding } from './struggling-notice'
 import { requireTensionArcFlag, settingsGeneratedUnder } from './tension-arc-cycle'
 
-/** Intent: refuse a time that is not a finite number of seconds. */
+/** Refuse a time that is not a finite number of seconds. */
 function assertAudioTime(at: AudioTime): void {
   if (!Number.isFinite(at)) throw new SessionEngineError(`Audio time must be finite, got ${at}.`)
 }
 
 /**
- * Intent: open the look-ahead for the phrase after the latest decided one at `at` and wake at its
+ * Open the look-ahead for the phrase after the latest decided one at `at` and wake at its
  * deadline. A mutation scheduled on that phrase is decided first, from the window read now, the
  * step-down memory and the register whose window the carry-in holds, is in effect for it and is
  * reported first; one that meets a dead end is skipped and its skip reported first, the settings
@@ -108,7 +108,7 @@ function requestNextPhrase(
 }
 
 /**
- * Intent: at or after the look-ahead's deadline with no valid phrase, repeat the phrase before;
+ * At or after the look-ahead's deadline with no valid phrase, repeat the phrase before;
  * any attempt still in flight is dropped with it, and cancelled first while still generating.
  * Before the deadline nothing happens.
  */
@@ -121,7 +121,7 @@ function runDeadline(state: EngineState, at: AudioTime): Step {
   return { state: repeated.state, outputs: [...cancelDropped(lookAhead), ...repeated.outputs] }
 }
 
-/** Intent: a generation result: a success goes to its fit check, a failure climbs the ladder. */
+/** A generation result: a success goes to its fit check, a failure climbs the ladder. */
 function onGenerationResult(
   context: EngineContext,
   state: EngineState,
@@ -150,7 +150,7 @@ function onGenerationResult(
   }
 }
 
-/** Intent: a rejected generate request is a failed attempt, which climbs the ladder. */
+/** A rejected generate request is a failed attempt, which climbs the ladder. */
 function onGenerationCrashed(
   context: EngineContext,
   state: EngineState,
@@ -164,7 +164,7 @@ function onGenerationCrashed(
   return climb(context, state, attempt, { kind: 'crash' }, at)
 }
 
-/** Intent: a fit result: a phrase that fits is decided, one that does not climbs the ladder. */
+/** A fit result: a phrase that fits is decided, one that does not climbs the ladder. */
 function onFitResult(
   context: EngineContext,
   state: EngineState,
@@ -180,7 +180,7 @@ function onFitResult(
 }
 
 /**
- * Intent: the count-in is over: phrase 1 starts sounding at the starting tempo, the schedule may
+ * The count-in is over: phrase 1 starts sounding at the starting tempo, the schedule may
  * count it, and nothing new is requested.
  */
 function onCountInOver(context: EngineContext, state: EngineState, at: AudioTime): Step {
@@ -192,7 +192,7 @@ function onCountInOver(context: EngineContext, state: EngineState, at: AudioTime
   }
 }
 
-/** Intent: refuse a phrase that is not the next decided one to start sounding. */
+/** Refuse a phrase that is not the next decided one to start sounding. */
 function assertNextToSound(state: EngineState, phraseNumber: number): void {
   if (state.phase !== 'running')
     throw new SessionEngineError(
@@ -210,7 +210,7 @@ function assertNextToSound(state: EngineState, phraseNumber: number): void {
 }
 
 /**
- * Intent: phrase N (2 or more) starts sounding: it must be the next decided phrase, its tempo
+ * Phrase N (2 or more) starts sounding: it must be the next decided phrase, its tempo
  * fixed, and the schedule may count it. A shown notice clears if it is a generated phrase, and
  * phrase N+1 is requested with its deadline at the start of N's last measure, at N's tempo.
  */
@@ -243,7 +243,7 @@ function onPhraseStartedSounding(
 }
 
 /**
- * Intent: put a settings change in effect at `at`. The pending phrase (the undecided look-ahead,
+ * Put a settings change in effect at `at`. The pending phrase (the undecided look-ahead,
  * or the decided phrase not yet sounding) is discarded when at least a measure, at the sounding
  * phrase's tempo, remains before its deadline and none of it is on screen: a decided one is
  * undecided again, and either way it is requested again from its first rung (the standalone one
@@ -287,7 +287,7 @@ function onSettingsChange(
 }
 
 /**
- * Intent: end the session: drop the look-ahead, cancelling its attempt while still generating,
+ * End the session: drop the look-ahead, cancelling its attempt while still generating,
  * clear a shown notice and report the end.
  */
 // @spec-link [[rule_dropped_attempt_cancelled]]
@@ -309,7 +309,7 @@ function onEnd(state: EngineState, event: Extract<SessionEvent, { kind: 'end' }>
 }
 
 /**
- * Intent: after the end, late results, ticks and controller events (a loss can race the end) are
+ * After the end, late results, ticks and controller events (a loss can race the end) are
  * dropped; any other event is a caller bug.
  */
 function afterEnd(state: EngineState, event: SessionEvent): Step {
@@ -325,7 +325,7 @@ function afterEnd(state: EngineState, event: SessionEvent): Step {
   return { state, outputs: [] }
 }
 
-/** Intent: handle one event once the deadline logic has run for its time. */
+/** Handle one event once the deadline logic has run for its time. */
 function dispatch(context: EngineContext, state: EngineState, event: SessionEvent): Step {
   switch (event.kind) {
     case 'count-in-over':
@@ -354,7 +354,7 @@ function dispatch(context: EngineContext, state: EngineState, event: SessionEven
 }
 
 /**
- * Intent: what is due by `at`: the deadline logic, then the pending phrase's tempo, fixed once
+ * What is due by `at`: the deadline logic, then the pending phrase's tempo, fixed once
  * its deadline is reached, so a repeat decided at that deadline is decided first.
  */
 function runDue(state: EngineState, at: AudioTime): Step {
@@ -364,7 +364,7 @@ function runDue(state: EngineState, at: AudioTime): Step {
 }
 
 /**
- * Intent: whether `event` is a controller lost in a session started without phrase 1 before phrase
+ * Whether `event` is a controller lost in a session started without phrase 1 before phrase
  * 1 sounds, which ends the session at once, with no reconnection window.
  */
 // @spec-link [[service_session_engine]]
@@ -382,7 +382,7 @@ function lostBeforePhraseOneSounds(
 }
 
 /**
- * Intent: handle one timed event. Time never runs backwards. Before the end, any event other than
+ * Handle one timed event. Time never runs backwards. Before the end, any event other than
  * `end` first runs what is due by its time, so a result at or after the deadline is too late;
  * `end` decides nothing more. Once the event is handled, the look-ahead's carry-in attempt still
  * generating is cut over to the standalone attempt when that attempt is due, so a carry-in result
@@ -406,7 +406,7 @@ function handleEvent(context: EngineContext, state: EngineState, event: SessionE
 }
 
 /**
- * Intent: open the engine on phrase 1: keep phrase 1 decided under its own settings at the
+ * Open the engine on phrase 1: keep phrase 1 decided under its own settings at the
  * starting tempo, lock its written bars for the session when the rhythm lock is on, and request
  * phrase 2 at once (or spend its ready phrase) with its deadline.
  */
@@ -450,7 +450,7 @@ function openEngine(
 }
 
 /**
- * Intent: start a session. A start without phrase 1 holds none and draws nothing: its caller asks
+ * Start a session. A start without phrase 1 holds none and draws nothing: its caller asks
  * for phrase 1's attempts and hands phrase 1 over (createSessionEngineWithoutPhraseOne). A start
  * with phrase 1 starts from its start time, chosen settings, phrase 1 (the Idle phrase) and the
  * settings it was generated under (the chosen ones when absent), session seed (one that is no

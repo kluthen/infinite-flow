@@ -21,7 +21,7 @@ import { phraseOneFor, SessionDriver, sessionSettings } from './session-harness'
 const FAVORED: ChordFamilies = { 'seventh-chords': 'favored' }
 const STRONGLY: ChordFamilies = { 'seventh-chords': 'stronglyFavored' }
 
-/** Intent: the harness's session settings at 60 BPM with the given level and controls. */
+/** The harness's session settings at 60 BPM with the given level and controls. */
 function settingsAt(
   chordFamilies: ChordFamilies,
   controls: Parameters<typeof sessionSettings>[0] = {},
@@ -29,7 +29,7 @@ function settingsAt(
   return { ...sessionSettings({ tempo: 60, ...controls }), chordFamilies }
 }
 
-/** Intent: a real phrase 1 generated at Idle under the settings' controls and level. */
+/** A real phrase 1 generated at Idle under the settings' controls and level. */
 function phraseOneAt(settings: SessionSettings): SessionStart['phraseOne'] {
   const intent = buildIntent({
     controls: settings.controls,
@@ -40,7 +40,7 @@ function phraseOneAt(settings: SessionSettings): SessionStart['phraseOne'] {
   return { intent, outcome: generateSuccess(intent) }
 }
 
-/** Intent: the level of each intent, in order. */
+/** The level of each intent, in order. */
 function levelsOf(intents: readonly GenerationIntent[]): readonly string[] {
   return intents.map((intent) => intent.chordFamilies['seventh-chords'])
 }

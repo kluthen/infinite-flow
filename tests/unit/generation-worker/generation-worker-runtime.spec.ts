@@ -55,7 +55,7 @@ interface Rig extends RigState {
 }
 
 /**
- * Intent: a job doing `steps` steps of `stepMs` fake milliseconds each, recording every
+ * A job doing `steps` steps of `stepMs` fake milliseconds each, recording every
  * shouldYield answer, optionally throwing at step `rig.failAtStep`.
  */
 function scriptedJob(
@@ -92,7 +92,7 @@ function scriptedJob(
 }
 
 /**
- * Intent: a rig whose memo hands out scripted jobs (or nothing when `memoized`), whose scheduler
+ * A rig whose memo hands out scripted jobs (or nothing when `memoized`), whose scheduler
  * throws on a second outstanding slice, and whose generator records the intents it serves.
  */
 function createRig(steps = 20, stepMs = 3): Rig {
@@ -129,7 +129,7 @@ function createRig(steps = 20, stepMs = 3): Rig {
   return Object.assign(rig, { runtime, slices })
 }
 
-/** Intent: run the one scheduled slice, failing when none is scheduled. */
+/** Run the one scheduled slice, failing when none is scheduled. */
 function runSlice(rig: Rig): void {
   const run = rig.slices.shift()
   if (run === undefined) throw new Error('no slice scheduled')

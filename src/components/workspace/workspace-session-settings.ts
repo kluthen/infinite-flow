@@ -42,7 +42,7 @@ export interface SessionShownSettings {
 }
 
 /**
- * Intent: one session's shown settings, starting from those phrase 1 was generated with
+ * One session's shown settings, starting from those phrase 1 was generated with
  * (`phraseOne`). The session's own (`session`, the same by default) are then pending from phrase
  * 2 when they are other settings, as a change applying from there. A change is shown only at a
  * generated phrase's start; when several are pending for that phrase or earlier ones, the latest
@@ -59,12 +59,12 @@ export function createSessionShownSettings(
   let pending: PendingChange[] =
     session === phraseOne ? [] : [{ phraseNumber: 2, settings: session }]
 
-  /** Intent: keep a reported change, by the first phrase it applies to. */
+  /** Keep a reported change, by the first phrase it applies to. */
   function settingsChanged(output: SettingsChangedOutput): void {
     pending.push({ phraseNumber: output.phraseNumber, settings: output.settings })
   }
 
-  /** Intent: show, at a generated phrase's start, the latest change applying to it. */
+  /** Show, at a generated phrase's start, the latest change applying to it. */
   function phraseSounding(phrase: SessionPhrase): SessionSettings {
     if (phrase.origin === 'repeat') return shown
     const latest = pending.filter((change) => change.phraseNumber <= phrase.phraseNumber).at(-1)
@@ -97,7 +97,7 @@ export interface TensionAcrossPhrasesFlag {
 }
 
 /**
- * Intent: build the page's `Vary settings` flag over the session's phase, read reactively,
+ * Build the page's `Vary settings` flag over the session's phase, read reactively,
  * starting from `initialOn`: the player's saved choice, loaded before the first draw (the
  * engine's default, off, spec D176, on a first visit). It is held in memory for the controller's
  * life, the page's: no session's start or end resets it, and the restore at a session's end never
@@ -125,7 +125,7 @@ export function createVarySettingsFlag(
 }
 
 /**
- * Intent: build the page's `Tension across phrases` flag over the session's phase, read
+ * Build the page's `Tension across phrases` flag over the session's phase, read
  * reactively, starting from `initialOn`: the player's saved choice, loaded before the first draw
  * (off, spec D178, on a first visit). Like `Vary settings` it is held in memory for the
  * controller's life, the page's, never reset by a session's start or end, and changes only outside

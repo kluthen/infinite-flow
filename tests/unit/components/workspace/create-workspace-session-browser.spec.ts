@@ -32,7 +32,7 @@ vi.mock('@/generation-worker/browser-generation-worker', () => ({
   })),
 }))
 
-/** Intent: a jsdom stand-in for `window.matchMedia`, for a window wider than every breakpoint. */
+/** A jsdom stand-in for `window.matchMedia`, for a window wider than every breakpoint. */
 function stubWideWindow(): void {
   vi.stubGlobal(
     'matchMedia',
@@ -46,7 +46,7 @@ function stubWideWindow(): void {
 }
 
 /**
- * Intent: give jsdom's navigator a stand-in `wakeLock` whose requests are recorded. Each granted
+ * Give jsdom's navigator a stand-in `wakeLock` whose requests are recorded. Each granted
  * sentinel is an `EventTarget`, as a real `WakeLockSentinel` is, so a test can fire `release`.
  */
 function stubWakeLock(): { readonly requests: string[]; readonly sentinels: EventTarget[] } {

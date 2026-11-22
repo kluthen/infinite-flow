@@ -18,7 +18,7 @@ import type { KeptSessionSummaryRecord } from '@/storage/records/kept-session-re
 import { controllerRig, playTo, type ControllerRig } from './session-controller-rig'
 
 /**
- * Intent: a rig whose Idle knows a player preset holding its own controls and levels, Dorian or
+ * A rig whose Idle knows a player preset holding its own controls and levels, Dorian or
  * its own mode only, and has it selected; the player preset is returned with it.
  */
 function rigWithPlayerPreset(): { readonly rig: ControllerRig; readonly preset: Preset } {
@@ -40,7 +40,7 @@ function rigWithPlayerPreset(): { readonly rig: ControllerRig; readonly preset: 
   return { rig, preset }
 }
 
-/** Intent: start a session, using phrase 1 as it is when the start asks. */
+/** Start a session, using phrase 1 as it is when the start asks. */
 function start(rig: ControllerRig): void {
   if (rig.controller.start() === 'asked') expect(rig.controller.useStalePhrase()).toBe(true)
 }

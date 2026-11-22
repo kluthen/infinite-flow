@@ -65,7 +65,7 @@ const SEARCH_OUTCOME_CODES: readonly string[] = [
 const DRAWN_SHARE_TOLERANCE = 0.02
 
 /**
- * Intent: the share of harmony events a level's draw gives their seventh form first: none at Off,
+ * The share of harmony events a level's draw gives their seventh form first: none at Off,
  * every one at Strongly favored, and the level's numerator over 2^SEVENTH_DRAW_SHARE_BITS between.
  */
 function drawTarget(level: ChordFamilyLevel): number {
@@ -75,7 +75,7 @@ function drawTarget(level: ChordFamilyLevel): number {
   return numerator / 2 ** SEVENTH_DRAW_SHARE_BITS
 }
 
-/** Intent: the case limit `SEVENTHS_LIMIT` sets, or none; anything but a positive integer fails. */
+/** The case limit `SEVENTHS_LIMIT` sets, or none; anything but a positive integer fails. */
 function caseLimit(raw: string | undefined): number | undefined {
   if (raw === undefined || raw.trim() === '') return undefined
   const limit = Number(raw)
@@ -84,7 +84,7 @@ function caseLimit(raw: string | undefined): number | undefined {
   return limit
 }
 
-/** Intent: the seventh share of one mode at one level; fails when the mode generated nothing. */
+/** The seventh share of one mode at one level; fails when the mode generated nothing. */
 function modeShare(figures: LevelFigures, mode: string): number {
   const share = figures.byMode.find((each) => each.label === mode)?.seventhEvents.share
   if (share === undefined || share === null)

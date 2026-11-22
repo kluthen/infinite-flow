@@ -33,7 +33,7 @@ interface BuiltIntent {
   readonly intent: GenerationIntent
 }
 
-/** Intent: a fit runner over a three-attempt ladder and fakes, every seam call logged. */
+/** A fit runner over a three-attempt ladder and fakes, every seam call logged. */
 function ladderRun(options: { readonly failing?: (rung: string) => boolean } = {}) {
   const state = shallowReactive<IdlePhraseState<GenerationIntent>>({
     latestIntent: null,
@@ -56,7 +56,7 @@ function ladderRun(options: { readonly failing?: (rung: string) => boolean } = {
     generate: null,
   }
 
-  /** Intent: one climb from the ladder's first attempt. */
+  /** One climb from the ladder's first attempt. */
   function climb(): FitRunClimb {
     climbs.count += 1
     let at = 0

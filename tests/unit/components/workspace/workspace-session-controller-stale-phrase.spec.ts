@@ -19,14 +19,14 @@ import {
 import { connectKeys, lift, press, rigStartingNote } from './session-controller-midi'
 import { phraseStart } from './session-controller-timeline'
 
-/** Intent: a rig whose Written key changed to F♯ at Idle after phrase 1 was generated in C. */
+/** A rig whose Written key changed to F♯ at Idle after phrase 1 was generated in C. */
 function staleRig(): ControllerRig {
   const rig = controllerRig()
   rig.idle.controls = { ...rig.idle.controls, tonalCenter: 'F#' }
   return rig
 }
 
-/** Intent: nothing of a start happened: no audio unlock, no lock, no transport, no runner. */
+/** Nothing of a start happened: no audio unlock, no lock, no transport, no runner. */
 function expectNothingStarted(rig: ControllerRig, unlock: ReturnType<typeof vi.spyOn>): void {
   expect(rig.controller.state.phase).toBe('idle')
   expect(unlock).not.toHaveBeenCalled()
@@ -233,7 +233,7 @@ describe('session controller: a stale phrase 1 at the starting note', () => {
 })
 
 /**
- * Intent: a rig whose player chose F♯ Dorian in Custom from Modal (Dorian) at Idle after phrase 1
+ * A rig whose player chose F♯ Dorian in Custom from Modal (Dorian) at Idle after phrase 1
  * was generated in C Major from Neutral, so the restriction in force at Start is Dorian's.
  */
 function staleDorianRig(): ControllerRig {

@@ -102,7 +102,7 @@ const KNOWN_REJECTIONS: ReadonlyMap<string, MidiAccessRequest> = new Map<string,
 )
 
 /**
- * Intent: create the MIDI access provider over the browser's `navigator` (production passes the
+ * Create the MIDI access provider over the browser's `navigator` (production passes the
  * real one).
  * - isSupported: whether `navigator.requestMIDIAccess` exists; it is never called for that.
  * - request: the one and only `requestMIDIAccess` call of the app (a Connect controller click, or
@@ -139,7 +139,7 @@ export function createWebMidiAccessProvider(
 }
 
 /**
- * Intent: read the browser's `midi` permission without prompting: `granted`, `prompt` or `denied`
+ * Read the browser's `midi` permission without prompting: `granted`, `prompt` or `denied`
  * as the browser reports it. `unknown` when the browser can't tell: no Permissions API, or a query
  * rejected with a TypeError (the browser does not know the `midi` name). Any other rejection is no
  * known product state and propagates as it is.
@@ -157,7 +157,7 @@ async function readMidiPermission(
   }
 }
 
-/** Intent: the outcome of a known browser rejection, or a WebMidiAccessError for any other. */
+/** The outcome of a known browser rejection, or a WebMidiAccessError for any other. */
 // @spec-link [[rule_midi_never_blocks_session]]
 function mapRejection(error: unknown): MidiAccessRequest {
   if (typeof error !== 'object' || error === null || !('name' in error)) {
@@ -169,13 +169,13 @@ function mapRejection(error: unknown): MidiAccessRequest {
   throw new WebMidiAccessError(name, 'message' in error ? String(error.message) : '')
 }
 
-/** Intent: a browser port as an input, narrowing on its type. */
+/** A browser port as an input, narrowing on its type. */
 function isInput(port: WebMidiPortLike): port is WebMidiInputLike {
   return port.type === 'input'
 }
 
 /**
- * Intent: wrap a granted `MIDIAccess` into the controller's access port. Inputs are wrapped once
+ * Wrap a granted `MIDIAccess` into the controller's access port. Inputs are wrapped once
  * per browser input object, so a port keeps its identity across an unplug and a replug (Chromium
  * reuses the object). Outputs are never exposed: their state changes are ignored.
  */
@@ -184,7 +184,7 @@ function isInput(port: WebMidiPortLike): port is WebMidiInputLike {
 function wrapAccess(access: WebMidiAccessLike): MidiAccessPort {
   const wrappers = new WeakMap<WebMidiInputLike, MidiInputPort>()
 
-  /** Intent: the one wrapper of this browser input, created on first sight. */
+  /** The one wrapper of this browser input, created on first sight. */
   function wrapperOf(input: WebMidiInputLike): MidiInputPort {
     const known = wrappers.get(input)
     if (known !== undefined) return known
@@ -206,7 +206,7 @@ function wrapAccess(access: WebMidiAccessLike): MidiAccessPort {
 }
 
 /**
- * Intent: wrap one browser input. `state` and `connection` read the live properties; a null name
+ * Wrap one browser input. `state` and `connection` read the live properties; a null name
  * or manufacturer (Web MIDI's "the system gives none") reads as the empty string, both being
  * display only. Messages are forwarded with their performance.now() timestamp.
  */

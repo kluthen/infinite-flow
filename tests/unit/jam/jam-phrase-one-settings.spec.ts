@@ -14,13 +14,13 @@ import { DEFAULT_SESSION_SEED, sessionSettings } from '../session/session-harnes
 import { ONE_MEASURE } from './jam-phrase-one-fixtures'
 import { engineOutputs, phraseOneRequests, runJam, type BeatNote } from './jam-phrase-one-rig'
 
-/** Intent: Jam's settings at 120 BPM with its rhythm lock on, a strict lock. */
+/** Jam's settings at 120 BPM with its rhythm lock on, a strict lock. */
 function lockedSettings() {
   return { ...sessionSettings({ tempo: 120 }), rhythmLockOn: true }
 }
 
 /**
- * Intent: the settings and drift a fresh Jam starts under at 120 BPM, its rhythm lock on and its
+ * The settings and drift a fresh Jam starts under at 120 BPM, its rhythm lock on and its
  * own Seventh chords level Strongly favored, made by Jam's code from Jam's settings.
  */
 function stronglyFavoredJam() {
@@ -39,7 +39,7 @@ function stronglyFavoredJam() {
   )
 }
 
-/** Intent: phrase 1 fails on rungs 1 and 2 (retries 0 to 4), so rung 3 is asked; the rest succeed. */
+/** Phrase 1 fails on rungs 1 and 2 (retries 0 to 4), so rung 3 is asked; the rest succeed. */
 function ladderToRungThree(request: { readonly phraseNumber: number; readonly retry: number }) {
   return request.phraseNumber === 1 && request.retry < 5
     ? ({ after: 0.1, answer: 'search_limit_exceeded' } as const)

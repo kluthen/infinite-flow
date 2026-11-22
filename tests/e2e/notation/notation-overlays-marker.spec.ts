@@ -29,7 +29,7 @@ interface Box {
 }
 
 /**
- * Intent: show only the elements matched by `selectors` in the top system SVG, over a transparent
+ * Show only the elements matched by `selectors` in the top system SVG, over a transparent
  * page, and return the box of their drawn pixels (null when nothing is inked) and how many inked
  * pixels fall inside `probe`. Pixels, not SVG boxes: every music glyph is `<text>`, whose box is the
  * font's whole line box, far taller than the glyph.
@@ -86,7 +86,7 @@ async function inkOf(page: Page, selectors: readonly string[], probe: Box) {
   )
 }
 
-/** Intent: read the marker's box and shape, the note's notehead and staff top, and the chord box. */
+/** Read the marker's box and shape, the note's notehead and staff top, and the chord box. */
 async function readMarker(page: Page, key: string) {
   return page.evaluate((noteKey) => {
     const svg = document.querySelector('svg.staff-svg')!
@@ -134,7 +134,7 @@ const MARKER_CASES: readonly string[] = [
 ]
 
 /**
- * Intent: set the start marker on `identity` and check it against D133 on the drawn pixels: one
+ * Set the start marker on `identity` and check it against D133 on the drawn pixels: one
  * marker, 1.2 x 1 staff spaces, centred on the notehead, inside the top system, clear of the
  * staff, half a space above the note's own ink (its ledger lines and beam included) and clear of
  * its chord symbol, which never moves. Returns where it went relative to the chord symbol.

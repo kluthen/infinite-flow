@@ -78,13 +78,13 @@ export interface BeforePhraseOneStep {
   readonly handover?: PhraseOneHandover
 }
 
-/** Intent: the state at a start without phrase 1: no attempt yet, attempt ids from 1. */
+/** The state at a start without phrase 1: no attempt yet, attempt ids from 1. */
 // @spec-link [[module_session_start_without_phrase_one]]
 export function beforePhraseOneAt(at: AudioTime): BeforePhraseOne {
   return { lastAt: at, nextAttemptId: 1, attempt: undefined, ended: false }
 }
 
-/** Intent: the cancellation of the attempt in flight when it is still generating; none else. */
+/** The cancellation of the attempt in flight when it is still generating; none else. */
 function cancelInFlight(state: BeforePhraseOne): readonly SessionOutput[] {
   const { attempt } = state
   if (attempt?.stage !== 'generating') return []
@@ -92,7 +92,7 @@ function cancelInFlight(state: BeforePhraseOne): readonly SessionOutput[] {
 }
 
 /**
- * Intent: end the session in its count-in phase for `cause`: the attempt in flight is dropped,
+ * End the session in its count-in phase for `cause`: the attempt in flight is dropped,
  * cancelled first while still generating, and the end is reported as a count-in end.
  */
 // @spec-link [[rule_count_in_ending_returns_to_idle]]
@@ -112,7 +112,7 @@ function endBeforePhraseOne(
 }
 
 /**
- * Intent: request one phrase 1 attempt as the caller asked: it supersedes the attempt in flight,
+ * Request one phrase 1 attempt as the caller asked: it supersedes the attempt in flight,
  * cancelled first while still generating, takes the next attempt id and is requested at once.
  */
 // @spec-link [[rule_dropped_attempt_cancelled]]
@@ -133,7 +133,7 @@ function requestAttempt(state: BeforePhraseOne, request: AttemptRequest): Before
 }
 
 /**
- * Intent: drop the attempt in flight as its caller asked, cancelled first while still generating;
+ * Drop the attempt in flight as its caller asked, cancelled first while still generating;
  * its late result is then ignored. With none in flight, nothing happens.
  */
 // @spec-link [[rule_dropped_attempt_cancelled]]
@@ -141,7 +141,7 @@ function dropAttempt(state: BeforePhraseOne): BeforePhraseOneStep {
   return { state: { ...state, attempt: undefined }, outputs: cancelInFlight(state) }
 }
 
-/** Intent: drop the attempt in flight and report its result to the caller. */
+/** Drop the attempt in flight and report its result to the caller. */
 function reportFailure(
   state: BeforePhraseOne,
   attemptId: number,
@@ -153,13 +153,13 @@ function reportFailure(
   }
 }
 
-/** Intent: the attempt in flight with id `attemptId`, or none when it was superseded or dropped. */
+/** The attempt in flight with id `attemptId`, or none when it was superseded or dropped. */
 function attemptNamed(state: BeforePhraseOne, attemptId: number): PhraseOneAttempt | undefined {
   return state.attempt?.attemptId === attemptId ? state.attempt : undefined
 }
 
 /**
- * Intent: a generation result or a rejected request for a phrase 1 attempt: a success goes to its
+ * A generation result or a rejected request for a phrase 1 attempt: a success goes to its
  * fit check, anything else is reported as the attempt's result. A superseded attempt's late result
  * is ignored.
  */
@@ -186,7 +186,7 @@ function onAttemptGenerated(
   }
 }
 
-/** Intent: a fit result for a phrase 1 attempt, reported to the caller; a fitting one waits. */
+/** A fit result for a phrase 1 attempt, reported to the caller; a fitting one waits. */
 function onAttemptFit(
   state: BeforePhraseOne,
   event: Extract<SessionEvent, { kind: 'fit-result' }>,
@@ -205,7 +205,7 @@ function onAttemptFit(
 }
 
 /**
- * Intent: phrase 1 handed over: the attempt named must be the one in flight and fit, and phrase 1
+ * Phrase 1 handed over: the attempt named must be the one in flight and fit, and phrase 1
  * must start sounding no earlier than now. Phrase 1 takes the step its attempt took as its origin.
  */
 // @spec-link [[module_session_start_without_phrase_one]]
@@ -237,7 +237,7 @@ function onHandover(
 }
 
 /**
- * Intent: after a count-in end, late results, ticks and controller events are dropped; any other
+ * After a count-in end, late results, ticks and controller events are dropped; any other
  * event is a caller bug.
  */
 function afterEnd(state: BeforePhraseOne, event: SessionEvent): BeforePhraseOneStep {
@@ -254,7 +254,7 @@ function afterEnd(state: BeforePhraseOne, event: SessionEvent): BeforePhraseOneS
 }
 
 /**
- * Intent: handle one timed event before phrase 1 is handed over. Time never runs backwards. A
+ * Handle one timed event before phrase 1 is handed over. Time never runs backwards. A
  * phrase 1 attempt is requested, generated, fit-checked and reported, or dropped when its caller
  * cancels it; `phrase-one` hands phrase 1
  * over; `end` and a lost controller end the session as a count-in end; ticks and a controller

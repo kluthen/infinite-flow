@@ -71,13 +71,13 @@ export interface KeptSessionRows {
   readonly savingThrough: (saves: SessionSaves, held: () => ReviewedSession | null) => SessionSaves
 }
 
-/** Intent: the start a row sorts by: its session's start, unknown for a newer row without one. */
+/** The start a row sorts by: its session's start, unknown for a newer row without one. */
 function startOf(row: KeptSessionRow): number | null {
   if (row.kind === 'current') return row.summary.startedAt
   return row.readable.startedAt ?? null
 }
 
-/** Intent: rows newest first by start, a row whose start cannot be read last; frozen. */
+/** Rows newest first by start, a row whose start cannot be read last; frozen. */
 function sortedRows(rows: readonly KeptSessionRow[]): readonly KeptSessionRow[] {
   return Object.freeze(
     [...rows].sort((a, b) => (startOf(b) ?? -Infinity) - (startOf(a) ?? -Infinity)),
@@ -85,7 +85,7 @@ function sortedRows(rows: readonly KeptSessionRow[]): readonly KeptSessionRow[] 
 }
 
 /**
- * Intent: the row a stored summary gives under `key`: its facts when this version reads it, what
+ * The row a stored summary gives under `key`: its facts when this version reads it, what
  * can be read when a newer version wrote it, none when it cannot be read.
  */
 // @spec-link [[module_kept_session_reach]]
@@ -104,7 +104,7 @@ export function keptSessionRow(key: string, value: unknown): KeptSessionRow | nu
 }
 
 /**
- * Intent: whether a Jam session is among the rows whose played notes are kept, a newer row by what
+ * Whether a Jam session is among the rows whose played notes are kept, a newer row by what
  * can be read of it: then deleting every kept played note deletes raw doodle notes too, and its
  * confirmation says the doodles stay.
  */
@@ -116,7 +116,7 @@ export function jamKeepsPlayedNotes(rows: readonly KeptSessionRow[]): boolean {
   })
 }
 
-/** Intent: the facts of a session held in memory that its row shows and a change may change. */
+/** The facts of a session held in memory that its row shows and a change may change. */
 function heldFacts(session: ReviewedSession): KeptSummaryEdit {
   return {
     pinned: session.pinned,
@@ -127,7 +127,7 @@ function heldFacts(session: ReviewedSession): KeptSummaryEdit {
 }
 
 /**
- * Intent: the rows of the summaries the load read (none from the defaults), held for the visit and
+ * The rows of the summaries the load read (none from the defaults), held for the visit and
  * kept current by the controller's saves, changes and deletions.
  */
 // @spec-link [[module_kept_session_reach]]
@@ -138,7 +138,7 @@ export function useKeptSessions(summaries: readonly StoredEntry[]): KeptSessionR
     sortedRows(summaries.flatMap(({ key, value }) => keptSessionRow(key, value) ?? [])),
   )
 
-  /** Intent: replace the current row under `key` with `change` of it; others stay. */
+  /** Replace the current row under `key` with `change` of it; others stay. */
   const updateCurrent = (
     key: string,
     change: (row: Extract<KeptSessionRow, { kind: 'current' }>) => KeptSessionRow,
@@ -149,21 +149,21 @@ export function useKeptSessions(summaries: readonly StoredEntry[]): KeptSessionR
     )
   }
 
-  /** Intent: apply `edit` to the current row under `key`. */
+  /** Apply `edit` to the current row under `key`. */
   const edited = (key: string, edit: KeptSummaryEdit): void => {
     updateCurrent(key, (row) =>
       Object.freeze({ ...row, summary: Object.freeze({ ...row.summary, ...edit }) }),
     )
   }
 
-  /** Intent: drop the rows under `keys`. */
+  /** Drop the rows under `keys`. */
   const removed = (keys: readonly string[]): void => {
     if (!held.value.some((row) => keys.includes(row.key))) return
     held.value = Object.freeze(held.value.filter((row) => !keys.includes(row.key)))
   }
 
   /**
-   * Intent: a saved batch's effect on the rows: every session-wide record it deleted leaves, and
+   * A saved batch's effect on the rows: every session-wide record it deleted leaves, and
    * every one it wrote gives its row, with the facts the held session has now.
    */
   const applySaved = (batch: readonly StorageChange[], session: ReviewedSession | null): void => {

@@ -39,7 +39,7 @@ const SEVEN_PLAYED: readonly (readonly Offsets[])[] = [
 /** The note-on velocity of every played note of the session. */
 export const SEVEN_VELOCITY = 80
 
-/** Intent: a played note at absolute audio-clock times from its phrase's start. */
+/** A played note at absolute audio-clock times from its phrase's start. */
 function played(start: number, [pitch, onset, release]: Offsets): RecordedPlayedNote {
   return {
     pitch: makeConcertPitch(pitch),
@@ -50,7 +50,7 @@ function played(start: number, [pitch, onset, release]: Offsets): RecordedPlayed
 }
 
 /**
- * Intent: the seven-phrase session's records, phrase 1 first: numbered 1 to 7, at
+ * The seven-phrase session's records, phrase 1 first: numbered 1 to 7, at
  * SEVEN_TEMPOS, back to back from 2 s, each holding its played notes.
  */
 export function sevenPhraseRecords(
@@ -68,7 +68,7 @@ export function sevenPhraseRecords(
 /** The session start of the seven-phrase session, epoch milliseconds (2026-10-04 07:05:09). */
 export const SEVEN_STARTED_AT = new Date(2026, 9, 4, 7, 5, 9).getTime()
 
-/** Intent: the seven-phrase session as the export reads it, with a comment the Review shows. */
+/** The seven-phrase session as the export reads it, with a comment the Review shows. */
 export function sevenPhraseHistory(
   records: readonly SessionHistoryRecord[] = sevenPhraseRecords(),
 ) {

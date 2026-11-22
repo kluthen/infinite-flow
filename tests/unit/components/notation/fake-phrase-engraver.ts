@@ -32,7 +32,7 @@ export type FakePhraseEngraverModule = Pick<
   'ensureNotationFonts' | 'engraveWrittenPhrase' | 'engravePhraseSystem'
 >
 
-/** Intent: one fake system SVG of phrase `phraseNumber`, drawing the given measures. */
+/** One fake system SVG of phrase `phraseNumber`, drawing the given measures. */
 function fakeSystemSvg(phraseNumber: number, part: SystemPart): SVGSVGElement {
   const svg = document.createElementNS(SVG_NS, 'svg')
   svg.setAttribute('class', 'staff-svg')
@@ -55,7 +55,7 @@ export const FAKE_MEASURE_PX = 200
 export const FAKE_SYSTEM_START_PX = 20
 
 /**
- * Intent: the anchors of a fake engraving: each system's measures side by side from
+ * The anchors of a fake engraving: each system's measures side by side from
  * FAKE_SYSTEM_START_PX, FAKE_MEASURE_PX wide, each event 10 px into its measure plus its start
  * tick's share of 180 px, and each barline at its measure's end.
  */
@@ -75,7 +75,7 @@ export function fakeMeasureAnchors(phrase: WrittenPhrase, parts: readonly System
   )
 }
 
-/** Intent: the fixed geometry every fake engraving reports. */
+/** The fixed geometry every fake engraving reports. */
 function fakeGeometry(viewport: StaffViewport) {
   return {
     staffSpacePx: 10,
@@ -88,7 +88,7 @@ function fakeGeometry(viewport: StaffViewport) {
   }
 }
 
-/** Intent: draw a whole phrase as the real engraver lays it out: one system, or two halves. */
+/** Draw a whole phrase as the real engraver lays it out: one system, or two halves. */
 function fakeEngraveWrittenPhrase(
   ...[targets, phrase, phraseNumber, , viewport]: Parameters<
     VexflowEngraverModule['engraveWrittenPhrase']
@@ -110,7 +110,7 @@ function fakeEngraveWrittenPhrase(
   }
 }
 
-/** Intent: draw one system part of a phrase into its host, as the real engraver does. */
+/** Draw one system part of a phrase into its host, as the real engraver does. */
 function fakeEngravePhraseSystem(
   host: HTMLElement,
   _phrase: WrittenPhrase,
@@ -135,7 +135,7 @@ export const fakePhraseEngraver = {
 
 export const loadVexflowEngraver = vi.fn<() => Promise<FakePhraseEngraverModule>>()
 
-/** Intent: put every spy back to drawing fake systems, with no calls recorded. */
+/** Put every spy back to drawing fake systems, with no calls recorded. */
 export function resetFakePhraseEngraver(): void {
   fakePhraseEngraver.ensureNotationFonts.mockReset().mockResolvedValue(undefined)
   fakePhraseEngraver.engraveWrittenPhrase.mockReset().mockImplementation(fakeEngraveWrittenPhrase)
@@ -146,13 +146,13 @@ export function resetFakePhraseEngraver(): void {
 resetFakePhraseEngraver()
 
 /**
- * Intent: load the staff drawing code PhraseScore loads with the engraver
+ * Load the staff drawing code PhraseScore loads with the engraver
  * (`@/components/notation/load-staff-drawing`), through a keeper no score uses, so every score
  * mounted afterwards finds it loaded, as each one after the app's first engraving does, and
  * engraves within the promises this stand-in settles.
  */
 export async function loadStaffDrawing(): Promise<void> {
-  /** Intent: refuse a call no keeper that only loads the code may receive. */
+  /** Refuse a call no keeper that only loads the code may receive. */
   const unused = (): never => {
     throw new Error('The keeper that loads the staff drawing code draws nothing.')
   }

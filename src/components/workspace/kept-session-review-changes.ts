@@ -30,13 +30,13 @@ export type KeptReviewCodec = Pick<
   | 'decodeKeptSessionSummary'
 >
 
-/** Intent: load the kept-session codec, which the first draw never needs. */
+/** Load the kept-session codec, which the first draw never needs. */
 function loadCodec(): Promise<KeptReviewCodec> {
   return import('@/storage/records/kept-session-record')
 }
 
 /**
- * Intent: the change that marks phrase `phraseNumber` of the session under `key` a favorite, or
+ * The change that marks phrase `phraseNumber` of the session under `key` a favorite, or
  * removes its mark: its body rewritten with the mark, and its session-wide record with the
  * favorites count the body then holds, pinned too when marking; nothing unless both are stored
  * and readable.
@@ -70,7 +70,7 @@ export function favoriteChanges(
 }
 
 /**
- * Intent: the change that pins or unpins the session under `key`, from its Review or its list row:
+ * The change that pins or unpins the session under `key`, from its Review or its list row:
  * its session-wide record read and rewritten saying so, and nothing else read or written.
  */
 // @spec-link [[module_kept_session_changes]]
@@ -86,7 +86,7 @@ export function pinnedChanges(
 }
 
 /**
- * Intent: the change that sets the comment of the session under `key` (empty: none): its
+ * The change that sets the comment of the session under `key` (empty: none): its
  * session-wide record rewritten with it, and nothing else.
  */
 // @spec-link [[module_kept_session_changes]]
@@ -101,7 +101,7 @@ export function commentChanges(
 }
 
 /**
- * Intent: the change that declines the key and mode suggestion of the Jam session under `key`
+ * The change that declines the key and mode suggestion of the Jam session under `key`
  * (`Keep mine`): its session-wide record rewritten saying so, and nothing else.
  */
 // @spec-link [[module_kept_session_changes]]
@@ -118,7 +118,7 @@ export function declineChanges(
 const KEPT_SESSION_STORES = ['sessionSummaries', 'sessionBodies', 'playedNotes'] as const
 
 /**
- * Intent: the change that deletes the session under `key`, from its Review or its list row: its
+ * The change that deletes the session under `key`, from its Review or its list row: its
  * session-wide record, its body and its played notes in one batch, when its session-wide record
  * is stored and readable (the only record read); nothing otherwise (gone already, or left as it
  * is for the deletion of damaged sessions).
@@ -136,7 +136,7 @@ export function deleteSessionChanges(codec: KeptReviewCodec, key: string): KeptC
 }
 
 /**
- * Intent: the change that deletes every kept session: every key the session-wide records, the
+ * The change that deletes every kept session: every key the session-wide records, the
  * bodies and the played notes hold, read by its key only (never a record), deleted in one batch,
  * a session whose session-wide record is missing or cannot be read included; an empty batch when
  * nothing is stored. No key is filtered by the version that wrote it (spec D333).
@@ -153,7 +153,7 @@ export const deleteEverySessionChanges: KeptChanges = async (reader) => {
 }
 
 /**
- * Intent: the deletes of the sessions under `keys`, for the batch that deletes or changes my
+ * The deletes of the sessions under `keys`, for the batch that deletes or changes my
  * instrument (spec D326): each session's session-wide record, body and played notes, built as
  * `Delete session` builds them, so a counted session gone from the device adds nothing. Named by
  * the counted keys, never by keys rebuilt from their facts; the codec loads only when a key is
@@ -170,7 +170,7 @@ export function keptSessionsDeletes(keys: readonly string[]): KeptChanges {
   }
 }
 
-/** Intent: run a change built with the codec through the visit's saves; resolve its outcome. */
+/** Run a change built with the codec through the visit's saves; resolve its outcome. */
 async function changed(
   saves: Pick<KeptSessionChanges, 'changeKept'>,
   build: (codec: KeptReviewCodec) => KeptChanges,
@@ -180,7 +180,7 @@ async function changed(
 }
 
 /**
- * Intent: mark phrase `phraseNumber` of the session under `key` a favorite, or remove the mark,
+ * Mark phrase `phraseNumber` of the session under `key` a favorite, or remove the mark,
  * after its save; a refusal is told by the notice row, the change holding in memory.
  */
 // @spec-link [[module_kept_session_changes]]
@@ -198,7 +198,7 @@ export function changeKeptFavorite(
   )
 }
 
-/** Intent: pin or unpin the session under `key` after its save; the notice row tells a refusal. */
+/** Pin or unpin the session under `key` after its save; the notice row tells a refusal. */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[rule_pinned_session_kept]]
 export function changeKeptPinned(
@@ -209,7 +209,7 @@ export function changeKeptPinned(
   return changed(saves, (codec) => pinnedChanges(codec, key, pinned, APP_VERSION), 'notice')
 }
 
-/** Intent: set the comment of the session under `key`; the notice row tells a refusal. */
+/** Set the comment of the session under `key`; the notice row tells a refusal. */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[rule_session_comment]]
 export function changeKeptComment(
@@ -220,7 +220,7 @@ export function changeKeptComment(
   return changed(saves, (codec) => commentChanges(codec, key, comment, APP_VERSION), 'notice')
 }
 
-/** Intent: decline the suggestion of the Jam session under `key`; the notice row tells a refusal. */
+/** Decline the suggestion of the Jam session under `key`; the notice row tells a refusal. */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[rule_suggestion_keep_mine]]
 export function changeKeptDecline(
@@ -230,7 +230,7 @@ export function changeKeptDecline(
   return changed(saves, (codec) => declineChanges(codec, key, APP_VERSION), 'notice')
 }
 
-/** Intent: delete the session under `key` and its records; its sheet tells a refusal. */
+/** Delete the session under `key` and its records; its sheet tells a refusal. */
 // @spec-link [[module_kept_session_changes]]
 // @spec-link [[req_kept_session_list]]
 export function deleteKeptSession(
@@ -241,7 +241,7 @@ export function deleteKeptSession(
 }
 
 /**
- * Intent: delete every kept session and its records, a session with no row included; its
+ * Delete every kept session and its records, a session with no row included; its
  * confirmation tells a refusal. Resolves `unchanged` when nothing is stored.
  */
 // @spec-link [[module_kept_session_changes]]

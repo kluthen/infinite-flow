@@ -50,7 +50,7 @@ const MY_ALTO = makeMyInstrument({
   clef: 'treble',
 }).profile
 
-/** Intent: session settings for my instrument at 60 BPM in written D, with some controls changed. */
+/** Session settings for my instrument at 60 BPM in written D, with some controls changed. */
 function mySettings(
   controls: Partial<GenerationControls> = {},
   profile: InstrumentProfile = MINOR_THIRD_LOWER,
@@ -73,7 +73,7 @@ function mySettings(
   }
 }
 
-/** Intent: a real phrase 1 generated at Idle under the settings, with its profile as data. */
+/** A real phrase 1 generated at Idle under the settings, with its profile as data. */
 function myPhraseOne(settings: SessionSettings, seed = 11): SessionStart['phraseOne'] {
   const intent = createGenerationIntent({
     requestId: makeRequestId(`my-phrase-1-${seed}`),
@@ -88,7 +88,7 @@ function myPhraseOne(settings: SessionSettings, seed = 11): SessionStart['phrase
   return { intent, outcome: generateSuccess(intent) }
 }
 
-/** Intent: expect every intent to be built for my instrument with the given profile. */
+/** Expect every intent to be built for my instrument with the given profile. */
 function expectBuiltWith(intents: readonly GenerationIntent[], profile: InstrumentProfile): void {
   expect(intents.length).toBeGreaterThan(0)
   for (const intent of intents) {
@@ -183,7 +183,7 @@ describe('the carry-in receiver converts the tonal center with my instrument’s
   ]
   const SEEDS = [11, 12, 13, 14, 15]
 
-  /** Intent: the alto's settings, built-in or my instrument, in written D with some controls set. */
+  /** The alto's settings, built-in or my instrument, in written D with some controls set. */
   function altoSettings(mine: boolean, controls: Partial<GenerationControls>): SessionSettings {
     if (mine) return mySettings(controls, MY_ALTO)
     return {
@@ -202,7 +202,7 @@ describe('the carry-in receiver converts the tonal center with my instrument’s
     }
   }
 
-  /** Intent: the adaptation of phrase 1's carry-in to one change, for the built-in or mine. */
+  /** The adaptation of phrase 1's carry-in to one change, for the built-in or mine. */
   function adaptationFor(mine: boolean, seed: number, change: Partial<GenerationControls>) {
     const before = altoSettings(mine, {})
     const phrase = myPhraseOne(before, seed)
@@ -261,7 +261,7 @@ describe('settings whose profile does not match their instrument are refused at 
   })
 })
 
-/** Intent: the built-in alto's settings in written D at 60 BPM. */
+/** The built-in alto's settings in written D at 60 BPM. */
 function altoBuiltIn(): SessionSettings {
   return {
     controls: makeGenerationControls({

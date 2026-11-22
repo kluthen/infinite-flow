@@ -107,7 +107,7 @@ interface Flight {
   release: () => void
 }
 
-/** Intent: whether a generate rejection is a worker failure, a failed attempt as in a session. */
+/** Whether a generate rejection is a worker failure, a failed attempt as in a session. */
 function isWorkerFailure(error: unknown): boolean {
   return (
     error instanceof GenerationWorkerCrashError || error instanceof GenerationWorkerTransportError
@@ -115,7 +115,7 @@ function isWorkerFailure(error: unknown): boolean {
 }
 
 /**
- * Intent: the ready phrases with their intents at `tempo`. Tempo never affects generation and a
+ * The ready phrases with their intents at `tempo`. Tempo never affects generation and a
  * session's requests carry its starting tempo, so a ready phrase made before a tempo change is the
  * very phrase the session would build now: its intent is stamped with the tempo, nothing else.
  */
@@ -128,13 +128,13 @@ function atTempo(readyPhrases: readonly ReadyPhrase[], tempo: number): readonly 
   )
 }
 
-/** Intent: a queue under a disabled policy: it never runs, and Start takes nothing. */
+/** A queue under a disabled policy: it never runs, and Start takes nothing. */
 function disabledPregeneration(): WorkspacePregeneration {
   return { take: () => [], recheck: () => undefined, dispose: () => undefined }
 }
 
 /**
- * Intent: build one queue and start it: it runs at once if its source says it may. A disabled
+ * Build one queue and start it: it runs at once if its source says it may. A disabled
  * policy builds one that never runs. A programming error met while it runs (an unexpected
  * rejection, or a plan that cannot be built or stepped, a carry-in error included) goes to `fail`,
  * the attempt in flight aborted and the queue emptied; it then stays stopped, Start taking
@@ -161,7 +161,7 @@ export function createPregenerationQueue<TPhraseOne>(
   /** A layout re-check was asked for while re-checks waited; it runs once the queue may run. */
   let recheckOnIdle = false
 
-  /** Intent: the source's phrase 1; asking with none is a defect (the queue is emptied with it). */
+  /** The source's phrase 1; asking with none is a defect (the queue is emptied with it). */
   function phraseOne(): TPhraseOne {
     const current = source.phraseOne()
     if (current === null) throw new Error('pre-generation: no phrase 1 to plan from')
@@ -169,7 +169,7 @@ export function createPregenerationQueue<TPhraseOne>(
   }
 
   /**
-   * Intent: the staff's latest layout inputs. Every run condition holding means phrase 1 was fit
+   * The staff's latest layout inputs. Every run condition holding means phrase 1 was fit
    * and drawn, which takes the staff's inputs, and a phrase is ready only once checked against
    * them, so none at a check is a defect.
    */
@@ -179,13 +179,13 @@ export function createPregenerationQueue<TPhraseOne>(
     return inputs
   }
 
-  /** Intent: the layout a session started now would hold, from the window's shape now. */
+  /** The layout a session started now would hold, from the window's shape now. */
   function layoutNow(): StaffLayout {
     const shape = deps.windowShape()
     return sessionLayoutAtStart(shape.widthPx, shape.remPx)
   }
 
-  /** Intent: the longest prefix of `list` whose phrases all fit `heldLayout` now. */
+  /** The longest prefix of `list` whose phrases all fit `heldLayout` now. */
   function fittingPrefix(list: readonly ReadyPhrase[], heldLayout: StaffLayout) {
     if (list.length === 0) return list
     if (planner === null) throw new Error('pre-generation: ready phrases with no staff planner')
@@ -197,7 +197,7 @@ export function createPregenerationQueue<TPhraseOne>(
     return first === -1 ? list : list.slice(0, first)
   }
 
-  /** Intent: the ready phrases that still re-derive identically and fit, in order, now. */
+  /** The ready phrases that still re-derive identically and fit, in order, now. */
   function keptReady(): readonly ReadyPhrase[] {
     if (ready.length === 0) return ready
     const current = atTempo(ready, source.tempo())
@@ -205,7 +205,7 @@ export function createPregenerationQueue<TPhraseOne>(
     return fittingPrefix(revalidatedReadyPhrases(seams, start, current), layoutNow())
   }
 
-  /** Intent: abort `aborted` if it is the attempt in flight, and empty the slot of it. */
+  /** Abort `aborted` if it is the attempt in flight, and empty the slot of it. */
   function abortFlight(aborted: Flight | null = flight): void {
     if (aborted === null || aborted !== flight) return
     flight = null
@@ -214,7 +214,7 @@ export function createPregenerationQueue<TPhraseOne>(
   }
 
   /**
-   * Intent: stop on a programming error until the key changes, the attempt in flight aborted and
+   * Stop on a programming error until the key changes, the attempt in flight aborted and
    * the queue emptied, and report it.
    */
   function breakDown(error: unknown): void {
@@ -224,7 +224,7 @@ export function createPregenerationQueue<TPhraseOne>(
     deps.fail(error)
   }
 
-  /** Intent: run `step`, which builds or steps the plan: any error in it stops it and is reported. */
+  /** Run `step`, which builds or steps the plan: any error in it stops it and is reported. */
   function guarded(step: () => void): void {
     try {
       step()
@@ -234,7 +234,7 @@ export function createPregenerationQueue<TPhraseOne>(
   }
 
   /**
-   * Intent: one attempt's result, or undefined once it is aborted, whatever it settles with: a
+   * One attempt's result, or undefined once it is aborted, whatever it settles with: a
    * worker failure is a crash, a failed generation its code, and a success fits or not in the
    * layout a session would hold now. Any other rejection is a programming error and rejects.
    */
@@ -263,7 +263,7 @@ export function createPregenerationQueue<TPhraseOne>(
   }
 
   /**
-   * Intent: post the plan's attempt under a fresh abort signal held in the slot. The other queue's
+   * Post the plan's attempt under a fresh abort signal held in the slot. The other queue's
    * attempt still in the slot, from the very tick its mode stopped showing, is aborted first: the
    * slot holds one attempt, and only this queue may run now.
    */
@@ -284,7 +284,7 @@ export function createPregenerationQueue<TPhraseOne>(
     )
   }
 
-  /** Intent: take an attempt's result into the plan and post its next attempt, if any. */
+  /** Take an attempt's result into the plan and post its next attempt, if any. */
   function advance(done: Flight, plan: PregenerationPlan, result: PregenerationResult): void {
     flight = null
     done.release()
@@ -295,7 +295,7 @@ export function createPregenerationQueue<TPhraseOne>(
   }
 
   /**
-   * Intent: start the next attempt when nothing is in flight, the queue may run and the plan has
+   * Start the next attempt when nothing is in flight, the queue may run and the plan has
    * one: after the ready phrases still kept, re-validated and re-checked first unless `checked`
    * says the caller just did.
    */
@@ -308,7 +308,7 @@ export function createPregenerationQueue<TPhraseOne>(
   }
 
   /**
-   * Intent: the window re-check: truncate the queue at its first phrase that no longer re-derives
+   * The window re-check: truncate the queue at its first phrase that no longer re-derives
    * or fits; abort the attempt in flight when the queue shrank or `staleFlight` (a width crossing
    * may have changed its request), then resume. A phrase that stopped the plan is tried again.
    * While re-checks wait (a session runs, or the queue's mode is held), it re-checks nothing and
@@ -330,7 +330,7 @@ export function createPregenerationQueue<TPhraseOne>(
   }
 
   /**
-   * Intent: a change of the queue's key, seen as it happens, so no phrase made for an old key is
+   * A change of the queue's key, seen as it happens, so no phrase made for an old key is
    * ever kept or checked: abort, empty the queue, and start again once the change is over (an
    * Idle action may change several parts of the key in a row).
    */

@@ -48,7 +48,7 @@ export interface JoinLead {
 }
 
 /**
- * Intent: the carried pitch as the note before the first attack; undefined without carry-in. With
+ * The carried pitch as the note before the first attack; undefined without carry-in. With
  * the carried harmony dropped the pitch is a tone of no chord, and its leap state still applies.
  */
 // @spec-link [[rule_join_interval_obeys_phrase_rules]]
@@ -70,13 +70,13 @@ export function joinLead(facts: PhraseFacts): JoinLead | undefined {
   }
 }
 
-/** Intent: what the phrase's final note may still owe, decided by whether it has a carry-in. */
+/** What the phrase's final note may still owe, decided by whether it has a carry-in. */
 export function endingAllowance(facts: PhraseFacts): PhraseEndingDebtAllowance {
   return phraseEndingDebtAllowance(facts.context.request.carryIn !== undefined)
 }
 
 /**
- * Intent: true when a large leap in `leapDirection` whose recovery falls due after the final note
+ * True when a large leap in `leapDirection` whose recovery falls due after the final note
  * may stay owed: the phrase may end owing a recovery and its next phrase can repay it.
  */
 // @spec-link [[rule_leap_recovery]]
@@ -97,7 +97,7 @@ export function finalRecoveryMayStayOwed(
 }
 
 /**
- * Intent: true when the figure levels allow a free scale note on `attack`: the passing figure for
+ * True when the figure levels allow a free scale note on `attack`: the passing figure for
  * its beat (an accented passing tone on beats 1 and 3, a passing tone elsewhere) or the neighbor
  * tone is not Off.
  */
@@ -109,7 +109,7 @@ function levelsAllowFreeScaleNote(facts: PhraseFacts, attack: SoundingFact): boo
 }
 
 /**
- * Intent: true when `attack` is the final note and a tense ending the phrase may owe: a scale
+ * True when `attack` is the final note and a tense ending the phrase may owe: a scale
  * tone outside its chord's triad (its seventh included), prepared by a step from the note before,
  * that the next phrase's first note can resolve inside the window, on a note where the levels
  * allow a free scale note.
@@ -136,7 +136,7 @@ export function isOwedTenseEnding(facts: PhraseFacts, attack: SoundingFact): boo
 }
 
 /**
- * Intent: a tense carried pitch (outside the carried chord) must be resolved by the first attack:
+ * A tense carried pitch (outside the carried chord) must be resolved by the first attack:
  * a step onto a triad tone of the chord sounding there, never onto its seventh. Reported at attack
  * 0 otherwise. A carry-in whose harmony was dropped carries no tense pitch, so nothing is owed.
  */
@@ -158,7 +158,7 @@ export function carriedTensionFailures(facts: PhraseFacts): readonly PitchValida
 }
 
 /**
- * Intent: a recovery the carried pitch owes is never repaid on a chord tone outside the first
+ * A recovery the carried pitch owes is never repaid on a chord tone outside the first
  * chord's triad, its seventh: reported at attack 0. The recovery's own interval rule is unchanged,
  * so any other note 1 to 4 semitones back repays it, a figure's decorating note included, and a
  * first note that owes nothing may be the seventh.

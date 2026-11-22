@@ -67,7 +67,7 @@ const READING_NAMES = [
   'Register',
 ]
 
-/** Intent: the beats a count-in row shows with beat `current` (0-3) lit, the earlier ones past. */
+/** The beats a count-in row shows with beat `current` (0-3) lit, the earlier ones past. */
 function beatsAt(current: number): string[] {
   return [0, 1, 2, 3].map((k) => {
     if (k < current) return 'past'
@@ -75,7 +75,7 @@ function beatsAt(current: number): string[] {
   })
 }
 
-/** Intent: the doodle's numbers with measure `current` (0-3) lit, the earlier ones past. */
+/** The doodle's numbers with measure `current` (0-3) lit, the earlier ones past. */
 function numbersAt(current: number): string[] {
   return [0, 1, 2, 3].map((k) => {
     if (k < current) return 'past'
@@ -83,7 +83,7 @@ function numbersAt(current: number): string[] {
   })
 }
 
-/** Intent: assert a count-in row lights beat by beat on its clicks from `firstClickAt`. */
+/** Assert a count-in row lights beat by beat on its clicks from `firstClickAt`. */
 async function expectCountInLights(page: Page, firstClickAt: number, beat: number): Promise<void> {
   for (let k = 0; k < 4; k += 1) {
     await clockTo(page, firstClickAt + k * beat + PAST_CLICK)
@@ -92,7 +92,7 @@ async function expectCountInLights(page: Page, firstClickAt: number, beat: numbe
   }
 }
 
-/** Intent: assert the mode switch shows Jam checked and read-only, under the score title `Jam`. */
+/** Assert the mode switch shows Jam checked and read-only, under the score title `Jam`. */
 async function expectStillJam(page: Page, when: string): Promise<void> {
   await expectChecked(page, 'Jam')
   await expect(modeSwitch(page), when).toHaveAttribute('aria-readonly', 'true')
@@ -221,7 +221,7 @@ test('nothing of the doodle is drawn on the staff during the capture', async ({ 
   await expect(page.locator('.score-panel .is-fading-out')).toHaveCount(0)
 })
 
-/** Intent: the beat times from the Jam's first click up to (not including) phrase 1's start. */
+/** The beat times from the Jam's first click up to (not including) phrase 1's start. */
 function beatsBefore(grid: JamGrid, phraseOneAt: number): number[] {
   const beats: number[] = []
   for (let at = grid.startAt; at < phraseOneAt - 1e-6; at += grid.beat) beats.push(at)

@@ -98,7 +98,7 @@ type JamExportCode = Pick<
 >
 
 /**
- * Intent: a Jam session's phrase 1, whose key, instrument and clef its doodle is written in; a Jam
+ * A Jam session's phrase 1, whose key, instrument and clef its doodle is written in; a Jam
  * session's Review always holds one, so none is a defect.
  */
 function phraseOneOf(history: ReviewedHistory): ReviewedPhrase {
@@ -108,14 +108,14 @@ function phraseOneOf(history: ReviewedHistory): ReviewedPhrase {
 }
 
 /**
- * Intent: the exports of one review area, read from the showing Review the host names, downloading
+ * The exports of one review area, read from the showing Review the host names, downloading
  * through the ports and reading the host's `Include very short notes`.
  */
 // @spec-link [[req_session_export]]
 // @spec-link [[rule_session_data_never_sent_or_stored]]
 export function useReviewExports(deps: ReviewExportsDependencies): ReviewExports {
   const { host } = deps
-  /** Intent: the Review's history while it shows; null otherwise. */
+  /** The Review's history while it shows; null otherwise. */
   const shownHistory = computed(
     (): ReviewedHistory | null => host.shownReview.value?.history ?? null,
   )
@@ -135,7 +135,7 @@ export function useReviewExports(deps: ReviewExportsDependencies): ReviewExports
   const favorites = computed(() => host.shownReview.value?.favorites ?? [])
   /** The scope the player picked for this Review. */
   const picked = ref<ReviewExportScope>('wholeSession')
-  /** Intent: the scope in force: the player's, but the whole session while there is no favorite. */
+  /** The scope in force: the player's, but the whole session while there is no favorite. */
   // @spec-link [[rule_favorites_only_export]]
   const scope = computed((): ReviewExportScope =>
     favorites.value.length === 0 ? 'wholeSession' : picked.value,
@@ -157,7 +157,7 @@ export function useReviewExports(deps: ReviewExportsDependencies): ReviewExports
     { flush: 'sync' },
   )
 
-  /** Intent: the player picked `next`; favorites only is refused while there is no favorite. */
+  /** The player picked `next`; favorites only is refused while there is no favorite. */
   // @spec-link [[rule_favorites_only_export]]
   function setScope(next: ReviewExportScope): void {
     if (next === 'favoritesOnly' && favorites.value.length === 0) {
@@ -167,7 +167,7 @@ export function useReviewExports(deps: ReviewExportsDependencies): ReviewExports
   }
 
   /**
-   * Intent: the export scope `kind` names, favorites only with the showing Review's favorites read
+   * The export scope `kind` names, favorites only with the showing Review's favorites read
    * now, so a build keeps the favorites it started with.
    */
   // @spec-link [[rule_favorites_only_export]]
@@ -177,19 +177,19 @@ export function useReviewExports(deps: ReviewExportsDependencies): ReviewExports
     throw new Error(`review area: no export scope "${String(kind)}"`)
   }
 
-  /** Intent: the played-notes request the current choices make. */
+  /** The played-notes request the current choices make. */
   function playedRequest(): PlayedNotesExportRequest {
     return {
       includeVeryShortNotes: host.includeVeryShortNotes.value,
       scope: exportScope(scope.value),
     }
   }
-  /** Intent: a Jam session's Jam code could not load for this Review. */
+  /** A Jam session's Jam code could not load for this Review. */
   // @spec-link [[rule_jam_code_loaded_on_demand]]
   const jamCodeFailed = computed(
     () => shownJam.value !== null && deps.jamCode.value.state === 'failed',
   )
-  /** Intent: what the played-notes reasons read of a Jam session; null for one that is no Jam. */
+  /** What the played-notes reasons read of a Jam session; null for one that is no Jam. */
   // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
   const playedJam = computed((): PlayedNotesJam | null => {
     const jam = shownJam.value
@@ -211,7 +211,7 @@ export function useReviewExports(deps: ReviewExportsDependencies): ReviewExports
   )
 
   /**
-   * Intent: run `build` with Jam's code for a Jam session's export, once it has settled: an export
+   * Run `build` with Jam's code for a Jam session's export, once it has settled: an export
    * asked for while it loads waits inside its own loading state; one whose load failed ends there
    * with nothing built and no error, its button then disabled with its note. A session that is no
    * Jam builds at once.
@@ -229,7 +229,7 @@ export function useReviewExports(deps: ReviewExportsDependencies): ReviewExports
   }
 
   /**
-   * Intent: run `run` on the showing Review's history; an export asked for with none showing is a
+   * Run `run` on the showing Review's history; an export asked for with none showing is a
    * defect, refused as a rejection.
    */
   function withShownHistory(run: (history: ReviewedHistory) => Promise<void>): Promise<void> {
@@ -243,7 +243,7 @@ export function useReviewExports(deps: ReviewExportsDependencies): ReviewExports
   }
 
   /**
-   * Intent: export the asked generated-notes file, under the scope it names, from the showing
+   * Export the asked generated-notes file, under the scope it names, from the showing
    * Review's history.
    */
   // @spec-link [[rule_favorites_only_export]]
@@ -263,7 +263,7 @@ export function useReviewExports(deps: ReviewExportsDependencies): ReviewExports
   }
 
   /**
-   * Intent: export the played-notes file from the showing Review's history, very short notes in it
+   * Export the played-notes file from the showing Review's history, very short notes in it
    * only if `Include very short notes` is on now, under the scope in force now; a later change
    * leaves this build as it started.
    */

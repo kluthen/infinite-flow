@@ -76,17 +76,17 @@ interface Found {
   readonly outcome: SuccessOutcome
 }
 
-/** Intent: a predicate accepting a phrase whose rhythm lock outcome is the given one. */
+/** A predicate accepting a phrase whose rhythm lock outcome is the given one. */
 function lockOutcomeIs(tier: RhythmLockTier): (outcome: SuccessOutcome) => boolean {
   return (outcome) => outcome.provenance.rhythmLockOutcome === tier
 }
 
-/** Intent: accept any phrase that generated. */
+/** Accept any phrase that generated. */
 function anyPhrase(): boolean {
   return true
 }
 
-/** Intent: the locked group of the given bars, allowed changes and tenser flag. */
+/** The locked group of the given bars, allowed changes and tenser flag. */
 function lockedGroup(
   bars: readonly LockedRhythmMeasure[],
   allowedChanges: readonly RhythmChangeKind[],
@@ -96,7 +96,7 @@ function lockedGroup(
 }
 
 /**
- * Intent: one searched case: the first search seed whose intent gives a phrase the predicate
+ * One searched case: the first search seed whose intent gives a phrase the predicate
  * accepts, as a case of the given label and phrase number.
  */
 function found(
@@ -109,7 +109,7 @@ function found(
   return { corpusCase: { label, intent, phraseNumber }, outcome }
 }
 
-/** Intent: the carry-in a found phrase hands forward. */
+/** The carry-in a found phrase hands forward. */
 function carryInAfter(phrase: Found) {
   return deriveCarryIn({
     intent: phrase.corpusCase.intent,
@@ -119,7 +119,7 @@ function carryInAfter(phrase: Found) {
 }
 
 /**
- * Intent: one session's rhythm lock chain on an instrument: a heavily varied Sixteenth phrase 1
+ * One session's rhythm lock chain on an instrument: a heavily varied Sixteenth phrase 1
  * with sixteenth bars, a locked phrase 2, a changed tenser phrase 3 allowing every change, and a
  * phrase 4 stepped down to Eighth under the re-lock group (no change allowed), which takes a
  * forced bend.
@@ -184,7 +184,7 @@ function lockChain(instrument: CorpusInstrument): readonly ReplayKeyCorpusV32Cas
   return [first, locked, changed, bent].map((phrase) => phrase.corpusCase)
 }
 
-/** Intent: every rhythm lock case: a lock chain on three instruments. */
+/** Every rhythm lock case: a lock chain on three instruments. */
 export function lockCases(): readonly ReplayKeyCorpusV32Case[] {
   return ['c-keyboard', 'eb-alto', 'my-baritone'].flatMap((label) =>
     lockChain(corpusInstrument(label)),
@@ -229,12 +229,12 @@ const JAMS: readonly CorpusJam[] = [
   },
 ]
 
-/** Intent: a quantized doodle of the doodle set, by name. */
+/** A quantized doodle of the doodle set, by name. */
 function doodleNamed(name: string): QuantizedDoodle {
   return readDoodleFile(`${DOODLES_DIR}${name}.json`).quantized
 }
 
-/** Intent: Jam's settings and drift as phrase 1 reads them, for one corpus Jam. */
+/** Jam's settings and drift as phrase 1 reads them, for one corpus Jam. */
 function jamSettings(jam: CorpusJam): JamPhraseOneSettings {
   const instrument = corpusInstrument(jam.instrument)
   const settings: SessionSettings = {
@@ -256,7 +256,7 @@ function jamSettings(jam: CorpusJam): JamPhraseOneSettings {
   return { settings, drift: jam.drift }
 }
 
-/** Intent: the intent of one ladder attempt under a search seed, at the widest window. */
+/** The intent of one ladder attempt under a search seed, at the widest window. */
 function attemptIntent(
   attempts: DoodleAttempts,
   index: JamPhraseOneAttemptIndex,
@@ -279,7 +279,7 @@ const RUNG_ATTEMPTS: readonly (readonly [string, JamPhraseOneAttemptIndex])[] = 
 ]
 
 /**
- * Intent: a Jam phrase after `previous`: its carry-in, the doodle's steering block and, with the
+ * A Jam phrase after `previous`: its carry-in, the doodle's steering block and, with the
  * Jam's lock on, the locked group of phrase 1's bars, under the controls the doodle set.
  */
 function laterJamPhrase(
@@ -314,7 +314,7 @@ function laterJamPhrase(
 }
 
 /**
- * Intent: one fresh Jam's cases: phrase 1 by each rung, then the Jam's phrase 2 after the rung-1
+ * One fresh Jam's cases: phrase 1 by each rung, then the Jam's phrase 2 after the rung-1
  * phrase 1 (and phrase 3 on the C keyboard), labelled locked when the Jam's lock is on and by the
  * drift when it is not Close.
  */
@@ -350,7 +350,7 @@ const KEPT_DOODLE_CHANGES: readonly (readonly [string, CorpusJam])[] = [
 ]
 
 /**
- * Intent: phrase 1 written again at Idle from a kept doodle after a Jam setting changed: the
+ * Phrase 1 written again at Idle from a kept doodle after a Jam setting changed: the
  * climb's first attempt under the changed settings, with the first search seed that generates.
  */
 function keptDoodleCases(): readonly ReplayKeyCorpusV32Case[] {
@@ -370,7 +370,7 @@ function keptDoodleCases(): readonly ReplayKeyCorpusV32Case[] {
   })
 }
 
-/** Intent: every Jam case: the three fresh Jams, then the kept doodles written again. */
+/** Every Jam case: the three fresh Jams, then the kept doodles written again. */
 export function jamCases(): readonly ReplayKeyCorpusV32Case[] {
   return [...JAMS.flatMap(freshJamCases), ...keptDoodleCases()]
 }

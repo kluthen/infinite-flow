@@ -36,12 +36,12 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: the concert pitch a correctly set controller sends for the profile's check note. */
+/** The concert pitch a correctly set controller sends for the profile's check note. */
 function expectedConcert(profile: InstrumentProfile): number {
   return checkWrittenNote(profile) - profile.transposition.chromatic
 }
 
-/** Intent: play one note on KEYS_A, then let the sheet react and move focus. */
+/** Play one note on KEYS_A, then let the sheet react and move focus. */
 async function play(rig: ControllerRig, pitch: number, at = 1): Promise<void> {
   rig.midi.noteOn(KEYS_A.id, pitch, 90, rig.at(at))
   await flushPromises()

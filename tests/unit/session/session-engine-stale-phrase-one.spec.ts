@@ -30,12 +30,12 @@ import { SessionDriver, phraseOneFor, type GenerationRequestOutput } from './ses
 /** The tempo of the session that runs past phrase 2, a 2 s measure. */
 const RUN_TEMPO = 120
 
-/** Intent: the moment phrase N (1 or more) starts sounding in a session started at 0. */
+/** The moment phrase N (1 or more) starts sounding in a session started at 0. */
 function soundingAt(phraseNumber: number): number {
   return measureSeconds(RUN_TEMPO) * (1 + 4 * (phraseNumber - 1))
 }
 
-/** Intent: settings on the first-load defaults, with these controls changed. */
+/** Settings on the first-load defaults, with these controls changed. */
 function defaultsWith(overrides: Partial<GenerationControls> = {}): SessionSettings {
   return {
     controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, ...overrides }),
@@ -51,7 +51,7 @@ function defaultsWith(overrides: Partial<GenerationControls> = {}): SessionSetti
 /** Phrase 1, generated at Idle under the first-load defaults. */
 const PHRASE_ONE_UNDER_DEFAULTS: SessionStart['phraseOne'] = phraseOneFor(defaultsWith())
 
-/** Intent: phrase 2's first request in a session's start outputs. */
+/** Phrase 2's first request in a session's start outputs. */
 function phraseTwoRequest(driver: SessionDriver): GenerationRequestOutput {
   const request = driver.startOutputs.find((output) => output.kind === 'request-generation')
   expect(request, 'the start requests phrase 2').toBeDefined()
@@ -98,7 +98,7 @@ const CHANGES: readonly IdleChange[] = [
 ]
 
 /**
- * Intent: check phrase 2's request against what the carry-in rules leave for this change: the
+ * Check phrase 2's request against what the carry-in rules leave for this change: the
  * adaptation of phrase 1's carry-in from phrase 1's settings to the session's, or no carry-in at
  * all once the tempo leaves phrase 2 no time but for the standalone rung.
  */

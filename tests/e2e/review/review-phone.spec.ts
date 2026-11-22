@@ -37,7 +37,7 @@ test.beforeEach(({ page }) => {
 test.afterEach(() => expectNoPageErrors())
 
 /**
- * Intent: nothing overflows horizontally: the document has no horizontal scroll, and no part of
+ * Nothing overflows horizontally: the document has no horizontal scroll, and no part of
  * the Review is wider than its box or reaches past the viewport's inline end (1 px rounding
  * tolerance).
  */

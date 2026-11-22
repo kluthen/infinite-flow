@@ -53,7 +53,7 @@ const VARIED: SessionSettings = {
   allowedRhythmChanges: [],
 }
 
-/** Intent: mount the shell over `session` and `controller` (null while it loads). */
+/** Mount the shell over `session` and `controller` (null while it loads). */
 function mountShell(
   session: GenerationSession<WorkspaceSessionResult>,
   controller: SessionController | null,
@@ -80,12 +80,12 @@ function mountShell(
   })
 }
 
-/** Intent: the radiogroup of a control by its accessible name. */
+/** The radiogroup of a control by its accessible name. */
 function group(wrapper: ReturnType<typeof mountShell>, name: string) {
   return wrapper.get(`[role="radiogroup"][aria-label="${name}"]`)
 }
 
-/** Intent: the checked segment's label in a radiogroup, or null. */
+/** The checked segment's label in a radiogroup, or null. */
 function checked(wrapper: ReturnType<typeof mountShell>, name: string): string | null {
   const segment = group(wrapper, name)
     .findAll('[role="radio"]')
@@ -93,13 +93,13 @@ function checked(wrapper: ReturnType<typeof mountShell>, name: string): string |
   return segment === undefined ? null : segment.text()
 }
 
-/** Intent: the text the preset box shows: its selected option's. */
+/** The text the preset box shows: its selected option's. */
 function presetBox(wrapper: ReturnType<typeof mountShell>): string {
   const select = wrapper.get('select.preset-select').element as HTMLSelectElement
   return select.selectedOptions[0]?.text.trim() ?? ''
 }
 
-/** Intent: the preset bar's description line. */
+/** The preset bar's description line. */
 function presetDescription(wrapper: ReturnType<typeof mountShell>): string {
   return wrapper.get('.preset-bar .field-note').text()
 }
@@ -207,7 +207,7 @@ describe("WorkspaceShell: a session's automatic changes", () => {
   it('announces nothing in the preset bar before, during and after a session', async () => {
     const fake = createFakeSessionController()
     const wrapper = mountShell(fakeGenerationSession(readyState()).session, fake.controller)
-    /** Intent: whether the preset bar holds no live region and no status role. */
+    /** Whether the preset bar holds no live region and no status role. */
     const silent = () =>
       !wrapper.get('.preset-bar').find('[aria-live]').exists() &&
       !wrapper.get('.preset-bar').find('[role="status"]').exists()

@@ -24,7 +24,7 @@ const MODE_OPTIONS: readonly SegmentedControlOption[] = [
   { value: 'jam', label: 'Jam' },
 ]
 
-/** Intent: forward a segment's press as the mode it names, re-validated against the two modes. */
+/** Forward a segment's press as the mode it names, re-validated against the two modes. */
 // @spec-link [[module_workspace_mode]]
 function handleSelect(value: string): void {
   if (value !== 'session' && value !== 'jam') throw new Error(`Unknown workspace mode "${value}".`)

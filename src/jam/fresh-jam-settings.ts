@@ -21,7 +21,7 @@ export interface FreshJamSettingsSource {
 }
 
 /**
- * Intent: the session settings and drift a fresh Jam starts under: Jam's controls (its written
+ * The session settings and drift a fresh Jam starts under: Jam's controls (its written
  * key and collection, its tempo, the shared instrument) and its one Embellishments level for every
  * figure; Jam's own Seventh chords level, never session mode's, which every phrase of the Jam then
  * carries through the session; no preset (Jam mode has none: a custom selection from no preset,

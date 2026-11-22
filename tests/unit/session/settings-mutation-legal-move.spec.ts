@@ -54,7 +54,7 @@ const MANY_DRAWS_TIMEOUT_MS = 60_000
 /** The random settings the legal-move property checks. */
 const PROPERTY_TRIALS = 2500
 
-/** Intent: C Ionian settings with Neutral's levels and the given groups, lock and controls. */
+/** C Ionian settings with Neutral's levels and the given groups, lock and controls. */
 function cIonian(
   allowedGroups: AllowedGroups,
   rhythmLockOn: boolean,

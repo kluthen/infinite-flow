@@ -88,17 +88,17 @@ interface AttackSegment {
   readonly tones: readonly PitchClassNumber[]
 }
 
-/** Intent: the non-negative remainder of `value` modulo an octave, i.e. its pitch class. */
+/** The non-negative remainder of `value` modulo an octave, i.e. its pitch class. */
 function pitchClassDistance(value: number): number {
   return ((value % OCTAVE) + OCTAVE) % OCTAVE
 }
 
-/** Intent: the beat a harmony event starts on, counted from the phrase's first downbeat. */
+/** The beat a harmony event starts on, counted from the phrase's first downbeat. */
 function eventStartBeat(event: HarmonyEvent): number {
   return event.barIndex * BEATS_PER_MEASURE + event.startBeat
 }
 
-/** Intent: reject any meter but 4/4, the only meter the backing's attack rules are defined for. */
+/** Reject any meter but 4/4, the only meter the backing's attack rules are defined for. */
 function assertFourFour(meter: Meter): void {
   if (
     meter.beatsPerMeasure !== FOUR_FOUR_METER.beatsPerMeasure ||
@@ -111,7 +111,7 @@ function assertFourFour(meter: Meter): void {
 }
 
 /**
- * Intent: reject a triad whose pitch classes are not integers 0-11 stacked as root, third and
+ * Reject a triad whose pitch classes are not integers 0-11 stacked as root, third and
  * fifth of its stated quality, since the voicing and the bass fifth both rely on that shape.
  */
 function assertStackedTriad(triad: DiatonicTriad, index: number): void {
@@ -133,7 +133,7 @@ function assertStackedTriad(triad: DiatonicTriad, index: number): void {
 }
 
 /**
- * Intent: reject a seventh whose pitch class is not an integer 0-11, or that does not sit at its
+ * Reject a seventh whose pitch class is not an integer 0-11, or that does not sit at its
  * quality's interval above a triad of its quality's triad quality, so a seventh-form event always
  * stacks root, third, fifth and seventh as its quality states.
  */
@@ -154,7 +154,7 @@ function assertStackedSeventh(triad: DiatonicTriad, seventh: ChordSeventh, index
 }
 
 /**
- * Intent: reject harmony that does not tile the phrase exactly: events must be in order, each
+ * Reject harmony that does not tile the phrase exactly: events must be in order, each
  * starting where the previous one ended (the first on beat 1 of bar 1), with positive whole-beat
  * durations adding up to the phrase's 16 beats. Gaps, overlaps and a short or long phrase throw.
  */
@@ -183,7 +183,7 @@ function assertTilesPhrase(harmony: readonly HarmonyEvent[]): void {
 }
 
 /**
- * Intent: split every harmony event at each bar line it crosses, so the backing attacks at every
+ * Split every harmony event at each bar line it crosses, so the backing attacks at every
  * chord change and on every downbeat, and nowhere else.
  */
 // @spec-link [[req_session_backing_track]]
@@ -207,7 +207,7 @@ function attackSegments(harmony: readonly HarmonyEvent[]): AttackSegment[] {
   return segments
 }
 
-/** Intent: one backing note from a MIDI pitch and a start and length counted in beats. */
+/** One backing note from a MIDI pitch and a start and length counted in beats. */
 function backingNote(pitch: number, startBeat: number, lengthBeats: number): BackingNote {
   const beatUnit = FOUR_FOUR_METER.beatUnit
   return {
@@ -218,7 +218,7 @@ function backingNote(pitch: number, startBeat: number, lengthBeats: number): Bac
 }
 
 /**
- * Intent: the bass of one attack, in the C2-B2 octave: the root for two beats then the fifth from
+ * The bass of one attack, in the C2-B2 octave: the root for two beats then the fifth from
  * beat 3 when the attack fills a whole measure, otherwise the root for the whole attack.
  */
 // @spec-link [[req_session_backing_track]]
@@ -235,7 +235,7 @@ function bassNotes(segment: AttackSegment): BackingNote[] {
 }
 
 /**
- * Intent: the close-position voicing of a chord's tones (root first, stacked in thirds),
+ * The close-position voicing of a chord's tones (root first, stacked in thirds),
  * ascending: of its arrangements with each tone at the bottom in turn (three for a triad, four for
  * a seventh chord), each stacked as tightly as possible, the one whose top note is highest at or
  * below the chord ceiling (E4).
@@ -260,7 +260,7 @@ function closePositionChord(tones: readonly PitchClassNumber[]): readonly number
 }
 
 /**
- * Intent: render one phrase's backing from its harmony events: a bass line and close-position
+ * Render one phrase's backing from its harmony events: a bass line and close-position
  * block chords holding every note of each chord (four for a seventh chord), both attacked at every
  * chord change and every downbeat, the bass adding the fifth on beat 3 of a measure held under one
  * chord. Deterministic and pure; the result is frozen. Throws a BackingRenderError on a meter other

@@ -27,7 +27,7 @@ const SIXTEENTH_ONLY_BLOCKED = {
   syncopation: 'Active displacement',
 } as const
 
-/** Intent: a session at Ready on phrase seed 1, drawn on a staff that reported its width. */
+/** A session at Ready on phrase seed 1, drawn on a staff that reported its width. */
 async function atReady(options: FitSessionOptions = {}) {
   const built = createFitSession(options)
   built.staff.report(500)

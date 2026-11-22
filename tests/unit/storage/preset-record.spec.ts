@@ -87,19 +87,19 @@ function playerAt(chordFamilies: ChordFamilies): Preset {
 
 type Stored = Record<string, unknown>
 
-/** Intent: PLAYER's record as stored: a plain, mutable copy a test may damage. */
+/** PLAYER's record as stored: a plain, mutable copy a test may damage. */
 function storedPlayer(): Stored {
   return structuredClone(encodePresetRecord(PLAYER, APP_VERSION)) as unknown as Stored
 }
 
-/** Intent: the one preset decoded from one stored value under `key`, undefined when not listed. */
+/** The one preset decoded from one stored value under `key`, undefined when not listed. */
 function decodeOne(value: unknown, key = PLAYER.id): Preset | undefined {
   const presets = decodePlayerPresets([{ key, value }])
   expect(presets.length).toBeLessThanOrEqual(1)
   return presets[0]
 }
 
-/** Intent: PLAYER's stored record with the field at `path` replaced (or deleted for REMOVE). */
+/** PLAYER's stored record with the field at `path` replaced (or deleted for REMOVE). */
 function edited(path: readonly string[], value: unknown): Stored {
   const record = storedPlayer()
   let target: Record<string, unknown> = record
@@ -365,12 +365,12 @@ describe('reading a player preset field by field', () => {
 
   // @test-link [[rule_presets_load_tolerantly]]
   it('numbers a missing, invalid or reserved name, never repeating a name already there', () => {
-    /** Intent: PLAYER's stored record under `id`, holding `name`. */
+    /** PLAYER's stored record under `id`, holding `name`. */
     const named = (id: string, name: unknown): StoredEntry => ({
       key: id,
       value: { ...storedPlayer(), id, name },
     })
-    /** Intent: PLAYER's stored record under `id`, holding no name. */
+    /** PLAYER's stored record under `id`, holding no name. */
     const nameless = (id: string): StoredEntry => {
       const value = storedPlayer()
       delete value.name
@@ -518,7 +518,7 @@ const SPOTS: readonly Spot[] = [
   { path: ['restriction', 'modes', 1], touches: 'restriction.modes' },
 ]
 
-/** Intent: apply one deletion or replacement at `path`, when the path still leads somewhere. */
+/** Apply one deletion or replacement at `path`, when the path still leads somewhere. */
 function corruptAt(record: Stored, path: Spot['path'], value: unknown, remove: boolean): void {
   let target: unknown = record
   for (const step of path.slice(0, -1)) {
@@ -532,7 +532,7 @@ function corruptAt(record: Stored, path: Spot['path'], value: unknown, remove: b
   else container[last] = value
 }
 
-/** Intent: whether a field, or the field holding it, was touched. */
+/** Whether a field, or the field holding it, was touched. */
 function touched(spots: ReadonlySet<string>, field: string): boolean {
   const [top] = field.split('.')
   return spots.has(field) || spots.has(top!)
@@ -544,7 +544,7 @@ describe('a randomly corrupted record', () => {
   it('never makes reading throw or list an invalid preset, and keeps every untouched field', () => {
     const random = createMulberry32(0x9e5e7)
     const next = random.nextFloat
-    /** Intent: one of `values`, drawn from `next`. */
+    /** One of `values`, drawn from `next`. */
     const pick = <T>(values: readonly T[]): T => values[Math.floor(next() * values.length)]!
 
     for (let round = 0; round < 400; round += 1) {

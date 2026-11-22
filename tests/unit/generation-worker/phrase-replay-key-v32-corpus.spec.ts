@@ -85,7 +85,7 @@ const LOCK_OUTCOMES: readonly (readonly [string, string])[] = [
   ['-lock-p4-forced-bend', 'forced_bend'],
 ]
 
-/** Intent: the instrument a decoded intent names: a built-in id, or my instrument's range. */
+/** The instrument a decoded intent names: a built-in id, or my instrument's range. */
 function instrumentOf(intent: GenerationIntent): string {
   if (intent.controls.instrumentProfileId !== 'my-instrument') {
     return intent.controls.instrumentProfileId
@@ -94,12 +94,12 @@ function instrumentOf(intent: GenerationIntent): string {
   return `my-instrument ${minMidi}-${maxMidi}`
 }
 
-/** Intent: the figure levels as one comparable string, the seven figures in FIGURE_IDS order. */
+/** The figure levels as one comparable string, the seven figures in FIGURE_IDS order. */
 function levelsText(levels: FigureLevels): string {
   return FIGURE_IDS.map((figure) => `${figure}:${levels[figure]}`).join(' ')
 }
 
-/** Intent: whether a decoded intent holds a preset's controls and levels in an allowed mode. */
+/** Whether a decoded intent holds a preset's controls and levels in an allowed mode. */
 function holdsPreset(intent: GenerationIntent, preset: Preset): boolean {
   return (
     PRESET_HELD_CONTROL_KEYS.every((key) => intent.controls[key] === preset.controls[key]) &&
@@ -111,7 +111,7 @@ function holdsPreset(intent: GenerationIntent, preset: Preset): boolean {
 /** The levels of the eight built-in presets, as comparable strings. */
 const PRESET_LEVELS = new Set(BUILT_IN_PRESETS.map((preset) => levelsText(preset.levels)))
 
-/** Intent: the distinct values a read gives over a set of decoded keys. */
+/** The distinct values a read gives over a set of decoded keys. */
 function valuesOf(
   keys: readonly DecodedPhraseReplayKey[],
   read: (intent: GenerationIntent) => string,
@@ -119,14 +119,14 @@ function valuesOf(
   return new Set(keys.map((key) => read(key.intent)))
 }
 
-/** Intent: whether a decoded key's intent carries a carry-in from no phrase (a Jam's join). */
+/** Whether a decoded key's intent carries a carry-in from no phrase (a Jam's join). */
 function carriesJoin(key: DecodedPhraseReplayKey): boolean {
   const { carryIn } = key.intent
   return carryIn !== undefined && Object.hasOwn(carryIn, 'origin')
 }
 
 /**
- * Intent: the standalone phrases of the spread (phrase 1, no carry-in, no lock group, no steering
+ * The standalone phrases of the spread (phrase 1, no carry-in, no lock group, no steering
  * block, no Jam), whose levels are no built-in preset's, grouped by figure levels and instrument.
  */
 function spreadGroups(): ReadonlyMap<string, readonly DecodedPhraseReplayKey[]> {
@@ -144,7 +144,7 @@ function spreadGroups(): ReadonlyMap<string, readonly DecodedPhraseReplayKey[]> 
   return groups
 }
 
-/** Intent: the outcome a key replays to through a fresh worker runtime, or a loud failure. */
+/** The outcome a key replays to through a fresh worker runtime, or a loud failure. */
 function replayOutcome(key: string): Extract<GenerationOutcome, { kind: 'generation_success' }> {
   const report = replayDecodedPhraseKey(key, decodePhraseReplayKey(key))
   if (
@@ -155,7 +155,7 @@ function replayOutcome(key: string): Extract<GenerationOutcome, { kind: 'generat
   return report.output.raw
 }
 
-/** Intent: the decoded cases whose label holds the given text. */
+/** The decoded cases whose label holds the given text. */
 function labelled(text: string): readonly DecodedCase[] {
   return DECODED.filter((key) => key.label.includes(text))
 }

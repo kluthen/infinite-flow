@@ -22,13 +22,13 @@ export interface RenderedAttack {
   readonly endBeat: number
 }
 
-/** Intent: whether a phrase's harmony changes chord on beat 3 of some measure. */
+/** Whether a phrase's harmony changes chord on beat 3 of some measure. */
 function hasTwoChordMeasure(harmony: readonly HarmonyEvent[]): boolean {
   return harmony.some((event) => event.startBeat === 2)
 }
 
 /**
- * Intent: two different real phrases in C major with active diatonic motion, the first with a
+ * Two different real phrases in C major with active diatonic motion, the first with a
  * two-chord measure. Throws if the planner offers no such pair.
  */
 // @test-link [[req_session_backing_track]]
@@ -48,14 +48,14 @@ export function twoPhraseHarmonies(): readonly [readonly HarmonyEvent[], readonl
   return [split.events, other.events]
 }
 
-/** Intent: a whole-note time as quarter-note beats; throws off a whole beat. */
+/** A whole-note time as quarter-note beats; throws off a whole beat. */
 function beatsOf(time: { readonly numerator: number; readonly denominator: number }): number {
   const beats = (time.numerator * 4) / time.denominator
   if (!Number.isInteger(beats)) throw new Error(`${beats} is not a whole beat`)
   return beats
 }
 
-/** Intent: every attack the renderer gives `harmony`, bass first then chords, each in order. */
+/** Every attack the renderer gives `harmony`, bass first then chords, each in order. */
 // @test-link [[req_session_backing_track]]
 export function renderedAttacks(harmony: readonly HarmonyEvent[]): RenderedAttack[] {
   const rendered = renderBacking(harmony, FOUR_FOUR_METER)
@@ -70,7 +70,7 @@ export function renderedAttacks(harmony: readonly HarmonyEvent[]): RenderedAttac
 }
 
 /**
- * Intent: a phrase's concert timeline of four whole-rest measures, for the backing specs: the
+ * A phrase's concert timeline of four whole-rest measures, for the backing specs: the
  * guides render no note from it, so the session sounds as it did before the guides.
  */
 export function restTimeline(): ConcertEventTimeline {

@@ -60,17 +60,17 @@ interface FoundEdit {
   readonly to: number
 }
 
-/** Intent: where entry `index` of a start list stops sounding: the next start, or the barline. */
+/** Where entry `index` of a start list stops sounding: the next start, or the barline. */
 function soundingEnd(starts: MeasureStarts, index: number): number {
   return starts[index + 1]?.tick ?? TICKS_PER_BAR
 }
 
-/** Intent: whether two starts are the same start: same tick, same kind. */
+/** Whether two starts are the same start: same tick, same kind. */
 function sameStart(left: RhythmStart, right: RhythmStart): boolean {
   return left.tick === right.tick && left.kind === right.kind
 }
 
-/** Intent: the indices at which two start lists of equal length differ. */
+/** The indices at which two start lists of equal length differ. */
 function differingIndices(a: MeasureStarts, b: MeasureStarts): readonly number[] {
   const indices: number[] = []
   a.forEach((start, index) => {
@@ -80,7 +80,7 @@ function differingIndices(a: MeasureStarts, b: MeasureStarts): readonly number[]
 }
 
 /**
- * Intent: the index of the one entry of `longer` whose removal leaves `shorter`, when the lists
+ * The index of the one entry of `longer` whose removal leaves `shorter`, when the lists
  * differ by exactly that one entry; otherwise undefined.
  */
 function extraIndex(longer: MeasureStarts, shorter: MeasureStarts): number | undefined {
@@ -92,12 +92,12 @@ function extraIndex(longer: MeasureStarts, shorter: MeasureStarts): number | und
   return index
 }
 
-/** Intent: whether a signed shift is a move by a sixteenth or an eighth. */
+/** Whether a signed shift is a move by a sixteenth or an eighth. */
 function isSmallMove(delta: number): boolean {
   return delta !== 0 && Math.abs(delta) <= MAX_MOVE
 }
 
-/** Intent: a split (B adds a note start inside an A note) or a merge (A loses one), if either. */
+/** A split (B adds a note start inside an A note) or a merge (A loses one), if either. */
 function splitOrMerge(a: MeasureStarts, b: MeasureStarts): FoundEdit | undefined {
   const added = extraIndex(b, a)
   if (added !== undefined && added >= 1) {
@@ -125,7 +125,7 @@ function splitOrMerge(a: MeasureStarts, b: MeasureStarts): FoundEdit | undefined
 }
 
 /**
- * Intent: a note turned into a rest or back, or one note start moved between two notes, when
+ * A note turned into a rest or back, or one note start moved between two notes, when
  * exactly one entry of two equal-length lists differs.
  */
 function singleEntryEdit(a: MeasureStarts, b: MeasureStarts, index: number): FoundEdit | undefined {
@@ -143,7 +143,7 @@ function singleEntryEdit(a: MeasureStarts, b: MeasureStarts, index: number): Fou
 }
 
 /**
- * Intent: a rest moved between two notes, keeping its length, when exactly entries `index` and
+ * A rest moved between two notes, keeping its length, when exactly entries `index` and
  * `index + 1` of two equal-length lists differ, both shifted alike.
  */
 function restMove(a: MeasureStarts, b: MeasureStarts, index: number): FoundEdit | undefined {
@@ -157,7 +157,7 @@ function restMove(a: MeasureStarts, b: MeasureStarts, index: number): FoundEdit 
   return { kind: 'move_rest', tick: a[index]!.tick, delta, from: a[index - 1]!.tick, to: end }
 }
 
-/** Intent: the one edit of a kind that turns start list A into B, if there is one. */
+/** The one edit of a kind that turns start list A into B, if there is one. */
 function findEdit(a: MeasureStarts, b: MeasureStarts): FoundEdit | undefined {
   if (a.length !== b.length) return splitOrMerge(a, b)
   const differing = differingIndices(a, b)
@@ -167,7 +167,7 @@ function findEdit(a: MeasureStarts, b: MeasureStarts): FoundEdit | undefined {
   return undefined
 }
 
-/** Intent: the ticks at which a measure's written events continue a tie, outside a span. */
+/** The ticks at which a measure's written events continue a tie, outside a span. */
 function tieTicksOutside(bar: WrittenMeasure, from: number, to: number): string {
   return bar.events
     .filter((event) => event.tieContinuation === true)
@@ -177,7 +177,7 @@ function tieTicksOutside(bar: WrittenMeasure, from: number, to: number): string 
 }
 
 /**
- * Intent: how a candidate measure differs from the locked one. Equal written keys are `same`;
+ * How a candidate measure differs from the locked one. Equal written keys are `same`;
  * equal start lists written with other ties are `tie`. Otherwise the measure is one `edit` when
  * its starts differ by exactly one edit of a kind and its ties match the locked ones outside the
  * span the edit touches (a tie added or removed elsewhere is not exactly one change); anything
@@ -202,7 +202,7 @@ export function classifyMeasureChange(
 }
 
 /**
- * Intent: the one change that turns the locked rhythm into the candidate, or undefined when they
+ * The one change that turns the locked rhythm into the candidate, or undefined when they
  * are equal as written or differ by anything but one change: an edit in one measure, or the
  * identical edit (kind, tick, shift) in measures k and k + 2 with k = 0 or 1. A measure differing
  * by ties only, or by more than one edit, rules the pair out. Throws unless both rhythms have four

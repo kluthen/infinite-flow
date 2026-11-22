@@ -67,7 +67,7 @@ test.afterEach(() => expectNoPageErrors())
 type JamStage = 'count-in' | 'capture' | 'writing' | 'read-in'
 
 /**
- * Intent: from a fresh Jam just started, move to the middle of `stage` with a one-measure doodle
+ * From a fresh Jam just started, move to the middle of `stage` with a one-measure doodle
  * played (from the capture on), phrase 1 answered for the read-in.
  */
 async function jamTo(page: Page, stage: JamStage): Promise<void> {
@@ -95,7 +95,7 @@ async function jamTo(page: Page, stage: JamStage): Promise<void> {
 }
 
 /**
- * Intent: assert Jam's staff is back as at Idle: `staff-jam` with its empty system, not fading,
+ * Assert Jam's staff is back as at Idle: `staff-jam` with its empty system, not fading,
  * session mode's staff out of sight with nothing on it, `doodle-readings` empty, no `jam-notice`.
  */
 async function expectStaffJamBack(page: Page): Promise<void> {
@@ -249,7 +249,7 @@ test('no doodle note within 30 s after the count-in ends the Jam, focus on Start
 })
 
 /**
- * Intent: start a fresh Jam whose every phrase 1 attempt fails, play a one-measure doodle, let
+ * Start a fresh Jam whose every phrase 1 attempt fails, play a one-measure doodle, let
  * every attempt fail, and move past its deadline (three measures after the generation measure
  * begins, barline 4): the Jam ends there, not before, under `jam-notice`.
  */
@@ -268,7 +268,7 @@ async function jamWithEveryRungFailed(page: Page): Promise<void> {
   await expectJamIdleAfter(page, 'no-phrase-one')
 }
 
-/** Intent: assert `jam-notice` shows under `jam-instruction`, named by `Start Jam`, focused. */
+/** Assert `jam-notice` shows under `jam-instruction`, named by `Start Jam`, focused. */
 async function expectJamNotice(page: Page): Promise<void> {
   await expect(jamStaffNotice(page)).toHaveText(JAM_NOTICE_TEXT)
   const previous = await jamStaffNotice(page).evaluate(
@@ -282,7 +282,7 @@ async function expectJamNotice(page: Page): Promise<void> {
   await expect(sessionAction(page)).toBeFocused()
 }
 
-/** Intent: assert `jam-notice` is gone and `Start Jam` names nothing. */
+/** Assert `jam-notice` is gone and `Start Jam` names nothing. */
 async function expectNoJamNotice(page: Page): Promise<void> {
   await expect(page.locator('#jam-notice')).toHaveCount(0)
   await expect(sessionAction(page)).not.toHaveAttribute('aria-describedby')
@@ -315,22 +315,22 @@ interface NoticeRemoval {
   readonly remove: (page: Page) => Promise<void>
 }
 
-/** Intent: change Jam's written key to G. */
+/** Change Jam's written key to G. */
 function changeWrittenKey(page: Page): Promise<void> {
   return radio(page, 'Written key', 'G').click()
 }
 
-/** Intent: change the instrument to the alto saxophone, from Jam's controls. */
+/** Change the instrument to the alto saxophone, from Jam's controls. */
 function changeInstrument(page: Page): Promise<void> {
   return radio(page, 'Instrument profile', 'E-flat alto saxophone').click()
 }
 
-/** Intent: lower Jam's tempo by one step. */
+/** Lower Jam's tempo by one step. */
 function changeTempo(page: Page): Promise<void> {
   return page.getByRole('button', { name: 'Decrease tempo' }).click()
 }
 
-/** Intent: leave Jam mode for session mode, then come back to Jam mode. */
+/** Leave Jam mode for session mode, then come back to Jam mode. */
 async function leaveAndComeBack(page: Page): Promise<void> {
   await modeSegment(page, 'Session').click()
   await expectChecked(page, 'Session')

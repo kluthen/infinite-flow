@@ -79,7 +79,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: set the level through the routing point, as its control will; whether it applied. */
+/** Set the level through the routing point, as its control will; whether it applied. */
 function setLevel(page: Page, level: string): Promise<boolean> {
   return page.evaluate(
     (chosen) => window.__workspaceHarness.setChordFamilyLevel('seventh-chords', chosen),
@@ -87,14 +87,14 @@ function setLevel(page: Page, level: string): Promise<boolean> {
   )
 }
 
-/** Intent: generate a seeded phrase and give the level its request was built with. */
+/** Generate a seeded phrase and give the level its request was built with. */
 async function generatedLevel(page: Page): Promise<string | undefined> {
   await generateShownPhrase(page, 7)
   const requests = await page.evaluate(() => window.__workspaceHarness.generationRequests())
   return requests.at(-1)?.chordFamilies['seventh-chords']
 }
 
-/** Intent: seed the player preset `NEUTRAL_SEVENTHS` through the harness's storage seam. */
+/** Seed the player preset `NEUTRAL_SEVENTHS` through the harness's storage seam. */
 function seedNeutralSevenths(page: Page): Promise<void> {
   return page.evaluate(
     (preset) => window.__workspaceHarness.storage.seedPresets([preset]),
@@ -102,7 +102,7 @@ function seedNeutralSevenths(page: Page): Promise<void> {
   )
 }
 
-/** Intent: the stored level record's value, or undefined with none, read straight from IndexedDB. */
+/** The stored level record's value, or undefined with none, read straight from IndexedDB. */
 async function storedLevel(page: Page): Promise<unknown> {
   const { settings = [] } = await databaseRecords(page)
   const record = settings.find((stored) => (stored as { key?: unknown }).key === LEVEL_KEY)

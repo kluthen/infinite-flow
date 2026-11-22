@@ -37,13 +37,13 @@ export interface LoadingStaffDrawing extends StaffPositions {
 let codePromise: Promise<StaffDrawingCode> | null = null
 let loadedCode: StaffDrawingCode | null = null
 
-/** Intent: a readable message from whatever the failed `import()` rejected with. */
+/** A readable message from whatever the failed `import()` rejected with. */
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
 /**
- * Intent: load the drawing code once, kept once loaded; a failed load is a NotationError, and the
+ * Load the drawing code once, kept once loaded; a failed load is a NotationError, and the
  * next call loads again.
  */
 function loadStaffDrawingCode(): Promise<StaffDrawingCode> {
@@ -74,7 +74,7 @@ function loadStaffDrawingCode(): Promise<StaffDrawingCode> {
 }
 
 /**
- * Intent: the positions' keeper for one PhraseScore, its code loaded on demand. `session` gives
+ * The positions' keeper for one PhraseScore, its code loaded on demand. `session` gives
  * the session the staff shows now, or null at Idle: the one a session entered before the load
  * shows once it ends.
  */
@@ -87,7 +87,7 @@ export function createLoadingStaffDrawing(
   let positions: StaffPositions | null = code?.createStaffPositions(env) ?? null
   let sessionWaiting = false
 
-  /** Intent: create the real keeper once the code has loaded. */
+  /** Create the real keeper once the code has loaded. */
   async function ready(): Promise<void> {
     if (code !== null) return
     const loaded = await loadStaffDrawingCode()
@@ -96,7 +96,7 @@ export function createLoadingStaffDrawing(
   }
 
   /**
-   * Intent: enter the session current once the code has loaded, once however many session changes
+   * Enter the session current once the code has loaded, once however many session changes
    * arrive before it; a failed load during a session is a session staff failure.
    */
   function enterOnceReady(): void {
@@ -116,7 +116,7 @@ export function createLoadingStaffDrawing(
     )
   }
 
-  /** Intent: the loaded code, which the Idle score always finds, since it waits for `ready()`. */
+  /** The loaded code, which the Idle score always finds, since it waits for `ready()`. */
   function idleCode(): { readonly code: StaffDrawingCode; readonly positions: StaffPositions } {
     if (code === null || positions === null) {
       throw new Error('The Idle score reached the staff drawing code before it had loaded.')

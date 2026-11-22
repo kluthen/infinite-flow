@@ -45,7 +45,7 @@ export interface PresetSheetProps {
 
 let sheetPromise: Promise<Component> | null = null
 
-/** Intent: the preset sheet's component, loaded once and shared by every opening. */
+/** The preset sheet's component, loaded once and shared by every opening. */
 // @spec-link [[rule_preset_management_actions]]
 export function loadPresetSheet(): Promise<Component> {
   sheetPromise ??= import('./PresetSheet.vue').then(

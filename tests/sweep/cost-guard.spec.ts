@@ -61,7 +61,7 @@ const C_MAJOR_SCALE = makeHarmonyCollection('C', 'Major').pitchClasses as readon
 const WIDE = { minMidi: 48, maxMidi: 96 }
 
 /**
- * Intent: the real carry-in a C major phrase 1 hands forward (C keyboard, Middle: the window
+ * The real carry-in a C major phrase 1 hands forward (C keyboard, Middle: the window
  * 54-66), its harmony dropped (so its last pitch is never a tense note), with its last pitch moved
  * to `midi`, reached by a leap of seven
  * semitones in the owed direction, and `recovery` in force.
@@ -77,7 +77,7 @@ function carryInAt(midi: number, recovery: CarriedRecovery): PhraseCarryIn {
   })
 }
 
-/** Intent: an attempt record with the join facts given, the rest of it neutral. */
+/** An attempt record with the join facts given, the rest of it neutral. */
 function attempt(facts: Partial<AttemptTime>): AttemptTime {
   return {
     seconds: 0.1,

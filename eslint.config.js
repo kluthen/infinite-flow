@@ -125,7 +125,7 @@ const jamImportPattern = {
 }
 
 /**
- * Intent: the no-restricted-globals / no-restricted-properties rule pair for one part of src/,
+ * The no-restricted-globals / no-restricted-properties rule pair for one part of src/,
  * given the directory-scoped globals and properties still forbidden there. The forbidden
  * persistence APIs and the always-forbidden APIs are included everywhere, src/storage/ included.
  *

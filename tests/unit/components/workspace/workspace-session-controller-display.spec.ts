@@ -30,37 +30,37 @@ import {
 /** The wide staff, a little narrower: a report the window rule lets through. */
 const NARROWER_STAFF: StaffLayoutInputs = { ...WIDE_STAFF, containerWidthPx: 1000 }
 
-/** Intent: the staff the controller shows now; there must be one. */
+/** The staff the controller shows now; there must be one. */
 function staffOf(rig: ControllerRig): SessionStaff {
   const staff = rig.controller.state.sessionStaff
   if (staff === null) throw new Error('no session staff')
   return staff
 }
 
-/** Intent: the staff's two positions as slot keys. */
+/** The staff's two positions as slot keys. */
 function keys(staff: SessionStaff): [string | null, string | null] {
   return [staff.top && slotKey(staff.top), staff.bottom && slotKey(staff.bottom)]
 }
 
-/** Intent: the written phrase of a readied phrase or a checked attempt. */
+/** The written phrase of a readied phrase or a checked attempt. */
 function writtenOf(phrase: Pick<SessionPhrase, 'intent' | 'outcome'>): WrittenPhrase {
   return transformToWrittenPhrase(
     notationInputFromOutcome(phrase.outcome, phrase.intent, BUILT_IN_INSTRUMENT_CLEF),
   )
 }
 
-/** Intent: the written phrases the staff shows now. */
+/** The written phrases the staff shows now. */
 function shownPhrases(rig: ControllerRig): WrittenPhrase[] {
   const staff = staffOf(rig)
   return [staff.top?.phrase, staff.bottom?.phrase].filter((p): p is WrittenPhrase => !!p)
 }
 
-/** Intent: the end events the controller sent its runners. */
+/** The end events the controller sent its runners. */
 function endEvents(rig: ControllerRig) {
   return rig.events.filter((event) => event.kind === 'end')
 }
 
-/** Intent: assert the session ended at `at` with `staff-not-shown`, torn down like Stop. */
+/** Assert the session ended at `at` with `staff-not-shown`, torn down like Stop. */
 function expectEndedLikeStop(rig: ControllerRig, at: number): void {
   expect(endEvents(rig)).toEqual([{ kind: 'end', at, cause: 'staff-not-shown' }])
   expect(rig.controller.state.lastEnd?.cause).toBe('staff-not-shown')

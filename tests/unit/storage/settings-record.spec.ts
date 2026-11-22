@@ -101,7 +101,7 @@ const EXPECTED_KEYS: readonly SettingKey[] = [
 ]
 
 /**
- * Intent: what `other` decodes to when only the record of `key` in NON_DEFAULT is unreadable: its
+ * What `other` decodes to when only the record of `key` in NON_DEFAULT is unreadable: its
  * default for `key`, the saved value for every other setting. NON_DEFAULT's values are not
  * Neutral's, so a fallen-back selection (Neutral) loads as Custom based on Neutral.
  */
@@ -112,7 +112,7 @@ function afterOneFallback(key: SettingKey, other: SettingKey): unknown {
 }
 
 /**
- * Intent: the selection a load gives for `selection` over the loaded settings, the values winning:
+ * The selection a load gives for `selection` over the loaded settings, the values winning:
  * a built-in whose controls, levels, Seventh chords level or restriction the loaded values do not
  * match loads as Custom based on it.
  */
@@ -128,7 +128,7 @@ function loadedSelection(selection: PresetSelection, loaded: SavedSettings): Pre
   return own ? selection : { kind: 'custom', baseId: preset.id }
 }
 
-/** Intent: whether a record key is one of the seven figure levels'. */
+/** Whether a record key is one of the seven figure levels'. */
 function isLevelKey(key: SettingKey): boolean {
   return key.startsWith('figureLevels.')
 }
@@ -190,7 +190,7 @@ const GUIDE_KEYS: readonly SettingKey[] = [
 ]
 
 /**
- * Intent: the invalid values of one setting: unknown values, wrong types and out-of-range numbers,
+ * The invalid values of one setting: unknown values, wrong types and out-of-range numbers,
  * each of which the codec must read as that setting's default.
  */
 function invalidValues(key: SettingKey): readonly unknown[] {
@@ -252,7 +252,7 @@ function invalidValues(key: SettingKey): readonly unknown[] {
   return [...unknown, ...extra, ...WRONG_TYPES.filter((value) => typeof value !== 'string')]
 }
 
-/** Intent: a copy of `record` without its `field`. */
+/** A copy of `record` without its `field`. */
 function without(record: RawRecord, field: string): RawRecord {
   const copy = { ...record }
   delete copy[field]
@@ -271,9 +271,9 @@ const ENVELOPE_DAMAGE: readonly ((record: RawRecord) => unknown)[] = [
   (record) => ({ ...record, written: 'extra field' }),
 ]
 
-/** Intent: a random valid value for one setting, drawn from `next`. */
+/** A random valid value for one setting, drawn from `next`. */
 function randomValue(key: SettingKey, next: () => number): unknown {
-  /** Intent: one value of `values`, drawn from `next`. */
+  /** One value of `values`, drawn from `next`. */
   const pick = <T>(values: readonly T[]): T => values[Math.floor(next() * values.length)]!
   const catalog = CATALOGS[key]
   if (catalog !== undefined) return pick(catalog)
@@ -303,7 +303,7 @@ function randomValue(key: SettingKey, next: () => number): unknown {
 }
 
 /**
- * Intent: a random full set of valid settings, built through the codec's own key table. A preset
+ * A random full set of valid settings, built through the codec's own key table. A preset
  * selected holds its own ten controls, seven levels and Seventh chords level, and a written key and
  * mode it allows, as the app saves it.
  */

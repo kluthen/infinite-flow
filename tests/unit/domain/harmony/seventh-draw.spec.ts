@@ -53,7 +53,7 @@ function referenceFnv1a32(input: string): number {
   return Number(hash)
 }
 
-/** Intent: the drawn digits of one seed at one level, over POSITIONS. */
+/** The drawn digits of one seed at one level, over POSITIONS. */
 function drawnDigits(level: 'sometimes' | 'favored', seed: number): string {
   return POSITIONS.map((position) =>
     isSeventhDrawn(level, makeSeed(seed), position) ? '1' : '0',

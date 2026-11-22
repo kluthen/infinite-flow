@@ -9,7 +9,7 @@ import {
   type RequestRhythmLock,
 } from '@/domain/generation/request-rhythm-lock'
 
-/** Intent: one measure of two quarter notes, an eighth rest and a dotted quarter note. */
+/** One measure of two quarter notes, an eighth rest and a dotted quarter note. */
 const QUARTERS: LockedRhythmMeasure = [
   { kind: 'note', startTick: 0, durationTicks: 4, tieContinuation: false },
   { kind: 'note', startTick: 4, durationTicks: 4, tieContinuation: false },
@@ -17,13 +17,13 @@ const QUARTERS: LockedRhythmMeasure = [
   { kind: 'note', startTick: 10, durationTicks: 6, tieContinuation: false },
 ]
 
-/** Intent: one measure opening on a note tied over from the measure before, then a rest. */
+/** One measure opening on a note tied over from the measure before, then a rest. */
 const TIED_OPENING: LockedRhythmMeasure = [
   { kind: 'note', startTick: 0, durationTicks: 8, tieContinuation: true },
   { kind: 'rest', startTick: 8, durationTicks: 8, tieContinuation: false },
 ]
 
-/** Intent: a lock on, with four locked bars and two allowed changes. */
+/** A lock on, with four locked bars and two allowed changes. */
 function lockedLock(): RequestRhythmLock {
   return {
     state: { kind: 'locked', bars: [QUARTERS, TIED_OPENING, QUARTERS, TIED_OPENING] },
@@ -39,22 +39,22 @@ interface RawLock {
   allowedChanges: unknown[]
 }
 
-/** Intent: a JSON copy of the locked lock, as an untrusted value a test may change. */
+/** A JSON copy of the locked lock, as an untrusted value a test may change. */
 function rawLock(): RawLock {
   return JSON.parse(JSON.stringify(lockedLock())) as RawLock
 }
 
-/** Intent: remove one key from a record. */
+/** Remove one key from a record. */
 function drop(record: Record<string, unknown>, key: string): void {
   delete record[key]
 }
 
-/** Intent: set one key of a record to any value, whatever type the field normally has. */
+/** Set one key of a record to any value, whatever type the field normally has. */
 function put(record: Record<string, unknown>, key: string, value: unknown): void {
   record[key] = value
 }
 
-/** Intent: a constructor call over a changed copy of the locked lock. */
+/** A constructor call over a changed copy of the locked lock. */
 function makeChanged(change: (raw: RawLock) => void): () => RequestRhythmLock {
   const raw = rawLock()
   change(raw)

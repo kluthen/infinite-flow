@@ -16,14 +16,14 @@ export type TensionArcCycleStep = -1 | 0 | 1
 /** The step at each position of a group of four: none, tenser, none, calmer. */
 const CYCLE_STEPS: readonly TensionArcCycleStep[] = [0, 1, 0, -1]
 
-/** Intent: crash on a number that cannot be a session phrase number (an integer from 1). */
+/** Crash on a number that cannot be a session phrase number (an integer from 1). */
 function requirePhraseNumber(phraseNumber: number): void {
   if (!Number.isSafeInteger(phraseNumber) || phraseNumber < 1)
     throw new SessionEngineError(`A phrase number must be an integer ≥ 1, got ${phraseNumber}.`)
 }
 
 /**
- * Intent: the step of session phrase n (phrase 1 is the first), from its position (n - 1) mod 4
+ * The step of session phrase n (phrase 1 is the first), from its position (n - 1) mod 4
  * in its group of four: none, one step tenser, none, one step calmer.
  */
 // @spec-link [[module_tension_arc_cycle]]
@@ -36,7 +36,7 @@ export function tensionArcCycleStep(phraseNumber: number): TensionArcCycleStep {
 }
 
 /**
- * Intent: the tension arc a session phrase is generated with: the tension arc in effect moved by
+ * The tension arc a session phrase is generated with: the tension arc in effect moved by
  * the phrase's cycle step along Settled, Lift, Build, Edge, never past either end. A tension arc
  * outside the vocabulary is a caller bug and throws.
  */
@@ -55,7 +55,7 @@ export function steppedTensionArc(tension: TensionArc, phraseNumber: number): Te
 }
 
 /**
- * Intent: the multi-phrase tension arc flag of a session start, checked: anything but a boolean is
+ * The multi-phrase tension arc flag of a session start, checked: anything but a boolean is
  * a caller bug and throws, with no default.
  */
 // @spec-link [[module_tension_arc_cycle]]
@@ -69,7 +69,7 @@ export function requireTensionArcFlag(multiPhraseTensionArc: unknown): boolean {
 }
 
 /**
- * Intent: the settings a session phrase is generated under: the settings in effect themselves,
+ * The settings a session phrase is generated under: the settings in effect themselves,
  * the same object, when the multi-phrase tension arc is off or the clamped step leaves the tension
  * arc unchanged; otherwise a frozen copy with only the tension arc replaced by the stepped one.
  * A non-boolean flag or an invalid phrase number throws.

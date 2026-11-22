@@ -27,7 +27,7 @@ const FIXTURES = acknowledgementFixtureSet()
 const CONNECTIONS: readonly ControllerConnection[] = ['usb', 'bluetooth-le']
 const PHRASE_START_SECONDS = 3.7
 
-/** Intent: the expected notes of a fixture followed by the next fixture, at one tempo. */
+/** The expected notes of a fixture followed by the next fixture, at one tempo. */
 function twoPhrases(
   fixture: AcknowledgementFixture,
   next: AcknowledgementFixture,
@@ -49,7 +49,7 @@ function twoPhrases(
 }
 
 /**
- * Intent: play each expected note at its exact onset, shifted by `semitones`, as a controller on
+ * Play each expected note at its exact onset, shifted by `semitones`, as a controller on
  * `connection` would deliver it: late on the audio clock by the shipped latency correction.
  */
 function playEach(

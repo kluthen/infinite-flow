@@ -13,7 +13,7 @@ import { TOO_WIDE } from '../../composables/fake-staff-fit'
 import { PHRASE_SCORE_STUB, type TestWorkspace } from './test-workspace'
 import { provideSaveSettings } from './recording-save-settings'
 
-/** Intent: a thin reactive harness that re-reads `workspace.pendingPhrase.value` on every render. */
+/** A thin reactive harness that re-reads `workspace.pendingPhrase.value` on every render. */
 const ScorePanelHarness = defineComponent({
   props: {
     workspace: { type: Object, required: true },
@@ -37,7 +37,7 @@ const ScorePanelHarness = defineComponent({
   },
 })
 
-/** Intent: mount the panel, answering the notation layout's width query with `phoneLayout`. */
+/** Mount the panel, answering the notation layout's width query with `phoneLayout`. */
 // @test-link [[module_notation_layout_preflight]]
 export function mountHarness(workspace: TestWorkspace, phoneLayout = false) {
   return mount(ScorePanelHarness, {
@@ -49,7 +49,7 @@ export function mountHarness(workspace: TestWorkspace, phoneLayout = false) {
   })
 }
 
-/** Intent: the standard PhraseScore `engraved` payload, only its shape matters here. */
+/** The standard PhraseScore `engraved` payload, only its shape matters here. */
 export const ENGRAVED_PAYLOAD = {
   staffSpacePx: 1,
   widthPx: 1,
@@ -58,12 +58,12 @@ export const ENGRAVED_PAYLOAD = {
   systemCount: 1,
 }
 
-/** Intent: a PhraseScore stub's emitter, for the events a mounted staff would fire. */
+/** A PhraseScore stub's emitter, for the events a mounted staff would fire. */
 export function phraseScore(wrapper: ReturnType<typeof mountHarness>) {
   return wrapper.getComponent({ name: 'PhraseScore' }).vm
 }
 
-/** Intent: generate once with every attempt too wide, leaving the too-many-notes notice. */
+/** Generate once with every attempt too wide, leaving the too-many-notes notice. */
 export async function reachTooManyNotesNotice(workspace: TestWorkspace): Promise<void> {
   workspace.staff.setFallbackFit(TOO_WIDE)
   await workspace.session.actions.generate()

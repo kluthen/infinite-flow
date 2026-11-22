@@ -24,7 +24,7 @@ interface HandedOverSession extends TransportRig {
   readonly tempo: number
 }
 
-/** Intent: a session started at `tempo` BPM with the click forced on and phrase 1 handed over. */
+/** A session started at `tempo` BPM with the click forced on and phrase 1 handed over. */
 function handedOverSession(tempo: number): HandedOverSession {
   const setup = transportRig()
   setup.transport.unlock()
@@ -37,14 +37,14 @@ function handedOverSession(tempo: number): HandedOverSession {
 }
 
 /**
- * Intent: the session beat `k` of a session started at `startAt`, at `tempo` BPM, computed the
+ * The session beat `k` of a session started at `startAt`, at `tempo` BPM, computed the
  * way Jam's capture computes its barlines: the click plan's own `beatAt`.
  */
 function beatOf(session: HandedOverSession, k: number): AudioTime {
   return beatAt(createClickPlan(session.startAt, session.tempo), k)
 }
 
-/** Intent: the barline `measure` measures after the count-in's end (0 is the count-in's end). */
+/** The barline `measure` measures after the count-in's end (0 is the count-in's end). */
 function barline(session: HandedOverSession, measure: number): AudioTime {
   return beatOf(session, 4 + measure * 4)
 }

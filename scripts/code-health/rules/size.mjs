@@ -11,7 +11,7 @@ import { commentRanges, createFinding, lineOf } from '../sources.mjs'
  */
 
 /**
- * Intent: the size rule — one finding at line 1 when the file's effective lines of code exceed
+ * The size rule — one finding at line 1 when the file's effective lines of code exceed
  * the warning (400) or error (600) limit, nothing otherwise.
  *
  * @param {ParsedSource} source
@@ -31,7 +31,7 @@ export function checkSize(source) {
 }
 
 /**
- * Intent: the number of effective lines of code of a file: lines that are not blank, not
+ * The number of effective lines of code of a file: lines that are not blank, not
  * comment-only (every non-whitespace character inside a comment) and not part of an import,
  * import-equals or `export ... from` statement. A .vue file is counted whole: its script blocks,
  * and its template and style lines, where HTML and CSS comments count as comments.
@@ -63,7 +63,7 @@ export function effectiveLineCount(source) {
 }
 
 /**
- * Intent: add to `importLines` every original line spanned by an import, import-equals or
+ * Add to `importLines` every original line spanned by an import, import-equals or
  * re-export (`export ... from`) statement of the block.
  *
  * @param {ScriptBlock} block
@@ -85,7 +85,7 @@ function markImportLines(block, importLines) {
 }
 
 /**
- * Intent: whether a line holds a non-whitespace character outside every comment.
+ * Whether a line holds a non-whitespace character outside every comment.
  *
  * @param {string} line
  * @param {number} lineStart offset of the line in the file text
@@ -100,7 +100,7 @@ function hasCodeOutsideComments(line, lineStart, commentMask) {
 }
 
 /**
- * Intent: mark as comment the `<!-- -->` spans of a .vue file outside its script blocks, and the
+ * Mark as comment the `<!-- -->` spans of a .vue file outside its script blocks, and the
  * `/* *\/` spans of its style blocks.
  *
  * @param {ParsedSource} source
@@ -126,7 +126,7 @@ function markVueMarkupComments(source, commentMask) {
 }
 
 /**
- * Intent: mark as comment every `open ... close` span starting inside `[from, to)` of the text; an
+ * Mark as comment every `open ... close` span starting inside `[from, to)` of the text; an
  * unclosed span runs to `to`.
  *
  * @param {string} text

@@ -74,7 +74,7 @@ const FAVORED_RISE_FIGURES: readonly FigureId[] = ['appoggiatura', 'diatonicEncl
 const OPTIONAL_ARCS = ['Settled', 'Lift'] as const
 const REQUIRED_ARCS = ['Build', 'Edge'] as const
 
-/** Intent: the case limit `FIGURES_LIMIT` sets, or none; anything but a positive integer fails. */
+/** The case limit `FIGURES_LIMIT` sets, or none; anything but a positive integer fails. */
 function caseLimit(raw: string | undefined): number | undefined {
   if (raw === undefined) return undefined
   const limit = Number(raw)
@@ -83,7 +83,7 @@ function caseLimit(raw: string | undefined): number | undefined {
   return limit
 }
 
-/** Intent: take the census of every case of a population under one setting. */
+/** Take the census of every case of a population under one setting. */
 function measureSetting(setting: CensusSetting, population: readonly CensusCase[]): CensusTally {
   const tally = new CensusTally(setting.label)
   for (const censusCase of population) {
@@ -94,7 +94,7 @@ function measureSetting(setting: CensusSetting, population: readonly CensusCase[
 }
 
 /**
- * Intent: per optional tension arc, how many cases hold Tension's scheduled figure in the `from`
+ * Per optional tension arc, how many cases hold Tension's scheduled figure in the `from`
  * tally but not in the `to` tally, pairing cases by label.
  */
 function scheduledLost(
@@ -114,14 +114,14 @@ function scheduledLost(
   ) as Record<(typeof OPTIONAL_ARCS)[number], number>
 }
 
-/** Intent: the tally of the setting labelled `label`, which the sweep must have measured. */
+/** The tally of the setting labelled `label`, which the sweep must have measured. */
 function tallyNamed(tallies: ReadonlyMap<string, CensusTally>, label: string): CensusTally {
   const found = tallies.get(label)
   if (found === undefined) throw new Error(`No setting labelled "${label}" was measured.`)
   return found
 }
 
-/** Intent: the aggregate of the setting labelled `label`, which the sweep must have measured. */
+/** The aggregate of the setting labelled `label`, which the sweep must have measured. */
 function settingNamed(settings: readonly SettingAggregate[], label: string): SettingAggregate {
   const found = settings.find((aggregate) => aggregate.label === label)
   if (found === undefined) throw new Error(`No setting labelled "${label}" was measured.`)
@@ -137,14 +137,14 @@ interface FigureLadder {
   readonly stronglyFavored: number
 }
 
-/** Intent: the share of a setting's phrases holding the figure's free instances; fails with none. */
+/** The share of a setting's phrases holding the figure's free instances; fails with none. */
 function shareIn(settings: readonly SettingAggregate[], label: string, figure: FigureId): number {
   const share = settingNamed(settings, label).figures[FREE_LABEL[figure]].share
   if (share === null) throw new Error(`Setting "${label}" generated no phrase.`)
   return share
 }
 
-/** Intent: each figure's ladder: off, as today (every figure as today), Favored, Strongly favored. */
+/** Each figure's ladder: off, as today (every figure as today), Favored, Strongly favored. */
 function figureLadders(settings: readonly SettingAggregate[]): readonly FigureLadder[] {
   return (Object.keys(FREE_LABEL) as FigureId[]).map((figure) => ({
     figure,
@@ -155,7 +155,7 @@ function figureLadders(settings: readonly SettingAggregate[]): readonly FigureLa
   }))
 }
 
-/** Intent: a share as a percentage with one decimal. */
+/** A share as a percentage with one decimal. */
 function percent(share: number): string {
   return `${(share * 100).toFixed(1)} %`
 }

@@ -19,11 +19,11 @@ import { QuantizedDoodleParseError, QuantizedDoodleViolation } from './quantized
 
 export { QuantizedDoodleParseError, QuantizedDoodleViolation } from './quantized-doodle-errors'
 
-/** Intent: the most measures a doodle spans. */
+/** The most measures a doodle spans. */
 // @spec-link [[entity_quantized_doodle]]
 export const DOODLE_MAX_MEASURES = 4
 
-/** Intent: the most notes a doodle holds: one line of sixteenth notes over four measures. */
+/** The most notes a doodle holds: one line of sixteenth notes over four measures. */
 // @spec-link [[entity_quantized_doodle]]
 export const DOODLE_MAX_NOTES = DOODLE_MAX_MEASURES * TICKS_PER_BAR
 
@@ -64,13 +64,13 @@ export interface QuantizedDoodleInput {
   }[]
 }
 
-/** Intent: whether a number is a doodle's measure count, 1 to 4. */
+/** Whether a number is a doodle's measure count, 1 to 4. */
 function isDoodleMeasureCount(value: number): value is DoodleMeasureCount {
   return value === 1 || value === 2 || value === 3 || value === 4
 }
 
 /**
- * Intent: one note checked and copied into a fresh object: a whole, non-negative start, a whole
+ * One note checked and copied into a fresh object: a whole, non-negative start, a whole
  * length of at least one tick, an end at or before the doodle's last barline and a concert pitch.
  */
 function checkedNote(
@@ -98,7 +98,7 @@ function checkedNote(
   return { startTick, lengthTicks, pitch: checkedPitch(note.pitch, position) }
 }
 
-/** Intent: a note's pitch as a concert pitch, a refusal naming the note's position. */
+/** A note's pitch as a concert pitch, a refusal naming the note's position. */
 function checkedPitch(pitch: number, position: number): ConcertPitch {
   try {
     return makeConcertPitch(pitch)
@@ -111,7 +111,7 @@ function checkedPitch(pitch: number, position: number): ConcertPitch {
 }
 
 /**
- * Intent: check that the notes form one line starting in the doodle's first measure: the first
+ * Check that the notes form one line starting in the doodle's first measure: the first
  * note starts before tick 16, each later note starts at or after the end of the one before it.
  */
 function checkOneLine(notes: readonly DoodleNote[]): void {
@@ -143,7 +143,7 @@ function checkOneLine(notes: readonly DoodleNote[]): void {
 }
 
 /**
- * Intent: construct an immutable, deep-frozen quantized doodle of fresh objects from a raw doodle.
+ * Construct an immutable, deep-frozen quantized doodle of fresh objects from a raw doodle.
  * Refuses, as a QuantizedDoodleViolation: a measure count other than 1 to 4, more than 64 notes
  * (the count checked before any note) or none, a start that is not a whole non-negative tick, a
  * length that is not a whole number of ticks of at least one, a note ending past the last barline,
@@ -179,7 +179,7 @@ const DOODLE_KEYS: readonly string[] = ['measureCount', 'notes']
 const NOTE_KEYS: readonly string[] = ['startTick', 'lengthTicks', 'pitch']
 
 /**
- * Intent: an untrusted value as a plain object holding exactly the given keys; anything else
+ * An untrusted value as a plain object holding exactly the given keys; anything else
  * (null, an array, a non-plain object, an extra or a missing key) is refused as a parse error.
  */
 function exactRecord(
@@ -207,7 +207,7 @@ function exactRecord(
   return record
 }
 
-/** Intent: an untrusted field as a number, never coercing a string, null or anything else. */
+/** An untrusted field as a number, never coercing a string, null or anything else. */
 function numberField(record: Record<string, unknown>, key: string, what: string): number {
   const value = record[key]
   if (typeof value !== 'number') {
@@ -217,7 +217,7 @@ function numberField(record: Record<string, unknown>, key: string, what: string)
 }
 
 /**
- * Intent: parse an untrusted value into a quantized doodle: a plain object with exactly the fields
+ * Parse an untrusted value into a quantized doodle: a plain object with exactly the fields
  * measureCount and notes (a tempo or any other field refused), notes an array of plain objects
  * with exactly the number fields startTick, lengthTicks and pitch, then every rule of
  * makeQuantizedDoodle. Every refusal surfaces as a QuantizedDoodleParseError, never a partial

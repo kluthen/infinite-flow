@@ -53,7 +53,7 @@ const HOME_ALTO: MyInstrument = makeMyInstrument({
   transposition: { octaves: 0, semitones: 9, direction: 'lower' },
 })
 
-/** Intent: `count` counted sessions of my instrument. */
+/** `count` counted sessions of my instrument. */
 function sessions(count: number, facts: Partial<MyInstrumentSessionCount> = {}) {
   return {
     count,
@@ -66,14 +66,14 @@ function sessions(count: number, facts: Partial<MyInstrumentSessionCount> = {}) 
   }
 }
 
-/** Intent: play, on KEYS_A, the note `offset` semitones off what `profile` expects; let it react. */
+/** Play, on KEYS_A, the note `offset` semitones off what `profile` expects; let it react. */
 async function playOff(rig: ControllerRig, profile: InstrumentProfile, offset: number) {
   const expected = checkWrittenNote(profile) - profile.transposition.chromatic
   rig.midi.noteOn(KEYS_A.id, expected + offset, 90, rig.at(1))
   await flushPromises()
 }
 
-/** Intent: the sheet over HOME_ALTO and `counted`, at a keyboard result 14 semitones low. */
+/** The sheet over HOME_ALTO and `counted`, at a keyboard result 14 semitones low. */
 async function atResult(
   counted: MyInstrumentSessionCount,
   outcome: () => Promise<MyInstrumentBatchOutcome> = () => Promise.resolve('done'),

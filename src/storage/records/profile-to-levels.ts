@@ -17,7 +17,7 @@ import { levelsForProfile, type FigureLevels } from '@/domain/figures/figure-lev
 import { exactRecord, KeptRecordError } from './kept-record-shape'
 
 /**
- * Intent: a stored musical profile selection: exactly a known profile and a boolean customized
+ * A stored musical profile selection: exactly a known profile and a boolean customized
  * flag, as a v3.0 phrase's intent and a kept session's session-wide record hold it; a missing,
  * extra or unknown field is refused, never defaulted.
  */
@@ -33,7 +33,7 @@ export function parseStoredProfileSelection(value: unknown, context: string): Pr
 }
 
 /**
- * Intent: the figure levels a stored musical profile selection stands for: its profile's levels,
+ * The figure levels a stored musical profile selection stands for: its profile's levels,
  * Neutral's or Jazz's, whatever its customized flag, since being customized never changed the
  * figures. Returns a fresh frozen copy.
  */

@@ -72,7 +72,7 @@ export interface PhraseRhythmLockRecord {
 const EIGHTH_GRID_TICKS = 2
 
 /**
- * Intent: the four written measures of a decided phrase's rhythm as locked bars: each event's
+ * The four written measures of a decided phrase's rhythm as locked bars: each event's
  * kind, measure-relative start, length and whether it continues a tie, as written.
  */
 // @spec-link [[module_session_rhythm_lock]]
@@ -89,7 +89,7 @@ export function lockedBarsOfOutcome(outcome: SuccessfulOutcome): readonly Locked
 }
 
 /**
- * Intent: whether locked bars use sixteenth notes: some note or rest of them starts or lasts off
+ * Whether locked bars use sixteenth notes: some note or rest of them starts or lasts off
  * the Eighth density's two-tick grid.
  */
 // @spec-link [[rule_rhythm_lock_relocks_after_step_down]]
@@ -103,7 +103,7 @@ export function barsUseSixteenthNotes(bars: readonly LockedRhythmMeasure[]): boo
 }
 
 /**
- * Intent: the session's lock state at Start: none while the lock is off; otherwise phrase 1's
+ * The session's lock state at Start: none while the lock is off; otherwise phrase 1's
  * written bars (the Idle phrase Start takes, stale or not), the allowed changes chosen, and a
  * re-lock pending when those bars use sixteenth notes. Deep-frozen.
  */
@@ -124,7 +124,7 @@ export function sessionRhythmLockAtStart(
 }
 
 /**
- * Intent: whether a phrase is a tenser one: Tension across phrases runs in the session, the
+ * Whether a phrase is a tenser one: Tension across phrases runs in the session, the
  * phrase's cycle step is one step tenser (phrases 2, 6, 10...), and the tension in effect from
  * it on is below Edge, so the step really makes it tenser. A Vary settings tension step never
  * counts. An unknown tension or an invalid phrase number throws.
@@ -143,7 +143,7 @@ export function isTenserPhrase(
 }
 
 /**
- * Intent: the rhythm lock groups a phrase's rungs carry at its place: none while the lock is off;
+ * The rhythm lock groups a phrase's rungs carry at its place: none while the lock is off;
  * otherwise on with the locked bars, the allowed changes and the phrase's tenser flag, plus, while
  * a re-lock is pending, the re-lock group: the same bars and flag with no allowed change, so the
  * re-lock phrase draws no change and takes the nearest rhythm of its own density.
@@ -169,7 +169,7 @@ export function phraseRhythmLock(
 }
 
 /**
- * Intent: the session's lock state once a phrase is decided: after the re-lock phrase, its written
+ * The session's lock state once a phrase is decided: after the re-lock phrase, its written
  * bars locked for the rest of the session, the allowed changes kept and no re-lock pending any
  * more; after any other phrase, the same. A re-lock phrase with the lock off is a caller bug.
  */
@@ -189,7 +189,7 @@ export function rhythmLockAfterDecision(
   })
 }
 
-/** Intent: the kind of change a phrase that took a drawn change made, which it must name. */
+/** The kind of change a phrase that took a drawn change made, which it must name. */
 function changeKindOf(outcome: SuccessfulOutcome): RhythmChangeKind {
   const change = outcome.provenance.rhythmChange
   const kind = RHYTHM_CHANGE_KINDS.find((entry) => entry === change)
@@ -201,7 +201,7 @@ function changeKindOf(outcome: SuccessfulOutcome): RhythmChangeKind {
 }
 
 /**
- * Intent: what the lock did to one phrase, read from its history record: none when its outcome
+ * What the lock did to one phrase, read from its history record: none when its outcome
  * holds no lock outcome (the lock off, or phrase 1); a re-lock when the session's re-lock mark is
  * set, whatever the provenance says; otherwise the locked bars, a change with its kind, or a
  * forced bend, with whether the phrase drew a change and none was available.

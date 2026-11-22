@@ -14,7 +14,7 @@ import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import type { StaffFitPlanner } from './workspace-session-controller-types'
 
 /**
- * Intent: measure the staff's fixed parts for the key signature `phrase` is written in, in `clef`,
+ * Measure the staff's fixed parts for the key signature `phrase` is written in, in `clef`,
  * the session instrument's, once the engraver and its fonts are ready. A load or font failure is
  * the loader's own NotationError.
  */
@@ -33,7 +33,7 @@ export async function measureSessionStaffFixedParts(
 }
 
 /**
- * Intent: the engraver's staff planner, once the engraver and its notation fonts are ready, since
+ * The engraver's staff planner, once the engraver and its notation fonts are ready, since
  * the planning measures the chord symbols' text as the drawing does. A load or font failure is the
  * loader's or the font wait's own NotationError.
  */

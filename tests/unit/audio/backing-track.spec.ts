@@ -26,13 +26,13 @@ import { FOUR_FOUR_METER } from '@/domain/generation/generation-request'
 import { makeRational } from '@/domain/time/rational'
 import { renderedAttacks, twoPhraseHarmonies } from './backing-harmony'
 
-/** Intent: the time of every click of `plan` up to session beat `lastBeat`, indexed by beat. */
+/** The time of every click of `plan` up to session beat `lastBeat`, indexed by beat. */
 function clickTimes(plan: ClickPlan, lastBeat: number): number[] {
   const end = plan.startAt + ((lastBeat + 0.5) * 60) / plan.tempo
   return clicksBetween(plan, plan.startAt, end).map((click) => click.at)
 }
 
-/** Intent: the notes the renderer asks phrase `phraseNumber` for, on the click times given. */
+/** The notes the renderer asks phrase `phraseNumber` for, on the click times given. */
 function expectedNotes(
   harmonyIndex: 0 | 1,
   phraseNumber: number,

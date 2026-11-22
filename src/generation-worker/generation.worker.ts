@@ -8,7 +8,7 @@
 import { createGenerationWorkerRuntime } from './generation-worker-runtime'
 
 /**
- * Intent: a slice scheduler that yields to the Worker's message queue through a private
+ * A slice scheduler that yields to the Worker's message queue through a private
  * MessageChannel, so a generate request queued meanwhile runs before the next slice.
  *
  * Chosen by measurement (2026-09-30, worst setting Sixteenth|Heavily varied|Sparse|Active
@@ -42,7 +42,7 @@ const runtime = createGenerationWorkerRuntime({
   scheduleSlice: createMessageChannelScheduler(),
 })
 
-/** Intent: hand every incoming message to the runtime and post back the response it returns. */
+/** Hand every incoming message to the runtime and post back the response it returns. */
 // @spec-link [[module_generation_worker_protocol]]
 self.addEventListener('message', (event: MessageEvent<unknown>) => {
   const response = runtime.handleMessage(event.data)

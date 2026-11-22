@@ -39,7 +39,7 @@ export type LockTestRhythmControls = Pick<
 >
 
 /**
- * Intent: a cheap real intent on the lock test's rhythm controls, or the given ones, with the
+ * A cheap real intent on the lock test's rhythm controls, or the given ones, with the
  * lock group if given.
  */
 export function lockTestIntent(options: {
@@ -73,7 +73,7 @@ export function lockTestIntent(options: {
 }
 
 /**
- * Intent: the first window search input of an intent, as the orchestrator builds it: the lock's
+ * The first window search input of an intent, as the orchestrator builds it: the lock's
  * order over the canonical domain, with the phrase's rhythm change draw when one is made.
  */
 export function lockTestWindowInput(intent: GenerationIntent): WindowSearchInput {

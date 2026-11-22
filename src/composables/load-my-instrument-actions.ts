@@ -14,7 +14,7 @@ export type MyInstrumentActionsModule = typeof import('./generation-session-my-i
 let actionsPromise: Promise<MyInstrumentActionsModule> | null = null
 
 /**
- * Intent: the module of my instrument's session actions, loaded once and shared by every caller.
+ * The module of my instrument's session actions, loaded once and shared by every caller.
  * Safe to call speculatively (as the My instrument sheet loads) to absorb the fetch ahead of a
  * save or a delete.
  */

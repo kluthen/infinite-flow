@@ -51,7 +51,7 @@ export interface PlayedNotesLaneViewsInput {
 }
 
 /**
- * Intent: the inline start of each system's SVG relative to the reserved position holding it,
+ * The inline start of each system's SVG relative to the reserved position holding it,
  * which starts where its lane does (both span the review staff's content inline size).
  */
 // @spec-link [[module_review_played_notes_lane]]
@@ -67,7 +67,7 @@ export function systemInlineOffsets(
 }
 
 /**
- * Intent: "Played notes, phrase {n}" ("Played notes, your doodle" for a Jam's doodle), with "bars
+ * "Played notes, phrase {n}" ("Played notes, your doodle" for a Jam's doodle), with "bars
  * 1–2" or "bars 3–4" in the split layout.
  */
 // @spec-link [[rule_review_played_notes_toggle]]
@@ -83,7 +83,7 @@ export function playedNotesLaneLabel(
 }
 
 /**
- * Intent: one lane per reserved position, top first. Without a source every lane is blank; with
+ * One lane per reserved position, top first. Without a source every lane is blank; with
  * one, each lane gets its system's dividers and a bar for each played note that is not very short,
  * shifted by that system's offset: a divider sets its inline start only, a bar its inline start,
  * inline size and `--played-note-pitch` only.

@@ -29,7 +29,7 @@ interface LatestRunner {
 let latest: LatestRunner | null = null
 
 /**
- * Intent: start the real workspace runner, keeping it as the latest, and follow the settings in
+ * Start the real workspace runner, keeping it as the latest, and follow the settings in
  * effect through its outputs before forwarding each unchanged.
  */
 // @test-link [[service_workspace_session_runner_factory]]
@@ -55,7 +55,7 @@ export function startWorkspaceSessionRunner(
 }
 
 /**
- * Intent: send the latest runner a settings change now, on its engine clock: the settings in
+ * Send the latest runner a settings change now, on its engine clock: the settings in
  * effect with `controls` overriding some of their controls, the result validated as any controls
  * are (an unknown value throws). Throws with no runner started; the engine throws on a change of
  * tempo or instrument, or once its session has ended.

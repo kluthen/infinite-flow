@@ -29,7 +29,7 @@ const GRANTED_KINDS: ReadonlySet<MidiControllerState['kind']> = new Set([
   'away',
 ])
 
-/** Intent: the facts at page start, from the controller's current state, no input seen yet. */
+/** The facts at page start, from the controller's current state, no input seen yet. */
 // @spec-link [[rule_controller_attached_definition]]
 export function initialControllerStatusFacts(state: MidiControllerState): ControllerStatusFacts {
   return Object.freeze({
@@ -42,7 +42,7 @@ export function initialControllerStatusFacts(state: MidiControllerState): Contro
 }
 
 /**
- * Intent: fold one controller change. A connected state marks a controller as ever connected (for
+ * Fold one controller change. A connected state marks a controller as ever connected (for
  * good: the header never returns to Connect controller); denied blocks, a granted state unblocks,
  * and requesting, not-requested or unsupported leave the latest answer standing. Every device id
  * present joins the seen ids, once, in first-seen order.
@@ -79,7 +79,7 @@ export type ControllerStatusForm =
   | { readonly kind: 'disconnected' }
 
 /**
- * Intent: the one form the header shows. A controller lost in a running session shows
+ * The one form the header shows. A controller lost in a running session shows
  * disconnected before all else; then a connected state (the same device reattached by itself
  * included) shows the connected badge; a refused latest request shows MIDI blocked; a controller
  * that connected earlier this page session shows no-controller, and so does the remembered

@@ -38,24 +38,24 @@ import {
 import { SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
 import { encodeIfk4PhraseReplayKey } from './ifk4-key-writer'
 
-/** Intent: a real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
+/** A real intent for phrase 2 of a session, carrying phrase 1's carry-in. */
 function carryInIntent(): GenerationIntent {
   const firstIntent = buildIntent({ seed: 11, label: 'replay' })
   const carryIn = carryInAfter(firstIntent, generateSuccess(firstIntent), 1)
   return buildIntent({ seed: 12, label: 'replay', carryIn })
 }
 
-/** Intent: encode any JSON value as an `ifk1.` key, bypassing the codec's own encoder. */
+/** Encode any JSON value as an `ifk1.` key, bypassing the codec's own encoder. */
 function rawKey(payload: unknown): string {
   return `${PHRASE_REPLAY_KEY_PREFIX}${base64Url(new TextEncoder().encode(JSON.stringify(payload)))}`
 }
 
-/** Intent: encode any JSON value as an `ifk3.` key, bypassing the codec's own encoder. */
+/** Encode any JSON value as an `ifk3.` key, bypassing the codec's own encoder. */
 function rawIfk3Key(payload: unknown): string {
   return `${PHRASE_REPLAY_KEY_V3_PREFIX}${base64Url(new TextEncoder().encode(JSON.stringify(payload)))}`
 }
 
-/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+/** The JSON payload of a key, read back without the codec's decoder. */
 function payloadOf(key: string): unknown[] {
   const payload = key
     .slice(key.indexOf('.') + 1)
@@ -66,7 +66,7 @@ function payloadOf(key: string): unknown[] {
   return JSON.parse(new TextDecoder().decode(bytes)) as unknown[]
 }
 
-/** Intent: unpadded base64url of raw bytes, for hand-built malformed payloads. */
+/** Unpadded base64url of raw bytes, for hand-built malformed payloads. */
 function base64Url(bytes: Uint8Array): string {
   let binary = ''
   for (const byte of bytes) binary += String.fromCharCode(byte)
@@ -74,7 +74,7 @@ function base64Url(bytes: Uint8Array): string {
 }
 
 /**
- * Intent: the `ifk1.` 7-tuple v3.0 wrote for an intent and phrase number, its profile slots
+ * The `ifk1.` 7-tuple v3.0 wrote for an intent and phrase number, its profile slots
  * holding the customized Neutral buildIntent builds with, as a mutable array to corrupt.
  */
 function tupleOf(intent: GenerationIntent, phraseNumber: number): unknown[] {
@@ -91,19 +91,19 @@ function tupleOf(intent: GenerationIntent, phraseNumber: number): unknown[] {
   ]
 }
 
-/** Intent: the valid `ifk1.` 7-tuple of a plain intent without a carry-in. */
+/** The valid `ifk1.` 7-tuple of a plain intent without a carry-in. */
 function validTuple(): unknown[] {
   return tupleOf(buildIntent({ seed: 5, label: 'tuple' }), 1)
 }
 
-/** Intent: a valid tuple with one slot replaced. */
+/** A valid tuple with one slot replaced. */
 function tupleWith(index: number, value: unknown): unknown[] {
   const tuple = validTuple()
   tuple[index] = value
   return tuple
 }
 
-/** Intent: a valid tuple with one control value replaced. */
+/** A valid tuple with one control value replaced. */
 function tupleWithControl(key: string, value: unknown): unknown[] {
   const tuple = validTuple()
   const controls = [...(tuple[2] as unknown[])]
@@ -113,14 +113,14 @@ function tupleWithControl(key: string, value: unknown): unknown[] {
 }
 
 /**
- * Intent: the valid `ifk3.` 7-tuple of a plain built-in intent: the first seven entries of the
+ * The valid `ifk3.` 7-tuple of a plain built-in intent: the first seven entries of the
  * `ifk5.` 10-tuple the encoder writes, which keep the `ifk3.` order and meaning.
  */
 function validIfk3Tuple(): unknown[] {
   return payloadOf(encodePhraseReplayKey(buildIntent({ seed: 5, label: 'tuple' }), 1)).slice(0, 7)
 }
 
-/** Intent: assert encode→decode yields an `ifk5` key and the original intent and number exactly. */
+/** Assert encode→decode yields an `ifk5` key and the original intent and number exactly. */
 function expectRoundTrip(intent: GenerationIntent, phraseNumber: number): void {
   const key = encodePhraseReplayKey(intent, phraseNumber)
   expect(key.startsWith('ifk5.')).toBe(true)
@@ -529,7 +529,7 @@ const NO_PHRASE_CARRY_IN = makeCarryIn({
   finalHarmony: null,
 })
 
-/** Intent: a real Middle phrase-1 intent receiving the doodle's join, with its steering block. */
+/** A real Middle phrase-1 intent receiving the doodle's join, with its steering block. */
 function noPhraseIntent(): GenerationIntent {
   const plain = buildIntent({ seed: 14, label: 'replay-doodle' })
   return makeCarryInGenerationIntent({
@@ -566,7 +566,7 @@ describe('phrase replay key and a carry-in from no phrase', () => {
   })
 })
 
-/** Intent: the plain intent `buildIntent` gives for a seed, built again at a Seventh chords level. */
+/** The plain intent `buildIntent` gives for a seed, built again at a Seventh chords level. */
 function intentAtLevel(seed: number, chordFamilies: ChordFamilies): GenerationIntent {
   const base = buildIntent({ seed, label: 'seventh-chords' })
   return createGenerationIntent({

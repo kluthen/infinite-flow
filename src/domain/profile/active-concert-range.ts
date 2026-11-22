@@ -30,7 +30,7 @@ export class ActiveConcertRangeError extends Error {
 }
 
 /**
- * Intent: construct an immutable, deep-frozen ActiveConcertRange from validated integer
+ * Construct an immutable, deep-frozen ActiveConcertRange from validated integer
  * endpoints. Rejects non-integer endpoints, a non-positive span (minMidi >= maxMidi), and a span
  * narrower than the 24-semitone minimum the whole-phrase register-window policy requires, each as
  * a typed failure; never clamps, defaults, or coerces.

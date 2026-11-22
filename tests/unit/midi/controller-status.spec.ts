@@ -27,7 +27,7 @@ const NO_DEVICE: MidiControllerState = { kind: 'no-device' }
 const CHOOSING: MidiControllerState = { kind: 'choosing' }
 const UNSUPPORTED: MidiControllerState = { kind: 'unsupported' }
 
-/** Intent: a controller change with these devices present, nothing remembered unless given. */
+/** A controller change with these devices present, nothing remembered unless given. */
 function change(
   state: MidiControllerState,
   devices: readonly MidiDevice[] = [],
@@ -42,12 +42,12 @@ function change(
 /** The remembered KEYS, reselected at load: MIDI access was already allowed. */
 const RESELECTED = { remembered: KEYS, reselectedAtLoad: true } as const
 
-/** Intent: fold a run of changes from not-requested, as the header sees them. */
+/** Fold a run of changes from not-requested, as the header sees them. */
 function foldAll(...changes: MidiControllerChange[]): ControllerStatusFacts {
   return changes.reduce(foldControllerStatus, initialControllerStatusFacts(NOT_REQUESTED))
 }
 
-/** Intent: the header form between sessions (no loss in a running session). */
+/** The header form between sessions (no loss in a running session). */
 function formOf(facts: ControllerStatusFacts): ReturnType<typeof controllerStatusForm> {
   return controllerStatusForm(facts, { lostInSession: false })
 }

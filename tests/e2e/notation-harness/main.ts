@@ -105,7 +105,7 @@ import { notationSystemsHook, scratchHost } from './phrase-systems'
 /** Extra fields the generated source publishes alongside every state transition; empty for a fixture. */
 type GeneratedExtras = Pick<NotationHarnessState, 'sourceSnapshot' | 'currentSnapshot'>
 
-/** Intent: read a required URL parameter, crashing with a clear error rather than defaulting. */
+/** Read a required URL parameter, crashing with a clear error rather than defaulting. */
 function requireParam(params: URLSearchParams, name: string): string {
   const value = params.get(name)
   if (value === null) {
@@ -134,7 +134,7 @@ let systemPositionUnits: number | null = null
 let engraveWaiter: { resolve: () => void; reject: (error: NotationError) => void } | null = null
 
 /**
- * Intent: give PhraseScore a new overlay state and settle once it is drawn: after Vue's update
+ * Give PhraseScore a new overlay state and settle once it is drawn: after Vue's update
  * (PhraseScore draws in its watcher) and the next frame. Rejects with the ScoreOverlayError the
  * draw threw, which Vue routes to the app's error handler rather than to this caller.
  */
@@ -149,7 +149,7 @@ async function setOverlays(overlays: ScoreOverlays): Promise<void> {
 }
 
 /**
- * Intent: give PhraseScore a new phrase (a fixture), phrase number and overlay state in the same
+ * Give PhraseScore a new phrase (a fixture), phrase number and overlay state in the same
  * tick, and settle once the new phrase is engraved with the overlays drawn on it. Rejects with the
  * ScoreOverlayError any overlay draw threw meanwhile, or with the NotationError the engraving hit.
  */
@@ -173,7 +173,7 @@ async function swapPhrase(
   if (failure !== null) throw failure
 }
 
-/** Intent: settle the pending `swapPhrase` call, if any, with an engraving outcome. */
+/** Settle the pending `swapPhrase` call, if any, with an engraving outcome. */
 function settleEngraveWaiter(error: NotationError | null): void {
   const waiter = engraveWaiter
   engraveWaiter = null
@@ -183,7 +183,7 @@ function settleEngraveWaiter(error: NotationError | null): void {
 }
 
 /**
- * Intent: the written facts of every glyph, measure by measure, that decide which tagged parts
+ * The written facts of every glyph, measure by measure, that decide which tagged parts
  * its engraving must carry (a stem unless whole, a flag if unbeamed and flagged, its accidental,
  * its dot).
  */
@@ -201,7 +201,7 @@ function glyphFacts(phrase: WrittenPhrase): NotationHarnessGlyphFact[][] {
 }
 
 /**
- * Intent: mount PhraseScore inside a real `staff-frame` against a reactive phrase, as phrase
+ * Mount PhraseScore inside a real `staff-frame` against a reactive phrase, as phrase
  * `phraseNumber`, publishing every lifecycle event.
  */
 function mountPhraseScore(
@@ -275,7 +275,7 @@ function mountPhraseScore(
 }
 
 /**
- * Intent: read an optional URL parameter that has a documented harness default (used only for the
+ * Read an optional URL parameter that has a documented harness default (used only for the
  * contour, leapiness and arpeggio chaos the calibration sweep varies; every other control is
  * required).
  */
@@ -284,7 +284,7 @@ function optionalParam(params: URLSearchParams, name: string, harnessDefault: st
 }
 
 /**
- * Intent: read a URL parameter that must be a whole number, crashing on anything else; a missing
+ * Read a URL parameter that must be a whole number, crashing on anything else; a missing
  * one takes the harness default, or crashes when there is none (null).
  */
 function wholeNumberParam(
@@ -304,7 +304,7 @@ function wholeNumberParam(
 }
 
 /**
- * Intent: read `<low>-<high>` (two whole written MIDI notes) from a URL parameter, crashing on any
+ * Read `<low>-<high>` (two whole written MIDI notes) from a URL parameter, crashing on any
  * other shape.
  */
 function writtenRangeParam(
@@ -320,7 +320,7 @@ function writtenRangeParam(
 }
 
 /**
- * Intent: read an optional clef URL parameter (`treble` or `bass`), taking the built-in treble
+ * Read an optional clef URL parameter (`treble` or `bass`), taking the built-in treble
  * clef when it is absent and crashing on any other value.
  */
 function clefParam(params: URLSearchParams, name: string): InstrumentClef {
@@ -332,7 +332,7 @@ function clefParam(params: URLSearchParams, name: string): InstrumentClef {
 }
 
 /**
- * Intent: the player-made instrument the URL describes (`myLow`, `myHigh`, `myOctaves`,
+ * The player-made instrument the URL describes (`myLow`, `myHigh`, `myOctaves`,
  * `mySemitones`, `myDirection`, `myClef`), built with the real `makeMyInstrument` on the C MIDI
  * keyboard template; null when the URL names none. A partial or invalid description crashes.
  */
@@ -362,7 +362,7 @@ function readMyInstrument(params: URLSearchParams): MyInstrument | null {
 }
 
 /**
- * Intent: the shared system-position size the URL sets: from the player-made instrument's written
+ * The shared system-position size the URL sets: from the player-made instrument's written
  * range in its clef, or from `savedRange` in `savedClef`, a saved my instrument's, whatever is
  * engraved; null (PhraseScore's built-in size) when it sets neither. Naming both, or `savedClef`
  * without `savedRange`, is a mistyped test URL and crashes.
@@ -391,7 +391,7 @@ function readSystemPositionUnits(
 }
 
 /**
- * Intent: build the explicit, cheap-controls-free GenerationIntent for the harness's generated
+ * Build the explicit, cheap-controls-free GenerationIntent for the harness's generated
  * source. Contour, leapiness and arpeggio chaos default to `Arch`, `Shaped` and `Predictable`
  * unless the URL sets them (`contour`, `leapiness`, `chaos`). For a player-made instrument the
  * controls name `my-instrument` and its profile travels beside them; `profile` must be absent.
@@ -453,7 +453,7 @@ function buildHarnessIntent(
   })
 }
 
-/** Intent: run the harness's generated source end to end, publishing the source snapshot. */
+/** Run the harness's generated source end to end, publishing the source snapshot. */
 function runGeneratedSource(
   params: URLSearchParams,
   phraseNumber: number,
@@ -485,20 +485,20 @@ function runGeneratedSource(
   mountPhraseScore(transformToWrittenPhrase(input), phraseNumber, extras)
 }
 
-/** Intent: run the harness's hand-built fixture source (the pre-existing, still-supported path). */
+/** Run the harness's hand-built fixture source (the pre-existing, still-supported path). */
 function runFixtureSource(params: URLSearchParams, phraseNumber: number): void {
   const fixtureName = requireParam(params, 'fixture')
   window.__notationHarness = { state: 'pending' }
   mountPhraseScore(resolveFixture(fixtureName), phraseNumber, {})
 }
 
-/** Intent: mount PhraseScore with no phrase, as the workspace does before its first phrase. */
+/** Mount PhraseScore with no phrase, as the workspace does before its first phrase. */
 function runEmptySource(phraseNumber: number): void {
   window.__notationHarness = { state: 'pending' }
   mountPhraseScore(null, phraseNumber, {})
 }
 
-/** Intent: load the real engraver module and wait for its fonts, as PhraseScore does before drawing. */
+/** Load the real engraver module and wait for its fonts, as PhraseScore does before drawing. */
 async function readyEngraver(): Promise<VexflowEngraverModule> {
   const engraver = await loadVexflowEngraver()
   await engraver.ensureNotationFonts()
@@ -506,7 +506,7 @@ async function readyEngraver(): Promise<VexflowEngraverModule> {
 }
 
 /**
- * Intent: check a written phrase handed over as plain data (a serialised WrittenPhrase) with
+ * Check a written phrase handed over as plain data (a serialised WrittenPhrase) with
  * `planWrittenPhraseFit` at these layout inputs and, when it fits, engrave it as phrase 1 into
  * scratch hosts for the raw engraving units its layout requires; null when it does not fit. A
  * value without four measures is not a written phrase and crashes.
@@ -559,7 +559,7 @@ const notationChecks: NotationHarnessChecks = {
 }
 
 /**
- * Intent: apply the `theme` URL parameter: `light` or `dark` set the root's `data-theme` as the
+ * Apply the `theme` URL parameter: `light` or `dark` set the root's `data-theme` as the
  * app's theme control does; absent, no attribute (the system scheme); any other value is a
  * mistyped test URL and crashes.
  */

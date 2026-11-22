@@ -51,7 +51,7 @@ function shownKeptPhrase(): JamKeptPhraseCue {
   }
 }
 
-/** Intent: the cue over reactive readings a test changes: Jam mode at Idle, ready to start. */
+/** The cue over reactive readings a test changes: Jam mode at Idle, ready to start. */
 function cueRig() {
   const world = reactive({
     keptPhrase: null as JamKeptPhraseCue | null,

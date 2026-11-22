@@ -18,7 +18,7 @@ import type { GenerationOutcome } from '@/domain/generation/orchestration/orches
 import { makeSeed } from '@/domain/random/seed'
 import { NEUTRAL_FIGURE_LEVELS } from '@/domain/figures/figure-levels'
 
-/** Intent: build a real generation intent from cheap, deliberately-inexpensive controls so tests stay fast. */
+/** Build a real generation intent from cheap, deliberately-inexpensive controls so tests stay fast. */
 function cheapIntent(
   overrides: Partial<typeof DEFAULT_GENERATION_CONTROLS> = {},
 ): GenerationIntent {

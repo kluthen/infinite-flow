@@ -37,7 +37,7 @@ const QUARTER = makeRational(1, 4)
 /** One quarter-note event: a note at `midi` (tied on from the one before when `tied`), or a rest. */
 type Quarter = number | 'rest' | readonly [number, 'tied']
 
-/** Intent: a four-measure timeline of quarter notes, sixteen entries. */
+/** A four-measure timeline of quarter notes, sixteen entries. */
 function quarters(entries: readonly Quarter[]): RenderPhrase['timeline'] {
   const events = entries.map((entry) =>
     entry === 'rest'
@@ -69,12 +69,12 @@ const ENDING_NOTES: readonly Quarter[] = [
   [67, 'tied'],
 ]
 
-/** Intent: a hand-built phrase at 90 BPM in the test window. */
+/** A hand-built phrase at 90 BPM in the test window. */
 function phrase(notes: readonly Quarter[], harmony: RenderPhrase['harmony']): RenderPhrase {
   return { timeline: quarters(notes), harmony, window: WINDOW, tempo: 90 }
 }
 
-/** Intent: the attack MIDIs of a timeline, tie continuations included. */
+/** The attack MIDIs of a timeline, tie continuations included. */
 function pitches(timeline: RenderPhrase['timeline']): readonly number[] {
   return timeline.measures.flatMap((measure) =>
     measure.events.flatMap((event) => (event.kind === 'note' ? [event.pitch as number] : [])),
@@ -160,7 +160,7 @@ describe('the render script', () => {
     for (const folder of folders.splice(0)) rmSync(folder, { recursive: true, force: true })
   })
 
-  /** Intent: run the script with some arguments from the repository root. */
+  /** Run the script with some arguments from the repository root. */
   function runScript(args: readonly string[]): ReturnType<typeof spawnSync> {
     return spawnSync('node', ['scripts/render-seventh-endings.mjs', ...args], {
       cwd: REPO_ROOT,

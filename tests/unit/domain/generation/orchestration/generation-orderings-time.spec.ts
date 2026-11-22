@@ -25,13 +25,13 @@ import { lockTestIntent } from './rhythm-lock-search-fixture'
 
 type Success = Extract<GenerationOutcome, { kind: 'generation_success' }>
 
-/** Intent: require a success. */
+/** Require a success. */
 function success(outcome: GenerationOutcome): Success {
   if (outcome.kind !== 'generation_success') throw new Error(`Expected a phrase: ${outcome.code}`)
   return outcome
 }
 
-/** Intent: a fake clock that advances one second per read, and how often it was read. */
+/** A fake clock that advances one second per read, and how often it was read. */
 function steppingClock(): { readonly clock: () => number; readonly reads: () => number } {
   let reads = 0
   return {
@@ -43,7 +43,7 @@ function steppingClock(): { readonly clock: () => number; readonly reads: () => 
   }
 }
 
-/** Intent: the rhythm lock group on with these bars and every change kind allowed. */
+/** The rhythm lock group on with these bars and every change kind allowed. */
 function lockWithEveryChange(bars: readonly LockedRhythmMeasure[]): RequestRhythmLock {
   return makeRequestRhythmLock({
     state: { kind: 'locked', bars },
@@ -52,7 +52,7 @@ function lockWithEveryChange(bars: readonly LockedRhythmMeasure[]): RequestRhyth
   })
 }
 
-/** Intent: the reported orderings' seconds of a clocked outcome, required present. */
+/** The reported orderings' seconds of a clocked outcome, required present. */
 function orderingsSeconds(diagnostics: GenerationDiagnostics): number {
   const seconds = diagnostics.rhythmOrderingsSeconds
   if (seconds === undefined) throw new Error('Expected the orderings time in the diagnostics.')

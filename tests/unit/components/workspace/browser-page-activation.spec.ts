@@ -8,12 +8,12 @@ import { describe, expect, it } from 'vitest'
 
 import { createPageActivation } from '@/components/workspace/browser-page-activation'
 
-/** Intent: a stand-in for the browser's sticky user activation, set by the test. */
+/** A stand-in for the browser's sticky user activation, set by the test. */
 function stickyActivation(initially = false) {
   return { hasBeenActive: initially }
 }
 
-/** Intent: dispatch one input event of `type` on `target`. */
+/** Dispatch one input event of `type` on `target`. */
 function fire(target: EventTarget, type: string): void {
   target.dispatchEvent(new Event(type))
 }

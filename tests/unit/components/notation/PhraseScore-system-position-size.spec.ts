@@ -33,14 +33,14 @@ const VIEWPORT = { layout: 'one-system', heightBudgetPx: null } as const
 
 const mounted: { unmount: () => void }[] = []
 
-/** Intent: stub what jsdom lacks: ResizeObserver, a wide window's matchMedia, and layout. */
+/** Stub what jsdom lacks: ResizeObserver, a wide window's matchMedia, and layout. */
 function stubBrowser(): void {
   vi.stubGlobal(
     'ResizeObserver',
     class {
-      /** Intent: observe nothing; a test signals resizes through the window instead. */
+      /** Observe nothing; a test signals resizes through the window instead. */
       observe(): void {}
-      /** Intent: nothing to stop observing. */
+      /** Nothing to stop observing. */
       disconnect(): void {}
     },
   )
@@ -53,13 +53,13 @@ function stubBrowser(): void {
   vi.spyOn(Element.prototype, 'clientWidth', 'get').mockImplementation(() => WIDTH_PX)
 }
 
-/** Intent: wait for the next animation frame and settle the promises it started. */
+/** Wait for the next animation frame and settle the promises it started. */
 async function nextFrame(): Promise<void> {
   await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
   await flushPromises()
 }
 
-/** Intent: mount PhraseScore in a staff-frame, idle on the phrase, at a reactive size. */
+/** Mount PhraseScore in a staff-frame, idle on the phrase, at a reactive size. */
 async function mountScore(initialUnits: number | undefined) {
   const units = shallowRef<number | undefined>(initialUnits)
   const session = shallowRef<SessionStaff | null>(null)
@@ -80,7 +80,7 @@ async function mountScore(initialUnits: number | undefined) {
   mounted.push(wrapper)
   await flushPromises()
   const score = wrapper.getComponent(PhraseScore)
-  /** Intent: both positions' block sizes, top first. */
+  /** Both positions' block sizes, top first. */
   const blockSizes = () =>
     (['top', 'bottom'] as const).map(
       (position) =>

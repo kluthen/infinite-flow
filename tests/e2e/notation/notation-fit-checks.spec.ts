@@ -29,14 +29,14 @@ const C_SHARP_MAJOR_SIGNATURE: NotationHarnessKeySignature = {
   ionianTonic: { letter: 'C', alter: 1 },
 }
 
-/** Intent: wait until the harness publishes a settled (ready or error) engrave outcome. */
+/** Wait until the harness publishes a settled (ready or error) engrave outcome. */
 async function waitForHarnessSettled(page: Page): Promise<void> {
   await page.waitForFunction(
     () => window.__notationHarness && window.__notationHarness.state !== 'pending',
   )
 }
 
-/** Intent: let two animation frames pass, so any coalesced layout check has run. */
+/** Let two animation frames pass, so any coalesced layout check has run. */
 async function settleFrames(page: Page): Promise<void> {
   await page.evaluate(
     () =>
@@ -46,7 +46,7 @@ async function settleFrames(page: Page): Promise<void> {
   )
 }
 
-/** Intent: open the harness with no phrase and wait for PhraseScore's first layout report. */
+/** Open the harness with no phrase and wait for PhraseScore's first layout report. */
 async function openEmptyStaff(page: Page, width: number): Promise<void> {
   await page.setViewportSize(PHONE_VIEWPORT)
   await page.goto(`/?source=empty&width=${width}`)

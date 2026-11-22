@@ -60,7 +60,7 @@ interface OpenedSheet {
 }
 
 /**
- * Intent: build the connection sheet's host over `deps`, closed. The sheet component is loaded on
+ * Build the connection sheet's host over `deps`, closed. The sheet component is loaded on
  * the first open (memoized; the shell warms it after mount).
  */
 // @spec-link [[rule_controller_connects_between_sessions]]
@@ -68,7 +68,7 @@ export function useConnectionSheet(deps: ConnectionSheetDeps): ConnectionSheetHo
   const opened = shallowRef<OpenedSheet | null>(null)
   const sheetComponent = shallowRef<Component | null>(null)
 
-  /** Intent: start the MIDI request, its permission read first (the sheet tells prompt from checking). */
+  /** Start the MIDI request, its permission read first (the sheet tells prompt from checking). */
   function startConnecting(): SheetConnecting {
     const permission = deps.midi.permission()
     const settled = deps.midi.connect()
@@ -76,7 +76,7 @@ export function useConnectionSheet(deps: ConnectionSheetDeps): ConnectionSheetHo
   }
 
   /**
-   * Intent: the `controller-status` click, synchronously. The connected badge opens the sheet at
+   * The `controller-status` click, synchronously. The connected badge opens the sheet at
    * Connected and asks nothing. Every other form is the page's audio-unlock click and the MIDI
    * request in one: unlock first, then request (no request where the browser has no Web MIDI),
    * and open at Requesting access. The sheet then loads; a load failure closes it and propagates,
@@ -107,7 +107,7 @@ export function useConnectionSheet(deps: ConnectionSheetDeps): ConnectionSheetHo
     )
   }
 
-  /** Intent: hide the sheet; the shell then moves focus. */
+  /** Hide the sheet; the shell then moves focus. */
   function close(): void {
     if (opened.value === null) throw new Error('connection sheet: closed while not open')
     opened.value = null

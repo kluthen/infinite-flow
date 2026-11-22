@@ -10,7 +10,7 @@ export const FNV_OFFSET_BASIS_32 = 0x811c9dc5
 export const FNV_PRIME_32 = 0x01000193
 
 /**
- * Intent: compute the FNV-1a 32-bit hash of a string, forcing unsigned interpretation at every
+ * Compute the FNV-1a 32-bit hash of a string, forcing unsigned interpretation at every
  * step. Every intermediate value is forced into unsigned 32-bit interpretation with `>>> 0`, the
  * single most common source of cross-runtime drift for bitwise hashes, so it is made explicit
  * rather than left to JS's default signed semantics.
@@ -27,7 +27,7 @@ export function fnv1a32(input: string): number {
 }
 
 /**
- * Intent: resume an FNV-1a 32-bit hash state over the UTF-16 code units `input[start..end)`, with
+ * Resume an FNV-1a 32-bit hash state over the UTF-16 code units `input[start..end)`, with
  * exactly the per-character arithmetic of `fnv1a32`. Hashing a string in consecutive pieces with
  * this helper, starting from `FNV_OFFSET_BASIS_32`, gives the same value as `fnv1a32` over their
  * concatenation, so a caller can hash a shared prefix once and continue it without concatenating.

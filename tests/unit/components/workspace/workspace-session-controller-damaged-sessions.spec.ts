@@ -46,23 +46,23 @@ const FRESH: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: the stored records of the recorded session started at `startedAt`, with `facts`. */
+/** The stored records of the recorded session started at `startedAt`, with `facts`. */
 function recordsAt(startedAt: number, facts: Partial<KeptSessionFacts> = {}): StoredKeptSession {
   const shifted = { ...history, phrases: () => history.phrases(), startedAt }
   return storedRecords(encodeKeptSession(shifted, { ...FRESH, ...facts }, APP_VERSION))
 }
 
-/** Intent: `records` with a summary the codec reads as unreadable (an invalid start). */
+/** `records` with a summary the codec reads as unreadable (an invalid start). */
 function damagedSummary(records: StoredKeptSession): StoredKeptSession {
   return { ...records, summary: edited(records.summary, ['startedAt'], 'not a time') }
 }
 
-/** Intent: `records` with a body the codec reads as unreadable. */
+/** `records` with a body the codec reads as unreadable. */
 function damagedBody(records: StoredKeptSession): StoredKeptSession {
   return { ...records, body: edited(records.body, ['phrases'], 'none') }
 }
 
-/** Intent: `records` as a newer version wrote them, its body damaged besides. */
+/** `records` as a newer version wrote them, its body damaged besides. */
 function newerDamaged(records: StoredKeptSession): StoredKeptSession {
   return { ...damagedBody(records), summary: { ...(records.summary as object), dataVersion: 99 } }
 }
@@ -91,14 +91,14 @@ interface FakeKept {
   gate: Promise<void> | null
 }
 
-/** Intent: the device's records of the session under `key`, as the seam's read gives them. */
+/** The device's records of the session under `key`, as the seam's read gives them. */
 function storedOf(device: FakeKept['device'], key: string): StoredKeptSession {
   const [summary, body, playedNotes] = STORES.map((store) => device.get(store)?.get(key))
   return { summary, body, playedNotes }
 }
 
 /**
- * Intent: a fake seam whose load read `loaded`'s summaries, the device then holding `device`'s
+ * A fake seam whose load read `loaded`'s summaries, the device then holding `device`'s
  * records (the load's by default), saving on, every kept change run against the device.
  */
 function fakeKept(
@@ -130,7 +130,7 @@ function fakeKept(
       Promise.resolve([...(stores.get(store) ?? [])].map(([key, value]) => ({ key, value }))),
     readKeys: (store) => Promise.resolve([...(stores.get(store)?.keys() ?? [])]),
   }
-  /** Intent: run `changes` against the device as the kept-change line would. */
+  /** Run `changes` against the device as the kept-change line would. */
   const changeKept = async (
     changes: KeptChanges,
     refusal: KeptRefusal,
@@ -167,17 +167,17 @@ function fakeKept(
   return fake
 }
 
-/** Intent: a rig over `fake`, reloaded: no session ran in this visit yet. */
+/** A rig over `fake`, reloaded: no session ran in this visit yet. */
 function reloaded(fake: FakeKept): ControllerRig {
   return controllerRig(undefined, undefined, { keptSessions: fake.seam })
 }
 
-/** Intent: the keys of the controller's rows, in order. */
+/** The keys of the controller's rows, in order. */
 function rowKeys(rig: ControllerRig): string[] {
   return rig.controller.state.keptRows.map((row) => row.key)
 }
 
-/** Intent: the keys the device holds a record under, in `store`. */
+/** The keys the device holds a record under, in `store`. */
 function deviceKeys(fake: FakeKept, store: StoreName = 'sessionSummaries'): string[] {
   return [...(fake.device.get(store)?.keys() ?? [])]
 }
@@ -522,7 +522,7 @@ describe('session controller: a kept session found damaged at its opening', () =
 
 // @test-link [[module_kept_session_save]]
 describe("session controller: the damaged sessions a session's own save deletes", () => {
-  /** Intent: a rig whose session's save is built from `kept` and resolves `outcome`. */
+  /** A rig whose session's save is built from `kept` and resolves `outcome`. */
   async function afterSave(fake: FakeKept, outcome: 'saved' | 'refused'): Promise<ControllerRig> {
     const rig = controllerRig(undefined, undefined, {
       keptSessions: fake.seam,

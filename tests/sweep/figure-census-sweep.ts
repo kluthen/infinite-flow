@@ -67,21 +67,21 @@ export const PROFILE_SETTINGS: readonly CensusSetting[] = MUSICAL_PROFILES.map((
   apply: (censusCase: CensusCase): CensusCase => ({ ...censusCase, musicalProfile: profile }),
 }))
 
-/** Intent: every figure at `level`, except the figures named in `off`, which are off. */
+/** Every figure at `level`, except the figures named in `off`, which are off. */
 function levelsWith(level: FigureLevel, off: readonly FigureId[]): FigureLevels {
   return Object.fromEntries(
     FIGURE_IDS.map((figure) => [figure, off.includes(figure) ? 'off' : level]),
   ) as FigureLevels
 }
 
-/** Intent: every figure as today, except `figure`, which is at `level`. */
+/** Every figure as today, except `figure`, which is at `level`. */
 function oneFigureAt(figure: FigureId, level: FigureLevel): FigureLevels {
   return Object.fromEntries(
     FIGURE_IDS.map((other) => [other, other === figure ? level : 'asToday']),
   ) as FigureLevels
 }
 
-/** Intent: the setting giving every case the levels `figureLevels`, keeping its profile. */
+/** The setting giving every case the levels `figureLevels`, keeping its profile. */
 function levelsSetting(label: string, figureLevels: FigureLevels): CensusSetting {
   return {
     label,
@@ -111,7 +111,7 @@ export const FIGURE_FAVORED_SETTINGS: readonly CensusSetting[] = FIGURE_IDS.flat
 ])
 
 /**
- * Intent: the census population of some sweep cases: each case under each of the nine
+ * The census population of some sweep cases: each case under each of the nine
  * collections, at the census tempo, with the case's own tension arc, seed and profile.
  */
 export function censusPopulation(cases: readonly SweepCase[]): readonly CensusCase[] {
@@ -130,7 +130,7 @@ export function censusPopulation(cases: readonly SweepCase[]): readonly CensusCa
 }
 
 /**
- * Intent: generate the standalone phrase of one case and take its census, with the case's figure
+ * Generate the standalone phrase of one case and take its census, with the case's figure
  * levels in place of its profile's when it has them.
  */
 export function runCensusCase(censusCase: CensusCase): PhraseCensus | FailedCensus {
@@ -184,12 +184,12 @@ export interface SettingAggregate {
   readonly unexplainedExamples: readonly UnexplainedExample[]
 }
 
-/** Intent: a ratio, or null when its denominator is zero. */
+/** A ratio, or null when its denominator is zero. */
 function ratio(numerator: number, denominator: number): number | null {
   return denominator === 0 ? null : numerator / denominator
 }
 
-/** Intent: increment one key of a count record. */
+/** Increment one key of a count record. */
 function bump(record: Record<string, number>, key: string): void {
   record[key] = (record[key] ?? 0) + 1
 }
@@ -206,10 +206,10 @@ export class CensusTally {
   private readonly holding = new Set<string>()
   private readonly examples: UnexplainedExample[] = []
 
-  /** Intent: start the tally of the setting named `label`. */
+  /** Start the tally of the setting named `label`. */
   constructor(private readonly label: string) {}
 
-  /** Intent: add one case's census, or its failed generation. */
+  /** Add one case's census, or its failed generation. */
   add(censusCase: CensusCase, census: PhraseCensus | FailedCensus): void {
     this.cases += 1
     if ('kind' in census) {
@@ -230,12 +230,12 @@ export class CensusTally {
     }
   }
 
-  /** Intent: the labels of the cases whose phrase holds Tension's scheduled figure. */
+  /** The labels of the cases whose phrase holds Tension's scheduled figure. */
   casesHoldingScheduled(): ReadonlySet<string> {
     return new Set(this.holding)
   }
 
-  /** Intent: the statistics of one label over the generated phrases. */
+  /** The statistics of one label over the generated phrases. */
   private stats(figure: CensusFigure): FigureStats {
     const phrases = this.censuses.length
     const counts = this.censuses.map((census) => census.counts[figure])
@@ -250,7 +250,7 @@ export class CensusTally {
     }
   }
 
-  /** Intent: the setting's aggregate so far. */
+  /** The setting's aggregate so far. */
   aggregate(): SettingAggregate {
     const failedTotal = Object.values(this.failures).reduce((sum, count) => sum + count, 0)
     return {
@@ -270,12 +270,12 @@ export class CensusTally {
   }
 }
 
-/** Intent: a number to a fixed number of decimals, or a dash when it is null. */
+/** A number to a fixed number of decimals, or a dash when it is null. */
 function fixed(value: number | null, digits: number): string {
   return value === null ? '-' : value.toFixed(digits)
 }
 
-/** Intent: the readable table of one setting's aggregate, every line prefixed `FIGURE-CENSUS`. */
+/** The readable table of one setting's aggregate, every line prefixed `FIGURE-CENSUS`. */
 export function tableLines(aggregate: SettingAggregate): readonly string[] {
   const prefix = `FIGURE-CENSUS [${aggregate.label}]`
   const failed = aggregate.failedGenerations
@@ -311,7 +311,7 @@ export interface MachineBlock {
   readonly release: string
 }
 
-/** Intent: describe this machine and its load right now. */
+/** Describe this machine and its load right now. */
 export function machineBlock(): MachineBlock {
   const processors = cpus()
   const first = processors[0]

@@ -38,7 +38,7 @@ const G_MAJOR: DiatonicTriad = { degree: 5, pitchClasses: [7, 11, 2], quality: '
 const A_MINOR: DiatonicTriad = { degree: 6, pitchClasses: [9, 0, 4], quality: 'minor' }
 const B_DIMINISHED: DiatonicTriad = { degree: 7, pitchClasses: [11, 2, 5], quality: 'diminished' }
 
-/** Intent: a hand-built harmony event; role, template and bar roles do not affect the guides. */
+/** A hand-built harmony event; role, template and bar roles do not affect the guides. */
 function event(
   barIndex: 0 | 1 | 2 | 3,
   startBeat: 0 | 2,
@@ -59,7 +59,7 @@ function event(
 /** One chord for the whole phrase. */
 const ONE_CHORD: readonly HarmonyEvent[] = [event(0, 0, 16, C_MAJOR)]
 
-/** Intent: a guide note from a MIDI pitch and a start and length as whole-note fractions. */
+/** A guide note from a MIDI pitch and a start and length as whole-note fractions. */
 function guideNote(
   pitch: number,
   [startN, startD]: readonly [number, number],
@@ -72,24 +72,24 @@ function guideNote(
   }
 }
 
-/** Intent: a note event of `length` whole notes, fresh or a tie continuation. */
+/** A note event of `length` whole notes, fresh or a tie continuation. */
 function noteOf(pitch: number, length: Rational, tieContinuation = false): MeasureEvent {
   return makeNoteEvent({ duration: length, pitch: makeConcertPitch(pitch), tieContinuation })
 }
 
-/** Intent: a rest event of `length` whole notes. */
+/** A rest event of `length` whole notes. */
 function restOf(length: Rational): MeasureEvent {
   return makeRestEvent({ duration: length })
 }
 
-/** Intent: a four-measure timeline from each measure's events. */
+/** A four-measure timeline from each measure's events. */
 function timelineOf(
   bars: readonly [MeasureEvent[], MeasureEvent[], MeasureEvent[], MeasureEvent[]],
 ): ConcertEventTimeline {
   return makeConcertEventTimeline(bars.map((events, index) => makeMeasure(index, events)))
 }
 
-/** Intent: what `run` throws, or undefined when it returns. */
+/** What `run` throws, or undefined when it returns. */
 function thrownBy(run: () => unknown): unknown {
   try {
     run()
@@ -115,7 +115,7 @@ const GENERATED_SEEDS = [1, 2, 3, 4, 5, 6, 7, 8] as const
 const INSTRUMENTS = ['c-keyboard', 'eb-alto'] as const
 
 /**
- * Intent: one real phrase with displaced rhythms and some silence, so it holds ties, rests and
+ * One real phrase with displaced rhythms and some silence, so it holds ties, rests and
  * offbeat eighths, for an instrument and a seed.
  */
 function generated(
@@ -151,7 +151,7 @@ interface PhraseShapes {
   readonly offbeatEighth: boolean
 }
 
-/** Intent: which shapes a timeline holds; an offbeat eighth is an attack on an eighth's "and". */
+/** Which shapes a timeline holds; an offbeat eighth is an attack on an eighth's "and". */
 function shapesOf(timeline: ConcertEventTimeline): PhraseShapes {
   let position = makeRational(0, 1)
   let tie = false
@@ -171,12 +171,12 @@ function shapesOf(timeline: ConcertEventTimeline): PhraseShapes {
   return { tie, tieAcrossBarline, rest, offbeatEighth }
 }
 
-/** Intent: a whole-note position as quarter beats, exact on the generator's sixteenth grid. */
+/** A whole-note position as quarter beats, exact on the generator's sixteenth grid. */
 function beatsOf(time: Rational): number {
   return (time.numerator * 4) / time.denominator
 }
 
-/** Intent: the harmony event whose span holds `beat`, read straight off the events. */
+/** The harmony event whose span holds `beat`, read straight off the events. */
 function eventHolding(harmony: readonly HarmonyEvent[], beat: number): HarmonyEvent {
   const holding = harmony.find((candidate) => {
     const start = candidate.barIndex * 4 + candidate.startBeat
@@ -187,7 +187,7 @@ function eventHolding(harmony: readonly HarmonyEvent[], beat: number): HarmonyEv
 }
 
 /**
- * Intent: check one phrase's guides against acknowledgement's expected notes (at 240 BPM a whole
+ * Check one phrase's guides against acknowledgement's expected notes (at 240 BPM a whole
  * note lasts one second, so onsets and ends are the whole-note positions) and its harmony.
  */
 function expectGuidesFollow(phrase: GeneratedPhrase): void {

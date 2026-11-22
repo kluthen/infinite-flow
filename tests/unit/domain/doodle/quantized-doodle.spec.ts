@@ -19,7 +19,7 @@ import {
   type QuantizedDoodleInput,
 } from '@/domain/doodle/quantized-doodle'
 
-/** Intent: a doodle input from `[startTick, lengthTicks, pitch]` triples. */
+/** A doodle input from `[startTick, lengthTicks, pitch]` triples. */
 function input(
   measureCount: number,
   notes: readonly (readonly [number, number, number])[],
@@ -30,7 +30,7 @@ function input(
   }
 }
 
-/** Intent: the full line of 64 sixteenth notes over four measures, a rising and falling pitch. */
+/** The full line of 64 sixteenth notes over four measures, a rising and falling pitch. */
 function fullLine(): QuantizedDoodleInput {
   return input(
     4,
@@ -39,7 +39,7 @@ function fullLine(): QuantizedDoodleInput {
 }
 
 /**
- * Intent: a small deterministic pseudo-random sequence (the Park-Miller generator, whose products
+ * A small deterministic pseudo-random sequence (the Park-Miller generator, whose products
  * stay exact integers); `seed` must be at least 1.
  */
 function sequence(seed: number): () => number {
@@ -51,7 +51,7 @@ function sequence(seed: number): () => number {
 }
 
 /**
- * Intent: a deterministic set of valid doodles: for each seed, a measure count of 1 to 4, a first
+ * A deterministic set of valid doodles: for each seed, a measure count of 1 to 4, a first
  * note somewhere in the first measure, then notes of 1 to 6 ticks with gaps of 0 to 3 ticks until
  * the last barline, pitches across the MIDI range; plus the single-note doodle and the full line.
  */

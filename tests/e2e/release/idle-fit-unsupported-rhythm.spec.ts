@@ -43,7 +43,7 @@ const PHONE = { width: 740, height: 360 }
 const TOO_SHORT = { width: 740, height: 260 }
 
 /**
- * Intent: make the default Neutral rhythm settings (Quarter notes, Slightly varied, Sparse)
+ * Make the default Neutral rhythm settings (Quarter notes, Slightly varied, Sparse)
  * unsupported at any width: with Active displacement they cannot form a four-bar phrase.
  */
 async function makeCombinationUnsupported(page: Page): Promise<void> {
@@ -52,7 +52,7 @@ async function makeCombinationUnsupported(page: Page): Promise<void> {
 }
 
 /**
- * Intent: store a Sixteenth chosen while wide, then, on a phone, finish a combination (Strict,
+ * Store a Sixteenth chosen while wide, then, on a phone, finish a combination (Strict,
  * Sparse, Active displacement) that is allowed there, where it generates as Eighth, but blocked
  * from the tablet-landscape width up; then reach the too-many-notes notice on the phone.
  */
@@ -67,7 +67,7 @@ async function storedSixteenthUnderNotice(page: Page, seeds: readonly number[]):
   await showTooManyNotesNotice(page, seeds)
 }
 
-/** Intent: assert nothing more is generated, drawn or fit-checked after the Empty it gave way to. */
+/** Assert nothing more is generated, drawn or fit-checked after the Empty it gave way to. */
 async function expectNothingMore(
   page: Page,
   before: { readonly seeds: number; readonly engraved: number },

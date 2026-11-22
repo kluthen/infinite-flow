@@ -121,13 +121,13 @@ const copy = computed(() => {
 })
 const title = computed(() => copy.value?.title ?? 'Your data')
 
-/** Intent: keep the Overview's button `opener` to move focus to, or forget it once it leaves. */
+/** Keep the Overview's button `opener` to move focus to, or forget it once it leaves. */
 function keep(opener: Opener, element: unknown): void {
   if (element instanceof HTMLButtonElement) buttons[opener] = element
   else delete buttons[opener]
 }
 
-/** Intent: once the sheet has rendered, focus the Overview's control `opener`, else `Done`. */
+/** Once the sheet has rendered, focus the Overview's control `opener`, else `Done`. */
 function focusAfterUpdate(opener: Opener): void {
   void nextTick(() => {
     const target = buttons[opener] ?? buttons.done
@@ -136,14 +136,14 @@ function focusAfterUpdate(opener: Opener): void {
   })
 }
 
-/** Intent: open the Confirmation `kind` from its Overview button; focus goes to its way back. */
+/** Open the Confirmation `kind` from its Overview button; focus goes to its way back. */
 function ask(kind: Exclude<YourDataConfirmationKind, 'kept-played-notes' | 'preset'>): void {
   openedFrom = kind
   model.ask(kind)
   void nextTick(() => wayBackButton.value?.focus())
 }
 
-/** Intent: open `preset`'s Confirmation from its row's `Delete`; focus goes to its way back. */
+/** Open `preset`'s Confirmation from its row's `Delete`; focus goes to its way back. */
 // @spec-link [[rule_deleting_base_preset_leaves_custom]]
 function askToDelete(preset: Preset): void {
   openedFrom = `preset:${preset.id}`
@@ -151,7 +151,7 @@ function askToDelete(preset: Preset): void {
   void nextTick(() => wayBackButton.value?.focus())
 }
 
-/** Intent: `Keep my played notes` turned; its confirmation, if it opens, takes focus. */
+/** `Keep my played notes` turned; its confirmation, if it opens, takes focus. */
 async function toggleKeepPlayedNotes(): Promise<void> {
   if (await model.toggleKeepPlayedNotes()) {
     openedFrom = 'keep-played-notes'
@@ -159,13 +159,13 @@ async function toggleKeepPlayedNotes(): Promise<void> {
   }
 }
 
-/** Intent: the confirming action; on success, focus returns to its opener if still shown. */
+/** The confirming action; on success, focus returns to its opener if still shown. */
 async function confirm(): Promise<void> {
   const outcome = await model.confirm()
   if (outcome === 'overview') focusAfterUpdate(openedFrom)
 }
 
-/** Intent: the way back from a Confirmation, or closing the sheet from the Overview. */
+/** The way back from a Confirmation, or closing the sheet from the Overview. */
 function wayBack(): void {
   if (confirmation.value === null) {
     emit('close')
@@ -174,12 +174,12 @@ function wayBack(): void {
   if (model.back()) focusAfterUpdate(openedFrom)
 }
 
-/** Intent: a press on the backdrop itself, not inside the sheet, is the way back. */
+/** A press on the backdrop itself, not inside the sheet, is the way back. */
 function handleBackdropClick(event: MouseEvent): void {
   if (event.target === event.currentTarget) wayBack()
 }
 
-/** Intent: Tab and Shift+Tab cycle through the sheet's enabled buttons, wrapping at both ends. */
+/** Tab and Shift+Tab cycle through the sheet's enabled buttons, wrapping at both ends. */
 function cycleFocus(direction: 1 | -1): void {
   if (dialog.value === null) throw new Error('your data: the dialog is not rendered')
   const stops = Array.from(dialog.value.querySelectorAll<HTMLElement>('button:not([disabled])'))
@@ -190,7 +190,7 @@ function cycleFocus(direction: 1 | -1): void {
   next.focus()
 }
 
-/** Intent: while the sheet is open, Escape is the way back and Tab stays trapped in it. */
+/** While the sheet is open, Escape is the way back and Tab stays trapped in it. */
 function handleKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     event.preventDefault()
@@ -201,19 +201,19 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 }
 
-/** Intent: on open, listen for Escape and Tab, and focus `Done`, the sheet scrolled to its top. */
+/** On open, listen for Escape and Tab, and focus `Done`, the sheet scrolled to its top. */
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
   dialog.value?.scrollTo({ top: 0 })
   focusAfterUpdate('done')
 })
 
-/** Intent: stop listening for keys once the sheet leaves the page. */
+/** Stop listening for keys once the sheet leaves the page. */
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
 })
 
-/** Intent: once the sheet has left, focus its opener if still shown and enabled, else the fallback. */
+/** Once the sheet has left, focus its opener if still shown and enabled, else the fallback. */
 onUnmounted(() => {
   void nextTick(() => {
     if (opener !== null && opener.isConnected && !opener.disabled) opener.focus()

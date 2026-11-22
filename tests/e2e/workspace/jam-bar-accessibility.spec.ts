@@ -37,18 +37,18 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: axe's violations, one per line, for a failing assertion's message. */
+/** Axe's violations, one per line, for a failing assertion's message. */
 function describeViolations(violations: readonly { id: string; help: string }[]): string {
   return violations.map((violation) => `${violation.id}: ${violation.help}`).join('\n')
 }
 
-/** Intent: the kept doodle's bar. */
+/** The kept doodle's bar. */
 function jamBar(page: Page): Locator {
   return page.locator('.score-panel > .jam-bar')
 }
 
 /**
- * Intent: from Jam mode's Idle with Jam's Collection on Major, a fresh Jam on the G-major doodle,
+ * From Jam mode's Idle with Jam's Collection on Major, a fresh Jam on the G-major doodle,
  * one note on each beat, Stopped once phrase 1 sounds, then its Review closed: the doodle kept.
  */
 async function doodleKept(page: Page): Promise<void> {
@@ -75,7 +75,7 @@ async function doodleKept(page: Page): Promise<void> {
   await expect(sessionAction(page)).toBeEnabled({ timeout: 30_000 })
 }
 
-/** Intent: axe finds nothing on the page, its transitions settled. */
+/** Axe finds nothing on the page, its transitions settled. */
 async function expectNoViolations(page: Page): Promise<void> {
   await page.waitForFunction(() =>
     document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),

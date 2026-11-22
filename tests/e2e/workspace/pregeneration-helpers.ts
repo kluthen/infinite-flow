@@ -12,7 +12,7 @@ import { DESKTOP, readyToStart } from '../session/session-helpers'
 /** The most phrases the queue holds: phrases 2 to 5. */
 export const QUEUE_SIZE = 4
 
-/** Intent: land on the harness with pre-generation on, at `size`, its controller loaded. */
+/** Land on the harness with pre-generation on, at `size`, its controller loaded. */
 export async function gotoPregenerationHarness(
   page: Page,
   size: { readonly width: number; readonly height: number } = DESKTOP,
@@ -23,29 +23,29 @@ export async function gotoPregenerationHarness(
   await page.waitForFunction(() => window.__workspaceHarness.session.loaded())
 }
 
-/** Intent: every `generate` call's record since the page loaded, in call order. */
+/** Every `generate` call's record since the page loaded, in call order. */
 export function generationRecords(
   page: Page,
 ): Promise<readonly WorkspaceHarnessGenerationRequest[]> {
   return page.evaluate(() => window.__workspaceHarness.generationRequests())
 }
 
-/** Intent: the background attempts' counts since the page loaded. */
+/** The background attempts' counts since the page loaded. */
 export function backgroundCounts(page: Page): Promise<WorkspaceHarnessBackgroundGeneration> {
   return page.evaluate(() => window.__workspaceHarness.backgroundGeneration())
 }
 
-/** Intent: hold every later background attempt at the harness's background gate. */
+/** Hold every later background attempt at the harness's background gate. */
 export function holdBackground(page: Page): Promise<void> {
   return page.evaluate(() => window.__workspaceHarness.holdBackgroundGeneration())
 }
 
-/** Intent: release the background gate. */
+/** Release the background gate. */
 export function releaseBackground(page: Page): Promise<void> {
   return page.evaluate(() => window.__workspaceHarness.releaseBackgroundGeneration())
 }
 
-/** Intent: the seeds of phrase `phraseNumber`'s rungs (0 to 4) for `sessionSeed`, from the page. */
+/** The seeds of phrase `phraseNumber`'s rungs (0 to 4) for `sessionSeed`, from the page. */
 export function rungSeeds(
   page: Page,
   sessionSeed: number,
@@ -61,7 +61,7 @@ export function rungSeeds(
 }
 
 /**
- * Intent: the phrase number (2 to 9) a session attempt seeded `seed` is for under `sessionSeed`,
+ * The phrase number (2 to 9) a session attempt seeded `seed` is for under `sessionSeed`,
  * or null if it is none of theirs.
  */
 export async function phraseOfSeed(
@@ -75,7 +75,7 @@ export async function phraseOfSeed(
   return null
 }
 
-/** Intent: the background records from call index `from` on. */
+/** The background records from call index `from` on. */
 export async function backgroundRecordsFrom(
   page: Page,
   from: number,
@@ -84,7 +84,7 @@ export async function backgroundRecordsFrom(
 }
 
 /**
- * Intent: wait until the background attempts made from call index `from` on have filled the
+ * Wait until the background attempts made from call index `from` on have filled the
  * queue: four answered with a phrase and none still in flight or held. Returns those records.
  */
 export async function untilQueueFull(
@@ -105,7 +105,7 @@ export async function untilQueueFull(
   return backgroundRecordsFrom(page, from)
 }
 
-/** Intent: wait until a background attempt made from call index `from` on waits at the gate. */
+/** Wait until a background attempt made from call index `from` on waits at the gate. */
 export async function untilBackgroundHeld(
   page: Page,
   from = 0,
@@ -121,7 +121,7 @@ export async function untilBackgroundHeld(
 }
 
 /**
- * Intent: generate phrase 1 seeded with `seed`, published with session seed `sessionSeed`, and
+ * Generate phrase 1 seeded with `seed`, published with session seed `sessionSeed`, and
  * wait until a session can start from it.
  */
 export async function readyWithSessionSeed(
@@ -133,7 +133,7 @@ export async function readyWithSessionSeed(
   await readyToStart(page, seed)
 }
 
-/** Intent: the call records made from index `from` on that are not background attempts. */
+/** The call records made from index `from` on that are not background attempts. */
 export async function playerOrSessionRecordsFrom(
   page: Page,
   from: number,

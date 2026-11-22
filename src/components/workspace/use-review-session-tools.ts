@@ -73,7 +73,7 @@ export interface ReviewSessionTools {
   readonly saveComment: (key: string, text: string) => void
 }
 
-/** Intent: the controller, which must exist while a Review shows. */
+/** The controller, which must exist while a Review shows. */
 function requireController(deps: Pick<ReviewSessionToolsDependencies, 'controller'>) {
   const controller = deps.controller()
   if (controller === null) throw new Error('review host: no session controller yet')
@@ -81,7 +81,7 @@ function requireController(deps: Pick<ReviewSessionToolsDependencies, 'controlle
 }
 
 /**
- * Intent: run a confirmed session-tool confirmation through `controller`: the unpin applies at
+ * Run a confirmed session-tool confirmation through `controller`: the unpin applies at
  * once (its save never holds the sheet), the deletion resolves as the device answers.
  */
 // @spec-link [[rule_favorite_pins_session]]
@@ -96,7 +96,7 @@ export function runSessionToolConfirmation(
 }
 
 /**
- * Intent: the session tools of one Review host, over the controller, the showing Review and the
+ * The session tools of one Review host, over the controller, the showing Review and the
  * host's confirmation.
  */
 // @spec-link [[req_favorite_phrases]]
@@ -112,21 +112,21 @@ export function useReviewSessionTools(deps: ReviewSessionToolsDependencies): Rev
   const comment = computed(() => deps.shownReview()?.comment ?? '')
   const canDeleteSession = computed(() => deps.shownReview() !== null && !savingOff.value)
 
-  /** Intent: the showing Review, which a tool can only be pressed in. */
+  /** The showing Review, which a tool can only be pressed in. */
   function requireShown(): SessionReview {
     const review = deps.shownReview()
     if (review === null) throw new Error('review host: no Review shows')
     return review
   }
 
-  /** Intent: mark or unmark phrase `phraseNumber` at once. */
+  /** Mark or unmark phrase `phraseNumber` at once. */
   // @spec-link [[req_favorite_phrases]]
   function toggleFavorite(phraseNumber: number): void {
     const { key, favorites: marked } = requireShown()
     void requireController(deps).setFavorite(key, phraseNumber, !marked.includes(phraseNumber))
   }
 
-  /** Intent: pin at once; unpin at once without favorites, after its confirmation with some. */
+  /** Pin at once; unpin at once without favorites, after its confirmation with some. */
   // @spec-link [[rule_pinned_session_kept]]
   // @spec-link [[rule_favorite_pins_session]]
   function togglePin(): void {
@@ -144,7 +144,7 @@ export function useReviewSessionTools(deps: ReviewSessionToolsDependencies): Rev
     void requireController(deps).setPinned(review.key, !review.pinned)
   }
 
-  /** Intent: open `Delete session`'s confirmation, naming what the session holds. */
+  /** Open `Delete session`'s confirmation, naming what the session holds. */
   // @spec-link [[req_kept_session_list]]
   function askDeleteSession(): void {
     if (!canDeleteSession.value) throw new Error('review host: no session to delete')
@@ -161,7 +161,7 @@ export function useReviewSessionTools(deps: ReviewSessionToolsDependencies): Rev
     })
   }
 
-  /** Intent: save the comment of the session under `key`, while that session is still held. */
+  /** Save the comment of the session under `key`, while that session is still held. */
   // @spec-link [[rule_session_comment]]
   function saveComment(key: string, text: string): void {
     const controller = requireController(deps)

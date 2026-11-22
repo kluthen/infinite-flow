@@ -11,12 +11,12 @@ import { countInDisplayAt, type CountInDisplay } from '@/session/count-in-displa
 const START_AT = 10
 const EPSILON = 1e-6
 
-/** Intent: when count-in beat `k` (0-based) clicks, by independent arithmetic. */
+/** When count-in beat `k` (0-based) clicks, by independent arithmetic. */
 function beatTime(tempo: number, k: number): number {
   return START_AT + (k * 60) / tempo
 }
 
-/** Intent: the display while the count-in runs, failing the test when it is over. */
+/** The display while the count-in runs, failing the test when it is over. */
 function running(display: CountInDisplay): Extract<CountInDisplay, { over: false }> {
   if (display.over) throw new Error('expected the count-in to be running')
   return display

@@ -48,7 +48,7 @@ const REMOVE = Symbol('remove')
 type Step = string | number
 
 /**
- * Intent: a stored copy of a value, as a kept session's JSON-shaped record holds it: an intent
+ * A stored copy of a value, as a kept session's JSON-shaped record holds it: an intent
  * without its Seventh chords level, as every data version before 5 holds it, and as data version
  * 5 reads at Off.
  */
@@ -58,7 +58,7 @@ function stored(value: unknown): Record<string, unknown> {
   ) as Record<string, unknown>
 }
 
-/** Intent: a stored copy of a value with the field at a path replaced, or removed. */
+/** A stored copy of a value with the field at a path replaced, or removed. */
 function edited(value: unknown, path: readonly Step[], replacement: unknown): unknown {
   const copy = stored(value)
   const parent = path
@@ -70,14 +70,14 @@ function edited(value: unknown, path: readonly Step[], replacement: unknown): un
   return copy
 }
 
-/** Intent: whether a value and every object or array reachable from it is frozen. */
+/** Whether a value and every object or array reachable from it is frozen. */
 function isDeepFrozen(value: unknown): boolean {
   if (typeof value !== 'object' || value === null) return true
   if (!Object.isFrozen(value)) return false
   return Object.values(value).every(isDeepFrozen)
 }
 
-/** Intent: Jazz session settings for the E-flat alto, as selecting Jazz gives them. */
+/** Jazz session settings for the E-flat alto, as selecting Jazz gives them. */
 function jazzSettings(): SessionSettings {
   return {
     controls: makeGenerationControls({
@@ -118,7 +118,7 @@ beforeAll(async () => {
   records = histories.flatMap((history) => history.phrases())
 }, 60_000)
 
-/** Intent: the first recorded phrase of the given instrument that holds a carry-in. */
+/** The first recorded phrase of the given instrument that holds a carry-in. */
 function carriedIntentOf(instrumentProfileId: string): GenerationIntent {
   const record = records.find(
     (entry) =>
@@ -129,7 +129,7 @@ function carriedIntentOf(instrumentProfileId: string): GenerationIntent {
   return record.intent
 }
 
-/** Intent: the first recorded phrase's harmony. */
+/** The first recorded phrase's harmony. */
 function firstHarmony(): HarmonyCandidate {
   return records[0]!.outcome.provenance.harmony
 }
@@ -226,7 +226,7 @@ describe('parseKeptHarmony', () => {
   })
 })
 
-/** Intent: the error a call throws; fails the test when it throws nothing. */
+/** The error a call throws; fails the test when it throws nothing. */
 function catchError(call: () => unknown): unknown {
   try {
     call()
@@ -308,7 +308,7 @@ const INTENT_REFUSALS: readonly Refusal[] = [
 ]
 
 /**
- * Intent: a stored carried intent with its carry-in turned into the no-phrase form, and the same
+ * A stored carried intent with its carry-in turned into the no-phrase form, and the same
  * intent with an origin added to its phrase carry-in, which is neither form.
  */
 function noPhraseIntents(): readonly [Record<string, unknown>, Record<string, unknown>] {
@@ -450,7 +450,7 @@ const PROFILE_LEVELS: Readonly<Record<'Neutral' | 'Jazz', FigureLevels>> = {
   Jazz: JAZZ_FIGURE_LEVELS,
 }
 
-/** Intent: the first recorded phrase intent generated with the given musical profile's levels. */
+/** The first recorded phrase intent generated with the given musical profile's levels. */
 function intentOfProfile(musicalProfile: 'Neutral' | 'Jazz'): GenerationIntent {
   const record = records.find((entry) =>
     deepEqual(entry.intent.figureLevels, PROFILE_LEVELS[musicalProfile]),
@@ -460,7 +460,7 @@ function intentOfProfile(musicalProfile: 'Neutral' | 'Jazz'): GenerationIntent {
 }
 
 /**
- * Intent: a stored copy of an intent as v3.0 kept it: its musical profile selection in place of
+ * A stored copy of an intent as v3.0 kept it: its musical profile selection in place of
  * its levels.
  */
 function v30Shaped(intent: GenerationIntent, selection: ProfileSelection): Record<string, unknown> {
@@ -469,7 +469,7 @@ function v30Shaped(intent: GenerationIntent, selection: ProfileSelection): Recor
   return { ...rest, musicalProfile: { ...selection } }
 }
 
-/** Intent: a stored copy of an intent as chunk 4's code kept it: its levels and a profile. */
+/** A stored copy of an intent as chunk 4's code kept it: its levels and a profile. */
 function chunk4Shaped(
   intent: GenerationIntent,
   selection: ProfileSelection,

@@ -20,22 +20,22 @@ export const DESKTOP = { width: 1280, height: 800 } as const
 /** A landscape phone, below bp-tablet-landscape, with room for the split staff. */
 export const PHONE = { width: 740, height: 360 } as const
 
-/** Intent: the header's session action, `Start session` or `Stop`. */
+/** The header's session action, `Start session` or `Stop`. */
 export function sessionAction(page: Page): Locator {
   return page.locator('.layout-header button.session-action')
 }
 
-/** Intent: the always-present session cue row. */
+/** The always-present session cue row. */
 export function cueRow(page: Page): Locator {
   return page.locator('.session-cue-row')
 }
 
-/** Intent: the session controller's state, read through the harness. */
+/** The session controller's state, read through the harness. */
 export function sessionState(page: Page): Promise<WorkspaceHarnessSessionState> {
   return page.evaluate(() => window.__workspaceHarness.session.state())
 }
 
-/** Intent: a segment of the `Rising tempo` control, `Off` or `On`. */
+/** A segment of the `Rising tempo` control, `Off` or `On`. */
 export function risingTempoSegment(page: Page, label: 'Off' | 'On'): Locator {
   return page
     .getByRole('radiogroup', { name: 'Rising tempo' })
@@ -43,7 +43,7 @@ export function risingTempoSegment(page: Page, label: 'Off' | 'On'): Locator {
 }
 
 /**
- * Intent: turn rising tempo (the page's adaptive-tempo flag) on or off with a click on its
+ * Turn rising tempo (the page's adaptive-tempo flag) on or off with a click on its
  * control, and wait until the controller holds the choice.
  */
 // @test-link [[req_adaptive_tempo]]
@@ -62,7 +62,7 @@ export async function setRisingTempo(page: Page, on: boolean): Promise<void> {
 export const PREGENERATION_OFF = '?pregeneration=off'
 
 /**
- * Intent: land on the harness at `size`, with the page URL's `search` if any, and wait for the
+ * Land on the harness at `size`, with the page URL's `search` if any, and wait for the
  * session controller to load.
  */
 export async function gotoSessionHarness(
@@ -75,14 +75,14 @@ export async function gotoSessionHarness(
   await page.waitForFunction(() => window.__workspaceHarness.session.loaded())
 }
 
-/** Intent: generate a phrase seeded with `seed` and wait until `Start session` is enabled. */
+/** Generate a phrase seeded with `seed` and wait until `Start session` is enabled. */
 export async function readyToStart(page: Page, seed = 7): Promise<void> {
   await generateShownPhrase(page, seed)
   await expect(page.locator('.staff-frame')).toHaveClass(/staff-ready/)
   await expect(sessionAction(page)).toBeEnabled()
 }
 
-/** Intent: click `Start session` and wait until the count-in shows. */
+/** Click `Start session` and wait until the count-in shows. */
 // @test-link [[rule_session_start_conditions]]
 export async function startSession(page: Page): Promise<void> {
   await expect(sessionAction(page)).toHaveText('Start session')
@@ -91,7 +91,7 @@ export async function startSession(page: Page): Promise<void> {
   expect((await sessionState(page)).phase).toBe('count-in')
 }
 
-/** Intent: the count-in clicks the transport scheduled, in time order. */
+/** The count-in clicks the transport scheduled, in time order. */
 export async function countInClickTimes(page: Page): Promise<number[]> {
   const events = await audioEvents(page)
   return events
@@ -103,7 +103,7 @@ export async function countInClickTimes(page: Page): Promise<number[]> {
     .sort((a, b) => a - b)
 }
 
-/** Intent: how each count-in beat shows on screen: `current`, `past` or `muted`. */
+/** How each count-in beat shows on screen: `current`, `past` or `muted`. */
 export async function shownBeats(page: Page): Promise<string[]> {
   return page.locator('ol.count-in > li.count-in-beat').evaluateAll((items) =>
     items.map((item) => {
@@ -113,7 +113,7 @@ export async function shownBeats(page: Page): Promise<string[]> {
   )
 }
 
-/** Intent: move the fake audio clock forward in steps of at most one second. */
+/** Move the fake audio clock forward in steps of at most one second. */
 export async function advanceAudioBy(page: Page, seconds: number): Promise<void> {
   let left = seconds
   while (left > 0) {
@@ -126,13 +126,13 @@ export async function advanceAudioBy(page: Page, seconds: number): Promise<void>
 /** The default tempo's beat, in seconds (90 BPM). */
 export const BEAT = 60 / 90
 
-/** Intent: the header's phrase action (Generate, Regenerate or Retry). */
+/** The header's phrase action (Generate, Regenerate or Retry). */
 export function phraseAction(page: Page): Locator {
   return page.locator('.header-actions > button:not(.session-action)')
 }
 
 /**
- * Intent: the latest session's timeline on the audio clock, read from its count-in clicks (planned
+ * The latest session's timeline on the audio clock, read from its count-in clicks (planned
  * as the clock moves, the first at Start): its first click after the last fade (an earlier
  * session's end) starts it, and phrase 1 starts four beats later. Throws before any start.
  */
@@ -148,21 +148,21 @@ export async function sessionTimeline(
   return { startAt, countInEndsAt: startAt + 4 * BEAT }
 }
 
-/** Intent: move the audio clock to the middle of the count-in, after its second click. */
+/** Move the audio clock to the middle of the count-in, after its second click. */
 export async function toCountInMiddle(page: Page): Promise<void> {
   const { startAt } = await sessionTimeline(page)
   await advanceAudioBy(page, startAt + BEAT + 0.03 - (await audioClock(page)))
   expect((await sessionState(page)).phase).toBe('count-in')
 }
 
-/** Intent: move the audio clock one second into phrase 1, so phrase 1 has sounded. */
+/** Move the audio clock one second into phrase 1, so phrase 1 has sounded. */
 export async function toRunning(page: Page): Promise<void> {
   const { countInEndsAt } = await sessionTimeline(page)
   await advanceAudioBy(page, countInEndsAt + 1 - (await audioClock(page)))
   expect((await sessionState(page)).phase).toBe('running')
 }
 
-/** Intent: the audio clock's time. */
+/** The audio clock's time. */
 function audioClock(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.audio.now())
 }
@@ -177,7 +177,7 @@ export interface LockCounts {
   }
 }
 
-/** Intent: the wake lock's and the orientation lock's request/release/held counters. */
+/** The wake lock's and the orientation lock's request/release/held counters. */
 export function lockCounts(page: Page): Promise<LockCounts> {
   return page.evaluate(() => {
     const { wake, orientation } = window.__workspaceHarness.screenLocks
@@ -193,7 +193,7 @@ export function lockCounts(page: Page): Promise<LockCounts> {
 }
 
 /**
- * Intent: assert the session ended like Stop: the controller back at idle with this end summary,
+ * Assert the session ended like Stop: the controller back at idle with this end summary,
  * the transport stopped by one fade on its bus, and both screen locks released.
  */
 // @test-link [[rule_stop_ends_session]]
@@ -227,7 +227,7 @@ export interface PageBox {
   readonly height: number
 }
 
-/** Intent: every drawn measure's box of phrase `phraseNumber` on the staff, in page coordinates. */
+/** Every drawn measure's box of phrase `phraseNumber` on the staff, in page coordinates. */
 export function measureBoxes(page: Page, phraseNumber: number): Promise<PageBox[]> {
   const slots = `.staff-frame [data-phrase-number="${phraseNumber}"] g.measure-slot`
   return page.locator(slots).evaluateAll((slots) =>
@@ -244,7 +244,7 @@ export function measureBoxes(page: Page, phraseNumber: number): Promise<PageBox[
 }
 
 /**
- * Intent: whether `locator`'s whole box is inside the viewport now, to within one CSS pixel: the
+ * Whether `locator`'s whole box is inside the viewport now, to within one CSS pixel: the
  * page scrolls by whole pixels, so a box laid out at a fractional offset can overrun by less.
  */
 export function whollyInViewport(locator: Locator): Promise<boolean> {
@@ -256,7 +256,7 @@ export function whollyInViewport(locator: Locator): Promise<boolean> {
   })
 }
 
-/** Intent: whether `inner`'s whole box lies inside `outer`'s. */
+/** Whether `inner`'s whole box lies inside `outer`'s. */
 export async function boxInside(inner: Locator, outer: Locator): Promise<boolean> {
   const [a, b] = await Promise.all([inner.boundingBox(), outer.boundingBox()])
   if (a === null || b === null) throw new Error('boxInside: an element is not rendered')
@@ -268,7 +268,7 @@ export async function boxInside(inner: Locator, outer: Locator): Promise<boolean
 /** Past a scheduled time by a little more than one 25 ms wake-up step. */
 const PAST_CLICK = 0.03
 
-/** Intent: assert phrase 1's whole first measure is in the viewport and in the staff's own. */
+/** Assert phrase 1's whole first measure is in the viewport and in the staff's own. */
 async function expectFirstMeasureInView(page: Page, when: string): Promise<void> {
   const firstMeasure = page.locator('.staff-frame g.measure-slot[data-measure-index="0"]').first()
   expect(await whollyInViewport(firstMeasure), `${when}: in the viewport`).toBe(true)
@@ -279,7 +279,7 @@ async function expectFirstMeasureInView(page: Page, when: string): Promise<void>
 }
 
 /**
- * Intent: with a count-in just started (by either kind of start), step the fake audio clock through
+ * With a count-in just started (by either kind of start), step the fake audio clock through
  * it and assert it shows in time with its click: every beat muted before the first click, then
  * each beat lit just after its click with the earlier ones past, and phrase 1's whole first
  * measure fully visible at every step; after beat 4 the row empties and phrase 1 runs. Returns the

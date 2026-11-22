@@ -41,12 +41,12 @@ const FRESH: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: `history` as kept with `facts`, its start moved to `startedAt`. */
+/** `history` as kept with `facts`, its start moved to `startedAt`. */
 function kept(history: SessionHistory, startedAt: number, facts: KeptSessionFacts = FRESH) {
   return storedRecords(encodeKeptSession({ ...history, startedAt }, facts, APP_VERSION))
 }
 
-/** Intent: a stored summary entry under `key`. */
+/** A stored summary entry under `key`. */
 function entry(key: string, summary: unknown): StoredEntry {
   return { key, value: summary }
 }
@@ -141,7 +141,7 @@ describe('reading the most recent session for its Review', () => {
   // @test-link [[rule_outdated_tab_reads_what_it_can]]
   it('tells a session not read: the device refused the read, its records are all absent, or a newer version wrote them', async () => {
     const stored = kept(history, history.startedAt)
-    /** Intent: a read the device refuses. */
+    /** A read the device refuses. */
     const refused = () => Promise.reject(new StorageError('other', 'read refused'))
     const absent = { summary: undefined, body: undefined, playedNotes: undefined }
     const newer = { ...stored, summary: { ...(stored.summary as object), dataVersion: 99 } }
@@ -179,14 +179,14 @@ describe('reading the most recent session for its Review', () => {
 
   // @test-link [[req_kept_session_review]]
   it('rejects on any other failure, the defect it is', async () => {
-    /** Intent: a read that fails for another reason: a defect. */
+    /** A read that fails for another reason: a defect. */
     const broken = () => Promise.reject(new TypeError('broken read'))
 
     await expect(readKeptReviewedSession(broken, 'k')).rejects.toThrow('broken read')
   })
 })
 
-/** Intent: a reader over `stores`, each a map of key to record, logging every read it serves. */
+/** A reader over `stores`, each a map of key to record, logging every read it serves. */
 function readerOver(stores: Record<string, Map<string, unknown>>, reads: string[] = []) {
   const store = (name: string) => stores[name] ?? new Map<string, unknown>()
   const reader: KeptRecordsReader = {
@@ -206,7 +206,7 @@ function readerOver(stores: Record<string, Map<string, unknown>>, reads: string[
   return reader
 }
 
-/** Intent: each change of a batch as `kind store key`, in order. */
+/** Each change of a batch as `kind store key`, in order. */
 function described(changes: readonly { kind: string; store: string; key: string }[]): string[] {
   return changes.map((change) => `${change.kind} ${change.store} ${change.key}`)
 }
@@ -274,7 +274,7 @@ describe('the deletions of damaged kept sessions', () => {
   // @test-link [[module_kept_session_save]]
   it("an opening's deletion re-reads the session at the change: damaged, its three records go; absent, readable or newer, nothing", async () => {
     const damagedBody = edited(readable.body, ['phrases'], 'none')
-    /** Intent: the opening's batch for a session stored as `summary` and `body` under `k`. */
+    /** The opening's batch for a session stored as `summary` and `body` under `k`. */
     const batchFor = async (summary: unknown, body: unknown) => {
       const stores = {
         sessionSummaries: new Map<string, unknown>(summary === undefined ? [] : [['k', summary]]),

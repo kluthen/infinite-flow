@@ -77,7 +77,7 @@ const reason = computed(() => {
   return saveChangesReason(presetName, current.restriction, opening.preset.restriction)
 })
 
-/** Intent: the kind of the checked restriction choice. */
+/** The kind of the checked restriction choice. */
 function checkedKind(): SaveRestrictionChoiceKind {
   const choice = offered[checked.value]
   if (choice === undefined) throw new Error('preset sheet: no restriction choice is checked')
@@ -85,7 +85,7 @@ function checkedKind(): SaveRestrictionChoiceKind {
 }
 
 /**
- * Intent: the main action: Save, Save changes or Rename, reporting the name as typed (the host
+ * The main action: Save, Save changes or Rename, reporting the name as typed (the host
  * trims and checks it) and the choice checked. While the name is refused it does nothing.
  */
 // @spec-link [[rule_preset_management_actions]]
@@ -98,7 +98,7 @@ function confirm(): void {
 }
 
 /**
- * Intent: the confirmation's `Delete preset`: the deletion runs, its button busy and the way back
+ * The confirmation's `Delete preset`: the deletion runs, its button busy and the way back
  * inert; a failure shows the error line, which leaves as the next try starts.
  */
 // @spec-link [[rule_deleting_base_preset_leaves_custom]]
@@ -111,18 +111,18 @@ async function confirmDeletion(): Promise<void> {
   deletionFailed.value = outcome === 'failed'
 }
 
-/** Intent: the way back: closes the sheet, except while a deletion runs. */
+/** The way back: closes the sheet, except while a deletion runs. */
 function cancel(): void {
   if (!deleting.value) emit('close')
 }
 
-/** Intent: a press on the backdrop itself, not inside the sheet, is the way back. */
+/** A press on the backdrop itself, not inside the sheet, is the way back. */
 function handleBackdropClick(event: MouseEvent): void {
   if (event.target === event.currentTarget) cancel()
 }
 
 /**
- * Intent: the name field's text, as `v-model` would put it: at every input, except while an input
+ * The name field's text, as `v-model` would put it: at every input, except while an input
  * method is composing, whose text lands once the composition ends.
  */
 function handleNameText(event: Event): void {
@@ -130,19 +130,19 @@ function handleNameText(event: Event): void {
   name.value = (event.target as HTMLInputElement).value
 }
 
-/** Intent: Enter in the name field does what the main action does when it is enabled. */
+/** Enter in the name field does what the main action does when it is enabled. */
 function handleNameEnter(event: KeyboardEvent): void {
   event.preventDefault()
   confirm()
 }
 
-/** Intent: check the option at `index` and move focus to it. */
+/** Check the option at `index` and move focus to it. */
 function checkAndFocus(index: number): void {
   checked.value = index
   optionRefs.value[index]?.focus()
 }
 
-/** Intent: Up and Left check the previous option, Down and Right the next, wrapping. */
+/** Up and Left check the previous option, Down and Right the next, wrapping. */
 // @spec-link [[rule_saving_preset_asks_its_restriction]]
 function handleChoiceKeydown(event: KeyboardEvent, index: number): void {
   const count = offered.length
@@ -154,7 +154,7 @@ function handleChoiceKeydown(event: KeyboardEvent, index: number): void {
   checkAndFocus((index + step + count) % count)
 }
 
-/** Intent: the sheet's tab stops, in order: Close, the name field, the checked option, the actions. */
+/** The sheet's tab stops, in order: Close, the name field, the checked option, the actions. */
 function tabStops(): HTMLElement[] {
   if (dialog.value === null) throw new Error('preset sheet: the dialog is not rendered')
   return Array.from(
@@ -164,7 +164,7 @@ function tabStops(): HTMLElement[] {
   )
 }
 
-/** Intent: Tab and Shift+Tab cycle through the sheet's tab stops, wrapping at both ends. */
+/** Tab and Shift+Tab cycle through the sheet's tab stops, wrapping at both ends. */
 function cycleFocus(direction: 1 | -1): void {
   const stops = tabStops()
   const at = stops.findIndex((stop) => stop === document.activeElement)
@@ -174,7 +174,7 @@ function cycleFocus(direction: 1 | -1): void {
   next.focus()
 }
 
-/** Intent: while the sheet is open, Escape is the way back and Tab stays trapped in it. */
+/** While the sheet is open, Escape is the way back and Tab stays trapped in it. */
 function handleKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     event.preventDefault()
@@ -186,7 +186,7 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 /**
- * Intent: on open (the confirmation handles its own keys and focus): listen for Escape and Tab,
+ * On open (the confirmation handles its own keys and focus): listen for Escape and Tab,
  * and focus the name field with its text selected, or the checked option.
  */
 onMounted(() => {
@@ -200,7 +200,7 @@ onMounted(() => {
   }
 })
 
-/** Intent: stop listening for keys once the sheet leaves the page. */
+/** Stop listening for keys once the sheet leaves the page. */
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
 })

@@ -65,7 +65,7 @@ export const CHEAP_CONTROLS = {
 } as const
 
 /**
- * Intent: a load that read the saved data: the defaults (the mix's from the stylesheet's design)
+ * A load that read the saved data: the defaults (the mix's from the stylesheet's design)
  * with `settings` over them, nothing kept, and a save policy that never settles, as no spec here
  * saves.
  */
@@ -82,7 +82,7 @@ export function fakeSavedData(settings: Partial<SavedSettings> = {}): SavedDataL
   }
 }
 
-/** Intent: run one real, cheap generation for the given intent's own identity and seed. */
+/** Run one real, cheap generation for the given intent's own identity and seed. */
 function cheapOutcome(requestId: string, seed: number): GenerationOutcome {
   const intent = createGenerationIntent({
     requestId: makeRequestId(requestId),
@@ -95,7 +95,7 @@ function cheapOutcome(requestId: string, seed: number): GenerationOutcome {
 }
 
 /**
- * Intent: build a fully fake dependency bundle whose seams a test can assert against directly,
+ * Build a fully fake dependency bundle whose seams a test can assert against directly,
  * under the given prewarm and pre-generation policies (disabled unless a test is about them).
  */
 export function fakeDependencies(
@@ -171,7 +171,7 @@ export function fakeDependencies(
 }
 
 /**
- * Intent: report the staff's layout inputs, start `generate()`, then settle its inner `notate()`
+ * Report the staff's layout inputs, start `generate()`, then settle its inner `notate()`
  * the way a mounted `PhraseScore` would (`layout-inputs` at mount, `handleEngraved` once the
  * coordinator publishes a phrase to engrave), so a fake dependency bundle with no real component
  * tree can still exercise the whole operation.
@@ -189,7 +189,7 @@ export function generateAndEngrave(
   return running
 }
 
-/** Intent: set the workspace's controls to the cheap-to-generate values, one control at a time. */
+/** Set the workspace's controls to the cheap-to-generate values, one control at a time. */
 export function chooseCheapControls(workspace: ReturnType<typeof composeWorkspaceSession>): void {
   const keys = [
     'noteDensity',

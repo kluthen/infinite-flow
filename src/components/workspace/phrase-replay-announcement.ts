@@ -21,7 +21,7 @@ export interface AcceptedSessionPhrase {
 }
 
 /**
- * Intent: name the accepted session phrase a runner output readies, or null for any output that
+ * Name the accepted session phrase a runner output readies, or null for any output that
  * readies no newly generated phrase (a repeat, the Idle phrase, or any non-phrase-ready output).
  */
 // @spec-link [[module_phrase_replay_key]]
@@ -33,7 +33,7 @@ export function acceptedSessionPhrase(output: SessionOutput): AcceptedSessionPhr
 }
 
 /**
- * Intent: wrap a runner's output sink so every accepted session phrase has its replay key line
+ * Wrap a runner's output sink so every accepted session phrase has its replay key line
  * handed to `log` once, before the output itself is forwarded unchanged.
  */
 // @spec-link [[module_phrase_replay_key]]
@@ -48,7 +48,7 @@ export function announcingSessionOutputs(
   }
 }
 
-/** Intent: hand an accepted Idle phrase's replay key line (a workspace phrase) to `log` once. */
+/** Hand an accepted Idle phrase's replay key line (a workspace phrase) to `log` once. */
 // @spec-link [[module_phrase_replay_key]]
 export function announceWorkspacePhrase(
   intent: GenerationIntent,

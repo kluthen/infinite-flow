@@ -55,7 +55,7 @@ export interface ReplayFigures {
   readonly mismatchedKeys: readonly string[]
 }
 
-/** Intent: the replay class of a census class; none for phrase 1, a repeat or an unreadable one. */
+/** The replay class of a census class; none for phrase 1, a repeat or an unreadable one. */
 export function replayClassOf(lockClass: CensusClass): ReplayClass | undefined {
   const kind = lockClass.kind
   return kind === 'kept' || kind === 'change' || kind === 'bend' || kind === 'relock'
@@ -63,13 +63,13 @@ export function replayClassOf(lockClass: CensusClass): ReplayClass | undefined {
     : undefined
 }
 
-/** Intent: a value as plain JSON data, as a structured clone or a printed report would carry it. */
+/** A value as plain JSON data, as a structured clone or a printed report would carry it. */
 function asJson(value: unknown): unknown {
   return JSON.parse(JSON.stringify(value)) as unknown
 }
 
 /**
- * Intent: replay one sample from its key: encode it, require an `ifk5.` key, replay it through
+ * Replay one sample from its key: encode it, require an `ifk5.` key, replay it through
  * the generation worker runtime, and compare the replayed result and provenance with the
  * session's, as JSON data. A key of another version, or a replay that did not succeed, does not
  * match.
@@ -98,10 +98,10 @@ export class ReplaySampler {
   )
   private replayed: ReplayFigures | undefined
 
-  /** Intent: a sampler keeping up to `perClass` phrases of each class. */
+  /** A sampler keeping up to `perClass` phrases of each class. */
   constructor(private readonly perClass: number = REPLAY_SAMPLE_PER_CLASS) {}
 
-  /** Intent: offer one session's census entries, with the phrases that sounded in it. */
+  /** Offer one session's census entries, with the phrases that sounded in it. */
   addSession(entries: readonly CensusEntry[], sounded: readonly ReplayablePhrase[]): void {
     const taken = new Set<ReplayClass>()
     for (const entry of entries) {
@@ -122,7 +122,7 @@ export class ReplaySampler {
     }
   }
 
-  /** Intent: replay every sample once (later calls give the same figures). */
+  /** Replay every sample once (later calls give the same figures). */
   replay(): ReplayFigures {
     if (this.replayed !== undefined) return this.replayed
     const mismatchedKeys: string[] = []
@@ -146,7 +146,7 @@ export class ReplaySampler {
 }
 
 /**
- * Intent: the readable replay lines of a setting group: the replays matched per class, one sample
+ * The readable replay lines of a setting group: the replays matched per class, one sample
  * key per class sampled, and every key that did not match.
  */
 export function replayLines(label: string, figures: ReplayFigures): readonly string[] {

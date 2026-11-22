@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { systemMeasureAnchors, type AnchorGlyph } from '@/notation/engraving-anchors'
 
-/** Intent: a formatted-glyph stand-in whose notehead starts at `x` engraving units. */
+/** A formatted-glyph stand-in whose notehead starts at `x` engraving units. */
 function glyphAt(x: number): AnchorGlyph {
   return { getNoteHeadBeginX: () => x }
 }

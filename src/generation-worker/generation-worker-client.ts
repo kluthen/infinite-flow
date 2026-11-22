@@ -97,7 +97,7 @@ interface PendingRequest {
 }
 
 /**
- * Intent: create the app's generation worker client over the workers `createPort` makes. It holds
+ * Create the app's generation worker client over the workers `createPort` makes. It holds
  * one current worker, created now and kept across every `generate` call, since the worker's
  * rhythm-domain memo only pays off when reused; a new one is created only to cancel a request.
  */
@@ -112,7 +112,7 @@ export function createGenerationWorkerClient(
   let broken: GenerationWorkerTransportError | null = null
   let port = attach(createPort())
 
-  /** Intent: take one request out of the pending set, detaching its abort listener. */
+  /** Take one request out of the pending set, detaching its abort listener. */
   function take(id: number): PendingRequest | undefined {
     const request = pending.get(id)
     if (request === undefined) return undefined
@@ -121,13 +121,13 @@ export function createGenerationWorkerClient(
     return request
   }
 
-  /** Intent: fail every still-pending request with `error` and mark the worker unusable from now on. */
+  /** Fail every still-pending request with `error` and mark the worker unusable from now on. */
   function breakWorker(error: GenerationWorkerTransportError): void {
     broken = error
     for (const id of [...pending.keys()]) take(id)?.reject(error)
   }
 
-  /** Intent: route one parsed worker response to its correlated pending request. */
+  /** Route one parsed worker response to its correlated pending request. */
   function handleResponse(data: unknown): void {
     const response = parseGenerationWorkerResponse(data)
     const request = take(response.id)
@@ -144,7 +144,7 @@ export function createGenerationWorkerClient(
   }
 
   /**
-   * Intent: listen to `candidate`'s events, each ignored once `candidate` is no longer the current
+   * Listen to `candidate`'s events, each ignored once `candidate` is no longer the current
    * worker, so a terminated worker's late response or error never reaches a request.
    */
   function attach(candidate: GenerationWorkerPort): GenerationWorkerPort {
@@ -165,7 +165,7 @@ export function createGenerationWorkerClient(
   }
 
   /**
-   * Intent: cancel the pending request `id`: reject it, replace the worker running it, post every
+   * Cancel the pending request `id`: reject it, replace the worker running it, post every
    * other pending request again to the fresh worker with its original id and in its original
    * order, then, with the prewarm policy enabled, a prewarm of the cancelled intent. Nothing
    * happens once the request has settled.
@@ -189,7 +189,7 @@ export function createGenerationWorkerClient(
   }
 
   /**
-   * Intent: run one generation request on the worker, rejecting immediately if it is unusable or
+   * Run one generation request on the worker, rejecting immediately if it is unusable or
    * its signal is already aborted; aborting `signal` while it is pending cancels it.
    */
   // @spec-link [[module_generation_worker_cancellation]]
@@ -198,10 +198,10 @@ export function createGenerationWorkerClient(
     if (signal?.aborted === true) return Promise.reject(new GenerationCancelledError())
     const id = nextId++
     return new Promise<GenerationOutcome>((resolve, reject) => {
-      /** Intent: cancel this request when its signal is aborted. */
+      /** Cancel this request when its signal is aborted. */
       const onAbort = (): void => cancel(id)
       signal?.addEventListener('abort', onAbort, { once: true })
-      /** Intent: stop listening to the signal once the request has settled. */
+      /** Stop listening to the signal once the request has settled. */
       const detach = (): void => signal?.removeEventListener('abort', onAbort)
       pending.set(id, { intent, resolve, reject, detach })
       port.postMessage({ type: 'generate', id, intent })
@@ -209,7 +209,7 @@ export function createGenerationWorkerClient(
   }
 
   /**
-   * Intent: ask the worker to build this intent's rhythm domain in the background, fire-and-forget:
+   * Ask the worker to build this intent's rhythm domain in the background, fire-and-forget:
    * no id is consumed, nothing is awaited and no response ever arrives. A no-op on an unusable
    * worker, whose failure the next `generate` call reports.
    */
@@ -219,7 +219,7 @@ export function createGenerationWorkerClient(
     port.postMessage({ type: 'prewarm', intent })
   }
 
-  /** Intent: terminate the current worker and reject every still-pending request. */
+  /** Terminate the current worker and reject every still-pending request. */
   function dispose(): void {
     breakWorker(new GenerationWorkerTransportError('Generation worker client was disposed.'))
     port.terminate()

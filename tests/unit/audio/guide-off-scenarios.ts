@@ -24,7 +24,7 @@ export interface RecordedScenario {
 }
 
 /**
- * Intent: run both scripted sessions, phrase 1 at the start and phrase 1 handed over at a
+ * Run both scripted sessions, phrase 1 at the start and phrase 1 handed over at a
  * barline, each on a fresh transport rig with its phrases queued through `queue`, and return each
  * one's recorded fake-output events by name.
  */

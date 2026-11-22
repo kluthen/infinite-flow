@@ -26,12 +26,12 @@ export const SEVENTH_LEVEL_NAMES: Readonly<Record<ChordFamilyLevel, string>> = {
   stronglyFavored: 'Strongly favored',
 }
 
-/** Intent: the chord families with the seventh chords at `level`, through the domain's parser. */
+/** The chord families with the seventh chords at `level`, through the domain's parser. */
 export function chordFamiliesAt(level: ChordFamilyLevel): ChordFamilies {
   return parseChordFamilies({ 'seventh-chords': level })
 }
 
-/** Intent: crash unless a measurement can generate at `level` (MEASURABLE_SEVENTH_LEVELS). */
+/** Crash unless a measurement can generate at `level` (MEASURABLE_SEVENTH_LEVELS). */
 export function requireMeasurableSeventhLevel(level: ChordFamilyLevel): void {
   if (!MEASURABLE_SEVENTH_LEVELS.includes(level))
     throw new Error(
@@ -40,7 +40,7 @@ export function requireMeasurableSeventhLevel(level: ChordFamilyLevel): void {
 }
 
 /**
- * Intent: the levels an environment variable names, comma-separated level ids (`all` for the four),
+ * The levels an environment variable names, comma-separated level ids (`all` for the four),
  * returned once each in increasing order; unset or empty, every measurable level (all four). An
  * unknown id, or a level not measurable, fails.
  */

@@ -8,7 +8,7 @@ import type { NominalCell, UnindexedRhythmCandidate } from './rhythm-types'
 import { sameAddress } from './rhythm-invariants'
 import { beatCellCatalog } from './rhythm-variety'
 
-/** Intent: the stable key of one source-cell address, as bar:beat:cell. */
+/** The stable key of one source-cell address, as bar:beat:cell. */
 // @spec-link [[module_rhythm_domain_validation]]
 export function addressKey(address: {
   readonly barIndex: number
@@ -18,7 +18,7 @@ export function addressKey(address: {
   return `${address.barIndex}:${address.beatIndex}:${address.cellIndex}`
 }
 
-/** Intent: whether two terminals are the same kind of the same length. */
+/** Whether two terminals are the same kind of the same length. */
 // @spec-link [[module_rhythm_domain_validation]]
 export function sameTerminal(
   left: { readonly kind: string; readonly durationTicks: number },
@@ -28,7 +28,7 @@ export function sameTerminal(
 }
 
 /**
- * Intent: whether every event carries source cells, each one the catalog cell its address names
+ * Whether every event carries source cells, each one the catalog cell its address names
  * (same grammar version and density, in its own bar and beat, never used twice), tiling each beat
  * and each 16-tick bar exactly.
  */
@@ -73,7 +73,7 @@ export function hasValidNominalProvenance(candidate: UnindexedRhythmCandidate): 
   return true
 }
 
-/** Intent: the start tick of every source cell in `bar`, by address key, in nominal order. */
+/** The start tick of every source cell in `bar`, by address key, in nominal order. */
 // @spec-link [[module_rhythm_domain_validation]]
 function sourceCoordinates(bar: UnindexedRhythmCandidate['bars'][number]): Map<string, number> {
   const cells = new Map<string, NominalCell>()
@@ -92,7 +92,7 @@ function sourceCoordinates(bar: UnindexedRhythmCandidate['bars'][number]): Map<s
   return coordinates
 }
 
-/** Intent: replay each transform's local algebra from immutable source-cell coordinates. */
+/** Replay each transform's local algebra from immutable source-cell coordinates. */
 // @spec-link [[module_rhythm_domain_validation]]
 export function hasRenderedTransformAlgebra(candidate: UnindexedRhythmCandidate): boolean {
   const coordinateCache = new Map<number, Map<string, number>>()

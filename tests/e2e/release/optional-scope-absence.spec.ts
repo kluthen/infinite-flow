@@ -22,7 +22,7 @@ type CapabilitySpyWindow = Window & {
 }
 
 /**
- * Intent: before any page script runs, wrap every Web Audio context constructor, Web MIDI access
+ * Before any page script runs, wrap every Web Audio context constructor, Web MIDI access
  * and microphone access the browser exposes, so each construction or request is recorded in
  * `window.__capabilitySpy.calls`. `installed` names each wrapper actually put in place, so a test
  * can prove the spy was armed rather than passing because a constructor was missing.
@@ -66,13 +66,13 @@ async function installCapabilitySpy(page: Page): Promise<void> {
   })
 }
 
-/** Intent: the capability spy's installed wrappers and recorded calls, read from the page. */
+/** The capability spy's installed wrappers and recorded calls, read from the page. */
 async function readCapabilitySpy(page: Page): Promise<{ installed: string[]; calls: string[] }> {
   return page.evaluate(() => (window as unknown as CapabilitySpyWindow).__capabilitySpy)
 }
 
 /**
- * Intent: every interaction the workspace offers today, on a page already at the workspace:
+ * Every interaction the workspace offers today, on a page already at the workspace:
  * generate, change several controls, regenerate, switch the instrument profile (which regenerates
  * the shown phrase) and change the theme.
  */

@@ -138,27 +138,27 @@ export interface SessionControllerSides {
   readonly pregeneration: WorkspacePregeneration
 }
 
-/** Intent: an audio time for the engine, never before one it already handled. */
+/** An audio time for the engine, never before one it already handled. */
 // @spec-link [[service_session_controller]]
 export function engineTime(session: ActiveSession, at: AudioTime): AudioTime {
   session.floor = Math.max(session.floor, at)
   return session.floor
 }
 
-/** Intent: the running session's runner; reaching here before it exists is a wiring defect. */
+/** The running session's runner; reaching here before it exists is a wiring defect. */
 function runnerOf(session: ActiveSession): SessionRunner {
   if (session.runner === null) throw new Error('session controller: the runner is not built yet')
   return session.runner
 }
 
-/** Intent: the running session's phrase steps; reaching here before they exist is a wiring defect. */
+/** The running session's phrase steps; reaching here before they exist is a wiring defect. */
 export function phrasesOf(session: ActiveSession): SessionPhrases {
   if (session.phrases === null) throw new Error('session controller: no phrase steps yet')
   return session.phrases
 }
 
 /**
- * Intent: a phrase the engine readied: phrase 1 is handed over to a session started without it,
+ * A phrase the engine readied: phrase 1 is handed over to a session started without it,
  * which then takes its display and phrase steps; every later phrase goes to the phrase steps. A
  * phrase 1 readied in a session started with it is a wiring defect.
  */
@@ -175,7 +175,7 @@ export function phraseReadied(session: ActiveSession, phrase: SessionPhrase): vo
 }
 
 /**
- * Intent: send one event at `at` (raised to the floor) to the session's runner: a transport event,
+ * Send one event at `at` (raised to the floor) to the session's runner: a transport event,
  * or a phrase 1 event of a session started without phrase 1.
  */
 // @spec-link [[service_session_controller]]

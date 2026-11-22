@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
 import { audibleClicksOf } from './fake-audio'
 import { BEAT, beat, transportRig } from './transport-rig'
 
-/** Intent: the beats (counted from the session's start) of the clicks heard, in order. */
+/** The beats (counted from the session's start) of the clicks heard, in order. */
 function heardBeats(startAt: number, ats: readonly number[]): readonly number[] {
   return ats.map((at) => Math.round((at - startAt) / BEAT))
 }

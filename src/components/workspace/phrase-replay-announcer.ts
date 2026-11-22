@@ -27,7 +27,7 @@ export interface PhraseReplayAnnouncer {
 }
 
 /**
- * Intent: start loading the announcement module now (through `load`, the dynamic import by
+ * Start loading the announcement module now (through `load`, the dynamic import by
  * default), and announce through it to `log`. A load failure is not caught: it rejects `loaded`
  * and every Idle announcement waiting on it.
  */
@@ -44,7 +44,7 @@ export function createPhraseReplayAnnouncer(
   })
   const loaded = queue.then(() => undefined)
 
-  /** Intent: announce at once once loaded; before, after every announcement already waiting. */
+  /** Announce at once once loaded; before, after every announcement already waiting. */
   function announceWorkspacePhrase(intent: GenerationIntent): void {
     if (module !== null) {
       module.announceWorkspacePhrase(intent, log)
@@ -56,7 +56,7 @@ export function createPhraseReplayAnnouncer(
     })
   }
 
-  /** Intent: the announcing sink; a runner starting before the module loaded is a wiring defect. */
+  /** The announcing sink; a runner starting before the module loaded is a wiring defect. */
   function announcingSessionOutputs(
     onOutput: (output: SessionOutput) => void,
   ): (output: SessionOutput) => void {

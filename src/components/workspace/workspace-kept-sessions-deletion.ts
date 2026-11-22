@@ -17,7 +17,7 @@ import type { SessionControllerCore } from './workspace-session-active'
 import { SessionControllerError, type SessionDeletion } from './workspace-session-controller-types'
 
 /**
- * Intent: build `Delete every session` over the controller's core, the list's rows and the review
+ * Build `Delete every session` over the controller's core, the list's rows and the review
  * mode's cancelling of a pending opening: the device first, then memory, the rows and the pending
  * opening, only once the device has deleted them or found none.
  */
@@ -34,7 +34,7 @@ export function createEverySessionDeletion(
   const kept = core.deps.keptSessions
 
   /**
-   * Intent: drop every session held in memory, every row and a pending opening; a showing Review
+   * Drop every session held in memory, every row and a pending opening; a showing Review
    * gives way.
    */
   const forgetEverySession = (): void => {

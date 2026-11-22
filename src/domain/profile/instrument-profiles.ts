@@ -106,13 +106,13 @@ export const BB_TENOR_PROFILE: InstrumentProfile = ADOPTED_INSTRUMENT_PROFILES[1
 // @spec-link [[rule_instrument_profile_range]]
 export const EB_ALTO_PROFILE: InstrumentProfile = ADOPTED_INSTRUMENT_PROFILES[2]!
 
-/** Intent: true when a value is one of the built-in instrument profile ids. */
+/** True when a value is one of the built-in instrument profile ids. */
 // @spec-link [[entity_instrument_profile]]
 export function isBuiltInInstrumentProfileId(value: unknown): value is BuiltInInstrumentProfileId {
   return ADOPTED_INSTRUMENT_PROFILE_IDS.includes(value as BuiltInInstrumentProfileId)
 }
 
-/** Intent: the built-in profile with this id, or nothing for an id that names no built-in. */
+/** The built-in profile with this id, or nothing for an id that names no built-in. */
 // @spec-link [[entity_instrument_profile]]
 export function findBuiltInInstrumentProfile(id: string): InstrumentProfile | undefined {
   return ADOPTED_INSTRUMENT_PROFILES.find((profile) => profile.id === id)

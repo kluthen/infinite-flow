@@ -38,7 +38,7 @@ import { doodleOf, legatoDoodle } from './doodle-builders'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'
 
-/** Intent: phrase 1's record as the doodle reads it: its intent for a written key, and its clef. */
+/** Phrase 1's record as the doodle reads it: its intent for a written key, and its clef. */
 function phraseOne(
   tonalCenter: PitchClass,
   collection: Collection,
@@ -72,7 +72,7 @@ function phraseOne(
 
 const G_MAJOR_KEYBOARD = doodleEngravingContext(phraseOne('G', 'Major', 'c-keyboard'))
 
-/** Intent: whether a measure is one whole rest, as a measure after the doodle is. */
+/** Whether a measure is one whole rest, as a measure after the doodle is. */
 function isWholeRest(measure: WrittenMeasure): boolean {
   const [only, ...others] = measure.events
   return (
@@ -84,7 +84,7 @@ function isWholeRest(measure: WrittenMeasure): boolean {
   )
 }
 
-/** Intent: the note glyphs of a measure. */
+/** The note glyphs of a measure. */
 function notesOf(measure: WrittenMeasure): WrittenNote[] {
   return measure.events.filter((event: WrittenEvent): event is WrittenNote => event.kind === 'note')
 }
@@ -220,7 +220,7 @@ const WHOLE_ANCHORS: readonly MeasureAnchors[] = [0, 1, 2, 3].map((measureIndex)
 }))
 
 /**
- * Intent: a system SVG sized as the engraver sizes it (its width in CSS px, a viewBox in engraving
+ * A system SVG sized as the engraver sizes it (its width in CSS px, a viewBox in engraving
  * units from 0 0, here twice as many units as px), drawing a stave and two tagged noteheads.
  */
 function systemSvg(widthPx: number): SVGSVGElement {
@@ -240,7 +240,7 @@ function systemSvg(widthPx: number): SVGSVGElement {
   return svg
 }
 
-/** Intent: the right edge of an SVG's doodle clip, in engraving units. */
+/** The right edge of an SVG's doodle clip, in engraving units. */
 function clipEndUnits(svg: SVGSVGElement): number {
   const group = svg.querySelector(':scope > g[clip-path]')
   const id = /^url\(#(.+)\)$/u.exec(group?.getAttribute('clip-path') ?? '')?.[1]

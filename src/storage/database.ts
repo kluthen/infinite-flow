@@ -105,7 +105,7 @@ export const PRODUCTION_MIGRATIONS: readonly MigrationStep[] = Object.freeze([
 ])
 
 /**
- * Intent: the data version a list of migration steps brings the database to, its last step's.
+ * The data version a list of migration steps brings the database to, its last step's.
  * Throws unless the steps run from 1 to N without a gap: such a list is a configuration defect.
  */
 // @spec-link [[module_on_device_database]]
@@ -130,7 +130,7 @@ export const DATABASE_DATA_VERSION: number = migrationsDataVersion(PRODUCTION_MI
 /** A migration step that threw: a defect of the step, never a storage failure. */
 // @spec-link [[module_on_device_database]]
 export class MigrationStepError extends Error {
-  /** Intent: name the step that threw and keep what it threw. */
+  /** Name the step that threw and keep what it threw. */
   constructor(toVersion: number, cause: unknown) {
     super(`database: migration step to data version ${toVersion} threw`, { cause })
     this.name = 'MigrationStepError'
@@ -157,7 +157,7 @@ export interface OpenedDatabase {
   readonly outdated: boolean
 }
 
-/** Intent: the result of one IndexedDB request, as a promise. */
+/** The result of one IndexedDB request, as a promise. */
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result)
@@ -166,7 +166,7 @@ function requestResult<T>(request: IDBRequest<T>): Promise<T> {
 }
 
 /**
- * Intent: close a connection as soon as another one changes the database's version (a newer app
+ * Close a connection as soon as another one changes the database's version (a newer app
  * upgrading it, or Delete everything), so it never blocks that change, and report it closed.
  */
 function closedOnVersionChange(
@@ -184,7 +184,7 @@ function closedOnVersionChange(
 type UpgradeContext = Omit<MigrationUpgrade, 'hold'>
 
 /**
- * Intent: run `steps[index]` and then, once its synchronous part has returned and every hold it
+ * Run `steps[index]` and then, once its synchronous part has returned and every hold it
  * took is released, the steps after it in order; after the last, write `meta`: the code's data
  * version and the app that upgraded the database. A step that throws, now or when a release runs
  * the next one from a request callback, is handed to `fail` as a MigrationStepError and no later
@@ -206,13 +206,13 @@ function runStepsFrom(
   let holds = 0
   let returned = false
   let advanced = false
-  /** Intent: run the next step once this one has returned and holds nothing, exactly once. */
+  /** Run the next step once this one has returned and holds nothing, exactly once. */
   const advance = () => {
     if (!returned || holds > 0 || advanced) return
     advanced = true
     runStepsFrom(context, steps, index + 1, opening, fail)
   }
-  /** Intent: hold the upgrade at this step; the release, called once or more, lets it go on. */
+  /** Hold the upgrade at this step; the release, called once or more, lets it go on. */
   const hold = () => {
     holds += 1
     let released = false
@@ -234,7 +234,7 @@ function runStepsFrom(
 }
 
 /**
- * Intent: run, in order, every migration step above the stored version, each after the work of
+ * Run, in order, every migration step above the stored version, each after the work of
  * the one before it is done, then write `meta`. A step that throws is handed to `fail`.
  */
 function runMigrations(
@@ -248,7 +248,7 @@ function runMigrations(
 }
 
 /**
- * Intent: open the database at the code's data version, migrating it when it is older. Rejects
+ * Open the database at the code's data version, migrating it when it is older. Rejects
  * with the open's error (a `VersionError` when a newer app upgraded it), or with what a migration
  * step threw, the upgrade then being rolled back.
  */
@@ -259,7 +259,7 @@ function openAtDataVersion(opening: DatabaseOpening): Promise<IDBDatabase> {
     request.onupgradeneeded = (event) => {
       const transaction = request.transaction
       if (transaction === null) throw new Error('database: an upgrade without its transaction')
-      /** Intent: keep the first step failure and roll the upgrade back. */
+      /** Keep the first step failure and roll the upgrade back. */
       const fail = (error: unknown) => {
         if (upgradeFailure !== null) return
         upgradeFailure = error
@@ -279,13 +279,13 @@ function openAtDataVersion(opening: DatabaseOpening): Promise<IDBDatabase> {
   })
 }
 
-/** Intent: whether an open failed because the stored database has a higher version. */
+/** Whether an open failed because the stored database has a higher version. */
 function isVersionError(error: unknown): boolean {
   return error instanceof DOMException && error.name === 'VersionError'
 }
 
 /**
- * Intent: open the database at whatever version it has, for reading only. Never creates it: when
+ * Open the database at whatever version it has, for reading only. Never creates it: when
  * it no longer exists (another tab deleted it), the creation is rolled back and the open rejects,
  * so a reload never resurrects deleted data as an empty database.
  */
@@ -312,13 +312,13 @@ export function openForReading(
   })
 }
 
-/** Intent: the one value stored under `key`, undefined when there is none. */
+/** The one value stored under `key`, undefined when there is none. */
 // @spec-link [[module_on_device_database]]
 export function readValue(connection: IDBDatabase, store: string, key: string): Promise<unknown> {
   return requestResult(connection.transaction(store, 'readonly').objectStore(store).get(key))
 }
 
-/** Intent: every value a store holds, in key order. */
+/** Every value a store holds, in key order. */
 // @spec-link [[module_on_device_database]]
 export function readAllValues(connection: IDBDatabase, store: string): Promise<unknown[]> {
   return requestResult(connection.transaction(store, 'readonly').objectStore(store).getAll())
@@ -332,7 +332,7 @@ export interface StoredEntry {
 }
 
 /**
- * Intent: every entry of a store with its key, in key order, read in one read-only transaction;
+ * Every entry of a store with its key, in key order, read in one read-only transaction;
  * an entry whose key is not a string is left out. Keys and values come from the same transaction,
  * so they pair up one to one.
  */
@@ -352,7 +352,7 @@ export async function readKeyedValues(
 }
 
 /**
- * Intent: the key of every record of a store, in key order, read in one read-only transaction
+ * The key of every record of a store, in key order, read in one read-only transaction
  * without reading a value; a key that is not a string is left out.
  */
 // @spec-link [[module_on_device_database]]
@@ -363,7 +363,7 @@ export async function readKeys(connection: IDBDatabase, store: string): Promise<
 }
 
 /**
- * Intent: open the database for the port. A database a newer app upgraded is reopened without a
+ * Open the database for the port. A database a newer app upgraded is reopened without a
  * version, for reading; a `meta` data version above the code's also makes it outdated. A missing
  * or damaged `meta` rejects. Throws a `MigrationStepError` when a step throws.
  */
@@ -396,7 +396,7 @@ export async function openDatabase(opening: DatabaseOpening): Promise<OpenedData
 export type ChangeOutcome = 'done' | 'outdated'
 
 /**
- * Intent: change one or more stores in a single transaction spanning `meta` and those stores,
+ * Change one or more stores in a single transaction spanning `meta` and those stores,
  * reading `meta` first: when a newer app has raised the data version above the code's, the
  * transaction aborts and touches nothing. `change` reaches each store through `objectStore`, which
  * gives one of `stores`. All or none: rejects with what the change threw, or with the
@@ -434,7 +434,7 @@ export function changeStores(
   })
 }
 
-/** Intent: delete the whole database, once every other connection to it has closed. */
+/** Delete the whole database, once every other connection to it has closed. */
 // @spec-link [[rule_delete_everything]]
 export function deleteDatabase(factory: IDBFactory, name: string): Promise<void> {
   return new Promise((resolve, reject) => {

@@ -52,14 +52,14 @@ afterEach(() => {
   for (const dir of made.splice(0)) rmSync(dir, { recursive: true, force: true })
 })
 
-/** Intent: a fresh empty directory, removed after the test. */
+/** A fresh empty directory, removed after the test. */
 function tempDir(): string {
   const dir = mkdtempSync(join(tmpdir(), 'rhythm-renders-'))
   made.push(dir)
   return dir
 }
 
-/** Intent: a start list from compact text, e.g. `n0 r4 n6`. */
+/** A start list from compact text, e.g. `n0 r4 n6`. */
 function starts(text: string): MeasureStarts {
   return text.split(' ').map((token) => ({
     tick: Number(token.slice(1)),
@@ -67,12 +67,12 @@ function starts(text: string): MeasureStarts {
   }))
 }
 
-/** Intent: a pool of measures from compact start lists. */
+/** A pool of measures from compact start lists. */
 function pool(...texts: string[]): PoolMeasure[] {
   return texts.map((text) => ({ key: text, starts: starts(text) }))
 }
 
-/** Intent: a quantized doodle from (start, length, pitch) triples. */
+/** A quantized doodle from (start, length, pitch) triples. */
 function doodle(measureCount: number, notes: readonly [number, number, number][]) {
   return makeQuantizedDoodle({
     measureCount,
@@ -83,7 +83,7 @@ function doodle(measureCount: number, notes: readonly [number, number, number][]
 /** The doodle the synthetic fixtures copy their other fields from. */
 const BASE_DOODLE = loadDoodleSet()[0]!
 
-/** Intent: a doodle fixture named `name`, listening or not, with the given measures and notes. */
+/** A doodle fixture named `name`, listening or not, with the given measures and notes. */
 function fixture(
   name: string,
   listening: boolean,
@@ -98,12 +98,12 @@ function fixture(
   }
 }
 
-/** Intent: four quarter notes from `offset` (`n0 n4 n8 n12`). */
+/** Four quarter notes from `offset` (`n0 n4 n8 n12`). */
 function quarterNotes(offset: number): [number, number, number][] {
   return [0, 4, 8, 12].map((tick, index) => [offset + tick, 4, 60 + index])
 }
 
-/** Intent: a measure from `offset` whose last note starts a sixteenth late (`n0 n4 n8 n14`). */
+/** A measure from `offset` whose last note starts a sixteenth late (`n0 n4 n8 n14`). */
 function lateLastNote(offset: number): [number, number, number][] {
   return [
     [offset, 4, 60],
@@ -136,7 +136,7 @@ const SELECTION_DOODLES: readonly DoodleFixture[] = [
 /** The pool the synthetic selection is scored against. */
 const SELECTION_POOL = pool('n0 n4 n8 n12', 'n0 n4 n8 n14', 'n0 n4 n10 n12', 'n2 n6 n10 n14')
 
-/** Intent: every file under a directory, as paths relative to it, sorted. */
+/** Every file under a directory, as paths relative to it, sorted. */
 function filesUnder(root: string, dir = root): string[] {
   return readdirSync(dir)
     .flatMap((name) => {
@@ -146,7 +146,7 @@ function filesUnder(root: string, dir = root): string[] {
     .sort()
 }
 
-/** Intent: run the render script with arguments from the repository root. */
+/** Run the render script with arguments from the repository root. */
 function runScript(args: readonly string[]) {
   return spawnSync('node', ['scripts/render-rhythm-examples.mjs', ...args], {
     cwd: REPO_ROOT,

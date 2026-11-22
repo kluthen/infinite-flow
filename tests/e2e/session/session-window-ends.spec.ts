@@ -47,7 +47,7 @@ const TOO_NARROW_FOR_ONE_SYSTEM: Size = { width: 300, height: 200 }
 /** The landscape phone made too short for the split staff at the legibility floor. */
 const TOO_SHORT_PHONE: Size = { width: 740, height: 280 }
 
-/** Intent: land at `size`, make a phrase ready, start, and move to `phase`; return the phrase. */
+/** Land at `size`, make a phrase ready, start, and move to `phase`; return the phrase. */
 async function sessionIn(page: Page, size: Size, phase: 'count-in' | 'running') {
   await gotoSessionHarness(page, size)
   await readyToStart(page)
@@ -58,14 +58,14 @@ async function sessionIn(page: Page, size: Size, phase: 'count-in' | 'running') 
   return requestId
 }
 
-/** Intent: resize the window and let the staff re-measure and redraw. */
+/** Resize the window and let the staff re-measure and redraw. */
 async function resize(page: Page, size: Size): Promise<void> {
   await page.setViewportSize(size)
   await settleFrames(page)
 }
 
 /**
- * Intent: assert what a window end leaves whatever its phase: once phrase 1 has sounded, the
+ * Assert what a window end leaves whatever its phase: once phrase 1 has sounded, the
  * engine's history closed with every phrase that sounded.
  */
 async function expectWindowEnd(page: Page, phase: 'count-in' | 'running'): Promise<void> {
@@ -80,7 +80,7 @@ async function expectWindowEnd(page: Page, phase: 'count-in' | 'running'): Promi
 }
 
 /**
- * Intent: assert the Idle rules show Needs more room, focused, with Start session disabled; after
+ * Assert the Idle rules show Needs more room, focused, with Start session disabled; after
  * a running end, through the Review, whose room notice stands in for its list, and `Close review`.
  */
 async function expectNeedsMoreRoomFocused(

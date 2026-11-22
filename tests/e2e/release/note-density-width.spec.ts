@@ -27,7 +27,7 @@ const PHONE = { width: 844, height: 390 }
 const FIELD_NOTE = "Sixteenth isn't available on small screens."
 
 /**
- * Intent: resize the window and let every redraw it causes settle: two animation frames for the
+ * Resize the window and let every redraw it causes settle: two animation frames for the
  * media-query change and the coalesced staff redraw, then an idle generation status.
  */
 async function resizeAndSettle(page: Page, size: { width: number; height: number }): Promise<void> {

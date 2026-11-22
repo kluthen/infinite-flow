@@ -25,7 +25,7 @@ const EXIT_REJECTED = 1
 const EXIT_CRASHED = 2
 
 /**
- * Intent: the text holding the key: the first argument, or else all of stdin when it is piped;
+ * The text holding the key: the first argument, or else all of stdin when it is piped;
  * null when neither is given.
  * @returns {Promise<string | null>}
  */
@@ -39,7 +39,7 @@ async function readKeyText() {
 }
 
 /**
- * Intent: narrow the module Vite loaded to the replay surface, crashing if any function is missing.
+ * Narrow the module Vite loaded to the replay surface, crashing if any function is missing.
  * @param {unknown} loaded
  * @returns {PhraseReplayModule}
  */
@@ -57,7 +57,7 @@ function requireReplayModule(loaded) {
 }
 
 /**
- * Intent: whether an error is a typed domain rejection of the key (every domain error class
+ * Whether an error is a typed domain rejection of the key (every domain error class
  * carries a `kind` tag), as opposed to an unexpected internal error.
  * @param {unknown} error
  * @returns {error is Error}
@@ -67,7 +67,7 @@ function isTypedKeyError(error) {
 }
 
 /**
- * Intent: decode the key, rejecting a missing, malformed or unsupported one with a one-line
+ * Decode the key, rejecting a missing, malformed or unsupported one with a one-line
  * message on stderr (no stack) and exit code 1; an untyped error is unexpected and rethrown.
  * @param {PhraseReplayModule} replay
  * @param {string} text
@@ -85,7 +85,7 @@ function decodeKey(replay, text) {
 }
 
 /**
- * Intent: replay one phrase key and print its JSON report: exit 0 when the replay ran, 1 for a
+ * Replay one phrase key and print its JSON report: exit 0 when the replay ran, 1 for a
  * usage or key error (nothing on stdout), 2 when the worker path crashed (JSON still printed).
  * @returns {Promise<number>}
  */

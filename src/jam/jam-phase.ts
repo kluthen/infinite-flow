@@ -55,14 +55,14 @@ export type JamPhase =
   | { readonly state: 'phrase-one' }
   | { readonly state: 'ended' }
 
-/** Intent: when barline `measure` falls (measure 0 starts at the count-in's end, -1 is the count-in). */
+/** When barline `measure` falls (measure 0 starts at the count-in's end, -1 is the count-in). */
 // @spec-link [[module_jam_capture]]
 export function barlineAt(plan: ClickPlan, measure: number): AudioTime {
   return beatAt(plan, plan.countInBeats + measure * plan.beatsPerMeasure)
 }
 
 /**
- * Intent: the session beat sounding at `at`: the last beat at or before it (0 is the count-in's
+ * The session beat sounding at `at`: the last beat at or before it (0 is the count-in's
  * first, and a time before it gives 0). The estimate is corrected with beatAt itself, so a time on
  * a beat gives that beat exactly.
  */
@@ -73,13 +73,13 @@ function beatIndexAt(plan: ClickPlan, at: AudioTime): number {
   return k
 }
 
-/** Intent: the measure sounding at `at`, measure 0 the first after the count-in (-1 in it). */
+/** The measure sounding at `at`, measure 0 the first after the count-in (-1 in it). */
 // @spec-link [[module_jam_capture]]
 export function measureAt(plan: ClickPlan, at: AudioTime): number {
   return Math.floor(beatIndexAt(plan, at) / plan.beatsPerMeasure) - 1
 }
 
-/** Intent: the first barline at or after `at`, as a measure number (never before measure 0). */
+/** The first barline at or after `at`, as a measure number (never before measure 0). */
 // @spec-link [[module_jam_capture]]
 export function firstBarlineFrom(plan: ClickPlan, at: AudioTime): number {
   if (at <= countInEndsAt(plan)) return 0
@@ -90,7 +90,7 @@ export function firstBarlineFrom(plan: ClickPlan, at: AudioTime): number {
 /** The beats of a measure, in order. */
 const BEATS: readonly JamBeat[] = [1, 2, 3, 4]
 
-/** Intent: the beat of its measure sounding at `at`, 1 on the barline. */
+/** The beat of its measure sounding at `at`, 1 on the barline. */
 // @spec-link [[module_jam_capture]]
 export function beatOfMeasureAt(plan: ClickPlan, at: AudioTime): JamBeat {
   return BEATS[beatIndexAt(plan, at) % plan.beatsPerMeasure]!

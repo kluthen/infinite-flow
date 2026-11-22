@@ -60,7 +60,7 @@ export type EndedJamSources = Pick<
 >
 
 /**
- * Intent: the doodle a Jam on the kept doodle shows, on the audio clock: the kept doodle with its
+ * The doodle a Jam on the kept doodle shows, on the audio clock: the kept doodle with its
  * capture tempo, its measures at that tempo ending at phrase 1's start, `phraseOneAt`, and no raw
  * note, since none was played in this session.
  */
@@ -80,7 +80,7 @@ export function keptSessionDoodle(
 }
 
 /**
- * Intent: the Jam part of a session that ended once phrase 1 had sounded. A Jam on the kept
+ * The Jam part of a session that ended once phrase 1 had sounded. A Jam on the kept
  * doodle gives the kept doodle it started on (`keptSessionDoodle`, phrase 1 starting at the
  * count-in's end), no count-in, its suggestion with the decline as kept (a declined suggestion
  * stays declined) and the readings taken from it. A session started without phrase 1 (a fresh
@@ -121,14 +121,14 @@ export function jamPartOf(session: EndedJamSources): ReviewedJamPart | null {
   })
 }
 
-/** Intent: whether a Jam part holds a raw doodle note, which counts as a played note to keep. */
+/** Whether a Jam part holds a raw doodle note, which counts as a played note to keep. */
 // @spec-link [[rule_raw_doodle_notes_are_played_notes]]
 export function holdsRawDoodleNote(jam: ReviewedJamPart): boolean {
   return jam.doodle.playedNotes.length > 0
 }
 
 /**
- * Intent: a Jam part once its session's played notes are deleted: no raw doodle note, its
+ * A Jam part once its session's played notes are deleted: no raw doodle note, its
  * quantized doodle, its barlines and everything else kept.
  */
 // @spec-link [[rule_deleting_played_notes_keeps_quantized_doodle]]
@@ -139,7 +139,7 @@ export function withoutRawDoodleNotes(jam: ReviewedJamPart): ReviewedJamPart {
   })
 }
 
-/** Intent: a Jam part with its key and mode suggestion declined (`Keep mine`), all else as held. */
+/** A Jam part with its key and mode suggestion declined (`Keep mine`), all else as held. */
 // @spec-link [[rule_suggestion_keep_mine]]
 export function declinedJamPart(jam: ReviewedJamPart): ReviewedJamPart {
   return Object.freeze({ ...jam, suggestionDeclined: true })

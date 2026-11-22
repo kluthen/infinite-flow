@@ -40,7 +40,7 @@ const MixHarness = defineComponent({
 })
 
 /**
- * Intent: mount the harness in the document, on a fresh transport and popover, with a saver that
+ * Mount the harness in the document, on a fresh transport and popover, with a saver that
  * records what the mix saves.
  */
 function mountMix() {
@@ -61,7 +61,7 @@ type ToggleName = 'Backing' | 'Click' | 'Melody guide' | 'Rhythm guide'
 /** The popover's sliders' labels. */
 type SliderLabel = 'Backing volume' | 'Click volume' | 'Melody guide volume' | 'Rhythm guide volume'
 
-/** Intent: the toolbar's toggle button named `name`. */
+/** The toolbar's toggle button named `name`. */
 function toggle(wrapper: VueWrapper, name: ToggleName) {
   const found = wrapper
     .findAll('.mix-controls .toggle-button')
@@ -70,23 +70,23 @@ function toggle(wrapper: VueWrapper, name: ToggleName) {
   return found
 }
 
-/** Intent: the toolbar's Volume button. */
+/** The toolbar's Volume button. */
 function toolbarVolume(wrapper: VueWrapper) {
   return wrapper.get<HTMLButtonElement>('.mix-controls .mix-volume > .btn')
 }
 
-/** Intent: the one volume popover. */
+/** The one volume popover. */
 function popoverElement(wrapper: VueWrapper) {
   return wrapper.get('#mix-volume-popover')
 }
 
-/** Intent: open the popover from the toolbar's Volume with a keyboard activation. */
+/** Open the popover from the toolbar's Volume with a keyboard activation. */
 async function openFromToolbar(wrapper: VueWrapper): Promise<void> {
   await toolbarVolume(wrapper).trigger('click')
   await flushPromises()
 }
 
-/** Intent: the slider labelled `label`. */
+/** The slider labelled `label`. */
 function slider(wrapper: VueWrapper, label: SliderLabel) {
   const labelElement = wrapper.findAll('label.field-label').find((found) => found.text() === label)
   if (labelElement === undefined) throw new Error(`no ${label} label`)
@@ -94,7 +94,7 @@ function slider(wrapper: VueWrapper, label: SliderLabel) {
 }
 
 /**
- * Intent: move a slider to `value` as a drag does, with an input event and no change event (test
+ * Move a slider to `value` as a drag does, with an input event and no change event (test
  * utils' `setValue` fires both, as a release would).
  */
 async function moveSlider(input: ReturnType<typeof slider>, value: string): Promise<void> {
@@ -103,7 +103,7 @@ async function moveSlider(input: ReturnType<typeof slider>, value: string): Prom
 }
 
 /**
- * Intent: a button's accessible name as assistive technology reads it here: its text without the
+ * A button's accessible name as assistive technology reads it here: its text without the
  * parts hidden from it (the buttons carry no `aria-label`).
  */
 function accessibleName(button: Element): string {

@@ -47,28 +47,28 @@ const SLICE: readonly SweepCase[] = sweepCases().filter((_, index) => index % SL
 /** The real outcomes the slice generates, shared across its scripts and tempos. */
 const outcomes = new OutcomeCache()
 
-/** Intent: phrase 3's first attempt finds no phrase and phrase 4's first request is rejected. */
+/** Phrase 3's first attempt finds no phrase and phrase 4's first request is rejected. */
 const ONE_FAILURE_EACH: AttemptScript = (request) => {
   if (request.retry !== 0) return 'generate'
   if (request.phraseNumber === 3) return 'fail'
   return request.phraseNumber === 4 ? 'crash' : 'generate'
 }
 
-/** Intent: every carry-in attempt of phrase 3 fails; its standalone retry generates. */
+/** Every carry-in attempt of phrase 3 fails; its standalone retry generates. */
 const CARRY_IN_EXHAUSTED: AttemptScript = (request) =>
   request.phraseNumber === 3 && request.step === 'carry-in' ? 'fail' : 'generate'
 
-/** Intent: every attempt of phrase 2 fails, so nothing valid exists at its deadline. */
+/** Every attempt of phrase 2 fails, so nothing valid exists at its deadline. */
 const NOTHING_BY_PHRASE_TWO_DEADLINE: AttemptScript = (request) =>
   request.phraseNumber === 2 ? 'fail' : 'generate'
 
-/** Intent: every attempt of phrases 3 and 4 fails or is rejected: two repeats in a row. */
+/** Every attempt of phrases 3 and 4 fails or is rejected: two repeats in a row. */
 const TWO_REPEATS_IN_A_ROW: AttemptScript = (request) => {
   if (request.phraseNumber === 3) return 'fail'
   return request.phraseNumber === 4 ? 'crash' : 'generate'
 }
 
-/** Intent: every attempt generates; only the cost model says which ones are slow. */
+/** Every attempt generates; only the cost model says which ones are slow. */
 const GENERATE_EVERY_ATTEMPT: AttemptScript = () => 'generate'
 
 /** An attempt this slow never answers within a swept session: only a cancellation ends it. */
@@ -77,14 +77,14 @@ const NEVER_ANSWERS_SECONDS = 1_000_000
 /** How long each of phrase 3's failing carry-in attempts takes in `SLOW_CARRY_IN`, in seconds. */
 const SLOW_CARRY_IN_SECONDS = 2.5
 
-/** Intent: the flat modelled cost, except for the attempts `slow` gives a cost of their own. */
+/** The flat modelled cost, except for the attempts `slow` gives a cost of their own. */
 function costExcept(
   slow: (request: Parameters<AttemptCost>[1]) => number | undefined,
 ): AttemptCost {
   return (_, request) => slow(request) ?? ATTEMPT_COST_SECONDS
 }
 
-/** Intent: every carry-in attempt of phrase 3 fails after `SLOW_CARRY_IN_SECONDS`. */
+/** Every carry-in attempt of phrase 3 fails after `SLOW_CARRY_IN_SECONDS`. */
 const SLOW_CARRY_IN = {
   script: CARRY_IN_EXHAUSTED,
   cost: costExcept((request) =>
@@ -92,7 +92,7 @@ const SLOW_CARRY_IN = {
   ),
 }
 
-/** Intent: every carry-in attempt of one phrase never answers; everything else generates. */
+/** Every carry-in attempt of one phrase never answers; everything else generates. */
 function carryInNeverAnswers(phraseNumber: number): AttemptCost {
   return costExcept((request) =>
     request.phraseNumber === phraseNumber && request.step === 'carry-in'
@@ -101,7 +101,7 @@ function carryInNeverAnswers(phraseNumber: number): AttemptCost {
   )
 }
 
-/** Intent: phrase 3's carry-in attempts fail, and its standalone attempt never answers. */
+/** Phrase 3's carry-in attempts fail, and its standalone attempt never answers. */
 const STANDALONE_NEVER_ANSWERS = {
   script: CARRY_IN_EXHAUSTED,
   cost: costExcept((request) =>
@@ -110,7 +110,7 @@ const STANDALONE_NEVER_ANSWERS = {
 }
 
 /**
- * Intent: run every slice case at one tempo under a script and a cost model (the flat modelled
+ * Run every slice case at one tempo under a script and a cost model (the flat modelled
  * cost by default), failing on any session break.
  */
 async function runSlice(
@@ -129,7 +129,7 @@ async function runSlice(
   return runs
 }
 
-/** Intent: the origin each phrase slot after phrase 1 was decided with, in order. */
+/** The origin each phrase slot after phrase 1 was decided with, in order. */
 function origins(run: TimedSession): readonly (string | undefined)[] {
   return phraseSlots(run).map((slot) => slot.decided?.origin)
 }
@@ -145,12 +145,12 @@ const PHRASE_TWO_ORIGIN: Readonly<Record<number, string>> = {
   240: 'standalone',
 }
 
-/** Intent: what the generator did with each attempt for one phrase, in request order. */
+/** What the generator did with each attempt for one phrase, in request order. */
 function generationsOf(run: TimedSession, phraseNumber: number): readonly GeneratorRecord[] {
   return run.generations.filter((record) => record.phraseNumber === phraseNumber)
 }
 
-/** Intent: the attempt ids the engine cancelled in a run, with the time of each cancellation. */
+/** The attempt ids the engine cancelled in a run, with the time of each cancellation. */
 function cancellations(run: TimedSession): readonly { attemptId: number; at: number }[] {
   return run.outputs.flatMap(({ at, output }) =>
     output.kind === 'cancel-generation' ? [{ attemptId: output.attemptId, at }] : [],
@@ -158,7 +158,7 @@ function cancellations(run: TimedSession): readonly { attemptId: number; at: num
 }
 
 /**
- * Intent: check that a phrase's last carry-in attempt was cut over at the phrase's cutover time:
+ * Check that a phrase's last carry-in attempt was cut over at the phrase's cutover time:
  * cancelled there, the standalone attempt requested at once, started once the worker restarted,
  * and its phrase ready one modelled attempt later, before the deadline.
  */
@@ -201,7 +201,7 @@ describe('look-ahead deadline sweep cases', () => {
     const settings = supportedRhythmSettings()
     expect(settings).toHaveLength(284)
     expect(cases).toHaveLength(settings.length * SEEDS.length)
-    /** Intent: the seeds the cases of one rhythm setting run with, in case order. */
+    /** The seeds the cases of one rhythm setting run with, in case order. */
     const seedsOf = (key: string): readonly number[] =>
       cases.filter((c) => settingKey(c.rhythm) === key).map((c) => c.seed)
     for (const setting of settings) expect(seedsOf(settingKey(setting))).toEqual(SEEDS)

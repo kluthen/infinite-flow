@@ -21,7 +21,7 @@ import { flattenNotes } from '@/domain/validation/generation-result-validator-ch
 import { censusOfOutcome } from '../../../sweep/figure-census'
 import { everyFigureAt, gridIntent } from '../pitch/figure-levels-grid'
 
-/** Intent: a played note over USB at a concert pitch and an audio-clock time. */
+/** A played note over USB at a concert pitch and an audio-clock time. */
 function play(pitch: number, audioClockSeconds: number): PlayedNote {
   return compensatePlayedNote(
     { pitch: makeConcertPitch(pitch), audioClockSeconds },
@@ -36,7 +36,7 @@ const LEVELS = {
   diatonicEnclosure: 'stronglyFavored',
 } as const
 
-/** Intent: the fixed phrase, its windowed expected notes, and the attacks of each new figure. */
+/** The fixed phrase, its windowed expected notes, and the attacks of each new figure. */
 function decoratedPhrase() {
   const intent = gridIntent(
     {

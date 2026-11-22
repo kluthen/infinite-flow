@@ -42,7 +42,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: close the open sheet by one path. */
+/** Close the open sheet by one path. */
 async function closeBy(page: Page, path: (typeof CLOSE_PATHS)[number]): Promise<void> {
   if (path === 'Close') await sheetClose(page).click()
   else if (path === 'Escape') await page.keyboard.press('Escape')
@@ -53,7 +53,7 @@ async function closeBy(page: Page, path: (typeof CLOSE_PATHS)[number]): Promise<
 }
 
 /**
- * Intent: what the workspace shows and holds, to compare before and after: the phrase and its
+ * What the workspace shows and holds, to compare before and after: the phrase and its
  * seed, the operation, how many engravings ran, the checked radios, the header actions and the
  * session phase.
  */
@@ -72,7 +72,7 @@ async function workspaceState(page: Page): Promise<unknown> {
   }
 }
 
-/** Intent: phrase 1's first sounding note's concert pitch, read from the shown timeline. */
+/** Phrase 1's first sounding note's concert pitch, read from the shown timeline. */
 async function firstNotePitch(page: Page): Promise<number> {
   const { timeline } = await page.evaluate(() => window.__workspaceHarness.snapshot())
   if (timeline === null) throw new Error('no phrase is shown')
@@ -84,7 +84,7 @@ async function firstNotePitch(page: Page): Promise<number> {
   return first.pitch
 }
 
-/** Intent: assert no session started: idle, no count-in shown or scheduled, the audio not running. */
+/** Assert no session started: idle, no count-in shown or scheduled, the audio not running. */
 async function expectNoSessionStarted(page: Page): Promise<void> {
   expect((await sessionState(page)).phase).toBe('idle')
   await expect(page.locator('.count-in')).toHaveCount(0)
@@ -93,7 +93,7 @@ async function expectNoSessionStarted(page: Page): Promise<void> {
   await expect(sessionAction(page)).toHaveText('Start session')
 }
 
-/** Intent: assert nothing names a starting note: no start line, no start marker. */
+/** Assert nothing names a starting note: no start line, no start marker. */
 async function expectNoStartingNote(page: Page): Promise<void> {
   expect((await sessionState(page)).startingNote).toBeNull()
   await expect(page.locator('.session-cue-row p.start-note-line')).toHaveCount(0)

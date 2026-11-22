@@ -13,7 +13,7 @@ import { expect, test } from '@playwright/test'
 
 test.use({ baseURL: 'http://127.0.0.1:4174' })
 
-/** Intent: wait until the harness publishes a settled (ready or error) engrave outcome. */
+/** Wait until the harness publishes a settled (ready or error) engrave outcome. */
 async function waitForHarnessSettled(page: import('@playwright/test').Page): Promise<void> {
   await page.waitForFunction(
     () => window.__notationHarness && window.__notationHarness.state !== 'pending',
@@ -21,7 +21,7 @@ async function waitForHarnessSettled(page: import('@playwright/test').Page): Pro
 }
 
 /**
- * Intent: whether each stavenote in measure-slot `measureIndex`, in written-event order, drew a
+ * Whether each stavenote in measure-slot `measureIndex`, in written-event order, drew a
  * flag glyph. VexFlow only opens a `g.vf-flag` group (nested inside the stavenote's own
  * `g.vf-stavenote`) when `StemmableNote.drawFlag`'s `shouldDrawFlag()` check passes, which is false
  * for a beamed note -- see node_modules/vexflow build/esm/src/stavenote.js.
@@ -57,7 +57,7 @@ test('a beamed eighth draws no flag while an unbeamed eighth in the same measure
 type DrawnStem = 'up' | 'down' | null
 
 /**
- * Intent: the drawn direction of each stavenote's stem in every measure-slot, in written-event
+ * The drawn direction of each stavenote's stem in every measure-slot, in written-event
  * order: 'up' when the stem's box centre lies above its notehead's centre, 'down' when below, null
  * for a glyph with no stem (a rest or whole note). A note's stem is the part tagged
  * `data-note-part="stem"` with its notehead's `data-note-id` in the same measure-slot, wherever it

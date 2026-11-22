@@ -17,14 +17,14 @@ import { connectKeys, lift, press, unplugKeys } from './session-controller-midi'
 /** The beat length at the rig's 240 BPM. */
 const BEAT = 0.25
 
-/** Intent: a rig with the controller connected and a session started without phrase 1. */
+/** A rig with the controller connected and a session started without phrase 1. */
 async function connectedFreshStart(): Promise<{ rig: ControllerRig; fresh: FreshStart }> {
   const rig = controllerRig()
   await connectKeys(rig)
   return { rig, fresh: startFresh(rig) }
 }
 
-/** Intent: expect a count-in end for `cause` that kept nothing and opened no review. */
+/** Expect a count-in end for `cause` that kept nothing and opened no review. */
 function expectCountInEndKeepingNothing(rig: ControllerRig, cause: SessionEndCause): void {
   expect(rig.controller.state.phase).toBe('idle')
   expect(rig.controller.state.lastEnd).toEqual({ cause, phase: 'count-in', soundedPhraseCount: 0 })

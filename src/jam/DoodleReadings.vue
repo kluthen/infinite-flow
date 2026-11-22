@@ -46,14 +46,14 @@ const DEFAULT_MARK = '(default)'
 const RAISED_MARK = '(to work with the other rhythm values)'
 const NARROW_SIXTEENTH_MARK = '(Sixteenth on larger screens)'
 
-/** Intent: a value's words, as its session-mode control labels it; one it lacks is a defect. */
+/** A value's words, as its session-mode control labels it; one it lacks is a defect. */
 function wordsOf(options: readonly SegmentedControlOption[], value: string): string {
   const found = options.find((option) => option.value === value)
   if (found === undefined) throw new Error(`Doodle readings: no option words for "${value}".`)
   return found.label
 }
 
-/** Intent: a plain line: the value in its words, marked "(default)" when the doodle showed none. */
+/** A plain line: the value in its words, marked "(default)" when the doodle showed none. */
 function plainLine(
   name: string,
   options: readonly SegmentedControlOption[],
@@ -67,7 +67,7 @@ function plainLine(
 }
 
 /**
- * Intent: the Note density line: a Sixteenth below the tablet-landscape width reads as the
+ * The Note density line: a Sixteenth below the tablet-landscape width reads as the
  * Eighth it is played as, saying it is Sixteenth on larger screens; otherwise a plain line.
  */
 // @spec-link [[rule_doodle_sixteenth_on_narrow_screens]]
@@ -83,7 +83,7 @@ function noteDensityLine(reading: DoodleReadings['noteDensity']): ReadingLine {
 }
 
 /**
- * Intent: the Rhythmic variety line, the value the phrases are written with: raised by the step,
+ * The Rhythmic variety line, the value the phrases are written with: raised by the step,
  * "(to work with the other rhythm values)", whether it raised the doodle's value or the default;
  * else "(default)" for a default; else the value alone.
  */
@@ -93,7 +93,7 @@ function rhythmicVarietyLine(reading: DoodleReadings['rhythmicVariety']): Readin
   return reading.raised ? { ...line, mark: RAISED_MARK } : line
 }
 
-/** Intent: the seven lines, in the handoff's order; none while no doodle is kept. */
+/** The seven lines, in the handoff's order; none while no doodle is kept. */
 // @spec-link [[rule_doodle_sets_jam_controls]]
 const lines = computed((): readonly ReadingLine[] | null => {
   const readings = props.readings

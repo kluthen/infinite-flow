@@ -13,19 +13,19 @@ export const ERASE_FAILED_LINE = "That couldn't be saved, and nothing was erased
 /** The delete confirmation's error line after a refused deletion. */
 export const DELETE_FAILED_LINE = "That couldn't be deleted. Try again."
 
-/** Intent: the sentence saying the review on screen closes, after what a change erases. */
+/** The sentence saying the review on screen closes, after what a change erases. */
 function reviewCloses(count: number): string {
   return count === 1
     ? 'It is the session reviewed on screen, so its review closes.'
     : 'The session reviewed on screen is one of them, so its review closes.'
 }
 
-/** Intent: `sentence`, then, when the review on screen shows one of them, that it closes. */
+/** `sentence`, then, when the review on screen shows one of them, that it closes. */
 function withReview(sentence: string, count: number, reviewed: boolean): string {
   return reviewed ? `${sentence} ${reviewCloses(count)}` : sentence
 }
 
-/** Intent: the erase warning's first paragraph: what a range or transposition change erases. */
+/** The erase warning's first paragraph: what a range or transposition change erases. */
 // @spec-link [[entity_my_instrument_record]]
 export function eraseWarningText(count: number, reviewed: boolean): string {
   const erased =
@@ -35,7 +35,7 @@ export function eraseWarningText(count: number, reviewed: boolean): string {
   return withReview(erased, count, reviewed)
 }
 
-/** Intent: the sheet's hint on keeping a session before it goes. */
+/** The sheet's hint on keeping a session before it goes. */
 export function keepSessionHint(count: number): string {
   return count === 1
     ? 'To keep it, cancel, then export it from its review first.'
@@ -43,7 +43,7 @@ export function keepSessionHint(count: number): string {
 }
 
 /**
- * Intent: the delete confirmation's first paragraph: what goes, the `count` sessions with it
+ * The delete confirmation's first paragraph: what goes, the `count` sessions with it
  * (none at 0), whether the review on screen closes, and, while my instrument is selected,
  * `template`, the profile the selection goes back to (null when it is not selected).
  */
@@ -76,13 +76,13 @@ export function deleteConfirmationText(
   return sentences.join(' ')
 }
 
-/** Intent: the sheet's reload line, in a tab that must be reloaded while sessions would go. */
+/** The sheet's reload line, in a tab that must be reloaded while sessions would go. */
 // @spec-link [[rule_outdated_tab_stops_saving]]
 export function reloadToChangeText(name: string): string {
   return `Reload this page to change the range or the transposition, or to delete ${name}: either would erase the sessions played with this instrument, and this page can't delete anything until it is reloaded.`
 }
 
-/** Intent: the check's Use and erase paragraph: what a transposition change erases. */
+/** The check's Use and erase paragraph: what a transposition change erases. */
 // @spec-link [[rule_transposition_check_sets_my_instrument]]
 export function checkEraseText(count: number, reviewed: boolean): string {
   const erased =
@@ -92,14 +92,14 @@ export function checkEraseText(count: number, reviewed: boolean): string {
   return withReview(erased, count, reviewed)
 }
 
-/** Intent: the check's hint on keeping a session before it goes. */
+/** The check's hint on keeping a session before it goes. */
 export function checkKeepSessionHint(count: number): string {
   return count === 1
     ? 'To keep it, choose Back, close this sheet, then export it from its review.'
     : 'To keep a session, choose Back, close this sheet, then export it from its review.'
 }
 
-/** Intent: the check result's reload line, in a tab that must be reloaded while sessions would go. */
+/** The check result's reload line, in a tab that must be reloaded while sessions would go. */
 // @spec-link [[rule_outdated_tab_stops_saving]]
 // @spec-link [[rule_transposition_check_sets_my_instrument]]
 export function checkReloadText(name: string): string {

@@ -37,7 +37,7 @@ interface TimelineJson {
 }
 
 /**
- * Intent: a phrase's expected notes (every fresh attack, never a tie continuation or a rest), in
+ * A phrase's expected notes (every fresh attack, never a tie continuation or a rest), in
  * time order, placed from `startAt` at `tempo`: a whole note lasts four beats.
  */
 export function expectedNotesOf(
@@ -65,14 +65,14 @@ export function expectedNotesOf(
   return notes
 }
 
-/** Intent: the Idle phrase's concert timeline, read from the harness snapshot. */
+/** The Idle phrase's concert timeline, read from the harness snapshot. */
 export async function idleTimeline(page: Page): Promise<string> {
   const { timeline } = await page.evaluate(() => window.__workspaceHarness.snapshot())
   if (timeline === null) throw new Error('no phrase is shown')
   return timeline
 }
 
-/** Intent: phrase 1's first attacked note: its identity and concert pitch (placed at time 0). */
+/** Phrase 1's first attacked note: its identity and concert pitch (placed at time 0). */
 export async function firstAttack(page: Page): Promise<ExpectedNoteAt> {
   const [first] = expectedNotesOf(await idleTimeline(page), 1, 0)
   if (first === undefined) throw new Error('phrase 1 has no attacked note')
@@ -80,7 +80,7 @@ export async function firstAttack(page: Page): Promise<ExpectedNoteAt> {
 }
 
 /**
- * Intent: plug `device` in and connect it through the harness (the "Connect controller" click's
+ * Plug `device` in and connect it through the harness (the "Connect controller" click's
  * work, then the device selected), with no sheet and no check, until the controller is connected.
  */
 export async function connectDevice(page: Page, device: WorkspaceHarnessMidiDevice): Promise<void> {
@@ -94,7 +94,7 @@ export async function connectDevice(page: Page, device: WorkspaceHarnessMidiDevi
     .toEqual({ kind: 'connected', device })
 }
 
-/** Intent: a note-on on a fake device at audio time `at` (now by default). */
+/** A note-on on a fake device at audio time `at` (now by default). */
 export async function noteOn(
   page: Page,
   device: WorkspaceHarnessMidiDevice,
@@ -111,7 +111,7 @@ export async function noteOn(
   return at
 }
 
-/** Intent: a note-off on a fake device at audio time `at` (now by default). */
+/** A note-off on a fake device at audio time `at` (now by default). */
 export async function noteOff(
   page: Page,
   device: WorkspaceHarnessMidiDevice,
@@ -128,7 +128,7 @@ export async function noteOff(
 }
 
 /**
- * Intent: a note-on and its note-off at the same audio time, now by default: a tap. Before the
+ * A note-on and its note-off at the same audio time, now by default: a tap. Before the
  * audio is unlocked the clock cannot be read, so such a tap gives `at` (0: no session runs).
  */
 export async function tap(
@@ -142,7 +142,7 @@ export async function tap(
   return time
 }
 
-/** Intent: unplug a fake device at the audio clock's time now. */
+/** Unplug a fake device at the audio clock's time now. */
 export async function unplugNow(page: Page, device: WorkspaceHarnessMidiDevice): Promise<number> {
   const at = await audioNow(page)
   await page.evaluate(([id, t]) => window.__workspaceHarness.midi.unplug(id, t), [
@@ -152,27 +152,27 @@ export async function unplugNow(page: Page, device: WorkspaceHarnessMidiDevice):
   return at
 }
 
-/** Intent: plug a fake device (back) in. */
+/** Plug a fake device (back) in. */
 export function plugIn(page: Page, device: WorkspaceHarnessMidiDevice): Promise<void> {
   return page.evaluate((d) => window.__workspaceHarness.midi.plug(d), device)
 }
 
-/** Intent: the MIDI controller's state kind now. */
+/** The MIDI controller's state kind now. */
 export async function midiKind(page: Page): Promise<WorkspaceHarnessMidiStateKind> {
   return (await page.evaluate(() => window.__workspaceHarness.midi.state())).kind
 }
 
-/** Intent: the cue row's start line. */
+/** The cue row's start line. */
 export function startLine(page: Page): Locator {
   return cueRow(page).locator('p.start-note-line')
 }
 
-/** Intent: the cue row's disconnect banner. */
+/** The cue row's disconnect banner. */
 export function disconnectBanner(page: Page): Locator {
   return cueRow(page).locator('p.inline-alert.alert-error.session-alert')
 }
 
-/** Intent: the note ids of every staff glyph that carries `note-ack`, deduplicated, sorted. */
+/** The note ids of every staff glyph that carries `note-ack`, deduplicated, sorted. */
 export function ackedNoteIds(page: Page): Promise<string[]> {
   return page
     .locator('.staff-frame .note-ack')
@@ -181,12 +181,12 @@ export function ackedNoteIds(page: Page): Promise<string[]> {
     )
 }
 
-/** Intent: the `data-note-id` key of a note identity. */
+/** The `data-note-id` key of a note identity. */
 export function noteKey(identity: WorkspaceHarnessNoteIdentity): string {
   return `${identity.phraseNumber}:${identity.measureIndex}:${identity.eventIndex}`
 }
 
-/** Intent: move the fake audio clock to `at`, in steps of at most one second. */
+/** Move the fake audio clock to `at`, in steps of at most one second. */
 export async function clockTo(page: Page, at: number): Promise<void> {
   let now = await audioNow(page)
   while (now < at) {
@@ -195,12 +195,12 @@ export async function clockTo(page: Page, at: number): Promise<void> {
   }
 }
 
-/** Intent: when the running session's phrase `phraseNumber` starts, on the audio clock. */
+/** When the running session's phrase `phraseNumber` starts, on the audio clock. */
 export function phraseStartsAt(page: Page, phraseNumber: number): Promise<number> {
   return page.evaluate((n) => window.__workspaceHarness.audio.phraseStartsAt(n), phraseNumber)
 }
 
-/** Intent: wait until no animation of any kind runs and two frames have passed. */
+/** Wait until no animation of any kind runs and two frames have passed. */
 export async function settleScreen(page: Page): Promise<void> {
   await page.evaluate(() => document.fonts.ready.then(() => undefined))
   await page.waitForFunction(() =>
@@ -209,18 +209,18 @@ export async function settleScreen(page: Page): Promise<void> {
   await settleFrames(page)
 }
 
-/** Intent: a full-viewport PNG of the workspace (header, cue row and staff), once settled. */
+/** A full-viewport PNG of the workspace (header, cue row and staff), once settled. */
 export async function workspaceShot(page: Page): Promise<Buffer> {
   await settleScreen(page)
   return page.screenshot({ caret: 'hide' })
 }
 
-/** Intent: the concert timeline of every successful generation since the page loaded, in order. */
+/** The concert timeline of every successful generation since the page loaded, in order. */
 export function generatedTimelines(page: Page): Promise<readonly string[]> {
   return page.evaluate(() => window.__workspaceHarness.generatedTimelines())
 }
 
-/** Intent: assert the session is still running and no session has ended yet. */
+/** Assert the session is still running and no session has ended yet. */
 export async function expectStillRunning(page: Page, message: string): Promise<void> {
   const state = await sessionState(page)
   expect(state.phase, message).toBe('running')
@@ -228,7 +228,7 @@ export async function expectStillRunning(page: Page, message: string): Promise<v
 }
 
 /**
- * Intent: assert the session ended on its own for `cause` while running, like Stop (the transport
+ * Assert the session ended on its own for `cause` while running, like Stop (the transport
  * faded out and stopped, both screen locks released), its fade scheduled at an audio time in
  * `[from, to]`.
  */

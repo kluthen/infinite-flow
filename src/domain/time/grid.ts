@@ -24,7 +24,7 @@ export class GridAlignmentViolation extends Error {
 }
 
 /**
- * Intent: enforce first-release grid policy on a whole-note Rational duration/position. Returns
+ * Enforce first-release grid policy on a whole-note Rational duration/position. Returns
  * the derived integer sixteenth-tick value when the input lands exactly on the grid; rejects
  * tuplets and sub-sixteenth durations as a typed GridAlignmentViolation. The rational type
  * itself is untouched by this policy and can still represent the rejected value.

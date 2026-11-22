@@ -70,38 +70,38 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: the `Tap tempo` button. */
+/** The `Tap tempo` button. */
 function tapButton(page: Page): Locator {
   return page.getByRole('button', { name: 'Tap tempo', exact: true })
 }
 
-/** Intent: `tap-tempo`'s field-note. */
+/** `tap-tempo`'s field-note. */
 function tapNote(page: Page): Locator {
   return page.locator('.field-group > button.tap-tempo + p.field-note')
 }
 
-/** Intent: Jam's tempo stepper. */
+/** Jam's tempo stepper. */
 function stepper(page: Page): Locator {
   return page.getByRole('spinbutton', { name: 'Tempo' })
 }
 
-/** Intent: the header's `tempo-readout`. */
+/** The header's `tempo-readout`. */
 function tempoReadout(page: Page): Locator {
   return page.locator('.tempo-readout')
 }
 
-/** Intent: the audio clock's time now (unlocked by then). */
+/** The audio clock's time now (unlocked by then). */
 function now(page: Page): Promise<number> {
   return page.evaluate(() => window.__workspaceHarness.audio.now())
 }
 
-/** Intent: move the audio clock to `at`, then press `Tap tempo`. */
+/** Move the audio clock to `at`, then press `Tap tempo`. */
 async function pressAt(page: Page, at: number): Promise<void> {
   await clockTo(page, at)
   await tapButton(page).click()
 }
 
-/** Intent: press `Tap tempo` once, then on each of `gaps` (seconds) after the last; returns the first. */
+/** Press `Tap tempo` once, then on each of `gaps` (seconds) after the last; returns the first. */
 async function pressTaps(page: Page, gaps: readonly number[]): Promise<number> {
   await tapButton(page).click()
   const first = await now(page)
@@ -113,7 +113,7 @@ async function pressTaps(page: Page, gaps: readonly number[]): Promise<number> {
   return first
 }
 
-/** Intent: a controller note of `pitch` at `at` on the audio clock, held `held` seconds. */
+/** A controller note of `pitch` at `at` on the audio clock, held `held` seconds. */
 async function controllerNote(page: Page, pitch: number, at: number, held = HELD): Promise<void> {
   await clockTo(page, at)
   await noteOn(page, KEYS, pitch)
@@ -121,25 +121,25 @@ async function controllerNote(page: Page, pitch: number, at: number, held = HELD
   await noteOff(page, KEYS, pitch)
 }
 
-/** Intent: assert the stepper and `tempo-readout` both show `tempo`. */
+/** Assert the stepper and `tempo-readout` both show `tempo`. */
 async function expectTempo(page: Page, tempo: number): Promise<void> {
   await expect(stepper(page)).toHaveAttribute('aria-valuenow', String(tempo))
   await expect(tempoReadout(page)).toHaveText(`${tempo} BPM`)
 }
 
-/** Intent: the click and backing events the audio output has had since the page loaded. */
+/** The click and backing events the audio output has had since the page loaded. */
 async function sounded(page: Page): Promise<readonly WorkspaceHarnessAudioEvent[]> {
   return (await audioEvents(page)).filter(
     (event) => event.kind === 'click' || event.kind === 'backing',
   )
 }
 
-/** Intent: axe's violations, one per line, for a failing assertion's message. */
+/** Axe's violations, one per line, for a failing assertion's message. */
 function describeViolations(violations: readonly { id: string; help: string }[]): string {
   return violations.map((violation) => `${violation.id}: ${violation.help}`).join('\n')
 }
 
-/** Intent: axe finds nothing in Jam's Tempo field, its transitions settled. */
+/** Axe finds nothing in Jam's Tempo field, its transitions settled. */
 async function expectNoViolations(page: Page): Promise<void> {
   await page.waitForFunction(() =>
     document.getAnimations().every((animation) => !(animation instanceof CSSTransition)),
@@ -148,7 +148,7 @@ async function expectNoViolations(page: Page): Promise<void> {
   expect(results.violations, describeViolations(results.violations)).toEqual([])
 }
 
-/** Intent: the box of a shown element, which must have one. */
+/** The box of a shown element, which must have one. */
 async function boxOf(
   locator: Locator,
 ): Promise<{ x: number; y: number; width: number; height: number }> {
@@ -157,7 +157,7 @@ async function boxOf(
   return box
 }
 
-/** Intent: assert two boxes do not overlap. */
+/** Assert two boxes do not overlap. */
 function expectApart(
   a: { x: number; y: number; width: number; height: number },
   b: { x: number; y: number; width: number; height: number },

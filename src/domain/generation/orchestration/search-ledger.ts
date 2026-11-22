@@ -23,7 +23,7 @@ export class GenerationSearchPolicyError extends Error {
   }
 }
 
-/** Intent: reject a fuel allowance that is not a strictly positive integer. */
+/** Reject a fuel allowance that is not a strictly positive integer. */
 function assertPositiveIntegerFuel(windowFuel: number): void {
   if (!Number.isInteger(windowFuel) || windowFuel <= 0) {
     throw new GenerationSearchPolicyError(
@@ -43,7 +43,7 @@ function assertPositiveIntegerFuel(windowFuel: number): void {
 export const CARRY_IN_WINDOW_SEARCH_FUEL = 160_000
 
 /**
- * Intent: construct an immutable, deep-frozen search policy from an optional fuel override,
+ * Construct an immutable, deep-frozen search policy from an optional fuel override,
  * defaulting to DEFAULT_WINDOW_SEARCH_FUEL, under an optional version, defaulting to v1. Rejects a
  * non-positive or non-integer allowance as a typed GenerationSearchPolicyError rather than
  * clamping or coercing.
@@ -85,20 +85,20 @@ export interface FuelLedger {
   readonly used: number
 }
 
-/** Intent: open a fresh, immutable, zero-spent ledger for one window search under a policy. */
+/** Open a fresh, immutable, zero-spent ledger for one window search under a policy. */
 // @spec-link [[mechanic_pitch_search_policy]]
 export function openFuelLedger(policy: GenerationSearchPolicy): FuelLedger {
   return deepFreeze({ version: policy.version, allowance: policy.windowFuel, used: 0 })
 }
 
-/** Intent: compute the fuel units still available to spend on a ledger. */
+/** Compute the fuel units still available to spend on a ledger. */
 // @spec-link [[mechanic_pitch_search_policy]]
 export function remainingFuel(ledger: FuelLedger): number {
   return ledger.allowance - ledger.used
 }
 
 /**
- * Intent: spend fuel units against a ledger, returning a new immutable, deep-frozen ledger with
+ * Spend fuel units against a ledger, returning a new immutable, deep-frozen ledger with
  * the increased spend; the original ledger is left unchanged. Rejects a non-negative-integer
  * spend amount, and rejects a spend that would exceed the ledger's allowance, each as a typed
  * GenerationSearchPolicyError — an overspend attempt is a caller bug, never silently clamped.

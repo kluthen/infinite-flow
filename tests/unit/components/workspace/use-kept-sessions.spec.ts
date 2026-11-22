@@ -31,13 +31,13 @@ const FRESH: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: the stored summary of the recorded session, started at `startedAt`, with `facts`. */
+/** The stored summary of the recorded session, started at `startedAt`, with `facts`. */
 function summaryAt(startedAt: number, facts: Partial<KeptSessionFacts> = {}): unknown {
   const shifted = { ...history, phrases: () => history.phrases(), startedAt }
   return encodeKeptSession(shifted, { ...FRESH, ...facts }, APP_VERSION).summary
 }
 
-/** Intent: `summary` as a newer version would write it: a newer data version and a new field. */
+/** `summary` as a newer version would write it: a newer data version and a new field. */
 function newer(summary: unknown, edit: Record<string, unknown> = {}): unknown {
   return {
     ...(summary as object),
@@ -54,7 +54,7 @@ const UNREADABLE = {
   startedAt: 'not a time',
 }
 
-/** Intent: the keys of the rows, in order. */
+/** The keys of the rows, in order. */
 function keysOf(rows: readonly { readonly key: string }[]): string[] {
   return rows.map((row) => row.key)
 }
@@ -131,7 +131,7 @@ describe('the rows from the summaries the load read', () => {
 
 // @test-link [[module_kept_session_reach]]
 describe('the rows kept current for the visit', () => {
-  /** Intent: rows over two kept sessions, `old` pinned and `new` not, played notes kept. */
+  /** Rows over two kept sessions, `old` pinned and `new` not, played notes kept. */
   const twoRows = () =>
     useKeptSessions([
       { key: 'old', value: summaryAt(1_000, { pinned: true, playedNotesKept: true }) as never },
@@ -181,7 +181,7 @@ describe('the rows kept current for the visit', () => {
 // @test-link [[module_kept_session_reach]]
 // @test-link [[module_kept_session_save]]
 describe("the rows after a session's own save", () => {
-  /** Intent: saves that build the batch from `summaries` and resolve `outcome`. */
+  /** Saves that build the batch from `summaries` and resolve `outcome`. */
   function savesResolving(summaries: readonly StoredEntry[], outcome: SessionSaveOutcome) {
     return {
       saveSession: vi.fn((changes: SessionChanges, pageGoingAway: PageGoingAway) => {

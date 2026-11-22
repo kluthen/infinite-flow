@@ -24,21 +24,21 @@ import {
   TEST_APP_VERSION,
 } from './storage-test-doubles'
 
-/** Intent: a policy over a ready port whose changes can be refused on demand, and its reports. */
+/** A policy over a ready port whose changes can be refused on demand, and its reports. */
 async function refusablePolicy() {
   const { port, refuse } = refusingPort(await filledPort(freshFactory()))
   const policy = createSavePolicy(port)
   return { port, refuse, policy, failures: recordFailures(policy) }
 }
 
-/** Intent: a policy over a ready port with a recording storage manager, and the manager's calls. */
+/** A policy over a ready port with a recording storage manager, and the manager's calls. */
 async function protectablePolicy(manager: StorageManagerLike = recordingManager().manager) {
   const factory = freshFactory()
   const port = await readyPort(factory, manager)
   return { factory, port, policy: createSavePolicy(port) }
 }
 
-/** Intent: the browser's answer when it refuses to make the storage persistent. */
+/** The browser's answer when it refuses to make the storage persistent. */
 function refusePersistence(): Promise<boolean> {
   return Promise.resolve(false)
 }

@@ -34,7 +34,7 @@ const SUMMARY: KeptSessionSummary = {
   isJam: false,
 }
 
-/** Intent: a current row over `SUMMARY` changed by `edit`. */
+/** A current row over `SUMMARY` changed by `edit`. */
 function row(edit: Partial<KeptSessionSummary> = {}, failedToOpen = false): KeptSessionRow {
   return { kind: 'current', key: 'k', summary: { ...SUMMARY, ...edit }, failedToOpen }
 }

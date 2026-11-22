@@ -28,7 +28,7 @@ interface FakeWorkerPort {
 }
 
 /**
- * Intent: the port of the next generation worker created after `created` workers, once the
+ * The port of the next generation worker created after `created` workers, once the
  * session's client, loaded on demand, has created it and handed it the calls made meanwhile.
  */
 async function nextWorkerPort(created: number): Promise<FakeWorkerPort> {
@@ -38,7 +38,7 @@ async function nextWorkerPort(created: number): Promise<FakeWorkerPort> {
   return results[created]!.value as FakeWorkerPort
 }
 
-/** Intent: a jsdom stand-in for `window.matchMedia`, recording the query and its listeners. */
+/** A jsdom stand-in for `window.matchMedia`, recording the query and its listeners. */
 function stubMatchMedia(matches: boolean) {
   const listeners = new Set<unknown>()
   const matchMedia = vi.fn((query: string) => ({

@@ -45,7 +45,7 @@ interface PhraseOne {
 }
 
 /**
- * Intent: session settings from the fixture's base controls with some of them changed, the
+ * Session settings from the fixture's base controls with some of them changed, the
  * figure levels Neutral's unless given, the selection Custom based on Neutral.
  */
 function settings(
@@ -63,7 +63,7 @@ function settings(
   }
 }
 
-/** Intent: generate a real phrase 1 under the given settings and take the carry-in it hands on. */
+/** Generate a real phrase 1 under the given settings and take the carry-in it hands on. */
 function phraseOne(seed: number, before: SessionSettings): PhraseOne {
   const intent = buildIntent({
     seed,
@@ -74,17 +74,17 @@ function phraseOne(seed: number, before: SessionSettings): PhraseOne {
   return { intent, carryIn: carryInAfter(intent, generateSuccess(intent), 1) }
 }
 
-/** Intent: the instrument's register windows, as the session resolved them for phrase 1. */
+/** The instrument's register windows, as the session resolved them for phrase 1. */
 function candidatesOf(phrase: PhraseOne): readonly RegisterWindowCandidate[] {
   return phrase.intent.registerIntent.candidates
 }
 
-/** Intent: the window of one register among the instrument's windows. */
+/** The window of one register among the instrument's windows. */
 function windowOf(phrase: PhraseOne, id: RegisterWindowCandidate['id']) {
   return candidatesOf(phrase).find((candidate) => candidate.id === id)!.window
 }
 
-/** Intent: build the receiving phrase's intent with the new settings and the given carry-in. */
+/** Build the receiving phrase's intent with the new settings and the given carry-in. */
 function receive(after: SessionSettings, carryIn: CarryIn): GenerationIntent {
   return buildIntent({
     seed: 99,
@@ -95,7 +95,7 @@ function receive(after: SessionSettings, carryIn: CarryIn): GenerationIntent {
   })
 }
 
-/** Intent: adapt a phrase's carry-in from its own settings to new ones. */
+/** Adapt a phrase's carry-in from its own settings to new ones. */
 function adapt(phrase: PhraseOne, before: SessionSettings, after: SessionSettings) {
   return adaptCarryIn({
     carryIn: phrase.carryIn,
@@ -105,7 +105,7 @@ function adapt(phrase: PhraseOne, before: SessionSettings, after: SessionSetting
   })
 }
 
-/** Intent: the adapted carry-in of an adaptation that must keep one, failing loudly otherwise. */
+/** The adapted carry-in of an adaptation that must keep one, failing loudly otherwise. */
 function keptCarryIn(adaptation: CarryInAdaptation): CarryIn {
   if (adaptation.kind !== 'carry-in')
     throw new Error(`Expected a carry-in, got standalone ${adaptation.register}.`)
@@ -346,7 +346,7 @@ describe('carry-in adaptation as a pure function', () => {
   })
 })
 
-/** Intent: a carry-in from no phrase (the doodle's join) at a pitch inside the Middle window. */
+/** A carry-in from no phrase (the doodle's join) at a pitch inside the Middle window. */
 function noPhraseCarryIn(midi: number): CarryIn {
   return makeCarryIn({
     origin: 'none',
@@ -360,12 +360,12 @@ function noPhraseCarryIn(midi: number): CarryIn {
   })
 }
 
-/** Intent: the base instrument's window of one register. */
+/** The base instrument's window of one register. */
 function windowOfBase(id: RegisterWindowCandidate['id']) {
   return baseCandidates().find((candidate) => candidate.id === id)!.window
 }
 
-/** Intent: the base instrument's register windows, as a plain Middle intent resolves them. */
+/** The base instrument's register windows, as a plain Middle intent resolves them. */
 function baseCandidates(): readonly RegisterWindowCandidate[] {
   return buildIntent({ seed: 1, label: 'adaptation-windows' }).registerIntent.candidates
 }

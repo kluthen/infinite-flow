@@ -11,7 +11,7 @@ const handleWakeTimerMessage = createWakeTimerWorkerHandler({
   post: (event) => self.postMessage(event),
 })
 
-/** Intent: run each start or stop command from the main thread through the wake-timer handler. */
+/** Run each start or stop command from the main thread through the wake-timer handler. */
 // @spec-link [[rule_playhead_follows_audio_clock]]
 self.addEventListener('message', (event: MessageEvent<unknown>) => {
   handleWakeTimerMessage(event.data)

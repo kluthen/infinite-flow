@@ -79,22 +79,22 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: the Review's doodle section. */
+/** The Review's doodle section. */
 function doodleSection(page: Page): Locator {
   return reviewPanel(page).locator('section.review-doodle')
 }
 
-/** Intent: the doodle section's `review-staff`. */
+/** The doodle section's `review-staff`. */
 function doodleStaff(page: Page): Locator {
   return doodleSection(page).locator(':scope > .review-staff')
 }
 
-/** Intent: the engraved SVG of the doodle's top system. */
+/** The engraved SVG of the doodle's top system. */
 function doodleTopSvg(page: Page): Locator {
   return doodleStaff(page).locator(':scope > [data-system-position="top"] svg')
 }
 
-/** Intent: the aria-label the doodle's top system carries for a doodle of `measures` measures. */
+/** The aria-label the doodle's top system carries for a doodle of `measures` measures. */
 function doodleName(measures: number): RegExp {
   return new RegExp(
     `^Your doodle, treble clef, key signature [^,]+ \\([^)]+\\), 4/4 time, ${LENGTH_WORDS[measures]}\\.$`,
@@ -102,7 +102,7 @@ function doodleName(measures: number): RegExp {
   )
 }
 
-/** Intent: assert the doodle section's header: its title and tempo, nothing of a phrase. */
+/** Assert the doodle section's header: its title and tempo, nothing of a phrase. */
 async function expectDoodleHeader(page: Page, captureTempo: number): Promise<void> {
   const header = doodleSection(page).locator(':scope > .review-phrase-header')
   await expect(header.locator('h3.review-phrase-title')).toHaveText('Your doodle')
@@ -115,7 +115,7 @@ async function expectDoodleHeader(page: Page, captureTempo: number): Promise<voi
   await expect(doodleSection(page).locator('.favorite-toggle')).toHaveCount(0)
 }
 
-/** Intent: whether the doodle section comes before the Review's list, outside it. */
+/** Whether the doodle section comes before the Review's list, outside it. */
 function sectionBeforeList(page: Page): Promise<boolean> {
   return page.evaluate(() => {
     const section = document.querySelector('.review-panel section.review-doodle')
@@ -128,7 +128,7 @@ function sectionBeforeList(page: Page): Promise<boolean> {
   })
 }
 
-/** Intent: assert the doodle is engraved: its top system named for a `measures`-measure doodle. */
+/** Assert the doodle is engraved: its top system named for a `measures`-measure doodle. */
 async function expectDoodleEngraved(page: Page, measures: number): Promise<void> {
   // A short window engraves only what is near the visible area: bring the doodle into view.
   await doodleSection(page).scrollIntoViewIfNeeded()
@@ -358,10 +358,10 @@ interface DoodleLayout {
   readonly viewportWidth: number
 }
 
-/** Intent: measure the doodle's staff, its positions, their SVGs and its lanes. */
+/** Measure the doodle's staff, its positions, their SVGs and its lanes. */
 function doodleLayout(page: Page): Promise<DoodleLayout> {
   return page.evaluate(() => {
-    /** Intent: an element's box, as a plain object. */
+    /** An element's box, as a plain object. */
     const box = (element: Element) => {
       const { top, bottom, left, right } = element.getBoundingClientRect()
       return { top, bottom, left, right }
@@ -387,7 +387,7 @@ function doodleLayout(page: Page): Promise<DoodleLayout> {
   })
 }
 
-/** Intent: assert the boxes follow each other down the page without overlapping (1 px rounding). */
+/** Assert the boxes follow each other down the page without overlapping (1 px rounding). */
 function expectStacked(boxes: readonly Box[], what: string): void {
   boxes.slice(1).forEach((next, index) => {
     expect(next.top, `${what} ${index + 2} below ${index + 1}`).toBeGreaterThanOrEqual(

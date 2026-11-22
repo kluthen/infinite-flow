@@ -48,7 +48,7 @@ const FRESH: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: the batch that stores `history` kept with `facts`, under its key or `key`. */
+/** The batch that stores `history` kept with `facts`, under its key or `key`. */
 function keptRecords(
   history: SessionHistory,
   facts: KeptSessionFacts,
@@ -73,7 +73,7 @@ interface Rig {
   readonly batches: () => number
 }
 
-/** Intent: a rig over `port` with its batches counted from now on. */
+/** A rig over `port` with its batches counted from now on. */
 function rigOver(port: StoragePort, real: StoragePort = port): Rig {
   const policy = createSavePolicy(port)
   const apply = vi.spyOn(port, 'apply')
@@ -85,19 +85,19 @@ function rigOver(port: StoragePort, real: StoragePort = port): Rig {
   }
 }
 
-/** Intent: what every store holds now, by store, each entry as `key` with its value. */
+/** What every store holds now, by store, each entry as `key` with its value. */
 async function stored(port: StoragePort): Promise<Record<string, unknown>> {
   const stores = ['settings', 'sessionSummaries', 'sessionBodies', 'playedNotes'] as const
   const entries = await Promise.all(stores.map((store) => port.readKeyed(store)))
   return Object.fromEntries(stores.map((store, index) => [store, entries[index]]))
 }
 
-/** Intent: the session-wide record stored under `key`, as a plain object. */
+/** The session-wide record stored under `key`, as a plain object. */
 async function summaryOf(port: StoragePort, key: string): Promise<Record<string, unknown>> {
   return (await port.read('sessionSummaries', key)) as Record<string, unknown>
 }
 
-/** Intent: a rig whose port stores `history` kept with `facts`, and a second session too. */
+/** A rig whose port stores `history` kept with `facts`, and a second session too. */
 async function keptRig(
   history: SessionHistory,
   facts: KeptSessionFacts,
@@ -320,7 +320,7 @@ describe('Delete session', () => {
 // @test-link [[module_kept_session_changes]]
 // @test-link [[req_your_data]]
 describe('Delete every session', () => {
-  /** Intent: a rig whose port also holds my instrument, the controller and a session with no row. */
+  /** A rig whose port also holds my instrument, the controller and a session with no row. */
   async function everythingRig(): Promise<Rig & { readonly key: string }> {
     const rig = await keptRig(recordedKeptSession('bb-tenor', 2), { ...FRESH, pinned: true })
     const lost = recordedKeptSession('c-keyboard', 2)

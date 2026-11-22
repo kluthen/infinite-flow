@@ -13,7 +13,7 @@ import { countingSessionSeeds } from './fake-session-seed'
 import { createFakeViewportWidth } from './fake-viewport-width'
 import { createDeferred } from './fit-session-harness'
 
-/** Intent: counted request-id and seed providers, with how many of each they handed out. */
+/** Counted request-id and seed providers, with how many of each they handed out. */
 function trackedProviders() {
   let id = 0
   let seed = 0

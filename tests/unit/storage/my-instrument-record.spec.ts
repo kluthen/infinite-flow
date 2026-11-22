@@ -25,7 +25,7 @@ const TENOR_IN_BASS: MyInstrumentInput = {
   transposition: { octaves: 1, semitones: 2, direction: 'lower' },
 }
 
-/** Intent: the stored record of `input`, as a plain object, for editing one field. */
+/** The stored record of `input`, as a plain object, for editing one field. */
 function stored(input: MyInstrumentInput = TENOR_IN_BASS): Record<string, unknown> {
   return { ...encodeMyInstrumentRecord(input, APP_VERSION) }
 }

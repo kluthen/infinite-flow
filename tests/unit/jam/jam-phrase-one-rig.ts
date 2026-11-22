@@ -85,7 +85,7 @@ export interface JamRun {
   readonly seedsAsked: readonly JamPhraseOneAttemptIndex[]
 }
 
-/** Intent: the time of beat `beat` after the count-in's end, on the click plan's own grid. */
+/** The time of beat `beat` after the count-in's end, on the click plan's own grid. */
 function beatTime(plan: ClickPlan, beat: number): AudioTime {
   const whole = Math.floor(beat)
   const at = beatAt(plan, plan.countInBeats + whole)
@@ -94,7 +94,7 @@ function beatTime(plan: ClickPlan, beat: number): AudioTime {
     : at + (beat - whole) * (beatAt(plan, plan.countInBeats + whole + 1) - at)
 }
 
-/** Intent: the doodle's note-on and note-off events on the clock, in time order. */
+/** The doodle's note-on and note-off events on the clock, in time order. */
 function noteEvents(notes: readonly BeatNote[], plan: ClickPlan): PlayedNoteEvent[] {
   const timed: { at: number; order: number; event: PlayedNoteEvent }[] = []
   for (const [pitch, onsetBeat, lengthBeats] of notes) {
@@ -107,7 +107,7 @@ function noteEvents(notes: readonly BeatNote[], plan: ClickPlan): PlayedNoteEven
   return timed.sort((a, b) => a.at - b.at || a.order - b.order).map((entry) => entry.event)
 }
 
-/** Intent: barline `k` of a run, 0 at the count-in's end, as the capture's grid places it. */
+/** Barline `k` of a run, 0 at the count-in's end, as the capture's grid places it. */
 export function rigBarline(run: JamRun, k: number): AudioTime {
   return barlineAt(run.plan, k)
 }
@@ -120,7 +120,7 @@ interface Queued {
 }
 
 /**
- * Intent: play one fresh Jam from its count-in to `until`: the doodle's notes into the capture,
+ * Play one fresh Jam from its count-in to `until`: the doodle's notes into the capture,
  * the capture's outputs into the ladder, the ladder's session events into the engine, the engine's
  * phrase 1 outputs back into the ladder, ready into the capture, a missed deadline into the
  * engine's end, and phrase 1's sounding time into `count-in-over`. Seeds come from the session
@@ -261,12 +261,12 @@ export function runJam(options: JamRunOptions): JamRun {
   return { plan, countInEndsAt, measure, ...log, seedsAsked }
 }
 
-/** Intent: the requests of phrase 1, in order. */
+/** The requests of phrase 1, in order. */
 export function phraseOneRequests(run: JamRun): readonly TimedRequest[] {
   return run.requests.filter((entry) => entry.request.phraseNumber === 1)
 }
 
-/** Intent: the engine outputs of one kind, with their times. */
+/** The engine outputs of one kind, with their times. */
 export function engineOutputs<K extends SessionOutput['kind']>(
   run: JamRun,
   kind: K,

@@ -25,7 +25,7 @@ import type { SteeringBlock } from '@/domain/generation/steering-block'
 import { SAMPLE_RHYTHM_LOCK, SAMPLE_STEERING } from '../domain/generation/request-inputs-fixture'
 import { lockedBarsOf, lockOn } from '../domain/rhythm/rhythm-lock-fixture'
 
-/** Intent: one real GenerationWorkerRequest wire envelope, exactly as the session posts it. */
+/** One real GenerationWorkerRequest wire envelope, exactly as the session posts it. */
 function requestFixture() {
   const intent = createGenerationIntent({
     requestId: makeRequestId('protocol-request-fixture'),
@@ -52,7 +52,7 @@ function requestFixture() {
   return structuredClone({ type: 'generate', id: 1, intent })
 }
 
-/** Intent: one real, cheap-to-search success outcome, exactly as the worker handler produces it. */
+/** One real, cheap-to-search success outcome, exactly as the worker handler produces it. */
 function successOutcome(rhythmLock?: RequestRhythmLock) {
   const intent = createGenerationIntent({
     requestId: makeRequestId('protocol-round-trip'),
@@ -199,7 +199,7 @@ interface RequestGroups {
   readonly steering?: SteeringBlock
 }
 
-/** Intent: a structured clone of a real intent holding the given groups, as the worker receives it. */
+/** A structured clone of a real intent holding the given groups, as the worker receives it. */
 function groupIntent(groups: RequestGroups): Record<string, unknown> {
   const { intent } = requestFixture()
   const built = createGenerationIntent({
@@ -216,7 +216,7 @@ function groupIntent(groups: RequestGroups): Record<string, unknown> {
   return structuredClone(built) as unknown as Record<string, unknown>
 }
 
-/** Intent: the wire intent holding both groups, with one group's record changed by the test. */
+/** The wire intent holding both groups, with one group's record changed by the test. */
 function tamperedIntent(
   field: 'rhythmLock' | 'steering',
   change: (group: Record<string, unknown>) => void,
@@ -323,7 +323,7 @@ describe('parseGenerationWorkerInboundMessage: the rhythm lock group and the ste
   })
 })
 
-/** Intent: a success under locked bars, its provenance carrying the lock's outcome. */
+/** A success under locked bars, its provenance carrying the lock's outcome. */
 function lockedSuccessOutcome() {
   return successOutcome(lockOn(lockedBarsOf(successOutcome().provenance.rhythm)))
 }
@@ -355,7 +355,7 @@ describe("parseGenerationWorkerResponse: the rhythm lock's outcome in the proven
   })
 })
 
-/** Intent: a locked phrase's wire outcome with its provenance's lock fields replaced. */
+/** A locked phrase's wire outcome with its provenance's lock fields replaced. */
 function withLockFields(id: number, fields: Record<string, unknown>) {
   const wire = structuredClone({ type: 'outcome', id, outcome: lockedSuccessOutcome() })
   return {
@@ -393,7 +393,7 @@ describe("parseGenerationWorkerResponse: the rhythm change's record in the prove
   })
 })
 
-/** Intent: a structured clone of a real intent at the given Seventh chords level. */
+/** A structured clone of a real intent at the given Seventh chords level. */
 function chordFamiliesIntent(chordFamilies: ChordFamilies): Record<string, unknown> {
   const { intent } = requestFixture()
   const built = createGenerationIntent({
@@ -410,7 +410,7 @@ function chordFamiliesIntent(chordFamilies: ChordFamilies): Record<string, unkno
   return structuredClone(built) as unknown as Record<string, unknown>
 }
 
-/** Intent: the wire intent at Off with its Seventh chords level replaced, or removed for REMOVED. */
+/** The wire intent at Off with its Seventh chords level replaced, or removed for REMOVED. */
 function wireIntentWithChordFamilies(chordFamilies: unknown): Record<string, unknown> {
   const { chordFamilies: atOff, ...rest } = chordFamiliesIntent(OFF_CHORD_FAMILIES)
   void atOff

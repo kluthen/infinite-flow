@@ -24,7 +24,7 @@ const SAVED_LOCK: SessionOptionChoices = {
   allowedGroups: { ...DEFAULT_SESSION_OPTIONS.allowedGroups, figures: false },
 }
 
-/** Intent: the controller's three lock and group choices as its state shows them. */
+/** The controller's three lock and group choices as its state shows them. */
 function lockChoicesOf(
   rig: ControllerRig,
 ): Pick<SessionOptionChoices, 'rhythmLockOn' | 'allowedRhythmChanges' | 'allowedGroups'> {
@@ -105,7 +105,7 @@ describe('session controller: the rhythm lock, its allowed changes and the allow
   it('refuses each change during the count-in and a running session, each value unchanged', async () => {
     const rig = controllerRig(undefined, undefined, { savedSessionOptions: SAVED_LOCK })
     const saved = lockChoicesOf(rig)
-    /** Intent: try each of the three changes, each refused. */
+    /** Try each of the three changes, each refused. */
     const triesEach = (): void => {
       expect(() => rig.controller.setRhythmLockOn(false)).toThrow(SessionControllerError)
       expect(() => rig.controller.setAllowedRhythmChanges(['split_note'])).toThrow(

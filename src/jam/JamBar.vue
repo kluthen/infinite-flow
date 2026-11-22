@@ -61,7 +61,7 @@ const sentenceEl = ref<HTMLElement | null>(null)
 const rowRound = ref(0)
 
 /**
- * Intent: rebuild the suggestion row; if focus was in it, it goes to the bar's sentence once the
+ * Rebuild the suggestion row; if focus was in it, it goes to the bar's sentence once the
  * row is drawn, unless something else has taken it by then (a session end's focus move).
  */
 // @spec-link [[module_kept_doodle]]
@@ -79,7 +79,7 @@ function rebuildRow(): void {
 
 watch(() => props.doodle, rebuildRow)
 
-/** Intent: a session on the doodle ended: the set sentence it held still goes. */
+/** A session on the doodle ended: the set sentence it held still goes. */
 // @spec-link [[rule_suggestion_use_it]]
 watch(
   () => props.held,
@@ -89,7 +89,7 @@ watch(
 )
 
 /**
- * Intent: a session started with one of the bar's buttons focused (by the starting note, with no
+ * A session started with one of the bar's buttons focused (by the starting note, with no
  * click), those buttons now disabled: ask for focus on the session action, once it is drawn.
  */
 // @spec-link [[module_kept_doodle]]
@@ -104,7 +104,7 @@ watch(
 )
 
 /**
- * Intent: Loading starting with one of the bar's buttons focused, now disabled: focus goes to the
+ * Loading starting with one of the bar's buttons focused, now disabled: focus goes to the
  * bar's sentence, unless something else has taken it once drawn (the set sentence, ux D471).
  */
 // @spec-link [[module_kept_doodle]]
@@ -122,12 +122,12 @@ watch(
   { flush: 'pre' },
 )
 
-/** Intent: focus the bar's own sentence, once the row's change is drawn. */
+/** Focus the bar's own sentence, once the row's change is drawn. */
 function focusSentence(): void {
   void nextTick(() => sentenceEl.value?.focus())
 }
 
-/** Intent: `Keep {key} {mode}`: ask to decline; focus moves to the sentence as the row leaves. */
+/** `Keep {key} {mode}`: ask to decline; focus moves to the sentence as the row leaves. */
 // @spec-link [[rule_suggestion_keep_mine]]
 function keep(): void {
   emit('keep')

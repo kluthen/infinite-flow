@@ -17,13 +17,13 @@ const CAUSES: readonly SessionEndCause[] = [
   'controller-lost',
 ]
 
-/** Intent: a driver at a tempo started at 0, so phrase 2's deadline is one measure later. */
+/** A driver at a tempo started at 0, so phrase 2's deadline is one measure later. */
 function driverAt(tempo: number): SessionDriver {
   const settings = sessionSettings({ tempo })
   return new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
 }
 
-/** Intent: a driver at 240 BPM (a 1 s measure) started at 0, so phrase 2's deadline is 1. */
+/** A driver at 240 BPM (a 1 s measure) started at 0, so phrase 2's deadline is 1. */
 function fastDriver(): SessionDriver {
   return driverAt(240)
 }

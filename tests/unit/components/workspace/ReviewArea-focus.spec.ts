@@ -78,7 +78,7 @@ function summaryAt(startedAt: number): KeptSessionSummary {
   }
 }
 
-/** Intent: a row of `key`, started at `startedAt`. */
+/** A row of `key`, started at `startedAt`. */
 function row(key: string, startedAt: number): KeptSessionRow {
   return { kind: 'current', key, summary: summaryAt(startedAt), failedToOpen: false }
 }
@@ -89,7 +89,7 @@ interface Deferred<T> {
   readonly settle: (value: T) => void
 }
 
-/** Intent: a promise the test settles by hand. */
+/** A promise the test settles by hand. */
 function deferred<T>(): Deferred<T> {
   let settle: (value: T) => void = () => {}
   const promise = new Promise<T>((resolve) => {
@@ -99,7 +99,7 @@ function deferred<T>(): Deferred<T> {
 }
 
 /**
- * Intent: a fake controller showing a Review of the session also listed under its key, beside two
+ * A fake controller showing a Review of the session also listed under its key, beside two
  * other rows; its `Delete session` waits on `deletion`, then does as the controller does.
  */
 function showingListedReview(deletion: Deferred<SessionDeletion>): FakeSessionController {
@@ -123,7 +123,7 @@ function showingListedReview(deletion: Deferred<SessionDeletion>): FakeSessionCo
   return fake
 }
 
-/** Intent: mount the score panel over `fake`, attached so focus can move. */
+/** Mount the score panel over `fake`, attached so focus can move. */
 async function mountPanel(fake: FakeSessionController) {
   const { saveSettings } = recordingSaveSettings()
   const wrapper = mount(ScorePanel, {
@@ -149,7 +149,7 @@ async function mountPanel(fake: FakeSessionController) {
   return wrapper
 }
 
-/** Intent: the button of the page whose text, or accessible name, is `label`. */
+/** The button of the page whose text, or accessible name, is `label`. */
 function button(label: string): HTMLButtonElement {
   const found = [...document.querySelectorAll('button')].find(
     (candidate) =>
@@ -159,7 +159,7 @@ function button(label: string): HTMLButtonElement {
   return found
 }
 
-/** Intent: the button `label` inside the open confirmation sheet. */
+/** The button `label` inside the open confirmation sheet. */
 function sheetButton(label: string): HTMLButtonElement {
   const found = [...document.querySelectorAll('[role="dialog"] button')].find(
     (candidate) => candidate.textContent?.trim() === label,
@@ -168,7 +168,7 @@ function sheetButton(label: string): HTMLButtonElement {
   return found
 }
 
-/** Intent: the title the review mode shows now. */
+/** The title the review mode shows now. */
 function title(): Element | null {
   return document.querySelector('.review-title')
 }
@@ -260,7 +260,7 @@ describe('ReviewArea: Delete session from a Review', () => {
 
 // @test-link [[req_kept_session_list]]
 describe('ReviewArea: the session list', () => {
-  /** Intent: the list showing `keys`' rows, started newest first. */
+  /** The list showing `keys`' rows, started newest first. */
   function listing(deletion: Deferred<SessionDeletion>, keys: readonly string[]) {
     const fake = showingListedReview(deletion)
     fake.state.keptRows = keys.map((key, index) => row(key, (keys.length - index) * 1_000))

@@ -63,7 +63,7 @@ interface PlannedPhrase {
   readonly controls: Partial<GenerationControls>
 }
 
-/** Intent: generate the planned phrases at a level and record them as the session history does. */
+/** Generate the planned phrases at a level and record them as the session history does. */
 function recordedSession(
   phrases: readonly PlannedPhrase[],
   level: ChordFamilyLevel,
@@ -92,17 +92,17 @@ function recordedSession(
   })
 }
 
-/** Intent: a history holding exactly the given records. */
+/** A history holding exactly the given records. */
 function historyOf(records: readonly ReviewedPhrase[]): ExportableHistory {
   return { phrases: () => records, startedAt: STARTED_AT_MS }
 }
 
-/** Intent: the bytes of every generated-notes file of a session, in FILE_REQUESTS order. */
+/** The bytes of every generated-notes file of a session, in FILE_REQUESTS order. */
 function sessionFiles(records: readonly ReviewedPhrase[]): readonly Uint8Array[] {
   return FILE_REQUESTS.map((request) => buildGeneratedNotesFile(historyOf(records), request).bytes)
 }
 
-/** Intent: whether any harmony event of the records is in seventh form. */
+/** Whether any harmony event of the records is in seventh form. */
 function holdsSeventh(records: readonly ReviewedPhrase[]): boolean {
   return records.some((record) =>
     record.outcome.provenance.harmony.events.some((event) => event.seventh !== undefined),
@@ -127,7 +127,7 @@ const LEVEL_NEEDLES: readonly string[] = [
   'always',
 ]
 
-/** Intent: the file's bytes read one byte per character, lower-cased, for a byte scan. */
+/** The file's bytes read one byte per character, lower-cased, for a byte scan. */
 function scannableText(bytes: Uint8Array): string {
   return Buffer.from(bytes).toString('latin1').toLowerCase()
 }
@@ -210,7 +210,7 @@ const HAND_CHECK_PHRASES: readonly PlannedPhrase[] = [
 ]
 
 /**
- * Intent: validate one document against the vendored MusicXML 4.0 schema with xmllint, offline.
+ * Validate one document against the vendored MusicXML 4.0 schema with xmllint, offline.
  * A missing xmllint fails the test instead of skipping it.
  */
 function validateMusicXml(xml: string): { status: number | null; output: string } {
@@ -231,12 +231,12 @@ function validateMusicXml(xml: string): { status: number | null; output: string 
   return { status: result.status, output: `${result.stdout}${result.stderr}` }
 }
 
-/** Intent: the text of an element's first descendant matching a selector, empty when none. */
+/** The text of an element's first descendant matching a selector, empty when none. */
 function text(element: Element, selector: string): string {
   return element.querySelector(selector)?.textContent ?? ''
 }
 
-/** Intent: every chord symbol of a MusicXML file as "<measure>:<root>:<kind>:<printed suffix>". */
+/** Every chord symbol of a MusicXML file as "<measure>:<root>:<kind>:<printed suffix>". */
 function chordSymbols(xml: string): string[] {
   const document = new DOMParser().parseFromString(xml, 'application/xml')
   expect(document.getElementsByTagName('parsererror')).toHaveLength(0)
@@ -248,7 +248,7 @@ function chordSymbols(xml: string): string[] {
   )
 }
 
-/** Intent: the harmony event of a phrase holding a beat counted from the phrase's start. */
+/** The harmony event of a phrase holding a beat counted from the phrase's start. */
 function eventHolding(events: readonly HarmonyEvent[], beat: number): HarmonyEvent {
   const found = events.find((event) => {
     const start = event.barIndex * 4 + event.startBeat

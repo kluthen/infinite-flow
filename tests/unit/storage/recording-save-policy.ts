@@ -31,14 +31,14 @@ export type PolicyCall =
   | { readonly method: 'readKept'; readonly read: KeptRead<unknown>; readonly refusal: KeptRefusal }
   | { readonly method: 'requestProtection' }
 
-/** Intent: a member of the fake policy the saver must never call. */
+/** A member of the fake policy the saver must never call. */
 export function notUsed(name: string): () => never {
   return () => {
     throw new Error(`fake save policy: ${name} is not used`)
   }
 }
 
-/** Intent: a save policy recording the saves, holds, releases, session saves and kept changes. */
+/** A save policy recording the saves, holds, releases, session saves and kept changes. */
 export function recordingPolicy(): { readonly policy: SavePolicy; readonly calls: PolicyCall[] } {
   const calls: PolicyCall[] = []
   const policy: SavePolicy = {

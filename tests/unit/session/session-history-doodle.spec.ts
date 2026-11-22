@@ -25,7 +25,7 @@ import {
   sessionSettings,
 } from './session-harness'
 
-/** Intent: a 240 BPM session started at 0 whose phrase 1 starts sounding at 9, then Stop at 12. */
+/** A 240 BPM session started at 0 whose phrase 1 starts sounding at 9, then Stop at 12. */
 function onePhraseDriver(): SessionDriver {
   const settings = sessionSettings({ tempo: 240 })
   const driver = new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
@@ -34,12 +34,12 @@ function onePhraseDriver(): SessionDriver {
   return driver
 }
 
-/** Intent: an empty history for the driver's session. */
+/** An empty history for the driver's session. */
 function historyOf(driver: SessionDriver): SessionHistory {
   return createSessionHistory(driver.settings, fixedWallClock, DEFAULT_SESSION_SEED, 'treble')
 }
 
-/** Intent: a played note at the given pitch, velocity 80, over the given span. */
+/** A played note at the given pitch, velocity 80, over the given span. */
 function played(onsetAt: number, releaseAt: number, pitch = 60): RecordedPlayedNote {
   return { pitch: makeConcertPitch(pitch), velocity: 80, onsetAt, releaseAt }
 }

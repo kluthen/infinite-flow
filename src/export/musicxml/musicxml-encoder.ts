@@ -41,7 +41,7 @@ const PROLOG: readonly string[] = [
 ]
 
 /**
- * Intent: the marks that open a phrase's first measure, in order: the attributes (the opening
+ * The marks that open a phrase's first measure, in order: the attributes (the opening
  * ones for the file's first phrase, a key change for a later phrase in a new key), the rehearsal mark, and the
  * metronome mark when the tempo is new.
  */
@@ -64,7 +64,7 @@ function phraseOpening(
 }
 
 /**
- * Intent: the four measure elements of one phrase, numbered on from its session measure number,
+ * The four measure elements of one phrase, numbered on from its session measure number,
  * (n − 1) × 4 + 1 for phrase n, the last closed by a final barline when the phrase is the file's
  * last and by a double barline otherwise.
  */
@@ -90,7 +90,7 @@ function phraseMeasures(
 }
 
 /**
- * Intent: the measures of a Jam's doodle section, numbered from 1: the first opening the score
+ * The measures of a Jam's doodle section, numbered from 1: the first opening the score
  * (its attributes in the doodle's key and clef, the rehearsal mark "Doodle", a metronome mark at
  * its capture tempo), the last closed by a double barline, the phrases following.
  */
@@ -124,7 +124,7 @@ function doodleSectionMeasures(
 }
 
 /**
- * Intent: encode a session's generated notes (every phrase, or the favorites only) as one MusicXML
+ * Encode a session's generated notes (every phrase, or the favorites only) as one MusicXML
  * (score-partwise 4.0) document, a Jam's opening with its doodle.
  * Validates the input first and crashes with a MusicXmlExportError on any breach; never takes or
  * writes a played note.

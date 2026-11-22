@@ -38,20 +38,20 @@ const titleEl = ref<HTMLElement | null>(null)
 /** The mounted rows, by their session's key (a `v-for` ref array keeps no order). */
 const rowEls = new Map<string, InstanceType<typeof SessionRow>>()
 
-/** Intent: keep the mounted row of the session under `key`, or forget it once unmounted. */
+/** Keep the mounted row of the session under `key`, or forget it once unmounted. */
 function setRow(key: string, element: unknown): void {
   if (element === null) rowEls.delete(key)
   else rowEls.set(key, element as InstanceType<typeof SessionRow>)
 }
 
-/** Intent: the mounted row of the session under `key`; throws when it has none. */
+/** The mounted row of the session under `key`; throws when it has none. */
 function rowOf(key: string): InstanceType<typeof SessionRow> {
   const element = rowEls.get(key)
   if (element === undefined) throw new Error(`session list: no row for the session "${key}"`)
   return element
 }
 
-/** Intent: move focus to the list's title (from the cue row, after a deletion, a failed open). */
+/** Move focus to the list's title (from the cue row, after a deletion, a failed open). */
 // @spec-link [[req_kept_session_list]]
 function focusTitle(): void {
   if (titleEl.value === null) throw new Error('session list: the title is not mounted')
@@ -66,7 +66,7 @@ defineExpose({
 })
 
 /**
- * Intent: a row's `Delete` leaving while it holds focus (saving turned off) hands focus to the
+ * A row's `Delete` leaving while it holds focus (saving turned off) hands focus to the
  * title; read before the button leaves the page, moved once it has.
  */
 // @spec-link [[rule_outdated_tab_stops_saving]]

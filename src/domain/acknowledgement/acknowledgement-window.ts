@@ -52,7 +52,7 @@ export interface WindowedExpectedNote extends ExpectedNote {
 }
 
 /**
- * Intent: the boundary two consecutive expected notes share: the later of 150 ms before the next
+ * The boundary two consecutive expected notes share: the later of 150 ms before the next
  * onset and the point halfway between the two onsets. It always lies strictly between them.
  */
 // @spec-link [[rule_expected_note_window]]
@@ -61,7 +61,7 @@ export function sharedBoundarySeconds(onsetSeconds: number, nextOnsetSeconds: nu
 }
 
 /**
- * Intent: give every expected note of a time-ordered sequence its window. The first note opens
+ * Give every expected note of a time-ordered sequence its window. The first note opens
  * 150 ms before its onset; every later note opens at the boundary with the note before it. A note
  * closes at the later of 200 ms after its onset or the end of its sounding span, but never after
  * the boundary with the next note; the last note of the sequence has no next note to cut it short.
@@ -91,7 +91,7 @@ export function placeAcknowledgementWindows(
   )
 }
 
-/** Intent: reject a sequence of expected notes that is not in strictly increasing onset order. */
+/** Reject a sequence of expected notes that is not in strictly increasing onset order. */
 function assertStrictlyIncreasingOnsets(notes: readonly ExpectedNote[]): void {
   notes.forEach((note, index) => {
     if (!Number.isFinite(note.onsetSeconds) || !Number.isFinite(note.soundingEndSeconds)) {

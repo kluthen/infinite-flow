@@ -48,7 +48,7 @@ export class MixedRhythmGrammarVersionError extends Error {
 const planCache = new WeakMap<readonly RhythmCandidate[], RhythmTieKeyPlan>()
 
 /**
- * Intent: return the single grammar version every candidate carries, crashing on a mixed list
+ * Return the single grammar version every candidate carries, crashing on a mixed list
  * (the batch hashes one prefix per call, so it cannot serve two grammar versions at once).
  */
 function singleGrammarVersion(
@@ -66,7 +66,7 @@ function singleGrammarVersion(
 }
 
 /**
- * Intent: advance `from` by whole `span`-sized blocks while both strings carry the same UTF-16
+ * Advance `from` by whole `span`-sized blocks while both strings carry the same UTF-16
  * code units over the block, comparing each block as one substring equality (much faster than a
  * per-character loop on long identities).
  */
@@ -83,7 +83,7 @@ function extendSharedBlocks(left: string, right: string, from: number, span: num
 }
 
 /**
- * Intent: count the whole CHECKPOINT_SPAN blocks two strings share from their start, i.e.
+ * Count the whole CHECKPOINT_SPAN blocks two strings share from their start, i.e.
  * floor(lcp / CHECKPOINT_SPAN), measuring coarse blocks first and then refining.
  */
 function sharedCheckpointCount(left: string, right: string): number {
@@ -92,7 +92,7 @@ function sharedCheckpointCount(left: string, right: string): number {
 }
 
 /**
- * Intent: precompute the seed-independent visiting plan of one candidate list: positions sorted
+ * Precompute the seed-independent visiting plan of one candidate list: positions sorted
  * by identity in UTF-16 code-unit order, and each visited identity's shared checkpoint count with
  * its predecessor in that order.
  */
@@ -119,7 +119,7 @@ export function buildRhythmTieKeyPlan(candidates: readonly RhythmCandidate[]): R
 }
 
 /**
- * Intent: return the plan of a candidate list, caching it only when the list and every candidate
+ * Return the plan of a candidate list, caching it only when the list and every candidate
  * are frozen (so no identity can change under the cached plan); a mutable list gets a fresh plan
  * each call, with the same keys.
  */
@@ -134,7 +134,7 @@ function planFor(candidates: readonly RhythmCandidate[]): RhythmTieKeyPlan {
 }
 
 /**
- * Intent: compute every candidate's rhythm tie key for one seed, bit-identical to `rhythmTieKey`,
+ * Compute every candidate's rhythm tie key for one seed, bit-identical to `rhythmTieKey`,
  * returned by input position. Hashes `infinite-flow/rhythm-tie/v1|<seed>|<grammar version>|` once,
  * then walks the plan's visiting order, resuming each identity from the checkpoint indexed by its
  * shared checkpoint count with the identity visited before it, and checkpointing its state every

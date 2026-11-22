@@ -66,7 +66,7 @@ export interface ReviewKeySuggestion {
 
 const ABSENT: SuggestionRowForm = Object.freeze({ kind: 'absent' })
 
-/** Intent: a key and mode named as Jam's Written key and Collection controls label them. */
+/** A key and mode named as Jam's Written key and Collection controls label them. */
 // @spec-link [[rule_suggestion_named_in_players_family]]
 export function keyAndModeName(keyAndMode: JamKeyAndMode): string {
   const key = tonalCenterOptions().find((option) => option.value === keyAndMode.tonalCenter)
@@ -79,13 +79,13 @@ export function keyAndModeName(keyAndMode: JamKeyAndMode): string {
   return `${key.label} ${mode.label}`
 }
 
-/** Intent: whether two keys and modes are the same written key and Collection. */
+/** Whether two keys and modes are the same written key and Collection. */
 function sameKeyAndMode(a: JamKeyAndMode, b: JamKeyAndMode): boolean {
   return a.tonalCenter === b.tonalCenter && a.collection === b.collection
 }
 
 /**
- * Intent: the row's form for a suggestion judged against Jam's key and mode: offering for a
+ * The row's form for a suggestion judged against Jam's key and mode: offering for a
  * suggested answer, no fit, or absent for nothing or once declined.
  */
 // @spec-link [[rule_suggestion_withheld]]
@@ -111,7 +111,7 @@ export function suggestionRowForm(
 }
 
 /**
- * Intent: the review's suggestion, judged again as Jam's key and mode change; after `Jam in
+ * The review's suggestion, judged again as Jam's key and mode change; after `Jam in
  * {answer}`, set while Jam's key and mode are the answer, then absent for the rest of the review
  * once they are changed again. At Jam's Idle, a doodle fitting no mode shows nothing, and the
  * suggestion is judged afresh once the set form has ended.

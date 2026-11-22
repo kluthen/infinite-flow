@@ -15,12 +15,12 @@ import { SHAPED, threeDecided, threeRequested } from './settings-change-session'
 /** Phrase 3's deadline in a fast session: 3 s after phrase 2 starts sounding. */
 const PHRASE_THREE_DEADLINE = soundingAt(2) + 3
 
-/** Intent: the cancel-generation outputs among `outputs`, in order. */
+/** The cancel-generation outputs among `outputs`, in order. */
 function cancels(outputs: readonly SessionOutput[]): readonly SessionOutput[] {
   return outputs.filter((output) => output.kind === 'cancel-generation')
 }
 
-/** Intent: fail every attempt of the latest phrase at `at` until no further rung is requested. */
+/** Fail every attempt of the latest phrase at `at` until no further rung is requested. */
 function failUntilExhausted(driver: SessionDriver, at: number): void {
   let retried = true
   while (retried) retried = driver.fail(at).some((output) => output.kind === 'request-generation')

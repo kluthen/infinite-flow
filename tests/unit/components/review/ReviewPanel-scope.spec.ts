@@ -32,7 +32,7 @@ interface PanelOptions {
   readonly exportFile?: (request: ExportRequest) => Promise<void>
 }
 
-/** Intent: mount the panel of the recorded session, which holds played notes. */
+/** Mount the panel of the recorded session, which holds played notes. */
 function mountPanel(options: PanelOptions = {}) {
   const wrapper = mount(ReviewPanel, {
     props: {
@@ -66,7 +66,7 @@ function mountPanel(options: PanelOptions = {}) {
   return wrapper
 }
 
-/** Intent: the scope's parts: its group, label, radiogroup and segments. */
+/** The scope's parts: its group, label, radiogroup and segments. */
 function scopeParts(wrapper: VueWrapper) {
   const group = wrapper.get('.review-scope')
   const segments = group.findAll('[role="radio"]')
@@ -79,7 +79,7 @@ function scopeParts(wrapper: VueWrapper) {
   }
 }
 
-/** Intent: the played-notes export's button, and its note when rendered. */
+/** The played-notes export's button, and its note when rendered. */
 function playedExport(wrapper: VueWrapper) {
   const group = wrapper.get('.review-export-played')
   return { button: group.findAll('button')[1]!, note: group.find('.field-note') }
@@ -157,7 +157,7 @@ describe('the played-notes export under the scope', () => {
       scope: 'favoritesOnly',
       playedNotesUnavailable: 'noPlayedNoteInFavorites',
     })
-    /** Intent: the reason the disabled button is named by. */
+    /** The reason the disabled button is named by. */
     const reasonOf = () => {
       const { button, note } = playedExport(wrapper)
       expect(button.attributes('disabled')).toBeDefined()

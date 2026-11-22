@@ -197,13 +197,13 @@ export interface PhraseReplayReport {
 /** Why a phrase that sounded no note carries nothing forward. */
 const NO_SOUNDING_NOTE_REASON = 'The phrase sounded no note, so it carries nothing forward.'
 
-/** Intent: the concert key generation used: the concert tonal center in the chosen collection. */
+/** The concert key generation used: the concert tonal center in the chosen collection. */
 function concertKeyOf(intent: GenerationIntent): WrittenKey {
   return keyFor(intent.controls.tonalCenter, intent.controls.collection)
 }
 
 /**
- * Intent: the input section: every intent field verbatim, copied by name, the chord families among
+ * The input section: every intent field verbatim, copied by name, the chord families among
  * them, readable names and the envelope.
  */
 // @spec-link [[service_headless_phrase_replay]]
@@ -243,7 +243,7 @@ function replayInput(
   }
 }
 
-/** Intent: the resolved request verbatim beside its named ranges and text seed. */
+/** The resolved request verbatim beside its named ranges and text seed. */
 function replayRequest(request: GenerationRequest, concertKey: WrittenKey): PhraseReplayRequest {
   return {
     requestId: request.requestId,
@@ -260,7 +260,7 @@ function replayRequest(request: GenerationRequest, concertKey: WrittenKey): Phra
   }
 }
 
-/** Intent: the selected harmony candidate's identity, plan, endpoint and tension requirement. */
+/** The selected harmony candidate's identity, plan, endpoint and tension requirement. */
 function replayHarmony(harmony: HarmonyCandidate): PhraseReplayHarmony {
   return {
     candidateIndex: harmony.candidateIndex,
@@ -273,7 +273,7 @@ function replayHarmony(harmony: HarmonyCandidate): PhraseReplayHarmony {
   }
 }
 
-/** Intent: the last attacked note across the bars, with its bar number, or null when none. */
+/** The last attacked note across the bars, with its bar number, or null when none. */
 function lastAttack(bars: readonly ReplayBar[]): PhraseReplayEnding['lastSoundingNote'] {
   for (const bar of [...bars].reverse()) {
     const note = [...bar.events]
@@ -284,7 +284,7 @@ function lastAttack(bars: readonly ReplayBar[]): PhraseReplayEnding['lastSoundin
   return null
 }
 
-/** Intent: how the phrase ends: its endpoint, final chord and last sounding note. */
+/** How the phrase ends: its endpoint, final chord and last sounding note. */
 function replayEnding(harmony: HarmonyCandidate, bars: readonly ReplayBar[]): PhraseReplayEnding {
   const finalBar = [...bars].reverse().find((bar) => bar.chords.length > 0)
   const finalChord = finalBar?.chords.at(-1)
@@ -300,7 +300,7 @@ function replayEnding(harmony: HarmonyCandidate, bars: readonly ReplayBar[]): Ph
 }
 
 /**
- * Intent: the carry-out of a successful phrase, derived exactly as the session does with the key's
+ * The carry-out of a successful phrase, derived exactly as the session does with the key's
  * phrase number. A phrase that sounded no note carries nothing, reported as null with its reason;
  * any other carry-in failure propagates.
  */
@@ -319,7 +319,7 @@ function replayCarryOut(
   }
 }
 
-/** Intent: the output section of a successful phrase. */
+/** The output section of a successful phrase. */
 function successOutput(
   decoded: DecodedPhraseReplayKey,
   outcome: SuccessOutcome,
@@ -340,7 +340,7 @@ function successOutput(
   }
 }
 
-/** Intent: the output section for whatever the worker answered. */
+/** The output section for whatever the worker answered. */
 function replayOutput(
   decoded: DecodedPhraseReplayKey,
   response: GenerationWorkerResponse,
@@ -361,7 +361,7 @@ function replayOutput(
 }
 
 /**
- * Intent: build the full replay report from the key, its decoded intent and phrase number, the
+ * Build the full replay report from the key, its decoded intent and phrase number, the
  * envelope replayed and the worker's response. Written pitches and names come only from the
  * notation path; every raw value is kept verbatim beside its readable restatement.
  */

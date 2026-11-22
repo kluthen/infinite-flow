@@ -95,7 +95,7 @@ export type SessionModeStart = Pick<GenerationControls, 'tempo' | 'tonalCenter' 
 // @spec-link [[rule_jam_settings_saved_on_change]]
 export type JamSettingsChange = Partial<JamSettings>
 
-/** Intent: the Jam tempo nearest `tempo` inside 60 to 180 BPM: kept, or brought to an end. */
+/** The Jam tempo nearest `tempo` inside 60 to 180 BPM: kept, or brought to an end. */
 // @spec-link [[rule_jam_tempo_range]]
 // @spec-link [[rule_jam_settings_first_values]]
 function keptInJamRange(tempo: number): number {
@@ -105,7 +105,7 @@ function keptInJamRange(tempo: number): number {
 }
 
 /**
- * Intent: Jam's first values: the key, the mode and the tempo from session mode's current values,
+ * Jam's first values: the key, the mode and the tempo from session mode's current values,
  * the tempo kept inside 60 to 180 BPM; Gentle diatonic, Lift, Embellishments Rarely (the level
  * `asToday`), the Seventh chords level Off, drift Near, the lock off and every allowed rhythm
  * change off.
@@ -126,21 +126,21 @@ export function jamFirstValues(session: SessionModeStart): JamSettings {
   })
 }
 
-/** Intent: whether a value is a plain object, as a stored record is. */
+/** Whether a value is a plain object, as a stored record is. */
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
   const prototype: unknown = Object.getPrototypeOf(value)
   return prototype === Object.prototype || prototype === null
 }
 
-/** Intent: a reader accepting only a member of a closed catalog of strings. */
+/** A reader accepting only a member of a closed catalog of strings. */
 function oneOf<T extends string>(catalog: readonly T[]): (value: unknown) => T | undefined {
   return (value) =>
     typeof value === 'string' && catalog.includes(value as T) ? (value as T) : undefined
 }
 
 /**
- * Intent: accept only a list of known rhythm change kinds, each once, in RHYTHM_CHANGE_KINDS
+ * Accept only a list of known rhythm change kinds, each once, in RHYTHM_CHANGE_KINDS
  * order, as the app writes it; any other list is unreadable, never repaired.
  */
 function readAllowedRhythmChanges(value: unknown): readonly RhythmChangeKind[] | undefined {
@@ -173,7 +173,7 @@ const READERS: { readonly [F in JamSettingField]: (value: unknown) => JamSetting
 const RECORD_FIELDS = ['key', 'dataVersion', 'appVersion', 'value'] as const
 
 /**
- * Intent: the stored value of each Jam setting whose one record is well formed at the settings'
+ * The stored value of each Jam setting whose one record is well formed at the settings'
  * data version, by field; a setting with two records, a record with a missing or extra field, or
  * one written by a newer or an older data version, is left out (unreadable).
  */
@@ -213,7 +213,7 @@ export interface DecodedJamSettings {
 const FROM_SESSION_MODE: readonly JamSettingField[] = ['tempo', 'tonalCenter', 'collection']
 
 /**
- * Intent: Jam's settings from their stored records, each read on its own: a missing, damaged,
+ * Jam's settings from their stored records, each read on its own: a missing, damaged,
  * newer or invalid record gives that setting its first value, silently, and never disturbs
  * another. Never throws for what was stored.
  */
@@ -242,7 +242,7 @@ export function decodeJamSettings(
 }
 
 /**
- * Intent: refuse a change naming a value Jam's controls never offer: a defect of its caller,
+ * Refuse a change naming a value Jam's controls never offer: a defect of its caller,
  * never a stored value, so it throws.
  */
 function checkedChange(change: JamSettingsChange): JamSettingsChange {
@@ -256,7 +256,7 @@ function checkedChange(change: JamSettingsChange): JamSettingsChange {
 }
 
 /**
- * Intent: the records one change saves: one per setting whose value it changed, none for a
+ * The records one change saves: one per setting whose value it changed, none for a
  * setting it left as it was.
  */
 // @spec-link [[rule_jam_settings_saved_on_change]]
@@ -271,7 +271,7 @@ export function jamSettingChanges(before: JamSettings, after: JamSettings): Sett
   ) as SettingChanges
 }
 
-/** Intent: the seven figure levels a Jam is generated with: its one level for every figure. */
+/** The seven figure levels a Jam is generated with: its one level for every figure. */
 // @spec-link [[rule_jam_embellishments_one_level]]
 export function jamFigureLevels(level: FigureLevel): FigureLevels {
   return deepFreeze(
@@ -280,7 +280,7 @@ export function jamFigureLevels(level: FigureLevel): FigureLevels {
 }
 
 /**
- * Intent: the controls a Jam is generated with before the doodle's readings replace its rhythm
+ * The controls a Jam is generated with before the doodle's readings replace its rhythm
  * and shape: Jam's tempo, key, mode, harmonic motion and tension, the shared instrument, the
  * first-visit value of each control the doodle sets, and arpeggio chaos held at Varied.
  */
@@ -301,7 +301,7 @@ export function jamGenerationControls(
   })
 }
 
-/** Intent: the first values still to save once a change has saved `saved`: none it saved. */
+/** The first values still to save once a change has saved `saved`: none it saved. */
 function withoutSaved(pending: SettingChanges, saved: SettingChanges): SettingChanges {
   return Object.fromEntries(
     Object.entries(pending).filter(([key]) => !Object.hasOwn(saved, key)),
@@ -341,7 +341,7 @@ export interface JamSettingsStore {
 }
 
 /**
- * Intent: Jam's settings for the visit, made when they are first needed: decoded from the load's
+ * Jam's settings for the visit, made when they are first needed: decoded from the load's
  * records, the key, mode and tempo taken from session mode saved when none was readable, at once,
  * or, made for a Jam session's Review, only as Jam mode first shows (never one a change has saved
  * meanwhile); each change then saved at once, one record per setting it changed.
@@ -355,7 +355,7 @@ export function createJamSettings(deps: JamSettingsDependencies): JamSettingsSto
   const settings = shallowRef(decoded.settings)
   /** The first values taken from session mode not saved yet; null once they have been. */
   let pendingFirstValues: SettingChanges | null = decoded.startedFromSessionMode
-  /** Intent: save the first values still pending, once; nothing after that. */
+  /** Save the first values still pending, once; nothing after that. */
   const saveFirstValues = (): void => {
     if (pendingFirstValues === null) return
     const pending = pendingFirstValues

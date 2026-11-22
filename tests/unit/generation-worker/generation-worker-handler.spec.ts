@@ -33,7 +33,7 @@ const CHEAP_CONTROLS: GenerationControls = makeGenerationControls({
   instrumentProfileId: 'c-keyboard',
 })
 
-/** Intent: build one real cheap-to-search GenerationIntent, optionally overriding controls. */
+/** Build one real cheap-to-search GenerationIntent, optionally overriding controls. */
 function buildIntent(
   requestId: string,
   seed: number,

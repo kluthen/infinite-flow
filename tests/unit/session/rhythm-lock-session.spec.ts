@@ -29,7 +29,7 @@ import {
 import { phraseOneFor, sessionSettings } from './session-harness'
 import { barsOf, expectedGroup, lockSettings } from './rhythm-lock-sessions'
 
-/** Intent: one measure of whole events from (kind, start, length) triples. */
+/** One measure of whole events from (kind, start, length) triples. */
 function measure(...events: [kind: 'note' | 'rest', start: number, length: number][]) {
   return events.map(([kind, startTick, durationTicks]) => ({
     kind,
@@ -50,7 +50,7 @@ const EIGHTH_BARS: readonly LockedRhythmMeasure[] = [
 /** A real phrase 1 and its outcome, at the fast tempo. */
 const PHRASE_ONE = phraseOneFor(sessionSettings())
 
-/** Intent: phrase 1's outcome with these lock fields in its provenance. */
+/** Phrase 1's outcome with these lock fields in its provenance. */
 function withLock(
   fields: Pick<GenerationProvenance, 'rhythmLockOutcome' | 'rhythmChange'>,
 ): SuccessfulOutcome {
@@ -60,7 +60,7 @@ function withLock(
   }
 }
 
-/** Intent: a session phrase with this outcome, re-lock mark and number. */
+/** A session phrase with this outcome, re-lock mark and number. */
 function phraseOf(outcome: SuccessfulOutcome, relock: boolean, phraseNumber = 3): SessionPhrase {
   return {
     phraseNumber,
@@ -172,7 +172,7 @@ describe('the session lock state and the groups of a phrase', () => {
   })
 })
 
-/** Intent: a phrase's place with Tension across phrases on at Lift. */
+/** A phrase's place with Tension across phrases on at Lift. */
 function place(phraseNumber: number) {
   return { phraseNumber, tensionInEffect: 'Lift' as const, multiPhraseTensionArc: true }
 }

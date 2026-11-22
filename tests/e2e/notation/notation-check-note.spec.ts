@@ -14,13 +14,13 @@ test.use({ baseURL: 'http://127.0.0.1:4174' })
 /** Engraving units per diatonic step: a line to the next space is half a 10-unit staff space. */
 const UNITS_PER_DIATONIC_STEP = 5
 
-/** Intent: open the harness with no phrase, so only the check note is engraved. */
+/** Open the harness with no phrase, so only the check note is engraved. */
 async function openHarness(page: Page, theme: 'light' | 'dark' = 'light'): Promise<void> {
   await page.goto(`/?source=empty&width=700&theme=${theme}`)
   await page.waitForFunction(() => window.__notationCheckNote !== undefined)
 }
 
-/** Intent: engrave one written MIDI note into the page's check-note host and snapshot it. */
+/** Engrave one written MIDI note into the page's check-note host and snapshot it. */
 function engrave(page: Page, writtenMidi: number): Promise<NotationHarnessCheckNoteSnapshot> {
   return page.evaluate((midi) => window.__notationCheckNote.engrave(midi), writtenMidi)
 }

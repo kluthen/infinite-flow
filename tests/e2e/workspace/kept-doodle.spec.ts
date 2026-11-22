@@ -61,12 +61,12 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: the out-of-date phrase prompt, which a Jam never meets. */
+/** The out-of-date phrase prompt, which a Jam never meets. */
 function stalePrompt(page: Page) {
   return page.getByRole('alertdialog', { name: 'This phrase is from before your changes' })
 }
 
-/** Intent: the segment `option` of the radiogroup named exactly `group`. */
+/** The segment `option` of the radiogroup named exactly `group`. */
 function segment(page: Page, group: string, option: string) {
   return page
     .getByRole('radiogroup', { name: group, exact: true })
@@ -74,7 +74,7 @@ function segment(page: Page, group: string, option: string) {
 }
 
 /**
- * Intent: assert Jam mode's Idle with a doodle kept: `jam-bar` with its sentence and `New doodle`,
+ * Assert Jam mode's Idle with a doodle kept: `jam-bar` with its sentence and `New doodle`,
  * Jam's empty system out of sight, phrase 1 Ready on the kept staff with the start marker over its
  * first note and the starting line, `doodle-readings` filled.
  */
@@ -92,7 +92,7 @@ async function expectKeptIdle(page: Page, phraseOne: KeptPhraseOne): Promise<voi
 }
 
 /**
- * Intent: from Jam mode's Idle with a doodle kept and a Jam on it just started, assert the
+ * From Jam mode's Idle with a doodle kept and a Jam on it just started, assert the
  * count-in runs with no capture, then phrase 1 sounds on the count-in's last barline with the
  * session's own cue row, `jam-bar` held still; the clock left one second into phrase 1.
  */
@@ -117,7 +117,7 @@ async function expectNoCaptureThenPhraseOne(page: Page): Promise<number> {
   return grid.barline(0)
 }
 
-/** Intent: the concert timeline of the last ended session's phrase 1. */
+/** The concert timeline of the last ended session's phrase 1. */
 async function lastSessionPhraseOne(page: Page): Promise<string | undefined> {
   return (await sessionState(page)).lastHistoryPhrases?.[0]?.timeline
 }

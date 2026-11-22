@@ -13,12 +13,12 @@ export const BEAT = 0.25
 /** The moment the count-in ends and phrase 1 starts sounding. */
 export const COUNT_IN_ENDS_AT = 6.1
 
-/** Intent: the time phrase `n` starts sounding. */
+/** The time phrase `n` starts sounding. */
 export function phraseStart(n: number): number {
   return COUNT_IN_ENDS_AT + (n - 1) * 4
 }
 
-/** Intent: what a session left behind once it ended, for comparing two runs. */
+/** What a session left behind once it ended, for comparing two runs. */
 export function endState(rig: ControllerRig): unknown {
   return {
     phase: rig.controller.state.phase,

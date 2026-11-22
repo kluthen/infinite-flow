@@ -28,7 +28,7 @@ import {
 } from '@/generation-worker/generation-worker-inbound'
 import { GenerationWorkerProtocolError } from '@/generation-worker/generation-worker-protocol'
 
-/** Intent: one real cheap-to-search intent for the given musical profile. */
+/** One real cheap-to-search intent for the given musical profile. */
 function intentFor(musicalProfile: 'Neutral' | 'Jazz'): GenerationIntent {
   return createGenerationIntent({
     requestId: makeRequestId(`figure-levels-${musicalProfile}`),
@@ -54,7 +54,7 @@ function intentFor(musicalProfile: 'Neutral' | 'Jazz'): GenerationIntent {
   })
 }
 
-/** Intent: one real intent built from levels no musical profile gives. */
+/** One real intent built from levels no musical profile gives. */
 function intentWithOwnLevels(): GenerationIntent {
   const levels: FigureLevels = {
     ...NEUTRAL_FIGURE_LEVELS,
@@ -71,12 +71,12 @@ function intentWithOwnLevels(): GenerationIntent {
   })
 }
 
-/** Intent: a structured clone of a Neutral intent with its figure levels replaced by `levels`. */
+/** A structured clone of a Neutral intent with its figure levels replaced by `levels`. */
 function neutralWireIntentWith(levels: unknown): Record<string, unknown> {
   return { ...structuredClone(intentFor('Neutral')), figureLevels: levels }
 }
 
-/** Intent: a structured clone of a Neutral intent with no figure levels field at all. */
+/** A structured clone of a Neutral intent with no figure levels field at all. */
 function neutralWireIntentWithoutLevels(): Record<string, unknown> {
   const { figureLevels, ...rest } = structuredClone(intentFor('Neutral'))
   void figureLevels

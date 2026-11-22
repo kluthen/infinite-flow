@@ -22,7 +22,7 @@ import {
 } from './fake-session-controller'
 import { reviewAreaRig } from './review-area-rig'
 
-/** Intent: a fake controller showing a Review with `facts` applied to its session. */
+/** A fake controller showing a Review with `facts` applied to its session. */
 function showing(facts: Partial<SessionReview> = {}, savingOff = false): FakeSessionController {
   const review: SessionReview = Object.freeze({
     ...fakeReview(fakeReviewHistory(recordedRecords()), true),
@@ -31,7 +31,7 @@ function showing(facts: Partial<SessionReview> = {}, savingOff = false): FakeSes
   return createFakeSessionController({ review, mostRecent: heldSessionOf(review), savingOff })
 }
 
-/** Intent: the review area over `fake`'s controller, and its host, inside their own effect scope. */
+/** The review area over `fake`'s controller, and its host, inside their own effect scope. */
 function areaOver(fake: FakeSessionController) {
   const { host: reviewHost, area } = reviewAreaRig(fake)
   return { ...area, showing: reviewHost.showing }

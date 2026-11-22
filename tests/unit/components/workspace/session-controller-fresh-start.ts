@@ -15,7 +15,7 @@ export interface FreshStart {
   readonly outputs: SessionOutput[]
 }
 
-/** Intent: start a session without phrase 1 under the rig's settings, logging what it hands back. */
+/** Start a session without phrase 1 under the rig's settings, logging what it hands back. */
 export function startFresh(rig: ControllerRig): FreshStart {
   const notes: PlayedNoteEvent[] = []
   const outputs: SessionOutput[] = []

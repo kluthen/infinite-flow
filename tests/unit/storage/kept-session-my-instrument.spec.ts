@@ -30,7 +30,7 @@ const FACTS: KeptSessionFacts = {
   presets: BUILT_IN_PRESETS,
 }
 
-/** Intent: the session the stored records decode to, failing unless they read as current. */
+/** The session the stored records decode to, failing unless they read as current. */
 function decoded(records: KeptSessionRecords): KeptSession {
   const reading = decodeKeptSession(storedRecords(records))
   if (reading.reading !== 'current')
@@ -38,13 +38,13 @@ function decoded(records: KeptSessionRecords): KeptSession {
   return reading.value
 }
 
-/** Intent: the decoded session as the exports read a history. */
+/** The decoded session as the exports read a history. */
 function exportable(session: KeptSession): Parameters<typeof buildGeneratedNotesFile>[0] {
   const { phrases } = session
   return { phrases: (): readonly KeptPhrase[] => phrases, startedAt: session.summary.startedAt }
 }
 
-/** Intent: the MusicXML file's text, built from a history-shaped value. */
+/** The MusicXML file's text, built from a history-shaped value. */
 function musicXmlOf(history: Parameters<typeof buildGeneratedNotesFile>[0]): string {
   const file = buildGeneratedNotesFile(history, { format: 'musicxml', backingTrack: false })
   return new TextDecoder().decode(file.bytes)

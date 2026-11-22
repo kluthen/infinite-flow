@@ -28,7 +28,7 @@ import {
 
 const ANY_CHOICE = { kind: 'anyKeyAndMode', restriction: { keys: 'any', modes: 'any' } } as const
 
-/** Intent: the "only this key and mode" choice for one pair. */
+/** The "only this key and mode" choice for one pair. */
 function onlyChoice(key: string, mode: string): unknown {
   return { kind: 'onlyThisKeyAndMode', restriction: { keys: [key], modes: [mode] } }
 }
@@ -67,7 +67,7 @@ const SETTINGS: PresetSettings = {
   chordFamilies: OFF_CHORD_FAMILIES,
 }
 
-/** Intent: an id source handing out the given ids in turn. */
+/** An id source handing out the given ids in turn. */
 function idsFrom(...ids: string[]): () => string {
   return () => {
     const id = ids.shift()
@@ -76,7 +76,7 @@ function idsFrom(...ids: string[]): () => string {
   }
 }
 
-/** Intent: a number of player presets, identified by their index. */
+/** A number of player presets, identified by their index. */
 function playerPresets(count: number): readonly Preset[] {
   return Array.from({ length: count }, (_, index) =>
     makePreset({ ...MY_REEL, id: `p${index}`, name: `Preset ${index}` }),

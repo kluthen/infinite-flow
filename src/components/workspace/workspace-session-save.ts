@@ -42,7 +42,7 @@ const KEPT_SESSION_STORES: readonly StoreName[] = [
 ]
 
 /**
- * Intent: the key a session is kept under, `session-{startedAt}-{sessionSeed}` in decimal, minted
+ * The key a session is kept under, `session-{startedAt}-{sessionSeed}` in decimal, minted
  * once by its save; no code reads a fact back from it.
  */
 // @spec-link [[entity_kept_session_record]]
@@ -77,7 +77,7 @@ export interface EndedSessionSave {
 }
 
 /**
- * Intent: a reviewed Jam part's fresh moments as the kept-session codec takes them: a fresh Jam's
+ * A reviewed Jam part's fresh moments as the kept-session codec takes them: a fresh Jam's
  * count-in's first beat, its doodle's first barline and its raw doodle notes, on the audio clock;
  * none (null) for a Jam on the kept doodle, which has no count-in its played notes count from and
  * no raw doodle note, so its played notes are timed from phrase 1 as session mode's.
@@ -95,7 +95,7 @@ export function keptFreshJam(jam: ReviewedJamPart): KeptFreshJam | null {
 }
 
 /**
- * Intent: what a Jam session's save keeps of its Jam part: its quantized doodle with its capture
+ * What a Jam session's save keeps of its Jam part: its quantized doodle with its capture
  * tempo, and its fresh moments (none for a Jam on the kept doodle); null for a session that is no
  * Jam.
  */
@@ -110,7 +110,7 @@ export function keptJamSave(jam: ReviewedJamPart | null): KeptJamSave | null {
 }
 
 /**
- * Intent: how the session that ended is saved: its key minted once, its played notes kept
+ * How the session that ended is saved: its key minted once, its played notes kept
  * exactly when `Keep my played notes` is on at its end and it holds a played note in a phrase
  * or, in a fresh Jam, a raw doodle note (a session without one has none to keep), the presets the
  * session knew, `presets`, kept with it, and, for a Jam, what its save keeps of its Jam part.
@@ -160,7 +160,7 @@ export const ENDED_SESSION_FACTS: HeldSessionFacts = Object.freeze({
 })
 
 /**
- * Intent: the keys of the kept sessions the session's save deletes, from the kept summaries read
+ * The keys of the kept sessions the session's save deletes, from the kept summaries read
  * at the save: every readable one that is not pinned, and every damaged one (the codec reads its
  * summary as unreadable), pinned or not; one a newer app wrote stays with its records.
  */
@@ -183,7 +183,7 @@ function deletedBySave(
 }
 
 /**
- * Intent: the one batch of the session's save, from the kept summaries read at the save: first
+ * The one batch of the session's save, from the kept summaries read at the save: first
  * the deletion of the summary, body and played notes of every readable kept session that is not
  * pinned and of every damaged one (a summary a newer app wrote stays with its records), then
  * the new session's records under its key with the facts `held` gives (at its end nothing pinned,
@@ -239,7 +239,7 @@ export type EndedSessionOutcome =
 const SESSION_ABANDONED: EndedSessionOutcome = Object.freeze({ status: 'abandoned' })
 
 /**
- * Intent: save the session that ended with a review through the visit's saves, which run it after
+ * Save the session that ended with a review through the visit's saves, which run it after
  * the release, as `saving` says, with the facts `held` gives: the codec loaded, the batch built
  * from the summaries read at the save. Its retry, after a refused save, is this same save under
  * the same key with the facts held in memory then, the sessions to delete read at the retry.
@@ -264,7 +264,7 @@ export async function saveEndedSession(
   const codec: KeptSessionCodec = await import('@/storage/records/kept-session-record')
   if (goingAway()) return SESSION_ABANDONED
   let damagedDeleted = 0
-  /** Intent: the save's batch, from the kept summaries read at the save. */
+  /** The save's batch, from the kept summaries read at the save. */
   const changes: SessionChanges = (keptSummaries) => {
     damagedDeleted = deletedBySave(codec, keptSummaries).damaged
     return keptSessionChanges(codec, history, saving, keptSummaries, APP_VERSION, held)
@@ -274,7 +274,7 @@ export async function saveEndedSession(
 }
 
 /**
- * Intent: tell through `reports` how many damaged kept sessions the batch of a saved session's own
+ * Tell through `reports` how many damaged kept sessions the batch of a saved session's own
  * save deleted; nothing when it deleted none or was not saved (a refused one is told by its keep
  * line, as any failed session save).
  */

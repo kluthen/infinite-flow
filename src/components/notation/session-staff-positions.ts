@@ -107,13 +107,13 @@ interface StagedSystem {
   readonly inputsKey: string
 }
 
-/** Intent: tag a unit with the slot it shows. */
+/** Tag a unit with the slot it shows. */
 function tagUnit(unit: HTMLElement, slot: SystemSlot): void {
   unit.dataset.phraseNumber = String(slot.phraseNumber)
   unit.dataset.systemPart = slot.part
 }
 
-/** Intent: a new `staff-content` unit for a slot; inserting it plays its entrance fade. */
+/** A new `staff-content` unit for a slot; inserting it plays its entrance fade. */
 function createUnit(slot: SystemSlot): HTMLElement {
   const unit = document.createElement('div')
   unit.className = 'staff-content'
@@ -121,7 +121,7 @@ function createUnit(slot: SystemSlot): HTMLElement {
   return unit
 }
 
-/** Intent: whether a shown system is the given system engraved with the given inputs. */
+/** Whether a shown system is the given system engraved with the given inputs. */
 function showsAt(shown: ShownSystem, system: SessionSystem, inputsKey: string): boolean {
   return (
     positionKey(shown.system) === positionKey(system) &&
@@ -131,7 +131,7 @@ function showsAt(shown: ShownSystem, system: SessionSystem, inputsKey: string): 
 }
 
 /**
- * Intent: create the positions' content keeper for one PhraseScore.
+ * Create the positions' content keeper for one PhraseScore.
  */
 // @spec-link [[module_session_staff_refill]]
 export function createStaffPositions(env: StaffPositionsEnvironment): StaffPositions {
@@ -145,20 +145,20 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
   /** Counts in-place re-engraves, so only the latest one swaps. */
   let syncs = 0
 
-  /** Intent: the position elements, crashing before they are mounted. */
+  /** The position elements, crashing before they are mounted. */
   function requireHosts(): StaffHosts {
     const hosts = env.hosts()
     if (hosts === null) throw new Error('The staff positions are not mounted.')
     return hosts
   }
 
-  /** Intent: the running session's staff, crashing outside a session. */
+  /** The running session's staff, crashing outside a session. */
   function requireStaff(): SessionStaff {
     if (staff === null) throw new Error('The staff shows no session.')
     return staff
   }
 
-  /** Intent: the inputs key of a session engraving: the held layout in the window's budget. */
+  /** The inputs key of a session engraving: the held layout in the window's budget. */
   function sessionKey(inputs: StaffLayoutInputs): string {
     return engravingKey(
       inputs.containerWidthPx,
@@ -167,7 +167,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
     )
   }
 
-  /** Intent: the settled systems on screen, top first. */
+  /** The settled systems on screen, top first. */
   function shownSystems(): ShownSystem[] {
     return STAFF_POSITIONS.flatMap((position) => positions[position].shown ?? [])
   }
@@ -175,7 +175,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
   // ---- Idle ----
 
   /**
-   * Intent: move an Idle engraving into the positions. A position already showing notes keeps its
+   * Move an Idle engraving into the positions. A position already showing notes keeps its
    * unit and only its engraving changes, so a redraw never replays the entrance fade; a blank
    * position gets a new unit; an empty staged host blanks it.
    */
@@ -222,7 +222,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
     })
   }
 
-  /** Intent: blank both positions and the staging host. */
+  /** Blank both positions and the staging host. */
   function clear(): void {
     const hosts = env.hosts()
     for (const position of STAFF_POSITIONS) {
@@ -235,7 +235,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
   // ---- Session: engraving ----
 
   /**
-   * Intent: engrave one session system into a new host in the staging area, at the current inputs
+   * Engrave one session system into a new host in the staging area, at the current inputs
    * (their shared system-position size included) in the held viewport. Throws the engraver's
    * typed NotationError, leaving no host behind.
    */
@@ -265,21 +265,21 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
     }
   }
 
-  /** Intent: report a session engraving failure; anything else is a defect and propagates. */
+  /** Report a session engraving failure; anything else is a defect and propagates. */
   // @spec-link [[rule_session_ends_when_staff_too_small]]
   function reportFailure(error: unknown): void {
     if (!(error instanceof NotationError)) throw error
     env.failed(error)
   }
 
-  /** Intent: whether a position shows something other than its slot at these inputs. */
+  /** Whether a position shows something other than its slot at these inputs. */
   function isStale(state: PositionState, inputsKey: string): boolean {
     if (state.refilling) return false
     if (state.target === null) return state.shown !== null
     return state.shown === null || !showsAt(state.shown, state.target, inputsKey)
   }
 
-  /** Intent: the positions whose content the current inputs make stale, or none before mount. */
+  /** The positions whose content the current inputs make stale, or none before mount. */
   function stalePositions(): StaffPosition[] {
     const inputs = env.inputs()
     if (inputs === null || staff === null) return []
@@ -287,7 +287,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
     return STAFF_POSITIONS.filter((position) => isStale(positions[position], key))
   }
 
-  /** Intent: put a staged system into its position in place: the same unit, no fade. */
+  /** Put a staged system into its position in place: the same unit, no fade. */
   function swapInPlace(position: StaffPosition, staged: StagedSystem | null): void {
     const state = positions[position]
     const target = state.target
@@ -305,7 +305,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
   }
 
   /**
-   * Intent: re-engrave in place every position that does not show its slot at the current inputs
+   * Re-engrave in place every position that does not show its slot at the current inputs
    * (a resize, or a session start Idle had not drawn yet), all staged first and swapped only if
    * every one succeeded; a position refilling is left to its refill. With nothing stale it draws
    * nothing at all.
@@ -343,7 +343,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
   // ---- Session: refill ----
 
   /**
-   * Intent: start a unit's fade-out: it keeps no mark and is hidden from assistive technology,
+   * Start a unit's fade-out: it keeps no mark and is hidden from assistive technology,
    * and it is removed once its animations finish (at once with none, as under reduced motion).
    */
   // @spec-link [[module_session_staff_refill]]
@@ -360,7 +360,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
     state.fading.set(unit, removed)
   }
 
-  /** Intent: engrave a refill's slot off-screen now; null when it failed or was superseded. */
+  /** Engrave a refill's slot off-screen now; null when it failed or was superseded. */
   async function stageRefill(
     state: PositionState,
     ticket: number,
@@ -384,7 +384,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
   }
 
   /**
-   * Intent: refill one position: its notes fade out at once, the new slot is engraved off-screen
+   * Refill one position: its notes fade out at once, the new slot is engraved off-screen
    * meanwhile, and enters as a new unit once every fade there has finished. A blank slot leaves
    * the position empty. A newer refill, or the session's end, drops this one.
    */
@@ -419,7 +419,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
     void sync()
   }
 
-  /** Intent: redraw what the session marks on the systems on screen, and follow its description. */
+  /** Redraw what the session marks on the systems on screen, and follow its description. */
   // @spec-link [[module_notation_note_identity_overlays]]
   function refreshMarks(): void {
     const described = drawSessionMarks(
@@ -434,7 +434,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
   // ---- Session: entry, updates and exit ----
 
   /**
-   * Intent: start showing a session. Where both positions already show its slots at the current
+   * Start showing a session. Where both positions already show its slots at the current
    * inputs, nothing is engraved and no node changes (a session start never redraws phrase 1);
    * otherwise (an Idle engraving still under way, or inputs that moved) the stale positions are
    * re-engraved in place.
@@ -450,7 +450,7 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
   }
 
   /**
-   * Intent: follow the session's new state: refill each position whose slot changed, and redraw
+   * Follow the session's new state: refill each position whose slot changed, and redraw
    * the marks for the new playhead. The held layout never changes during a session.
    */
   // @spec-link [[module_session_staff_refill]]
@@ -468,20 +468,20 @@ export function createStaffPositions(env: StaffPositionsEnvironment): StaffPosit
     refreshMarks()
   }
 
-  /** Intent: re-engrave in place what the current inputs made stale. */
+  /** Re-engrave in place what the current inputs made stale. */
   // @spec-link [[module_session_staff_refill]]
   function relayout(): void {
     requireStaff()
     void sync()
   }
 
-  /** Intent: redraw the marks of a session after the acknowledged notes changed. */
+  /** Redraw the marks of a session after the acknowledged notes changed. */
   function redrawMarks(): void {
     refreshMarks()
   }
 
   /**
-   * Intent: stop showing the session: every refill and re-engrave under way is dropped, the units
+   * Stop showing the session: every refill and re-engrave under way is dropped, the units
    * fading out leave at once, and the settled ones lose the session's marks (the band included) at
    * once but stay until the Idle engraving replaces them.
    */

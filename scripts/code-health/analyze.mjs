@@ -27,7 +27,7 @@ const rules = /** @type {const} */ ([
 ])
 
 /**
- * Intent: order findings by path, then line, then rule and message, so every run prints the same
+ * Order findings by path, then line, then rule and message, so every run prints the same
  * report.
  *
  * @param {Finding} left
@@ -44,7 +44,7 @@ function compareFindings(left, right) {
 }
 
 /**
- * Intent: the rules a parsed file has switched off with its bypass tokens.
+ * The rules a parsed file has switched off with its bypass tokens.
  *
  * @param {ParsedSource} source
  * @returns {Set<RuleName>}
@@ -54,7 +54,7 @@ function bypassedRules(source) {
 }
 
 /**
- * Intent: run every rule the file has not bypassed over an already parsed file and return its
+ * Run every rule the file has not bypassed over an already parsed file and return its
  * findings, sorted.
  *
  * @param {ParsedSource} source
@@ -70,7 +70,7 @@ export function analyzeParsedSource(source, context) {
 }
 
 /**
- * Intent: parse one file's text and return its sorted findings, bypass tokens applied.
+ * Parse one file's text and return its sorted findings, bypass tokens applied.
  *
  * @param {{ path: string, text: string, atomIds: Set<string> }} file `path` is repo-relative
  * @returns {Finding[]}
@@ -80,7 +80,7 @@ export function analyzeSource({ path, text, atomIds }) {
 }
 
 /**
- * Intent: read, parse and analyze every listed repo-relative file and return all findings, sorted,
+ * Read, parse and analyze every listed repo-relative file and return all findings, sorted,
  * with the run's summary.
  *
  * @param {{ repoRoot: string, paths: string[], atomIds: Set<string> }} run
@@ -95,7 +95,7 @@ export async function analyzeFiles({ repoRoot, paths, atomIds }) {
 }
 
 /**
- * Intent: the run's summary: files scanned, files declaring each bypass token, files outside the
+ * The run's summary: files scanned, files declaring each bypass token, files outside the
  * ATD scope, and finding counts per rule and level, with the error and warning totals.
  *
  * @param {{ path: string, bypass: Set<string> }[]} sources
@@ -127,7 +127,7 @@ export function summarize(sources, findings) {
 }
 
 /**
- * Intent: one report line for a finding: `LEVEL path:line message`.
+ * One report line for a finding: `LEVEL path:line message`.
  *
  * @param {Finding} finding
  * @returns {string}
@@ -137,7 +137,7 @@ export function formatFinding(finding) {
 }
 
 /**
- * Intent: the human-readable summary printed after the findings.
+ * The human-readable summary printed after the findings.
  *
  * @param {Summary} summary
  * @returns {string[]}

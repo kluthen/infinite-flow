@@ -24,7 +24,7 @@ import { trackChunk, typeOneHeaderChunk } from './smf-writer'
 const PLAYED_TRACK_NAME = 'Played notes'
 
 /**
- * Intent: encode a session's played notes (every phrase, or the favorites only) as one type 1
+ * Encode a session's played notes (every phrase, or the favorites only) as one type 1
  * Standard MIDI File. Validates the
  * input first and crashes with a MidiExportError on any breach. The conductor track ends where the
  * last phrase ends, as in the generated-notes file; the played track ends there too, or one tick

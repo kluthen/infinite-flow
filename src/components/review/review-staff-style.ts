@@ -7,7 +7,7 @@
 import type { ReviewStaffReservation } from './review-types'
 
 /**
- * Intent: the review staff's reserved block size as an inline style, for a reservation and the
+ * The review staff's reserved block size as an inline style, for a reservation and the
  * Played notes switch; none while the reservation is unknown.
  */
 // @spec-link [[module_review_played_notes_lane]]
@@ -24,7 +24,7 @@ export function reviewStaffStyle(
 }
 
 /**
- * Intent: the system positions a Jam's doodle reserves: as a phrase's in the one-system layout; in
+ * The system positions a Jam's doodle reserves: as a phrase's in the one-system layout; in
  * the split layout the top one only for a doodle of one or two measures, both for three or four.
  */
 // @spec-link [[rule_review_opens_with_doodle]]

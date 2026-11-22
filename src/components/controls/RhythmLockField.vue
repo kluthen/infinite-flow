@@ -54,7 +54,7 @@ const rhythmLockNoteId = useId()
 const allowedRhythmChangesLabelId = useId()
 const allowedRhythmChangesNoteId = useId()
 
-/** Intent: the five toggles in RHYTHM_CHANGE_KINDS order, each pressed while it is allowed. */
+/** The five toggles in RHYTHM_CHANGE_KINDS order, each pressed while it is allowed. */
 // @spec-link [[rule_allowed_rhythm_changes]]
 const rhythmChangeItems = computed((): readonly ToggleListItem[] =>
   RHYTHM_CHANGE_KINDS.map((kind) => ({
@@ -64,14 +64,14 @@ const rhythmChangeItems = computed((): readonly ToggleListItem[] =>
   })),
 )
 
-/** Intent: report the player's `Rhythm lock` choice, refusing a value that is no segment. */
+/** Report the player's `Rhythm lock` choice, refusing a value that is no segment. */
 // @spec-link [[req_rhythm_lock]]
 function handleRhythmLock(value: string): void {
   emit('set-rhythm-lock', isOn('Rhythm lock', value))
 }
 
 /**
- * Intent: report the allowed rhythm changes with the toggled kind flipped, in RHYTHM_CHANGE_KINDS
+ * Report the allowed rhythm changes with the toggled kind flipped, in RHYTHM_CHANGE_KINDS
  * order, refusing a value that is no kind.
  */
 // @spec-link [[rule_allowed_rhythm_changes]]

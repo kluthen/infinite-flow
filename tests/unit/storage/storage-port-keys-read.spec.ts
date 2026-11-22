@@ -13,7 +13,7 @@ import {
   withRawDatabase,
 } from './storage-test-doubles'
 
-/** Intent: a ready port over a fresh in-memory database. */
+/** A ready port over a fresh in-memory database. */
 async function readyPort() {
   const factory = freshFactory()
   const port = await openStoragePort({ factory, appVersion: TEST_APP_VERSION })

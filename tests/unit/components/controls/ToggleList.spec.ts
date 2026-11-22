@@ -15,7 +15,7 @@ const ITEMS: readonly ToggleListItem[] = [
   { value: 'c', label: 'Gamma', pressed: false, disabled: true, describedBy: 'gamma-reason' },
 ]
 
-/** Intent: mount the three-item list, editable unless `readonly`. */
+/** Mount the three-item list, editable unless `readonly`. */
 function mountList(readonly = false) {
   return mount(ToggleList, {
     props: { labelledBy: 'list-label', describedBy: 'list-note', items: ITEMS, readonly },
@@ -23,7 +23,7 @@ function mountList(readonly = false) {
   })
 }
 
-/** Intent: a keydown of `key` on `element`, returning whether its default action was refused. */
+/** A keydown of `key` on `element`, returning whether its default action was refused. */
 function pressKey(element: Element, key: string): boolean {
   const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
   element.dispatchEvent(event)

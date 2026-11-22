@@ -37,7 +37,7 @@ export interface TempoDriverOptions extends Omit<DriverOptions, 'settings' | 'ph
   readonly phraseOneSeed?: number
 }
 
-/** Intent: a driver started at 0 at the given starting tempo, adaptive tempo on or off. */
+/** A driver started at 0 at the given starting tempo, adaptive tempo on or off. */
 export function tempoDriver(options: TempoDriverOptions): SessionDriver {
   const { tempo, phraseOneSeed, ...rest } = options
   const settings = sessionSettings({ tempo })
@@ -45,7 +45,7 @@ export function tempoDriver(options: TempoDriverOptions): SessionDriver {
   return new SessionDriver({ at: 0, ...rest, settings, phraseOne: phraseOneFor(settings, seed) })
 }
 
-/** Intent: the tempo of phrase N: the starting tempo for phrase 1, else its phrase-tempo output. */
+/** The tempo of phrase N: the starting tempo for phrase 1, else its phrase-tempo output. */
 export function phraseTempoOf(driver: SessionDriver, phraseNumber: number): number {
   if (phraseNumber === 1) return driver.settings.controls.tempo
   const fixed = driver.all('phrase-tempo').filter((output) => output.phraseNumber === phraseNumber)
@@ -54,7 +54,7 @@ export function phraseTempoOf(driver: SessionDriver, phraseNumber: number): numb
   return fixed[0]!.tempo
 }
 
-/** Intent: the moment phrase N starts sounding: after the count-in and every phrase before it. */
+/** The moment phrase N starts sounding: after the count-in and every phrase before it. */
 export function phraseStartAt(driver: SessionDriver, phraseNumber: number): AudioTime {
   let at = driver.start.at + measureSeconds(driver.settings.controls.tempo)
   for (let earlier = 1; earlier < phraseNumber; earlier += 1)
@@ -63,7 +63,7 @@ export function phraseStartAt(driver: SessionDriver, phraseNumber: number): Audi
 }
 
 /**
- * Intent: answer the latest requested phrase as the script says for it: every rung failed (a
+ * Answer the latest requested phrase as the script says for it: every rung failed (a
  * repeat), or its first attempt failed and the next one settled, or settled at once.
  */
 function answer(driver: SessionDriver, at: AudioTime, script: TempoScript, phrase: number): void {
@@ -81,12 +81,12 @@ interface TimedAction {
   readonly run: () => void
 }
 
-/** Intent: run a phrase's actions in time order, the earlier-listed first at equal times. */
+/** Run a phrase's actions in time order, the earlier-listed first at equal times. */
 function runInOrder(actions: readonly TimedAction[]): void {
   for (const action of [...actions].sort((a, b) => a.at - b.at)) action.run()
 }
 
-/** Intent: the script's controller events during the count-in (0) or one phrase, placed in time. */
+/** The script's controller events during the count-in (0) or one phrase, placed in time. */
 function controllerActions(
   driver: SessionDriver,
   script: TempoScript,
@@ -103,7 +103,7 @@ function controllerActions(
 }
 
 /**
- * Intent: run a session until phrase `lastSounding` has started sounding and the deadline of the
+ * Run a session until phrase `lastSounding` has started sounding and the deadline of the
  * phrase after it has passed: phrase 2 answered during the count-in, each later phrase answered
  * half a measure after the phrase before starts sounding, the clock reaching each deadline, and
  * the script's controller events in between.
@@ -142,7 +142,7 @@ export function driveTempoSession(
   }
 }
 
-/** Intent: the tempo of phrases 1 to `count`, as the session fixed them. */
+/** The tempo of phrases 1 to `count`, as the session fixed them. */
 export function tempoMap(driver: SessionDriver, count: number): readonly number[] {
   return Array.from({ length: count }, (_, index) => phraseTempoOf(driver, index + 1))
 }

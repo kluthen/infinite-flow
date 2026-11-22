@@ -23,7 +23,7 @@ interface FreshJam {
   readonly outputs: JamCaptureOutput[]
 }
 
-/** Intent: act on the capture's outputs as Jam's code does: its end, its doodle to the history. */
+/** Act on the capture's outputs as Jam's code does: its end, its doodle to the history. */
 function follow(fresh: { session: SessionWithoutPhraseOne; outputs: JamCaptureOutput[] }) {
   return (outputs: readonly JamCaptureOutput[]): void => {
     for (const output of outputs) {
@@ -34,7 +34,7 @@ function follow(fresh: { session: SessionWithoutPhraseOne; outputs: JamCaptureOu
   }
 }
 
-/** Intent: a connected rig with a fresh Jam started, its notes routed into its capture. */
+/** A connected rig with a fresh Jam started, its notes routed into its capture. */
 async function freshJam(): Promise<FreshJam> {
   const rig = controllerRig()
   await connectKeys(rig)
@@ -53,7 +53,7 @@ async function freshJam(): Promise<FreshJam> {
   return routed.fresh
 }
 
-/** Intent: play the rig on to `target`, advancing the capture as it goes; it stops once ended. */
+/** Play the rig on to `target`, advancing the capture as it goes; it stops once ended. */
 async function jamTo(fresh: FreshJam, target: number): Promise<void> {
   const { rig, jam } = fresh
   const act = follow(fresh)
@@ -64,7 +64,7 @@ async function jamTo(fresh: FreshJam, target: number): Promise<void> {
   }
 }
 
-/** Intent: expect a count-in end for `cause` that kept nothing and opened no review. */
+/** Expect a count-in end for `cause` that kept nothing and opened no review. */
 function expectCountInEndKeepingNothing(rig: ControllerRig, cause: SessionEndCause): void {
   expect(rig.controller.state.phase).toBe('idle')
   expect(rig.controller.state.lastEnd).toEqual({ cause, phase: 'count-in', soundedPhraseCount: 0 })
@@ -73,7 +73,7 @@ function expectCountInEndKeepingNothing(rig: ControllerRig, cause: SessionEndCau
   expect(rig.sessionSaves).toEqual([])
 }
 
-/** Intent: expect the session still running before phrase 1, nothing having ended it. */
+/** Expect the session still running before phrase 1, nothing having ended it. */
 function expectRunning(rig: ControllerRig): void {
   expect(rig.controller.state.phase).toBe('count-in')
   expect(rig.controller.state.lastEnd).toBeNull()

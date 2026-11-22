@@ -37,7 +37,7 @@ export interface MutationLanding {
 }
 
 /**
- * Intent: the mutation landing on a phrase about to be requested, or undefined when the flag is
+ * The mutation landing on a phrase about to be requested, or undefined when the flag is
  * off or no mutation is scheduled there. The mutation context is read only when one lands, so a
  * session with the flag off reads nothing more than before. The restriction frozen at the
  * session's start travels in the settings, which every mutation's settings keep: a key or mode
@@ -80,7 +80,7 @@ export function landingMutation(
 }
 
 /**
- * Intent: the mutation context the session's start state gives: the window's width read at the
+ * The mutation context the session's start state gives: the window's width read at the
  * start, no step-down yet (the engine's start memory) and the register whose window phrase 2's
  * carry-in holds, worked out from phrase 1 exactly as opening phrase 2 does. It is the context
  * the session's first mutation sees when nothing changes before it; the legal-move check at the

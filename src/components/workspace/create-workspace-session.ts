@@ -74,7 +74,7 @@ export const WORKSPACE_SESSION_FACTORY: InjectionKey<
 > = Symbol('workspace-session-factory')
 
 /**
- * Intent: build one workspace session from explicit dependencies: the identity/seed providers,
+ * Build one workspace session from explicit dependencies: the identity/seed providers,
  * the session-seed provider each published Idle phrase 1 draws its session seed from, the raw
  * orchestration `generate` seam, its teardown, and the audio transport, MIDI controller and
  * session browser ports, all exposed unchanged. Wires the same notation coordinator
@@ -108,7 +108,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   const announcer = createPhraseReplayAnnouncer(deps.logPhraseReplayKey)
 
   /**
-   * Intent: hand the coordinator's reporter callbacks the session they report into. They only
+   * Hand the coordinator's reporter callbacks the session they report into. They only
    * fire from PhraseScore events after construction; reaching here earlier is a wiring defect.
    */
   function requireSession(): GenerationSession<WorkspaceSessionResult> {
@@ -185,7 +185,7 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   })
 
   /**
-   * Intent: load the runner's module and, before settling, the replay-key announcer, then hand
+   * Load the runner's module and, before settling, the replay-key announcer, then hand
    * back a starter of runners on the Idle flow's request-id provider (every attempt seed, and the
    * mutation seed of a session with `Vary settings` on, derived from the start's session seed),
    * width reading and `generate` seam, reading the caller's display,
@@ -346,21 +346,21 @@ export function composeWorkspaceSession(deps: WorkspaceSessionDependencies): Wor
   }
 }
 
-/** Intent: draw one fresh 32-bit unsigned seed from the browser's cryptographic RNG. */
+/** Draw one fresh 32-bit unsigned seed from the browser's cryptographic RNG. */
 function nextCryptoSeed(): ReturnType<typeof makeSeed> {
   const buffer = new Uint32Array(1)
   crypto.getRandomValues(buffer)
   return makeSeed(buffer[0]!)
 }
 
-/** Intent: build a monotonically increasing request-id provider, unique for this session's lifetime. */
+/** Build a monotonically increasing request-id provider, unique for this session's lifetime. */
 function createRequestIdProvider(): () => ReturnType<typeof makeRequestId> {
   let counter = 0
   return () => makeRequestId(`workspace-request-${++counter}`)
 }
 
 /**
- * Intent: write one accepted phrase's replay-key line to the developer console, production builds
+ * Write one accepted phrase's replay-key line to the developer console, production builds
  * included, as information rather than a warning or an error.
  */
 // @spec-link [[module_phrase_replay_key]]
@@ -369,7 +369,7 @@ function logPhraseReplayKeyToConsole(line: string): void {
 }
 
 /**
- * Intent: the generation seam over a worker client whose module is still loading. Every call waits
+ * The generation seam over a worker client whose module is still loading. Every call waits
  * for the client, in call order, then goes to it unchanged: the client, its protocol and its
  * response parsers are not needed before the first draw, so they load on demand and leave the
  * entry chunk. A load failure is not caught: `generate` rejects with it, as the client's own
@@ -402,7 +402,7 @@ export interface ProductionWorkspaceSessionOptions {
 }
 
 /**
- * Intent: build the root workspace session used by `App.vue` in production: a real worker-backed
+ * Build the root workspace session used by `App.vue` in production: a real worker-backed
  * generation seam, its client loaded on demand, one browser worker at a time replaced on a
  * session's cancellation and then re-warmed under the given prewarm policy, and its prewarm under
  * that policy, the cryptographic

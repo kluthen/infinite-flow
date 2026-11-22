@@ -15,7 +15,7 @@ import {
 } from '@/domain/presets/preset-names'
 import { makePreset, type Preset } from '@/domain/presets/preset-selection'
 
-/** Intent: a player preset with a given id and name, its settings Gentle's. */
+/** A player preset with a given id and name, its settings Gentle's. */
 function playerPreset(id: string, name: string): Preset {
   return makePreset({
     id,
@@ -28,7 +28,7 @@ function playerPreset(id: string, name: string): Preset {
   })
 }
 
-/** Intent: a number of player presets, named and identified by their index. */
+/** A number of player presets, named and identified by their index. */
 function playerPresets(count: number): readonly Preset[] {
   return Array.from({ length: count }, (_, index) => playerPreset(`p${index}`, `Preset ${index}`))
 }

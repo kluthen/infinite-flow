@@ -20,7 +20,7 @@ const SIXTEENTH_ONLY_BLOCKED = {
   syncopation: 'Active displacement',
 } as const
 
-/** Intent: a staff-layout failure as the engraver raises it while drawing. */
+/** A staff-layout failure as the engraver raises it while drawing. */
 function layoutFailure(code: 'notation_no_room' | 'notation_notes_too_wide'): NotationError {
   return new NotationError(code, `layout failure ${code}`, {})
 }
@@ -301,7 +301,7 @@ describe('idle fit run: the window during a run', () => {
 
 type FitSession = ReturnType<typeof createFitSession>
 
-/** Intent: apply the combination that blocks generation from `bp-tablet-landscape` up. */
+/** Apply the combination that blocks generation from `bp-tablet-landscape` up. */
 function useSixteenthOnlyBlocked(built: FitSession): void {
   for (const [key, value] of Object.entries(SIXTEENTH_ONLY_BLOCKED)) {
     built.session.actions.setControl(key as keyof typeof SIXTEENTH_ONLY_BLOCKED, value)
@@ -309,7 +309,7 @@ function useSixteenthOnlyBlocked(built: FitSession): void {
 }
 
 /**
- * Intent: a session below `bp-tablet-landscape` under the combination blocked from it up, whose
+ * A session below `bp-tablet-landscape` under the combination blocked from it up, whose
  * generate call number `heldCall` waits for the test to resolve `pending`.
  */
 function heldSession(heldCall: number) {
@@ -326,7 +326,7 @@ function heldSession(heldCall: number) {
   return { ...built, pending }
 }
 
-/** Intent: assert a run stopped at once to Empty: no phrase, no notice, no banner, idle. */
+/** Assert a run stopped at once to Empty: no phrase, no notice, no banner, idle. */
 function expectStoppedToEmpty(built: FitSession): void {
   expect(built.session.state.operation).toBe('idle')
   expect(built.session.state.retriesRunning).toBe(false)

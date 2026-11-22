@@ -47,7 +47,7 @@ export class RegisterIntentError extends Error {
 }
 
 /**
- * Intent: build an immutable, deep-frozen RegisterIntent for a validated instrument profile and
+ * Build an immutable, deep-frozen RegisterIntent for a validated instrument profile and
  * a requested outer register choice, reusing deriveRegisterWindowCandidates for the resolved
  * candidate set so window derivation has exactly one implementation. Accepts Varying as a valid
  * requested choice — resolving Varying into one concrete candidate is not this function's job.
@@ -70,7 +70,7 @@ export function buildRegisterIntent(
 }
 
 /**
- * Intent: resolve exactly one candidate window by its stable register identity from an already-
+ * Resolve exactly one candidate window by its stable register identity from an already-
  * built RegisterIntent. Rejects an identity absent from the candidate set as a typed failure
  * rather than returning undefined.
  */

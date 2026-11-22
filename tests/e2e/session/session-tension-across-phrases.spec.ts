@@ -28,19 +28,19 @@ const MEASURE = 4 * BEAT
 /** The control's accessible name and field label. */
 const OPTION = 'Tension across phrases'
 
-/** Intent: a radiogroup of the control section by its accessible name. */
+/** A radiogroup of the control section by its accessible name. */
 function radiogroup(page: Page, name: string): Locator {
   return page.getByRole('radiogroup', { name, exact: true })
 }
 
-/** Intent: the label of a radiogroup's checked segment, or null when none is checked. */
+/** The label of a radiogroup's checked segment, or null when none is checked. */
 async function checkedIn(page: Page, name: string): Promise<string | null> {
   const checked = radiogroup(page, name).locator('[role="radio"][aria-checked="true"]')
   return (await checked.count()) === 0 ? null : checked.innerText()
 }
 
 /**
- * Intent: set `Tension across phrases` with a click on its segment, and wait until the controller
+ * Set `Tension across phrases` with a click on its segment, and wait until the controller
  * holds the choice.
  */
 async function setTensionAcrossPhrases(page: Page, on: boolean): Promise<void> {
@@ -50,14 +50,14 @@ async function setTensionAcrossPhrases(page: Page, on: boolean): Promise<void> {
   await expect.poll(async () => (await sessionState(page)).tensionAcrossPhrases).toBe(on)
 }
 
-/** Intent: the tension of every `generate` call the page has made, in call order. */
+/** The tension of every `generate` call the page has made, in call order. */
 async function requestedTensions(page: Page): Promise<string[]> {
   const requests = await page.evaluate(() => window.__workspaceHarness.generationRequests())
   return requests.map((request) => String(request.controls.tension))
 }
 
 /**
- * Intent: the tensions requested after the first `skip` calls, each run of equal ones counted
+ * The tensions requested after the first `skip` calls, each run of equal ones counted
  * once: a phrase's retries all carry its tension, and no two phrases in a row here share one.
  */
 async function tensionsPerPhraseAfter(page: Page, skip: number): Promise<string[]> {

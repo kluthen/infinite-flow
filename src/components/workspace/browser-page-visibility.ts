@@ -19,7 +19,7 @@ export interface VisibilityDocumentLike {
 }
 
 /**
- * Intent: adapt a document to the page-visibility port: each `visibilitychange` after which the
+ * Adapt a document to the page-visibility port: each `visibilitychange` after which the
  * document reads `hidden` calls the listener; the returned function removes it.
  */
 // @spec-link [[rule_hidden_tab_ends_session]]
@@ -35,7 +35,7 @@ export function createDocumentPageVisibility(doc: VisibilityDocumentLike): PageV
   }
 }
 
-/** Intent: the page visibility of this browser tab. */
+/** The page visibility of this browser tab. */
 // @spec-link [[rule_hidden_tab_ends_session]]
 export function createBrowserPageVisibility(): PageVisibility {
   return createDocumentPageVisibility(document)
@@ -52,7 +52,7 @@ export interface PageHideTargetLike {
 }
 
 /**
- * Intent: adapt a window to the page-leaving port, listening from now on (its listeners are never
+ * Adapt a window to the page-leaving port, listening from now on (its listeners are never
  * removed). Each `pagehide` marks the page as going away and counts one leaving; a `pageshow` with
  * `persisted` true (the back-forward cache bringing the page back) clears the mark, and one
  * without it (the first load) changes nothing. A watch reads set at once if the page is going away
@@ -78,7 +78,7 @@ export function createWindowPageLeaving(target: PageHideTargetLike): PageLeaving
   }
 }
 
-/** Intent: the page leaving of this browser tab, listened for from the call on. */
+/** The page leaving of this browser tab, listened for from the call on. */
 // @spec-link [[req_rolling_practice_session]]
 export function createBrowserPageLeaving(): PageLeaving {
   return createWindowPageLeaving(window)

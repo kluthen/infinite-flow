@@ -11,7 +11,7 @@ import type {
   PlayedNotesMidiPhrase,
 } from '@/export/midi/played-notes-midi-input'
 
-/** Intent: how long a four-measure phrase lasts in seconds at `tempo` BPM: 16 quarter notes. */
+/** How long a four-measure phrase lasts in seconds at `tempo` BPM: 16 quarter notes. */
 export function phraseLength(tempo: number): number {
   return (16 * 60) / tempo
 }
@@ -24,7 +24,7 @@ export interface PlayedOffsets {
   readonly release: number
 }
 
-/** Intent: a played note at absolute audio-clock times, the pitch unchecked (cast from a number). */
+/** A played note at absolute audio-clock times, the pitch unchecked (cast from a number). */
 export function playedNote(
   pitch: number,
   velocity: number,
@@ -34,7 +34,7 @@ export function playedNote(
   return { pitch: pitch as ConcertPitch, velocity, onsetAt, releaseAt }
 }
 
-/** Intent: the audio-clock start of every phrase, back to back from `firstStart`. */
+/** The audio-clock start of every phrase, back to back from `firstStart`. */
 export function phraseStarts(firstStart: number, tempos: readonly number[]): number[] {
   const starts: number[] = [firstStart]
   for (const tempo of tempos.slice(0, -1)) starts.push(starts.at(-1)! + phraseLength(tempo))
@@ -42,7 +42,7 @@ export function phraseStarts(firstStart: number, tempos: readonly number[]): num
 }
 
 /**
- * Intent: a session of back-to-back phrases from `firstStart` at the given tempos, each holding
+ * A session of back-to-back phrases from `firstStart` at the given tempos, each holding
  * the notes given as offsets from its own start (an offset may reach into a later phrase).
  */
 export function playedSession(

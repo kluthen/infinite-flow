@@ -138,7 +138,7 @@ const LOCK_AND_GROUP_CHANGES: readonly KeyChange[] = [
   },
 ]
 
-/** Intent: a rig whose queue holds phrases 2 to 5, nothing in flight. */
+/** A rig whose queue holds phrases 2 to 5, nothing in flight. */
 async function fullRig(options: Parameters<typeof pregenerationRig>[0] = {}) {
   const rig = pregenerationRig(options)
   await answerAll(rig)
@@ -146,7 +146,7 @@ async function fullRig(options: Parameters<typeof pregenerationRig>[0] = {}) {
   return rig
 }
 
-/** Intent: the request intents of the calls from `from` on. */
+/** The request intents of the calls from `from` on. */
 function intentsFrom(rig: PregenerationRig, from: number): GenerationIntent[] {
   return rig.calls.slice(from).map((call) => call.intent)
 }
@@ -443,7 +443,7 @@ describe('Idle pre-generation queue: a stale phrase 1', () => {
  */
 const REEL_SESSION_SEED = makeSeed(69)
 
-/** Intent: the Idle settings after choosing Reel from the base settings: C Mixolydian. */
+/** The Idle settings after choosing Reel from the base settings: C Mixolydian. */
 function reelSettings(): SessionSettings {
   const base = sessionSettings({ tempo: 60 })
   const chosen = choosePreset(
@@ -463,7 +463,7 @@ function reelSettings(): SessionSettings {
 }
 
 /**
- * Intent: a rig at Idle under Reel, phrase 1 generated under it with the Reel session seed, Vary
+ * A rig at Idle under Reel, phrase 1 generated under it with the Reel session seed, Vary
  * settings as asked, its queue holding phrases 2 to 5, nothing in flight.
  */
 async function reelRig(varySettings: boolean): Promise<PregenerationRig> {
@@ -494,7 +494,7 @@ describe('Idle pre-generation queue under a restriction in force', () => {
     const reel = reelSettings()
     const phraseOne = rig.idle.result!
     const atStart = mutationContextAtStart(phraseOne, false)
-    /** Intent: the plan's start from Reel's phrase 1, as the queue builds it, with these settings. */
+    /** The plan's start from Reel's phrase 1, as the queue builds it, with these settings. */
     const startFrom = (settings: SessionSettings) =>
       planStart({
         settings,

@@ -80,7 +80,7 @@ const deleteButton = ref<HTMLButtonElement | null>(null)
 const saveButton = ref<HTMLButtonElement | null>(null)
 const confirmWayBack = ref<HTMLButtonElement | null>(null)
 
-/** Intent: once the step shows, move focus to `target`. */
+/** Once the step shows, move focus to `target`. */
 async function focusOn(target: MyInstrumentSheetFocus): Promise<void> {
   await nextTick()
   const element = { cancel: confirmWayBack, save: saveButton, delete: deleteButton }[target]
@@ -105,7 +105,7 @@ const title = computed(() => {
   return editing.value ? 'My instrument' : 'Create my instrument'
 })
 
-/** Intent: the display name of a built-in profile. */
+/** The display name of a built-in profile. */
 function builtInName(id: string): string {
   const profile = findBuiltInInstrumentProfile(id)
   if (profile === undefined) throw new Error(`my instrument sheet: no built-in "${id}"`)
@@ -130,7 +130,7 @@ const reloadLine = computed(() =>
   props.start.mode === 'editing' ? reloadToChangeText(props.start.saved.name) : '',
 )
 
-/** Intent: whether `instrument` holds what the saved one holds, so saving it changes nothing. */
+/** Whether `instrument` holds what the saved one holds, so saving it changes nothing. */
 function unchanged(instrument: MyInstrument): boolean {
   if (props.start.mode !== 'editing') return false
   const saved = props.start.saved
@@ -146,7 +146,7 @@ function unchanged(instrument: MyInstrument): boolean {
 }
 
 /**
- * Intent: `Save`: report my instrument as the form holds it; an unchanged one only closes; a change
+ * `Save`: report my instrument as the form holds it; an unchanged one only closes; a change
  * of its range or transposition while it has kept sessions opens the erase warning instead.
  */
 // @spec-link [[req_my_instrument]]
@@ -160,31 +160,31 @@ function save(): void {
   else emit('save', instrument)
 }
 
-/** Intent: a template chosen: refill the range and the transposition from it. */
+/** A template chosen: refill the range and the transposition from it. */
 function chooseTemplate(value: string): void {
   if (!isBuiltInInstrumentProfileId(value)) throw new Error(`my instrument sheet: "${value}"`)
   form.chooseTemplate(value)
 }
 
-/** Intent: a clef chosen: the range is checked again against it at once. */
+/** A clef chosen: the range is checked again against it at once. */
 function chooseClef(value: string): void {
   if (!isInstrumentClef(value)) throw new Error(`my instrument sheet: no clef "${value}"`)
   form.clef.value = value
 }
 
-/** Intent: the way back: from a confirmation to the form, from the form out of the sheet. */
+/** The way back: from a confirmation to the form, from the form out of the sheet. */
 function wayBack(): void {
   if (step.value !== 'form') confirmations.back()
   else emit('close')
 }
 
-/** Intent: a press on the backdrop itself, not inside the sheet, is the way back. */
+/** A press on the backdrop itself, not inside the sheet, is the way back. */
 function handleBackdropClick(event: MouseEvent): void {
   if (event.target === event.currentTarget) wayBack()
 }
 
 /**
- * Intent: the name field's text goes into the form as `v-model` would put it: at every input,
+ * The name field's text goes into the form as `v-model` would put it: at every input,
  * except while an input method is composing, whose text lands once the composition ends.
  */
 function handleNameText(event: Event): void {
@@ -192,13 +192,13 @@ function handleNameText(event: Event): void {
   form.name.value = (event.target as HTMLInputElement).value
 }
 
-/** Intent: Enter in the name field does what `Save` does when it is enabled. */
+/** Enter in the name field does what `Save` does when it is enabled. */
 function handleNameEnter(event: KeyboardEvent): void {
   event.preventDefault()
   save()
 }
 
-/** Intent: the sheet's tab stops, in order. */
+/** The sheet's tab stops, in order. */
 function tabStops(): HTMLElement[] {
   if (dialog.value === null) throw new Error('my instrument sheet: the dialog is not rendered')
   return Array.from(
@@ -208,7 +208,7 @@ function tabStops(): HTMLElement[] {
   )
 }
 
-/** Intent: Tab and Shift+Tab cycle through the sheet's tab stops, wrapping at both ends. */
+/** Tab and Shift+Tab cycle through the sheet's tab stops, wrapping at both ends. */
 function cycleFocus(direction: 1 | -1): void {
   const stops = tabStops()
   const at = stops.findIndex((stop) => stop === document.activeElement)
@@ -218,7 +218,7 @@ function cycleFocus(direction: 1 | -1): void {
   next.focus()
 }
 
-/** Intent: while the sheet is open, Escape is the way back and Tab stays trapped in it. */
+/** While the sheet is open, Escape is the way back and Tab stays trapped in it. */
 function handleKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     event.preventDefault()
@@ -229,7 +229,7 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 }
 
-/** Intent: on open, listen for Escape and Tab; focus the template (creating) or the name. */
+/** On open, listen for Escape and Tab; focus the template (creating) or the name. */
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
   if (editing.value) {
@@ -239,7 +239,7 @@ onMounted(() => {
   templateField.value?.querySelector<HTMLElement>('[role="radio"][tabindex="0"]')?.focus()
 })
 
-/** Intent: stop listening for keys once the sheet leaves the page. */
+/** Stop listening for keys once the sheet leaves the page. */
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
 })

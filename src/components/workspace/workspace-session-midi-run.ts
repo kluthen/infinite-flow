@@ -91,13 +91,13 @@ export interface SessionListeners {
 /** The acknowledged notes at Idle: one empty list, so Idle never re-renders for a new one. */
 export const NONE_ACKNOWLEDGED: readonly ExpectedNoteIdentity[] = Object.freeze([])
 
-/** Intent: the smallest audio time strictly after `at`, for a check that must wait past it. */
+/** The smallest audio time strictly after `at`, for a check that must wait past it. */
 function justAfter(at: AudioTime): AudioTime {
   return at + Math.max(Math.abs(at), 1) * Number.EPSILON
 }
 
 /**
- * Intent: a note-on with its onset latency-compensated as the history's finished notes are, so
+ * A note-on with its onset latency-compensated as the history's finished notes are, so
  * the caller's port reads the very onset the history keeps for it.
  */
 // @spec-link [[rule_played_onset_latency_compensation]]
@@ -115,7 +115,7 @@ export interface ControllerSessionPorts {
 }
 
 /**
- * Intent: one session with a controller. Phrase 1's notes are expected from its first downbeat at
+ * One session with a controller. Phrase 1's notes are expected from its first downbeat at
  * the starting tempo and each later phrase's from its own, at its own tempo. A played note re-arms the silence timer from its onset and
  * is matched once: a match is recorded and shown, anything else changes nothing; each finished
  * note is recorded latency-compensated (the USB correction). The silence timer is armed by the
@@ -154,14 +154,14 @@ export function beginWithController(
   /** Whether a played note (the starting note included) has armed the silence timer yet. */
   let silenceArmed = false
 
-  /** Intent: count 30 s of silence from `from`, dropping any earlier count. */
+  /** Count 30 s of silence from `from`, dropping any earlier count. */
   function armSilence(from: AudioTime): void {
     silenceArmed = true
     silenceToken += 1
     checkSilenceAt(silenceToken, from, silenceDeadline(from))
   }
 
-  /** Intent: at `at`, end the session if more than 30 s passed since `from`, else check again just after. */
+  /** At `at`, end the session if more than 30 s passed since `from`, else check again just after. */
   function checkSilenceAt(token: number, from: AudioTime, at: AudioTime): void {
     seams.agenda.schedule(at, () => {
       if (token !== silenceToken) return
@@ -171,7 +171,7 @@ export function beginWithController(
     })
   }
 
-  /** Intent: show the countdown as it stands now and schedule its next change, or end at zero. */
+  /** Show the countdown as it stands now and schedule its next change, or end at zero. */
   function showCountdown(token: number, since: AudioTime): void {
     const now = audio.now()
     if (reconnectionExpired(since, now)) {
@@ -185,7 +185,7 @@ export function beginWithController(
   }
 
   /**
-   * Intent: follow the controller: lost when it stops being connected, back when it is again. Back,
+   * Follow the controller: lost when it stops being connected, back when it is again. Back,
    * every note that fell due between the loss and now is passed over before the silence re-arms:
    * it stays unacknowledged even if its window is still open. Each loss and return is reported
    * through `controllerPresence`, once the countdown is shown or cleared.
@@ -212,7 +212,7 @@ export function beginWithController(
   }
 
   /**
-   * Intent: hand the note to the caller's port latency-compensated, on the times the history keeps,
+   * Hand the note to the caller's port latency-compensated, on the times the history keeps,
    * then acknowledge and re-arm on a played note (before phrase 1 sounds, in a session started
    * without it, no note arms); record a finished one.
    */
@@ -232,7 +232,7 @@ export function beginWithController(
     ports.acknowledged.value = acknowledgement.acknowledged()
   }
 
-  /** Intent: run a listener, ending the session loudly on a programming error. */
+  /** Run a listener, ending the session loudly on a programming error. */
   function guarded<T>(listener: (value: T) => void): (value: T) => void {
     return (value) => {
       try {

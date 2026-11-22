@@ -31,7 +31,7 @@ const FLOOR_SCALE =
 
 const ONE_SYSTEM: StaffViewport = { layout: 'one-system', heightBudgetPx: null }
 
-/** Intent: a split-layout viewport whose height budget holds both systems at exactly `scale`. */
+/** A split-layout viewport whose height budget holds both systems at exactly `scale`. */
 function splitViewportAtScale(scale: number): StaffViewport {
   return { layout: 'split', heightBudgetPx: 2 * NOTATION_SYSTEM_POSITION_UNITS * scale }
 }
@@ -45,7 +45,7 @@ const base = {
   systemPadding: 10,
 }
 
-/** Intent: the raw units one system needs for `measuresPerSystem` measures of the given widths. */
+/** The raw units one system needs for `measuresPerSystem` measures of the given widths. */
 function requiredUnitsFor(
   measuresPerSystem: 2 | 4,
   measureMinWidths: readonly number[] = base.measureMinWidths,
@@ -54,19 +54,19 @@ function requiredUnitsFor(
   return base.leadingWidth + measuresPerSystem * widest + base.systemPadding
 }
 
-/** Intent: the raw units of the layout's fixed parts, every measure at the minimum measure width. */
+/** The raw units of the layout's fixed parts, every measure at the minimum measure width. */
 function fixedUnitsFor(measuresPerSystem: 2 | 4): number {
   return (
     base.leadingWidth + measuresPerSystem * NOTATION_MIN_MEASURE_WIDTH_UNITS + base.systemPadding
   )
 }
 
-/** Intent: run the planner over the shared base input with the given overrides. */
+/** Run the planner over the shared base input with the given overrides. */
 function plan(overrides: Partial<SystemLayoutInput> & Pick<SystemLayoutInput, 'viewport'>) {
   return planSystemLayout({ ...base, containerWidthPx: 1000, ...overrides })
 }
 
-/** Intent: unwrap a fitting outcome, failing the test with the outcome when it did not fit. */
+/** Unwrap a fitting outcome, failing the test with the outcome when it did not fit. */
 function expectFits(outcome: SystemLayoutOutcome): SystemLayoutPlan {
   if (outcome.kind !== 'fits') throw new Error(`Expected a fit, got ${JSON.stringify(outcome)}`)
   return outcome.plan
@@ -372,7 +372,7 @@ describe("heldViewport: a held layout drawn in the window's height budget", () =
   })
 })
 
-/** Intent: a profile's written range: its active concert range moved by its chromatic transposition. */
+/** A profile's written range: its active concert range moved by its chromatic transposition. */
 function writtenRangeOf(profile: InstrumentProfile): { minMidi: number; maxMidi: number } {
   return {
     minMidi: profile.concertRange.minMidi + profile.transposition.chromatic,
@@ -380,7 +380,7 @@ function writtenRangeOf(profile: InstrumentProfile): { minMidi: number; maxMidi:
   }
 }
 
-/** Intent: a written range in treble clef, every built-in profile's clef. */
+/** A written range in treble clef, every built-in profile's clef. */
 function inTreble(writtenRange: InstrumentMidiRange): WrittenRangeInClef {
   return { writtenRange, clef: 'treble' }
 }
@@ -473,7 +473,7 @@ const DOWN_BEAM_UNDER_TIP = 5
 const MARKER_OVER_INK = 15
 
 /**
- * Intent: the placement of a profile's written range, by profile id, with the margins its
+ * The placement of a profile's written range, by profile id, with the margins its
  * estimated ink leaves at both ends of the system position.
  */
 function placementOf(profileId: string) {
@@ -520,7 +520,7 @@ describe("planStaffPlacement: the estimated ink covers the beam groups a profile
   })
 })
 
-/** Intent: run the phrase-independent room check over the shared base fixed parts. */
+/** Run the phrase-independent room check over the shared base fixed parts. */
 function room(containerWidthPx: number, viewport: StaffViewport) {
   return planStaffRoom({
     containerWidthPx,
@@ -600,7 +600,7 @@ describe('planStaffRoom: whether the window has room for the staff, whatever the
 
 describe('chord symbols in a measure', () => {
   /**
-   * Intent: a measure of two two-beat chords formatted at `width`: the first symbol starts `lead`
+   * A measure of two two-beat chords formatted at `width`: the first symbol starts `lead`
    * units in, on beat 1, the second on beat 3, half the width further, each `symbolUnits` wide.
    */
   function twoChordShortfall(symbolUnits: number, lead: number) {

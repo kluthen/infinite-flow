@@ -13,7 +13,7 @@ import type { RhythmBar, RhythmCandidate } from '@/domain/rhythm/rhythm-types'
 
 import { bar, phrase, starts } from './rhythm-bar-fixture'
 
-/** Intent: drain one small real domain (Eighth, Strict, Conversational, Straight, Settled). */
+/** Drain one small real domain (Eighth, Strict, Conversational, Straight, Settled). */
 function smallDomain(): readonly RhythmCandidate[] {
   const result = makeRhythmCandidateDomain({
     noteDensity: 'Eighth',

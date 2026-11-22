@@ -52,7 +52,7 @@ export interface WorkspaceKeptDoodle {
   readonly decline: () => void
 }
 
-/** Intent: whether the player's `deletion` takes the session under `sessionKey`. */
+/** Whether the player's `deletion` takes the session under `sessionKey`. */
 function takesSession(deletion: PlayerSessionDeletion, sessionKey: string): boolean {
   if (deletion.kind === 'every-session') return true
   if (deletion.kind === 'session') return deletion.key === sessionKey
@@ -60,7 +60,7 @@ function takesSession(deletion: PlayerSessionDeletion, sessionKey: string): bool
 }
 
 /**
- * Intent: the workspace's kept doodle over its seams: Jam's holder made once, as Jam's code loads;
+ * The workspace's kept doodle over its seams: Jam's holder made once, as Jam's code loads;
  * the doodle let go as Jam mode stops showing, and as the player deletes the session it comes from
  * or every session, or my instrument's erased sessions take it; every other change keeps it.
  */
@@ -82,7 +82,7 @@ export function useKeptDoodleHost(seams: KeptDoodleHostSeams): WorkspaceKeptDood
     { flush: 'sync', immediate: true },
   )
 
-  /** Intent: let the kept doodle go, if one can be kept yet. */
+  /** Let the kept doodle go, if one can be kept yet. */
   function letGo(): void {
     holder.value?.letGo()
   }

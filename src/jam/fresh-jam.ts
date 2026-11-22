@@ -61,7 +61,7 @@ export interface FreshJam {
 }
 
 /**
- * Intent: start a fresh Jam, synchronously, inside the Start click or the home note's MIDI
+ * Start a fresh Jam, synchronously, inside the Start click or the home note's MIDI
  * callback: start the session without phrase 1 (which draws the session seed and starts the
  * count-in), then run its capture and phrase 1's ladder from the count-in's start, each attempt
  * seeded from the session seed plan's label for it. Each note, engine output and wake-up first
@@ -112,13 +112,13 @@ export function startFreshJam(request: FreshJamRequest): FreshJam {
   let wake: { readonly at: AudioTime; readonly token: number } | null = null
   let wakes = 0
 
-  /** Intent: publish the phase as the capture stands, keeping the readings. */
+  /** Publish the phase as the capture stands, keeping the readings. */
   function publish(readings: DoodleReadings | null = view.value.readings): void {
     const phase: JamPhase = ended ? { state: 'ended' } : capture.phase()
     view.value = Object.freeze({ phase, readings })
   }
 
-  /** Intent: one engine output to the ladder, at the audio clock's time; `ended` stops the Jam. */
+  /** One engine output to the ladder, at the audio clock's time; `ended` stops the Jam. */
   function onSession(running: JamPhraseOne, output: SessionOutput): void {
     if (ended) return
     if (output.kind === 'ended') {
@@ -131,13 +131,13 @@ export function startFreshJam(request: FreshJamRequest): FreshJam {
     act(running.session(output, routed.at))
   }
 
-  /** Intent: one capture output passed on by the ladder, as the session needs it. */
+  /** One capture output passed on by the ladder, as the session needs it. */
   function onCapture(output: JamCaptureOutput): void {
     if (output.kind === 'doodle-ended') session.recordDoodle(output.end)
     else if (output.kind === 'no-note-played') session.end('no-note-played')
   }
 
-  /** Intent: do what the ladder asks, in order, then publish and ask for the next wake-up. */
+  /** Do what the ladder asks, in order, then publish and ask for the next wake-up. */
   function act(outputs: readonly JamPhraseOneOutput[]): void {
     let readings = view.value.readings
     for (const output of outputs) {
@@ -157,7 +157,7 @@ export function startFreshJam(request: FreshJamRequest): FreshJam {
   }
 
   /**
-   * Intent: when to wake the Jam next: its next decision, or the next barline before it, so a
+   * When to wake the Jam next: its next decision, or the next barline before it, so a
    * doodle measure lights at its barline; never a barline a decision follows within the time a
    * note takes to count, so a silent barline turns to the writing cue without lighting the next
    * number first. Null once phrase 1 sounds or nothing is due.
@@ -172,7 +172,7 @@ export function startFreshJam(request: FreshJamRequest): FreshJam {
     return barline
   }
 
-  /** Intent: ask the session to wake the Jam at its next wake-up time, unless already asked. */
+  /** Ask the session to wake the Jam at its next wake-up time, unless already asked. */
   function scheduleWake(): void {
     const at = nextWakeAt()
     if (at === null || (wake !== null && wake.at <= at)) return

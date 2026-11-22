@@ -68,7 +68,7 @@ const HARMONY_CONTROLS = [
   'tension',
 ] as const satisfies readonly (keyof GenerationControls)[]
 
-/** Intent: true when any of the given controls differs between the two settings. */
+/** True when any of the given controls differs between the two settings. */
 function controlsDiffer(
   before: SessionSettings,
   after: SessionSettings,
@@ -78,7 +78,7 @@ function controlsDiffer(
 }
 
 /**
- * Intent: true when a setting the harmony check counts differs between the two settings: one of
+ * True when a setting the harmony check counts differs between the two settings: one of
  * its controls, or the level of any figure. A change of the preset selection alone changes neither.
  */
 // @spec-link [[rule_harmony_change_drops_unfit_harmonic_carry_in]]
@@ -90,7 +90,7 @@ function harmonySettingsDiffer(before: SessionSettings, after: SessionSettings):
 }
 
 /**
- * Intent: the receiving side of the fit checks for the new settings, built as the intent builds
+ * The receiving side of the fit checks for the new settings, built as the intent builds
  * it: the written tonal center converted to concert pitch for the session's instrument, my
  * instrument's transposition read from the profile the settings carry.
  */
@@ -105,7 +105,7 @@ function receiverFor(after: SessionSettings): Pick<CarryInReceiver, 'controls'> 
   }
 }
 
-/** Intent: the window of a fixed register; a register missing from the windows is a caller bug. */
+/** The window of a fixed register; a register missing from the windows is a caller bug. */
 // @spec-link [[rule_register_change_replaces_carried_window]]
 function registerWindowOf(
   register: RegisterId,
@@ -118,7 +118,7 @@ function registerWindowOf(
 }
 
 /**
- * Intent: the carried harmony kept for the new settings: dropped after a key or collection change,
+ * The carried harmony kept for the new settings: dropped after a key or collection change,
  * and dropped when the new harmony settings never end a phrase on that chord and endpoint class.
  */
 // @spec-link [[rule_key_change_drops_harmonic_carry_in]]
@@ -133,7 +133,7 @@ function adaptedHarmony(
 }
 
 /**
- * Intent: true when the carried pitch lies inside the window and whatever it owes (a tense note
+ * True when the carried pitch lies inside the window and whatever it owes (a tense note
  * while a chord is carried, a leap recovery) can be settled under the new settings.
  */
 // @spec-link [[rule_setting_change_rechecks_pitch_carry_in]]
@@ -145,7 +145,7 @@ function pitchPartFits(adapted: CarryIn, receiver: Pick<CarryInReceiver, 'contro
 }
 
 /**
- * Intent: adapt a carry-in to the settings of the phrase it feeds. Unchanged when no relevant
+ * Adapt a carry-in to the settings of the phrase it feeds. Unchanged when no relevant
  * setting changed (the same object comes back); standalone with Varying after a change to Varying;
  * otherwise the window becomes the new register's, the harmony is dropped when the key or
  * collection changed or it no longer fits, and the pitch part is re-checked. A pitch part that no

@@ -51,13 +51,13 @@ export interface AttemptTime {
   readonly recoveryOnlyOnSeventh: boolean
 }
 
-/** Intent: the pitch class of a MIDI value. */
+/** The pitch class of a MIDI value. */
 function pitchClassOf(midi: number): number {
   return ((midi % 12) + 12) % 12
 }
 
 /**
- * Intent: true when a recovery owed at `midi` for a large leap in `leapDirection` could land, inside
+ * True when a recovery owed at `midi` for a large leap in `leapDirection` could land, inside
  * `window`, on the seventh of the tonic seventh chord `seventhChord` (root, third, fifth, seventh)
  * and on none of its triad tones: among the landings (`recoveryLandsOn`) on a tone of the seventh
  * chord, at least one is its seventh and none is a triad tone.
@@ -81,7 +81,7 @@ export function recoveryOnlyOnSeventhAt(
 }
 
 /**
- * Intent: true when the intent's carry-in owes a leap recovery that, inside the carried window,
+ * True when the intent's carry-in owes a leap recovery that, inside the carried window,
  * only the tonic chord's seventh could repay (`recoveryOnlyOnSeventhAt`): the first chord after a
  * join is the tonic chord, of the intent's key and collection. False with no carry-in or a settled
  * recovery. The intent's constructor refuses a carry-in whose recovery no tonic-triad tone inside
@@ -101,7 +101,7 @@ export function owedRecoveryOnlyOnSeventh(intent: GenerationIntent): boolean {
 }
 
 /**
- * Intent: what the figures keep of a measured outcome: its time, failure code, Tension value,
+ * What the figures keep of a measured outcome: its time, failure code, Tension value,
  * seventh census and join facts, not the phrase.
  */
 export function attemptTime(
@@ -133,7 +133,7 @@ export interface FailedJoins {
   readonly recoveryOnlyOnSeventh: number
 }
 
-/** Intent: the joins that failed among some attempts, counted by cause. */
+/** The joins that failed among some attempts, counted by cause. */
 export function failedJoinCounts(attempts: readonly AttemptTime[]): FailedJoins {
   const failed = attempts.filter((attempt) => attempt.join && attempt.failureCode !== null)
   return {
@@ -151,10 +151,10 @@ export interface SeventhShares {
   readonly fallbacks: Share
 }
 
-/** Intent: the seventh shares of some measured attempts. */
+/** The seventh shares of some measured attempts. */
 export function seventhShares(attempts: readonly AttemptTime[]): SeventhShares {
   const generated = attempts.filter((attempt) => attempt.failureCode === null)
-  /** Intent: one count added up over the phrases generated. */
+  /** One count added up over the phrases generated. */
   const sum = (count: (attempt: AttemptTime) => number): number =>
     generated.reduce((total, attempt) => total + count(attempt), 0)
   return {
@@ -193,13 +193,13 @@ export interface SplitTimes {
   readonly failures: TimeStats
 }
 
-/** Intent: a count over a total as a share, null when the total is zero. */
+/** A count over a total as a share, null when the total is zero. */
 export function shareOf(count: number, total: number): Share {
   return { count, total, share: total === 0 ? null : count / total }
 }
 
 /**
- * Intent: the nearest-rank percentile of some values: the smallest value at or above which at
+ * The nearest-rank percentile of some values: the smallest value at or above which at
  * least `percent` % of the values lie, i.e. the value of rank ceil(percent / 100 * n) in
  * ascending order; null with no value.
  */
@@ -210,7 +210,7 @@ export function nearestRank(values: readonly number[], percent: number): number 
   return sorted[rank - 1]!
 }
 
-/** Intent: the slowest and nearest-rank 95th-percentile time of some attempts. */
+/** The slowest and nearest-rank 95th-percentile time of some attempts. */
 function timeStats(attempts: readonly AttemptTime[]): TimeStats {
   const seconds = attempts.map((attempt) => attempt.seconds)
   return {
@@ -220,12 +220,12 @@ function timeStats(attempts: readonly AttemptTime[]): TimeStats {
   }
 }
 
-/** Intent: whether a measured attempt generated a phrase. */
+/** Whether a measured attempt generated a phrase. */
 function succeeded(attempt: AttemptTime): boolean {
   return attempt.failureCode === null
 }
 
-/** Intent: the time statistics of some attempts, all of them and split by success and failure. */
+/** The time statistics of some attempts, all of them and split by success and failure. */
 export function splitTimes(attempts: readonly AttemptTime[]): SplitTimes {
   return {
     all: timeStats(attempts),
@@ -245,7 +245,7 @@ export interface StandaloneAttempts {
 }
 
 /**
- * Intent: the time statistics of the attempts with no carry-in among some attempts, and how many
+ * The time statistics of the attempts with no carry-in among some attempts, and how many
  * of them took longer than the standalone reserve.
  */
 export function standaloneAttempts(attempts: readonly AttemptTime[]): StandaloneAttempts {
@@ -257,7 +257,7 @@ export function standaloneAttempts(attempts: readonly AttemptTime[]): Standalone
   }
 }
 
-/** Intent: the failures among some attempts, counted by failure code. */
+/** The failures among some attempts, counted by failure code. */
 export function failuresByCode(attempts: readonly AttemptTime[]): Record<string, number> {
   const counts: Record<string, number> = {}
   for (const { failureCode } of attempts)
@@ -266,7 +266,7 @@ export function failuresByCode(attempts: readonly AttemptTime[]): Record<string,
 }
 
 /**
- * Intent: the failures among some attempts, counted by the Tension value their intent asked for,
+ * The failures among some attempts, counted by the Tension value their intent asked for,
  * then by failure code.
  */
 export function failuresByTension(
@@ -281,12 +281,12 @@ export function failuresByTension(
   return counts
 }
 
-/** Intent: whether a phrase production generated the phrase: carry-in or any standalone kind. */
+/** Whether a phrase production generated the phrase: carry-in or any standalone kind. */
 function isGenerated(production: PhraseProduction): boolean {
   return production !== 'repeat' && production !== 'undecided'
 }
 
-/** Intent: whether a phrase production generated the phrase without the join (standalone). */
+/** Whether a phrase production generated the phrase without the join (standalone). */
 function isStandalone(production: PhraseProduction): boolean {
   return isGenerated(production) && production !== 'carry-in'
 }
@@ -332,13 +332,13 @@ export interface TempoFigures {
   readonly shortfalls: { readonly count: number; readonly first: readonly string[] }
 }
 
-/** Intent: add one phrase's production to a count. */
+/** Add one phrase's production to a count. */
 function countPhrase(counts: Counts, production: PhraseProduction): void {
   counts.phrases += 1
   if (isGenerated(production)) counts.generated += 1
 }
 
-/** Intent: some plain counts as shares, key by key. */
+/** Some plain counts as shares, key by key. */
 function sharesOf(counts: Readonly<Record<string, Counts>>): Record<string, Share> {
   return Object.fromEntries(
     Object.entries(counts).map(([key, c]) => [key, shareOf(c.generated, c.phrases)]),
@@ -359,7 +359,7 @@ interface PhraseRequests {
 }
 
 /**
- * Intent: for phrases 2 to 6 of a run, in order, the Tension value and collection of the last
+ * For phrases 2 to 6 of a run, in order, the Tension value and collection of the last
  * request made for each, and what each attempt requested for it became. `attempts` are the run's
  * attempts in request order, one per generator record.
  */
@@ -400,7 +400,7 @@ function phraseRequests(
 }
 
 /**
- * Intent: why a phrase was left ungenerated, in words: each step's attempts by what they became
+ * Why a phrase was left ungenerated, in words: each step's attempts by what they became
  * (a failure code, "cancelled", or "generated" for a phrase that came too late), with counts,
  * in request order; "never requested" when no attempt was made for it.
  */
@@ -431,11 +431,11 @@ export class TempoTally {
   private readonly attempts: AttemptTime[] = []
   private readonly shortfalls: string[] = []
 
-  /** Intent: start the tally of one tempo. */
+  /** Start the tally of one tempo. */
   constructor(readonly tempo: number) {}
 
   /**
-   * Intent: add one case's run, the times of the attempts it requested, and its shortfalls,
+   * Add one case's run, the times of the attempts it requested, and its shortfalls,
    * keeping counts, times and lines only, so the run can be dropped afterwards.
    */
   add(
@@ -475,7 +475,7 @@ export class TempoTally {
     this.shortfalls.push(...shortfalls)
   }
 
-  /** Intent: the tempo's figures so far. */
+  /** The tempo's figures so far. */
   figures(): TempoFigures {
     const phrases = this.overall.phrases
     const successes = this.attempts.filter(succeeded)
@@ -508,19 +508,19 @@ export class TempoTally {
   }
 }
 
-/** Intent: a share as a percentage with one decimal and its counts, or a dash with no total. */
+/** A share as a percentage with one decimal and its counts, or a dash with no total. */
 function percent(share: Share): string {
   const value = share.share === null ? '-' : `${(share.share * 100).toFixed(1)} %`
   return `${value} (${share.count}/${share.total})`
 }
 
-/** Intent: a time in seconds with three decimals, or a dash when there is none. */
+/** A time in seconds with three decimals, or a dash when there is none. */
 function seconds(value: number | null): string {
   return value === null ? '-' : `${value.toFixed(3)} s`
 }
 
 /**
- * Intent: the readable figures of some standalone attempts after `prefix`: how many, the slowest
+ * The readable figures of some standalone attempts after `prefix`: how many, the slowest
  * and 95th-percentile time, and how many took longer than the standalone reserve.
  */
 export function standaloneAttemptsLine(prefix: string, standalone: StandaloneAttempts): string {
@@ -529,7 +529,7 @@ export function standaloneAttemptsLine(prefix: string, standalone: StandaloneAtt
 }
 
 /**
- * Intent: the readable summary of one tempo, then the fallback shares when it is the fallback
+ * The readable summary of one tempo, then the fallback shares when it is the fallback
  * tempo, each line prefixed `COST-GUARD [label]`.
  */
 export function tempoSummaryLines(label: string, figures: TempoFigures): readonly string[] {
@@ -566,7 +566,7 @@ export function tempoSummaryLines(label: string, figures: TempoFigures): readonl
   return lines
 }
 
-/** Intent: the readable line of a setting's distinct intents, prefixed `COST-GUARD [label]`. */
+/** The readable line of a setting's distinct intents, prefixed `COST-GUARD [label]`. */
 export function intentSummaryLine(label: string, times: SplitTimes, failed: number): string {
   return `COST-GUARD [${label}] ${times.all.count} distinct intents, ${failed} failed: slowest ${seconds(times.all.slowestSeconds)} p95 ${seconds(times.all.p95Seconds)} (successes p95 ${seconds(times.successes.p95Seconds)}, failures p95 ${seconds(times.failures.p95Seconds)})`
 }

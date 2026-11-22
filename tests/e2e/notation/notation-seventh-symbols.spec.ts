@@ -16,7 +16,7 @@ import { measureInk, NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE } from './staff-in
 
 test.use({ baseURL: 'http://127.0.0.1:4174' })
 
-/** Intent: open a fixture at a viewport and frame width, and return the settled harness state. */
+/** Open a fixture at a viewport and frame width, and return the settled harness state. */
 async function engraveFixture(
   page: Page,
   viewport: { readonly width: number; readonly height: number },
@@ -55,19 +55,19 @@ const WINDOW_TO_FRAME_PX = 40
 const FLOOR_SCALE = 0.5
 
 /**
- * Intent: a chord symbol's letters and digits only, since its sharp and flat signs may be drawn as
+ * A chord symbol's letters and digits only, since its sharp and flat signs may be drawn as
  * music-font glyphs rather than as the text's own ♯ and ♭.
  */
 function symbolLetters(text: string): string {
   return text.replace(/[^A-Za-z0-9]/gu, '')
 }
 
-/** Intent: the layout inputs PhraseScore reported last, the ones it engraved with. */
+/** The layout inputs PhraseScore reported last, the ones it engraved with. */
 function lastLayoutInputs(page: Page): Promise<NotationHarnessLayoutInputs> {
   return page.evaluate(() => window.__notationLayoutInputs.at(-1)!)
 }
 
-/** Intent: draw a fixture at the layout inputs PhraseScore engraved with and read its symbols. */
+/** Draw a fixture at the layout inputs PhraseScore engraved with and read its symbols. */
 function symbolGeometry(
   page: Page,
   fixture: string,
@@ -81,7 +81,7 @@ function symbolGeometry(
 }
 
 /**
- * Intent: check that every measure of a calibration fixture shows its two seventh symbols as
+ * Check that every measure of a calibration fixture shows its two seventh symbols as
  * built, a staff space apart, the second on its measure's system and left of its closing barline.
  */
 function expectSymbolsApartInsideBarlines(geometry: NotationHarnessChordSymbolGeometry): void {
@@ -137,7 +137,7 @@ const SEVENTH_RUNS: Readonly<Record<string, readonly string[]>> = {
 const SYMBOL_VIEWPORT = { width: 1440, height: 800 } as const
 const SYMBOL_FRAME_PX = SYMBOL_VIEWPORT.width - WINDOW_TO_FRAME_PX
 
-/** Intent: engrave a fixture in the desktop window and read its drawn chord symbols. */
+/** Engrave a fixture in the desktop window and read its drawn chord symbols. */
 async function drawnSymbols(
   page: Page,
   fixture: string,
@@ -176,7 +176,7 @@ test("a seventh symbol's suffix is drawn on the root's baseline at the one chord
  */
 const INK_TOLERANCE_PX = 1
 
-/** Intent: engrave a fixture in the desktop window and measure its one system's ink. */
+/** Engrave a fixture in the desktop window and measure its one system's ink. */
 async function oneSystemInk(page: Page, fixture: string) {
   const harnessState = await engraveFixture(page, SYMBOL_VIEWPORT, fixture, SYMBOL_FRAME_PX)
   expect(harnessState.state).toBe('ready')

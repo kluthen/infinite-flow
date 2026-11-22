@@ -14,14 +14,14 @@ export interface WakeTimerWorkerPort {
   terminate(): void
 }
 
-/** Intent: create one real module Worker running ./wake-timer.worker.ts as a WakeTimerWorkerPort. */
+/** Create one real module Worker running ./wake-timer.worker.ts as a WakeTimerWorkerPort. */
 // @spec-link [[rule_playhead_follows_audio_clock]]
 export function createBrowserWakeTimerWorker(): WakeTimerWorkerPort {
   return new Worker(new URL('./wake-timer.worker.ts', import.meta.url), { type: 'module' })
 }
 
 /**
- * Intent: the wake-up timer over `port`: start posts the wake interval to the worker and calls
+ * The wake-up timer over `port`: start posts the wake interval to the worker and calls
  * `onWake` on each wake-up while started; stop tells the worker to stop, and a wake-up that
  * arrives after it is ignored; dispose, while stopped, terminates the worker. A second start, a
  * stop with nothing started, a dispose while started, and any start or dispose once disposed throw.

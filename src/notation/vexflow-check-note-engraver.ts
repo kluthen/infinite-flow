@@ -95,20 +95,20 @@ interface CheckNoteBox {
   readonly height: number
 }
 
-/** Intent: reject a value that is no MIDI note number, before anything is drawn. */
+/** Reject a value that is no MIDI note number, before anything is drawn. */
 function assertMidiNote(writtenMidi: number): void {
   if (!Number.isInteger(writtenMidi) || writtenMidi < MIDI_MIN || writtenMidi > MIDI_MAX) {
     throw new RangeError(`Written MIDI note ${writtenMidi} is not an integer in 0-127.`)
   }
 }
 
-/** Intent: the note's accessible name, in the score description's words ("Written note C sharp 5"). */
+/** The note's accessible name, in the score description's words ("Written note C sharp 5"). */
 function checkNoteLabel(pitch: SpelledPitch): string {
   return `Written note ${pitch.letter}${ALTER_WORDS[pitch.alter]} ${pitch.octave}`
 }
 
 /**
- * Intent: the written model of the check's one note: a whole note, its accidental drawn if any,
+ * The written model of the check's one note: a whole note, its accidental drawn if any,
  * stemmed by the same rule as a phrase's single note (a whole note draws no stem).
  */
 function checkNoteEvent(pitch: SpelledPitch, clef: InstrumentClef): WrittenNote {
@@ -126,7 +126,7 @@ function checkNoteEvent(pitch: SpelledPitch, clef: InstrumentClef): WrittenNote 
 }
 
 /**
- * Intent: the box holding the staff, the clef and the note with its ledger lines and accidental,
+ * The box holding the staff, the clef and the note with its ledger lines and accidental,
  * from the formatted note's staff position, plus the margin on every side.
  */
 function checkNoteBox(stave: Stave, clef: InstrumentClef, noteY: number): CheckNoteBox {
@@ -145,7 +145,7 @@ function checkNoteBox(stave: Stave, clef: InstrumentClef, noteY: number): CheckN
 }
 
 /**
- * Intent: draw the staff and the note into `target` and return the box they need. The stave is
+ * Draw the staff and the note into `target` and return the box they need. The stave is
  * built twice: once to measure where the note starts after the clef, then at its final width.
  */
 function drawCheckNote(
@@ -173,7 +173,7 @@ function drawCheckNote(
 }
 
 /**
- * Intent: size and mark the drawn SVG like a score system: the `staff-svg` class the stylesheet
+ * Size and mark the drawn SVG like a score system: the `staff-svg` class the stylesheet
  * recolours, the image role, the accessible name, its pixel size and the viewBox of its box.
  */
 function finishCheckNoteSvg(target: HTMLElement, box: CheckNoteBox, pitch: SpelledPitch): void {

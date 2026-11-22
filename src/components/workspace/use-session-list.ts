@@ -38,7 +38,7 @@ export interface SessionListSide {
   readonly askDelete: (key: string) => void
 }
 
-/** Intent: the controller, which must exist while the list shows. */
+/** The controller, which must exist while the list shows. */
 function requireController(deps: SessionListDependencies): SessionController {
   const controller = deps.controller()
   if (controller === null) throw new Error('session list: no session controller yet')
@@ -46,7 +46,7 @@ function requireController(deps: SessionListDependencies): SessionController {
 }
 
 /**
- * Intent: the row of the session under `key` this version reads, which a row's action can only be
+ * The row of the session under `key` this version reads, which a row's action can only be
  * pressed on.
  */
 function currentRow(
@@ -59,7 +59,7 @@ function currentRow(
 }
 
 /**
- * Intent: the list side of one review area, over the controller and the area's confirmation.
+ * The list side of one review area, over the controller and the area's confirmation.
  */
 // @spec-link [[req_kept_session_list]]
 // @spec-link [[module_kept_session_reach]]
@@ -72,7 +72,7 @@ export function useSessionList(deps: SessionListDependencies): SessionListSide {
     return recent.kind === 'held' ? recent.session.key : recent.key
   })
 
-  /** Intent: pin at once; unpin at once without favorites, after its confirmation with some. */
+  /** Pin at once; unpin at once without favorites, after its confirmation with some. */
   // @spec-link [[rule_pinned_session_kept]]
   // @spec-link [[rule_favorite_pins_session]]
   function togglePin(key: string): boolean {
@@ -92,7 +92,7 @@ export function useSessionList(deps: SessionListDependencies): SessionListSide {
     return false
   }
 
-  /** Intent: open `Delete`'s confirmation, naming what the row says the session holds. */
+  /** Open `Delete`'s confirmation, naming what the row says the session holds. */
   // @spec-link [[req_kept_session_list]]
   function askDelete(key: string): void {
     const controller = requireController(deps)

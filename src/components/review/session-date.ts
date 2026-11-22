@@ -16,7 +16,7 @@ const SESSION_DATE_FIELDS: Intl.DateTimeFormatOptions = {
 }
 
 /**
- * Intent: the session date of a session that started at `startedAtMs` (epoch milliseconds), in
+ * The session date of a session that started at `startedAtMs` (epoch milliseconds), in
  * `locale` (the browser's by default) and the time zone the runtime is in; throws on a start that
  * is not a finite time.
  */

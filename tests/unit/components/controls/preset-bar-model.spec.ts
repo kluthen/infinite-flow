@@ -17,7 +17,7 @@ import { makePreset, type Preset, type PresetSelection } from '@/domain/presets/
 import type { SessionSettings } from '@/session/session-types'
 import { ALL_GROUPS_ALLOWED } from '@/session/settings-mutation'
 
-/** Intent: a player preset with `id` and `name`, Jazz's values, and an "any" restriction. */
+/** A player preset with `id` and `name`, Jazz's values, and an "any" restriction. */
 function playerPreset(id: string, name: string, restriction = builtInPreset('jazz').restriction) {
   return makePreset({ ...builtInPreset('jazz'), id, name, restriction, kind: 'player' })
 }
@@ -32,7 +32,7 @@ const PLAYER_PRESETS: readonly Preset[] = [
 
 const PRESETS: readonly Preset[] = [...BUILT_IN_PRESETS, ...PLAYER_PRESETS]
 
-/** Intent: the groups as label and option values, for a compact comparison. */
+/** The groups as label and option values, for a compact comparison. */
 function groupValues(presets: readonly Preset[]) {
   return presetBarGroups(presets).map((group) => ({
     label: group.label,
@@ -113,7 +113,7 @@ describe('playerPresetsInBoxOrder', () => {
 // @test-link [[rule_custom_names_its_base]]
 // @test-link [[rule_custom_selection]]
 describe('presetBarCustomOption and presetBarFullText', () => {
-  /** Intent: Custom based on `baseId`. */
+  /** Custom based on `baseId`. */
   const custom = (baseId: string | null): PresetSelection => ({ kind: 'custom', baseId })
 
   // @test-link [[rule_custom_names_its_base]]
@@ -142,7 +142,7 @@ describe('presetBarCustomOption and presetBarFullText', () => {
 
 // @test-link [[module_preset_bar_model]]
 describe('presetDescription', () => {
-  /** Intent: the preset with `presetId` selected. */
+  /** The preset with `presetId` selected. */
   const preset = (presetId: string): PresetSelection => ({ kind: 'preset', presetId })
 
   // @test-link [[module_preset_bar_model]]

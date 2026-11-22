@@ -67,7 +67,7 @@ const HAND_CHECK_FILES: readonly HandCheckFile[] = [
   },
 ]
 
-/** Intent: the hand-check session for one instrument, recorded through the session runner. */
+/** The hand-check session for one instrument, recorded through the session runner. */
 function handCheckSession(instrumentProfileId: InstrumentProfileId): Promise<SessionHistory> {
   const settings = sessionSettings({
     tempo: TEMPO,
@@ -84,7 +84,7 @@ function handCheckSession(instrumentProfileId: InstrumentProfileId): Promise<Ses
 }
 
 /**
- * Intent: validate one document against the vendored MusicXML 4.0 schema with xmllint, offline.
+ * Validate one document against the vendored MusicXML 4.0 schema with xmllint, offline.
  * A missing xmllint fails the test instead of skipping it.
  */
 function validateMusicXml(xml: string): { status: number | null; output: string } {

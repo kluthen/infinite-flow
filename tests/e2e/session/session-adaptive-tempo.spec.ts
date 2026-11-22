@@ -28,17 +28,17 @@ function measure(bpm: number): number {
   return (4 * 60) / bpm
 }
 
-/** Intent: the header's tempo readout. */
+/** The header's tempo readout. */
 function tempoReadout(page: Page): Locator {
   return page.locator('.tempo-readout')
 }
 
-/** Intent: the tempo stepper's shown value. */
+/** The tempo stepper's shown value. */
 function stepperValue(page: Page): Locator {
   return page.getByRole('spinbutton', { name: 'Tempo' }).locator('.input-stepper-value')
 }
 
-/** Intent: the tempo field's notes (the reached-tempo note, when one shows). */
+/** The tempo field's notes (the reached-tempo note, when one shows). */
 function tempoFieldNotes(page: Page): Locator {
   return page
     .locator('.field-group')
@@ -47,7 +47,7 @@ function tempoFieldNotes(page: Page): Locator {
 }
 
 /**
- * Intent: move the clock just before and just after a phrase's start, `startsAt`, and check the tempo shown
+ * Move the clock just before and just after a phrase's start, `startsAt`, and check the tempo shown
  * changes from `before` to `after` at that instant, in the session state, the header and the
  * stepper.
  */

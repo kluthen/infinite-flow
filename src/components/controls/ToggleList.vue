@@ -24,7 +24,7 @@ const emit = defineEmits<{
   toggle: [value: string]
 }>()
 
-/** Intent: report the toggled item unless the list is read-only or the item disabled. */
+/** Report the toggled item unless the list is read-only or the item disabled. */
 // @spec-link [[ui_toggle_list]]
 function handleClick(item: ToggleListItem): void {
   if (props.readonly || item.disabled === true) return
@@ -32,7 +32,7 @@ function handleClick(item: ToggleListItem): void {
 }
 
 /**
- * Intent: while read-only, refuse the button's own activation by Space or Enter, so a focused
+ * While read-only, refuse the button's own activation by Space or Enter, so a focused
  * toggle cannot be changed from the keyboard either; any other key, and every key while editable,
  * is left alone.
  */

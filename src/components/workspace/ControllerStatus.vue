@@ -33,7 +33,7 @@ const BADGE_DOT: Readonly<Record<BadgeForm['kind'], string>> = {
   disconnected: 'is-error',
 }
 
-/** Intent: the badge's fixed label: the device's name when connected, else the form's words. */
+/** The badge's fixed label: the device's name when connected, else the form's words. */
 // @spec-link [[rule_controller_connects_between_sessions]]
 function badgeLabel(form: BadgeForm): string {
   if (form.kind === 'connected') return form.device.name
@@ -54,7 +54,7 @@ const badge = computed(() => {
   }
 })
 
-/** Intent: move focus to the button, which is always rendered. */
+/** Move focus to the button, which is always rendered. */
 function focus(): void {
   if (button.value === null) throw new Error('controller status: the button is not mounted')
   button.value.focus()

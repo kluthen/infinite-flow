@@ -32,14 +32,14 @@ beforeAll(async () => {
   await import('@/components/workspace/ReviewArea.vue')
 })
 
-/** Intent: a real workspace whose Idle state a test can edit after mounting. */
+/** A real workspace whose Idle state a test can edit after mounting. */
 function liveWorkspace() {
   const workspace = createTestWorkspace()
   const state = reactive({ ...workspace.session.state })
   return { workspace, session: { ...workspace.session, state }, state }
 }
 
-/** Intent: wrap the transport and the controller so every click-time call lands in `calls`. */
+/** Wrap the transport and the controller so every click-time call lands in `calls`. */
 function recorded(audio: AudioTransport, midi: MidiController) {
   const calls: string[] = []
   const recordedAudio: AudioTransport = {
@@ -63,7 +63,7 @@ function recorded(audio: AudioTransport, midi: MidiController) {
   return { calls, audio: recordedAudio, midi: recordedMidi }
 }
 
-/** Intent: mount the shell over a live workspace, `midi` and an optional session controller. */
+/** Mount the shell over a live workspace, `midi` and an optional session controller. */
 function mountShell(
   live: ReturnType<typeof liveWorkspace>,
   options: {
@@ -96,29 +96,29 @@ function mountShell(
 
 type ShellWrapper = ReturnType<typeof mountShell>
 
-/** Intent: the header's `controller-status` button. */
+/** The header's `controller-status` button. */
 function controllerStatus(wrapper: ShellWrapper) {
   return wrapper.get('.context-group > button.controller-status')
 }
 
-/** Intent: the header's phrase action. */
+/** The header's phrase action. */
 function phraseAction(wrapper: ShellWrapper) {
   return wrapper.get('.header-actions > button:not(.session-action)')
 }
 
-/** Intent: the header's session action. */
+/** The header's session action. */
 function sessionAction(wrapper: ShellWrapper) {
   return wrapper.get('.header-actions > button.session-action')
 }
 
-/** Intent: click `controller-status`, then let the lazy sheet load and render. */
+/** Click `controller-status`, then let the lazy sheet load and render. */
 async function openSheet(wrapper: ShellWrapper) {
   await controllerStatus(wrapper).trigger('click')
   await flushPromises()
   return wrapper.getComponent(ConnectionSheet)
 }
 
-/** Intent: close the open sheet from its own Close button, then let the focus move run. */
+/** Close the open sheet from its own Close button, then let the focus move run. */
 async function closeSheet(wrapper: ShellWrapper): Promise<void> {
   await wrapper.get('.sheet-close').trigger('click')
   await nextTick()
@@ -313,7 +313,7 @@ describe('WorkspaceShell connection sheet close', () => {
 })
 
 /**
- * Intent: record every error the page would report from now on: console errors (a Vue handler's
+ * Record every error the page would report from now on: console errors (a Vue handler's
  * error in production) and uncaught errors (a Vue handler's error in development).
  */
 function watchErrors(): { readonly errors: unknown[]; readonly stop: () => void } {
@@ -335,7 +335,7 @@ function watchErrors(): { readonly errors: unknown[]; readonly stop: () => void 
   }
 }
 
-/** Intent: the open sheet's action button with this label; a missing one fails the test. */
+/** The open sheet's action button with this label; a missing one fails the test. */
 function sheetAction(wrapper: ShellWrapper, label: string): HTMLButtonElement {
   const found = wrapper.findAll('.sheet-actions button').find((button) => button.text() === label)
   if (found === undefined) throw new Error(`no sheet action labeled "${label}"`)

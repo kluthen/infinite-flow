@@ -421,7 +421,7 @@ describe('GenerationRequest: the rhythm lock group and the steering block', () =
   })
 })
 
-/** Intent: a carry-in from no phrase inside the request's resolved window. */
+/** A carry-in from no phrase inside the request's resolved window. */
 function noPhraseCarryIn(): CarryIn {
   return makeCarryIn({
     origin: 'none',
@@ -465,7 +465,7 @@ describe('GenerationRequest: a carry-in from no phrase', () => {
   })
 })
 
-/** Intent: phrase 2's real retained request over phrase 1's carried G holding G7's seventh. */
+/** Phrase 2's real retained request over phrase 1's carried G holding G7's seventh. */
 function carriedSeventhRequest(): GenerationRequest {
   const firstIntent = buildIntent({ seed: 11 })
   const carryIn = carryInAfter(firstIntent, generateSuccess(firstIntent), 1)

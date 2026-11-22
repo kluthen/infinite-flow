@@ -128,13 +128,13 @@ export interface FitRunner {
  */
 type AttemptOutcome = 'published' | 'too_wide' | 'ended' | 'stale' | 'generation_failed'
 
-/** Intent: normalize an unknown caught value to an Error without losing a non-Error's message. */
+/** Normalize an unknown caught value to an Error without losing a non-Error's message. */
 export function toError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error))
 }
 
 /**
- * Intent: build the session's fit runner. Each attempt draws one fresh intent, generates it and
+ * Build the session's fit runner. Each attempt draws one fresh intent, generates it and
  * checks it; a too-wide attempt is never set as the result nor drawn; the first that fits is set
  * and drawn, and only a draw puts the operation in `notating`. A run token stops a retrying or
  * no-score run whose width crossing blocked the rhythm combination: its later generate, check and
@@ -158,7 +158,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   let ladderFailure = new Error('fit run: no ladder attempt has failed')
 
   /**
-   * Intent: the result a fitting or retryable attempt is published as: the generated phrase with
+   * The result a fitting or retryable attempt is published as: the generated phrase with
    * the run's session seed, drawn the first time the run publishes and reused if that attempt is
    * found too wide while drawn, so a published phrase 1 costs one draw however many attempts ran.
    */
@@ -168,14 +168,14 @@ export function createFitRunner<TResult, TGenerated = TResult>(
     return deps.withSessionSeed(generated, runSessionSeed)
   }
 
-  /** Intent: drop the phrase the staff shows, and the result it stands for. */
+  /** Drop the phrase the staff shows, and the result it stands for. */
   function dropScore(): void {
     deps.clearPresentedPhrase()
     state.result = null
     state.resultEngraved = false
   }
 
-  /** Intent: show the notice; it is announced when it begins, or again when asked to. */
+  /** Show the notice; it is announced when it begins, or again when asked to. */
   function showNotice(cause: RoomNoticeCause, announceAgain = false): void {
     dropScore()
     const begins = state.roomNotice === null
@@ -183,7 +183,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
     if (begins || announceAgain) state.roomNoticeAnnouncements += 1
   }
 
-  /** Intent: end the run owning `runToken`, when it still owns the session. */
+  /** End the run owning `runToken`, when it still owns the session. */
   function finish(runToken: number, published: boolean): boolean {
     if (runToken !== token) return false
     running = false
@@ -193,7 +193,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: whether `error` says the staff is not laid out (it has no width, as behind the
+   * Whether `error` says the staff is not laid out (it has no width, as behind the
    * rotate-device notice) during the fresh run `runToken`, which then counts it as no room: the
    * phrase comes once the notice clears, never as a notation error.
    */
@@ -208,7 +208,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: route a draw failure: a layout failure fails the attempt, a fresh run's staff not laid
+   * Route a draw failure: a layout failure fails the attempt, a fresh run's staff not laid
    * out shows the no-room notice, anything else is retryable.
    */
   function routeDrawFailure(runToken: number, error: Error): AttemptOutcome {
@@ -231,7 +231,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
     return 'published'
   }
 
-  /** Intent: set a fitting attempt as the result and draw it; only now is it published. */
+  /** Set a fitting attempt as the result and draw it; only now is it published. */
   async function draw(runToken: number, result: TResult): Promise<AttemptOutcome> {
     state.result = result
     state.resultEngraved = false
@@ -248,7 +248,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
     return 'published'
   }
 
-  /** Intent: act on a fit verdict: draw a fitting attempt, fail a too-wide one, or show the notice. */
+  /** Act on a fit verdict: draw a fitting attempt, fail a too-wide one, or show the notice. */
   function afterVerdict(runToken: number, generated: TGenerated, verdict: StaffFitVerdict) {
     if (verdict.kind === 'fits') return draw(runToken, publishable(generated))
     if (verdict.kind === 'notes_too_wide') return 'too_wide' as const
@@ -257,7 +257,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: keep an attempt whose fit check itself failed as a retryable notation error; a fresh
+   * Keep an attempt whose fit check itself failed as a retryable notation error; a fresh
    * run's staff not laid out shows the no-room notice instead.
    */
   function keepCheckFailure(
@@ -278,7 +278,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: run one attempt: one fresh intent, generated, checked, and drawn if it fits. An
+   * Run one attempt: one fresh intent, generated, checked, and drawn if it fits. An
    * attempt that ends published is accepted, and `onPublished` is told its intent.
    */
   // @spec-link [[module_phrase_replay_key]]
@@ -292,7 +292,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
     return outcome
   }
 
-  /** Intent: generate, check and draw one attempt's intent, and say how the attempt ended. */
+  /** Generate, check and draw one attempt's intent, and say how the attempt ended. */
   async function settleAttempt(
     runToken: number,
     intent: GenerationIntent,
@@ -318,7 +318,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: an attempt's generation failed: it ends the run on the generation error, or, on a
+   * An attempt's generation failed: it ends the run on the generation error, or, on a
    * ladder, is kept for the ladder to move on, the error shown only if no attempt is left.
    */
   function generationFailed(error: Error): AttemptOutcome {
@@ -330,14 +330,14 @@ export function createFitRunner<TResult, TGenerated = TResult>(
     return 'ended'
   }
 
-  /** Intent: end the run on no phrase, as before a first one exists. */
+  /** End the run on no phrase, as before a first one exists. */
   function endOnEmpty(runToken: number): boolean {
     deps.showEmpty()
     return finish(runToken, false)
   }
 
   /**
-   * Intent: run the attempts in order until one ends the run or the budget is spent. A blocked
+   * Run the attempts in order until one ends the run or the budget is spent. A blocked
    * rhythm combination before an attempt, or once the last one fails too wide, ends it on Empty.
    */
   async function runAttempts(runToken: number, underNotice: boolean): Promise<boolean> {
@@ -352,7 +352,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
     return endTooWide(runToken, underNotice)
   }
 
-  /** Intent: every attempt of the fit budget was too wide: Empty when blocked, else the notice. */
+  /** Every attempt of the fit budget was too wide: Empty when blocked, else the notice. */
   function endTooWide(runToken: number, underNotice: boolean): boolean {
     if (deps.isBlocked()) return endOnEmpty(runToken)
     showNotice('notes_too_wide', underNotice)
@@ -360,7 +360,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: run a ladder's attempts from its first, with no deadline: a generation failure moves on
+   * Run a ladder's attempts from its first, with no deadline: a generation failure moves on
    * to the ladder's next attempt, and the last one's ends the run on its error; a too-wide attempt
    * is replaced on the same attempt with a fresh intent, until the fit budget is spent, as in a
    * run of fresh intents; a blocked rhythm combination before an attempt ends it on Empty.
@@ -390,7 +390,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: a fresh run's first step, before any attempt: a blocked rhythm combination ends it on
+   * A fresh run's first step, before any attempt: a blocked rhythm combination ends it on
    * Empty and no room (a staff not laid out included) ends it on the no-room notice, nothing
    * generated in either case; null lets the attempts go on, a boolean is the run's own result.
    */
@@ -414,7 +414,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: run one fit run. It clears both errors as it starts; a run started under the
+   * Run one fit run. It clears both errors as it starts; a run started under the
    * too-many-notes notice is a round, with retries running from its start. A programming error
    * from a seam still ends the run before it propagates, so the session never stays busy.
    */
@@ -443,7 +443,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: stop a run still generating once a width crossing blocks the rhythm combination, but
+   * Stop a run still generating once a width crossing blocks the rhythm combination, but
    * only when it is retrying (or a round under the notice) or no score is kept: a kept phrase that
    * still fits stays on screen, so the first attempt of a run from Ready carries on, is drawn if it
    * fits, and is otherwise stopped before the next attempt by `runAttempts`' own check.
@@ -459,7 +459,7 @@ export function createFitRunner<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: stop the run under way, if any: its late continuations do nothing. A drawing in
+   * Stop the run under way, if any: its late continuations do nothing. A drawing in
    * flight cannot be dropped, so stopping a run that draws is a caller defect.
    */
   function stop(): void {

@@ -53,45 +53,45 @@ const NUMBER_WORDS = [
   'ten',
 ]
 
-/** Intent: the octave number of a MIDI note, the number going up by one at each C (C4 = 60). */
+/** The octave number of a MIDI note, the number going up by one at each C (C4 = 60). */
 function octaveOf(midi: number): number {
   return Math.floor(midi / SEMITONES_PER_OCTAVE) - 1
 }
 
-/** Intent: a MIDI note's name with its octave number, in the sheet's one spelling ("B♭3"). */
+/** A MIDI note's name with its octave number, in the sheet's one spelling ("B♭3"). */
 // @spec-link [[rule_my_instrument_range_limits]]
 export function noteName(midi: number): string {
   const pitchClass = ((midi % SEMITONES_PER_OCTAVE) + SEMITONES_PER_OCTAVE) % SEMITONES_PER_OCTAVE
   return `${NOTE_LETTERS[pitchClass]}${octaveOf(midi)}`
 }
 
-/** Intent: a clef's name in running text: "treble clef" or "bass clef". */
+/** A clef's name in running text: "treble clef" or "bass clef". */
 export function clefName(clef: InstrumentClef): string {
   return clef === 'bass' ? 'bass clef' : 'treble clef'
 }
 
-/** Intent: the other clef. */
+/** The other clef. */
 function otherClef(clef: InstrumentClef): InstrumentClef {
   return clef === 'bass' ? 'treble' : 'bass'
 }
 
-/** Intent: a count of octaves in words ("one", "two"); a count beyond the table in digits. */
+/** A count of octaves in words ("one", "two"); a count beyond the table in digits. */
 function octavesWord(count: number): string {
   return NUMBER_WORDS[count] ?? String(count)
 }
 
-/** Intent: a word with its first letter in capitals. */
+/** A word with its first letter in capitals. */
 function capitalized(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
-/** Intent: the indefinite article a name takes. */
+/** The indefinite article a name takes. */
 function articleFor(name: string): string {
   return /^[aeiou]/.test(name) ? 'an' : 'a'
 }
 
 /**
- * Intent: the transposition the sheet's one stepper gives: `count` semitones, negative sounding
+ * The transposition the sheet's one stepper gives: `count` semitones, negative sounding
  * lower, positive higher, 0 the same, as octaves, semitones within the octave and a direction.
  */
 // @spec-link [[rule_my_instrument_transposition_named_interval]]
@@ -104,7 +104,7 @@ export function transpositionOfCount(count: number): MyInstrumentTransposition {
   }
 }
 
-/** Intent: the stepper's count of a transposition: negative sounding lower, positive higher. */
+/** The stepper's count of a transposition: negative sounding lower, positive higher. */
 // @spec-link [[rule_my_instrument_transposition_named_interval]]
 export function countOfTransposition(transposition: MyInstrumentTransposition): number {
   const size = SEMITONES_PER_OCTAVE * transposition.octaves + transposition.semitones
@@ -112,7 +112,7 @@ export function countOfTransposition(transposition: MyInstrumentTransposition): 
   return transposition.direction === 'higher' ? size : 0
 }
 
-/** Intent: the stepper's shown value: "{n} lower", "Same" or "{n} higher". */
+/** The stepper's shown value: "{n} lower", "Same" or "{n} higher". */
 // @spec-link [[rule_my_instrument_transposition_named_interval]]
 export function transpositionValueText(count: number): string {
   if (count === 0) return 'Same'
@@ -120,7 +120,7 @@ export function transpositionValueText(count: number): string {
 }
 
 /**
- * Intent: the interval's name without its direction, in lower case: "a major sixth", "one
+ * The interval's name without its direction, in lower case: "a major sixth", "one
  * octave", "a major ninth", "two octaves", "two octaves and a major second"; none at 0.
  */
 function intervalCore(count: number): string {
@@ -135,7 +135,7 @@ function intervalCore(count: number): string {
 }
 
 /**
- * Intent: the interval's name with its direction, as the transposition's note starts: "No
+ * The interval's name with its direction, as the transposition's note starts: "No
  * transposition" at 0; "A major sixth lower"; "One octave lower"; from 13 to 23, the compound
  * name, the direction, then the octave it holds in brackets ("A major ninth lower (an octave and a
  * major second)"); "Two octaves and a major second lower" beyond.
@@ -152,7 +152,7 @@ export function intervalNameText(count: number): string {
 }
 
 /**
- * Intent: the note a written C4 sounds as, spelled to agree with the interval's name: C4 moved by
+ * The note a written C4 sounds as, spelled to agree with the interval's name: C4 moved by
  * its letter-name steps, then the accidental the semitones need (never a double one from C).
  */
 // @spec-link [[rule_my_instrument_transposition_named_interval]]
@@ -171,14 +171,14 @@ export function soundingC4Name(count: number): string {
   throw new Error(`my instrument copy: ${count} semitones would need a double accidental`)
 }
 
-/** Intent: the transposition's note: "{interval}: a written C4 sounds as {note}." */
+/** The transposition's note: "{interval}: a written C4 sounds as {note}." */
 // @spec-link [[rule_my_instrument_transposition_named_interval]]
 export function transpositionNoteText(count: number): string {
   return `${intervalNameText(count)}: a written C4 sounds as ${soundingC4Name(count)}.`
 }
 
 /**
- * Intent: the transposition stepper's accessible value: "14 semitones lower, a major ninth",
+ * The transposition stepper's accessible value: "14 semitones lower, a major ninth",
  * "Same pitch", "12 semitones lower, one octave".
  */
 // @spec-link [[rule_my_instrument_transposition_named_interval]]
@@ -189,14 +189,14 @@ export function transpositionValueA11yText(count: number): string {
   return `${size} ${unit} ${count < 0 ? 'lower' : 'higher'}, ${intervalCore(count)}`
 }
 
-/** Intent: whether both ends of `range` lie inside `clef`'s bound, both ends included. */
+/** Whether both ends of `range` lie inside `clef`'s bound, both ends included. */
 // @spec-link [[rule_my_instrument_range_limits]]
 export function insideClefBound(range: WrittenRange, clef: InstrumentClef): boolean {
   const bound = MY_INSTRUMENT_RANGE_BOUNDS[clef]
   return range.minMidi >= bound.minMidi && range.maxMidi <= bound.maxMidi
 }
 
-/** Intent: the span refusal's line, or none when the range spans two octaves or more. */
+/** The span refusal's line, or none when the range spans two octaves or more. */
 function spanRefusal(range: WrittenRange): string | null {
   const lead =
     'The range needs at least two octaves (24 semitones) between its lowest and highest notes.'
@@ -205,7 +205,7 @@ function spanRefusal(range: WrittenRange): string | null {
   return span < MINIMUM_WRITTEN_SPAN ? `${lead} It has ${span}.` : null
 }
 
-/** Intent: the clef bound's refusal line, or none when both ends lie inside it. */
+/** The clef bound's refusal line, or none when both ends lie inside it. */
 function boundRefusal(range: WrittenRange, clef: InstrumentClef): string | null {
   const bound = MY_INSTRUMENT_RANGE_BOUNDS[clef]
   const tooLow = range.minMidi < bound.minMidi
@@ -226,7 +226,7 @@ function boundRefusal(range: WrittenRange, clef: InstrumentClef): string | null 
 }
 
 /**
- * Intent: the range's refusal lines, one per reason that applies, the span first; none while the
+ * The range's refusal lines, one per reason that applies, the span first; none while the
  * range is valid.
  */
 // @spec-link [[rule_my_instrument_range_limits]]
@@ -236,13 +236,13 @@ export function rangeRefusalLines(range: WrittenRange, clef: InstrumentClef): re
   )
 }
 
-/** Intent: whether `range` in `clef` makes the staff taller than the built-in instruments need. */
+/** Whether `range` in `clef` makes the staff taller than the built-in instruments need. */
 function makesStaffTaller(range: WrittenRange, clef: InstrumentClef): boolean {
   return planSystemPositionUnits({ writtenRange: range, clef }) > NOTATION_SYSTEM_POSITION_UNITS
 }
 
 /**
- * Intent: the staff-reach note for a valid range, by the rule that sizes the staff: none when the
+ * The staff-reach note for a valid range, by the rule that sizes the staff: none when the
  * range, in its clef, needs no more than the built-in instruments; otherwise its cost, and, when
  * the other clef would hold the range within its bound at the built-in size, that it would not.
  */

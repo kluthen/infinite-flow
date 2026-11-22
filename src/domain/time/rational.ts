@@ -1,5 +1,5 @@
 /**
- * Intent: represent every duration and position in whole-note units as a normalized integer
+ * Represent every duration and position in whole-note units as a normalized integer
  * numerator over a positive integer denominator, reduced to lowest terms by their greatest
  * common divisor, with no floating-point value anywhere in the core time model, so summing
  * sixteenth notes (or any other exact subdivision) never drifts the way repeated float
@@ -11,7 +11,7 @@ export interface Rational {
   readonly denominator: number
 }
 
-/** Intent: signal a rejected attempt to construct or compute a Rational as a typed failure. */
+/** Signal a rejected attempt to construct or compute a Rational as a typed failure. */
 // @spec-link [[entity_exact_musical_time]]
 export class RationalConstructionError extends Error {
   readonly kind = 'RationalConstructionError' as const
@@ -34,7 +34,7 @@ function assertSafeInteger(value: number, context: string): void {
   }
 }
 
-/** Intent: compute the greatest common divisor of two non-negative integers (Euclid's algorithm). */
+/** Compute the greatest common divisor of two non-negative integers (Euclid's algorithm). */
 function greatestCommonDivisor(a: number, b: number): number {
   let x = a
   let y = b
@@ -47,7 +47,7 @@ function greatestCommonDivisor(a: number, b: number): number {
 }
 
 /**
- * Intent: build a normalized Rational from a raw numerator/denominator pair. Reduces by the
+ * Build a normalized Rational from a raw numerator/denominator pair. Reduces by the
  * gcd, canonicalizes the sign onto the numerator (denominator is always positive), and
  * canonicalizes zero to 0/1. Rejects non-integer inputs, a zero denominator, and any
  * unsafe-integer intermediate as a loud typed failure rather than coercing or defaulting.
@@ -91,7 +91,7 @@ export const WHOLE_NOTE: Rational = makeRational(1, 1)
 // @spec-link [[entity_exact_musical_time]]
 export const SIXTEENTH_NOTE: Rational = makeRational(1, 16)
 
-/** Intent: add two exact rationals and return the normalized, reduced result. */
+/** Add two exact rationals and return the normalized, reduced result. */
 // @spec-link [[entity_exact_musical_time]]
 export function addRational(a: Rational, b: Rational): Rational {
   const numerator = a.numerator * b.denominator + b.numerator * a.denominator
@@ -101,7 +101,7 @@ export function addRational(a: Rational, b: Rational): Rational {
   return makeRational(numerator, denominator)
 }
 
-/** Intent: subtract b from a as exact rationals and return the normalized, reduced result. */
+/** Subtract b from a as exact rationals and return the normalized, reduced result. */
 // @spec-link [[entity_exact_musical_time]]
 export function subtractRational(a: Rational, b: Rational): Rational {
   const numerator = a.numerator * b.denominator - b.numerator * a.denominator
@@ -112,7 +112,7 @@ export function subtractRational(a: Rational, b: Rational): Rational {
 }
 
 /**
- * Intent: compare two exact rationals without introducing floating-point division, by
+ * Compare two exact rationals without introducing floating-point division, by
  * cross-multiplying over their (always positive) denominators.
  */
 // @spec-link [[entity_exact_musical_time]]
@@ -126,13 +126,13 @@ export function compareRational(a: Rational, b: Rational): -1 | 0 | 1 {
   return left < right ? -1 : 1
 }
 
-/** Intent: exact equality on normalized rational form. */
+/** Exact equality on normalized rational form. */
 // @spec-link [[entity_exact_musical_time]]
 export function equalsRational(a: Rational, b: Rational): boolean {
   return compareRational(a, b) === 0
 }
 
-/** Intent: sum a list of exact rationals into one normalized, reduced total. */
+/** Sum a list of exact rationals into one normalized, reduced total. */
 // @spec-link [[entity_exact_musical_time]]
 export function sumRational(values: readonly Rational[]): Rational {
   return values.reduce<Rational>((total, value) => addRational(total, value), makeRational(0, 1))

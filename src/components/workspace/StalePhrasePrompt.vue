@@ -60,7 +60,7 @@ const LABELS: readonly (readonly [StaleSetting, string])[] = [
 ]
 
 /**
- * Intent: the changed settings as the sentence names them: one, two joined by "and", three as
+ * The changed settings as the sentence names them: one, two joined by "and", three as
  * "A, B and C", four or more as the first two and the count of the rest.
  */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
@@ -84,7 +84,7 @@ const regenerateButton = ref<HTMLButtonElement | null>(null)
 let answered = false
 
 /**
- * Intent: the prompt the controller shows; this sheet is shown only while there is one. Its
+ * The prompt the controller shows; this sheet is shown only while there is one. Its
  * changed settings were fixed as it opened.
  */
 function shownPrompt(): StalePhrasePrompt {
@@ -98,7 +98,7 @@ const byNote = opened.opener === 'note'
 const changedText = changedSettingsText(opened.changed)
 
 /**
- * Intent: `Start with this phrase`, inside its click: the start, unless a start condition no
+ * `Start with this phrase`, inside its click: the start, unless a start condition no
  * longer holds; started, focus is on the session action, now `Stop`; else the prompt closes with
  * nothing started, focus as after a dismissal.
  */
@@ -117,7 +117,7 @@ function handleUse(): void {
 }
 
 /**
- * Intent: `Regenerate phrase`: close the prompt and run the Idle Regenerate, focus on the phrase
+ * `Regenerate phrase`: close the prompt and run the Idle Regenerate, focus on the phrase
  * action as after a press on it in the header; nothing starts.
  */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
@@ -128,7 +128,7 @@ function handleRegenerate(): void {
   void props.regenerate()
 }
 
-/** Intent: `Close`, Escape or a press on the backdrop: nothing changes, nothing starts. */
+/** `Close`, Escape or a press on the backdrop: nothing changes, nothing starts. */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
 function handleDismiss(): void {
   answered = true
@@ -136,12 +136,12 @@ function handleDismiss(): void {
   props.focusFallback()
 }
 
-/** Intent: a press on the backdrop itself, not inside the sheet, dismisses it. */
+/** A press on the backdrop itself, not inside the sheet, dismisses it. */
 function handleBackdropClick(event: MouseEvent): void {
   if (event.target === event.currentTarget) handleDismiss()
 }
 
-/** Intent: Tab and Shift+Tab cycle through the sheet's buttons, wrapping at both ends. */
+/** Tab and Shift+Tab cycle through the sheet's buttons, wrapping at both ends. */
 function cycleFocus(direction: 1 | -1): void {
   if (dialog.value === null) throw new Error('stale-phrase prompt: the dialog is not rendered')
   const stops = Array.from(dialog.value.querySelectorAll<HTMLElement>('button:not([disabled])'))
@@ -152,7 +152,7 @@ function cycleFocus(direction: 1 | -1): void {
   next.focus()
 }
 
-/** Intent: while the prompt shows, Escape dismisses it and Tab stays trapped in it. */
+/** While the prompt shows, Escape dismisses it and Tab stays trapped in it. */
 function handleKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     event.preventDefault()
@@ -163,7 +163,7 @@ function handleKeydown(event: KeyboardEvent): void {
   }
 }
 
-/** Intent: on open, close the Volume popover, listen for keys and focus `Regenerate phrase`. */
+/** On open, close the Volume popover, listen for keys and focus `Regenerate phrase`. */
 onMounted(() => {
   props.prepareStart()
   document.addEventListener('keydown', handleKeydown)
@@ -173,7 +173,7 @@ onMounted(() => {
 })
 
 /**
- * Intent: stop listening for keys once the prompt leaves the page; closed by itself (no answer,
+ * Stop listening for keys once the prompt leaves the page; closed by itself (no answer,
  * the controller having closed it), focus goes where a dismissal sends it.
  */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]

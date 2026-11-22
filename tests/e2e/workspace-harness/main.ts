@@ -154,7 +154,7 @@ import {
 } from './vexflow-engraver-loader-seam'
 
 /**
- * Intent: a deterministic seed provider -- a spec-filled queue, falling back to a plain counter --
+ * A deterministic seed provider -- a spec-filled queue, falling back to a plain counter --
  * that counts every seed it hands out.
  */
 function createSeedProvider(): {
@@ -175,13 +175,13 @@ function createSeedProvider(): {
   }
 }
 
-/** Intent: a deterministic, monotonic request-id provider unique to this harness page load. */
+/** A deterministic, monotonic request-id provider unique to this harness page load. */
 function createRequestIdProvider(): () => RequestId {
   let counter = 0
   return () => makeRequestId(`workspace-harness-request-${++counter}`)
 }
 
-/** Intent: a held/released gate a `generate` wrapper awaits before ever reaching the real worker client. */
+/** A held/released gate a `generate` wrapper awaits before ever reaching the real worker client. */
 function createGenerationGate(): {
   readonly hold: () => void
   readonly release: () => void
@@ -215,7 +215,7 @@ interface BackgroundGate {
 }
 
 /**
- * Intent: a held/released gate for background attempts. A call that meets it held waits until the
+ * A held/released gate for background attempts. A call that meets it held waits until the
  * release, unless its signal aborts first (or already has): it then rejects at once with the
  * client's cancellation error, as the worker client rejects an aborted call.
  */
@@ -237,12 +237,12 @@ function createBackgroundGate(): BackgroundGate {
       if (!holding) return Promise.resolve()
       if (signal.aborted) return Promise.reject(new GenerationCancelledError())
       return new Promise((resolve, reject) => {
-        /** Intent: leave the gate and reject as the worker client rejects an aborted call. */
+        /** Leave the gate and reject as the worker client rejects an aborted call. */
         const onAbort = (): void => {
           waiting.delete(resume)
           reject(new GenerationCancelledError())
         }
-        /** Intent: pass the gate at its release. */
+        /** Pass the gate at its release. */
         const resume = (): void => {
           signal.removeEventListener('abort', onAbort)
           resolve()
@@ -255,7 +255,7 @@ function createBackgroundGate(): BackgroundGate {
 }
 
 /**
- * Intent: the harness's pre-generation policy: production's own parser reads the page URL's value
+ * The harness's pre-generation policy: production's own parser reads the page URL's value
  * when it names one; with none, it is off, so a spec meets no background attempt, unless the
  * harness is built with `VITE_HARNESS_PREGENERATION=on`, as the e2e lane that runs the suite with
  * pre-generation on builds it. Any other build value is a wiring defect and throws.
@@ -314,7 +314,7 @@ const harnessStorage = createHarnessStorage(
 /** What the saved-data load gave; null until it has ended. */
 let savedData: SavedDataLoad | null = null
 
-/** Intent: the audio mix the load gave, for the transport's first use; throws before it ended. */
+/** The audio mix the load gave, for the transport's first use; throws before it ended. */
 function loadedMix(): SavedDataLoad['settings']['mix'] {
   if (savedData === null)
     throw new Error('Workspace harness: the audio mix was read before the load')
@@ -337,7 +337,7 @@ const client = createGenerationWorkerClient(createBrowserGenerationWorker, {
   prewarmEnabled: harnessPrewarmPolicy === 'enabled',
 })
 
-/** Intent: the instrument profile `intent` carries, as plain JSON: id, name and concert range. */
+/** The instrument profile `intent` carries, as plain JSON: id, name and concert range. */
 function instrumentProfileOf(intent: GenerationIntent): WorkspaceHarnessInstrumentProfile {
   const { id, displayName, concertRange } = intent.instrumentProfile
   return {
@@ -348,7 +348,7 @@ function instrumentProfileOf(intent: GenerationIntent): WorkspaceHarnessInstrume
 }
 
 /**
- * Intent: the rhythm lock group `intent` carries, as plain JSON (its state's kind, the allowed
+ * The rhythm lock group `intent` carries, as plain JSON (its state's kind, the allowed
  * changes and the tenser flag), or null when it carries none.
  */
 function rhythmLockOf(intent: GenerationIntent): WorkspaceHarnessGenerationRequest['rhythmLock'] {
@@ -362,7 +362,7 @@ function rhythmLockOf(intent: GenerationIntent): WorkspaceHarnessGenerationReque
 }
 
 /**
- * Intent: record the call, then pass it through the gates and the armed failures to the real
+ * Record the call, then pass it through the gates and the armed failures to the real
  * worker client; settle its record as the call settles. A background attempt is a call carrying
  * a signal while no session runs (the controller at Idle).
  */
@@ -402,7 +402,7 @@ async function harnessGenerate(
 }
 
 /**
- * Intent: gate (a background attempt at the background gate too, where an abort cancels it at
+ * Gate (a background attempt at the background gate too, where an abort cancels it at
  * once), then optionally fail with a real orchestration failure shape (once the armed number of
  * calls has passed through, for the armed number of calls in a row), then delegate for real with
  * the caller's abort signal; count every call that returns or is cancelled.
@@ -439,10 +439,10 @@ async function gatedGenerate(
   return outcome
 }
 
-/** Intent: the background attempts' counts, from their records and the background gate. */
+/** The background attempts' counts, from their records and the background gate. */
 function backgroundGeneration(): WorkspaceHarnessBackgroundGeneration {
   const records = generationRequests.filter((record) => record.background)
-  /** Intent: how many background records have settled as `settled`. */
+  /** How many background records have settled as `settled`. */
   const count = (settled: WorkspaceHarnessGenerationSettlement) =>
     records.filter((record) => record.settled === settled).length
   return {
@@ -455,7 +455,7 @@ function backgroundGeneration(): WorkspaceHarnessBackgroundGeneration {
   }
 }
 
-/** Intent: arm `count` forced failures in a row with `code`, after `skip` real calls. */
+/** Arm `count` forced failures in a row with `code`, after `skip` real calls. */
 function armGenerationFailures(
   code: WorkspaceHarnessGenerationFailureCode,
   skip: number,
@@ -482,7 +482,7 @@ const prewarmRhythmSettings: WorkspaceHarnessPrewarmRhythmSetting[] = []
 /** The wall clock a spec fixed, as epoch milliseconds; null reads the real one. */
 let fixedWallClock: number | null = null
 
-/** Intent: fix the session histories' wall clock at `epochMs`, or let it run again with null. */
+/** Fix the session histories' wall clock at `epochMs`, or let it run again with null. */
 function setWallClock(epochMs: number | null): void {
   if (epochMs !== null && !(Number.isFinite(epochMs) && epochMs >= 0)) {
     throw new Error(`Workspace harness: setWallClock(${epochMs}) is no epoch time`)
@@ -490,7 +490,7 @@ function setWallClock(epochMs: number | null): void {
   fixedWallClock = epochMs
 }
 
-/** Intent: count one prewarm, then forward it to the real worker client unchanged. */
+/** Count one prewarm, then forward it to the real worker client unchanged. */
 // @test-link [[module_generation_prewarm]]
 function harnessPrewarm(intent: GenerationIntent): void {
   prewarmsPosted += 1
@@ -503,7 +503,7 @@ function harnessPrewarm(intent: GenerationIntent): void {
 let workspace: WorkspaceSession | null = null
 
 /**
- * Intent: the latest session state's requestId/seed/timeline/operation/mode, for replay/isolation
+ * The latest session state's requestId/seed/timeline/operation/mode, for replay/isolation
  * assertions, plus the room notice's state, the player's figure levels and preset selection and the names of the presets the session knows. `requestId`/`seed` are the result's, which a fit run
  * sets only for the attempt it draws; `latestSeed` is the latest attempt's, drawn or not.
  */
@@ -534,7 +534,7 @@ function snapshot(): WorkspaceHarnessSnapshot {
 }
 
 /**
- * Intent: choose a preset by its id through the session's own `selectPreset`, the way a spec
+ * Choose a preset by its id through the session's own `selectPreset`, the way a spec
  * reaches the built-ins the two-segment control does not offer, until the preset box does. Throws
  * before the session mounts, and as the session does on an id no preset has.
  */
@@ -546,7 +546,7 @@ function selectPreset(id: string): boolean {
 }
 
 /**
- * Intent: set a chord family's level (the Seventh chords level) through the session's own routing
+ * Set a chord family's level (the Seventh chords level) through the session's own routing
  * point, the way a spec reaches the level until its control does (v3.3 chunk 19). Throws before
  * the session mounts, and as the session does on a family or level that is not one.
  */
@@ -565,7 +565,7 @@ function setChordFamilyLevel(family: string, level: string): boolean {
 }
 
 /**
- * Intent: the harmony (its outcome's provenance) and the concert timeline of the phrase the
+ * The harmony (its outcome's provenance) and the concert timeline of the phrase the
  * workspace shows, for the audio seams' `queueBacking`. Throws before the session mounts or while
  * no phrase is shown.
  */
@@ -627,7 +627,7 @@ const harnessApi: WorkspaceHarnessApi = {
 }
 
 /**
- * Intent: mount the app with what the load gave, its workspace session composed on the harness's
+ * Mount the app with what the load gave, its workspace session composed on the harness's
  * seams, then publish the harness API.
  */
 function mountHarness(loaded: SavedDataLoad): void {
@@ -638,7 +638,7 @@ function mountHarness(loaded: SavedDataLoad): void {
   window.__workspaceHarness = harnessApi
 }
 
-/** Intent: the workspace session on the harness's seams, from the loaded saved data. */
+/** The workspace session on the harness's seams, from the loaded saved data. */
 function composeHarnessWorkspace(saved: SavedDataLoad): WorkspaceSession {
   const composed = composeWorkspaceSession({
     providers: { nextRequestId: requestIdProvider, nextSeed: seedProvider.nextSeed },

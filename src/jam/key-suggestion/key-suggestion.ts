@@ -51,7 +51,7 @@ const NOTHING: KeySuggestion = deepFreeze({ kind: 'nothing' })
 const NO_FIT: KeySuggestion = deepFreeze({ kind: 'no_fit' })
 
 /**
- * Intent: the suggestion for a quantized doodle (after the very-short-note filter, in concert
+ * The suggestion for a quantized doodle (after the very-short-note filter, in concert
  * pitch), against Jam's written key and Collection, for the selected instrument's transposition.
  */
 // @spec-link [[module_key_suggestion]]

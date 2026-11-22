@@ -10,19 +10,19 @@
 import { deepFreeze } from '../events/deep-freeze'
 
 /**
- * Intent: the chord families' internal ids, in the fixed order every value listing them follows:
+ * The chord families' internal ids, in the fixed order every value listing them follows:
  * the one family, the seventh chords. Internal and never changed, since requests and stored
  * records hold them.
  */
 // @spec-link [[module_generation_request_construction]]
 export const CHORD_FAMILY_IDS = deepFreeze(['seventh-chords'] as const)
 
-/** Intent: one chord family's internal id. */
+/** One chord family's internal id. */
 // @spec-link [[module_generation_request_construction]]
 export type ChordFamilyId = (typeof CHORD_FAMILY_IDS)[number]
 
 /**
- * Intent: the four levels' internal ids, in increasing order. The interface's labels can change
+ * The four levels' internal ids, in increasing order. The interface's labels can change
  * without touching them.
  */
 // @spec-link [[module_generation_request_construction]]
@@ -33,20 +33,20 @@ export const CHORD_FAMILY_LEVEL_IDS = deepFreeze([
   'stronglyFavored',
 ] as const)
 
-/** Intent: one chord family's level. */
+/** One chord family's level. */
 // @spec-link [[module_generation_request_construction]]
 export type ChordFamilyLevel = (typeof CHORD_FAMILY_LEVEL_IDS)[number]
 
-/** Intent: exactly one level for each chord family, no more and no fewer. */
+/** Exactly one level for each chord family, no more and no fewer. */
 // @spec-link [[module_generation_request_construction]]
 // @spec-link [[rule_seventh_chord_draws_reproducible]]
 export type ChordFamilies = { readonly [F in ChordFamilyId]: ChordFamilyLevel }
 
-/** Intent: every chord family at off: triads only, the level before any is chosen. */
+/** Every chord family at off: triads only, the level before any is chosen. */
 // @spec-link [[module_generation_request_construction]]
 export const OFF_CHORD_FAMILIES: ChordFamilies = deepFreeze({ 'seventh-chords': 'off' })
 
-/** Intent: whether every chord family is at off. */
+/** Whether every chord family is at off. */
 // @spec-link [[module_generation_request_construction]]
 export function isOffChordFamilies(families: ChordFamilies): boolean {
   return CHORD_FAMILY_IDS.every((family) => families[family] === 'off')
@@ -63,12 +63,12 @@ export class ChordFamiliesError extends Error {
   }
 }
 
-/** Intent: whether a value is a plain, non-null, non-array object. */
+/** Whether a value is a plain, non-null, non-array object. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/** Intent: what a value that is not a plain object is, for a refusal's message. */
+/** What a value that is not a plain object is, for a refusal's message. */
 function describeNonObject(value: unknown): string {
   if (value === null) return 'null'
   if (Array.isArray(value)) return 'an array'
@@ -76,7 +76,7 @@ function describeNonObject(value: unknown): string {
 }
 
 /**
- * Intent: read an untrusted chord-families value: a plain object holding exactly the known family
+ * Read an untrusted chord-families value: a plain object holding exactly the known family
  * ids, each a known level. A non-object, a missing family, an unknown or extra key, or an unknown
  * level throws a ChordFamiliesError naming the cause; nothing is defaulted. Returns a fresh
  * deep-frozen value, keys in CHORD_FAMILY_IDS order.

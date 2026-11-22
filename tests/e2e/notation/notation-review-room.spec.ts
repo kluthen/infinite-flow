@@ -32,7 +32,7 @@ import {
 /** The Review's engraved system SVGs. */
 const REVIEW_SYSTEMS = '.review-panel .review-staff svg.staff-svg'
 
-/** Intent: leave the Review for Idle. */
+/** Leave the Review for Idle. */
 async function closeReview(page: Page): Promise<void> {
   await expectIdleReady(page)
   await expect(sessionAction(page)).toHaveText('Close review')
@@ -41,7 +41,7 @@ async function closeReview(page: Page): Promise<void> {
 }
 
 /**
- * Intent: the height, in engraving units, each of the Review's systems is engraved at: its SVG's
+ * The height, in engraving units, each of the Review's systems is engraved at: its SVG's
  * viewBox height, the system-position size the staff was placed in.
  */
 function reviewSystemHeights(page: Page): Promise<number[]> {

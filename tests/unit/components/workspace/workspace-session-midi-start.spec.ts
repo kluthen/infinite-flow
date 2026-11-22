@@ -19,7 +19,7 @@ import {
   unplugKeys,
 } from './session-controller-midi'
 
-/** Intent: whether nothing at all started: Idle, no audio, no runner, no lock asked for. */
+/** Whether nothing at all started: Idle, no audio, no runner, no lock asked for. */
 function expectNothingStarted(rig: ControllerRig): void {
   expect(rig.controller.state.phase).toBe('idle')
   expect(rig.transport.isRunning()).toBe(false)

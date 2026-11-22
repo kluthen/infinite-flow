@@ -57,7 +57,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: before any page script runs, count `navigator.storage.persist()` calls, never granted. */
+/** Before any page script runs, count `navigator.storage.persist()` calls, never granted. */
 async function spyOnPersist(page: Page): Promise<void> {
   await page.addInitScript(() => {
     const spied = window as unknown as { __persistCalls: number }
@@ -70,7 +70,7 @@ async function spyOnPersist(page: Page): Promise<void> {
   })
 }
 
-/** Intent: the `navigator.storage.persist()` calls since the page loaded. */
+/** The `navigator.storage.persist()` calls since the page loaded. */
 function persistCalls(page: Page): Promise<number> {
   return page.evaluate(() => (window as unknown as { __persistCalls: number }).__persistCalls)
 }

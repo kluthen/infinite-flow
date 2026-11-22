@@ -37,7 +37,7 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: the comment stored with the one kept session; null while none is kept. */
+/** The comment stored with the one kept session; null while none is kept. */
 async function storedComment(page: Page): Promise<string | null> {
   const summaries: KeyedRecord[] = await page.evaluate(() =>
     window.__workspaceHarness.storage.keyedRecords('sessionSummaries'),
@@ -46,7 +46,7 @@ async function storedComment(page: Page): Promise<string | null> {
   return (summaries[0]!.value as { readonly comment: string }).comment
 }
 
-/** Intent: from Idle, play a two-phrase session, then Stop: the Review shows. */
+/** From Idle, play a two-phrase session, then Stop: the Review shows. */
 async function playSession(page: Page): Promise<void> {
   await readyToStart(page, 7)
   await startSession(page)
@@ -55,12 +55,12 @@ async function playSession(page: Page): Promise<void> {
   await expectReviewShowing(page, 2)
 }
 
-/** Intent: the comment row's button named `name`. */
+/** The comment row's button named `name`. */
 function commentButton(page: Page, name: string): Locator {
   return reviewPanel(page).locator('.review-comment').getByRole('button', { name, exact: true })
 }
 
-/** Intent: the comment's field, named "Comment". */
+/** The comment's field, named "Comment". */
 function commentField(page: Page): Locator {
   return reviewPanel(page).getByRole('textbox', { name: 'Comment', exact: true })
 }

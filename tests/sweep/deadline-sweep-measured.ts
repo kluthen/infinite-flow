@@ -42,11 +42,11 @@ import {
  */
 export const ROUND_TRIP_AND_ENGRAVING_SECONDS = 0.1
 
-/** Intent: the sweep injects nothing: the real generator answers every attempt. */
+/** The sweep injects nothing: the real generator answers every attempt. */
 export const generateEveryAttempt: AttemptScript = () => 'generate'
 
 /**
- * Intent: an attempt's real cost: the wall time `generatePhrase` took for its intent on this
+ * An attempt's real cost: the wall time `generatePhrase` took for its intent on this
  * machine, measured once per intent, plus the round trip and the engraving.
  */
 export const measuredAttemptCost: AttemptCost = (generated) => {
@@ -68,7 +68,7 @@ export class ProductionTally {
   private casesLosingCarryIn = 0
   private casesLosingCarryInAfterPhraseTwo = 0
 
-  /** Intent: count the productions of one run's phrases 2 to 6. */
+  /** Count the productions of one run's phrases 2 to 6. */
   add(run: TimedSession): void {
     const productions = phraseProductions(run)
     productions.forEach((production, offset) => {
@@ -82,7 +82,7 @@ export class ProductionTally {
   }
 
   /**
-   * Intent: the counts as `SWEEP-SKIPS` lines under a label: one per production with its count
+   * The counts as `SWEEP-SKIPS` lines under a label: one per production with its count
    * for phrases 2 to 6 and its total, then the case counts.
    */
   lines(label: string): readonly string[] {
@@ -100,7 +100,7 @@ export class ProductionTally {
 }
 
 /**
- * Intent: play one case's session at a tempo with every attempt at its measured cost, after the
+ * Play one case's session at a tempo with every attempt at its measured cost, after the
  * Idle phase when one is given, with the run's options (phrase count, phrase 1, settings).
  */
 export function measuredSession(
@@ -122,7 +122,7 @@ export function measuredSession(
 }
 
 /**
- * Intent: every way a measured run missed the look-ahead deadline, as readable lines (none when it
+ * Every way a measured run missed the look-ahead deadline, as readable lines (none when it
  * held): an error, a phrase after the first not ready strictly before its deadline, a phrase off
  * the measure grid, a session short of its planned end, and every repeat. A standalone phrase
  * counts as generated.
@@ -139,7 +139,7 @@ export function runShortfalls(sweepCase: SweepCase, run: TimedSession): string[]
 }
 
 /**
- * Intent: play one case's session at a tempo with every attempt at its measured cost, count how
+ * Play one case's session at a tempo with every attempt at its measured cost, count how
  * its look-ahead phrases were produced in `tally`, and return every way it missed the look-ahead
  * deadline (`runShortfalls`).
  */

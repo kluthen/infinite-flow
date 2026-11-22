@@ -80,7 +80,7 @@ const review = useReviewArea({
   jamCode,
 })
 /**
- * Intent: the showing Review's session start, length and keeping, for its panel; null while none
+ * The showing Review's session start, length and keeping, for its panel; null while none
  * shows.
  */
 // @spec-link [[req_last_session_review]]
@@ -132,7 +132,7 @@ onBeforeUnmount(focus.dispose)
 /** The Review's confirmation sheet, with its words; null until its lazy chunk has loaded. */
 const confirmationSheet = shallowRef<ReviewConfirmationSheetComponent | null>(null)
 
-/** Intent: load the confirmation sheet's chunk (memoized), keeping the component once loaded. */
+/** Load the confirmation sheet's chunk (memoized), keeping the component once loaded. */
 function loadConfirmationSheet(): Promise<void> {
   return loadReviewConfirmationSheet().then((component) => {
     confirmationSheet.value = component
@@ -152,7 +152,7 @@ let rowAsked: string | null = null
 let closedWhileRunning = false
 
 /**
- * Intent: confirm the open confirmation. A refusal keeps the sheet. Once it closes, focus moves by
+ * Confirm the open confirmation. A refusal keeps the sheet. Once it closes, focus moves by
  * the confirmation's own rule; a deletion that finishes after the player closed its sheet moves
  * focus only if it sat on a control the deletion removed, and a refusal then moves nothing (ux
  * D316); a confirmation the page closed (saving turned off) leaves focus on the title.
@@ -186,7 +186,7 @@ async function confirmReviewConfirmation(): Promise<void> {
   })
 }
 
-/** Intent: the way back: close the confirmation, focus back on the button that opened it. */
+/** The way back: close the confirmation, focus back on the button that opened it. */
 // @spec-link [[req_last_session_review]]
 function cancelReviewConfirmation(): void {
   const open = review.confirmation.value
@@ -199,7 +199,7 @@ function cancelReviewConfirmation(): void {
 }
 
 /**
- * Intent: a confirmation opened before the sheet's chunk has loaded shows once it loads; a failed
+ * A confirmation opened before the sheet's chunk has loaded shows once it loads; a failed
  * load closes it the way back does, focus on the button that opened it, and propagates.
  */
 // @spec-link [[req_last_session_review]]
@@ -226,7 +226,7 @@ watch(
 )
 
 /**
- * Intent: a row's title pressed: once read, its Review shows; a failed read keeps focus there; a
+ * A row's title pressed: once read, its Review shows; a failed read keeps focus there; a
  * session found damaged leaves with its row, focus moving as after that row's deletion.
  */
 // @spec-link [[module_kept_session_reach]]
@@ -244,13 +244,13 @@ async function openRow(key: string): Promise<void> {
   }
 }
 
-/** Intent: a row's `Pin` / `Unpin` pressed: at once, or its confirmation from this row. */
+/** A row's `Pin` / `Unpin` pressed: at once, or its confirmation from this row. */
 // @spec-link [[rule_favorite_pins_session]]
 function toggleRowPin(key: string): void {
   if (list.togglePin(key)) rowAsked = key
 }
 
-/** Intent: a row's `Delete` pressed: its confirmation, from this row. */
+/** A row's `Delete` pressed: its confirmation, from this row. */
 // @spec-link [[req_kept_session_list]]
 function askRowDelete(key: string): void {
   rowAsked = key
@@ -258,7 +258,7 @@ function askRowDelete(key: string): void {
 }
 
 /**
- * Intent: `All sessions` in a Review: the list replaces it, the page scrolled to its top, focus on
+ * `All sessions` in a Review: the list replaces it, the page scrolled to its top, focus on
  * that session's row title, or the list's title when it has no row.
  */
 // @spec-link [[req_kept_session_list]]

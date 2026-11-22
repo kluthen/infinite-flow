@@ -18,7 +18,7 @@ export type ReviewPanelComponent = (typeof import('./ReviewPanel.vue'))['default
 let panelPromise: Promise<ReviewPanelComponent> | null = null
 
 /**
- * Intent: the Review panel component, loaded once and shared by every caller. Safe to call
+ * The Review panel component, loaded once and shared by every caller. Safe to call
  * speculatively (at a session's start) to absorb the fetch ahead of the Review opening at its end.
  */
 // @spec-link [[req_last_session_review]]
@@ -46,7 +46,7 @@ export type ReviewConfirmationSheetComponent =
 let confirmationSheetPromise: Promise<ReviewConfirmationSheetComponent> | null = null
 
 /**
- * Intent: the Review's confirmation sheet component, with its words, loaded once and shared by
+ * The Review's confirmation sheet component, with its words, loaded once and shared by
  * every caller. Safe to call speculatively (as the Review shows) to absorb the fetch ahead of the
  * click that opens a confirmation. A rejected import clears the memo before rethrowing.
  */
@@ -76,7 +76,7 @@ export type ReviewAreaComponent =
 let areaPromise: Promise<ReviewAreaComponent> | null = null
 
 /**
- * Intent: the review area component, with the Review's exports, played-notes side, session tools
+ * The review area component, with the Review's exports, played-notes side, session tools
  * and the session list, loaded once and shared by every caller. Safe to call speculatively (at a session's start)
  * to absorb the fetch ahead of the Review opening. A rejected import clears the memo before
  * rethrowing.

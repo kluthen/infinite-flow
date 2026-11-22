@@ -63,7 +63,7 @@ export interface StalePhraseStart {
 }
 
 /**
- * Intent: the current settings as the generation reads them: the controls, the figure levels, the
+ * The current settings as the generation reads them: the controls, the figure levels, the
  * Seventh chords level, the preset selection and, while the controls name my instrument, its
  * profile as saved now, whose range and
  * transposition phrase 1's are compared with. The comparison never reads Vary settings' allowed
@@ -91,7 +91,7 @@ function currentSettings(
 }
 
 /**
- * Intent: the settings phrase 1 differs in from the current ones, at the tempo in effect (the
+ * The settings phrase 1 differs in from the current ones, at the tempo in effect (the
  * tempo never counts); none when it is not stale. Asking with no phrase 1 is a defect.
  */
 // @spec-link [[rule_stale_phrase_prompt_at_start]]
@@ -105,7 +105,7 @@ function staleSettingsNow(
 }
 
 /**
- * Intent: build the controller's stale-aware start over `deps`. A start while a start condition
+ * Build the controller's stale-aware start over `deps`. A start while a start condition
  * fails goes to the controller's start, which refuses it as before: the prompt is no start
  * condition and never replaces one. While the prompt shows, a start condition that stops holding
  * (the workspace leaving Ready) closes it as if dismissed.
@@ -117,7 +117,7 @@ function staleSettingsNow(
 export function createStalePhraseStart(deps: StalePhraseStartDependencies): StalePhraseStart {
   const { state } = deps
 
-  /** Intent: the prompt must show: an answer with none is a defect. */
+  /** The prompt must show: an answer with none is a defect. */
   function requireOpen(): void {
     if (state.stalePhrasePrompt === null)
       throw new SessionControllerError('stale phrase: no prompt shows')

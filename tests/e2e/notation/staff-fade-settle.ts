@@ -8,7 +8,7 @@
  */
 import type { Page } from '@playwright/test'
 
-/** Intent: wait until every animation on the page, the staff's entrance fade included, has ended. */
+/** Wait until every animation on the page, the staff's entrance fade included, has ended. */
 // @test-link [[module_notation_layout_preflight]]
 export async function waitForStaffFadeSettled(page: Page): Promise<void> {
   await page.evaluate(async () => {

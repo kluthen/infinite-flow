@@ -24,7 +24,7 @@ vi.mock('@/generation-worker/browser-generation-worker', () => ({
   })),
 }))
 
-/** Intent: a jsdom stand-in for `window.matchMedia`, for a window wider than every breakpoint. */
+/** A jsdom stand-in for `window.matchMedia`, for a window wider than every breakpoint. */
 function stubWideWindow(): void {
   vi.stubGlobal(
     'matchMedia',
@@ -38,7 +38,7 @@ function stubWideWindow(): void {
 }
 
 /**
- * Intent: give jsdom's navigator (which has no Web MIDI) the fake browser's `requestMIDIAccess`,
+ * Give jsdom's navigator (which has no Web MIDI) the fake browser's `requestMIDIAccess`,
  * removed again after each test.
  */
 function stubRequestMidiAccess(browser: WebMidiNavigatorPort): void {

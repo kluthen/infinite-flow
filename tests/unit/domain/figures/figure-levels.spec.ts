@@ -40,7 +40,7 @@ const PROFILE_MAPPING_FILE = 'src/domain/generation/generation-intent.ts'
 const PROFILE_DECISION =
   /['"](?:Jazz|Neutral)['"]|musicalProfile\s*[!=]==|\.musicalProfile\.musicalProfile/u
 
-/** Intent: every source file under one repo folder, as a repo-relative path and its text. */
+/** Every source file under one repo folder, as a repo-relative path and its text. */
 function sourceFiles(folder: string): readonly { path: string; text: string }[] {
   const root = join(REPO_ROOT, folder)
   return readdirSync(root, { recursive: true, encoding: 'utf8' })
@@ -49,7 +49,7 @@ function sourceFiles(folder: string): readonly { path: string; text: string }[] 
     .map((path) => ({ path: relative(REPO_ROOT, path), text: readFileSync(path, 'utf8') }))
 }
 
-/** Intent: Neutral's levels with one figure's level replaced. */
+/** Neutral's levels with one figure's level replaced. */
 function neutralWith(changes: Partial<FigureLevels>): FigureLevels {
   return { ...NEUTRAL_FIGURE_LEVELS, ...changes }
 }

@@ -13,7 +13,7 @@ import type { SettingChanges } from '@/storage/settings-saver'
 /** Session mode's current values in these tests: C Major at 200 BPM, Jam's tempo kept at 180. */
 const SESSION: SessionModeStart = { tempo: 200, tonalCenter: 'C', collection: 'Major' }
 
-/** Intent: a saver that records every batch it is given, and writes nothing. */
+/** A saver that records every batch it is given, and writes nothing. */
 function recordingSaver(): { save: (changes: SettingChanges) => void; batches: SettingChanges[] } {
   const batches: SettingChanges[] = []
   return { save: (changes) => batches.push(changes), batches }

@@ -25,7 +25,7 @@ import { SHAPED, requestIn, threeRequested } from './settings-change-session'
 /** The session seed every driver of this file starts from. */
 const SESSION_SEED = makeSeed(0x0badf00d)
 
-/** Intent: a driver from `SESSION_SEED` at a tempo (60 BPM by default) started at 0. */
+/** A driver from `SESSION_SEED` at a tempo (60 BPM by default) started at 0. */
 function driverAt(tempo = 60): SessionDriver {
   const settings = sessionSettings({ tempo })
   return new SessionDriver({
@@ -36,14 +36,14 @@ function driverAt(tempo = 60): SessionDriver {
   })
 }
 
-/** Intent: check a request is phrase 2's standalone attempt with rung 4's seed and request id. */
+/** Check a request is phrase 2's standalone attempt with rung 4's seed and request id. */
 function expectPlannedStandalone(request: GenerationRequestOutput): void {
   expect(request).toMatchObject({ phraseNumber: 2, step: 'standalone', retry: 4 })
   expect(request.intent.seed).toBe(phraseAttemptSeed(SESSION_SEED, 2, 4))
   expect(request.intent.requestId).toBe('session-5')
 }
 
-/** Intent: let phrase 1 then phrase 2 start sounding in a 60 BPM driver, so phrase 3 is requested. */
+/** Let phrase 1 then phrase 2 start sounding in a 60 BPM driver, so phrase 3 is requested. */
 function reachPhraseThree(driver: SessionDriver): void {
   driver.tick(4)
   driver.countInOver(4)
@@ -104,7 +104,7 @@ describe('attempt seeds from the session seed plan', () => {
     reachPhraseThree(climbed)
     smooth.fail(20.5)
     climbed.fail(20.5)
-    /** Intent: the seeds of every request made so far for phrase 3. */
+    /** The seeds of every request made so far for phrase 3. */
     const seedsOf = (driver: SessionDriver) =>
       driver.requests(3).map((request) => request.intent.seed)
     expect(seedsOf(smooth)).toEqual([

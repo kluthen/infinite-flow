@@ -44,7 +44,7 @@ import {
 } from './session-harness'
 import { driveTempoSession, phraseStartAt, phraseTempoOf, tempoDriver } from './tempo-session'
 
-/** Intent: the recorded phrases of a driven session, fed every output the driver logged. */
+/** The recorded phrases of a driven session, fed every output the driver logged. */
 function recordedPhrases(driver: SessionDriver): readonly SessionHistoryRecord[] {
   const history = createSessionHistory(
     driver.settings,
@@ -56,13 +56,13 @@ function recordedPhrases(driver: SessionDriver): readonly SessionHistoryRecord[]
   return history.phrases()
 }
 
-/** Intent: a driver at 240 BPM (a 1 s measure) for the given instrument, started at 0. */
+/** A driver at 240 BPM (a 1 s measure) for the given instrument, started at 0. */
 function fastDriver(instrumentProfileId: 'c-keyboard' | 'bb-tenor' = 'bb-tenor'): SessionDriver {
   const settings = sessionSettings({ tempo: 240, instrumentProfileId })
   return new SessionDriver({ at: 0, settings, phraseOne: phraseOneFor(settings) })
 }
 
-/** Intent: three phrases generated with carry-in, the last accepted in time, then Stop. */
+/** Three phrases generated with carry-in, the last accepted in time, then Stop. */
 function threePhraseSession(instrumentProfileId?: 'c-keyboard' | 'bb-tenor'): SessionDriver {
   const driver = fastDriver(instrumentProfileId)
   driver.accept(0.5)
@@ -75,7 +75,7 @@ function threePhraseSession(instrumentProfileId?: 'c-keyboard' | 'bb-tenor'): Se
 }
 
 /**
- * Intent: phrase 2 missing its deadline, so the failure ladder repeats phrase 1 as phrase 2, then
+ * Phrase 2 missing its deadline, so the failure ladder repeats phrase 1 as phrase 2, then
  * phrase 3 generated with carry-in and accepted in time, then Stop.
  */
 function sessionWithRepeat(): SessionDriver {
@@ -89,7 +89,7 @@ function sessionWithRepeat(): SessionDriver {
   return driver
 }
 
-/** Intent: the same records with the repeat mark removed, as if every phrase were generated. */
+/** The same records with the repeat mark removed, as if every phrase were generated. */
 function unmarked(records: readonly SessionHistoryRecord[]): readonly SessionHistoryRecord[] {
   return records.map((record) => {
     const { repeatOf, ...rest } = record
@@ -98,7 +98,7 @@ function unmarked(records: readonly SessionHistoryRecord[]): readonly SessionHis
   })
 }
 
-/** Intent: one phrase of a MusicXML input alone, numbered as phrase 1. */
+/** One phrase of a MusicXML input alone, numbered as phrase 1. */
 function musicXmlPhraseAlone(
   input: GeneratedNotesMusicXmlInput,
   position: number,
@@ -106,7 +106,7 @@ function musicXmlPhraseAlone(
   return { instrument: input.instrument, phrases: [{ ...input.phrases[position]!, number: 1 }] }
 }
 
-/** Intent: one phrase of a MIDI input alone, numbered as phrase 1. */
+/** One phrase of a MIDI input alone, numbered as phrase 1. */
 function midiPhraseAlone(
   input: GeneratedNotesMidiInput,
   position: number,
@@ -169,7 +169,7 @@ describe('the encoder inputs a history hands over', () => {
 })
 
 /**
- * Intent: the records of the three-phrase session (phrases at 1, 5 and 9 s, 4 s each) with five
+ * The records of the three-phrase session (phrases at 1, 5 and 9 s, 4 s each) with five
  * played notes: one in the count-in, one in each phrase (the last held past the end at 13 s), and
  * one after the end, which the history gives the last phrase.
  */
@@ -262,7 +262,7 @@ describe('the played-notes input a history hands over', () => {
 })
 
 /**
- * Intent: the history of an adaptive-tempo session from 90 BPM (phrases at 90, 90, 95, 95, then
+ * The history of an adaptive-tempo session from 90 BPM (phrases at 90, 90, 95, 95, then
  * 100 BPM) ended after `phraseCount` phrases, each phrase recorded at its start on the
  * transport's click plan with the same rises, as the controller hands it in, with one played note
  * 0.1 s into each phrase.
@@ -435,7 +435,7 @@ const GUARDED_GLOBALS: readonly string[] = [
 ]
 
 /**
- * Intent: replace a global by a trap that logs every property read, call and construction into
+ * Replace a global by a trap that logs every property read, call and construction into
  * `touched`; the original comes back with `vi.unstubAllGlobals`.
  */
 function trapGlobal(name: string, touched: string[]): void {

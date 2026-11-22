@@ -50,14 +50,14 @@ export interface ReviewNavigation {
 }
 
 /**
- * Intent: the Review's moves for one shell, plus the watcher that gives focus to the session
+ * The Review's moves for one shell, plus the watcher that gives focus to the session
  * action when a session start removes the focused `review-link`.
  */
 // @spec-link [[req_last_session_review]]
 // @spec-link [[rule_new_session_discards_review]]
 export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewNavigation {
   /**
-   * Intent: `Close review`: the Review stops showing and is kept, the page scrolls instantly to its
+   * `Close review`: the Review stops showing and is kept, the page scrolls instantly to its
    * top, and once the staff area is rendered again focus moves by the idle state it shows: it
    * stays on the session action if enabled (`Start session` in Ready), else `room-notice`, else
    * the phrase action if enabled, else `controller-status`. Nothing is announced. `Jam again on
@@ -82,7 +82,7 @@ export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewN
   }
 
   /**
-   * Intent: `Review last session`: the most recent session's Review shows (at once when held in
+   * `Review last session`: the most recent session's Review shows (at once when held in
    * memory, once read when kept on the device), the page scrolls instantly to its top, then focus
    * moves to `review-title` once the panel is mounted. When its read fails, the session list shows
    * instead, that session's row marked as failed to open, focus on the list's title (spec D307);
@@ -100,7 +100,7 @@ export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewN
   }
 
   /**
-   * Intent: the cue row's `All sessions`: the session list shows in the review mode, the page
+   * The cue row's `All sessions`: the session list shows in the review mode, the page
    * scrolls instantly to its top, and focus moves to the list's title.
    */
   // @spec-link [[req_kept_session_list]]
@@ -111,7 +111,7 @@ export function useReviewNavigation(deps: ReviewNavigationDependencies): ReviewN
   }
 
   /**
-   * Intent: a session start removes `review-link` and `sessions-link`; if one had focus (the
+   * A session start removes `review-link` and `sessions-link`; if one had focus (the
    * starting note started the session, with no click on the page), focus moves to the session
    * action once it is rendered. Run before the render, while the link is still there to hold focus.
    */

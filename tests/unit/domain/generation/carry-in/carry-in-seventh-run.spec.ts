@@ -23,7 +23,7 @@ function gentleInput(sevenths = true): BoundPitchPlannerInput {
 }
 
 /**
- * Intent: a melody for every attack of the input: A3 and G3 alternate by step, ending on G3, then
+ * A melody for every attack of the input: A3 and G3 alternate by step, ending on G3, then
  * the three given notes on the last three attacks.
  */
 function melodyEndingWith(input: BoundPitchPlannerInput, ending: readonly number[]): number[] {
@@ -35,7 +35,7 @@ function melodyEndingWith(input: BoundPitchPlannerInput, ending: readonly number
 }
 
 /**
- * Intent: a successful outcome whose request, harmony, rhythm and timeline are the hand-built
+ * A successful outcome whose request, harmony, rhythm and timeline are the hand-built
  * input's and the melody's, generated at Angular (the input's level) so its shape is a real one.
  */
 function outcomeOf(input: BoundPitchPlannerInput, midis: readonly number[]) {
@@ -50,7 +50,7 @@ function outcomeOf(input: BoundPitchPlannerInput, midis: readonly number[]) {
   return { intent, outcome }
 }
 
-/** Intent: the motion state the pitch search writes after the melody, through its note facts. */
+/** The motion state the pitch search writes after the melody, through its note facts. */
 function searchMotion(input: BoundPitchPlannerInput, midis: readonly number[]): MotionState {
   const context = compilePitchSearchContext(input)
   return context.attacks.reduce((state, attack, index) => {

@@ -16,7 +16,7 @@ import { buildIntent } from '../../domain/generation/carry-in/carry-in-fixture'
 const FIRST = buildIntent({ seed: 31, label: 'announcer' })
 const SECOND = buildIntent({ seed: 32, label: 'announcer' })
 
-/** Intent: an announcer whose module load the test settles by hand. */
+/** An announcer whose module load the test settles by hand. */
 function heldAnnouncer() {
   const lines: string[] = []
   let settle!: (module: PhraseReplayAnnouncementModule) => void
@@ -35,7 +35,7 @@ function heldAnnouncer() {
   }
 }
 
-/** Intent: the line the announcement module itself writes for a workspace phrase. */
+/** The line the announcement module itself writes for a workspace phrase. */
 function workspaceLine(intent: typeof FIRST): string {
   const lines: string[] = []
   announcement.announceWorkspacePhrase(intent, (line) => lines.push(line))

@@ -19,7 +19,7 @@ vi.mock('@/notation/vexflow-engraver-loader', () => import('../notation/fake-phr
 
 const mounted: VueWrapper[] = []
 
-/** Intent: mount a Jam session's Review panel with its doodle tools in the slots its host fills. */
+/** Mount a Jam session's Review panel with its doodle tools in the slots its host fills. */
 function mountJamPanel(
   options: { readonly isJam?: boolean; readonly jamCode?: ReviewJamCode } = {},
 ) {

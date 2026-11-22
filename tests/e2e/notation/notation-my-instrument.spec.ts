@@ -27,7 +27,7 @@ const SMUFL_SHARP = '\uE262'
 /** The SMuFL chord-symbol sharp glyph (`csymAccidentalSharp`), drawn after a chord root's letter. */
 const SMUFL_CHORD_SYMBOL_SHARP = '\uED62'
 
-/** Intent: load a harness URL and wait until it publishes a settled (ready or error) state. */
+/** Load a harness URL and wait until it publishes a settled (ready or error) state. */
 async function loadSettled(page: Page, query: string): Promise<NotationHarnessState> {
   await page.goto(`/?${query}`)
   await page.waitForFunction(
@@ -36,7 +36,7 @@ async function loadSettled(page: Page, query: string): Promise<NotationHarnessSt
   return page.evaluate(() => window.__notationHarness)
 }
 
-/** Intent: the harness query for one generated phrase with every required control set. */
+/** The harness query for one generated phrase with every required control set. */
 function generatedQuery(extra: Readonly<Record<string, string>>): string {
   return new URLSearchParams({
     source: 'generated',
@@ -53,7 +53,7 @@ function generatedQuery(extra: Readonly<Record<string, string>>): string {
   }).toString()
 }
 
-/** Intent: the first system SVG's `viewBox` height and `height` attribute. */
+/** The first system SVG's `viewBox` height and `height` attribute. */
 async function svgSize(page: Page): Promise<{ viewBoxHeight: number; heightPx: number }> {
   return page.$eval('svg.staff-svg', (svg) => ({
     // The attribute itself, not viewBox.baseVal, whose single-precision floats round the size.
@@ -63,7 +63,7 @@ async function svgSize(page: Page): Promise<{ viewBoxHeight: number; heightPx: n
 }
 
 /**
- * Intent: check that a ready engraving was drawn at the shared system-position size `units`: the
+ * Check that a ready engraving was drawn at the shared system-position size `units`: the
  * published size, the SVG's viewBox height, and its height in px at the engraving's scale.
  */
 async function expectEngravedAtSize(
@@ -233,7 +233,7 @@ const BASS_PHRASE: Readonly<Record<string, string>> = {
   leapiness: 'Leaping',
 }
 
-/** Intent: the bass phrase's harness query in `clef`, with any extra parameters. */
+/** The bass phrase's harness query in `clef`, with any extra parameters. */
 function bassPhraseQuery(
   clef: 'treble' | 'bass',
   extra: Readonly<Record<string, string>> = {},
@@ -242,7 +242,7 @@ function bassPhraseQuery(
 }
 
 /**
- * Intent: every glyph's written pitch, measure by measure, as diatonic steps from C0 (null for a
+ * Every glyph's written pitch, measure by measure, as diatonic steps from C0 (null for a
  * rest), read from the score description's note and rest tokens, which follow the glyphs' order.
  */
 async function describedSteps(page: Page): Promise<(number | null)[][]> {
@@ -265,7 +265,7 @@ async function describedSteps(page: Page): Promise<(number | null)[][]> {
   )
 }
 
-/** Intent: each note identity's written pitch, as diatonic steps from C0 (a tie's glyphs share one). */
+/** Each note identity's written pitch, as diatonic steps from C0 (a tie's glyphs share one). */
 function stepsByIdentity(
   state: NotationHarnessState,
   steps: readonly (readonly (number | null)[])[],
@@ -300,7 +300,7 @@ interface DrawnSystem {
   }[]
 }
 
-/** Intent: read every system SVG's staff lines, clef, key signature, noteheads and stems. */
+/** Read every system SVG's staff lines, clef, key signature, noteheads and stems. */
 async function drawnSystems(page: Page): Promise<DrawnSystem[]> {
   return page.$$eval('svg.staff-svg', (svgs) =>
     svgs.map((svg) => {
@@ -339,7 +339,7 @@ async function drawnSystems(page: Page): Promise<DrawnSystem[]> {
 }
 
 /**
- * Intent: the stem direction the stem rule gives a beam group's notes, as steps from the middle
+ * The stem direction the stem rule gives a beam group's notes, as steps from the middle
  * line: the note farthest from it decides (on or above: down), then the side holding more notes,
  * then down.
  */

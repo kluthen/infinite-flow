@@ -21,7 +21,7 @@ import {
   type FakeWebMidiAccess,
 } from './fake-web-midi'
 
-/** Intent: request access through the adapter from a navigator granting `fake`. */
+/** Request access through the adapter from a navigator granting `fake`. */
 async function grantedAccess(fake: FakeWebMidiAccess): Promise<MidiAccessPort> {
   const provider = createWebMidiAccessProvider(
     createFakeWebMidiNavigator(() => Promise.resolve(fake)),
@@ -31,7 +31,7 @@ async function grantedAccess(fake: FakeWebMidiAccess): Promise<MidiAccessPort> {
   return result.access
 }
 
-/** Intent: the outcome of a request the browser rejects with this DOMException name. */
+/** The outcome of a request the browser rejects with this DOMException name. */
 function requestRejectedWith(name: string): Promise<unknown> {
   const navigator = createFakeWebMidiNavigator(() =>
     Promise.reject(new DOMException(`refused (${name})`, name)),

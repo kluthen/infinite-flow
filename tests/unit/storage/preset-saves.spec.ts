@@ -43,7 +43,7 @@ const WARM_UP: Preset = makePreset({
 })
 
 /**
- * Intent: the visit's saves over a real policy on a ready port (refusable on demand) holding
+ * The visit's saves over a real policy on a ready port (refusable on demand) holding
  * `seeded`, written through the preset record's codec, and the storage manager's calls.
  */
 async function visit(seeded: readonly Preset[] = []) {
@@ -58,12 +58,12 @@ async function visit(seeded: readonly Preset[] = []) {
   return { port, refuse, policy, saves, manager: recording.calls }
 }
 
-/** Intent: the player presets the port's `presets` store holds now, as a load reads them. */
+/** The player presets the port's `presets` store holds now, as a load reads them. */
 async function storedPresets(port: StoragePort): Promise<readonly Preset[]> {
   return decodePlayerPresets(await port.readKeyed('presets'))
 }
 
-/** Intent: let the policy's protection request and its port calls settle. */
+/** Let the policy's protection request and its port calls settle. */
 function flushPromises(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 0))
 }

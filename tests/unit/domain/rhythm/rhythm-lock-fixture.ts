@@ -25,7 +25,7 @@ export const LOCK_TEST_RHYTHM_CONTROLS = Object.freeze({
   silenceDensity: 'Sparse',
 } as const)
 
-/** Intent: the whole domain of the lock test controls at one tension, in domain order, frozen. */
+/** The whole domain of the lock test controls at one tension, in domain order, frozen. */
 export function lockTestDomain(tensionArc: TensionArc): readonly RhythmCandidate[] {
   const input: RhythmExpansionInput = { ...LOCK_TEST_RHYTHM_CONTROLS, tensionArc }
   const result = makeRhythmCandidateDomain(input)
@@ -33,7 +33,7 @@ export function lockTestDomain(tensionArc: TensionArc): readonly RhythmCandidate
   return Object.freeze([...result.candidates()])
 }
 
-/** Intent: a domain's seeded order for one seed, as the orchestrator ranks it. */
+/** A domain's seeded order for one seed, as the orchestrator ranks it. */
 export function seededOrder(
   domain: readonly RhythmCandidate[],
   seed: Seed,
@@ -41,7 +41,7 @@ export function seededOrder(
   return rankMaterializedRhythmCandidates(domain[0]!.grammarVersion, domain, seed).candidates
 }
 
-/** Intent: a candidate's bars as the request's locked bars. */
+/** A candidate's bars as the request's locked bars. */
 export function lockedBarsOf(candidate: RhythmCandidate): readonly LockedRhythmMeasure[] {
   return candidate.bars.map((bar) =>
     bar.events.map((event) => ({
@@ -53,7 +53,7 @@ export function lockedBarsOf(candidate: RhythmCandidate): readonly LockedRhythmM
   )
 }
 
-/** Intent: the request's rhythm lock group, on with these bars and no allowed change. */
+/** The request's rhythm lock group, on with these bars and no allowed change. */
 export function lockOn(bars: readonly LockedRhythmMeasure[]): RequestRhythmLock {
   return makeRequestRhythmLock({
     state: { kind: 'locked', bars },
@@ -62,7 +62,7 @@ export function lockOn(bars: readonly LockedRhythmMeasure[]): RequestRhythmLock 
   })
 }
 
-/** Intent: the request's rhythm lock group, on with nothing locked yet. */
+/** The request's rhythm lock group, on with nothing locked yet. */
 export function lockPending(): RequestRhythmLock {
   return makeRequestRhythmLock({
     state: { kind: 'pending' },
@@ -72,7 +72,7 @@ export function lockPending(): RequestRhythmLock {
 }
 
 /**
- * Intent: the first candidate's bars with one note of two ticks or more split into two tied
+ * The first candidate's bars with one note of two ticks or more split into two tied
  * notes, written in no candidate of the domain: the same starts (a tie continuation starts
  * nothing), so at distance 0, but other bars. Throws when the domain offers none.
  */

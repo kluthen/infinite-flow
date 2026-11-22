@@ -52,12 +52,12 @@ const SCRIPTS: readonly { readonly name: string; readonly script: TempoScript }[
 /** Generous timeout for the property, which generates whole sessions. */
 const PROPERTY_TIMEOUT_MS = 60_000
 
-/** Intent: the mutation flag of the run for the provider seed at `index`: on every other one. */
+/** The mutation flag of the run for the provider seed at `index`: on every other one. */
 function mutationFor(index: number): SettingsMutationFlag {
   return index % 2 === 0 ? SETTINGS_MUTATION_OFF : { kind: 'on', seed: makeSeed(17 + index) }
 }
 
-/** Intent: one scripted session, adaptive tempo on or off, everything else equal. */
+/** One scripted session, adaptive tempo on or off, everything else equal. */
 function run(
   index: number,
   tempo: number,
@@ -77,7 +77,7 @@ function run(
 }
 
 /**
- * Intent: what a session asked generation for: each request with its replay key, without its
+ * What a session asked generation for: each request with its replay key, without its
  * deadline, the one field the tempo sets.
  */
 function requested(driver: SessionDriver): readonly unknown[] {

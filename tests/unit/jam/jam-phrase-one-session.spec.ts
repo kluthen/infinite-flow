@@ -26,7 +26,7 @@ const SIXTEENTHS: readonly BeatNote[] = Array.from({ length: 16 }, (_, index) =>
   1 / 4,
 ])
 
-/** Intent: the requests of phrases 2 onward, in order. */
+/** The requests of phrases 2 onward, in order. */
 function laterRequests(run: ReturnType<typeof runJam>): readonly GenerationRequestOutput[] {
   return run.requests.map(({ request }) => request).filter((request) => request.phraseNumber >= 2)
 }

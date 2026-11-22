@@ -49,7 +49,7 @@ import {
 const MISFIT_SEED = 501
 
 /**
- * Intent: the session seeds of the misfit and retry sessions, set through the session seed (a
+ * The session seeds of the misfit and retry sessions, set through the session seed (a
  * session draws no seed: each attempt's derives from it, and the derivation is its own inverse).
  * The misfit session's phrase 2 draws MISFIT_SEED on its first attempt (rung 0); its retry
  * (rung 1) draws a seed the retry session's phrase 2 draws on its first attempt.
@@ -61,7 +61,7 @@ async function sessionSeeds(page: Page): Promise<{ misfit: number; retry: number
 }
 
 /**
- * Intent: generate phrase 1 again at Idle (the same phrase, seed 7) with `sessionSeed` queued, so
+ * Generate phrase 1 again at Idle (the same phrase, seed 7) with `sessionSeed` queued, so
  * it is the session seed drawn with it, and let the staff draw it.
  */
 async function phraseOneWithSessionSeed(page: Page, sessionSeed: number): Promise<void> {
@@ -78,7 +78,7 @@ async function phraseOneWithSessionSeed(page: Page, sessionSeed: number): Promis
 }
 
 /**
- * Intent: a fingerprint of phrase 2 as the bottom system draws it in the count-in: its summary
+ * A fingerprint of phrase 2 as the bottom system draws it in the count-in: its summary
  * and every note's identity and box, which differ between two different phrases.
  */
 function phraseTwoFingerprint(page: Page): Promise<string> {
@@ -98,7 +98,7 @@ function phraseTwoFingerprint(page: Page): Promise<string> {
 }
 
 /**
- * Intent: start a session in the count-in from phrase 1 with the given session seed (and the
+ * Start a session in the count-in from phrase 1 with the given session seed (and the
  * given fit verdicts forced), wait for phrase 2 to be drawn below phrase 1, and return its
  * fingerprint with how many attempts, seeds drawn, fit checks and engravings that took. Stop ends
  * it after.
@@ -169,7 +169,7 @@ test('a look-ahead phrase too wide for the held layout is never drawn: its retry
   await expectNoNotationError(page)
 })
 
-/** Intent: resize the window and let the staff re-measure and redraw. */
+/** Resize the window and let the staff re-measure and redraw. */
 async function resize(
   page: Page,
   size: { readonly width: number; readonly height: number },
@@ -179,7 +179,7 @@ async function resize(
 }
 
 /**
- * Intent: assert a session ended like Stop on its staff, with no notation error shown while it
+ * Assert a session ended like Stop on its staff, with no notation error shown while it
  * ran nor after, and no playhead band left.
  */
 async function expectStaffEnd(page: Page, phase: 'count-in' | 'running'): Promise<void> {

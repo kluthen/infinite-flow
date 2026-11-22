@@ -70,7 +70,7 @@ const DECODED: readonly DecodedPhraseReplayKey[] = CORPUS.cases.map((corpusCase)
   decodePhraseReplayKey(corpusCase.key),
 )
 
-/** Intent: the JSON payload of a key, read back without the codec's decoder. */
+/** The JSON payload of a key, read back without the codec's decoder. */
 function payloadOf(key: string): unknown[] {
   const payload = key
     .slice(key.indexOf('.') + 1)
@@ -81,7 +81,7 @@ function payloadOf(key: string): unknown[] {
   return JSON.parse(new TextDecoder().decode(bytes)) as unknown[]
 }
 
-/** Intent: the instrument a decoded intent names: a built-in id, or my instrument's range. */
+/** The instrument a decoded intent names: a built-in id, or my instrument's range. */
 function instrumentOf(intent: GenerationIntent): string {
   if (intent.controls.instrumentProfileId !== 'my-instrument') {
     return intent.controls.instrumentProfileId
@@ -90,12 +90,12 @@ function instrumentOf(intent: GenerationIntent): string {
   return `my-instrument ${minMidi}-${maxMidi}`
 }
 
-/** Intent: the figure levels as one comparable string, the seven figures in FIGURE_IDS order. */
+/** The figure levels as one comparable string, the seven figures in FIGURE_IDS order. */
 function levelsText(levels: FigureLevels): string {
   return FIGURE_IDS.map((figure) => `${figure}:${levels[figure]}`).join(' ')
 }
 
-/** Intent: whether a decoded intent holds a preset's controls and levels in an allowed mode. */
+/** Whether a decoded intent holds a preset's controls and levels in an allowed mode. */
 function holdsPreset(intent: GenerationIntent, preset: Preset): boolean {
   return (
     PRESET_HELD_CONTROL_KEYS.every((key) => intent.controls[key] === preset.controls[key]) &&
@@ -107,7 +107,7 @@ function holdsPreset(intent: GenerationIntent, preset: Preset): boolean {
 /** The levels of the eight built-in presets, as comparable strings. */
 const PRESET_LEVELS = new Set(BUILT_IN_PRESETS.map((preset) => levelsText(preset.levels)))
 
-/** Intent: the distinct values a read gives over a set of decoded keys. */
+/** The distinct values a read gives over a set of decoded keys. */
 function valuesOf(
   keys: readonly DecodedPhraseReplayKey[],
   read: (intent: GenerationIntent) => string,
@@ -116,7 +116,7 @@ function valuesOf(
 }
 
 /**
- * Intent: the standalone phrases (phrase 1, no carry-in) whose levels are no built-in preset's,
+ * The standalone phrases (phrase 1, no carry-in) whose levels are no built-in preset's,
  * grouped by figure levels and instrument.
  */
 function spreadGroups(): ReadonlyMap<string, readonly DecodedPhraseReplayKey[]> {
@@ -131,7 +131,7 @@ function spreadGroups(): ReadonlyMap<string, readonly DecodedPhraseReplayKey[]> 
   return groups
 }
 
-/** Intent: the timeline a key replays to through a fresh worker runtime, or a loud failure. */
+/** The timeline a key replays to through a fresh worker runtime, or a loud failure. */
 function replayTimeline(key: string): unknown {
   const report = replayDecodedPhraseKey(key, decodePhraseReplayKey(key))
   if (

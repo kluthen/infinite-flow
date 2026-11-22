@@ -13,7 +13,7 @@ import { createFinding, lineOf } from '../sources.mjs'
  */
 
 /**
- * Intent: the nesting rule: one ERROR per function-like node (and once for module scope)
+ * The nesting rule: one ERROR per function-like node (and once for module scope)
  * whose control-flow depth exceeds MAX_NESTING, at the line of the first construct past it.
  *
  * Contract: pure; reads the file only through `source` and the sources.mjs helpers; returns
@@ -34,7 +34,7 @@ export function checkNesting(source) {
 }
 
 /**
- * Intent: every counted scope of a script block, in source order: its module-level code first,
+ * Every counted scope of a script block, in source order: its module-level code first,
  * then each function-like node, whose count starts again at 0 whatever the depth it sits at.
  *
  * Depth rules: `if`, `for`, `for-in`, `for-of`, `while`, `do`, `switch` and `try` add one level to
@@ -52,7 +52,7 @@ function scopesOf(block) {
   const scopes = []
 
   /**
-   * Intent: record that `node`, a nesting construct, puts its content at `depth` in `scope`.
+   * Record that `node`, a nesting construct, puts its content at `depth` in `scope`.
    *
    * @param {ts.Node} node
    * @param {number} depth
@@ -66,7 +66,7 @@ function scopesOf(block) {
   }
 
   /**
-   * Intent: walk `node` at `depth` in `scope`, opening a new scope for a function-like node.
+   * Walk `node` at `depth` in `scope`, opening a new scope for a function-like node.
    *
    * @param {ts.Node} node
    * @param {number} depth
@@ -100,7 +100,7 @@ function scopesOf(block) {
 }
 
 /**
- * Intent: whether a node is a loop, `switch` or `try`: a construct adding one nesting level to
+ * Whether a node is a loop, `switch` or `try`: a construct adding one nesting level to
  * all its content (`if` is handled apart for its else-if chains).
  *
  * @param {ts.Node} node
@@ -119,7 +119,7 @@ function isNestingConstruct(node) {
 }
 
 /**
- * Intent: whether a node starts its own nesting count: a function declaration or expression, an
+ * Whether a node starts its own nesting count: a function declaration or expression, an
  * arrow function, a method, an accessor, a constructor or a class static block.
  *
  * @param {ts.Node} node
@@ -139,7 +139,7 @@ function isFunctionScope(node) {
 }
 
 /**
- * Intent: the name a finding gives a function scope: its own name, else the name of the variable,
+ * The name a finding gives a function scope: its own name, else the name of the variable,
  * property or class field it initializes, else "anonymous function".
  *
  * @param {ts.FunctionLikeDeclaration | ts.ClassStaticBlockDeclaration} node

@@ -28,7 +28,7 @@ export interface ControllerStatusView {
 }
 
 /**
- * Intent: follow `midi` for as long as the calling scope lives (a component's setup), folding
+ * Follow `midi` for as long as the calling scope lives (a component's setup), folding
  * every change it reports, the current one first. `sessionActive` and `lostInSession` are read
  * reactively: the form is frozen from `sessionActive` turning true until it turns false, except
  * that `disconnected` shows through the freeze while `lostInSession` is true (the frozen form

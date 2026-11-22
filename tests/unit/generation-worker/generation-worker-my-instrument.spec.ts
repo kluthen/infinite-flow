@@ -45,7 +45,7 @@ const MINOR_THIRD_LOWER = makeMyInstrument({
   transposition: { octaves: 0, semitones: 3, direction: 'lower' },
 })
 
-/** Intent: a real intent for my instrument (or a built-in with `profile` absent), with a seed. */
+/** A real intent for my instrument (or a built-in with `profile` absent), with a seed. */
 function myInstrumentIntent(
   seed: number,
   profile: InstrumentProfile = MINOR_THIRD_LOWER.profile,
@@ -64,17 +64,17 @@ function myInstrumentIntent(
   })
 }
 
-/** Intent: a generate message for an intent, as it reaches the worker after `postMessage`. */
+/** A generate message for an intent, as it reaches the worker after `postMessage`. */
 function wire(intent: GenerationIntent) {
   return structuredClone({ type: 'generate', id: 1, intent })
 }
 
-/** Intent: the message with its intent's instrument profile replaced by `profile`. */
+/** The message with its intent's instrument profile replaced by `profile`. */
 function withProfile(message: ReturnType<typeof wire>, profile: unknown) {
   return { ...message, intent: { ...message.intent, instrumentProfile: profile } }
 }
 
-/** Intent: every note pitch of a timeline, in order. */
+/** Every note pitch of a timeline, in order. */
 function notePitches(intent: GenerationIntent): readonly number[] {
   const outcome = generateSuccess(intent)
   return outcome.result.timeline.measures.flatMap((measure) =>

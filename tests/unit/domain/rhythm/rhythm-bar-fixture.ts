@@ -20,7 +20,7 @@ interface Token {
   readonly continuation: boolean
 }
 
-/** Intent: parse one measure's tokens, rejecting anything that is not a well-formed token. */
+/** Parse one measure's tokens, rejecting anything that is not a well-formed token. */
 function parseTokens(spec: string): readonly Token[] {
   return spec
     .trim()
@@ -37,7 +37,7 @@ function parseTokens(spec: string): readonly Token[] {
 }
 
 /**
- * Intent: build one written measure from its tokens. Tie chains get a name built from `chainPrefix`
+ * Build one written measure from its tokens. Tie chains get a name built from `chainPrefix`
  * so two specs can write the same rhythm with different chain names. Throws unless the measure
  * fills exactly 16 ticks and every tie continues a note.
  */
@@ -67,13 +67,13 @@ export function bar(spec: string, barIndex: BarIndex = 0, chainPrefix = 'chain')
   return { barIndex, events }
 }
 
-/** Intent: build a four-measure phrase from four measure specs. */
+/** Build a four-measure phrase from four measure specs. */
 export function phrase(specs: readonly [string, string, string, string]): readonly RhythmBar[] {
   return specs.map((spec, index) => bar(spec, index as BarIndex))
 }
 
 /**
- * Intent: write a start list directly, e.g. `n0 r4 n6`: one note or rest start per token, at the
+ * Write a start list directly, e.g. `n0 r4 n6`: one note or rest start per token, at the
  * given tick.
  */
 export function starts(spec: string): MeasureStarts {

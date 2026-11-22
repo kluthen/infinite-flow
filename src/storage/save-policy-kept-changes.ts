@@ -109,7 +109,7 @@ const SAVING_OFF = Object.freeze({ status: 'saving-off' } as const)
 const READ_AGAIN: unique symbol = Symbol('read again')
 
 /**
- * Intent: the changes and reads of kept sessions over the policy's `context`, each run once no
+ * The changes and reads of kept sessions over the policy's `context`, each run once no
  * session holds the saves and no flush is being applied.
  */
 // @spec-link [[module_kept_session_changes]]
@@ -123,11 +123,11 @@ export function createKeptChangeRunner(context: KeptChangeContext): KeptChangeRu
     readKeys: (store) => port.readKeys(store),
   }
 
-  /** Intent: whether a session started, or a flush began, since the step's read. */
+  /** Whether a session started, or a flush began, since the step's read. */
   const busy = (): boolean => context.isHeld() || context.releasing() !== null
 
   /**
-   * Intent: what a refusal of the device becomes: saving off for an outdated one, else the
+   * What a refusal of the device becomes: saving off for an outdated one, else the
    * refusal resolved to the caller and told when asked. Anything else is a defect and goes on.
    */
   const refusedAs = (error: unknown, refusal: KeptRefusal) => {
@@ -138,7 +138,7 @@ export function createKeptChangeRunner(context: KeptChangeContext): KeptChangeRu
   }
 
   /**
-   * Intent: run `step` once no session holds the saves and no flush is being applied, saving
+   * Run `step` once no session holds the saves and no flush is being applied, saving
    * still on; a step that asks to read again waits for that session or flush, then runs again.
    */
   const whenFree = async <T>(step: () => Promise<T | typeof READ_AGAIN>): Promise<T | 'off'> => {
@@ -155,7 +155,7 @@ export function createKeptChangeRunner(context: KeptChangeContext): KeptChangeRu
     }
   }
 
-  /** Intent: read with the reader, then apply the batch built from it, unless a session started. */
+  /** Read with the reader, then apply the batch built from it, unless a session started. */
   // @spec-link [[module_kept_session_changes]]
   const change = async (changes: KeptChanges, refusal: KeptRefusal): Promise<KeptChangeOutcome> => {
     const outcome = await whenFree(async (): Promise<KeptChangeOutcome | typeof READ_AGAIN> => {
@@ -179,7 +179,7 @@ export function createKeptChangeRunner(context: KeptChangeContext): KeptChangeRu
     return outcome === 'off' ? SAVING_OFF : outcome
   }
 
-  /** Intent: read with the reader, unless a session started meanwhile; then read again. */
+  /** Read with the reader, unless a session started meanwhile; then read again. */
   // @spec-link [[module_kept_session_changes]]
   const read = async <T>(
     reading: KeptRead<T>,

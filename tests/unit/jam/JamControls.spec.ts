@@ -19,7 +19,7 @@ import JamControls from '@/jam/JamControls.vue'
 
 const SETTINGS: JamSettings = jamFirstValues({ tempo: 90, tonalCenter: 'C', collection: 'Dorian' })
 
-/** Intent: mount Jam's controls over these props, Jam's first values at Idle by default. */
+/** Mount Jam's controls over these props, Jam's first values at Idle by default. */
 function mountControls(overrides: Partial<JamControlsProps> = {}) {
   const props: JamControlsProps = {
     settings: SETTINGS,
@@ -37,7 +37,7 @@ function mountControls(overrides: Partial<JamControlsProps> = {}) {
 
 type Wrapper = ReturnType<typeof mountControls>
 
-/** Intent: the radiogroup labelled `label`. */
+/** The radiogroup labelled `label`. */
 function group(wrapper: Wrapper, label: string) {
   const found = wrapper
     .findAll('[role="radiogroup"]')
@@ -46,7 +46,7 @@ function group(wrapper: Wrapper, label: string) {
   return found
 }
 
-/** Intent: press the segment reading `text` in the radiogroup labelled `label`. */
+/** Press the segment reading `text` in the radiogroup labelled `label`. */
 async function press(wrapper: Wrapper, label: string, text: string): Promise<void> {
   const segment = group(wrapper, label)
     .findAll('[role="radio"]')
@@ -55,7 +55,7 @@ async function press(wrapper: Wrapper, label: string, text: string): Promise<voi
   await segment.trigger('click')
 }
 
-/** Intent: the segment labels of the radiogroup labelled `label`, and the one checked. */
+/** The segment labels of the radiogroup labelled `label`, and the one checked. */
 function segments(wrapper: Wrapper, label: string) {
   const radios = group(wrapper, label).findAll('[role="radio"]')
   return {

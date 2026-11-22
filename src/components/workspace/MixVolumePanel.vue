@@ -62,7 +62,7 @@ const GUIDE_SLIDERS = [
 const sliders = shallowRef<SliderRanges | null>(null)
 
 /**
- * Intent: the sliders' ranges from each channel's `--mix-*` tokens, the maximum and step shared:
+ * The sliders' ranges from each channel's `--mix-*` tokens, the maximum and step shared:
  * the click slider starts at its audible minimum, never at silence; the backing's and the guides'
  * sliders may reach silence.
  */
@@ -80,21 +80,21 @@ function readSliders(): SliderRanges {
   }
 }
 
-/** Intent: the level a slider's input event carries; throws when it did not come from a slider. */
+/** The level a slider's input event carries; throws when it did not come from a slider. */
 function sliderLevel(event: Event): number {
   const target = event.currentTarget
   if (!(target instanceof HTMLInputElement)) throw new Error('mix volume: input from a non-slider')
   return Number(target.value)
 }
 
-/** Intent: set the backing volume from its slider; the level applies even while the backing is off. */
+/** Set the backing volume from its slider; the level applies even while the backing is off. */
 // @spec-link [[req_session_audio_mix]]
 function setBackingVolume(event: Event): void {
   props.audio.setBackingVolume(sliderLevel(event))
   mix.value = props.audio.mix()
 }
 
-/** Intent: set the click volume from its slider, whose minimum keeps it audible. */
+/** Set the click volume from its slider, whose minimum keeps it audible. */
 // @spec-link [[rule_click_volume_never_silent]]
 function setClickVolume(event: Event): void {
   props.audio.setClickVolume(sliderLevel(event))
@@ -102,7 +102,7 @@ function setClickVolume(event: Event): void {
 }
 
 /**
- * Intent: save the backing volume the transport holds once its slider is released; the moves
+ * Save the backing volume the transport holds once its slider is released; the moves
  * before it set the level only, so one drag saves once.
  */
 // @spec-link [[rule_settings_saved_on_change]]
@@ -110,14 +110,14 @@ function saveBackingVolume(): void {
   saveSettings({ 'mix.backingVolume': props.audio.mix().backingVolume })
 }
 
-/** Intent: save the click volume the transport holds once its slider is released. */
+/** Save the click volume the transport holds once its slider is released. */
 // @spec-link [[rule_settings_saved_on_change]]
 function saveClickVolume(): void {
   saveSettings({ 'mix.clickVolume': props.audio.mix().clickVolume })
 }
 
 /**
- * Intent: set one guide's volume from its slider; the level applies even while the guide is off,
+ * Set one guide's volume from its slider; the level applies even while the guide is off,
  * and is heard once it is turned on.
  */
 // @spec-link [[req_session_audio_mix]]
@@ -126,7 +126,7 @@ function setGuideVolume(guide: GuideRole, event: Event): void {
   mix.value = props.audio.mix()
 }
 
-/** Intent: save one guide's volume the transport holds once its slider is released. */
+/** Save one guide's volume the transport holds once its slider is released. */
 // @spec-link [[rule_settings_saved_on_change]]
 function saveGuideVolume(guide: GuideRole): void {
   const mixNow = props.audio.mix()
@@ -137,13 +137,13 @@ function saveGuideVolume(guide: GuideRole): void {
   )
 }
 
-/** Intent: Escape inside the popover closes it and returns focus to its `Volume`. */
+/** Escape inside the popover closes it and returns focus to its `Volume`. */
 // @spec-link [[req_session_audio_mix]]
 function handleKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') props.popover.escape()
 }
 
-/** Intent: Tab (or any focus move) out of the popover closes it; a move between its sliders does not. */
+/** Tab (or any focus move) out of the popover closes it; a move between its sliders does not. */
 // @spec-link [[req_session_audio_mix]]
 function handleFocusout(event: FocusEvent): void {
   const next = event.relatedTarget
@@ -151,7 +151,7 @@ function handleFocusout(event: FocusEvent): void {
   props.popover.dismiss()
 }
 
-/** Intent: a pointer press outside the popover and its `Volume` closes it, focus left alone. */
+/** A pointer press outside the popover and its `Volume` closes it, focus left alone. */
 // @spec-link [[req_session_audio_mix]]
 function handleDocumentPointerdown(event: Event): void {
   if (event.target instanceof Node && props.popover.isOutside(event.target)) {
@@ -160,7 +160,7 @@ function handleDocumentPointerdown(event: Event): void {
 }
 
 /**
- * Intent: on opening, show the transport's current levels, listen for outside presses and focus
+ * On opening, show the transport's current levels, listen for outside presses and focus
  * the first slider once it is drawn; on closing, stop listening.
  */
 // @spec-link [[req_session_audio_mix]]
@@ -180,13 +180,13 @@ watch(
   { immediate: true },
 )
 
-/** Intent: hand the popover element to the controller, which checks where focus is. */
+/** Hand the popover element to the controller, which checks where focus is. */
 onMounted(() => {
   if (panel.value === null) throw new Error('mix volume: the popover did not render')
   props.popover.attachPanel(panel.value)
 })
 
-/** Intent: stop listening and take the element back from the controller as it leaves the page. */
+/** Stop listening and take the element back from the controller as it leaves the page. */
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', handleDocumentPointerdown, true)
   if (panel.value !== null) props.popover.detachPanel(panel.value)

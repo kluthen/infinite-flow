@@ -11,7 +11,7 @@ import { deriveExpectedNotes, type ExpectedNote } from '@/domain/acknowledgement
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { phraseFromBars } from './acknowledgement-fixtures'
 
-/** Intent: a bare expected note for window arithmetic: onset and sounding end in seconds. */
+/** A bare expected note for window arithmetic: onset and sounding end in seconds. */
 function note(eventIndex: number, onsetSeconds: number, soundingEndSeconds: number): ExpectedNote {
   return {
     identity: { phraseNumber: 1, measureIndex: 0, eventIndex },
@@ -21,7 +21,7 @@ function note(eventIndex: number, onsetSeconds: number, soundingEndSeconds: numb
   }
 }
 
-/** Intent: each window relative to its own onset, in milliseconds, rounded to 0.001 ms. */
+/** Each window relative to its own onset, in milliseconds, rounded to 0.001 ms. */
 function relativeWindowsMs(notes: readonly ExpectedNote[]) {
   return placeAcknowledgementWindows(notes).map((windowed) => [
     Math.round((windowed.window.opensAtSeconds - windowed.onsetSeconds) * 1e6) / 1e3,

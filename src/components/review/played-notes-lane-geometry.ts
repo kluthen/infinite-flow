@@ -107,7 +107,7 @@ interface LaneAxis {
 }
 
 /**
- * Intent: the session-wide pitch scale from every played note of every record: the lowest to the
+ * The session-wide pitch scale from every played note of every record: the lowest to the
  * highest pitch, widened equally on both sides to exactly 12 semitones when narrower, so every lane
  * of the session shares it. Null when no record holds a played note.
  */
@@ -131,7 +131,7 @@ export function playedNotesPitchScale(
 }
 
 /**
- * Intent: the phrase beat of an audio-clock time in a record, unquantized: (time - start) * tempo /
+ * The phrase beat of an audio-clock time in a record, unquantized: (time - start) * tempo /
  * 60. The phrase's four measures span beats 0 to 16.
  */
 // @spec-link [[module_review_played_notes_lane]]
@@ -143,7 +143,7 @@ export function playedNoteBeat(
 }
 
 /**
- * Intent: draw a phrase's played notes in each lane of its layout, one lane per system present in
+ * Draw a phrase's played notes in each lane of its layout, one lane per system present in
  * the anchors, in system order. Each lane gets the barlines between its measures as dividers, and a
  * bar for every played note overlapping its beat range: placed through the anchors, cut at the
  * lane's first measure's first note and its last barline, with its pitch fraction on the
@@ -165,7 +165,7 @@ export function playedNotesLanes(input: PlayedNotesLanesInput): readonly PlayedN
   }))
 }
 
-/** Intent: the bars of a record's played notes overlapping one lane, in the record's order. */
+/** The bars of a record's played notes overlapping one lane, in the record's order. */
 function laneBars(
   lane: LaneAxis,
   record: PlayedNotesLaneRecord,
@@ -182,7 +182,7 @@ function laneBars(
 }
 
 /**
- * Intent: a note's inline start and size in one lane, or null when it does not overlap the lane.
+ * A note's inline start and size in one lane, or null when it does not overlap the lane.
  * An onset before the lane starts at its first measure's first note; a release at or past its end
  * stops at its last barline. A note whose onset is the lane's end belongs to the next lane, and one
  * released exactly at the lane's start (and begun before it) to the previous one.
@@ -204,7 +204,7 @@ function laneBar(
 }
 
 /**
- * Intent: the inline position of a beat inside a lane's range. The measure is the one the beat
+ * The inline position of a beat inside a lane's range. The measure is the one the beat
  * falls in; exactly on a boundary, an onset belongs to the next measure (its first note) and a
  * release to the earlier one (its barline). Inside a measure the position is linear between the
  * consecutive anchors around the beat; a beat before the measure's first event sits at that event.
@@ -244,7 +244,7 @@ function pitchFraction(pitch: number, scale: PlayedNotesPitchScale): number {
 }
 
 /**
- * Intent: the lanes' time axes, one per system present in the anchors, in system order, each over
+ * The lanes' time axes, one per system present in the anchors, in system order, each over
  * its measures in measure order. A lane's measures must be consecutive, and its anchors strictly
  * increase in beat and position, except that a measure's first note may sit at its previous
  * barline (the gap between them takes no time but never goes backward).
@@ -293,7 +293,7 @@ function laneAxes(
   })
 }
 
-/** Intent: one measure's anchors (its events at their beats, then its barline at its end beat). */
+/** One measure's anchors (its events at their beats, then its barline at its end beat). */
 function measureAxis(phrase: PlayedNotesLanePhrase, measure: LaneMeasureAnchors): MeasureAxis {
   const { measureIndex, eventStartsPx, barlinePx } = measure
   const written = Number.isInteger(measureIndex) ? phrase.measures[measureIndex] : undefined

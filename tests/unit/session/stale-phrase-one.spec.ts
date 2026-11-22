@@ -35,7 +35,7 @@ import {
   type StaleSetting,
 } from '@/session/stale-phrase-one'
 
-/** Intent: settings on the first-load defaults, with these controls changed. */
+/** Settings on the first-load defaults, with these controls changed. */
 function settingsWith(overrides: Partial<GenerationControls> = {}): SessionSettings {
   return {
     controls: makeGenerationControls({ ...DEFAULT_GENERATION_CONTROLS, ...overrides }),
@@ -48,7 +48,7 @@ function settingsWith(overrides: Partial<GenerationControls> = {}): SessionSetti
   }
 }
 
-/** Intent: my instrument on the tenor template, with a range and transposition of choice. */
+/** My instrument on the tenor template, with a range and transposition of choice. */
 function mine(overrides: Partial<Parameters<typeof makeMyInstrument>[0]> = {}): MyInstrument {
   return makeMyInstrument({
     template: 'bb-tenor',
@@ -60,7 +60,7 @@ function mine(overrides: Partial<Parameters<typeof makeMyInstrument>[0]> = {}): 
   })
 }
 
-/** Intent: settings naming my instrument, carrying its profile as the generation reads it. */
+/** Settings naming my instrument, carrying its profile as the generation reads it. */
 function mySettings(instrument: MyInstrument): SessionSettings {
   return {
     ...settingsWith({ instrumentProfileId: MY_INSTRUMENT_ID }),

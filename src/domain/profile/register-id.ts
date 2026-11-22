@@ -12,7 +12,7 @@ import { deepFreeze } from '../events/deep-freeze'
 export type RegisterId = 'Low' | 'Middle' | 'High'
 
 /**
- * Intent: fix the canonical candidate order as a versioned engineering contract — [Low, Middle,
+ * Fix the canonical candidate order as a versioned engineering contract — [Low, Middle,
  * High] — never reorder without a deliberate, versioned reproducibility migration, since a later
  * deterministic tie-break depends on iterating candidates in exactly this sequence.
  */
@@ -20,7 +20,7 @@ export type RegisterId = 'Low' | 'Middle' | 'High'
 export const CANONICAL_REGISTER_ORDER: readonly RegisterId[] = deepFreeze(['Low', 'Middle', 'High'])
 
 /**
- * Intent: look up a register identity's stable canonical index (Low=0, Middle=1, High=2),
+ * Look up a register identity's stable canonical index (Low=0, Middle=1, High=2),
  * matching CANONICAL_REGISTER_ORDER exactly.
  */
 // @spec-link [[module_register_window_resolution_primitives]]

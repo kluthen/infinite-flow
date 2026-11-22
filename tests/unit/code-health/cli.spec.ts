@@ -11,7 +11,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 const cli = fileURLToPath(new URL('../../../scripts/code-health-check.mjs', import.meta.url))
 
 /** A documented, linked file that every rule accepts. */
-const cleanModule = `/** Intent: the answer every caller needs. */
+const cleanModule = `/** The answer every caller needs. */
 // @spec-link [[demo_atom]]
 export function answer(): number {
   return 42
@@ -19,7 +19,7 @@ export function answer(): number {
 `
 
 /** A documented, linked module of 601 effective lines: a size error and nothing else. */
-const oversizedModule = `/** Intent: many values. */
+const oversizedModule = `/** Many values. */
 // @spec-link [[demo_atom]]
 export const values = [
 ${Array.from({ length: 599 }, (_, index) => `  ${index},`).join('\n')}
@@ -34,7 +34,7 @@ const templateLinkedComponent = `<template>
 `
 
 /**
- * Intent: run the checker in `cwd` with `args` (and extra environment variables) and return its
+ * Run the checker in `cwd` with `args` (and extra environment variables) and return its
  * exit code and output.
  */
 function runCli(cwd: string, args: string[], env: NodeJS.ProcessEnv = {}) {

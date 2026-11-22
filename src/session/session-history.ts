@@ -191,7 +191,7 @@ type SoundingOutput = Extract<SessionOutput, { kind: 'phrase-sounding' }>
 type EndedOutput = Extract<SessionOutput, { kind: 'ended' }>
 
 /**
- * Intent: the frozen skip a mutation-skipped output reports, or a SessionHistoryError when it
+ * The frozen skip a mutation-skipped output reports, or a SessionHistoryError when it
  * names no phrase or no mutation (each an integer from 1).
  */
 // @spec-link [[rule_vary_settings_skips_dead_end]]
@@ -204,14 +204,14 @@ function checkedSkip(output: MutationSkippedOutput): SkippedMutation {
   return deepFreeze({ phraseNumber, mutationNumber })
 }
 
-/** Intent: refuse a tempo that is not a finite positive BPM, which no session runs at. */
+/** Refuse a tempo that is not a finite positive BPM, which no session runs at. */
 function assertTempo(tempo: number, what: string): void {
   if (!Number.isFinite(tempo) || tempo <= 0)
     throw new SessionHistoryError(`${what} must be a positive BPM, got ${tempo}.`)
 }
 
 /**
- * Intent: the session's start time, the wall clock's one reading at creation: finite, not before
+ * The session's start time, the wall clock's one reading at creation: finite, not before
  * the epoch, or the injected clock is broken.
  */
 function sessionStartTime(wallClock: WallClock): number {
@@ -224,7 +224,7 @@ function sessionStartTime(wallClock: WallClock): number {
 }
 
 /**
- * Intent: the session's instrument profile id, from the settings locked at start; never
+ * The session's instrument profile id, from the settings locked at start; never
  * defaulted, so settings without one are refused.
  */
 function sessionInstrumentProfileId(settings: SessionSettings): InstrumentProfileId {
@@ -235,7 +235,7 @@ function sessionInstrumentProfileId(settings: SessionSettings): InstrumentProfil
 }
 
 /**
- * Intent: the clef the session's instrument was drawn in at its start, refused unless it is a clef
+ * The clef the session's instrument was drawn in at its start, refused unless it is a clef
  * an instrument is drawn in, and treble for a built-in instrument.
  */
 function sessionClef(
@@ -254,7 +254,7 @@ function sessionClef(
 /** The largest 32-bit unsigned value, the largest seed. */
 const MAX_UNSIGNED_32 = 0xffffffff
 
-/** Intent: the session seed, refused unless it is a 32-bit unsigned integer, as every Seed is. */
+/** The session seed, refused unless it is a 32-bit unsigned integer, as every Seed is. */
 // @spec-link [[module_session_seed_plan]]
 function checkedSessionSeed(sessionSeed: Seed): Seed {
   if (!Number.isInteger(sessionSeed) || sessionSeed < 0 || sessionSeed > MAX_UNSIGNED_32)
@@ -265,7 +265,7 @@ function checkedSessionSeed(sessionSeed: Seed): Seed {
 }
 
 /**
- * Intent: refuse a phrase generated for an instrument profile other than the session's; the
+ * Refuse a phrase generated for an instrument profile other than the session's; the
  * profile is locked for the whole session.
  */
 function assertSessionProfile(output: SoundingOutput, instrumentProfileId: string): void {
@@ -277,7 +277,7 @@ function assertSessionProfile(output: SoundingOutput, instrumentProfileId: strin
 }
 
 /**
- * Intent: refuse a repeat mark the engine cannot produce: a repeat names an earlier phrase, and
+ * Refuse a repeat mark the engine cannot produce: a repeat names an earlier phrase, and
  * any other phrase names none.
  */
 function assertRepeatMark(output: SoundingOutput): void {
@@ -299,7 +299,7 @@ function assertRepeatMark(output: SoundingOutput): void {
 }
 
 /**
- * Intent: refuse a sounding output that is not the next phrase, or that starts before the phrase
+ * Refuse a sounding output that is not the next phrase, or that starts before the phrase
  * before it; the engine outputs phrases in order on a clock that never runs backwards.
  */
 function assertNextSounding(
@@ -318,7 +318,7 @@ function assertNextSounding(
 }
 
 /**
- * Intent: refuse an end that disagrees with what was recorded: an end in the count-in follows no
+ * Refuse an end that disagrees with what was recorded: an end in the count-in follows no
  * sounded phrase, and the count of sounded phrases it reports is the history's.
  */
 function assertEndMatches(output: EndedOutput, recorded: number): void {
@@ -337,7 +337,7 @@ const MAX_VELOCITY = 127
 const LAST_MEASURE_INDEX = 3
 
 /**
- * Intent: a deep-frozen copy of a finished played note, or a SessionHistoryError when its span is
+ * A deep-frozen copy of a finished played note, or a SessionHistoryError when its span is
  * not finite, it releases before its onset, or its velocity is no MIDI note-on velocity.
  */
 // @spec-link [[rule_session_history_records_played_notes]]
@@ -356,7 +356,7 @@ function checkedPlayedNote(note: RecordedPlayedNote): RecordedPlayedNote {
 const TICKS_PER_BEAT = 4
 
 /**
- * Intent: a deep-frozen copy of a doodle, or a SessionHistoryError when its capture tempo is no
+ * A deep-frozen copy of a doodle, or a SessionHistoryError when its capture tempo is no
  * whole positive BPM, its barlines are not finite or not in order, or one of its notes has an
  * onset no snapping can place inside the doodle (more than a tick before its first barline, or at
  * or after its end barline).
@@ -391,7 +391,7 @@ function checkedDoodle(recorded: RecordedDoodle): RecordedDoodle {
 }
 
 /**
- * Intent: a deep-frozen copy of an acknowledged note's identity and its key, or a
+ * A deep-frozen copy of an acknowledged note's identity and its key, or a
  * SessionHistoryError when it names no possible note of the session.
  */
 // @spec-link [[rule_session_history_records_played_notes]]
@@ -419,7 +419,7 @@ function checkedAcknowledgement(identity: ExpectedNoteIdentity): {
 }
 
 /**
- * Intent: the deep-frozen record of one sounded phrase at the tempo its output carries, in the
+ * The deep-frozen record of one sounded phrase at the tempo its output carries, in the
  * session's clef, with its repeat and re-lock marks when it has them.
  */
 // @spec-link [[service_session_history]]
@@ -441,7 +441,7 @@ function recordOf(output: SoundingOutput, clef: InstrumentClef): SessionHistoryR
 }
 
 /**
- * Intent: an empty history for one session, created at its start from the settings locked at that
+ * An empty history for one session, created at its start from the settings locked at that
  * start (whose tempo, the starting tempo, must be usable but is never a record's, and whose preset
  * selection it keeps as a frozen copy), an injected wall clock, read exactly once here for
  * the start time, and the session seed taken with phrase 1 from
@@ -488,12 +488,12 @@ export function createSessionHistory(
   let snapshot: readonly SessionHistoryRecord[] | undefined
   let ended = false
 
-  /** Intent: refuse anything the player does once the session ended; held notes come first. */
+  /** Refuse anything the player does once the session ended; held notes come first. */
   function assertOpen(what: string): void {
     if (ended) throw new SessionHistoryError(`${what} arrived after the end.`)
   }
 
-  /** Intent: add the next sounded phrase; the read-back list is rebuilt on the next read. */
+  /** Add the next sounded phrase; the read-back list is rebuilt on the next read. */
   function addSounding(output: SoundingOutput): void {
     assertNextSounding(output, records.at(-1))
     assertRepeatMark(output)
@@ -508,7 +508,7 @@ export function createSessionHistory(
     instrumentProfileId,
     selection,
     sessionSeed: checkedSeed,
-    /** Intent: take one engine output, in the order the engine gave it. */
+    /** Take one engine output, in the order the engine gave it. */
     record(output: SessionOutput): void {
       assertOpen(`A ${output.kind} output`)
       if (output.kind === 'phrase-sounding') addSounding(output)
@@ -518,14 +518,14 @@ export function createSessionHistory(
         ended = true
       }
     },
-    /** Intent: keep one finished played note; the read-back list is rebuilt on the next read. */
+    /** Keep one finished played note; the read-back list is rebuilt on the next read. */
     // @spec-link [[rule_session_history_records_played_notes]]
     recordPlayedNote(note: RecordedPlayedNote): void {
       assertOpen('A played note')
       playedNotes.push(checkedPlayedNote(note))
       snapshot = undefined
     },
-    /** Intent: keep one acknowledgement, once; the read-back list is rebuilt on the next read. */
+    /** Keep one acknowledgement, once; the read-back list is rebuilt on the next read. */
     // @spec-link [[rule_session_history_records_played_notes]]
     recordAcknowledgement(identity: ExpectedNoteIdentity): void {
       assertOpen('An acknowledgement')
@@ -537,7 +537,7 @@ export function createSessionHistory(
       snapshot = undefined
     },
     /**
-     * Intent: keep a fresh Jam's doodle, once, before phrase 1 sounds; its raw notes are marked on
+     * Keep a fresh Jam's doodle, once, before phrase 1 sounds; its raw notes are marked on
      * read among the played notes.
      */
     recordDoodle(recorded: RecordedDoodle): void {
@@ -547,7 +547,7 @@ export function createSessionHistory(
         throw new SessionHistoryError('A doodle arrived after phrase 1 started sounding.')
       doodle = checkedDoodle(recorded)
     },
-    /** Intent: keep the suggestion worked out at the doodle's end, once, after the doodle. */
+    /** Keep the suggestion worked out at the doodle's end, once, after the doodle. */
     recordSuggestion(worked: DoodleSuggestion): void {
       assertOpen('A suggestion')
       if (doodle === null) throw new SessionHistoryError('A suggestion arrived with no doodle.')
@@ -555,18 +555,18 @@ export function createSessionHistory(
         throw new SessionHistoryError('The session already holds a suggestion.')
       suggestion = deepFreeze({ ...worked })
     },
-    /** Intent: the suggestion kept with the session, or null when none was worked out. */
+    /** The suggestion kept with the session, or null when none was worked out. */
     suggestion(): DoodleSuggestion | null {
       return suggestion
     },
-    /** Intent: the doodle with its raw notes marked among the played notes, or null; frozen. */
+    /** The doodle with its raw notes marked among the played notes, or null; frozen. */
     doodle(): SessionDoodle | null {
       if (doodle === null) return null
       const { notes, ...kept } = doodle
       return Object.freeze({ ...kept, playedNotes: doodlePlayedNotes(notes, playedNotes) })
     },
     /**
-     * Intent: every recorded phrase in sounding order with its acknowledgements and played notes,
+     * Every recorded phrase in sounding order with its acknowledgements and played notes,
      * as a list frozen until the next record, note or acknowledgement.
      */
     // @spec-link [[rule_session_history_records_played_notes]]
@@ -574,13 +574,13 @@ export function createSessionHistory(
       snapshot ??= Object.freeze(withPlayedNotes(records, playedNotes, acknowledgements))
       return snapshot
     },
-    /** Intent: every mutation the session skipped at a dead end, in record order, frozen. */
+    /** Every mutation the session skipped at a dead end, in record order, frozen. */
     // @spec-link [[rule_vary_settings_skips_dead_end]]
     skippedMutations(): readonly SkippedMutation[] {
       return Object.freeze([...skips])
     },
     /**
-     * Intent: the tempo the session reached: the last recorded phrase's, also its highest, since
+     * The tempo the session reached: the last recorded phrase's, also its highest, since
      * a session's tempo never goes down; null before phrase 1 sounds.
      */
     // @spec-link [[service_session_history]]
@@ -588,7 +588,7 @@ export function createSessionHistory(
     tempoReached(): number | null {
       return records.at(-1)?.tempo ?? null
     },
-    /** Intent: how many phrases have started sounding so far. */
+    /** How many phrases have started sounding so far. */
     get phraseCount(): number {
       return records.length
     },

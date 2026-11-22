@@ -5,12 +5,12 @@ import { analyzeSource } from '../../../scripts/code-health/analyze.mjs'
 import { checkNesting } from '../../../scripts/code-health/rules/nesting.mjs'
 import { parseSource } from '../../../scripts/code-health/sources.mjs'
 
-/** Intent: the nesting findings of a file given its repo-relative path and text. */
+/** The nesting findings of a file given its repo-relative path and text. */
 function nestingOf(path: string, text: string) {
   return checkNesting(parseSource(path, text))
 }
 
-/** Intent: the nesting findings of a TypeScript file analyzed with every rule and its bypasses. */
+/** The nesting findings of a TypeScript file analyzed with every rule and its bypasses. */
 function analyzedNestingOf(text: string) {
   return analyzeSource({ path: 'src/deep.ts', text, atomIds: new Set() }).filter(
     (finding) => finding.rule === 'nesting',
@@ -18,7 +18,7 @@ function analyzedNestingOf(text: string) {
 }
 
 /**
- * Intent: a function `deep` whose body nests `levels` constructs, each an `if (c) {`, then
+ * A function `deep` whose body nests `levels` constructs, each an `if (c) {`, then
  * `statement` at the innermost level. Line 1 is the function header; the construct at depth N
  * opens on line N + 1.
  */
@@ -29,7 +29,7 @@ function nestedIfs(levels: number, statement = 'work()'): string {
   )
 }
 
-/** Intent: a function `deep` with four nested `if`s around one `construct` placed at depth 5. */
+/** A function `deep` with four nested `if`s around one `construct` placed at depth 5. */
 function withFifthLevel(construct: string): string {
   return nestedIfs(4, construct)
 }

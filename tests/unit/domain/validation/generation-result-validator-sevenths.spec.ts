@@ -30,19 +30,19 @@ import { withSeventh } from '../harmony/seventh-chord-fixtures'
 
 const LEVELS_ABOVE_OFF: readonly ChordFamilyLevel[] = ['sometimes', 'favored', 'stronglyFavored']
 
-/** Intent: the same intent at another Seventh chords level. */
+/** The same intent at another Seventh chords level. */
 function atLevel(intent: GenerationIntent, level: ChordFamilyLevel): GenerationIntent {
   return { ...intent, chordFamilies: parseChordFamilies({ 'seventh-chords': level }) }
 }
 
-/** Intent: the intent's phrase, which must be generated. */
+/** The intent's phrase, which must be generated. */
 function phraseOf(intent: GenerationIntent): SuccessOutcome {
   const outcome = generatePhrase(intent)
   if (outcome.kind !== 'generation_success') throw new Error(`Expected a phrase: ${outcome.code}.`)
   return outcome
 }
 
-/** Intent: the provenance with another harmony plan. */
+/** The provenance with another harmony plan. */
 function claiming(provenance: GenerationProvenance, harmony: HarmonyCandidate) {
   return { ...provenance, harmony }
 }
@@ -51,14 +51,14 @@ function claiming(provenance: GenerationProvenance, harmony: HarmonyCandidate) {
 const OFF = buildIntent({ seed: 5, label: 'validator-sevenths' })
 const OFF_PROVENANCE = phraseOf(OFF).provenance
 
-/** Intent: the harmony provenance failure codes and details for an intent and a claimed plan. */
+/** The harmony provenance failure codes and details for an intent and a claimed plan. */
 function provenanceDetails(intent: GenerationIntent, harmony: HarmonyCandidate): readonly string[] {
   return harmonyProvenanceFailures(intent, claiming(OFF_PROVENANCE, harmony)).map(
     (failure) => `${failure.code}:${failure.detail?.split(':')[0]}`,
   )
 }
 
-/** Intent: the plan variants the intent's level and seed give its domain's plans. */
+/** The plan variants the intent's level and seed give its domain's plans. */
 function variantsOf(intent: GenerationIntent): readonly HarmonyCandidate[] {
   const domain = buildHarmonyDomain(intent)
   if (domain.kind !== 'harmony_candidate_domain') throw new Error('Fixture: no harmony plan.')
@@ -66,7 +66,7 @@ function variantsOf(intent: GenerationIntent): readonly HarmonyCandidate[] {
   return harmonyPlanVariants(domain.candidates, domain.collection, level, intent.seed)
 }
 
-/** Intent: the plan with one event's form changed: its seventh dropped, or one added. */
+/** The plan with one event's form changed: its seventh dropped, or one added. */
 function withEventToggled(harmony: HarmonyCandidate, index: number): HarmonyCandidate {
   const events = harmony.events.map((event, at): HarmonyEvent => {
     if (at !== index) return event

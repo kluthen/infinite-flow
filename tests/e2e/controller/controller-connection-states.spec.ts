@@ -210,7 +210,7 @@ test('a refused request shows Permission denied and the MIDI-blocked badge; Chec
 })
 
 /**
- * Intent: from Ready, click `Start session` and assert a session with no controller begins: the
+ * From Ready, click `Start session` and assert a session with no controller begins: the
  * count-in shows, then phrase 1 runs; Stop ends it.
  */
 async function expectStartWithoutMidi(page: Page): Promise<void> {

@@ -24,13 +24,13 @@ import { doodleOf } from '../doodle-builders'
 /** The test doodle's first barline on the audio clock. */
 const FIRST_BARLINE_AT = 1.25
 
-/** Intent: a raw note of `pitch` from `onsetAt` to `releaseAt`, velocity 64. */
+/** A raw note of `pitch` from `onsetAt` to `releaseAt`, velocity 64. */
 function raw(pitch: number, onsetAt: number, releaseAt: number): RecordedPlayedNote {
   return { pitch: makeConcertPitch(pitch), velocity: 64, onsetAt, releaseAt }
 }
 
 /**
- * Intent: a Jam part's doodle of `measureCount` measures at `captureTempo` from 1.25 s, its end
+ * A Jam part's doodle of `measureCount` measures at `captureTempo` from 1.25 s, its end
  * barline that many 4/4 measures later, holding `playedNotes`.
  */
 function sessionDoodle(

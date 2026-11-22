@@ -29,7 +29,7 @@ export interface WebAudioContextPort extends WebAudioNodeFactory {
   addEventListener(type: 'statechange', listener: () => void): void
 }
 
-/** Intent: a new gain node at gain 1, connected on to `destination`. */
+/** A new gain node at gain 1, connected on to `destination`. */
 function mixGainInto(
   context: WebAudioNodeFactory,
   destination: WebAudioNodePort,
@@ -41,7 +41,7 @@ function mixGainInto(
 }
 
 /**
- * Intent: build the mix's gains, each at 1, in `MIX_CHANNELS` order: every channel's volume into
+ * Build the mix's gains, each at 1, in `MIX_CHANNELS` order: every channel's volume into
  * the speakers, then every channel's on/off gain into its volume.
  */
 // @spec-link [[req_session_audio_mix]]
@@ -56,7 +56,7 @@ function buildMix(context: WebAudioContextPort): Readonly<Record<MixGain, WebAud
 }
 
 /**
- * Intent: call every listener when the context leaves the running state after having run, which
+ * Call every listener when the context leaves the running state after having run, which
  * only the browser does (a device change, an OS interruption), never the app.
  */
 // @spec-link [[rule_playhead_follows_audio_clock]]
@@ -70,7 +70,7 @@ function watchInterruptions(context: WebAudioContextPort, listeners: readonly ((
   })
 }
 
-/** Intent: the context's output latency, in seconds; throws unless it is a finite number. */
+/** The context's output latency, in seconds; throws unless it is a finite number. */
 // @spec-link [[rule_playhead_follows_audio_clock]]
 function readOutputLatency(context: WebAudioContextPort): number {
   const latency = context.outputLatency
@@ -81,7 +81,7 @@ function readOutputLatency(context: WebAudioContextPort): number {
 }
 
 /**
- * Intent: one simultaneous reading of the audio clock and the performance.now() timeline. While
+ * One simultaneous reading of the audio clock and the performance.now() timeline. While
  * the context runs, its output timestamp gives `contextTime`, the frame audible at
  * `performanceTime`; adding the output latency (the same reading the playhead uses) puts it on the
  * scheduling timeline the clicks, backing and playhead use. Latency compensation later subtracts
@@ -117,7 +117,7 @@ function readClockAnchor(context: WebAudioContextPort, performanceNow: () => num
 }
 
 /**
- * Intent: the audio output over `context`: its clock readings (the clock anchor reads
+ * The audio output over `context`: its clock readings (the clock anchor reads
  * `performanceNow` for the page's performance.now() timeline), the mix's gains built once, a
  * fresh bus per session (its click routes into the click gains, its backing into the backing
  * on/off gain, each guide into its own on/off gain) and the interruption notice. Muting is a gain at zero; it never suspends,
@@ -161,7 +161,7 @@ export function createWebAudioOutput(
 }
 
 /**
- * Intent: create the app's one audio context, at interactive latency, and its output, resuming the
+ * Create the app's one audio context, at interactive latency, and its output, resuming the
  * context if the browser holds it suspended. It must be called synchronously from the player's
  * Start or "Connect controller" click handler: that click is what lets the browser start audio.
  * The resume is not awaited, and a rejection is left to surface as an unhandled rejection. The

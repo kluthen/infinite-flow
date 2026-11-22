@@ -29,7 +29,7 @@ export interface RecordVersions {
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
 export type EnvelopeReading = 'current' | 'newer' | 'unreadable'
 
-/** Intent: whether a value is a plain object, as a stored record is. */
+/** Whether a value is a plain object, as a stored record is. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
   const prototype: unknown = Object.getPrototypeOf(value)
@@ -37,7 +37,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Intent: the record's versions when both are valid: an integer data version of at least 1 and
+ * The record's versions when both are valid: an integer data version of at least 1 and
  * a non-empty app version; null otherwise.
  */
 function validVersions(value: unknown): RecordVersions | null {
@@ -51,7 +51,7 @@ function validVersions(value: unknown): RecordVersions | null {
 }
 
 /**
- * Intent: classify a stored value against the shape version its codec reads. A newer record is
+ * Classify a stored value against the shape version its codec reads. A newer record is
  * reported so it is left unread rather than misread by this older app; never throws for anything
  * stored.
  */
@@ -65,7 +65,7 @@ export function readEnvelope(value: unknown, shapeVersion: number): EnvelopeRead
 }
 
 /**
- * Intent: refuse a record about to be written unless it carries valid versions and a data version
+ * Refuse a record about to be written unless it carries valid versions and a data version
  * no higher than the database's. Throws a plain Error: such a record is a caller defect, and
  * writing it would store a value no app could read.
  */

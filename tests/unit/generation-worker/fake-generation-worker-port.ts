@@ -49,14 +49,14 @@ export interface FakeGenerationWorkerPort extends GenerationWorkerPort {
   readonly runNextSlice: () => void
 }
 
-/** Intent: dispatch a bare `{ data }` MessageEvent-shaped payload to every listener in `listeners`. */
+/** Dispatch a bare `{ data }` MessageEvent-shaped payload to every listener in `listeners`. */
 function dispatchMessageEvent(listeners: ReadonlySet<PortListener>, data: unknown): void {
   const event = new MessageEvent('message', { data })
   for (const listener of listeners) listener(event)
 }
 
 /**
- * Intent: build one fake port whose async responder defaults to the real Worker runtime (see the
+ * Build one fake port whose async responder defaults to the real Worker runtime (see the
  * file header), letting a caller override it (e.g. to script a `crash` response without touching
  * real generation). Passing `null` disables auto-responding entirely, for tests that must observe
  * a request stay pending until they manually dispatch or emit an event (e.g. asserting a pending
@@ -101,7 +101,7 @@ export function createFakeGenerationWorkerPort(
     terminated = true
   }
 
-  /** Intent: run the oldest scheduled slice, failing loudly when none is scheduled. */
+  /** Run the oldest scheduled slice, failing loudly when none is scheduled. */
   function runNextSlice(): void {
     const run = slices.shift()
     if (run === undefined) throw new Error('No prewarm slice is scheduled.')

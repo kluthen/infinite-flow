@@ -228,7 +228,7 @@ describe('unsupported rhythm settings', () => {
 const WIDE: NoteDensityContext = { belowTabletLandscape: false, sessionSteppedDown: false }
 const NARROW: NoteDensityContext = { belowTabletLandscape: true, sessionSteppedDown: false }
 
-/** Intent: every chosen rhythm setting the four rhythm controls can form. */
+/** Every chosen rhythm setting the four rhythm controls can form. */
 function everyRhythmSetting() {
   return NOTE_DENSITIES.flatMap((noteDensity) =>
     RHYTHMIC_VARIETIES.flatMap((rhythmicVariety) =>

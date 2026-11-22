@@ -65,7 +65,7 @@ export type {
 } from './generation-session-types'
 export { SessionUsageError } from './generation-session-types'
 
-/** Intent: refuse a save of my instrument in a session given no saves of it, a defect. */
+/** Refuse a save of my instrument in a session given no saves of it, a defect. */
 function noMyInstrumentSaves(): never {
   throw new SessionUsageError('This session was given no saves of my instrument.')
 }
@@ -156,7 +156,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     options.prewarm === undefined ? undefined : createRhythmPrewarmTrigger(options.prewarm)
 
   /**
-   * Intent: the profile an intent built now is given as data: my instrument's while the controls
+   * The profile an intent built now is given as data: my instrument's while the controls
    * name it, none for a built-in, which resolves by its id. My instrument named and absent is a
    * defect: the selection never outlives it.
    */
@@ -294,7 +294,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
   }
 
   /**
-   * Intent: replace whatever the staff holds with a fresh phrase, as a session end once phrase 1
+   * Replace whatever the staff holds with a fresh phrase, as a session end once phrase 1
    * has sounded asks: no phrase of the ended session may show again, so the phrase leaves at once,
    * with no score shown meanwhile, and the room is checked before anything is generated. It may
    * take over a run still generating (a replacement the end's hand-off started), never one drawing:
@@ -345,7 +345,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
   const holdInstrumentSwitches = createHoldInstrumentSwitchesAction<TResult>(profileSwitch)
 
   /**
-   * Intent: redraw the phrase for a clef-only change of the selected my instrument; while
+   * Redraw the phrase for a clef-only change of the selected my instrument; while
    * switches are held (Jam mode shows), owe session mode the switch instead.
    */
   // @spec-link [[rule_shared_setting_changed_in_jam_mode]]
@@ -357,7 +357,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
   let myInstrumentActions: MyInstrumentActions | null = null
 
   /**
-   * Intent: the session's actions on my instrument, loaded on demand and created once, at their
+   * The session's actions on my instrument, loaded on demand and created once, at their
    * first use (the My instrument sheet's load warms them, so a save never waits on a fetch). They
    * are created synchronously right after the load, so two calls never create them twice. A load
    * failure is not caught: the action rejects with it.
@@ -375,7 +375,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     return myInstrumentActions
   }
 
-  /** Intent: save my instrument (made or changed) through its actions, loaded on demand. */
+  /** Save my instrument (made or changed) through its actions, loaded on demand. */
   // @spec-link [[req_my_instrument]]
   async function saveMyInstrument(
     instrument: MyInstrument,
@@ -384,7 +384,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     return (await loadedMyInstrumentActions()).saveMyInstrument(instrument, sessions)
   }
 
-  /** Intent: save my instrument and make it the selection, through its actions, loaded on demand. */
+  /** Save my instrument and make it the selection, through its actions, loaded on demand. */
   // @spec-link [[req_my_instrument]]
   async function saveAndSelectMyInstrument(
     instrument: MyInstrument,
@@ -393,7 +393,7 @@ export function createGenerationSession<TResult, TGenerated = TResult>(
     return (await loadedMyInstrumentActions()).saveAndSelectMyInstrument(instrument, sessions)
   }
 
-  /** Intent: delete my instrument through its actions, loaded on demand. */
+  /** Delete my instrument through its actions, loaded on demand. */
   // @spec-link [[req_my_instrument]]
   async function deleteMyInstrument(
     sessions: MyInstrumentSessions,

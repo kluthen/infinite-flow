@@ -11,12 +11,12 @@ import { fnv1a32 } from '../random/hash32'
 import { encodeSeed, type Seed } from '../random/seed'
 import type { HarmonyEvent } from './harmony-types'
 
-/** Intent: the draw's versioned hash domain, so its hashes never collide with another stage's. */
+/** The draw's versioned hash domain, so its hashes never collide with another stage's. */
 // @spec-link [[module_named_stream_pseudorandomness]]
 // @spec-link [[rule_seventh_chord_draws_reproducible]]
 export const SEVENTH_DRAW_DOMAIN = 'infinite-flow/seventh-chord/v1'
 
-/** Intent: how many low bits of the hash a draw reads; each share is a numerator over 2^8. */
+/** How many low bits of the hash a draw reads; each share is a numerator over 2^8. */
 // @spec-link [[module_named_stream_pseudorandomness]]
 export const SEVENTH_DRAW_SHARE_BITS = 8
 
@@ -24,7 +24,7 @@ export const SEVENTH_DRAW_SHARE_BITS = 8
 const SHARE_MASK = 0xff
 
 /**
- * Intent: Sometimes' share of harmony events, 64 / 256 = about 1 in 4, a starting value. Never
+ * Sometimes' share of harmony events, 64 / 256 = about 1 in 4, a starting value. Never
  * above Favored's.
  * Measured shares: docs/generation-latency.md, "First run at every level (v3.3 chunk 18)" (M1).
  */
@@ -32,7 +32,7 @@ const SHARE_MASK = 0xff
 export const SOMETIMES_SEVENTH_SHARE = 64
 
 /**
- * Intent: Favored's share of harmony events, 128 / 256 = about 1 in 2, a starting value. Never
+ * Favored's share of harmony events, 128 / 256 = about 1 in 2, a starting value. Never
  * below Sometimes'.
  * Measured shares: docs/generation-latency.md, "First run at every level (v3.3 chunk 18)" (M1).
  */
@@ -45,12 +45,12 @@ const SHARES: Readonly<Record<'sometimes' | 'favored', number>> = Object.freeze(
   favored: FAVORED_SEVENTH_SHARE,
 })
 
-/** Intent: where a harmony event starts, the only part of it the draw reads. */
+/** Where a harmony event starts, the only part of it the draw reads. */
 // @spec-link [[rule_seventh_chance_same_at_every_degree]]
 export type SeventhDrawPosition = Pick<HarmonyEvent, 'barIndex' | 'startBeat'>
 
 /**
- * Intent: the low byte of the FNV-1a 32-bit hash of the draw domain, the seed's documented
+ * The low byte of the FNV-1a 32-bit hash of the draw domain, the seed's documented
  * encoding and the event's start (bar index, then start beat).
  */
 // @spec-link [[module_named_stream_pseudorandomness]]
@@ -63,7 +63,7 @@ export function seventhDrawByte(seed: Seed, position: SeventhDrawPosition): numb
 }
 
 /**
- * Intent: whether the event starting at `position` tries its seventh form first: never at Off and
+ * Whether the event starting at `position` tries its seventh form first: never at Off and
  * always at Strongly favored, neither computing a hash; at Sometimes and Favored, when the draw's
  * low byte falls under the level's share.
  */

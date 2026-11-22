@@ -19,7 +19,7 @@ import {
 import { SessionEngineError } from '@/session/session-types'
 
 /**
- * Intent: the tempo of phrases 1 to `phraseCount` on a schedule, in the engine's order: phrase 1
+ * The tempo of phrases 1 to `phraseCount` on a schedule, in the engine's order: phrase 1
  * starts sounding, then each later phrase has its tempo fixed and starts sounding. `attachedAt`
  * says whether the controller is attached while phrase n's tempo is fixed and it starts sounding.
  */

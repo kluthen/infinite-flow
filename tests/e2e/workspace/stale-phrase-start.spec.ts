@@ -42,22 +42,22 @@ test.beforeEach(({ page }) => {
 
 test.afterEach(() => expectNoPageErrors())
 
-/** Intent: the stale-phrase prompt. */
+/** The stale-phrase prompt. */
 function prompt(page: Page) {
   return page.getByRole('alertdialog', { name: 'This phrase is from before your changes' })
 }
 
-/** Intent: one of the prompt's buttons by its label. */
+/** One of the prompt's buttons by its label. */
 function promptButton(page: Page, label: string) {
   return prompt(page).getByRole('button', { name: label, exact: true })
 }
 
-/** Intent: the Written key option checked now, as the control shows it. */
+/** The Written key option checked now, as the control shows it. */
 async function expectWrittenKey(page: Page, label: string): Promise<void> {
   await expect(radio(page, 'Written key', label)).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: the console's phrase replay key lines from now on. */
+/** The console's phrase replay key lines from now on. */
 function replayKeyLines(page: Page): string[] {
   const lines: string[] = []
   page.on('console', (message: ConsoleMessage) => {
@@ -68,7 +68,7 @@ function replayKeyLines(page: Page): string[] {
 }
 
 /**
- * Intent: the written keys of the requests joining a phrase before (a carry-in), made from call
+ * The written keys of the requests joining a phrase before (a carry-in), made from call
  * `from` on: phrase 2 and later, pre-generated at Idle or requested by the session.
  */
 async function joinedKeysFrom(page: Page, from: number): Promise<string[]> {
@@ -80,7 +80,7 @@ async function joinedKeysFrom(page: Page, from: number): Promise<string[]> {
 }
 
 /**
- * Intent: at Ready with phrase 1 made in C, change the Written key to D at Idle; returns how many
+ * At Ready with phrase 1 made in C, change the Written key to D at Idle; returns how many
  * generate calls were made before the change. Pre-generation may still be making phrases in C at
  * Idle, so the count is read in the page as the click reaches it, before the control handles it:
  * no call can land between the count and the change.
@@ -107,7 +107,7 @@ async function staleAtReady(page: Page): Promise<number> {
   return before
 }
 
-/** Intent: the written key of the generate call that made each played phrase from phrase 2 on. */
+/** The written key of the generate call that made each played phrase from phrase 2 on. */
 async function playedKeysFromPhraseTwo(page: Page): Promise<(string | undefined)[]> {
   const records = await page.evaluate(() => window.__workspaceHarness.generationRequests())
   const phrases = (await sessionState(page)).lastHistoryPhrases ?? []
@@ -117,7 +117,7 @@ async function playedKeysFromPhraseTwo(page: Page): Promise<(string | undefined)
     .map((record) => record?.writtenTonalCenter)
 }
 
-/** Intent: nothing of a start happened: Idle, no count-in click, no lock asked for. */
+/** Nothing of a start happened: Idle, no count-in click, no lock asked for. */
 async function expectNothingStarted(page: Page): Promise<void> {
   expect((await sessionState(page)).phase).toBe('idle')
   await expect(sessionAction(page)).toHaveText('Start session')

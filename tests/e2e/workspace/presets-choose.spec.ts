@@ -97,28 +97,28 @@ const REEL_LEVELS = {
   chromaticEnclosure: 'off',
 } as const
 
-/** Intent: one radio is the checked option of its group. */
+/** One radio is the checked option of its group. */
 async function expectChecked(page: Page, group: string, option: string): Promise<void> {
   await expect(radio(page, group, option)).toHaveAttribute('aria-checked', 'true')
 }
 
-/** Intent: every control of `controls` shows its value checked. */
+/** Every control of `controls` shows its value checked. */
 async function expectControls(page: Page, controls: ShownPresetControls): Promise<void> {
   for (const [group, option] of Object.entries(controls)) await expectChecked(page, group, option)
 }
 
-/** Intent: the control summary's text. */
+/** The control summary's text. */
 async function expectSummary(page: Page, text: string): Promise<void> {
   await expect(page.locator('.control-summary')).toHaveText(text)
 }
 
-/** Intent: the session's selection and levels now, as the harness snapshot reads them. */
+/** The session's selection and levels now, as the harness snapshot reads them. */
 async function chosenPreset(page: Page) {
   const { selection, figureLevels } = await harnessSnapshot(page)
   return { selection, figureLevels }
 }
 
-/** Intent: the tempo stepper's value. */
+/** The tempo stepper's value. */
 async function expectTempo(page: Page, bpm: number): Promise<void> {
   await expect(page.getByRole('spinbutton', { name: 'Tempo' })).toHaveAttribute(
     'aria-valuenow',

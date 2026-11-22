@@ -32,12 +32,12 @@ afterEach(() => {
   document.body.innerHTML = ''
 })
 
-/** Intent: each option's tabindex, in markup order. */
+/** Each option's tabindex, in markup order. */
 function tabStops(wrapper: SheetWrapper): (string | null)[] {
   return options(wrapper).map((option) => option.getAttribute('tabindex'))
 }
 
-/** Intent: click the picker option at `index`, then let the sheet react. */
+/** Click the picker option at `index`, then let the sheet react. */
 async function choose(wrapper: SheetWrapper, index: number): Promise<void> {
   const option = options(wrapper)[index]
   if (option === undefined) throw new Error(`no picker option at ${index}`)

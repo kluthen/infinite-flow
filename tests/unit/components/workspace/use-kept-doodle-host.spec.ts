@@ -37,7 +37,7 @@ afterEach(() => {
   scope = null
 })
 
-/** Intent: the host, Jam's code loaded and Jam mode showing unless told. */
+/** The host, Jam's code loaded and Jam mode showing unless told. */
 function host(loaded = true): Host {
   const jamModule = shallowRef<JamModeModule | null>(loaded ? jamMode : null)
   const jamShowing = shallowRef(loaded)
@@ -57,7 +57,7 @@ function host(loaded = true): Host {
   return { host: made, jamModule, jamShowing, lastDeletion, instrument }
 }
 
-/** Intent: the host with the fixture's doodle kept from the session `session-1`. */
+/** The host with the fixture's doodle kept from the session `session-1`. */
 function keeping(): Host {
   const made = host()
   made.host.keep(reviewedJamPart(), 'session-1')

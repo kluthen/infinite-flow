@@ -10,7 +10,7 @@ import { DESKTOP_VIEWPORT, keyOf, openHarness } from './overlay-harness'
 test.use({ baseURL: 'http://127.0.0.1:4174' })
 
 /**
- * Intent: swap the harness phrase, phrase number and overlays in one tick, returning the
+ * Swap the harness phrase, phrase number and overlays in one tick, returning the
  * rejection's error name, or null when the new phrase was engraved with the overlays drawn.
  */
 async function swapPhrase(

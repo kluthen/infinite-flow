@@ -25,14 +25,14 @@ import {
   type SuccessOutcome,
 } from '../carry-in/carry-in-fixture'
 
-/** Intent: a real phrase 2 intent carrying in from a real phrase 1, both on the base controls. */
+/** A real phrase 2 intent carrying in from a real phrase 1, both on the base controls. */
 function carryInIntent(): GenerationIntent {
   const first = buildIntent({ seed: 11, label: 'policy-choice' })
   const carryIn = carryInAfter(first, generateSuccess(first), 1)
   return buildIntent({ seed: 12, carryIn, label: 'policy-choice' })
 }
 
-/** Intent: each window's policy version and allowance, as its diagnostics record them. */
+/** Each window's policy version and allowance, as its diagnostics record them. */
 function windowPolicies(outcome: GenerationOutcome): readonly object[] {
   return outcome.diagnostics.windows.map(({ ledgerVersion, fuelAllowance }) => ({
     ledgerVersion,
@@ -40,18 +40,18 @@ function windowPolicies(outcome: GenerationOutcome): readonly object[] {
   }))
 }
 
-/** Intent: a successful outcome, failing the test's assertion on any other kind. */
+/** A successful outcome, failing the test's assertion on any other kind. */
 function success(outcome: GenerationOutcome): SuccessOutcome {
   expect(outcome.kind).toBe('generation_success')
   return outcome as SuccessOutcome
 }
 
-/** Intent: a carry-in search policy with the given allowance. */
+/** A carry-in search policy with the given allowance. */
 function carryInPolicy(windowFuel: number): GenerationSearchPolicy {
   return makeGenerationSearchPolicy(windowFuel, 'generation-search-carry-in-v1')
 }
 
-/** Intent: the one window of a single-window outcome. */
+/** The one window of a single-window outcome. */
 function onlyWindow(outcome: GenerationOutcome): WindowDiagnostics {
   expect(outcome.diagnostics.windows).toHaveLength(1)
   return outcome.diagnostics.windows[0]!

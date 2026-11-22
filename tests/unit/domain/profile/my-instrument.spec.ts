@@ -23,12 +23,12 @@ const VALID: MyInstrumentInput = {
   transposition: { octaves: 0, semitones: 0, direction: 'same' },
 }
 
-/** Intent: the valid input with some fields replaced. */
+/** The valid input with some fields replaced. */
 function withInput(changes: Partial<MyInstrumentInput>): MyInstrumentInput {
   return { ...VALID, ...changes }
 }
 
-/** Intent: the reason makeMyInstrument throws for this input, or a failure when it does not throw. */
+/** The reason makeMyInstrument throws for this input, or a failure when it does not throw. */
 function thrownReason(input: MyInstrumentInput): MyInstrumentRefusalReason {
   try {
     makeMyInstrument(input)
@@ -361,7 +361,7 @@ describe('myInstrumentDraftFromTemplate: a built-in as the starting point', () =
 
 // @test-link [[rule_my_instrument_range_limits]]
 describe("makeMyInstrument: the clef's bound on the written range", () => {
-  /** Intent: the refusal's reason for a written range in a clef, or none when it is accepted. */
+  /** The refusal's reason for a written range in a clef, or none when it is accepted. */
   function reasonFor(clef: 'treble' | 'bass', minMidi: number, maxMidi: number) {
     return findMyInstrumentRefusal(withInput({ clef, writtenRange: { minMidi, maxMidi } }))?.reason
   }
