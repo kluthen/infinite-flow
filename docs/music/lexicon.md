@@ -1,8 +1,8 @@
 # Music Lexicon
 
-Status: v1.8 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v4 accompaniment research terms merged 2026-10-11; endgame musical-identity research terms merged 2026-10-11; style atlas research terms merged 2026-10-11; v3.3 chord research terms added 2026-10-12; bass clef and octave sign added, clef entries revised for my instrument's clef, 2026-10-12; starting note and count-in say an out-of-date phrase asks first, 2026-10-13; the v4, musical-identity and style atlas terms merged from branch `v4-accompaniment-research` 2026-10-19; v3.1's figure, preset and Embellishments entries describe the built app, musical profile and grammar entries marked as replaced, 2026-10-21; Held doodle renamed Kept doodle for v3.2's re-scope (spec D413), 2026-10-21; Jam, Doodle, Drift, Rhythm lock, Starting note and Key and mode suggestion follow master spec Part C v1.2, Jam as its own mode, 2026-10-21; Drift's Close and Near worded as master spec C8 states them (spec D431), 2026-10-23; Doodle says a short gap is part of the note before it (spec D440), 2026-11-03; Key and mode suggestion and the entries naming it describe the review's built suggestion, 2026-11-04; the entries for v3.2's Jam words describe the built app, Jam's own rhythm lock and allowed rhythm changes included, with D406's provisional answers noted (spec D521), 2026-11-09; seventh chord, chord symbol, chord tone, run, voicing and the four seventh-chord kinds describe v3.3 as built (master spec §D16, spec D283), 2026-11-17)
+Status: v1.9 (v3 research terms merged; preset catalogue terms merged 2026-10-07; v3.1 and v3.2 spec terms merged 2026-10-08; v4 accompaniment research terms merged 2026-10-11; endgame musical-identity research terms merged 2026-10-11; style atlas research terms merged 2026-10-11; v3.3 chord research terms added 2026-10-12; bass clef and octave sign added, clef entries revised for my instrument's clef, 2026-10-12; starting note and count-in say an out-of-date phrase asks first, 2026-10-13; the v4, musical-identity and style atlas terms merged from branch `v4-accompaniment-research` 2026-10-19; v3.1's figure, preset and Embellishments entries describe the built app, musical profile and grammar entries marked as replaced, 2026-10-21; Held doodle renamed Kept doodle for v3.2's re-scope (spec D413), 2026-10-21; Jam, Doodle, Drift, Rhythm lock, Starting note and Key and mode suggestion follow master spec Part C v1.2, Jam as its own mode, 2026-10-21; Drift's Close and Near worded as master spec C8 states them (spec D431), 2026-10-23; Doodle says a short gap is part of the note before it (spec D440), 2026-11-03; Key and mode suggestion and the entries naming it describe the review's built suggestion, 2026-11-04; the entries for v3.2's Jam words describe the built app, Jam's own rhythm lock and allowed rhythm changes included, with D406's provisional answers noted (spec D521), 2026-11-09; seventh chord, chord symbol, chord tone, run, voicing and the four seventh-chord kinds describe v3.3 as built (master spec §D16, spec D283), 2026-11-17; v3.4's lexicon pass (spec D560): Gesture and answer, Open ending, Recovery, Register window and Signature figure leave the Internal group with popups written for a player, and the eight longest app meanings (Allowed rhythm changes, Doodle, Drift, Jam, Key and mode suggestion, Rhythm lock, Starting note, Vary settings) are shortened to what the app does today, Vary settings now saying it is saved and never moves Seventh chords; Register window, Register and the Register control say a window is half the range and at least one octave, so one octave on the built-in instruments and wider on a wider My instrument, and the Register control names each preset's value and Varying's one window per session, 2026-11-22)
 
-Date: 2026-10-21
+Date: 2026-11-22
 
 ## How to use
 
@@ -677,6 +677,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `rhythm`, `eighth-note`, `sixteenth-note`, `riff`
 - **sources:** S345, S346, docs/music/styles/popular-electronic-game.md
 
+### Gesture and answer
+
+- **id:** `gesture-and-answer`
+- **aliases:** gesture/answer, A and A-prime
+- **popup:** The app builds each phrase's rhythm in two halves: measures 1-2 state an idea, and measures 3-4 answer it with a slightly changed copy.
+- **definition:** The app's rhythm plan builds each phrase as a gesture and an answer. Measures 1-2 are the gesture; measures 3-4 start as a copy of it and are then varied by one or two small changes, such as moving a rest or displacing a note. The answer keeps at least half of the gesture's note starts (and at least two), and measure 4 must end differently from measure 2. The idea echoes the classical question-and-answer phrase, but here it is a rhythm rule, not a harmonic one.
+- **in_infinite_flow:** With Tension at Settled or Lift, the answer makes one change; at Build or Edge it may make two.
+- **related:** `phrase`, `rhythm`, `measure`, `control-tension`
+- **sources:** S1, docs/music/rhythm-phrase-structure.md
+
 ### Ghost note
 
 - **id:** `ghost-note`
@@ -1266,15 +1276,35 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `final`, `mode`, `gregorian-chant`, `pedal-point`
 - **sources:** S269, S268, docs/music/styles/art-music.md
 
+### Recovery
+
+- **id:** `recovery`
+- **aliases:** recovery debt, leap recovery
+- **popup:** After a big jump, the melody turns back the other way by a small move, which balances the jump. In this app it is a rule, not just advice.
+- **definition:** A long-standing melodic guideline says that after a large leap the line should turn back the other way, often by step, to balance the jump. The app makes this a hard rule: a large leap (7-12 half steps) creates a recovery debt, paid when the next note moves in the opposite direction by 1-4 half steps. Smaller leaps, skips and steps create no debt.
+- **in_infinite_flow:** Smooth allows no large leaps, so it never creates debt. Under Shaped the recovery must come on the very next note. Under Leaping and Angular, a large leap inside a recognized arpeggio run may recover after the run's last note instead. The phrase's final note can't leave a debt unpaid, except in a session phrase generated from the phrase before it: such a phrase may end owing a recovery, and the next phrase's first note pays it by moving back 1-4 half steps onto a note of the home chord. A repeated pitch does not count as recovery.
+- **related:** `leap`, `run`, `control-leapiness`
+- **sources:** S7, docs/music/melodic-control-models.md, src/domain/generation/carry-in/phrase-ending-debt.ts
+
 ### Register
 
 - **id:** `register`
 - **aliases:** none
 - **popup:** The part of an instrument's range a passage uses: low, middle or high. The same tune sounds darker low and brighter high.
 - **definition:** Register means a zone of pitch, such as the low, middle or high part of an instrument or voice. The same melody moved to another register keeps its shape but changes color: darker and fuller low, brighter or more strained high. On wind instruments each register also feels different to play. Register is the zone in use; range is the full span an instrument can reach.
-- **in_infinite_flow:** Register is also an app control that picks a one-octave window of the instrument's range for the whole phrase. See the Register entry under App controls.
+- **in_infinite_flow:** Register is also an app control that picks one window of the instrument's range, one octave on the built-in instruments, for the whole phrase. See the Register entry under App controls.
 - **related:** `control-register`, `instrument-range`, `octave`, `register-window`, `register-spike`
 - **sources:** S15, S14
+
+### Register window
+
+- **id:** `register-window`
+- **aliases:** window, resolved window
+- **popup:** The slice of your instrument's range that a whole phrase stays inside, one octave on the built-in instruments. Register's Low, Middle and High each pick one.
+- **definition:** A register window is a span of pitches inside an instrument's concert range. Each instrument has three overlapping windows, Low, Middle and High, worked out the same way: each is half the range wide, and never narrower than one octave (12 half steps, so 13 possible pitches). The built-in instruments span two octaves, so their windows are one octave wide; a wider My instrument gets wider windows. Low starts at the bottom of the range, High ends at the top, and Middle sits in the centre. A phrase uses exactly one window from start to end; Varying lets the app pick one that fits the other settings.
+- **in_infinite_flow:** The instrument control lists the three windows as MIDI note numbers in concert pitch (60 is middle C). Keyboard: Low 48-60, Middle 54-66, High 60-72; tenor saxophone 46-58, 52-64, 58-70; alto saxophone 51-63, 57-69, 63-75; My instrument's come from the range you give it. With Register on Varying, when no window can fit the other settings, the app says so and suggests another contour.
+- **related:** `control-register`, `register`, `instrument-range`, `midi-note-number`, `seed`
+- **sources:** docs/music/saxophone-profile-ranges.md, src/domain/profile/register-window-derivation.ts (method `overlapping-three-window-v1`), src/domain/profile/instrument-profiles.ts, src/components/controls/control-options.ts, src/composables/generation-failure-alert.ts
 
 ### Retardation
 
@@ -1686,6 +1716,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Not built; style atlas research: the Romantic, film and rock entries ask for borrowed chords as a harmony capability (docs/music/styles/art-music.md, docs/music/styles/popular-electronic-game.md).
 - **related:** `parallel-keys`, `chromatic`, `chromatic-mediant`, `subtonic`, `picardy-third`
 - **sources:** S281, S338, docs/music/styles/art-music.md, docs/music/styles/popular-electronic-game.md
+
+### Open ending
+
+- **id:** `open-ending`
+- **aliases:** open endpoint, cadence/endpoint, continuation rule
+- **popup:** Every phrase the app writes ends sounding unfinished, never on the home note, so it leads on to the next phrase.
+- **definition:** Open ending is the project's rule that every phrase ends sounding unfinished. In major and minor keys, landing on the home chord and home note usually closes a phrase, while landing on the dominant chord leaves it open. The app never ends a phrase on the home note. In the modes this openness comes from the melody's last note alone and needs no dominant chord. The aim is a phrase that invites the next one.
+- **in_infinite_flow:** Major/Minor with Gentle or Active motion: the final chord is on degree 5 and the final sounding note is a tone of that chord (in Minor this is the minor v, without claiming dominant pull). Major/Minor with Static motion: the chord stays I and the final note is degree 5. Modes: the final chord is the home chord and the final note is any of its tones except the home note, so its 3rd or 5th, with no preference between them. Degree 1 is never the final note. The one tension figure resolves before the final note; plain passing and neighbor tones may resolve onto it. A session phrase generated from the phrase before it may instead end on a scale tone outside its final chord, reached by step, which the next phrase's first note resolves; that note is still never degree 1. A trailing rest is allowed.
+- **related:** `cadence`, `phrase`, `dominant`, `scale-degree`
+- **sources:** S3, docs/music/harmony-planner-policy.md, src/domain/pitch/pitch-context.ts, src/domain/generation/carry-in/phrase-ending-debt.ts
 
 ### Parallel fifths and octaves
 
@@ -2473,6 +2513,16 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `musical-topic`, `leitmotif`, `fanfare`, `chiptune`
 - **sources:** S364, S92, docs/music/styles/popular-electronic-game.md
 
+### Signature figure
+
+- **id:** `signature-figure`
+- **aliases:** gimmick (the owner's word), hook, lick, riff
+- **popup:** A short idea that marks a style, a player or a song, like a famous riff or a typical blues bend.
+- **definition:** A signature figure is a short melodic or rhythmic idea that listeners associate with a style, a player or a song: a riff, a hook, a stock lick, a characteristic ornament. Musicians build a personal or stylistic vocabulary partly from such figures and reuse them, varied, in new phrases.
+- **in_infinite_flow:** Not built: the app stores no signature figures, and no preset holds one. Later presets may carry a few. Jam mode already grows each session from a short idea of your own, your doodle.
+- **related:** `riff`, `lick`, `motif`, `played-signal`, `idiolect`, `musical-identity`
+- **sources:** specs/versions/v3/README.md, specs/personas.md
+
 ## Texture and arranging
 
 ### Accompaniment
@@ -2935,7 +2985,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** rhythm change, allowed changes
 - **popup:** With the rhythm lock on, small edits a phrase may make to the locked rhythm, one at a time and for one phrase only.
 - **definition:** Allowed rhythm changes is the app's name for a list of small rhythm edits you can switch on while the rhythm lock holds one rhythm, such as splitting one note into two. Musicians vary a repeated rhythm this way to keep it alive while it stays recognizable. Each kind you allow is one kind of edit the app may make, now and then, to the locked rhythm. One such edit in a phrase is called a rhythm change.
-- **in_infinite_flow:** Built in v3.2 in both modes, each with its own list (spec decisions D232, D234, D236): session mode's under the Rhythm lock in "During a session", Jam mode's under Jam's Rhythm lock in "Following your doodle". Jam mode's list is one of spec decision D406's provisional answers, to be confirmed by the owner's checks after the 3.2.0 tag (spec decision D521). Five kinds, each on or off, all off by default, so the lock is strict unless you allow some: **move a note start** by a sixteenth or an eighth, **move a rest**, **split a note**, **merge two notes**, **add or remove a rest**. A rhythm change is one edit in one measure, or one made in measure 1 or 2 and repeated in measure 3 or 4. At most one per phrase, never in phrase 1, in about 1 phrase in 2 (3 in 4 on the tenser phrase of Tension across phrases). Each is measured from the locked rhythm and lasts one phrase, so changes never add up, and none is ever marked on screen. Which kinds can happen depends on the rhythm settings: under Strict variety with Straight syncopation there is almost nothing to change, and no candidate means no change. Session mode's list is set at Idle or in the review and saved like the session options; Jam mode's is set at Jam's Idle and saved with Jam's settings; presets never hold either. It acts only while its mode's lock is on.
+- **in_infinite_flow:** Five kinds, each on or off and all off by default, so the lock stays strict unless you allow some: **move a note start** by a sixteenth or an eighth, **move a rest**, **split a note**, **merge two notes**, **add or remove a rest**. A phrase makes at most one change, never in phrase 1: about one phrase in two, or three in four on the tenser phrases of Tension across phrases. A change is one edit in one measure, or an edit in measure 1 or 2 repeated in measure 3 or 4. It is measured from the locked rhythm and lasts one phrase, so changes never add up, and the score never marks it. Some settings leave almost nothing to change, such as Strict variety with Straight syncopation; then the phrase keeps the locked rhythm. Session mode's list is under Rhythm lock in "During a session", Jam mode's in "Following your doodle"; each is saved with its mode's settings, presets never hold one, and it acts only while that mode's lock is on.
 - **related:** `control-rhythm-lock`, `forced-bend`, `rest`, `syncopation`, `control-rhythmic-variety`, `control-tension-across-phrases`
 - **sources:** S56, specs/archive/v3/rhythm-lock.md, docs/music/mutation-catalogue.md, specs/decisions.md
 
@@ -2995,7 +3045,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** none
 - **popup:** The short idea, one to four measures, that you play for the app to continue in a Jam.
 - **definition:** Doodle is the app's everyday word for a short musical idea you make up and play: a few notes, one to four measures long, not a finished tune. Musicians call such an idea a motif. "Doodle" stresses that it can be rough and casual, like a sketch in a margin: the app's job is to grow it, never to judge it. It is the owner's word, not a music-theory term.
-- **in_infinite_flow:** Built in v3.2 for Jam mode (spec decisions D401, D403, D408, D410, D415). After the count-in you play the doodle over the app's click; it ends when a whole measure stays silent, or after four measures. Very short stray notes are left out and the rest is quantized to the sixteenth-note grid. A short gap between two notes counts as part of the note before it, the way sheet music writes a short, detached note as one note with a staccato dot rather than as a note and a rest: a silence becomes a rest only where a whole rest of the doodle's own note value (a quarter, an eighth or a sixteenth, read from where its notes start) fits in it, so a doodle played detached, as a tongued wind controller tends to, still reads as the rhythm you meant (spec decision D440). When it ends, the app reads Jam's rhythm and shape controls from it (note density, rhythmic variety, syncopation, silence density, contour, leapiness, register) as ordinary control values; these belong to the doodle and are not saved, and the settings you chose for Jam never move because of it. This reading is one of spec decision D406's provisional answers, to be confirmed by the owner's listening check after the 3.2.0 tag (spec decision D521). Within those controls the doodle only steers which rhythms and note moves the app tries first, so the phrases share its shape (its rhythm, its ups and downs, and the note it ended on) without quoting its notes. The generator never receives the doodle itself, only the controls and a steering block of rhythm positions and move kinds, and the replay key carries that block, not your notes. The doodle opens the session's review, written out as the app heard it, opens both exports, is kept by Jam mode for the next Jam, and is kept with a kept Jam session; your raw played notes stay private.
+- **in_infinite_flow:** In Jam mode, after the count-in you play the doodle over the app's click; it ends when a whole measure stays silent, or after four measures. The app drops very short stray notes and lines the rest up on the sixteenth-note grid. A short gap between two notes counts as part of the note before it, as sheet music writes a detached note as one note with a staccato dot: a silence becomes a rest only where a whole rest of the doodle's own note value (a quarter, an eighth or a sixteenth) fits in it. The app then reads Jam's rhythm and shape controls from the doodle (note density, rhythmic variety, syncopation, silence density, contour, leapiness, register); these are not saved, and your Jam settings never change. The doodle only steers which rhythms and note moves the app tries first, so the phrases share its rhythm, its ups and downs and its last note without copying its notes. The review opens with the doodle as the app heard it, and Jam mode keeps it for the next Jam (see Kept doodle).
 - **related:** `motif`, `jam`, `kept-doodle`, `control-drift`, `quantize`, `key-and-mode-suggestion`, `articulation`
 - **sources:** S40, specs/versions/v3/master-spec.md, specs/versions/v3/jam-mode.md, specs/decisions.md
 
@@ -3005,7 +3055,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** Jam drift
 - **popup:** In Jam mode, how far the phrases may wander from your doodle: Close, Near or Free.
 - **definition:** Drift is the app's own name for how freely a Jam's phrases develop your doodle. Composers vary a motif by small changes, and the more they change, the further the music travels from where it began. Drift sets that distance, for the rhythm and for the ups and downs of the melody. Musicians would just say "stay close to the idea" or "take it somewhere".
-- **in_infinite_flow:** Built in v3.2 (spec decisions D234, D401, D410); like Jam's own lock, it is one of spec decision D406's provisional answers, to be confirmed by the owner's checks after the 3.2.0 tag (spec decision D521). One of Jam mode's own settings: shown only in Jam mode, set at Jam's Idle, saved with Jam's settings, starting at Near; presets never hold it. **Close**: rhythms whose every measure is the same as the doodle's, or one small change away from beats 1 and 3, come first (a change adds or removes one note or rest start, moves one by at most an eighth note, or turns a note into a rest or back), and the melody follows the doodle's moves in direction and size (step, skip or leap). **Near** (default): each measure at most a little further (one change on beat 1 or 3 itself, adding or removing a start there or moving one onto or off it, or two small changes away from those beats), and the melody follows the doodle's directions only. **Free**: rhythms in the usual random order, no melody preference, only the join from the doodle's last note. It reaches the generator as the steering block's band and strength. Drift only orders the candidates; it never breaks a control's rules. With Jam's rhythm lock on, drift no longer decides the rhythm: phrase 1 takes the rhythm nearest the doodle, whatever the drift, and the lock holds it; drift still shapes every phrase's melody.
+- **in_infinite_flow:** One of Jam mode's own settings, saved with Jam's settings; presets never hold it. **Close**: rhythms come first whose every measure is the doodle's own or one small change away from it off beats 1 and 3 (a note or rest start added, removed or moved by up to an eighth note, or a note turned into a rest or back), and the melody follows the doodle's moves in direction and size (step, skip or leap). **Near** (default): each measure may be a little further away (one change on beat 1 or 3, or two small changes off them), and the melody follows the doodle's directions only. **Free**: rhythms come in the usual random order, and the melody keeps only its join from the doodle's last note. Drift only changes which possibilities the app tries first; it never breaks a control's rules. With Jam's rhythm lock on, phrase 1 takes the rhythm nearest the doodle whatever the drift, the lock holds it, and drift still shapes every phrase's melody.
 - **related:** `doodle`, `jam`, `control-rhythm-lock`, `motivic-development`, `contour`
 - **sources:** S56, specs/versions/v3/master-spec.md, specs/versions/v3/jam-mode.md, specs/decisions.md, docs/music/mutation-catalogue.md
 
@@ -3045,7 +3095,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** Jam mode, a Jam, Jam session
 - **popup:** The app's second mode: you play a short idea first, and the app's phrases grow from it. Starting a Jam needs a connected controller.
 - **definition:** Among musicians, a jam is an informal session where players improvise together. In this app, Jam mode is the app's second mode, beside the usual session mode: instead of starting from a generated phrase, a session starts with your own doodle, and the phrases that follow continue it, keeping something of its rhythm and its ups and downs. "A Jam" means one session run this way; a "Jam session" is a kept one. Jam is a working name.
-- **in_infinite_flow:** Built in v3.2 (spec decisions D400, D401, D407, D408, D410, D411). The app always opens in session mode; a mode button switches to Jam mode and back, at Idle only, and the mode is not remembered after a reload. Jam mode keeps its own settings, saved apart from session mode's: key and mode, tempo (60 to 180 BPM, with tap-in; 240 BPM was measured but not kept, spec decision D506), drift, rhythm lock and allowed rhythm changes, harmonic motion, tension and one Embellishments level; the doodle sets the rhythm and shape controls. Presets, Vary settings, Tension across phrases and Rising tempo are not in Jam. The instrument, the controller, the audio mix and the theme are shared by both modes. Without a MIDI controller Jam mode still opens, but its Start is unavailable and says why. Without a kept doodle, Jam's Idle shows no phrase. A fresh Jam goes: Start or the starting note, one count-in measure, the doodle (one to four measures), a generation measure while the app writes phrase 1, a read-in measure with phrase 1 on screen, then phrase 1 sounds with the backing; if phrase 1 is late, the wait grows by whole measures, up to three. From phrase 1 it runs as any session. There is no new doodle mid-session: stop, ask for a new doodle at Idle and start again. Afterwards Jam mode keeps the doodle for the next Jam (see Kept doodle); the review opens with the doodle and may offer a key and mode suggestion. Jam's settings set, the controls taken from the doodle, the tempo set before the doodle with tap-in, and Jam's own lock, changes and drift are provisional answers (spec decision D406), confirmed or sent back by the owner's checks after the 3.2.0 tag (spec decision D521).
+- **in_infinite_flow:** The app opens in session mode; the mode button switches to Jam mode and back at Idle, and a reload returns to session mode. Jam mode keeps its own saved settings: key and mode, tempo (60 to 180 BPM, with tap-in), drift, rhythm lock and allowed rhythm changes, harmonic motion, tension and one Embellishments level; the doodle sets the rhythm and shape controls. Jam has no presets, Vary settings, Tension across phrases or Rising tempo, and shares the instrument, controller, audio mix and theme with session mode. Without a MIDI controller, Jam's Start is unavailable and says why. A fresh Jam runs: Start or the starting note, one count-in measure, your doodle (one to four measures), one measure while the app writes phrase 1, one measure to read it, then phrase 1 plays with the backing and the session goes on as usual. For a new doodle, stop and ask for one at Idle. Jam mode keeps the doodle for the next Jam (see Kept doodle), and the review may offer a key and mode suggestion.
 - **related:** `doodle`, `kept-doodle`, `control-drift`, `control-rhythm-lock`, `key-and-mode-suggestion`, `starting-note`, `count-in`, `call-and-response`
 - **sources:** S84, specs/versions/v3/master-spec.md, specs/versions/v3/jam-mode.md, specs/decisions.md
 
@@ -3075,7 +3125,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** the suggestion, key suggestion
 - **popup:** After a Jam, the app may propose the key and mode your doodle seems to be in. You choose: use it, or keep yours.
 - **definition:** The key and mode suggestion is the app's guess at which home note and which scale or mode your doodle sounds in, offered for you to accept or decline. It is what a musician does on hearing an idea and saying "that sounds like D Dorian". The guess uses key finding: which notes you played, for how long, and which came first and last. A short idea often fits several keys, so it is a suggestion, never a verdict.
-- **in_infinite_flow:** Built in v3.2 (spec decisions D209, D212, D216, D234, D236, D401, D410, D452, D455). A Jam-mode feature, never shown during a session: in the review of a Jam just played and of a kept Jam session, under the doodle, and at Jam's Idle with a kept doodle, in the kept doodle's bar, until you answer it or the doodle goes. The app scores all 84 home note and mode pairs, keeps up to three close candidates and draws one by weighted chance; the draw depends only on the doodle, so the same doodle always gives the same answer, judged again against Jam's key and mode as they are now whenever a review opens. Only that answer is shown, in written pitch ("Your doodle sounds like G Dorian."), with **Jam in {answer}** (the spec's Use it) and **Keep {key} {mode}** (its Keep mine). Jam in sets Jam's own Written key and Collection, saved with Jam's settings, from a review over either mode; session mode's key and mode never move. Keep changes nothing, and that doodle's suggestion is not offered again, after a reload too. With Major or Minor as Jam's Collection, an Ionian answer reads "Major" and an Aeolian one "Minor". Nothing is suggested for fewer than 5 pitch classes, 6 notes or 2 beats of sound, or when Jam's key and mode are among the candidates; when under 80 % of the doodle fits the best answer, every review of that Jam says so, never naming a "wrong" note. Jam mode has no presets, so no key and mode restriction limits it. The app never changes key or mode on its own. Its weights are provisional until the owner's listening check after the 3.2.0 tag (spec decision D521).
+- **in_infinite_flow:** Jam mode only: shown under the doodle in the review of a Jam just played or kept, and in the kept doodle's bar at Jam's Idle, until you answer it. The app scores all 84 pairs of home note and mode, keeps up to three close candidates and draws one by weighted chance; the draw depends only on the doodle, so the same doodle always gets the same answer. The answer is in written pitch ("Your doodle sounds like G Dorian."), with two buttons: **Jam in {answer}** sets Jam's Written key and Collection (session mode's never move); **Keep {key} {mode}** changes nothing, and that doodle is not asked about again. With Major or Minor as Jam's Collection, Ionian reads "Major" and Aeolian "Minor". Nothing is suggested for a very short doodle (under 5 different note names, 6 notes or 2 beats of sound), or when Jam's key and mode are among the candidates. When under 80 % of the doodle fits the best match, the review says so, never naming a "wrong" note. The app never changes key or mode by itself.
 - **related:** `key-finding`, `key-profile`, `pitch-class`, `relative-keys`, `parallel-keys`, `doodle`, `kept-doodle`, `control-written-key`, `control-collection`, `key-and-mode-restriction`
 - **sources:** S60, S63, S73, docs/music/key-and-mode-estimation.md, specs/versions/v3/master-spec.md, specs/versions/v3/jam-mode.md, specs/decisions.md
 
@@ -3124,10 +3174,10 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **id:** `control-register`
 - **aliases:** octave
 - **popup:** Which part of your instrument's range the phrase uses: low, middle or high, or let the app pick one.
-- **definition:** Register picks the zone of your instrument's range that the whole phrase stays in. It uses the standard meaning of register, narrowed to a fixed one-octave window so that each option is clearly different and comfortable to play. The window never changes during a phrase.
-- **in_infinite_flow:** The selected Low, Middle or High window for the whole phrase, inside the instrument's range. The range holds three overlapping windows, each one octave wide. **Low**, **Middle** and **High** pick one: C3-C4, F-sharp3-F-sharp4 and C4-C5 on the keyboard (concert), and written C4-C5, F-sharp4-F-sharp5 and C5-C6 on both saxophones. **Varying** lets the app choose one window that works, based on the phrase's random seed. Default Middle (Neutral) or Varying (Jazz). If no window can fit the other settings, generation reports a failure instead of breaking the range.
+- **definition:** Register picks the zone of your instrument's range that the whole phrase stays in. It uses the standard meaning of register, narrowed to a fixed window, one octave on the built-in instruments, so that each option is clearly different and comfortable to play. The window never changes during a phrase.
+- **in_infinite_flow:** The range holds three overlapping windows, each half the range wide and at least one octave (see Register window). **Low**, **Middle** and **High** pick one: C3-C4, F-sharp3-F-sharp4 and C4-C5 on the keyboard (concert), and written C4-C5, F-sharp4-F-sharp5 and C5-C6 on both saxophones; My instrument's come from the range you give it. **Varying** lets the app pick, for phrase 1, one window that works, chosen with the phrase's random seed; the rest of a session keeps that window. A first visit starts at Middle, the Neutral preset's value; Gentle, Reel and Pop song hold Middle too, and Jazz, Speed drill, Bebop and Modal (Dorian) hold Varying. In Jam mode the doodle sets it. If no window can fit the other settings, the app says so instead of leaving the range.
 - **related:** `register`, `register-window`, `instrument-range`, `control-instrument-profile`, `control-contour`
-- **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/saxophone-profile-ranges.md, src/domain/profile/instrument-profiles.ts
+- **sources:** ui_ux/screens/phrase-workspace/handoff.md, docs/music/saxophone-profile-ranges.md, src/domain/profile/instrument-profiles.ts, src/domain/profile/register-window-derivation.ts, src/domain/presets/built-in-presets.ts, src/domain/controls/profile-selection.ts, src/domain/generation/orchestration/request-resolution.ts
 
 ### Rhythm lock
 
@@ -3135,7 +3185,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** lock, locked rhythm
 - **popup:** Keeps one rhythm for the whole session, every note start and length, while the pitches keep changing.
 - **definition:** Rhythm lock is the app's switch for practicing with one rhythm repeated while the melody changes, as musicians do when they keep a rhythm and try new notes over it. With the rhythm settled, your eyes can go to the pitches. The locked rhythm is every note start and length, and so every rest, across the four measures.
-- **in_infinite_flow:** Built in v3.2 in both modes (spec decisions D232, D234, D236, D401, D410): session mode's first in "During a session", Jam mode's in Jam's "Following your doodle". Jam mode's lock is one of spec decision D406's provisional answers, to be confirmed by the owner's checks after the 3.2.0 tag (spec decision D521). Off by default; presets never hold it. Each mode has its own: session mode's is set at Idle or in the review and saved like the session options, Jam mode's is set at Jam's Idle and saved with Jam's settings, and neither reaches the other. In session mode it locks the rhythm of phrase 1, the phrase on screen at Start; in a Jam, phrase 1's rhythm chosen nearest the doodle, whatever the drift (locking the exact played rhythm waits for v4's rhythm editor). The lock is strict: a phrase leaves the locked rhythm only through an allowed rhythm change (none by default; each mode keeps its own list) or, when the locked rhythm cannot make a phrase, a forced bend; either lasts one phrase and is never marked. In session mode, while the lock is on, Vary settings never moves the rhythm settings. If a session steps Sixteenth down to Eighth on a narrow screen, the first Eighth phrase's rhythm becomes the locked one.
+- **in_infinite_flow:** Off by default; presets never hold it. Each mode has its own lock, saved with its settings, and neither reaches the other: session mode's comes first in "During a session", Jam mode's in "Following your doodle". In session mode it locks the rhythm of phrase 1, the phrase on screen at Start; in a Jam, phrase 1's rhythm, chosen nearest the doodle whatever the drift. The lock is strict: a phrase leaves the locked rhythm only for an allowed rhythm change (none by default) or, when the locked rhythm can't make a phrase, for the nearest rhythm that can (a forced bend); either lasts one phrase and is never marked. In session mode, while the lock is on, Vary settings never moves the rhythm settings. If a session steps Sixteenth down to Eighth on a narrow screen, the first Eighth phrase's rhythm becomes the locked one.
 - **related:** `control-allowed-rhythm-changes`, `forced-bend`, `rhythm`, `control-drift`, `control-vary-settings`, `jam`
 - **sources:** specs/versions/v3/master-spec.md, specs/versions/v3/jam-mode.md, specs/decisions.md, specs/archive/v3/rhythm-lock.md
 
@@ -3175,7 +3225,7 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** start note
 - **popup:** The one note you can play on your controller to start a session, instead of clicking Start.
 - **definition:** The starting note is the app's name for a played way to start: with a MIDI controller attached, playing this one note at Idle starts the session's count-in, so your hands can stay on the instrument. It must be that exact note, octave included; any other note played at Idle is ignored. It is an app term, not a music-theory one.
-- **in_infinite_flow:** Today it is the first note of phrase 1, the phrase on screen, and the cue row names it whenever playing it would start a session. It only starts the count-in: after it, you play phrase 1 from its first note on beat 1. Since v3.0 (spec decision D297), there is one exception: if you changed a setting after the phrase on screen was made, so the phrase is out of date, playing the starting note does not start the count-in straight away. It first opens a short question, as the Start button does: make a new phrase, or start with this one. The count-in starts only if you start with this one, and while the question shows, no note you play starts anything. In Jam mode, built in v3.2 (spec decisions D234, D400, D410), a Jam without a kept doodle starts instead on the home note of Jam's key, in written pitch, in the octave nearest the middle of your instrument's written range, and that note belongs to no doodle; with a kept doodle it is phrase 1's first note again. While tap-in listens for Jam's tempo, every controller note is a tap, this one included, and starts nothing. Since the two modes are separate, their starting notes never compete for one note. It is the one played signal the app has.
+- **in_infinite_flow:** It is the first note of phrase 1, the phrase on screen, and the cue row names it whenever playing it would start a session. It only starts the count-in: after it, you play phrase 1 from its first note on beat 1. If you changed a setting after the phrase on screen was made, playing it first opens a short question, as Start does: make a new phrase, or start with this one. The count-in starts only if you start with this one, and no note starts anything while the question shows. In Jam mode with no kept doodle, it is instead the home note of Jam's key, in written pitch, in the octave nearest the middle of your instrument's written range, and it is not part of the doodle; with a kept doodle it is phrase 1's first note again. While tap-in listens for Jam's tempo, every note is a tap and starts nothing.
 - **related:** `count-in`, `cue`, `played-signal`, `jam`, `tonic`
 - **sources:** specs/versions/v2/master-spec.md, specs/versions/v3/master-spec.md, specs/versions/v3/jam-mode.md
 
@@ -3225,9 +3275,9 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **aliases:** settings-mutation flag
 - **popup:** Every 2 to 4 phrases, one setting moves one step, so a long session keeps changing. Never the instrument or the tempo.
 - **definition:** Vary settings is the app's own name for an option that keeps a long session fresh. Instead of every phrase being built from the same settings, one setting at a time drifts by a small step, up or down, every few phrases, while you keep playing. The project's documents call it the "settings-mutation flag".
-- **in_infinite_flow:** **Off** (default) or **On**, in the "During a session" group. While on, every 2 to 4 phrases (the gap is picked at random) one setting moves one step, in either direction. Any setting can move except Instrument profile and Tempo, which has Rising tempo instead. A step usually means one place along a control's list, never jumping from one end to the other. Some controls step their own way: Contour, whose shapes have no order, can change to any other shape; Register moves only among Low, Middle and High, never to Varying (from Varying it starts from the window the session was using, then keeps a fixed one); Written key moves one place around the circle of fifths (usually one sharp or flat more or fewer in the key signature); Collection moves one place at a time and stays among major and minor, or among the modes; Written key and Collection moves stay inside the key and mode restriction in force at the session's start. The figure levels move by a figure step: one figure moves one figure level, up or down, never past Off or Very often, and the seven levels together take one place in the draw (spec decisions D233, D235). A step never lands on an unsupported rhythm combination: the app picks again instead. During the session the controls show the settings the phrase now sounding was built from, changing quietly when a phrase built with a new value starts. When the session ends, every setting goes back to your own. A move of any preset-held setting (one of the ten controls or a figure level) marks Custom for that session; Written key and Collection moves never do. Changing the option never regenerates the phrase on screen; the choice lasts until you reload the page. **From v3.2** (built; spec decisions D216, D234, D236), **What may vary**, the allowed groups, lets you choose which settings may move, in six groups switched on or off together, all on by default: **Key and mode** (Written key, Collection), **Harmony** (Harmonic motion), **Tension**, **Rhythm** (Note density, Rhythmic variety, Syncopation, Silence density), **Melody shape** (Contour, Register, Leapiness, Arpeggio chaos) and **Figures** (the figure step). They are set at Idle or in the review and saved with the option. While the rhythm lock is on, the Rhythm group never moves. If the allowed groups offer no possible move, Vary settings cannot be turned on, and the app says why; your choice is kept and comes back as soon as a move exists.
+- **in_infinite_flow:** **Off** (default) or **On**, in "During a session", and saved. While on, every 2 to 4 phrases one setting moves one step up or down, usually one place along its list; Instrument profile, Tempo and Seventh chords never move. Contour may change to any other shape; Register moves only among Low, Middle and High; Written key moves one place around the circle of fifths (one sharp or flat more or fewer); Collection stays among major and minor, or among the modes, and key and mode moves stay inside the key and mode restriction; one figure moves one level, never past Off or Very often. A step never lands on a mix of rhythm settings the app can't build. **What may vary** picks which of six groups can move, all on by default: **Key and mode**, **Harmony**, **Tension**, **Rhythm**, **Melody shape** (Contour, Register, Leapiness, Arpeggio chaos) and **Figures**; with the rhythm lock on, Rhythm never moves. The controls show the settings of the phrase now sounding, and all go back to yours when the session ends. A move of a preset-held setting marks Custom for that session; key and mode moves never do. If no group allows a move, Vary settings can't be turned on and the app says why.
 - **related:** `control-rising-tempo`, `control-tension-across-phrases`, `control-musical-profile-preset`, `control-figure-level`, `key-and-mode-restriction`, `custom`, `control-rhythm-lock`, `unsupported-rhythm-combination`
-- **sources:** specs/versions/v2/master-spec.md, ui_ux/screens/phrase-workspace/handoff.md, specs/archive/v3/embellishment-flags.md, specs/archive/v3/rhythm-lock.md, specs/decisions.md
+- **sources:** specs/versions/v2/master-spec.md, ui_ux/screens/phrase-workspace/handoff.md, specs/archive/v3/embellishment-flags.md, specs/archive/v3/rhythm-lock.md, specs/decisions.md, src/session/settings-mutation-scales.ts, src/session/session-types.ts, src/storage/records/setting-defaults.ts
 
 ### Written key
 
@@ -3250,16 +3300,6 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Built in v3.2 for the rhythm lock of both modes (spec decisions D234, D236). It cannot be turned off, and happens with an empty list of allowed rhythm changes too. It is recorded in the session history only, never shown. Measured in session mode: only a step down from Build to Lift tension can lose the locked rhythm, so forced bends come from Tension across phrases when the chosen tension is Build, from a Vary settings Tension step from Build to Lift, and from the narrow-window step-down to Eighth. Earlier drafts' "bend" is split into "rhythm change" (the player's option) and "forced bend" (D236).
 - **related:** `control-rhythm-lock`, `control-allowed-rhythm-changes`, `control-drift`, `control-tension-across-phrases`
 - **sources:** specs/archive/v3/rhythm-lock.md, specs/decisions.md
-
-### Gesture and answer
-
-- **id:** `gesture-and-answer`
-- **aliases:** gesture/answer, A and A-prime
-- **popup:** Internal: measures 1-2 state a rhythmic idea (the gesture) and measures 3-4 reply with a varied copy (the answer).
-- **definition:** The app's rhythm plan builds each phrase as a gesture and an answer. Measures 1-2 are the gesture; measures 3-4 start as a copy of it and are then varied by one or two small changes, such as moving a rest or displacing a note. The answer keeps at least half of the gesture's note starts (and at least two), and measure 4 must end differently from measure 2. The idea echoes the classical question-and-answer phrase, but here it is a rhythm rule, not a harmonic one.
-- **in_infinite_flow:** Settled and Lift tension apply one answer change; Build and Edge may apply two.
-- **related:** `phrase`, `rhythm`, `measure`, `control-tension`
-- **sources:** S1, docs/music/rhythm-phrase-structure.md
 
 ### Grammar
 
@@ -3291,16 +3331,6 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `built-in-preset`, `signature-figure`, `leitmotif`, `idiolect`, `timbre`, `register-spike`, `system-voice`
 - **sources:** specs/vision/endgame.md, specs/decisions.md, docs/music/musical-identity.md, docs/music/identity-modelling.md
 
-### Open ending
-
-- **id:** `open-ending`
-- **aliases:** open endpoint, cadence/endpoint, continuation rule
-- **popup:** Internal rule: every phrase ends sounding unfinished, never on the home note, so it leads on to the next phrase.
-- **definition:** Open ending is the project's rule that every phrase ends sounding unfinished. In major and minor keys, landing on the home chord and home note usually closes a phrase, while landing on the dominant chord leaves it open. The app never ends a phrase on the home note. In the modes this openness comes from the melody's last note alone and needs no dominant chord. The aim is a phrase that invites the next one.
-- **in_infinite_flow:** Major/Minor with Gentle or Active motion: the final chord is on degree 5 and the final sounding note is a tone of that chord (in Minor this is the minor v, without claiming dominant pull). Major/Minor with Static motion: the chord stays I and the final note is degree 5. Modes: the final chord is the home chord and the final note is any of its tones except the home note, so its 3rd or 5th, with no preference between them. Degree 1 is never the final note. The one tension figure resolves before the final note; plain passing and neighbor tones may resolve onto it. A session phrase generated from the phrase before it may instead end on a scale tone outside its final chord, reached by step, which the next phrase's first note resolves; that note is still never degree 1. A trailing rest is allowed.
-- **related:** `cadence`, `phrase`, `dominant`, `scale-degree`
-- **sources:** S3, docs/music/harmony-planner-policy.md, src/domain/pitch/pitch-context.ts, src/domain/generation/carry-in/phrase-ending-debt.ts
-
 ### Played signal
 
 - **id:** `played-signal`
@@ -3311,16 +3341,6 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **related:** `motif`, `cue`, `interval`, `contour`
 - **sources:** docs/music/played-pattern-recognition.md, specs/decisions.md, specs/versions/v2/master-spec.md
 
-### Recovery
-
-- **id:** `recovery`
-- **aliases:** recovery debt, leap recovery
-- **popup:** Internal rule: after a big jump, the melody must turn back the other way by a small move.
-- **definition:** A long-standing melodic guideline says that after a large leap the line should turn back the other way, often by step, to balance the jump. The app makes this a hard rule: a large leap (7-12 half steps) creates a recovery debt, paid when the next note moves in the opposite direction by 1-4 half steps. Smaller leaps, skips and steps create no debt.
-- **in_infinite_flow:** Smooth allows no large leaps, so it never creates debt. Under Shaped the recovery must come on the very next note. Under Leaping and Angular, a large leap inside a recognized arpeggio run may recover after the run's last note instead. The phrase's final note can't leave a debt unpaid, except in a session phrase generated from the phrase before it: such a phrase may end owing a recovery, and the next phrase's first note pays it by moving back 1-4 half steps onto a note of the home chord. A repeated pitch does not count as recovery.
-- **related:** `leap`, `run`, `control-leapiness`
-- **sources:** S7, docs/music/melodic-control-models.md, src/domain/generation/carry-in/phrase-ending-debt.ts
-
 ### Register spike
 
 - **id:** `register-spike`
@@ -3330,16 +3350,6 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** Endgame groundwork, not built. Today the Register control keeps the whole phrase inside one one-octave window, and a large leap must be followed by a recovery, so a spike would need its own rule or an exception, as octave displacement does (docs/music/musical-identity.md, docs/music/identity-modelling.md).
 - **related:** `register`, `register-window`, `leap`, `recovery`, `octave-displacement`, `musical-identity`
 - **sources:** specs/vision/endgame.md, docs/music/musical-identity.md, docs/music/identity-modelling.md
-
-### Register window
-
-- **id:** `register-window`
-- **aliases:** window, resolved window
-- **popup:** Internal: the one-octave slice of the instrument's range that a whole phrase is kept inside.
-- **definition:** A register window is a one-octave span (12 half steps, 13 possible pitches) inside an instrument profile's concert range. Each profile has three overlapping windows, Low, Middle and High, derived by one fixed method (`overlapping-three-window-v1`). A phrase uses exactly one window from start to end. Varying resolves to one window that can fit the other settings, chosen with the phrase's seed.
-- **in_infinite_flow:** Concert MIDI windows (Low / Middle / High): keyboard 48-60 / 54-66 / 60-72; tenor saxophone 46-58 / 52-64 / 58-70; alto saxophone 51-63 / 57-69 / 63-75. When no window can fit, generation fails with `no_eligible_register_window`.
-- **related:** `control-register`, `register`, `instrument-range`, `midi-note-number`, `seed`
-- **sources:** docs/music/saxophone-profile-ranges.md, src/domain/profile/register-window-derivation.ts
 
 ### Run
 
@@ -3360,16 +3370,6 @@ Ids are unique across the whole file, and every `related` id is an entry in this
 - **in_infinite_flow:** The seed breaks ties among equally good choices, picks the Varying register window, and orders chord tones under Varied arpeggio chaos. It never overrides a control.
 - **related:** `control-arpeggio-chaos`, `register-window`
 - **sources:** src/composables/use-generation-session.ts, docs/music/harmony-planner-policy.md
-
-### Signature figure
-
-- **id:** `signature-figure`
-- **aliases:** gimmick (the owner's word), hook, lick, riff
-- **popup:** Internal: a short melodic idea that marks a style or a song, like a famous riff or a typical blues bend.
-- **definition:** A signature figure is a short melodic or rhythmic idea that listeners associate with a style, a player or a song: a riff, a hook, a stock lick, a characteristic ornament. Musicians build a personal or stylistic vocabulary partly from such figures and reuse them, varied, in new phrases.
-- **in_infinite_flow:** Internal word for what the owner calls a "gimmick". The app cannot store one today; later presets may carry a few (spec decision D228 places them after v3), and Jam, built in v3.2, grows a player's own idea. A store of gimmicks is not built.
-- **related:** `riff`, `lick`, `motif`, `played-signal`, `idiolect`, `musical-identity`
-- **sources:** specs/versions/v3/README.md, specs/personas.md
 
 ### System voice
 
