@@ -1,12 +1,15 @@
 # v3.4 — Structural Review
 
-Status: draft v1.1 (2026-10-21; scoping only, D389; the lexicon page noted, D393). Nothing here is decided beyond the milestone's
-existence and its placement. The analysis itself has not started; this draft frames the
-questions it must answer and does not answer them.
+Status: draft v1.2 (2026-11-22; scoping, D389; the lexicon page noted, D393; the owner's first
+rulings, D545–D547). Settled: the milestone's existence and placement (D389), what v3.4 delivers
+(D545), that the review looks at the code as it is and not at v4's scope (D546), and that no
+runtime dependency is added besides Tone.js (D547). The rest is `(proposed)` and waits on O236,
+O238 and O312. The analysis itself has not started; this draft frames the questions it must
+answer and does not answer them.
 
 Serves no persona goal directly: it adds no player-facing behaviour. It protects the delivery of
-every later goal, starting with v4's several system voices, the first step toward the
-[endgame](../../vision/endgame.md). The first-load question also touches the shared
+every later goal on the way to the [endgame](../../vision/endgame.md), without planning for any
+one version's scope (D546). The first-load question also touches the shared
 [context of use](../../personas.md#context-of-use): the occasional phone used outdoors, on a mobile
 connection.
 
@@ -18,8 +21,20 @@ max of 300kb), do we have refactoring opportunities that are worth taking. start
 begin working on endgame and it's got a lot to do, we might even consider splitting the app in
 multiple libs. this "milestone" is meant to have a clear view of our current setup."
 
-**Goal:** a clear, evidenced view of the current code before v4's work starts, and a short list of
-ranked recommendations the owner can take, defer or drop.
+**Goal:** a clear, evidenced view of the current code before v4's work starts, a short list of
+ranked recommendations the owner can take, defer or drop, and the refactors he takes, built in
+v3.4 (D545).
+
+The owner's rulings of 2026-11-22, in his words:
+
+- What v3.4 delivers (D545): "it's both the report and the corrective measures should they
+  arise."
+- Which v4 the review plans for (D546): "we wont work on reviewing V4.0 right now. we will focus
+  on v3.4".
+- How far a refactor may go (D547): "the only dependency we should plan for is tone.js otherwise
+  we don't have need to add a new one."
+- The endgame as the same app or a separate one (O236, not ruled): "that's another question that
+  need to be resolved."
 
 ## 2. Where it sits
 
@@ -33,8 +48,18 @@ ranked recommendations the owner can take, defer or drop.
   review. v3.4's one player-facing item, the [lexicon page](lexicon-page.md) (D393, amending
   D389), is a separate small build; the review measures the app with it, its own size budget
   included (O242, O245).
-- **Not a rewrite.** The analysis reads and measures; it changes no code. Any refactor it
-  recommends is built later, only once the owner chooses it, as ordinary build-plan chunks.
+- **Not a rewrite.** The analysis reads and measures; it changes no code. A refactor it
+  recommends is built only once the owner takes it, as a chunk of the v3.4 build plan (D545).
+  Behaviour-preserving only, guarded by the existing tests, atom IDs unchanged and their links
+  moved with the code (proposed, O238).
+- **No new runtime dependency** besides Tone.js (D547). Tone.js is v4's planned sound library
+  ([v4](../v4/README.md)); the review may weigh where it would load and what it would cost the
+  start-up budget, and plans nothing else for it. Whether the ruling also covers the dev-only
+  analysis tools of §7 is O238 (proposed reading: it does not, since they run in a throwaway
+  worktree and nothing is committed).
+- **Not a review of v4.** The review looks at the code as it is now: its soundness for expansion
+  in general, the entry budget, the refactors worth taking and a split. It does not plan for v4's
+  items or review v4's scope (D546).
 - **Not a re-decision of settled product rules.** The master spec parts and the declared intent
   (`docs/*.atom.md`) stay the contract; the review looks at how the code carries them, not at what
   they say.
@@ -109,9 +134,12 @@ not an answer.
 - Should module boundaries be enforced by a tool (an import-rule map), as browser APIs already are
   by `verify:boundaries`? Which rules would it hold?
 - For each named subsystem (the generation worker, the session engine, storage and codecs, the UI
-  shell): what does v4 ask of it (several system voices with roles, a software sound library loaded
-  on demand, a whole-file seed, rhythm ratios and the rhythm editor; see [v4](../v4/README.md)),
-  and what in its current shape helps or blocks that? Which v4 to plan for is O237.
+  shell): what does it expose and depend on, and what in its current shape helps or blocks growth
+  in general (new features beside the existing ones, more of them, more code)?
+  - Out of scope since D546, kept as the record of what this question first asked: what v4 asks of
+    each subsystem (several system voices with roles, a software sound library loaded on demand,
+    a whole-file seed, rhythm ratios and the rhythm editor; see [v4](../v4/README.md)), and which
+    v4 to plan for (O237, closed by D546).
 - Is `components/workspace/` (109 files, most of the files at the atom limit) a seam that is about
   to give way, and what would a better split look like?
 - Are the [prerequisites](../prerequisites.md) still the right list, and which are now urgent?
@@ -123,7 +151,10 @@ not an answer.
 - What is in the 265 KB entry chunk today, by module and by dependency?
 - What could move out of it by lazy loading, at what cost to the time before the app is usable and
   to the code?
-- What do v3.2, v3.3 and v4 add to it if nothing changes? (v3.1 grew it by about 36 KB.)
+- What did v3.2 and v3.3 add to it, and at what pace does it grow? (v3.1 grew it by about 36 KB.)
+  What v4's items would add is out of scope (D546).
+- Tone.js, the one dependency the owner plans for (D547): its weight, and where it would load
+  (lazily, on first use of a sound, or in the start-up JavaScript), against the start-up budget.
 - The measure is settled (D536): all JavaScript loaded at start-up, in minified bytes on disk,
   400 KiB. The review may also report the compressed download and the time until the app is
   usable on the reference phone, as information.
@@ -133,7 +164,9 @@ not an answer.
 ### Q3. Which refactoring opportunities are worth taking?
 
 - A ranked list, each with its benefit, its cost (size, risk, ATD link churn, test churn) and what
-  it unblocks, within the bounds the owner sets (O238).
+  it unblocks, within the bounds the owner sets: no new runtime dependency besides Tone.js (D547);
+  behaviour-preserving, atom IDs unchanged, and a time budget he sets once the ranked list is in
+  front of him (proposed, O238).
 - Sources: the code-health backlog (`npm run lint:health`), the files at or near the size and atom
   limits, duplication (measured with a tool, not guessed), and the friction recorded in the v3 wave
   logs (gate failures, "beyond Files" changes, recurring sync notes).
@@ -151,7 +184,11 @@ not an answer.
   checks, the release and the VPS deploy.
 - What a split buys: who would consume a library besides this app (the endgame's game?), faster
   builds and tests, clearer ownership for agents working on separate seams.
-- The answer depends on the owner's intent for the endgame (O236).
+- The answer depends on the owner's intent for the endgame, which he has not ruled: "that's
+  another question that need to be resolved" (O236). The review assumes neither answer. It
+  presents both (the endgame grows inside this app; the endgame is another app using Infinite
+  Flow's generator), gives its recommendation under each, and says where and why the
+  recommendation changes between them.
 
 ## 6. Deliverables
 
@@ -159,12 +196,16 @@ not an answer.
    `spec-writer` from the analysts' results into this folder (proposed:
    `structural-review-report.md`).
 2. **The owner's rulings** on each recommendation (take, defer, drop), logged as decisions.
-3. **Possibly a v3.4 build plan** of the refactors taken, on the build-plan model, if the owner
-   wants them built before v4 (O234).
+3. **A v3.4 build plan of the refactors the owner takes** (D545), written by `spec-writer` on the
+   build-plan model, should any be taken; with none taken, the report and the rulings close the
+   review.
+4. **A release** (proposed, O312): v3.4 is tagged `3.4.0`, since it ships code whatever the
+   review finds (the lexicon page, D393; O245).
 
-**Definition of done (proposed):** every question in §5 has an evidenced answer in the report;
-every recommendation carries a cost, a benefit and a risk; the owner has ruled on each one; any
-build plan that follows is a separate approval.
+**Definition of done (proposed):** every question in §5 has an evidenced answer in the report
+(Q4 under both answers to O236); every recommendation carries a cost, a benefit and a risk; the
+owner has ruled on each one; the refactors he took are built (D545), the build plan approved
+separately (proposed).
 
 ## 7. Who does what (proposed)
 
@@ -174,17 +215,24 @@ build plan that follows is a separate approval.
 - **`web-researcher`**, read-only: tooling. Bundle analysis for Vite, import-rule tools
   (dependency-cruiser, ESLint boundaries plugins), duplication tools (jscpd), and package splitting
   (npm workspaces, TypeScript project references, Vite library mode, Vitest and Playwright across
-  packages). No personal data in any request.
+  packages); Tone.js's size and how it can be loaded (D547). No personal data in any request.
 - **A measurement pass**: what is in the entry chunk needs a build with a bundle analyser. That is
   a run, not a read: a `coding-executor` in a throwaway worktree, with nothing committed (proposed).
+  The analysis tools it installs there (bundle analyser, dependency-cruiser, jscpd) are not
+  dependencies the app adds, so D547 does not bar them (proposed reading, O238). A tool the review
+  recommends keeping, such as an import-rule checker, is a dev dependency the owner rules on with
+  that recommendation.
 - **`documentalist`**: what a split or a move costs the atoms and their links, and whether
   `atd` works across packages.
 - **`principal-advisor`**: weighs the facts, the measurements and the research, and ranks the
   recommendations for Q1–Q4.
 - **`spec-writer`**: writes the report, takes it to the owner, logs the rulings and, if asked,
   writes the build plan.
-- **The owner**: answers O234–O238 first, then rules on each recommendation.
+- **The owner**: answered O234 and O237 and part of O238 on 2026-11-22 (D545–D547); still to
+  answer O236 (before the report's Q4 recommendation is ruled, not before the analysis), O238's
+  remaining parts and O312; then rules on each recommendation.
 
 ## 8. Open
 
-O234–O238, in the [register](../../open-questions.md#v34-structural-review-o234).
+O236, O238 and O312, in the [register](../../open-questions.md#v34-structural-review-o234); the
+lexicon page's order in v3.4, which decides when the measurement pass runs, is O245.

@@ -1,7 +1,9 @@
 # v3.4 — The Lexicon Page
 
-Status: draft v1 (2026-10-21; scoping, D393–D395). What follows from the owner's words is settled
-and cites its decision; the rest is `(proposed)` and waits on O239–O246.
+Status: draft v1.1 (2026-10-21; scoping, D393–D395; 2026-11-22, D548). What follows from the
+owner's words is settled and cites its decision; the rest is `(proposed)` and waits on O239–O246.
+The owner left those to `ux-writer`, who researches the page and proposes its design and an answer
+to each; `spec-writer` takes the proposals to the owner (D548).
 
 The first step of a small side project, added to v3.4 next to the
 [structural review](structural-review.md) and independent of it (D393). The second step, turning
@@ -174,7 +176,8 @@ Read on branch `v3.1-release` at 56aea52, through `codebase-explorer`.
   except that the analysis measures the app with the page in it, the new budget included (O245).
 - **Order** (proposed, O245): its own small part of v3.4, specced, designed and built before the
   analysis's measurement pass. It depends on nothing in v3.2 or v3.3, so the owner may pull it
-  earlier. With it, v3.4 ships code, which bears on O234 (a `3.4.0` tag only if code ships).
+  earlier. With it, v3.4 ships code, which bears on its tag (O312, proposed: `3.4.0`, since code
+  ships).
 - **`spec-writer`**: once O239–O246 are settled, a short master spec part for the page (Part E
   of the [v3 master spec](master-spec.md), proposed) and a build plan of one wave.
 - **`ux-writer`**, first: the page's design in `ui_ux/`, as a screen of its own (proposed
