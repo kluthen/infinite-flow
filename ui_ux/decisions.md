@@ -100,3 +100,13 @@ applies (D119, D135, archived; spec D414).
   symbol is whole, on one baseline, and its full width counts toward fit, so nothing overlaps.
   Shipped since v3.2 ("A m"); chunk 14 left it. A later chunk sets the suffix against the root
   (narrower symbols only ease fit), and the contract then says so. Now in: `todo.md` (Remaining).
+
+## v3.4's lexicon page: the first design draft, 2026-11-22
+
+- **D487 (2026-11-22): the lexicon page's first design is a draft in `drafts/lexicon-page/`, not
+  at the root, until the owner rules on spec O239–O246.** The root holds v3.3 as shipped and
+  v3.4's design has not started there; a draft keeps the v3.3 marks question and the footer
+  change for adoption. Minor choices are settled in it under the standing delegation (ux D119,
+  archived): entries opened in place rather than a list beside a detail pane; letters as links,
+  empty ones grey text; focus on open by pointer type. Proposed answers to O239–O246, with the
+  owner's choices, go to `spec-writer`. Now in: `drafts/lexicon-page/README.md`.

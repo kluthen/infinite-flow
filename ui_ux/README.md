@@ -111,6 +111,9 @@ release's design has not started. See `todo.md` for where the work stands.
   it keeps, tap-in, the count-in, the doodle, the first phrase written from it, and the key and
   mode suggestion. Jam mode's controls, and session mode's rhythm lock and what Vary settings may
   move, are in `screens/phrase-workspace/`.
+- `drafts/` holds designs written ahead of the owner's rulings, not yet buildable and kept out
+  of the root until adopted. `drafts/lexicon-page/` is v3.4's lexicon page: its research, its
+  screen and flow, a prototype, and proposed answers to the spec's open questions.
 - `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
 - `versions/v2/` holds the v2 design as it shipped in version 2.0.0, frozen, with a summary of the
   decisions worth keeping.
