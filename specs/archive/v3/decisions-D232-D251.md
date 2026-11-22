@@ -22,7 +22,7 @@
   change **lasts one phrase**; the next phrase returns to the locked rhythm (spec-writer's
   recommendation, accepted: "that's a good first iteration on mutations"), which keeps D175's
   "a mutation cannot alter the rhythm durably while the lock is set". **Wider mutation options go
-  to v4** ([v4](../../versions/v4/README.md#placed-here-proposed)). Still open: which edits the v3.2
+  to v4** ([v4](../../versions/v5-plus/README.md#moved-from-v4-d553)). Still open: which edits the v3.2
   list offers, and how often a change happens (O157).
 
 - **D233 (2026-10-08): v3.1 drafts approved as proposed (closes O127–O139, O161, O162).** The owner:

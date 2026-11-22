@@ -1,11 +1,17 @@
 # v3.4 — Structural Review
 
-Status: draft v1.2 (2026-11-22; scoping, D389; the lexicon page noted, D393; the owner's first
-rulings, D545–D547). Settled: the milestone's existence and placement (D389), what v3.4 delivers
-(D545), that the review looks at the code as it is and not at v4's scope (D546), and that no
-runtime dependency is added besides Tone.js (D547). The rest is `(proposed)` and waits on O236,
-O238 and O312. The analysis itself has not started; this draft frames the questions it must
-answer and does not answer them.
+Status: draft v1.4 (2026-11-22; scoping, D389; the lexicon page noted, D393; the owner's first
+rulings, D545–D547; the tag, D550; the three-way split as the target, D551; the owner's v4.0
+horizon, D552, and v4.0's scope, D553; v3.4's questions delegated to the wave driver, D556, and
+its rulings on the refactors' bounds and the order, D557, D558; a backend some day, D561).
+Settled: the milestone's existence and placement (D389), what v3.4 delivers (D545), that the
+review looks at the code as it is and not at v4's scope (D546), that no runtime dependency is
+added besides Tone.js (D547), that v3.4 is tagged `3.4.0` (D550), that the owner favours a
+three-way split, which Q4 evaluates (D551), the bounds of a refactor (D557), and that the
+measurement pass runs once the lexicon page is built (D558). No v3.4 question of the review is
+open; O314 holds what the v4.0 horizon (D552) leaves open, O316 the backend. The read-only part of
+the analysis (the code facts and the tooling research) started on 2026-11-22, with no tool
+installed; this draft frames the questions it must answer and does not answer them.
 
 Serves no persona goal directly: it adds no player-facing behaviour. It protects the delivery of
 every later goal on the way to the [endgame](../../vision/endgame.md), without planning for any
@@ -33,8 +39,12 @@ The owner's rulings of 2026-11-22, in his words:
   on v3.4".
 - How far a refactor may go (D547): "the only dependency we should plan for is tone.js otherwise
   we don't have need to add a new one."
-- The endgame as the same app or a separate one (O236, not ruled): "that's another question that
-  need to be resolved."
+- The endgame as the same app or a separate one (D551): "I'm in favor of a 3 way split, this app
+  would remain neutral or student oriented. the lib itself, the game on the other side. The game
+  and this app don't quite share the same personas."
+- This app's horizon and the split's form (D552, a direction): "the last update for this app will
+  most probably be v4.0 with basic accompaniments (if i remember well). We may need to create new
+  repo to enforce this."
 
 ## 2. Where it sits
 
@@ -47,16 +57,16 @@ The owner's rulings of 2026-11-22, in his words:
 - **No new player-facing behaviour.** Nothing a player sees or hears changes because of the
   review. v3.4's one player-facing item, the [lexicon page](lexicon-page.md) (D393, amending
   D389), is a separate small build; the review measures the app with it, its own size budget
-  included (O242, O245).
+  included (D549, D558).
 - **Not a rewrite.** The analysis reads and measures; it changes no code. A refactor it
-  recommends is built only once the owner takes it, as a chunk of the v3.4 build plan (D545).
+  recommends is built only once it is taken (by the wave driver under the owner's delegation,
+  D556), as a chunk of the v3.4 build plan (D545).
   Behaviour-preserving only, guarded by the existing tests, atom IDs unchanged and their links
-  moved with the code (proposed, O238).
+  moved with the code (D557).
 - **No new runtime dependency** besides Tone.js (D547). Tone.js is v4's planned sound library
   ([v4](../v4/README.md)); the review may weigh where it would load and what it would cost the
-  start-up budget, and plans nothing else for it. Whether the ruling also covers the dev-only
-  analysis tools of §7 is O238 (proposed reading: it does not, since they run in a throwaway
-  worktree and nothing is committed).
+  start-up budget, and plans nothing else for it. It does not bar the dev-only analysis tools of
+  §7, which run in a throwaway worktree with nothing committed (D557).
 - **Not a review of v4.** The review looks at the code as it is now: its soundness for expansion
   in general, the entry budget, the refactors worth taking and a split. It does not plan for v4's
   items or review v4's scope (D546).
@@ -158,15 +168,18 @@ not an answer.
 - The measure is settled (D536): all JavaScript loaded at start-up, in minified bytes on disk,
   400 KiB. The review may also report the compressed download and the time until the app is
   usable on the reference phone, as information.
-- Options with their costs (keep 400 KiB; lower it to a number the review proposes). The owner
-  chooses.
+- Options with their costs (keep 400 KiB; lower it to a number the review proposes). The wave
+  driver chooses, under the owner's delegation (D556).
 
 ### Q3. Which refactoring opportunities are worth taking?
 
 - A ranked list, each with its benefit, its cost (size, risk, ATD link churn, test churn) and what
-  it unblocks, within the bounds the owner sets: no new runtime dependency besides Tone.js (D547);
-  behaviour-preserving, atom IDs unchanged, and a time budget he sets once the ranked list is in
-  front of him (proposed, O238).
+  it unblocks, within the bounds set: no new runtime dependency besides Tone.js (D547);
+  behaviour-preserving, atom IDs unchanged (D557).
+- **Which refactors v3.4 builds** (D557): no calendar budget. The v3.4 build plan takes only the
+  refactors the report ranks as preparing the three-way split (D551) or v4's Tone.js seam
+  (D553), or as clearing a friction that recurs at the gates; every other recommendation is
+  deferred and listed in the report.
 - Sources: the code-health backlog (`npm run lint:health`), the files at or near the size and atom
   limits, duplication (measured with a tool, not guessed), and the friction recorded in the v3 wave
   logs (gate failures, "beyond Files" changes, recurring sync notes).
@@ -181,30 +194,67 @@ not an answer.
 - What form: folders with enforced boundaries in one package, npm workspaces in one repo, or
   separate repositories? What each costs in build (Vite, TypeScript project references), tests
   (Vitest, Playwright), ATD (atom links and paths, `atd` tooling, `.atd` config), the boundary
-  checks, the release and the VPS deploy.
-- What a split buys: who would consume a library besides this app (the endgame's game?), faster
-  builds and tests, clearer ownership for agents working on separate seams.
-- The answer depends on the owner's intent for the endgame, which he has not ruled: "that's
-  another question that need to be resolved" (O236). The review assumes neither answer. It
-  presents both (the endgame grows inside this app; the endgame is another app using Infinite
-  Flow's generator), gives its recommendation under each, and says where and why the
-  recommendation changes between them.
+  checks, the release and the VPS deploy. The owner leans to separate repositories: "We may need
+  to create new repo to enforce this" (D552; O314 (c)). The review weighs that form (a library
+  repository, this app's, the game's) against one repository with enforced boundaries, and for
+  separate repositories adds what only they cost: ATD across repositories, versioning and
+  publishing the library, CI in each, the VPS deploy, and agents working across repositories.
+- What a split buys: a second consumer of the library (the game, D551), faster builds and tests,
+  clearer ownership for agents working on separate seams.
+- **The owner's preferred target** (D551): a three-way split. (1) **A library**, the music and
+  generation core; (2) **this app**, Infinite Flow, which stays neutral or student-oriented, with
+  its current personas; (3) **the game** of the [endgame](../../vision/endgame.md), a separate
+  app on the other side of the library, with its own personas. The review evaluates this shape;
+  it does not re-open whether the game is a separate app. Its answer stays evidenced:
+  - which seams are clean enough to become the library now, which need work first, and where
+    the line between the library and this app falls (for example, whether notation, the session
+    engine, audio and MIDI belong to the library, to the app, or to a third shared part);
+  - what the split costs in build, tests, ATD, the boundary checks, the release and the VPS
+    deploy, in each form (above), separate repositories weighed first as the owner's lean;
+  - in what order to get there, and which steps, if any, are worth taking in v3.4 (D545) rather
+    than when the game starts; the report may recommend none now.
+  - The review plans nothing for the game itself (D546): it names only what the library must
+    expose for a second consumer, as far as the endgame's
+    [architectural implications](../../vision/endgame.md#architectural-implications-to-keep-in-mind-observations-not-decisions)
+    already state it.
+- **This app's horizon** (D552, a direction, not a ruling): the owner expects v4.0, with "basic
+  accompaniments", to be this app's last update most probably; v4.0 is now Tone.js and
+  accompaniment with roles (D553). What is left to settle, the items after v4 and the split's
+  form, is O314; the review informs (c) and does not decide (a).
+- **The lexicon API's home** (D555, D559): v3.4 builds the lexicon API as a plain TypeScript
+  module over the page's parser ([lexicon page §9](lexicon-page.md#9-step-two-the-lexicon-api-d555)).
+  Whether it belongs to the library or to this app follows this question's split recommendation
+  (O315); the review says which, with its reason.
+- **A backend some day** (D561, a direction, not scheduled): the owner: "we will need to have a
+  backend at some point anyway", and "currently, the backend is only for lexicon which doesn't
+  contains any user information". The review notes which part of the split such a lexicon
+  backend would sit beside and what the browser-only seams cost it (`verify:boundaries` forbids
+  `fetch(` in `src/`), and recommends nothing for it now (O316).
+- **The personas split** (D551, not revised now): the game and this app "don't quite share the
+  same personas". What the personas and vision documents say today that the split makes out of
+  date, for `spec-writer` to revise later (O313): [personas](../../personas.md) P1's "a player in
+  the game-player sense", an attitude for now with game mechanics in the far future, and finding
+  F3 ("game player" against no scoring); the [far vision](../../vision/far-vision.md)'s "'Game
+  player' is an attitude first" and its endgame horizon; and the [endgame](../../vision/endgame.md),
+  titled "Infinite Flow as a Rhythm RPG", which describes the game as this app dressed as a game,
+  with Infinite Flow as its "music factory". The review's evaluation needs none of this revised
+  first.
 
 ## 6. Deliverables
 
 1. **A written report** with the evidence and ranked recommendations for Q1–Q4, written by
    `spec-writer` from the analysts' results into this folder (proposed:
    `structural-review-report.md`).
-2. **The owner's rulings** on each recommendation (take, defer, drop), logged as decisions.
-3. **A v3.4 build plan of the refactors the owner takes** (D545), written by `spec-writer` on the
+2. **The rulings** on each recommendation (take, defer, drop), the wave driver's under the
+   owner's delegation (D556), logged as decisions.
+3. **A v3.4 build plan of the refactors taken** (D545, within D557), written by `spec-writer` on the
    build-plan model, should any be taken; with none taken, the report and the rulings close the
    review.
-4. **A release** (proposed, O312): v3.4 is tagged `3.4.0`, since it ships code whatever the
-   review finds (the lexicon page, D393; O245).
+4. **A release** (D550): v3.4 is tagged `3.4.0`.
 
 **Definition of done (proposed):** every question in §5 has an evidenced answer in the report
-(Q4 under both answers to O236); every recommendation carries a cost, a benefit and a risk; the
-owner has ruled on each one; the refactors he took are built (D545), the build plan approved
+(Q4 for the three-way split, D551); every recommendation carries a cost, a benefit and a risk; the
+driver has ruled on each one (D556); the refactors taken are built (D545), the build plan approved
 separately (proposed).
 
 ## 7. Who does what (proposed)
@@ -217,22 +267,26 @@ separately (proposed).
   (npm workspaces, TypeScript project references, Vite library mode, Vitest and Playwright across
   packages); Tone.js's size and how it can be loaded (D547). No personal data in any request.
 - **A measurement pass**: what is in the entry chunk needs a build with a bundle analyser. That is
-  a run, not a read: a `coding-executor` in a throwaway worktree, with nothing committed (proposed).
-  The analysis tools it installs there (bundle analyser, dependency-cruiser, jscpd) are not
-  dependencies the app adds, so D547 does not bar them (proposed reading, O238). A tool the review
-  recommends keeping, such as an import-rule checker, is a dev dependency the owner rules on with
-  that recommendation.
+  a run, not a read: a `coding-executor` in a throwaway worktree, with nothing committed (D557),
+  once the lexicon page is built so the page is measured with the app (D558). The analysis tools
+  it installs there (bundle analyser, dependency-cruiser or similar, jscpd, knip) are not
+  dependencies the app adds (D557). Keeping one in the repository, such as an import-rule checker,
+  is decided with that recommendation in the report (D557).
 - **`documentalist`**: what a split or a move costs the atoms and their links, and whether
   `atd` works across packages.
 - **`principal-advisor`**: weighs the facts, the measurements and the research, and ranks the
   recommendations for Q1–Q4.
-- **`spec-writer`**: writes the report, takes it to the owner, logs the rulings and, if asked,
+- **`spec-writer`**: writes the report, takes it to the wave driver (D556), logs the rulings and
   writes the build plan.
-- **The owner**: answered O234 and O237 and part of O238 on 2026-11-22 (D545–D547); still to
-  answer O236 (before the report's Q4 recommendation is ruled, not before the analysis), O238's
-  remaining parts and O312; then rules on each recommendation.
+- **The owner**: answered O234 and O237 and part of O238 on 2026-11-22 (D545–D547), then O312
+  (D550) and O236 (D551); then left the resolution of v3.4 to the wave driver: "you're free to
+  handle the resolution of v3.4, i'll bow to your suggestions" (D556). The driver ruled O238 (D557)
+  and O245 (D558) and rules on each of the report's recommendations under D556; the owner keeps
+  the tag's go, the pushes he asks for and the VPS deploys.
 
 ## 8. Open
 
-O236, O238 and O312, in the [register](../../open-questions.md#v34-structural-review-o234); the
-lexicon page's order in v3.4, which decides when the measurement pass runs, is O245.
+None of the review's own questions is open ([register](../../open-questions.md#v34-structural-review-o234)).
+Bearing on Q4, after v3.4 or alongside it: the personas and vision revision the three-way split
+calls for is O313; what the owner's v4.0 horizon leaves to settle is O314; the lexicon API's home
+is O315; the backend is O316.

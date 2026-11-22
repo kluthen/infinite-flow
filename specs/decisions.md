@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.141
+Status: draft v2.143
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -52,7 +52,9 @@ provisional until the owner's checks after the `3.2.0` tag); D521–D523 (v3.2's
 its contract as built and its go, whose checks after the tag are still open); D537–D542 (the
 figure restated from M3's deciding runs, the endings-on-the-seventh ruling kept for a later
 version, and v3.3's release before its hand and listening checks, which follow the `3.3.0` tag);
-and D544 (v3.3 released and archived); D545–D548 (the owner's first rulings on v3.4). D289 and D525 are unused; so are the IDs within the
+and D544 (v3.3 released and archived); D545–D561 (the owner's first rulings on v3.4, his direction for the split and this app's
+horizon, v4.0's scope, the lexicon API in v3.4, and the wave driver's rulings under his
+delegation of v3.4). D289 and D525 are unused; so are the IDs within the
 archived range D407–D509 that its archive notice lists.
 
 ## Decision Log
@@ -131,7 +133,7 @@ archived range D407–D509 that its archive notice lists.
 - **D395 (2026-10-21): the lexicon becomes "a proper API" in v4 or v5, the version decided
   later.** The owner: "For later (v4 or v5 depending on how they goes) we will turn this in a
   proper API." Not specced. Now in:
-  [roadmap](roadmap.md#planned-v4-or-v5--the-lexicon-api).
+  [roadmap](roadmap.md#the-lexicon-api--in-v34-d555).
 
 - **D406 (2026-10-21): Jam's settings, its controls taken from the doodle, its tempo and its
   rhythm lock are settled as proposed, provisionally until the owner's checks.** The owner: "your
@@ -235,3 +237,76 @@ archived range D407–D509 that its archive notice lists.
   research." `ux-writer` researches and proposes the design and an answer to each; `spec-writer`
   checks them against the spec, personas and lexicon and takes them to the owner. Now in:
   [register](open-questions.md#v34-lexicon-page-o239), [lexicon page](versions/v3/lexicon-page.md).
+- **D549 (2026-11-22): the lexicon page's design is validated, and `ux-writer`'s answers to
+  O239–O244 and O246 are taken as written; closes those seven.** The owner: "OK i validate lexicon
+  view." This includes the four choices put to him: the 16 Internal entries hidden (318 shown);
+  Back closes the page through one `#lexicon` history entry, the app's first use of the address
+  bar; the "Mentioned in other words" group over popup lines from three characters, definitions
+  never searched; app meanings shown as written. O245 stays open. Now in:
+  [lexicon page §4](versions/v3/lexicon-page.md#4-the-page-d549), [§5](versions/v3/lexicon-page.md#5-the-single-source-d394).
+- **D550 (2026-11-22): v3.4 is released with a tag, `3.4.0`; closes O312.** The owner: "v3.4 will
+  be tagged." Now in: [structural review §6](versions/v3/structural-review.md#6-deliverables),
+  [lexicon page §8](versions/v3/lexicon-page.md#8-its-place-in-v34-and-who-does-what).
+- **D551 (2026-11-22): the endgame's game is a separate app; the owner favours a three-way split
+  (a library, this app, the game); closes O236.** The owner: "I'm in favor of a 3 way split, this
+  app would remain neutral or student oriented. the lib itself, the game on the other side. The
+  game and this app don't quite share the same personas." The review's Q4 evaluates this shape;
+  the personas and vision are revised later (O313). Now in:
+  [structural review, Q4](versions/v3/structural-review.md#q4-should-the-app-split-into-several-libraries-or-packages).
+- **D552 (2026-11-22): the owner's direction, not a ruling: v4.0 is most probably this app's last
+  update, perhaps in a repository of its own.** The owner: "the last update for this app will most
+  probably be v4.0 with basic accompaniments (if i remember well). We may need to create new repo
+  to enforce this." Hedged, so nothing is re-scoped: what it leaves to settle is O314, and the
+  roadmap and the version folders carry a dated note only. Now in:
+  [roadmap](roadmap.md), [versions](versions/README.md),
+  [structural review, Q4](versions/v3/structural-review.md#q4-should-the-app-split-into-several-libraries-or-packages).
+- **D553 (2026-11-22): v4.0 is Tone.js and accompaniment with roles; v4's other items move to
+  v5.** The owner: "ok move rhythm ratio and editors, etc to v5. keep tonejs and accompaniment
+  with roles on v4.0"; asked, he confirmed "etc" as the wider rhythm mutation options (D232) and
+  the whole-file seed. O100–O102 follow the rhythm ratios to v5. His direction, not ruled: "v5+
+  will probably be moved to the game app instead of here, we will have to review this later"
+  (O314). Answers O314 (b). Now in: [v4](versions/v4/README.md#settled-direction),
+  [v5+](versions/v5-plus/README.md#moved-from-v4-d553), [roadmap](roadmap.md#3-v4--accompaniment-with-roles).
+- **D554 (2026-11-22): microphone input is out of scope in any version.** The owner: "microphone
+  input is still out whichever the version." Now in:
+  [v5+](versions/v5-plus/README.md#out-of-scope-microphone-input-d554).
+- **D555 (2026-11-22): the lexicon API moves into v3.4, as step two of the lexicon page.** The
+  owner: "lexicon is for this version." Replaces D395's "v4 or v5". Where it lives once the
+  split is built is for the structural review's Q4 (O315). Now in:
+  [lexicon page §9](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555),
+  [roadmap](roadmap.md#the-lexicon-api--in-v34-d555).
+- **D556 (2026-11-22): the owner delegates the resolution of v3.4's questions to the wave
+  driver.** The owner: "you're free to handle the resolution of v3.4, i'll bow to your
+  suggestions." The driver rules v3.4's open questions and the report's recommendations; the
+  owner keeps the tag's go, the pushes he asks for and the VPS deploys. D557–D560 are the
+  driver's first rulings under it. Now in:
+  [structural review §7](versions/v3/structural-review.md#7-who-does-what-proposed).
+- **D557 (2026-11-22, the driver under D556): the bounds of a refactor and the analysis tools;
+  closes O238.** Behaviour-preserving only, guarded by the existing tests; atom IDs unchanged,
+  links moved with the code; no calendar budget: the build plan takes only refactors ranked as
+  preparing the three-way split or v4's Tone.js seam, or clearing a recurring gate friction, the
+  rest deferred and listed; dev-only analysis tools run in a throwaway worktree, nothing
+  committed, keeping one decided with its recommendation. Now in:
+  [structural review §3](versions/v3/structural-review.md#3-what-it-is-not),
+  [Q3](versions/v3/structural-review.md#q3-which-refactoring-opportunities-are-worth-taking),
+  [§7](versions/v3/structural-review.md#7-who-does-what-proposed).
+- **D558 (2026-11-22, the driver under D556): the lexicon page and API are their own small part
+  of v3.4, and the measurement pass runs after the page is built; closes O245.** So the page is
+  measured with the app. Now in:
+  [lexicon page §8](versions/v3/lexicon-page.md#8-its-place-in-v34-and-who-does-what).
+- **D559 (2026-11-22, the driver under D556): the lexicon API is a plain TypeScript module over
+  the page's parser, with a typed read interface, no server and no network; narrows O315 to its
+  home.** This app is its first caller; it holds no browser-only assumption and its entry shape
+  is written as a language-neutral contract, so a backend (D561) could serve it later without
+  its callers changing. Stands unless the structural review's report finds a reason against it.
+  Now in: [lexicon page §9](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555).
+- **D560 (2026-11-22, the driver under D556): the two lexicon follow-ups are taken, as a
+  docs-only lexicon pass inside v3.4 before the page's build.** Player-worthy words moved out of
+  Internal, and the eight longest app meanings shortened, by the lexicon's owners as they decide.
+  Now in: [lexicon page §10](versions/v3/lexicon-page.md#10-the-lexicon-pass-d560).
+- **D561 (2026-11-22): the owner's direction, not scheduled: a backend some day, for the lexicon
+  only, in Go.** The owner: "we will need to have a backend at some point anyway"; "currently,
+  the backend is only for lexicon which doesn't contains any user information so that's super
+  ok"; "i'm usually more of a go team than whateverjs for the backend." No rule changes now; the
+  browser-only rule's wording and the rest are O316. Now in:
+  [lexicon page §9](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555).

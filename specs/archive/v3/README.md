@@ -335,7 +335,7 @@ re-scope draft [jam-mode.md](../../versions/v3/jam-mode.md), left in place.
 
 | Decision(s) | Subject | Now lives in |
 | --- | --- | --- |
-| D232 | The rhythm lock is strict; allowed rhythm changes, each lasting one phrase; wider options in v4 | [C7.1][pc71], [C7.2][pc72], [C7.4][pc74]; wider options: [v4](../../versions/v4/README.md#placed-here-proposed) |
+| D232 | The rhythm lock is strict; allowed rhythm changes, each lasting one phrase; wider options in v4 | [C7.1][pc71], [C7.2][pc72], [C7.4][pc74]; wider options: [v4](../../versions/v5-plus/README.md#moved-from-v4-d553) |
 | D233 | v3.1 drafts approved: seven figures and four levels, eight built-in presets, the figure step; ornaments later | [B2][b2], [B5][b5], [B6][b6], [B8.1][b81], [B9][b9] |
 | D234 | v3.2 drafts approved: the path to phrase 1, the doodle's two forms, the suggestion, matching by shape, planner authority | [C5][pc5] (C5.2–C5.10, C5.14), [C6][pc6], [C11][pc11]; the Jam switch: superseded by D400 ([C5.1][pc51]) |
 | D235 | Gaps settled while consolidating Part B v1.0, and its terms | [B4][b4], [B6.3][b63], [B6.4][b64], [B6.6][b66], [B7][b7], [B8.1][b81], [B9][b9], [B11][b11] |

@@ -1,6 +1,6 @@
 # Far Vision
 
-Status: draft v0.4
+Status: draft v0.5 (2026-11-22: microphone input ruled out, D554; v5+ probably the game's, D553)
 
 This is the long-term direction of Infinite Flow and the principles every version follows. It will
 reshape the vision atom and the product foundation when the vision is consolidated. The
@@ -15,7 +15,8 @@ are in the [2026-09-25 archive](../archive/2026-09-25-personas-and-vision/decisi
 Infinite Flow starts as a practice partner that proposes phrases to play. v1 generates one finite
 four-bar phrase. It grows into an endless, rolling flow the player plays along with (v2). Then it
 continues the player's own material (v3). It gains accompanying voices with roles (v4), and a
-library of seeds and microphone input (v5+). In the far future it becomes the **music factory
+library of seeds (v5+, which will probably move to the game's app, D553); microphone input is out
+in any version (D554). In the far future it becomes the **music factory
 behind a rhythm RPG** in the style of _Final Fantasy Theatrhythm_: phrases to complete, companions
 and antagonists as system voices, characters as restrictive musical presets, and fights as
 exchanges of short phrases. The user's first preview of it listed team and character management,
