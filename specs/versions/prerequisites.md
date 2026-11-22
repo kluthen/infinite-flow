@@ -1,6 +1,6 @@
 # Prerequisites — Building Blocks Later Versions Need
 
-Status: draft v0.1 (2026-09-25; the chord-fit check's placement updated 2026-10-03, D174; the check dropped 2026-10-07, D211). Preliminary analysis, not a decision document.
+Status: draft v0.1 (2026-09-25; the chord-fit check's placement updated 2026-10-03, D174; the check dropped 2026-10-07, D211; microphone input out of scope in any version, 2026-11-22, D554). Preliminary analysis, not a decision document.
 
 The user asked for "preliminary work of seeking what's necessary to build prior some items
 proposed for later version to occur". This document maps each planned capability (v1.0 through
@@ -45,7 +45,7 @@ Reading rules:
 | Accompaniment with roles (D70)                                                                             | v4      | K, B, A, D                                            | No: the timeline is monophonic                                                                  | L                                          |
 | Whole-file seed import (D65)                                                                               | v4      | G (import), A, M                                      | No: 4/4-only meter, sixteenth-grid-only time policy                                             | L                                          |
 | Library, snippet as seed (D65, D68)                                                                        | v5+     | G, F, A, E                                            | No                                                                                              | L                                          |
-| Microphone input (D55)                                                                                     | v5+     | C generalized to an input-source port, H (input kind) | No                                                                                              | L                                          |
+| Microphone input (D55; out of scope in any version, D554)                                                  | Out     | C generalized to an input-source port, H (input kind) | No                                                                                              | L                                          |
 | Character presets: scale restriction, banned pitches, ornament preferences, gimmicks, register personality | Endgame | I, J, M, A                                            | Partly: control bundles only                                                                    | L                                          |
 | Multiple system voices                                                                                     | Endgame | K, B                                                  | No                                                                                              | L                                          |
 | Turn-based phrase exchanges                                                                                | Endgame | A, K, M (short phrases)                               | No: phrase length is fixed at 4                                                                 | L                                          |
@@ -139,7 +139,8 @@ session inactivity timing, adaptive tempo, v4 accompaniment and endgame voices.
 - Note-on and note-off events normalized to concert MIDI pitch through the instrument's
   transposition.
 - Timestamps on clock B.
-- Kept behind an **input-source port**, so the microphone (v5+) can plug in later. (proposed)
+- Kept behind an **input-source port**, so another input could plug in later. (proposed; the
+  microphone it was meant for is out of scope in any version, D554)
 
 **Needed by:** acknowledgement, the chord-fit check, the session start and 30 s timeout,
 adaptive tempo, review of played notes and the v3 seed.
@@ -252,7 +253,8 @@ standalone phrases.**
 - an identity and a label;
 - the concert range and the register-window policy;
 - the transposition (chromatic plus diatonic);
-- later, the input kind (MIDI or microphone, for D55).
+- later, the input kind (MIDI or microphone, for D55; the microphone is now out of scope in any
+  version, D554).
 
 **Current state.**
 
@@ -269,7 +271,7 @@ standalone phrases.**
     instrument" (v3).
 
 **Needed by:** v1.0 (ISS-003), v2 MIDI matching (played pitch ↔ expected pitch through
-transposition), v3 "my instrument", and v5+ microphone input.
+transposition) and v3 "my instrument" (v5+ microphone input is out of scope in any version, D554).
 
 **Earliest version.** v1.0.
 
@@ -463,7 +465,8 @@ produced a result.
 - **The continuation interface itself (A).** It should wait for O10 and the v2 spec. Only the
   cheap question in item 3 is worth asking early.
 - **The display-effect half of L.** It is endgame-only.
-- **Input-kind or microphone abstraction on templates.** It is v5+. The v2 MIDI layer should
+- **Input-kind or microphone abstraction on templates.** Microphone input is out of scope in any
+  version (D554), so no such abstraction is planned. The v2 MIDI layer should
   still sit behind a port (C), which costs nothing extra.
 
 ## 4. Constraint conflicts

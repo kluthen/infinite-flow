@@ -1,6 +1,6 @@
-# Infinite Flow v3 — Master Spec: v3.0 Storage, v3.1 Generation Choices, v3.2 Jam and v3.3 Richer Chords
+# Infinite Flow v3 — Master Spec: v3.0 Storage, v3.1 Generation Choices, v3.2 Jam, v3.3 Richer Chords and v3.4 the Lexicon Page
 
-Status: this file holds four parts.
+Status: this file holds five parts.
 
 - **[Part A — v3.0](#part-a--v30), storage:** master spec v1.24 (2026-10-16), approved by the
   product owner, built and released as version 3.0.0 on 2026-10-16 (spec D348); the contract for
@@ -129,6 +129,13 @@ Status: this file holds four parts.
   records the release, no behaviour changed: built and released as version 3.3.0 on 2026-11-18
   (spec D544), the contract for the running code with Parts A, B and C; its hand and listening
   checks follow the tag.
+- **[Part E — v3.4](#part-e--v34), the lexicon page and the lexicon API:** master spec v1.0
+  (2026-11-22), consolidated from the [lexicon page draft](lexicon-page.md) (v2.3) and the v3.4
+  design at the `ui_ux/` root; **approved by the wave driver on 2026-11-22 under the owner's
+  delegation of v3.4** (spec D556, D564). Its code facts were read again on `main` 828ab396
+  (§E13). It changes no STABLE guarantee (§E12). Its sections are numbered E1 to E17. v3.4's other
+  item, the structural review, is not in Part E: its report and any refactors it takes are
+  specified and planned on their own ([structural review](structural-review.md)).
 
 Part A's history follows.
 
@@ -5931,3 +5938,561 @@ sharing. Whoever has the page open can do everything the app offers, the Seventh
 included. Both levels, session mode's and Jam's, join the settings kept for "whoever uses this
 browser profile on this device"; Delete everything resets both to Off. Nothing new leaves the
 device.
+
+## Part E — v3.4
+
+The lexicon page and the lexicon API. Its sections are numbered E1 to E17; a cross-reference to
+one carries a section sign (§E5), never to be read as a decisions-log entry. Master spec v1.0
+(2026-11-22), consolidated from the [lexicon page draft](lexicon-page.md) (v2.3, spec D393–D395,
+D549, D555, D558–D561) and the v3.4 design at the `ui_ux/` root (the lexicon page's screen, the
+"look up a word" flow and the footer's button; ux D488–D491), with the wave driver's rulings on
+the page's orientation (spec D562) and on the build failing for an empty or malformed lexicon
+(spec D563). **Approved by the wave driver on 2026-11-22** (spec D564), under the owner's
+delegation of v3.4's resolution (spec D556: "you're free to handle the resolution of v3.4, i'll bow
+to your suggestions"); the owner keeps the `3.4.0` tag's go. The page's behaviour is the design the
+owner validated on 2026-11-22 ("OK i validate lexicon view", spec D549). v3.4 is built on v3.3 as
+released (version 3.3.0, Parts A to D). Where this part and the draft differ, this part wins.
+
+Music terms are explained the first time they appear; the project's
+[lexicon](../../../docs/music/lexicon.md) has one entry per term, and the page this part specifies
+shows that file to the player.
+
+## E1. Core concept
+
+The project keeps one list of music words, the lexicon (`docs/music/lexicon.md`), written for a
+reader with no music theory. Until v3.4 nothing in the app shows it. A player who meets a word in
+the controls, a preset or the review (Leapiness, Figure level,
+[enclosure](../../../docs/music/lexicon.md#enclosure)) has to leave the app to learn what it means.
+
+v3.4 gives the player one new thing, and gives the project one new building block:
+
+- **The lexicon page.** A "Lexicon" button in the footer opens a full-window page listing every
+  lexicon word meant for the player, A to Z, with a simple search. Each word shows its plain line
+  at once and its fuller explanation on demand. It works offline, with the keyboard alone, and in
+  any orientation.
+- **The lexicon API.** The code that reads the lexicon is a plain TypeScript module with a typed
+  read interface and a written, language-neutral description of an entry's shape. The page is its
+  first caller; word popups in other screens, or a backend some day, can use the same reading
+  without a second parser.
+
+In the owner's words (2026-10-21): "we have a lexicon that sits mostly idle here, have a side page
+to our app reference all words in there, it must allow alphabetical exploration, simple search.
+Note it must use existing md files and not duplicate information. [...] we will turn this in a
+proper API." The second step joined v3.4 on 2026-11-22: "lexicon is for this version" (spec D555).
+
+**One source.** The page shows the lexicon file and nothing else. An edit to the file shows on the
+page at the next build with no other change; no list is copied by hand, and no generated copy is
+committed (§E5).
+
+The guiding principle is unchanged: the app acknowledges and encourages, and never grades. The page
+teaches by being there when the player is curious; it changes no setting, plays nothing and saves
+nothing.
+
+## E2. Scope
+
+### In v3.4
+
+- The lexicon page: every shown entry (every entry outside the lexicon's Internal group), A to Z
+  and by search, each with its word, group, plain line and other names, and on demand its
+  definition, its meaning in this app and its related words (§E6).
+- Opening it from the footer between sessions, closing it by Close, Escape or the browser's Back
+  button, through one history entry with the address `#lexicon` (§E7, §E8).
+- The single source: a build step that reads the lexicon file when the app is built, a check that
+  proves an edit shows with no other change, and a build that fails on an empty or malformed
+  lexicon (§E5).
+- The lexicon API: the parser, a typed read interface, and the entry's shape written as a JSON
+  Schema (§E9).
+- The page's size, offline and first-load rules (§E10).
+- A docs-only pass on the lexicon before the page's build, made by the lexicon's owners: words a
+  player would like moved out of the Internal group, and the longest app meanings shortened
+  (spec D560). Done on 2026-11-22 (§E5).
+
+### Out of v3.4
+
+- Editing entries in the app.
+- Word popups, or links from other screens to the page. Not built; the API makes them cheap later.
+- Browsing by group (the lexicon's twelve themes).
+- An address for one entry or for a search: the page has one address, `#lexicon`.
+- Searching the definitions and the app meanings.
+- A server, a backend or any network request (§E9); where the API lives once the three-way split is
+  built (§E16).
+- **Unchanged, permanently out:** any grading, scoring or ranking of the player; accounts, sharing
+  or any server-side state.
+
+## E3. Personas and goals served
+
+The personas are Part A's (§3) and [personas.md](../../personas.md): **P1 — the Curious
+Improviser** (primary), a player who can already play and is a beginner at improvising; **P2 —
+the Speed Builder** (secondary); **P3 — the Fledgling Composer** (secondary).
+
+| Goal                                                                                                                                                     | Served by v3.4               | How                                                                                                                                                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **P1.G1 — Vocabulary by exposure.** Play whatever gets generated and feel how these ideas sound; get to know the possibilities rather than study theory. | **Partly, between sessions** | A word met in a control, a preset or the review can be looked up in the app, offline, in plain words, without leaving for a theory course: the plain line first, more only on demand. |
+
+P2 and P3 use the page the same way; it serves no goal of theirs that P1.G1 does not already name.
+No persona goal is added.
+
+**Tensions settled for this scope.** A curious player wants every word; a beginner is put off by
+walls of text. Settled by showing the plain line first and the rest behind "More", by hiding the
+Internal words (project terms, never meant for the player), and by the lexicon pass, which
+shortened the longest app meanings. The player's hands are on the instrument during a session
+(Part A §3, context of use), so the page is for between sessions: it cannot open during one, and
+no note starts a session while it is open.
+
+## E4. Words used in this part
+
+One term per concept, used the same way everywhere in Part E and by `ux-writer`'s design.
+
+- **The lexicon**: the file `docs/music/lexicon.md`, the project's one list of music words.
+- **Entry**: one word in the lexicon: a `###` heading followed by its fields (§E5).
+- **Group**: one of the lexicon's themed `##` sections (Basics, Harmony, App controls...), in the
+  order the file gives them. **The Internal group** is the one headed "Internal (no popup)", whose
+  entries the lexicon says are never shown in the interface.
+- **Shown entry**: an entry outside the Internal group. The page shows exactly these.
+- **Word**: an entry's heading, as the reader sees it. **Other names**: its `aliases` field.
+  **Plain line**: its `popup` field. **App meaning**: its `in_infinite_flow` field, shown under
+  "In Infinite Flow". **Related words**: its `related` field, the ids of other entries.
+- **Doubled word**: a word that heads more than one shown entry (Tempo the music word and Tempo
+  the app control).
+- **The page**: the lexicon page. **The design**: its design in `ui_ux/`
+  ([screen](../../../ui_ux/screens/lexicon-page/handoff.md),
+  [flow](../../../ui_ux/flows/look-up-a-word/handoff.md), the footer in the
+  [phrase workspace](../../../ui_ux/screens/phrase-workspace/handoff.md)).
+- **The build step**: the part of the app's build that reads the lexicon file and hands the page its
+  entries (§E5).
+- **The lexicon API**, or the lexicon module: the parser, the entry's type and the read interface
+  (§E9). **The entry contract**: the shape of one shown entry as the API hands it out, written as a
+  JSON Schema.
+- **The page's history entry**: the one browser-history entry the page adds, address `#lexicon`.
+  **The bare address**: the app's address with no `#` part.
+
+## E5. The single source
+
+### E5.1 What the lexicon holds
+
+The lexicon's own template, at the top of the file, says what an entry is: a `###` heading (the
+word) followed by exactly these fields, one line each, in this order: `id` (a unique short name,
+such as `half-step`), `aliases` (other names, or `none`), `popup` (one or two plain sentences, at
+most 200 characters), `definition` (a short plain paragraph), `in_infinite_flow` (what the word
+means in this app; left out when the standard meaning has nothing to add), `related` (ids of other
+entries) and `sources` (references used to check the facts). Ids are unique across the file and
+every related id names an entry of the file. Entries are alphabetical inside their group only, so
+an A to Z view needs one sort over all of them.
+
+At the time of writing (lexicon v1.9, after the lexicon pass of 2026-11-22, spec D560): 334 entries
+in 12 groups, 11 of them Internal, so 323 shown; the file meets every rule of its template. These
+counts change with the file: the page counts its entries at each build and nothing in the code or
+the tests may hold them as constants. Four words are doubled today (Contour, Register, Syncopation,
+Tempo, each once as the music word and once as the app control); no shown word starts with U, X, Y
+or Z; one word has an accent, "Compás". Formatting inside fields is light: bold, emphasis and code
+marks, no links.
+
+### E5.2 How the text reaches the page
+
+- **A build step.** When the app is built, a build step (a Vite plugin) reads
+  `docs/music/lexicon.md`, runs the parser over it (§E9) and hands the page the shown entries as a
+  module that exists only in the build. Nothing is written into `src/`, `public/` or `tests/`, and
+  nothing generated is committed. The rejected alternative, importing the raw file and parsing it
+  in the browser, would ship the whole file, Internal entries and sources included.
+- **What it hands the page:** the shown entries only, in the lexicon's order (group by group, then
+  as the file lists them), each in the entry contract's shape (§E9.2): its id, word, other names,
+  plain line, definition, app meaning (or none), related words, its group's name and its group's
+  place in the lexicon's order. A related id naming an Internal entry is left out of the list. The
+  `sources` field never reaches the app. Whether a word is doubled is worked out on the page, from
+  the words; the search reads only the words, the other names and the plain lines, so no full-text
+  index ships.
+- **The text as written.** Every field keeps the lexicon's words exactly, inline marks included;
+  the page shows them as §E6 says.
+
+### E5.3 The build fails on an empty or malformed lexicon
+
+The build stops, naming the entry's word and its line in the file, when (spec D563):
+
+- a shown entry or an Internal one lacks a required field: `id`, `popup` or `definition`;
+- an entry's lines are not the template's fields in the template's order: a field the template does
+  not name, a field given twice, fields out of order, or a line under the entry that is not a field;
+- an `id` is used twice;
+- a `related` id names no entry of the file;
+- the lexicon has no shown entry at all (the build then names the file).
+
+These are the rules the template already states, so the file as it stands passes them. They mean a
+lexicon edit can break the app's build: whoever edits the lexicon runs `npm run quality`, as with
+any change. The page is therefore never empty. The 200-character limit on the plain line is a
+writing rule the lexicon's owners keep; the build does not check it.
+
+### E5.4 The check that an edit shows with no other change
+
+- The parser's tests run on the real lexicon file and compare their result against the file
+  itself, never against a stored copy: every `###` entry outside the Internal group is in the
+  result with the same id and fields, and no Internal entry is. No snapshot of the lexicon's content
+  is stored anywhere.
+- A test feeds the build step a small sample lexicon, made up for the test, and checks that adding
+  an entry to it adds that entry to the output with nothing else changed, and that moving an entry
+  out of its Internal group puts it on the page.
+- A check fails when any file committed under `src/`, `public/` or `tests/` holds the plain line of
+  a real lexicon entry: the sample lexicon's entries are made up. None does today.
+
+## E6. The page
+
+The behaviour the design supports, settled by the owner's validation of the design (spec D549).
+Layout, the letter row, the classes, focus order and the states are the design's.
+
+- **The entries shown:** every shown entry; the page states how many it holds ("323 words" at the
+  time of writing, "1 word" for one).
+- **One entry shows** its word; its group's name, as a small label, on every entry; its plain line,
+  the first thing read under the word; and its other names ("Also called ..."), so a word found by
+  another name shows why. Behind a "More" control on the entry, opened in place: its definition; its
+  app meaning under the heading "In Infinite Flow", when it has one; its related words, as links
+  that move to those entries on the page, in the lexicon's order. Several entries may be open at
+  once. The id serves only as the entry's address on the page; the sources are not shown.
+- **Text as written.** Every field shows the lexicon's words as written, app meanings included,
+  with no rewording and no part hidden by a rule. A line that reads badly is reworded in the lexicon
+  itself, and the next build shows it. Inline marks: `**bold**` shows as bold, `_emphasis_` as
+  italic, a `` `code` `` mark shows its words as plain text with the marks dropped, and any other
+  Markdown shows as written. The page builds these as text, never by reading the lexicon's text as
+  HTML.
+- **Doubled words.** Wherever a doubled word is named apart from its own entry (today only in a
+  related link) it carries its group's name in brackets: "Tempo (App controls)". Two entries with
+  the same word sort in the lexicon's group order, so the music word comes first today. A word that
+  becomes doubled later needs no extra text.
+- **A to Z.** One sort over every shown entry, by the word, ignoring case and accents ("Compás"
+  sorts under C, among the Cs), then by the group order for a doubled word, then in the lexicon's
+  order. A word sorts under the letter its first character reduces to with its accent removed. The
+  letters A to Z are always listed; a letter with no word (U, X, Y and Z today) is shown but cannot
+  be chosen. A "#" comes first only when some word starts with no letter (none does today).
+  Choosing a letter moves to it. Each entry is reachable on the page by its id, which is stable,
+  unlike its word.
+- **Search.**
+  - It matches the word and each of its other names: a query matches when its text appears anywhere
+    in them, ignoring case and accents, with hyphens, apostrophes and repeated spaces counted as one
+    space, and the inline marks dropped. "compas" finds Compás, "semitone" finds Half step, "b flat"
+    finds B-flat instrument.
+  - Matches are ranked best first, in five tiers, A to Z inside each: the word equals the query;
+    another name equals it; the word starts with it; a word inside the word or another name starts
+    with it ("step" finds Half step and Whole step); it appears anywhere else.
+  - Results update on every change to the field, with no wait and no submit. When exactly one entry
+    matches, it opens. An empty result says so and offers to clear the search. Clearing the search
+    returns to A to Z. Choosing a letter while searching clears the search and moves to the letter.
+  - **"Mentioned in other words":** from three characters on, a separate group under the matches
+    lists every other entry whose plain line has a word starting with the query.
+  - The definitions and the app meanings are never searched.
+- **The page changes nothing.** It changes no setting, phrase or kept data, and saves nothing on
+  the device. Reopened in the same visit, it comes back as it was left (the same search, the same
+  open entries, the same place); a reload starts it fresh.
+
+## E7. Opening and closing
+
+- **The button.** A "Lexicon" button in the footer, after "Your data", opens the page. It is
+  enabled at Idle, in either mode (session mode or Jam), and in the review mode, and disabled while
+  a session runs, count-in included. It does not wait for the session controller to load: the page
+  does not need it.
+- **The page.** A full-window page over the workspace, built from the sheet parts; the workspace
+  beneath cannot be reached while it shows. It cannot open during a session.
+- **Loading.** The first opening in a visit loads the page's part of the app (its code and its
+  words). Meanwhile the button shows that it is loading and everything else stays usable; the page
+  opens once it has loaded, and later openings show it at once.
+  - **A session started while it loads** (by Start or the starting note) cancels the opening: the
+    page never opens over a session.
+  - **A failed load** opens nothing and shows a notice in the notice row, after Jam's own: "The
+    lexicon couldn't open because part of the app didn't load. Check that you're online, then try
+    again.", with Try again (a press of Lexicon, which loads again) and Dismiss. It is never
+    error-toned.
+- **Closing.** Close, Escape (outside a search field holding text, where Escape first empties the
+  field) or the browser's Back button closes the page and gives the focus back to the footer's
+  Lexicon button. The workspace is as it was.
+- **An open sheet for MIDI.** While the page is open it counts as an open sheet: no MIDI note starts
+  a session, a count-in or a Jam, and the starting note's line under the staff is hidden, as under a
+  sheet; both come back as they were once the page closes.
+- **Any orientation** (spec D562). The landscape-only rule covers the phrase workspace only. The
+  lexicon page is reading, not playing: it works in landscape and in portrait, and the rotate-device
+  notice, which replaces the workspace in a portrait-shaped view below the desktop layout's width,
+  does not replace the page. Closed in such a view, the page gives way to the rotate-device notice
+  as the workspace would.
+- **Offline.** The page and its words work offline, like the rest of the app: they are part of the
+  app's own files.
+- **Keyboard and screen readers.** Everything on the page can be done with the keyboard alone; the
+  search field has a visible label; the page passes the app's accessibility checks.
+
+## E8. The browser's history and the address
+
+The page is the app's first use of the address bar and of the browser's history. It has one
+history entry of its own, address `#lexicon`, and no other.
+
+- **Opening adds the entry.** Every opening of the page adds one history entry, marked as the
+  page's own, with the address `#lexicon`, on top of the workspace's bare address. So Back from the
+  page always lands on the workspace and never leaves the app.
+- **Back** closes the page as Close does.
+- **Close and Escape step back** over the page's entry, so after the page closes the browser's
+  history holds no lexicon visit, and Back next goes where it would have gone before the page
+  opened.
+- **Forward** onto the page's entry after it closed opens the page on that entry, as the button
+  would but adding no entry. Wherever the button is disabled (a session, count-in included),
+  Forward onto it opens nothing and the address is replaced with the bare one.
+- **A load or a reload at `#lexicon`** replaces the address with the bare one, opens the workspace,
+  then, once the saved settings are read and the workspace is drawn, opens the page as a press of
+  Lexicon does, adding its entry.
+- **`#lexicon` reached any other way** while the app is open, such as typed into the address bar,
+  is handled as a load at `#lexicon`: the address is replaced with the bare one and the page opens
+  as a press of Lexicon does, adding its own entry; during a session only the address is replaced.
+- **Jumps inside the page** (a letter, a related word) move within the page without navigating:
+  their link's own navigation is cancelled, so they add no history entry and leave the address at
+  `#lexicon`. Their links keep their targets, so they are still links to assistive technology.
+- Any other address part is left alone, as today.
+
+## E9. The lexicon API
+
+### E9.1 What it is
+
+- **A plain TypeScript module** in this repository (spec D559): the build step's parser, text in
+  and entries out, with no Vite and no browser code in it, and a **typed read interface** over the
+  parsed shown entries. The page reads the lexicon through that interface, so the page and the API
+  read the lexicon the same way and no second parser exists.
+- **The read interface** is built from a list of entries handed to it, never by reading a file or
+  the network itself: it gives the shown entries in the lexicon's order, finds one entry by its id
+  (or says there is none), and gives the groups' names in the lexicon's order. A to Z and search
+  are the page's own behaviour (§E6), not the API's.
+- **No server and no network.** Everything stays in the browser: the browser-only rule and "nothing
+  is sent" hold as they are. The module adds no runtime dependency (spec D547).
+- **No browser-only assumption inside it.** The module uses no DOM, no browser storage, no
+  Vite-only import (no build-only module, no raw-file import, no build-time variables) and no
+  network, so that a backend could serve the same data later without its callers changing (spec
+  D561). A check enforces it.
+- **Its first caller is this app:** the page now, the word popups when they are built.
+
+### E9.2 The entry contract
+
+One shown entry, as the API hands it out and as a service in another language could serve it later
+(spec D561), written down as a JSON Schema (draft 2020-12) beside the module, version 1. Every
+field is required; no other field is allowed.
+
+| Field        | Type            | Holds                                                                          |
+| ------------ | --------------- | ------------------------------------------------------------------------------ |
+| `id`         | string          | The entry's id, unique among the entries.                                      |
+| `word`       | string          | The entry's heading, as written.                                               |
+| `otherNames` | list of strings | Its other names, in the lexicon's order; empty when the lexicon says `none`.   |
+| `popup`      | string          | Its plain line, as written.                                                    |
+| `definition` | string          | Its definition, as written.                                                    |
+| `appMeaning` | string or null  | Its app meaning, as written; null when the entry has none.                     |
+| `related`    | list of strings | The ids of its related entries that are shown entries, in the lexicon's order. |
+| `group`      | string          | Its group's name, as the lexicon heads it.                                     |
+| `groupOrder` | integer, from 1 | Its group's place in the lexicon's order.                                      |
+
+Text fields hold the lexicon's light inline marks as written (§E6 says how the page shows them). The
+TypeScript type of an entry and the schema say the same thing, and a test proves the parser's
+output on the real lexicon conforms to the schema.
+
+### E9.3 Where it lives later
+
+Until the three-way split (a library, this app, the game; spec D551) is built, the module lives in
+this repository. Whether it then moves to the library's repository follows the structural review's
+split recommendation; that is open (§E16).
+
+## E10. Size, offline and the first load
+
+- **Its own file and budget.** The parsed words go into a built file of their own, with a named
+  budget of 448 KiB (458,752 bytes), room for the lexicon to grow by half; the page's code keeps the
+  100 KiB limit every other file has. The owner accepted the extra download (spec D549): about
+  300 KB, roughly 85 to 90 KB compressed, which the service worker fetches for every visitor when
+  the app installs or updates, whether or not the page is ever opened. The structural review counts
+  it with the rest.
+- **Not in the first load.** The start-up code (the entry file and every file it imports
+  statically) stays within its 400 KiB budget (spec D536; 387,038 bytes at the `3.3.0` release) and
+  gains only the footer's button and the page's host: opening, closing, loading and the history
+  entry. No module of the page itself, of the lexicon API, and none of the lexicon's words, is in
+  the first load; a build check enforces it, as it does for Jam's code.
+- **Offline.** The words' file and the page's code are precached with every other built file, so
+  the page works offline with no extra work.
+- **Styles.** The page uses only the classes and tokens of `src/styles/`. Its own classes, the
+  `lexicon-*` classes the design specifies from existing tokens, are added to
+  `src/styles/components.css` by `ux-writer` before the page is built; no token is added.
+
+## E11. For the interface design
+
+The design is done and validated (spec D549; ux D488–D491): the
+[lexicon page](../../../ui_ux/screens/lexicon-page/handoff.md), the
+[look up a word](../../../ui_ux/flows/look-up-a-word/handoff.md) flow, the footer's button and the
+load-failure notice in the [phrase workspace](../../../ui_ux/screens/phrase-workspace/handoff.md),
+and its prototype `ui_ux/mockups/lexicon-page/index.html`. Two points Part E states that the flow
+should say too, for `ux-writer` at the token-source pass: the Lexicon button does not wait for the
+session controller to load (§E7), and `#lexicon` reached by a typed address is handled as a load at
+`#lexicon` (§E8).
+
+## E12. What v3.4's lexicon part changes in earlier guarantees and atoms
+
+- **No STABLE guarantee changes**, and the declared-intent contract (19.0.0 at the `3.3.0` release)
+  takes no MAJOR bump for this part. Nothing new leaves the device; no setting or record is added.
+- **New intent**, for `documentalist`: one BUSINESS atom (the player can look up every shown lexicon
+  word, A to Z and by search, offline, between sessions), and ARCHITECTURE atoms captured before
+  the code: the single-source rule and its build step (the lexicon file is the only source, read at
+  build time, its words loaded on demand and never in the first load; §E5, §E10); the page's
+  `#lexicon` history entry (§E8); the API's read contract (the read interface and the entry
+  contract, §E9). The parser's tests, the size budget and the checks are tooling and get no atom.
+- **Wording to check, for `documentalist`:** the starting-note atom names the sheets under which no
+  note starts a session ("neither the connection sheet nor the stale-phrase prompt"); the lexicon
+  page joins them (§E7). The landscape-only rule (the first release master spec's workspace
+  requirement, its lines on portrait views, and the atoms `req_landscape_phrase_workspace` and
+  `rule_session_ends_on_portrait_view`) speaks of the phrase workspace; §E7's orientation rule
+  leaves it true, and the check confirms no wording reads as covering the lexicon page.
+- **Unchanged:** `req_browser_only_first_release` (everything runs in the browser, with no server)
+  holds for the page and the API.
+
+## E13. Existing code and risks
+
+Read again by `spec-writer` on `main` 828ab396 on 2026-11-22, replacing the draft's reading of
+v3.1 code (the draft's §6).
+
+- **No router and no history use.** `src/App.vue` renders `WorkspaceShell.vue` only. Nothing in
+  `src/` calls `pushState` or `replaceState`, listens for `popstate` or `hashchange`, or reads
+  `location.hash`; the app reads only `location.search` (the prewarm and pre-generation policies) and
+  calls `location.reload`. The page's history entry is the app's first.
+- **The sheet pattern** (`src/components/workspace/use-your-data.ts`): `open()` loads the sheet's
+  code by `import()` once, keeps it, clears the memo when the import fails, and throws if called
+  during a session, every opener being disabled then; `close()` hides it. The sheets render after
+  the workspace's `<main class="layout-app">` in `WorkspaceShell.vue`. Jam's loader
+  (`load-jam-mode.ts`) shows how a retry must work: Chrome never fetches a failed import's address
+  again, so Try again asks for a fresh one. Jam's code is kept out of the first load by an ESLint
+  import rule and by `verify:boundaries` reading the build's module graph
+  (`scripts/module-graph-plugin.mjs`).
+- **Open sheets and the starting note.** `WorkspaceShell.vue`'s `anySheetOpen` (the connection, My
+  instrument, Your data and preset sheets) feeds Jam's start conditions, and its
+  `reportSheetsOpen` emits the open-sheet flag that `App.vue` hands to the session controller, whose
+  MIDI side reads it for the starting note. The page joins both.
+- **The footer** (`LayoutFooter.vue`) holds the "kept on this device only" note and Your data,
+  disabled while a session runs or before the controller has loaded. The Jam load-failure notice
+  lives in `AppNoticeRow.vue`; the lexicon's sits after it.
+- **Risk: `WorkspaceShell.vue` is at its size limit.** It counts 595 effective lines; the project's
+  code-health check fails a file over 600 (`CODING_RULE.md`). The page's host must live in its own
+  module, and the shell may first need an existing block moved out along a seam, behaviour
+  unchanged.
+- **The portrait guard is CSS only:** below the desktop layout's width in a portrait view,
+  `components.css` hides `.layout-app` and shows the rotate-device notice. A page rendered beside
+  the workspace, as the sheets are, is not hidden by it, so §E7's orientation rule needs no change
+  to the guard; the footer's button, inside `.layout-app`, is hidden in portrait.
+- **No network in `src/`:** `npm run verify:boundaries` (`scripts/verify-boundaries.mjs`) rejects
+  `fetch(`, `XMLHttpRequest`, `WebSocket` and the rest in `src/`, and on-device storage outside
+  `src/storage/`. The page cannot download the lexicon, so its words must be in a built file.
+- **Offline:** the service worker precaches every built `js`, `css` and font file (`vite.config.ts`,
+  `globPatterns`), and `verify:boundaries` fails when one is missing. Workbox's default per-file
+  precache limit, 2 MiB, is above the words' budget.
+- **Size budgets** (`verify-boundaries.mjs`): all JavaScript loaded at start-up, 400 KiB (spec D536;
+  387,038 bytes at the `3.3.0` release, so about 22 KB of room); the generation worker 170 KiB;
+  the VexFlow engraver 800 KiB; any other file 100 KiB. The entry file is found from the module
+  graph, so a file's name cannot be mistaken for it. The words' file needs a name of its own for its
+  budget.
+- **Three build configurations:** the app's (`vite.config.ts`), the workspace harness's
+  (`vite.workspace-harness.config.ts`, its own plugins, no service worker), where most end-to-end
+  tests run, and the unit tests' (`vitest.config.ts`). The build step must be in each one whose build
+  or tests reach the page's words.
+- **Styles:** `src/styles/theme.css` (the tokens) and `components.css`, both `ux-writer`'s; no
+  `lexicon-*` class exists yet.
+- **Tests:** unit tests in `tests/unit/` (Vitest, jsdom); end-to-end tests in `tests/e2e/`
+  (Playwright, Chromium), where a new spec file must be added to the explicit `test:e2e` list in
+  `package.json` or it never runs; accessibility in `tests/e2e/accessibility.spec.ts`; offline in
+  `tests/e2e/release/offline-and-fonts.spec.ts`.
+- **The lexicon today** meets its template's rules (read on 2026-11-22, v1.8 on `main` and v1.9 after
+  the lexicon pass); nothing reads it; no Markdown parser is a dependency, and the format is regular
+  enough for a small parser of its own; no file under `src/`, `public/` or `tests/` holds an entry's
+  plain line.
+- **Declared intent:** no atom covers the lexicon. The atoms §E12 names are REVIEW, none STABLE.
+
+## E14. Architectural decisions and their reasons
+
+- **Build-time parsing into a build-only module** (spec D549): the page ships only the fields it
+  shows, the lexicon file stays the one source, and nothing generated is committed. Parsing the raw
+  file in the browser was rejected: it ships the Internal entries and the sources too.
+- **A parser of its own, no Markdown library:** the template is regular, the owner allows no new
+  runtime dependency besides Tone.js (spec D547), and a strict parser can fail the build on exactly
+  the template's rules (§E5.3), so a broken entry is found at the build, never silently dropped.
+- **The build fails rather than shipping a gap** (spec D563): an empty or malformed lexicon is a
+  defect of the source, and crashing early is the project's rule; the page then never needs an empty
+  state.
+- **The API is the page's parser plus a read interface over handed-in entries** (spec D559): one
+  reading for every caller; no file or network access inside it, so the same interface can sit over
+  entries a backend serves later (spec D561). A to Z and search stay with the page, the only caller
+  that needs them.
+- **A JSON Schema for the entry:** a plain, language-neutral description a service in another
+  language can serve against, checked against the real output so it cannot drift from the code.
+- **One history entry, stepped back over on Close** (spec D549, ux D491): Back, the gesture players
+  know, closes the page, and closing never leaves a stale lexicon visit in the history; an address
+  for one entry or one search was left out to keep the history simple.
+- **Its own file, out of the first load** (spec D549, D536): the start-up budget has about 22 KB of
+  room, the words about 300 KB; loading them on demand keeps start-up as it is, at the price of an
+  offline download every visitor pays.
+- **Any orientation** (spec D562): the landscape rule exists because a phrase cannot be read in a
+  narrow portrait view; a list of words can.
+
+## E15. Definition of done
+
+v3.4's lexicon part is done when every item holds, each verified by a named test or a recorded hand
+check.
+
+1. **Every shown entry is on the page**, under its letter, found by its word and by each of its other
+   names; no Internal entry and no `sources` text reaches the app; the page's count equals the
+   number of shown entries in the file.
+2. **One entry** shows its word, group, plain line and other names, and behind More its definition,
+   its app meaning under "In Infinite Flow" when it has one, and its related words as links to shown
+   entries only; every field as written, with bold, emphasis and code marks shown as §E6 says and
+   never read as HTML.
+3. **A to Z:** the order ignores case and accents; a doubled word carries its group in a related link
+   and sorts in group order; a letter with no word cannot be chosen; "#" shows only when a word
+   starts with no letter.
+4. **Search** matches as §E6 says (case, accents, hyphens, apostrophes and spaces), in its five tiers;
+   one match opens; an empty result says so; clearing returns to A to Z; a letter clears the search;
+   "Mentioned in other words" lists plain-line matches from three characters; definitions and app
+   meanings are never searched.
+5. **One source:** the parser's tests compare against the real file, never a stored copy; the sample
+   lexicon test shows an added entry, and an entry moved out of Internal, reaching the output with
+   nothing else changed; the committed-copy check passes and fails on a planted copy.
+6. **The build fails** on each rule of §E5.3, naming the entry's word and line (or the file, for no
+   shown entry).
+7. **Opening and closing:** the footer's Lexicon, after Your data, is disabled during a session,
+   count-in included, and enabled at Idle in either mode and in the review mode, before the
+   controller has loaded included; the first opening loads; a session started during the load
+   cancels it; a failed load shows the notice, and Try again loads again; Close, Escape and Back give
+   the focus back to the button; reopened, the page is as it was left; nothing is saved on the
+   device.
+8. **No MIDI start while open:** no note starts a session, a count-in or a Jam, and the starting
+   note's line is hidden, coming back when the page closes.
+9. **The history:** each opening adds one `#lexicon` entry; Back closes the page; Close and Escape
+   leave no lexicon visit in the history; Forward reopens the page, except during a session, where
+   the address goes back to the bare one; a load at `#lexicon` and a typed `#lexicon` open the page
+   with the address replaced first; letter and related-word jumps add no history entry.
+10. **Any orientation:** the page opens, reads and closes in a portrait view below the desktop
+    layout's width, and the rotate-device notice shows only once it closes.
+11. **Offline:** after one visit online, the page and its words open with the network off.
+12. **Keyboard and accessibility:** everything is reachable and operable with the keyboard alone, in
+    the design's focus order; the search field has a visible label; the app's accessibility checks
+    pass on the page in its states.
+13. **Size and first load:** the words' file is within its 448 KiB budget and every other new file
+    within 100 KiB; the start-up JavaScript is within 400 KiB; no module of the page or the API, and
+    none of the words, is in the first load (build check); the figures are recorded at the wave gate.
+14. **Styles:** the page uses only classes and tokens of `src/styles/`; the `lexicon-*` classes come
+    from `components.css`.
+15. **The API:** the page reads the lexicon only through the read interface; the module holds no
+    DOM, browser storage, Vite-only import or network use (check); the entry contract's JSON Schema
+    is beside the module, and the parser's output on the real lexicon conforms to it; no runtime
+    dependency is added.
+16. **Everything else is unchanged:** v3.3's suites pass with no test removed; `npm run quality`
+    passes.
+17. **Declared intent:** the new BUSINESS and ARCHITECTURE atoms of §E12 are recorded and linked, the
+    starting-note atom names the page, and no STABLE wording changed.
+18. **The owner has seen the page** before the `3.4.0` tag's go (a recorded hand check).
+
+## E16. Deferred and open
+
+- **Open, not before v3.4's build:** where the lexicon API lives once the three-way split is built,
+  in the library's repository or in this app's; it follows the structural review's split
+  recommendation. Until then it lives here.
+- **After v3.4, a direction, not scheduled:** a backend some day for the lexicon only, in Go by the
+  owner's preference, sending nothing about the player. It would be the app's first network request,
+  which the browser-only rule and the no-`fetch` check forbid today; their wording is revised when a
+  backend is specced, not now.
+- **Deferred:** word popups and links from other screens to the page; browsing by group; an address
+  for one entry or one search; searching definitions and app meanings; editing entries in the app.
+- **Measured at the build, not open:** the words' file size and the start-up figure (§E10).
+
+## E17. Access model
+
+Unchanged from Part A §15: exactly one local user, with no accounts, roles, permissions or sharing.
+Whoever has the page open can open the lexicon page and read every shown entry. The page reads only
+the app's own built files, changes nothing and saves nothing, and nothing leaves the device.
