@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.95
+Status: draft v0.97
 
 ## Status Snapshot
 
@@ -72,23 +72,34 @@ Status: draft v0.95
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
   - **v3.4:** a structural review before v4, with no player-facing change: soundness for
     expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
-    milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), the analysis
-    not started. It delivers the report and the refactors the owner takes, as a v3.4 build plan
-    (D545); it looks at the code as it is, not at v4's scope (D546); no runtime dependency is
-    added besides Tone.js (D547). v3.4 also builds a **lexicon page**, its one player-facing item (D393, amending
-    D389): every lexicon word, A–Z and by search, read from `docs/music/lexicon.md` alone (D394);
-    [scoping draft](versions/v3/lexicon-page.md), a separate draft because it is built, not
-    analysed. Its second step, the lexicon as an API, is planned for v4 or v5 (D395,
-    [roadmap](roadmap.md#planned-v4-or-v5--the-lexicon-api)).
+    milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), its
+    read-only analysis started 2026-11-22. It delivers the report and the refactors the owner
+    takes, as a v3.4 build plan (D545); it looks at the code as it is, not at v4's scope (D546);
+    no runtime dependency is added besides Tone.js (D547). v3.4 is tagged `3.4.0` (D550). v3.4
+    also builds a **lexicon page**, its one player-facing item (D393, amending D389): every
+    lexicon word, A–Z and by search, read from `docs/music/lexicon.md` alone (D394); its design
+    and behaviour validated by the owner (D549; [draft](versions/v3/lexicon-page.md)), its
+    master spec part not yet written. Its second step, the lexicon as an API, moved into v3.4
+    (D555, [roadmap](roadmap.md#the-lexicon-api--in-v34-d555)): a plain TypeScript module over
+    the page's parser, no server (D559). The owner left the resolution of v3.4 to the wave driver
+    (D556), who ruled the refactors' bounds (D557), the order (D558) and a docs-only lexicon pass
+    before the page's build (D560).
+  - **The owner's direction** (2026-11-22): the endgame's game is a separate app, with a
+    three-way split (a library, this app, the game; D551) the structural review evaluates; v4.0
+    is most probably this app's last update (D552, a direction) and holds Tone.js and
+    accompaniment with roles, v4's other items moving to v5 (D553); microphone input is out
+    (D554); v5+ will probably move to the game's app (O314); a lexicon-only backend in Go some
+    day (D561, O316).
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
-    likely to move or go. Rhythm ratios and the rhythm editor are v4; the chord-fit check, review
-    tooling and the two controller-connection ideas are dropped (D211).
-- **Open:** 26 questions: O48 and O49 (later and governance), O100–O102 (v4 rhythm), O115 and
+    likely to move or go. Rhythm ratios and the rhythm editor are v5 (D553); the chord-fit check,
+    review tooling and the two controller-connection ideas are dropped (D211).
+- **Open:** 19 questions: O48 and O49 (later and governance), O100–O102 (v5 rhythm), O115 and
   O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
   (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
-  reopening fails), O230 (a stale replay-key wording in a STABLE atom), O236, O238 and O312 (v3.4's
-  structural review: the endgame as the same app or another, what else bounds a refactor, the
-  tag), O239–O246 (v3.4's lexicon page, with `ux-writer` first, D548), O267 (a doodle note played before the
+  reopening fails), O230 (a stale replay-key wording in a STABLE atom), O315 (where v3.4's
+  lexicon API lives once the split is built), O313, O314 and O316 (the personas once the game is
+  separate; what the v4.0 horizon leaves to settle; the lexicon backend), O267 (a doodle note
+  played before the
   doodle's first barline, v3.2 wave 6), O269 (a legato doodle read as Heavily varied, at v3.2
   H5) and O271 (a note start off the doodle's grid, at v3.2 H4); the last three after the `3.2.0`
   tag (D521). No v3.3 question is open. See the [register](open-questions.md).

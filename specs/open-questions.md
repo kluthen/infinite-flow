@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.93
+Status: draft v0.95
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -37,12 +37,13 @@ on the questions closed during v3.3 (O165–O175, O235 and O310, with O310's own
 [archive/v3/open-questions-history-v3.3.md](archive/v3/open-questions-history-v3.3.md); each
 archive's README says where each answer now lives.
 
-Open on 2026-11-22: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
+Open on 2026-11-22: O48 and O49 (later and governance), O100–O102 (v5 rhythm ratios and editor),
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352), O236, O238 and O312 (v3.4's structural
-review, D389, D545–D547), O239–O246 (v3.4's lexicon page, D393, D548), and O267, O269 and O271 (v3.2's build,
+D351; numbered O177 on branch `plan-migration`, D352), O315 (v3.4's lexicon API: where it lives,
+D555, D559), O313, O314 and O316 (the three-way split, this app's horizon and a lexicon backend,
+D551–D553, D561), and O267, O269 and O271 (v3.2's build,
 answered by the checks that follow the `3.2.0` tag, D521). v3.3 is released (D544) and none of its
 questions is open. O270, O272–O289, O292–O305 and O307–O309 were never issued; the IDs
 reserved for v3.0's waves and left unused stay unused, and O177 stays unused. O311, reserved
@@ -59,9 +60,9 @@ Registered from the v2 highlights proposal and
 
 ## v3 rhythm candidates (O100+)
 
-Since D211, the rhythm ratios and the rhythm editor, with the Custom note density, are v4: O100,
-O101 and O102 are v4 questions. The rhythm lock is v3.2, designed with Jam; O103 was closed by D232. The
-section keeps its name so its links hold.
+Since D211, the rhythm ratios and the rhythm editor, with the Custom note density, left v3 for v4,
+and since D553 they are v5: O100, O101 and O102 are v5 questions. The rhythm lock is v3.2,
+designed with Jam; O103 was closed by D232. The section keeps its name so its links hold.
 
 Opened 2026-10-03 by `spec-writer` while recording the owner's v3 candidates in the rhythm
 category (D175): rhythm ratios, the rhythm editor and the rhythm lock, all reached through a new
@@ -72,17 +73,17 @@ anything planned. Lexicon terms: [note density](../docs/music/lexicon.md#note-de
 [silence density](../docs/music/lexicon.md#silence-density),
 [unsupported rhythm combination](../docs/music/lexicon.md#unsupported-rhythm-combination).
 
-- **O100 - Custom and the other rhythm settings** _(D175; v4 since D211)_: under Custom, do
+- **O100 - Custom and the other rhythm settings** _(D175; v4 since D211, v5 since D553)_: under Custom, do
   rhythmic variety, syncopation and silence density still apply on top of the custom rhythm,
   apply only to the ratios, or step aside? Which combinations does the rhythm grammar block under
   Custom, since the blocked list is keyed today by a note-density value? And does the narrow-window
   rule (no `Sixteenth` below the tablet-landscape width, D146) cap the sixteenth-note ratio there?
 - **O101 - What the rhythm ratios hold, and what a mutation does to them** _(D175, D176; v4
-  since D211)_: which note values get a ratio (whole, half, quarter, eighth and sixteenth notes;
+  since D211, v5 since D553)_: which note values get a ratio (whole, half, quarter, eighth and sixteenth notes;
   dotted values; rests, or are rests silence density's job), and how finely a ratio is set? What
   is one step of a mutation on the ratios, by analogy with "one grade" (D103)? And can a mutation
   move note density out of Custom, back to a fixed value (D175 only forbids moving into it)?
-- **O102 - The rhythm editor's source and limits** _(D175; v4 since D211)_: "one of the bars" of
+- **O102 - The rhythm editor's source and limits** _(D175; v4 since D211, v5 since D553)_: "one of the bars" of
   which phrase, the one on screen at Idle or one in the last session's review? Is a rhythm one
   bar long, reused for all four bars, or four bars long? Must a rhythm entered by hand or copied
   pass the rhythm grammar's feasibility rules (every measure keeps a note sounding on beat 1 or
@@ -207,80 +208,81 @@ D536 closed O235; the note recording it is in the
 [v3.3 archive](archive/v3/open-questions-history-v3.3.md). On 2026-11-22 D545 closed O234 (v3.4
 delivers the report and the refactors the owner takes, as a v3.4 build plan) and left its tag
 sub-question open as O312; D546 closed O237 (the review looks at the code as it is, not at v4's
-scope); D547 ruled the dependency part of O238 and narrowed it.
-
-- **O236 - Is the endgame the same app, or another app using Infinite Flow's generator?**
-  _(D389; [endgame](vision/endgame.md))_: the endgame calls Infinite Flow "the music factory" of a
-  game. If the game is a separate app, a generation-core library has a second consumer and a split
-  pays off; if it grows inside this app, a split mostly buys clearer boundaries. Not ruled: asked
-  on 2026-11-22, the owner sees it as a separate question still to resolve ("that's another
-  question that need to be resolved"). Until it is, the review assumes neither answer: its Q4
-  presents both, with its recommendation under each and where it changes
-  ([structural review, Q4](versions/v3/structural-review.md#q4-should-the-app-split-into-several-libraries-or-packages)).
-  It needs an answer before the owner rules on the Q4 recommendation, not before the analysis.
-- **O238 - How far a recommended refactor may go** _(D389, D547)_: D547 settled the dependency
-  part (no new runtime dependency besides Tone.js). Still open, none of it answered on 2026-11-22:
-  (a) behaviour-preserving only, guarded by the existing tests? (b) may a refactor move code across
-  many files, moving atom links with it, atom IDs unchanged? (c) is there a time budget before v4?
-  (d) does D547 cover the dev-only tools the analysis runs (bundle analyser, dependency-cruiser,
-  jscpd)? Proposed: (a) yes; (b) yes, atom IDs unchanged and links moved with the code; (c) the
-  owner sets it once the ranked list is in front of him; (d) no: D547 is about dependencies the app
-  adds, and the analysis installs its tools in a throwaway worktree with nothing committed
-  ([structural review §7](versions/v3/structural-review.md#7-who-does-what-proposed)); a tool the
-  review recommends keeping is a dev dependency the owner rules on with that recommendation.
-- **O312 - Is v3.4 tagged?** _(D545; split from O234)_: a release with its own tag, or a milestone
-  with no tag? Not answered on 2026-11-22. Proposed, the rule O234 proposed: a `3.4.0` tag only if
-  code ships; since the lexicon page ships code whatever the review finds (D393, O245), v3.4 is
-  tagged `3.4.0`.
+scope); D547 ruled the dependency part of O238 and narrowed it. The same day D550 closed O312
+(v3.4 is tagged `3.4.0`) and D551 closed O236 (the game is a separate app: the owner favours a
+three-way split, library, this app and the game). The owner then left the resolution of v3.4 to
+the wave driver (D556), whose D557 closed O238 (the bounds of a refactor, and the analysis
+tools). None of the review's own questions is open.
 
 ## v3.4 lexicon page (O239+)
 
 Opened 2026-10-21 by `spec-writer` with the lexicon page (D393). The scoping draft is
 [lexicon-page.md](versions/v3/lexicon-page.md); none of these blocks v3.1, v3.2 or v3.3, nor the
-structural review. None is ruled: on 2026-11-22 the owner left them to `ux-writer`, who
-researches the page and proposes its design and an answer to each; `spec-writer` checks the
-proposals against the spec, the personas and the lexicon and takes them to the owner (D548).
+structural review. On 2026-11-22 the owner left them to `ux-writer`, who researched the page and
+proposed its design and an answer to each (D548); the same day the owner validated the design,
+and D549 closed O239–O244 and O246 with `ux-writer`'s answers as written. The lexicon API joined
+v3.4 the same day (D555). Under the owner's delegation (D556), the wave driver's D558 closed O245
+(the page is built before the measurement pass) and D559 settled the API's shape, leaving O315
+open.
 
-- **O239 - Are the Internal entries shown?** _(D393)_: the owner asks for "all words"; the lexicon
-  says its 16 "Internal (no popup)" entries (forced bend, grammar and others) are "never shown in
-  the UI". Proposed: leave them out, as the lexicon says; the page states how many words it holds.
-- **O240 - What one entry shows** _(D393)_: proposed: the word, its other names, the popup line
-  first, the definition, the app meaning under a plain heading ("In Infinite Flow") when there is
-  one, the related words as links within the page, and the group as a small label, which tells
-  apart the four words listed twice (Contour, Register, Syncopation, Tempo: the music word and the
-  app control). Not shown: the `id` and the `sources`.
-- **O241 - App meanings written for developers** _(D393, D394)_: 59 app meanings cite spec
-  decisions ("spec decision D214"), about 45 describe things planned or not built, a few name code
-  files. The page may not keep a second, cleaned copy (D394). Show them as written, hide parts by
-  a rule, or reword the lexicon itself? Proposed: show them as written in step one; the owner reads
-  them on the built page, and if they jar, a docs-only pass rewords those lines in the lexicon.
-- **O242 - How the text reaches the page, and its download cost** _(D394, D359, D536)_: the app
-  may not download anything while running (`verify:boundaries` forbids `fetch`), so the text goes
-  into a built file; the service worker then downloads it for every visitor at install or update,
-  page opened or not: about 300 KB, roughly 85–90 KB compressed. That is three times the 100 KiB
-  any extra file may weigh, so it needs its own budget, and a budget that a lexicon edit can
-  overflow makes a docs edit fail the build. Proposed: parse at build time and ship only the shown
-  fields (Internal entries left out), in a file of its own with a named budget of 448 KiB, room for
-  the lexicon to grow by half; the owner accepts the extra download; the structural review counts
-  it with the rest (its Q2).
-- **O243 - How the page is reached, and what kind of page it is** _(D393)_: the app has no router
-  and no second page; everything else is the workspace and its sheets. Proposed: a "Lexicon" link
-  in the footer beside "Your data", opening a full-screen view built like a sheet (loaded on
-  first use, closed by a Close button or Escape, the focus back on the link), not available while
-  a session runs, with no web address of its own. The alternative is the app's first real page,
-  with its own address (for example `#/lexicon`) and the browser's Back button: a new pattern,
-  more work and more design.
-- **O244 - What the search matches** _(D393)_: proposed: the word and its other names, anywhere in
-  them, ignoring case and accents ("compas" finds Compás, "semitone" finds Half step), results as
-  the player types. The popup line is not searched in step one: searching it finds many words
-  that merely mention the term. Should it be?
-- **O245 - Its order in v3.4** _(D389, D393, D545)_: proposed: its own small part of v3.4 (master
-  spec Part E, one design, a one-wave build plan of two chunks), built before the structural
-  review's measurement pass so the review measures the app with it. It depends on nothing in v3.2
-  or v3.3, so the owner may pull it earlier. v3.4 then ships code, which bears on its tag (O312).
-- **O246 - Which goal the page serves** _(D393; [personas](personas.md))_: proposed: P1's G1
-  ("get to know the possibilities rather than study theory"), between sessions: a word met in the
-  controls, a preset or the review can be looked up without going online. No new persona goal.
+- **O315 - Where the lexicon API lives once the split is built** _(D555, D559, D551;
+  [lexicon page §9](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555))_: D559 settled
+  what it is (a plain TypeScript module over the page's parser, a typed read interface, no
+  server, this app its first caller) and left only its home: the library's repository or this
+  app's. It follows the structural review's split recommendation
+  ([Q4](versions/v3/structural-review.md#q4-should-the-app-split-into-several-libraries-or-packages));
+  until then it lives in this repository. Needed before the split is built, not before v3.4's
+  API chunk.
+
+## After v3.4: the split and this app's horizon (O313+)
+
+## After v3.4: the split and this app's horizon (O313+)
+
+Opened 2026-11-22 by `spec-writer` with the owner's three-way split (D551), his v4.0 horizon for
+this app (D552, D553) and a lexicon backend some day (D561). None blocks v3.4's lexicon page or
+the structural review's analysis.
+
+- **O313 - The personas and vision once the game is a separate app** _(D551;
+  [personas](personas.md), [far vision](vision/far-vision.md), [endgame](vision/endgame.md))_:
+  the owner: "The game and this app don't quite share the same personas." This app stays
+  neutral or student-oriented with P1–P3; the game will have personas of its own, not written.
+  Out of date once the split is built: P1's "a player in the game-player sense" (an attitude for
+  now, game mechanics in the far future) and finding F3; the far vision's "'Game player' is an
+  attitude first" and its endgame horizon; the endgame document's framing of the game as this app
+  dressed as a game. Proposed: revise them when the game is first specced (or when O314 (a) is
+  settled, whichever comes first), not now; the structural review needs none of it
+  ([structural review, Q4](versions/v3/structural-review.md#q4-should-the-app-split-into-several-libraries-or-packages)).
+- **O314 - What the v4.0 horizon leaves to settle** _(D552; [roadmap](roadmap.md),
+  [versions](versions/README.md))_: the owner: "the last update for this app will most probably be
+  v4.0 with basic accompaniments (if i remember well). We may need to create new repo to enforce
+  this." A direction, not a ruling. (b), what v4 keeps, is answered: v4.0 is Tone.js and
+  accompaniment with roles, and its other items move to v5 (D553); microphone input is out of
+  scope in any version (D554); the lexicon API is v3.4's (D555). Still open:
+  (a) **This app's scope after v4.0:** the owner: "Note that v5+ will probably be moved to the
+  game app instead of here, we will have to review this later" (a direction, D553). What becomes
+  of each item placed after v4: v5's library and snippet seeds, the staff-only session view, and
+  the items moved from v4 (rhythm ratios and the rhythm editor with O100–O102, wider rhythm
+  mutations, the whole-file seed); cross-device review (no earlier than v6); style packs; v3.x's
+  learning from positive signals; the Firefox and Safari widening: to the game, to the library,
+  stay here, or drop? (c) **The split's form:** the owner leans to separate repositories (a
+  library repository, this app's, the game's) rather than one repository with enforced
+  boundaries; the structural review's Q4 weighs both, with what separate repositories alone cost
+  (ATD across repositories, versioning and publishing the library, CI, the VPS deploy, agents
+  working across repositories). Proposed: (c) is ruled with the review's Q4 recommendation, under
+  D556; (a) when the owner reviews v5+ ("we will have to review this later"), at the latest
+  before v4's master spec.
+- **O316 - The lexicon backend: when, in which repository, and the browser-only rule** _(D561;
+  [lexicon page §9](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555))_: the owner:
+  "we will need to have a backend at some point anyway"; "currently, the backend is only for
+  lexicon which doesn't contains any user information so that's super ok"; Go preferred to a
+  JavaScript runtime. Not scheduled. Scope as foreseen: the lexicon only, read-only, no user
+  data, so nothing about the player is sent. To settle when it is specced: when, and what for
+  (the app's word popups, the game, outside tools); which repository of the three-way split holds
+  it; the wording of `req_browser_only_first_release` and the "nothing is sent" promise, and
+  `verify:boundaries`' ban on `fetch(` in `src/`, since a lexicon request is still the app's
+  first network request; whether the app keeps working offline with its built-in copy; the
+  privacy notice's wording (no user data, but a request the VPS sees). No rule changes before
+  then.
 
 ## v3.2 build (O267+)
 

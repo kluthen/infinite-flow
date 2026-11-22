@@ -11,7 +11,10 @@ version 3.3.0 on 2026-11-18 (tag `v3.3.0` at b2a0e3fa; D541, D544), stated in
 its hand and listening checks after the tag ([v3.3.x notes](#v33x-notes-after-the-tag)), its
 working record archived (D544); v3.4, a structural review before v4, opened as a scoping draft
 (D389), with a lexicon page added as its one player-facing item (D393), the owner's first rulings
-on it of 2026-11-22 recorded (D545–D548); v3.x direction only. The
+on it of 2026-11-22 recorded (D545–D561: v3.4 tagged `3.4.0`, D550; the lexicon page's design
+validated, D549; the three-way split as the review's target, D551; the lexicon API moved into
+v3.4, D555; v3.4's questions delegated to the wave driver, D556, and ruled, D557–D560); v3.x
+direction only. The
 Status paragraphs this README kept until the v3.0, v3.1, v3.2 and v3.3 releases are archived
 verbatim in [archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md),
 [archive/v3/v3-readme-status-v3.1.md](../../archive/v3/v3-readme-status-v3.1.md),
@@ -87,7 +90,8 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
 - **v3.4 also builds a lexicon page** (D393), the owner's side project of 2026-10-21: a page
   listing every lexicon word, A–Z and by search, read from the lexicon file alone (D394). It is
   v3.4's one player-facing item, so D389's "no player-facing change" now holds for the review only.
-  Scoping draft: [lexicon-page.md](lexicon-page.md). Its second step, an API, is v4 or v5 (D395).
+  Scoping draft: [lexicon-page.md](lexicon-page.md). Its second step, an API, was planned for v4
+  or v5 (D395) and is v3.4's too (D555).
 - **v3.0.1 is merged into v3.0** (D212), the owner: "v3.0.1 could very well be just included
   into v3.0". This also settles where keeping sessions goes: with the review of earlier sessions
   that needs it.
@@ -529,7 +533,7 @@ D234; detail in the [rhythm lock draft](../../archive/v3/rhythm-lock.md).
   strict by default. Each change lasts one phrase; at most one per phrase, in a seeded share of
   phrases, somewhat more often on a tenser phrase when Tension across phrases is on; never shown.
   The v3.2 list and its reasons: [rhythm lock §3](../../archive/v3/rhythm-lock.md#3-allowed-rhythm-changes).
-  **Wider mutation options are v4** ([v4](../v4/README.md#placed-here-proposed)).
+  **Wider mutation options are v5** (v4 until D553; [v5+](../v5-plus/README.md#moved-from-v4-d553)).
 - **Forced bend.** When the locked rhythm cannot make a phrase (Tension across phrases moves the
   phrase into a rhythm domain without it, say), the phrase takes the nearest rhythm that can, and
   the next phrase tries the locked one again. It is the search's fallback, not a player option.
@@ -819,9 +823,13 @@ what are in the scoping draft, [structural-review.md](structural-review.md). It 
 milestone, after v3.3 and before v4; the owner: "leave it for the last milestone of v3, there is no
 need to run it prior" (D389). The owner's rulings of 2026-11-22: v3.4 delivers the report and the
 refactors he takes, built as a v3.4 build plan (D545); the review looks at the code as it is and
-does not plan for v4's scope (D546); no runtime dependency is added besides Tone.js (D547).
-Open: O236 (the endgame as the same app or another, which the owner sees as a separate question
-still to resolve), O238 (what else bounds a refactor) and O312 (the tag)
+does not plan for v4's scope (D546); no runtime dependency is added besides Tone.js (D547);
+v3.4 is tagged `3.4.0` (D550); the game is a separate app and the owner favours a three-way
+split, a library, this app and the game, which the review's Q4 evaluates (D551); v4.0 is most
+probably this app's last update (D552, a direction; O314), and v4.0 is Tone.js and accompaniment
+with roles (D553). The owner then left the resolution of v3.4 to the wave driver (D556), who
+ruled the bounds of a refactor and the analysis tools (D557) and the measurement pass's place
+after the lexicon page (D558). None of the review's own questions is open
 ([register](../../open-questions.md#v34-structural-review-o234)).
 
 ### The lexicon page (D393)
@@ -836,10 +844,11 @@ v3.4's one player-facing item, independent of the structural review (D393 amends
 source is [`docs/music/lexicon.md`](../../../docs/music/lexicon.md), read when the app is built
 (D394). Its scope, what the code requires of it, and who does what are in its own scoping draft,
 [lexicon-page.md](lexicon-page.md), kept apart from the review's draft because it is built, not
-analysed. The API is v4 or v5 (D395). Open: O239–O246
-([register](../../open-questions.md#v34-lexicon-page-o239)), left by the owner to `ux-writer`,
-who researches the page and proposes its design and the answers, which `spec-writer` takes to the
-owner (D548).
+analysed. The owner left its questions to `ux-writer` (D548), then validated its design and took
+its answers as written (D549). The API, planned for v4 or v5 (D395), is v3.4's too (D555): a
+plain TypeScript module over the page's parser, no server (D559). A docs-only lexicon pass comes
+before the page's build (D560). Open: O315 (where the API lives once the split is built)
+([register](../../open-questions.md#v34-lexicon-page-o239)).
 
 ## v3.x — Learning from positive signals
 
@@ -890,8 +899,8 @@ means "too fast or too hard to read", not "I don't like it".
 
 ## Moved to v4: rhythm ratios and the rhythm editor
 
-D211 moves them to [v4](../v4/README.md#placed-here-proposed), with the Custom note density that
-reaches them. Their content, as recorded in D175:
+D211 moves them to v4, with the Custom note density that reaches them, and D553 on to
+[v5](../v5-plus/README.md#moved-from-v4-d553). Their content, as recorded in D175:
 
 - **Rhythm ratios.** The player sets how likely each note value is to appear, from the
   [whole note](../../../docs/music/lexicon.md#whole-note) down to the

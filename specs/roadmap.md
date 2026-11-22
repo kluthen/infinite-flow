@@ -23,7 +23,10 @@ lexicon API planned for v4 or v5, 2026-10-21, D393–D395; v3.1 released as 3.1.
 2026-10-21, D399; v3.3 Part D approved 2026-11-09, D520; v3.2 to be released as built before its
 hand checks, D521; v3.2 released as 3.2.0 2026-11-09, D523; endings on the seventh added as a
 candidate 2026-11-17, D540; v3.3 released as 3.3.0 2026-11-18, D541, D544; v3.4's deliverables
-and bounds ruled 2026-11-22, D545–D548)
+and bounds ruled 2026-11-22, D545–D548; the three-way split and the v4.0 horizon noted
+2026-11-22, D551, D552; v4.0's scope ruled, its other items moved to v5 and microphone input
+ruled out 2026-11-22, D553, D554; the lexicon API moved into v3.4 2026-11-22, D555; a lexicon
+backend noted as a direction 2026-11-22, D561)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -34,6 +37,16 @@ The old stages 2 ("Minimal MIDI Integration") and 3 ("MIDI-Seeded Continuation")
 **superseded** by the v2/v3 split below. v2 bundles MIDI acknowledgement with the rolling phrase.
 MIDI-seeded continuation moves to v3. The previous roadmap, which `docs/release/` cites by section,
 is archived verbatim as [2026-09-25-roadmap-pre-vision.md](archive/2026-09-25-personas-and-vision/roadmap-pre-vision.md).
+
+> **Note (2026-11-22, D551–D555): the owner's direction for this app's horizon.** The endgame's
+> game is a separate app, and the owner favours a three-way split: a library (the generation
+> core), this app and the game (D551). He expects v4.0, with "basic accompaniments", to be this
+> app's last update most probably, perhaps in a repository of its own (D552). v4.0 is Tone.js and
+> accompaniment with roles; v4's other items moved to v5 (D553); microphone input is out in any
+> version (D554); the lexicon API is v3.4's (D555). v5+ will probably move to the game's app, to
+> be reviewed later (D553, a direction): where each item after v4 goes, and the split's form, is
+> [O314](open-questions.md#after-v34-the-split-and-this-apps-horizon-o313); the v5+ section and
+> the candidates below stand as written until it is answered.
 
 ## Timeline
 
@@ -123,8 +136,8 @@ record is archived at [archive/v2/](archive/v2/README.md).
     runtime dependency besides Tone.js (D547). [Scoping draft](versions/v3/structural-review.md).
     v3.4 also builds the **lexicon page** (D393): every word of the music lexicon, A–Z and by
     search, read from the lexicon file alone (D394); v3.4's one player-facing item.
-    [Scoping draft](versions/v3/lexicon-page.md). Its second step is the
-    [lexicon API](#planned-v4-or-v5--the-lexicon-api).
+    [Scoping draft](versions/v3/lexicon-page.md). Its second step, the
+    [lexicon API](#the-lexicon-api--in-v34-d555), is v3.4's too (D555).
   - **v3.x:** learning from positive signals, tied to recognising played signal patterns (cues,
     D212; mandatory for the endgame); kept for now, likely to be removed or moved later.
   - Dropped (D211): the end-of-measure chord-fit check, review tooling, and the two
@@ -136,9 +149,11 @@ record is archived at [archive/v2/](archive/v2/README.md).
 ### 3. v4 — Accompaniment with roles
 
 - **Intent:** move from one line to several voices.
-- **Headline scope:** side instruments that highlight, contrast with and respond to the player's
-  line; a whole-file seed (MusicXML or MIDI) (proposed placement).
-- **Depends on:** v2's backing and audio timing; v3's continuation from outside material.
+- **Headline scope** (v4.0, D553): side instruments that highlight, contrast with and respond to
+  the player's line, sounded through a software sound library (Tone.js, settled by a spike). The
+  whole-file seed, the rhythm ratios and editor and the wider rhythm mutations moved to v5
+  (D553). Most probably this app's last update (D552, a direction).
+- **Depends on:** v2's backing and audio timing.
 - **Folder:** [versions/v4](versions/v4/README.md).
 
 ### Planned, version not yet assigned — Style packs
@@ -207,28 +222,28 @@ record is archived at [archive/v2/](archive/v2/README.md).
   [music reference](../docs/music/README.md),
   [sound library survey](../docs/sound-library-survey.md).
 
-### Planned, v4 or v5 — The lexicon API
+### The lexicon API — in v3.4 (D555)
 
-- **Status:** planned for v4 or v5, the version decided later (D395). Not specced.
+- **Status:** planned for v4 or v5 (D395) until 2026-11-22, when the owner put it in v3.4:
+  "lexicon is for this version" (D555). Step two of v3.4's
+  [lexicon page](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555), which records it.
 - **The owner's words** (2026-10-21): "For later (v4 or v5 depending on how they goes) we will turn
   this in a proper API."
-- **Builds on:** v3.4's [lexicon page](versions/v3/lexicon-page.md), step one, which reads
-  [`docs/music/lexicon.md`](../docs/music/lexicon.md) at build time as its only source (D394).
-  Proposed, not a requirement: step one's parser is a plain module with no browser or build-tool
-  code, so the API can reuse it.
-- **To settle when it is specced:** who calls the API (the app's own word popups, the endgame's
-  game, outside tools); whether it is a code library, a static data file served with the app, or a
-  service with a server, the last of which would be the app's first server and goes against
-  "nothing is sent" and the browser-only rule (`req_browser_only_first_release`). Not yet in the
-  open-questions register.
+- **Its shape** (D559): a plain TypeScript module over the page's build-time parser, a typed read
+  interface, no server. Where it lives once the split is built is O315.
+- **A lexicon backend some day** (D561, a direction, not scheduled): lexicon only, no user data,
+  Go preferred; what it would change in the browser-only rule is O316.
 
-### 4. v5+ — Library and microphone
+### 4. v5+ — Library and seeds
 
-- **Intent:** broaden where seeds and input come from.
+- **Intent:** broaden where seeds come from.
 - **Headline scope:** a library where files and past sessions are displayed alike, with snippet
-  selection as a seed (not a DAW); microphone input "v5 or 8"; a staff-only session view, hiding
-  everything but the staff and Stop while a session runs (v5, D133).
-- **Depends on:** v3's persistence; v4's file seed; v3's "my instrument" input kind.
+  selection as a seed (not a DAW); a staff-only session view, hiding everything but the staff and
+  Stop while a session runs (v5, D133); and, moved from v4 (D553), the whole-file seed, the
+  rhythm ratios and editor, and the wider rhythm mutations. Microphone input is out in any
+  version (D554). Will probably move to the game's app, to be reviewed later (D553, a direction;
+  O314).
+- **Depends on:** v3's persistence and its continuation from outside material.
 - **Folder:** [versions/v5-plus](versions/v5-plus/README.md).
 
 ### 5. Endgame — Rhythm RPG
@@ -264,20 +279,23 @@ record is archived at [archive/v2/](archive/v2/README.md).
   engines (Chromium, Firefox and Safari's WebKit) at v4 or v5; the version is not decided.
   Caveat: supporting Safari does not bring MIDI controllers to the iPad. iPad browsers run on
   WebKit, which has no Web MIDI, so Safari support would give an iPad player the app without a
-  controller. A controller becomes usable on an iPad only if Apple ships Web MIDI in WebKit, or
-  through the microphone input planned for v5+.
+  controller. A controller becomes usable on an iPad only if Apple ships Web MIDI in WebKit; the
+  microphone input once planned for v5+ is out in any version (D554). With v4.0 most probably
+  this app's last update (D552), where the widening goes is part of O314.
 
 ## Candidates (not committed)
 
 The owner's ideas, recorded so they are not lost. None of them is scope for any version.
 
-- **Rhythm ratios and the rhythm editor (v4 since D211; D175).** How likely each note value is,
-  from the whole note to the sixteenth note, and a rhythm editor (copy a bar's rhythm, or enter
-  one by hand), reached by a new note-density value, Custom. The rhythm lock, recorded with them,
-  is v3.2. Recorded in [v4](versions/v4/README.md#placed-here-proposed). Open: O100–O102.
-- **Tone.js for the backing (version open; D185).** Using the Tone.js audio library, mainly to add
-  more accompaniment voices; v2 synthesizes its backing with plain Web Audio and bundles no audio
-  library. An idea for later, not decided; more voices are v4's accompaniment with roles.
+- **Rhythm ratios and the rhythm editor (v4 since D211, v5 since D553; D175).** How likely each
+  note value is, from the whole note to the sixteenth note, and a rhythm editor (copy a bar's
+  rhythm, or enter one by hand), reached by a new note-density value, Custom. The rhythm lock,
+  recorded with them, is v3.2. Recorded in [v5+](versions/v5-plus/README.md#moved-from-v4-d553).
+  Open: O100–O102.
+- **Tone.js for the backing (D185; v4.0 since D553).** Using the Tone.js audio library, mainly to
+  add more accompaniment voices; v2 synthesizes its backing with plain Web Audio and bundles no
+  audio library. Now v4.0 scope, with accompaniment with roles
+  ([v4](versions/v4/README.md#settled-direction)).
 - **Presets that carry gimmicks and stored rhythm patterns (later; D217).** The owner expects
   most presets to carry gimmicks and specific rhythm patterns the app does not store today, and
   mentions storing rhythms and "favorites cues"; later features, not v3.

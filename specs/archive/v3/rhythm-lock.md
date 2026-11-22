@@ -70,7 +70,7 @@ Plain words used here, one term per concept in all three v3.2 documents:
   superseded the rest of it (D234): §4.
 - **Wider mutation options are v4** (D232): changes that stay, the catalogue's larger mutations,
   and mutations under the rhythm editor's own rhythm
-  ([v4](../../versions/v4/README.md#placed-here-proposed)).
+  ([v4](../../versions/v5-plus/README.md#moved-from-v4-d553)).
 - **A switch of its own**, not reached through the Custom note density (D216). Custom and O100 are
   v4 (D211).
 - **Two kinds of mutation, kept apart** (D216, closing O118): Vary settings gets the player-chosen

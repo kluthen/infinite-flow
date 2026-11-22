@@ -72,7 +72,7 @@
     D389): every lexicon word, A–Z and by search, read from `docs/music/lexicon.md` alone (D394);
     [scoping draft](../../versions/v3/lexicon-page.md), a separate draft because it is built, not
     analysed. Its second step, the lexicon as an API, is planned for v4 or v5 (D395,
-    [roadmap](../../roadmap.md#planned-v4-or-v5--the-lexicon-api)).
+    [roadmap](../../roadmap.md#the-lexicon-api--in-v34-d555)).
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go. Rhythm ratios and the rhythm editor are v4; the chord-fit check, review
     tooling and the two controller-connection ideas are dropped (D211).
