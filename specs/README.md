@@ -1,9 +1,23 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.93
+Status: draft v0.94
 
 ## Status Snapshot
 
+- **v3.3 is released as version 3.3.0** (2026-11-18, D544): tagged `v3.3.0` on `main` at
+  b2a0e3fa, released before the owner's hand and listening checks by his ruling (D541). Its
+  release gate, build plan [chunk 22](versions/v3/build-plan-v3.3.md#chunk-22--v33-release-gate),
+  passed its machine half, with the evidence in the
+  [release notes](../docs/release/v3.3-release-notes.md); the release sync left CONTRACT at
+  19.0.0. Master spec [Part D](versions/v3/master-spec.md#part-d--v33), richer chords (one
+  Seventh chords level, Off by default, diatonic sevenths only; Jam mode has its own), is with
+  Parts A, B and C the contract for the running code. The owner skipped L1, so v3.3 ships the
+  triad reading for endings and the join (D540); endings on the seventh are a
+  [roadmap candidate](roadmap.md#candidates-not-committed). The milestone's working record is in
+  [archive/v3/](archive/v3/README.md#v33-release-archived-2026-11-22) (D544). Still to come after
+  the tag, as [v3.3.x follow-ups](versions/v3/README.md#v33x-notes-after-the-tag): L2 (v3.3 H2,
+  not yet written in `HARDWARE-CHECKLIST.md`, and any share tuning as a 3.3.x patch), U1b, H3–H6,
+  M3's deciding runs and the figure restated from them (D537), and ISS-020.
 - **v3.2 is released as version 3.2.0** (2026-11-09, D523): tagged `v3.2.0` on `main` at
   f93e552d, released as built by the owner's ruling (D521). Its release gate, build plan
   [chunk 27](versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate), passed its machine half,
@@ -46,6 +60,8 @@ Status: draft v0.93
   MIDI controller, and suggests a key and mode for it; a rhythm lock keeps the rhythm while the
   pitches change, with optional one-phrase rhythm changes; and a melody guide and a rhythm guide
   can play beside the backing, off by default.
+  Since v3.3 the player may let seventh chords into the harmony, through one Seventh chords level
+  (Off, Sometimes, Often, Always), Off by default, with its own level in Jam mode.
 - **Guiding principle:** Infinite Flow acknowledges and encourages; it never penalizes, grades,
   ranks or scores the player. Anything that adapts to how you play is opt-in and visible. See the
   [far vision](vision/far-vision.md).
@@ -54,15 +70,6 @@ Status: draft v0.93
   desktop in Chrome first (the one supported browser, D399), at music-stand distance, no click
   while playing.
 - **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
-  - **v3.3:** richer chords, opt-in: one Seventh chords level, Off by default, diatonic sevenths
-    only; Jam mode has its own. Master spec [Part D](versions/v3/master-spec.md#part-d--v33) v1.6,
-    refreshed against v3.2 as built (D511–D519), **approved by the owner** on 2026-11-09 with its
-    build plan [v3.3](versions/v3/build-plan-v3.3.md), 23 chunks (two conditional) in six waves
-    (D276–D288), and its design (D520). Gate R0 cleared at v3.2's `v3.2.0` tag (D523); gate I0
-    (the ingestion) cleared and C1 (the contract wordings, one MAJOR bump per wave sync, 15.0.0 to
-    19.0.0) confirmed by the owner (D526). Waves 0–5 merged; L1 skipped by the owner, so chunk 21
-    is skipped and v3.3 ships the triad reading (D540). The release gate runs now, its hand and
-    listening checks after the `3.3.0` tag (D541).
   - **v3.4:** a structural review before v4, with no player-facing change: soundness for
     expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
     milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), the analysis
@@ -81,14 +88,14 @@ Status: draft v0.93
   structural review), O239–O246 (v3.4's lexicon page), O267 (a doodle note played before the
   doodle's first barline, v3.2 wave 6), O269 (a legato doodle read as Heavily varied, at v3.2
   H5) and O271 (a note start off the doodle's grid, at v3.2 H4); the last three after the `3.2.0`
-  tag (D521). See the
-  [register](open-questions.md).
-- The snapshots this index kept through v2's design and build, through v3.0's, through v3.1's
-  and through v3.2's are archived verbatim at
+  tag (D521). No v3.3 question is open. See the [register](open-questions.md).
+- The snapshots this index kept through v2's design and build, through v3.0's, v3.1's, v3.2's and
+  v3.3's are archived verbatim at
   [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md),
   [archive/v3/readme-status-snapshot.md](archive/v3/readme-status-snapshot.md),
-  [archive/v3/readme-status-snapshot-v3.1.md](archive/v3/readme-status-snapshot-v3.1.md) and
-  [archive/v3/readme-status-snapshot-v3.2.md](archive/v3/readme-status-snapshot-v3.2.md).
+  [archive/v3/readme-status-snapshot-v3.1.md](archive/v3/readme-status-snapshot-v3.1.md),
+  [archive/v3/readme-status-snapshot-v3.2.md](archive/v3/readme-status-snapshot-v3.2.md) and
+  [archive/v3/readme-status-snapshot-v3.3.md](archive/v3/readme-status-snapshot-v3.3.md).
 
 ## Documents
 
@@ -105,9 +112,9 @@ Status: draft v0.93
   [v3.2](versions/v3/build-plan-v3.2.md) (v43, complete; chunk 27 is the release gate's record,
   and its gates L1, L2, L3 and DR, hand checks and follow-ups after the tag are live, D521; approved
   as v5, D416, D417, its revisions listed in its header; its [wave log](versions/v3/wave-log-v3.2.md))
-  and [v3.3](versions/v3/build-plan-v3.3.md) (v24, on the build-plan model, D351, refreshed against v3.2 as built, D511–D519; approved
-  with Part D, D520; gates R0, I0 and C1 cleared, D523, D526; waves 0–5 merged, the release gate
-  next, its checks after the tag, D541). Every build plan runs wave by
+  and [v3.3](versions/v3/build-plan-v3.3.md) (v25, complete; chunk 22 is the release gate's
+  record, and its hand checks and follow-ups after the tag are live, D541, D544; approved with
+  Part D, D520; its [wave log](versions/v3/wave-log-v3.3.md)). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
 - [Personas](personas.md) (draft): who the product serves.
@@ -163,3 +170,6 @@ Status: draft v0.93
     D407–D509, the register's notes on the questions closed during v3.2, the three v3.2 drafts,
     the Jam grounding and the former status snapshots; master spec Part C, the v3.2 build plan,
     its wave log and the [Jam mode](versions/v3/jam-mode.md) draft stay in place.
+    At the v3.3 release (3.3.0 on 2026-11-18, archived 2026-11-22, D544) it also took decisions D261–D288, D349–D352, D511–D520
+    and D524–D536, the register's notes on the questions closed during v3.3 and the former status
+    snapshots; master spec Part D, the v3.3 build plan and its wave log stay in place.

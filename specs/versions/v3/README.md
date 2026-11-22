@@ -5,16 +5,17 @@ D348); v3.1 released as version 3.1.0 on 2026-10-21 (tag `v3.1.0` at 55364e7; D3
 checks after the tag closed (D399; [v3.1.x notes](#v31x-notes-after-the-tag)); v3.2 released as
 built as version 3.2.0 on 2026-11-09 (tag `v3.2.0` at f93e552d; D521, D523), stated in
 [master spec Part C](master-spec.md#part-c--v32), its hand and listening checks after the tag
-([v3.2.x notes](#v32x-notes-after-the-tag)), its working record archived (D524); v3.3 in master
-spec Part D v1.6 (D541), approved with its build plan and its design (D520), gate R0 cleared at the
-`v3.2.0` tag (D523), gates I0 and C1 cleared (D526), waves 0–5 merged, L1 skipped (D540), the
-release gate next, its hand and listening checks after the `3.3.0` tag (D541); v3.4, a structural
-review before v4, opened as a scoping draft (D389), with a lexicon page added as its one
-player-facing item (D393); v3.x direction only. The Status paragraphs this README kept until the
-v3.0, v3.1 and v3.2 releases are archived verbatim in
-[archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md),
-[archive/v3/v3-readme-status-v3.1.md](../../archive/v3/v3-readme-status-v3.1.md) and
-[archive/v3/v3-readme-status-v3.2.md](../../archive/v3/v3-readme-status-v3.2.md).
+([v3.2.x notes](#v32x-notes-after-the-tag)), its working record archived (D524); v3.3 released as
+version 3.3.0 on 2026-11-18 (tag `v3.3.0` at b2a0e3fa; D541, D544), stated in
+[master spec Part D](master-spec.md#part-d--v33), L1 skipped and the triad reading shipped (D540),
+its hand and listening checks after the tag ([v3.3.x notes](#v33x-notes-after-the-tag)), its
+working record archived (D544); v3.4, a structural review before v4, opened as a scoping draft
+(D389), with a lexicon page added as its one player-facing item (D393); v3.x direction only. The
+Status paragraphs this README kept until the v3.0, v3.1, v3.2 and v3.3 releases are archived
+verbatim in [archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md),
+[archive/v3/v3-readme-status-v3.1.md](../../archive/v3/v3-readme-status-v3.1.md),
+[archive/v3/v3-readme-status-v3.2.md](../../archive/v3/v3-readme-status-v3.2.md) and
+[archive/v3/v3-readme-status-v3.3.md](../../archive/v3/v3-readme-status-v3.3.md).
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
 Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
@@ -70,12 +71,14 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   whose [chord research](../../../docs/music/chord-research.md) is done.
 - **v3.3 master spec: [Part D](master-spec.md#part-d--v33), approved by the owner on 2026-11-09**
   (D520; D264–D274, 2026-10-12; v1.2 refreshed against v3.2 as built, D511–D519): one Seventh
-  chords level, Off by default, and Jam mode's own; its contract wording changes wait for the
-  owner's confirmation (gate C1). O176 (style packs and the level) stays open for later.
-- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v24 (2026-11-17), approved with
-  Part D (D520); gate R0 cleared at v3.2's `v3.2.0` tag (D521, D523); waves 0–5 merged, the release
-  gate next (D541). Planning answers D276–D288,
-  D511–D518.
+  chords level, Off by default, and Jam mode's own; its contract wording changes confirmed by the
+  owner (gate C1, D526). Built and released as version 3.3.0 on 2026-11-18 (D544). What follows
+  the tag is in [v3.3.x notes](#v33x-notes-after-the-tag). O176 (style packs and the level) stays
+  open for later.
+- **v3.3 build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v25, complete; chunk 22 is the
+  release gate's record, and its follow-ups after the tag are live (D541). Planning answers
+  D276–D288, D511–D518 (archived; [archive/v3/](../../archive/v3/README.md#v33-release-archived-2026-11-22)).
+  Chunks 20 and 21 were skipped (D534, D540).
 - **v3.4 is added after v3.3** (D389), the owner's request of 2026-10-21: an overall structural
   review of the app before v4's endgame work, with no player-facing change. It is the last v3
   milestone, after v3.3; the owner sees no need to run it earlier (D389). Scoping draft:
@@ -571,11 +574,12 @@ Recorded 2026-10-12 (D261), the owner's request, in their words: "managing highe
 be preceeded by an internal doc/web research on chord to ensure we use appropriate data for chord
 generation." v3.2 was the last v3 release; v3.3 follows it. Specced on 2026-10-12 as
 [master spec Part D](master-spec.md#part-d--v33) (D264–D274), approved by the owner on 2026-11-09
-(D520); nothing built. The text below is the direction as recorded before the research; where it and
-Part D differ, Part D wins.
+(D520), **released as version 3.3.0 on 2026-11-18** (D544). The text below is the direction as
+recorded before the research; where it and Part D differ, Part D wins. What follows the tag is in
+[v3.3.x notes](#v33x-notes-after-the-tag).
 
-**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v24 (2026-11-17), approved with Part D
-(D520); gate R0 cleared at the `v3.2.0` tag (D523); waves 0–5 merged, the release gate next (D541). It plans v3.3 on top of the [v3.0](build-plan.md),
+**Build plan:** [build-plan-v3.3.md](build-plan-v3.3.md), v25, complete (D520 approved it; the
+release gate passed and the owner gave his go on 2026-11-18, D544). It plans v3.3 on top of the [v3.0](build-plan.md),
 [v3.1](build-plan-v3.1.md) and [v3.2](build-plan-v3.2.md) build plans on the build-plan model: 22
 chunks in six waves, then the release gate, under the shared [v3 build workflow](build-workflow.md)
 (D351), with contract sign-offs on the three STABLE changes and the owner's listening check on
@@ -771,6 +775,34 @@ changes none of them. Each one is an open question.
   `entity_phrase_carry_in`, `module_phrase_replay_key`, and the vision's scope, which lists every
   release through v3.2. The owner approved updating the vision now (D262); it is at 0.9, its
   wording confirmed (D263).
+
+### v3.3.x notes (after the tag)
+
+By the owner's ruling of 2026-11-17 (D541), v3.3 is released as `3.3.0` before his hand and
+listening checks, as v3.2 was (D521). The release gate passed its machine half and the owner gave
+his go on 2026-11-18: tag `v3.3.0` (D544). The checks are written in the v3.3 build plan's
+[hand checks](build-plan-v3.3.md#hand-checks) and
+[follow-ups after the tag](build-plan-v3.3.md#after-the-tag-v33x-follow-ups), and in
+`HARDWARE-CHECKLIST.md`, v3.3 part. Still to run, when the owner chooses:
+
+- **L2:** v3.3 H2, the level and the backing by ear. H2 is not yet written in
+  `HARDWARE-CHECKLIST.md`'s v3.3 part; it is written there before L2 runs. If the listening tunes
+  the Sometimes or Favored share, the tuning ships as a 3.3.x patch, with M1 and M2 run again and
+  gate DP re-checked; no tuning, no patch.
+- **U1b:** `ux-writer` confirms the level's labels on the final shares: the release gate's M1, or
+  the tuning patch's.
+- **H3, H4, H5 and H6:** the same phrase in Chrome, the files, v3.2 data carried over, and the
+  chord symbols at the narrowest widths.
+- **M3's deciding runs** on the reference machine; from them `documentalist` restates the figure
+  in `rule_earlier_kept_sessions_carried_over` (D537).
+- **ISS-020:** `npm run atd:check` checks only uncommitted changes, so on a gate's committed tree
+  it checks nothing
+  ([issue](../../../issues/ISS-020_20261114_atd_check_empty_on_committed_tree.md)), open.
+
+Endings on the seventh were not built (chunk 21 skipped with L1, D540): they are a
+[roadmap candidate](../../roadmap.md#candidates-not-committed), with D539's ruling on what a phrase
+may end owing standing for when they are built. A finding becomes an issue or a ruling; the owner
+decides the corrective measure then, built as a 3.3.x fix.
 
 ## v3.4 — Structural review
 

@@ -1,6 +1,6 @@
 # Infinite Flow v3.3 — Build Plan
 
-Status: v24 (2026-11-17): v23 with spec D541 and D542: the release gate runs now, at the shares as they stand, and L2, U1b, H2–H6 and M3's deciding runs follow the `3.3.0` tag, as v3.2's did; `rule_jam_phrase_one_failure_ladder` leaves the revisions, its wording holding.
+Status: v25 (2026-11-22): complete. v24 with the release recorded: chunk 22 done, the owner's go on 2026-11-18 and the tag `v3.3.0` (spec D544); L2, U1b, H2–H6 and M3's deciding runs follow the tag ([after the tag](#after-the-tag-v33x-follow-ups)). v24 (2026-11-17) was v23 with spec D541 and D542: the release gate runs now, at the shares as they stand, as v3.2's did; `rule_jam_phrase_one_failure_ladder` leaves the revisions, its wording holding.
 
 The Seventh chords level (richer chords, optional), written from
 [master spec Part D](master-spec.md#part-d--v33) (v1.5, 2026-11-14, with spec D263–D275,
