@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.92
+Status: draft v0.93
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -41,8 +41,8 @@ Open on 2026-11-22: O48 and O49 (later and governance), O100–O102 (v4 rhythm r
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352), O234 and O236–O238 (v3.4's structural
-review, D389), O239–O246 (v3.4's lexicon page, D393), and O267, O269 and O271 (v3.2's build,
+D351; numbered O177 on branch `plan-migration`, D352), O236, O238 and O312 (v3.4's structural
+review, D389, D545–D547), O239–O246 (v3.4's lexicon page, D393, D548), and O267, O269 and O271 (v3.2's build,
 answered by the checks that follow the `3.2.0` tag, D521). v3.3 is released (D544) and none of its
 questions is open. O270, O272–O289, O292–O305 and O307–O309 were never issued; the IDs
 reserved for v3.0's waves and left unused stay unused, and O177 stays unused. O311, reserved
@@ -204,37 +204,42 @@ version that upgrades the saved data.
 Opened 2026-10-21 by `spec-writer` with v3.4 (D389). The scoping draft is
 [structural-review.md](versions/v3/structural-review.md); none of these blocked v3.1, v3.2 or v3.3.
 D536 closed O235; the note recording it is in the
-[v3.3 archive](archive/v3/open-questions-history-v3.3.md).
-
-- **O234 - What v3.4 delivers** _(D389)_: a report with ranked recommendations only, or also the
-  refactors the owner takes, built as a v3.4 build plan before v4 starts? And is v3.4 a release with
-  its own tag, or a milestone with no tag? Proposed: the report and the owner's rulings close the
-  analysis; any refactor taken becomes a v3.4 build plan, approved separately; a tag (3.4.0) only if
-  code ships.
+[v3.3 archive](archive/v3/open-questions-history-v3.3.md). On 2026-11-22 D545 closed O234 (v3.4
+delivers the report and the refactors the owner takes, as a v3.4 build plan) and left its tag
+sub-question open as O312; D546 closed O237 (the review looks at the code as it is, not at v4's
+scope); D547 ruled the dependency part of O238 and narrowed it.
 
 - **O236 - Is the endgame the same app, or another app using Infinite Flow's generator?**
   _(D389; [endgame](vision/endgame.md))_: the endgame calls Infinite Flow "the music factory" of a
   game. If the game is a separate app, a generation-core library has a second consumer and a split
-  pays off; if it grows inside this app, a split mostly buys clearer boundaries. Proposed: the
-  owner states the intent, even as a guess; the review weighs a split against it.
-- **O237 - Which v4 the review plans for** _(D389; [v4](versions/v4/README.md))_: the owner says
-  "starting v4 we truly begin working on endgame". The v4 folder holds accompaniment with roles, a
-  sound library, the whole-file seed and the rhythm ratios and editor; style packs have no version.
-  Does v4 grow toward the endgame beyond that? Proposed: plan for the v4 folder as written, plus
-  style packs and the endgame's companions as the far horizon, and say where the answer would
-  change.
-- **O238 - How far a recommended refactor may go** _(D389)_: behaviour-preserving only, guarded by
-  the existing tests? May it move code across many files, moving atom links with it (atom IDs
-  unchanged)? Is there a time budget before v4? Proposed: behaviour-preserving only, atom IDs
-  unchanged and links moved with the code, no new dependencies without the owner; the owner sets the
-  time once the ranked list is in front of him. Since D393 the lexicon page ships code in v3.4 whatever the review
-  recommends, which bears on the tag.
+  pays off; if it grows inside this app, a split mostly buys clearer boundaries. Not ruled: asked
+  on 2026-11-22, the owner sees it as a separate question still to resolve ("that's another
+  question that need to be resolved"). Until it is, the review assumes neither answer: its Q4
+  presents both, with its recommendation under each and where it changes
+  ([structural review, Q4](versions/v3/structural-review.md#q4-should-the-app-split-into-several-libraries-or-packages)).
+  It needs an answer before the owner rules on the Q4 recommendation, not before the analysis.
+- **O238 - How far a recommended refactor may go** _(D389, D547)_: D547 settled the dependency
+  part (no new runtime dependency besides Tone.js). Still open, none of it answered on 2026-11-22:
+  (a) behaviour-preserving only, guarded by the existing tests? (b) may a refactor move code across
+  many files, moving atom links with it, atom IDs unchanged? (c) is there a time budget before v4?
+  (d) does D547 cover the dev-only tools the analysis runs (bundle analyser, dependency-cruiser,
+  jscpd)? Proposed: (a) yes; (b) yes, atom IDs unchanged and links moved with the code; (c) the
+  owner sets it once the ranked list is in front of him; (d) no: D547 is about dependencies the app
+  adds, and the analysis installs its tools in a throwaway worktree with nothing committed
+  ([structural review §7](versions/v3/structural-review.md#7-who-does-what-proposed)); a tool the
+  review recommends keeping is a dev dependency the owner rules on with that recommendation.
+- **O312 - Is v3.4 tagged?** _(D545; split from O234)_: a release with its own tag, or a milestone
+  with no tag? Not answered on 2026-11-22. Proposed, the rule O234 proposed: a `3.4.0` tag only if
+  code ships; since the lexicon page ships code whatever the review finds (D393, O245), v3.4 is
+  tagged `3.4.0`.
 
 ## v3.4 lexicon page (O239+)
 
 Opened 2026-10-21 by `spec-writer` with the lexicon page (D393). The scoping draft is
 [lexicon-page.md](versions/v3/lexicon-page.md); none of these blocks v3.1, v3.2 or v3.3, nor the
-structural review.
+structural review. None is ruled: on 2026-11-22 the owner left them to `ux-writer`, who
+researches the page and proposes its design and an answer to each; `spec-writer` checks the
+proposals against the spec, the personas and the lexicon and takes them to the owner (D548).
 
 - **O239 - Are the Internal entries shown?** _(D393)_: the owner asks for "all words"; the lexicon
   says its 16 "Internal (no popup)" entries (forced bend, grammar and others) are "never shown in
@@ -269,10 +274,10 @@ structural review.
   them, ignoring case and accents ("compas" finds Compás, "semitone" finds Half step), results as
   the player types. The popup line is not searched in step one: searching it finds many words
   that merely mention the term. Should it be?
-- **O245 - Its order in v3.4** _(D389, D393, O234)_: proposed: its own small part of v3.4 (master
+- **O245 - Its order in v3.4** _(D389, D393, D545)_: proposed: its own small part of v3.4 (master
   spec Part E, one design, a one-wave build plan of two chunks), built before the structural
   review's measurement pass so the review measures the app with it. It depends on nothing in v3.2
-  or v3.3, so the owner may pull it earlier. v3.4 then ships code, which bears on O234's tag.
+  or v3.3, so the owner may pull it earlier. v3.4 then ships code, which bears on its tag (O312).
 - **O246 - Which goal the page serves** _(D393; [personas](personas.md))_: proposed: P1's G1
   ("get to know the possibilities rather than study theory"), between sessions: a word met in the
   controls, a preset or the review can be looked up without going online. No new persona goal.

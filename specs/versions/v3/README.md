@@ -10,7 +10,8 @@ version 3.3.0 on 2026-11-18 (tag `v3.3.0` at b2a0e3fa; D541, D544), stated in
 [master spec Part D](master-spec.md#part-d--v33), L1 skipped and the triad reading shipped (D540),
 its hand and listening checks after the tag ([v3.3.x notes](#v33x-notes-after-the-tag)), its
 working record archived (D544); v3.4, a structural review before v4, opened as a scoping draft
-(D389), with a lexicon page added as its one player-facing item (D393); v3.x direction only. The
+(D389), with a lexicon page added as its one player-facing item (D393), the owner's first rulings
+on it of 2026-11-22 recorded (D545–D548); v3.x direction only. The
 Status paragraphs this README kept until the v3.0, v3.1, v3.2 and v3.3 releases are archived
 verbatim in [archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md),
 [archive/v3/v3-readme-status-v3.1.md](../../archive/v3/v3-readme-status-v3.1.md),
@@ -816,7 +817,12 @@ current setup."
 No player-facing behaviour. Its scope, the questions it must answer, its deliverables and who does
 what are in the scoping draft, [structural-review.md](structural-review.md). It is the last v3
 milestone, after v3.3 and before v4; the owner: "leave it for the last milestone of v3, there is no
-need to run it prior" (D389). Open: O234–O238 ([register](../../open-questions.md#v34-structural-review-o234)).
+need to run it prior" (D389). The owner's rulings of 2026-11-22: v3.4 delivers the report and the
+refactors he takes, built as a v3.4 build plan (D545); the review looks at the code as it is and
+does not plan for v4's scope (D546); no runtime dependency is added besides Tone.js (D547).
+Open: O236 (the endgame as the same app or another, which the owner sees as a separate question
+still to resolve), O238 (what else bounds a refactor) and O312 (the tag)
+([register](../../open-questions.md#v34-structural-review-o234)).
 
 ### The lexicon page (D393)
 
@@ -831,7 +837,9 @@ source is [`docs/music/lexicon.md`](../../../docs/music/lexicon.md), read when t
 (D394). Its scope, what the code requires of it, and who does what are in its own scoping draft,
 [lexicon-page.md](lexicon-page.md), kept apart from the review's draft because it is built, not
 analysed. The API is v4 or v5 (D395). Open: O239–O246
-([register](../../open-questions.md#v34-lexicon-page-o239)).
+([register](../../open-questions.md#v34-lexicon-page-o239)), left by the owner to `ux-writer`,
+who researches the page and proposes its design and the answers, which `spec-writer` takes to the
+owner (D548).
 
 ## v3.x — Learning from positive signals
 

@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.20 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.21 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -22,7 +22,8 @@ review, added as the last v3 milestone 2026-10-21, D389; the lexicon page added 
 lexicon API planned for v4 or v5, 2026-10-21, D393–D395; v3.1 released as 3.1.0 2026-10-21, D397; Chrome named the one supported browser
 2026-10-21, D399; v3.3 Part D approved 2026-11-09, D520; v3.2 to be released as built before its
 hand checks, D521; v3.2 released as 3.2.0 2026-11-09, D523; endings on the seventh added as a
-candidate 2026-11-17, D540; v3.3 released as 3.3.0 2026-11-18, D541, D544)
+candidate 2026-11-17, D540; v3.3 released as 3.3.0 2026-11-18, D541, D544; v3.4's deliverables
+and bounds ruled 2026-11-22, D545–D548)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -117,7 +118,9 @@ record is archived at [archive/v2/](archive/v2/README.md).
     a [candidate](#candidates-not-committed) (D540). Open: O176, for style packs.
   - **v3.4, structural review (D389):** the last v3 milestone, after v3.3: a clear view of the code
     before v4 (soundness for expansion, the entry budget, refactors worth taking, a split into
-    libraries), with no player-facing change. [Scoping draft](versions/v3/structural-review.md).
+    libraries), with no player-facing change. It delivers the report and the refactors the owner
+    takes (D545), looks at the code as it is rather than at v4's scope (D546), and adds no
+    runtime dependency besides Tone.js (D547). [Scoping draft](versions/v3/structural-review.md).
     v3.4 also builds the **lexicon page** (D393): every word of the music lexicon, A–Z and by
     search, read from the lexicon file alone (D394); v3.4's one player-facing item.
     [Scoping draft](versions/v3/lexicon-page.md). Its second step is the

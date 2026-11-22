@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.140
+Status: draft v2.141
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -52,7 +52,7 @@ provisional until the owner's checks after the `3.2.0` tag); D521–D523 (v3.2's
 its contract as built and its go, whose checks after the tag are still open); D537–D542 (the
 figure restated from M3's deciding runs, the endings-on-the-seventh ruling kept for a later
 version, and v3.3's release before its hand and listening checks, which follow the `3.3.0` tag);
-and D544 (v3.3 released and archived). D289 and D525 are unused; so are the IDs within the
+and D544 (v3.3 released and archived); D545–D548 (the owner's first rulings on v3.4). D289 and D525 are unused; so are the IDs within the
 archived range D407–D509 that its archive notice lists.
 
 ## Decision Log
@@ -213,3 +213,25 @@ archived range D407–D509 that its archive notice lists.
   included), and the former status snapshots of the spec index and the v3 README. Part D, the v3.3
   build plan and its wave log stay in place. Still live: D537–D542 and the checks after the tag
   ([v3.3.x notes](versions/v3/README.md#v33x-notes-after-the-tag)). No question was decided.
+
+- **D545 (2026-11-22): v3.4 delivers the structural review's report and the refactors the owner
+  takes, built as a v3.4 build plan; closes O234, its tag sub-question split off as O312.** The
+  owner: "it's both the report and the corrective measures should they arise." He did not answer
+  the tag; its proposed rule (`3.4.0`, since code ships) waits in O312. Now in:
+  [structural review §6](versions/v3/structural-review.md#6-deliverables).
+- **D546 (2026-11-22): the review looks at the code as it is now and does not plan for or review
+  v4's scope; closes O237.** The owner: "we wont work on reviewing V4.0 right now. we will focus on
+  v3.4". Q1's v4 bullets stay as out-of-scope notes. Now in:
+  [structural review §3](versions/v3/structural-review.md#3-what-it-is-not),
+  [Q1](versions/v3/structural-review.md#q1-is-the-architecture-sound-for-expansion).
+- **D547 (2026-11-22): no new runtime dependency besides Tone.js; narrows O238.** The owner: "the
+  only dependency we should plan for is tone.js otherwise we don't have need to add a new one."
+  The review may weigh Tone.js's weight and where it loads against the start-up budget. O238 keeps
+  the rest of its proposal and whether the dev-only analysis tools are covered. Now in:
+  [structural review §3](versions/v3/structural-review.md#3-what-it-is-not),
+  [Q2](versions/v3/structural-review.md#q2-should-the-entry-budget-be-lowered-and-how).
+- **D548 (2026-11-22): the lexicon page's questions O239–O246 go to `ux-writer` first; none is
+  ruled.** The owner: "as for lexicon integration i'll let the ux writer look at it and do some web
+  research." `ux-writer` researches and proposes the design and an answer to each; `spec-writer`
+  checks them against the spec, personas and lexicon and takes them to the owner. Now in:
+  [register](open-questions.md#v34-lexicon-page-o239), [lexicon page](versions/v3/lexicon-page.md).
