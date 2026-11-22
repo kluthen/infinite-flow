@@ -1,7 +1,5 @@
 # Preset Sheet Intent
 
-> **New in v3.1.**
-
 Keeping a setup under a name is occasional work, done between sessions, with the hands free. It
 needs a short form the player fills in and closes, over a workspace left exactly as it was, so it
 is a sheet, like the My instrument and Your data sheets. The flow it belongs to, and what each

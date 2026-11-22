@@ -1,22 +1,5 @@
 # Kept Sessions Handoff
 
-> **New in v3.**
-
-> **Changes since v3.0**
->
-> - _v3.1 new:_ the preset label ([Terms](#terms): Preset label)
-> - _v3.2 new:_ a Jam session, whose detail line and summary show no preset part ([Terms](#terms)); a Jam ended before
->   phrase 1 sounds changes nothing ([Terms](#terms),
->   [Keeping at a Session's End](#keeping-at-a-sessions-end))
-> - _v3.2 new:_ opening a Jam session, its doodle loaded with Jam's code, and sessions kept before
->   v3.2 ([Opening a Session](#opening-a-session))
-> - _v3.2 new:_ deleting a Jam session deletes its doodle in both forms and lets go the doodle
->   Jam mode keeps from it ([Deleting a Session](#deleting-a-session)); deleting played notes
->   keeps the written-out doodle; every other deletion of a Jam session by the player lets the
->   kept doodle go too, never the save that replaces an unpinned session
->   ([Deletions Made Elsewhere](#deletions-made-elsewhere))
-> - _v3.2 new:_ a Jam while saving is off ([While Saving Is Off](#while-saving-is-off): A Jam)
-
 ## Flow
 
 ```mermaid
@@ -69,16 +52,16 @@ flowchart TD
   review. The one exception is a damaged session's deletion: the most recent session then becomes
   at once the readable kept session that started last ([A Damaged Session](#a-damaged-session)).
   A session ended during its count-in changes nothing.
-- **[v3.2 new]** **A Jam that ends before phrase 1 sounds** changes nothing either: it ends as a
+- **A Jam that ends before phrase 1 sounds** changes nothing either: it ends as a
   count-in end, with no review, and the most recent session stays what it was.
-- **[v3.1 new]** **Preset label:** the selection at a session's start, recorded with the session
+- **Preset label:** the selection at a session's start, recorded with the session
   as `control-summary` wrote it ("Bebop", "Custom, based on Bebop", "Custom"); a session kept by
   v3.0 carries its musical profile in the same form ("Neutral", "Jazz", "Custom, based on Jazz").
   A snapshot: renaming or deleting a preset never changes it. Shown in the list's detail line and
   the review's summary.
-- **[v3.2 new]** **A Jam session's preset label.** A Jam session keeps its preset label like any session, but Jam mode has no
+- **A Jam session's preset label.** A Jam session keeps its preset label like any session, but Jam mode has no
   presets, so its detail line and summary show no preset part.
-- **[v3.2 new]** **Jam session:** a kept session begun in Jam mode, whose phrase 1 sounded. It
+- **Jam session:** a kept session begun in Jam mode, whose phrase 1 sounded. It
   holds, beyond any session, the quantized doodle with the tempo it was played at, whether its
   key and mode suggestion was declined, and, only while `Keep my played notes` was on, the raw
   doodle notes with its other played notes. A session kept before v3.2 is never one.
@@ -153,7 +136,7 @@ Drawn in `screens/phrase-workspace/` (`session-cue-row`); routed here.
 - **Damaged:** the session is deleted and its row leaves; see A Damaged Session.
 - **Saved by a newer version** (known from the row itself): `session-row-open` is disabled from
   the start; see `screens/session-list/handoff.md`, States.
-- **[v3.2 new]** **A Jam session** opens like any session, over whichever mode the workspace is
+- **A Jam session** opens like any session, over whichever mode the workspace is
   in: its review starts with the doodle section (`flows/review-and-export/handoff.md`, The Doodle
   and the Suggestion), offering its suggestion, unless declined, against Jam's key and mode, and
   `Jam again on this doodle`. Reading the session is all `session-row-open`'s `is-loading`
@@ -238,7 +221,7 @@ From a row (`session-row-actions`) or a review (`review-session-tools`), the sam
 - **A deletion that fails** keeps the confirmation open, adding `inline-alert alert-error` under
   its paragraphs: "That couldn't be deleted. Try again." The confirming action tries again; the
   line leaves when it does. The session stays as it was.
-- **[v3.2 new]** **A Jam session** is deleted with its doodle in both forms: the written-out
+- **A Jam session** is deleted with its doodle in both forms: the written-out
   doodle and, when kept, the raw doodle notes. The confirmation is the same; "its played notes"
   covers the raw doodle notes. The doodle Jam mode keeps from that session, if any, is let go
   with it, with its suggestion, silently: deleted means gone, the doodle included. The doodle comes
@@ -280,7 +263,7 @@ sheet tells a refusal: what was to go still shows, with the action that deletes 
   save that fails deletes none of them.
 - **A count-in end.** A session ended during its count-in saves and deletes nothing; the most recent session stays,
   and the links return by their rules.
-- **[v3.2 new]** **A Jam kept.** A Jam is kept like any session once phrase 1 has sounded: saved once at its end,
+- **A Jam kept.** A Jam is kept like any session once phrase 1 has sounded: saved once at its end,
   the most recent automatically, pinned for good, a favorite pinning it. A Jam that ends before
   phrase 1 sounds saves and deletes nothing, as a count-in end. The doodle Jam mode keeps after
   a Jam is never saved: it lives in memory for the visit, and the kept session holds it.
@@ -317,7 +300,7 @@ written by a newer version is known (master spec §4.4). While saving is off:
   the session held in memory included (`screens/last-session-review/`).
 - **`Keep my played notes`** still turns on and off, for this visit only: nothing is saved, no
   played notes are kept, and turning it off opens no confirmation.
-- **[v3.2 new]** **A Jam** runs, ends and is reviewed as usual: Jam's settings,
+- **A Jam** runs, ends and is reviewed as usual: Jam's settings,
   `Jam in {answer}`, `Keep {key} {mode}` and `Jam again on this doodle` work in memory for the
   visit; nothing is saved, the decline included. The deletions above stay absent.
 - **My instrument** offers no deletion and no range or transposition change in an outdated tab
@@ -345,7 +328,7 @@ From `Your data` (`screens/your-data/`), opened from the list's header or the pa
 - **`Delete all played notes`:** every row loses "Played notes kept"; a review showing a session
   whose played notes were kept loses its `Played notes` lane, its view row and its played-notes
   export at once (`screens/last-session-review/handoff.md`).
-- **[v3.2 new]** **A Jam session's two doodle forms.** In a Jam session, `Delete all played notes` deletes the raw doodle notes with the
+- **A Jam session's two doodle forms.** In a Jam session, `Delete all played notes` deletes the raw doodle notes with the
   rest and keeps the written-out doodle: its review keeps the doodle section, its suggestion and
   `Jam again on this doodle`, and the doodle Jam mode keeps stays. `Delete every session`
   deletes every Jam session with its doodle in both forms, and lets go the doodle Jam mode keeps.
@@ -362,5 +345,5 @@ From my instrument's sheet or the transposition check (`flows/my-instrument/hand
   and returns by that sheet's rule when it closes; each link follows its rule. Sessions played
   with a built-in profile are never touched, nor are my instrument's sessions by a change of its
   name or clef.
-- **[v3.2 new]** **The kept doodle let go.** When a Jam session erased that way is the one Jam mode keeps a doodle from, that
+- **The kept doodle let go.** When a Jam session erased that way is the one Jam mode keeps a doodle from, that
   doodle is let go with it, as after `Delete session`.

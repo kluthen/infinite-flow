@@ -2,42 +2,38 @@
 
 > **New in v3.4.**
 
-> **Draft, proposed.** Nothing here is approved or buildable yet. It moves to
-> `ui_ux/screens/lexicon-page/` once the owner has ruled on the page's open questions; until then
-> every item is `(proposed)`, and an item marked _the owner's choice_ waits on a ruling.
-
 Why the page is shaped this way is in [`intent.md`](intent.md); how it opens and closes, and what
 the browser's Back button does, in
 [`flows/look-up-a-word/handoff.md`](../../flows/look-up-a-word/handoff.md). The page shows the
-entries of [`docs/music/lexicon.md`](../../../../../docs/music/lexicon.md) and nothing else: no
+entries of [`docs/music/lexicon.md`](../../../docs/music/lexicon.md) and nothing else: no
 text below is a copy of an entry, and every entry's words come from that file at build time.
 
 ## Layout Tree
 
 ```text
-lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; proposed new class;
+lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; new class;
               covers the whole viewport at --z-sheet; the workspace beneath is inert)
-  lexicon-bar (proposed new class; stays at the top while lexicon-body scrolls under it)
-    lexicon-bar-row (proposed new class; one row that wraps)
-      sheet-title (h2, id="lexicon-title", tabindex="-1"; "Lexicon")
+  lexicon-bar (new class; stays at the top while lexicon-body scrolls under it)
+    lexicon-bar-row (new class; one row that wraps)
+      sheet-title lexicon-title (h2, id="lexicon-title", tabindex="-1"; "Lexicon")
       sheet-hint (p; "{n} words")
-      lexicon-search (role="search"; proposed new class)
+      lexicon-search (role="search"; new class)
         field-label (label for the field; "Find a word")
         text-input (input type="search", autocomplete="off", spellcheck="false")
       btn (Letters; below bp-tablet-landscape only)
       sheet-close (btn, "Close")
-    nav lexicon-letters (aria-label="Letters"; proposed new class)
+    nav lexicon-letters (aria-label="Letters"; new class)
       ul
         li (one per letter A to Z, in order; "#" first only when a word starts with no letter)
           a lexicon-letter (a letter with words: href to its letter heading)
           span lexicon-letter is-empty (a letter with none: plain text, not focusable)
-  lexicon-body (proposed new class; the reading column, centred)
+  lexicon-body (new class; the reading column, centred)
     p sheet-hint (intro)
     -- Browsing (the search field is empty)
     section lexicon-section (one per letter with words; aria-labelledby its heading)
       h3 lexicon-letter-heading (id="lexicon-letter-{a}", tabindex="-1"; the letter)
-      ul lexicon-list (proposed new class; no markers)
-        li lexicon-entry (id="lexicon-{entry id}"; proposed new class)
+      ul lexicon-list (new class; no markers)
+        li lexicon-entry (id="lexicon-{entry id}"; new class)
           lexicon-entry-head
             h4 lexicon-word (tabindex="-1"; the word as the lexicon heads it)
             span lexicon-group (the entry's group)
@@ -52,19 +48,20 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; p
     -- Searching (the search field holds text)
     p lexicon-result-count (role="status")
     ul lexicon-list (the matches, best first; each li a lexicon-entry as above)
-    section lexicon-mentions (the owner's choice; absent unless approved)
+    section lexicon-mentions (from three characters; absent when it would be empty)
       h3 ("Mentioned in other words"), p sheet-hint, ul lexicon-list
-    lexicon-empty (no match; proposed new class)
+    lexicon-empty (no match; new class)
       p, p sheet-hint, btn ("Clear search")
 ```
 
-- **New classes.** `lexicon-view`, `lexicon-bar`, `lexicon-bar-row`, `lexicon-search`,
-  `lexicon-letters`, `lexicon-letter`, `lexicon-body`, `lexicon-section`,
+- **New classes.** `lexicon-view`, `lexicon-title`, `lexicon-bar`, `lexicon-bar-row`, `lexicon-search`,
+  `lexicon-letters`, `lexicon-letter` with its `is-empty` state, `lexicon-body`, `lexicon-section`,
   `lexicon-letter-heading`, `lexicon-list`, `lexicon-entry`, `lexicon-entry-head`,
   `lexicon-word`, `lexicon-group`, `lexicon-popup`, `lexicon-more`, `lexicon-detail`,
   `lexicon-related`, `lexicon-link`, `lexicon-result-count`, `lexicon-mentions` and
-  `lexicon-empty` are proposed. They are added to `src/styles/components.css` at the token-source
-  pass that follows approval, built from existing tokens only: the page needs no new token.
+  `lexicon-empty` are the page's own. Each is specified below from existing tokens only (the page
+  needs no new token), and is added to `src/styles/components.css` at v3.4's token-source pass,
+  before the page is built.
 - **Reused classes.** `sheet-title`, `sheet-hint`, `sheet-close`, `btn`, `field-label`,
   `text-input` and `app-notice` keep their own rules and states.
 
@@ -88,11 +85,13 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; p
   is kept.
 - **Letter row.** `lexicon-letters` is a `nav` labelled "Letters" holding one item per letter,
   A to Z, in one row that wraps, `--spacing-1` apart. A letter with words is an `a`
-  `lexicon-letter`: a square at least the 44px target of the accessibility floor, in
-  `--font-ui` at `--text-md`, `--radius-sm`, in `--color-accent` with no border; hover gives it
-  `--color-surface-muted`, `:focus-visible` the `--shadow-focus` ring, active `--color-accent-hover`.
-  A letter with no word is a `span` `lexicon-letter is-empty`: the same square, in
-  `--color-text-muted`, not a link and never focusable. A `#` item comes first only when some
+  `lexicon-letter`: a square at least `btn`'s minimum target, the accessibility floor's, in
+  `--font-ui` at `--text-md`, bold and underlined, `--radius-sm`, in `--color-accent` with no
+  border; hover gives it `--color-surface-muted`, `:focus-visible` the `--shadow-focus` ring,
+  active `--color-accent-hover`. A letter with no word is a `span` `lexicon-letter is-empty`: the
+  same square, in `--color-text-muted`, regular weight and not underlined, not a link and never
+  focusable. The weight and the underline, not the colour alone, tell the two apart (the two
+  colours are close in lightness). A `#` item comes first only when some
   word starts with no letter (none does today).
 - **Intro.** The body opens with a `sheet-hint` paragraph: "The music words and the controls
   Infinite Flow uses, each in plain words. Choose a letter, or type part of a word in Find a
@@ -115,8 +114,9 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; p
 - **Other names.** A `sheet-hint` "Also called {names}." lists the entry's other names, in the
   lexicon's order, separated by commas; absent when the entry has none.
 - **More.** `details lexicon-more` closed by default; its `summary` reads "More", and "Less"
-  while open, with Chrome's own disclosure marker, at the 44px target height, in
-  `--color-accent`; its accessible name is "More about {word}" ("Less about {word}" open). Each
+  while open, with Chrome's own disclosure marker, at `btn`'s minimum target height, in
+  `--color-accent`; hover `--color-accent-hover`, `:focus-visible` the `--shadow-focus` ring,
+  active as hover; its accessible name is "More about {word}" ("Less about {word}" open). Each
   entry opens and closes on its own; several may be open at once.
 - **Detail.** Inside `lexicon-detail`, `--spacing-3` apart: the definition as one paragraph;
   then, when the entry has an app meaning, an `h5` "In Infinite Flow" (`--text-md`, bold) and the
@@ -129,6 +129,12 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; p
 - **Text link.** `lexicon-link` is an inline `a` in `--color-accent`, underlined; hover
   `--color-accent-hover`; `:focus-visible` the `--shadow-focus` ring; active as hover. Its href
   points to the entry's own id on the page.
+- **Focus targets.** `lexicon-title` (the page's `sheet-title`, which is never a focus target
+  elsewhere), `lexicon-letter-heading` and `lexicon-word` take focus only
+  from the page (`tabindex="-1"`), never from Tab. Under `:focus-visible` each shows the
+  `--shadow-focus` ring with `--radius-sm` and no outline, as `review-title` does; no other
+  highlight. Each lexicon class's states are those stated in its item; a class with none named
+  is layout only.
 
 ### Doubled words
 
@@ -144,14 +150,13 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; p
 ## What the Page Shows of the Lexicon
 
 - **The entries shown.** Every entry outside the lexicon's Internal group, the one the lexicon
-  says is never shown in the interface. The count in the bar counts exactly these. Should the
-  owner rule otherwise, the Internal entries are shown as any other, and nothing else in this
-  handoff changes (_the owner's choice_).
+  says is never shown in the interface. The count in the bar counts exactly these. An entry the
+  lexicon moves out of the Internal group shows at the next build, with nothing else to change.
 - **Fields shown.** The word, the group, the popup line, the other names, the definition, the app
   meaning and the related words. The `id` is used only as the entry's address on the page; the
   `sources` are not shown.
 - **Text as written.** Every field shows its words as the lexicon writes them, app meanings
-  included, with no rewording and no part hidden by a rule (_the owner's choice_: an app meaning
+  included, with no rewording and no part hidden by a rule (an app meaning
   that reads as written for developers is reworded in the lexicon itself, and the next build
   shows it).
 - **Inline marks.** `**bold**` shows as bold and `_emphasis_` as italic; a `` `code` `` mark shows
@@ -178,7 +183,7 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; p
 - **Result count.** `lexicon-result-count` (`role="status"`, polite) reads "{n} words match
   “{query}”." ("1 word matches …"). It is written once the typing pauses for half a second, so a
   screen reader is not read every keystroke; the list itself follows every keystroke.
-- **Mentioned in other words.** _The owner's choice._ If approved, from three characters on,
+- **Mentioned in other words.** From three characters on,
   `lexicon-mentions` lists below the matches every other entry whose popup line contains the
   query as the start of a word, under the `h3` "Mentioned in other words" and the `sheet-hint`
   "Their name doesn't contain “{query}”, but their short line does." Absent when it would be
@@ -196,6 +201,9 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; p
   jumps to the related entry so its head sits just under the bar, opens its detail, and moves
   focus to its word. The entry left stays open. No smooth scroll; no highlight beyond the focus
   ring.
+- **No navigation.** A letter or a related link moves within the page: its link's own navigation
+  is cancelled, so the address stays `#lexicon` and no history entry is added
+  (`flows/look-up-a-word/handoff.md`, Routing Rules: The browser's Back button).
 - **Below the bar.** Every jump target keeps clear of the bar at its current height (one or two
   letter rows), so no heading lands hidden under it.
 - **The browser's find.** Chrome's own find in page searches the whole page, closed details
@@ -207,7 +215,7 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; p
   session as `Your data` is.
 - **On open.** With a fine pointer (a mouse or a trackpad), focus goes to the search field, so
   the player can type at once. With a coarse pointer only (a touch screen), it goes to
-  `sheet-title`, so no on-screen keyboard covers half the page before the player asks for it.
+  `lexicon-title`, so no on-screen keyboard covers half the page before the player asks for it.
 - **Trap.** Tab and Shift+Tab stay inside the view, in this order, which is also the visual
   order: the search field, `Letters` when shown, `Close`, each letter with words, then the body:
   each entry's `More` and, in an open entry, its related links, in reading order; `Clear search`
@@ -234,7 +242,7 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; p
   away with the words. `Letters` (a plain `btn`) jumps back to the letter row and moves focus to
   its first letter with words. The reading column takes the full width less its padding.
 - **Every breakpoint.** At every breakpoint: one reading column, never two; long words and long
-  app meanings wrap; the view scrolls vertically only; the letter targets keep the 44px floor.
+  app meanings wrap; the view scrolls vertically only; the letter targets keep `btn`'s minimum target.
 - **Portrait.** The page works in any orientation: it is reading, not playing, so the portrait
   guard that replaces the workspace does not replace it.
 - **Visual values and animation.** Every visual value comes from the token source; this handoff
@@ -252,14 +260,16 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; p
 - **Load failure:** the page's part of the app did not load. Nothing opens; `app-notice-row`
   shows an `app-notice`: "The lexicon couldn't open because part of the app didn't load. Check
   that you're online, then try again.", with `Try again` (a press of `Lexicon`) and `Dismiss`;
-  focus moves to `Try again`, as Jam's load failure does.
+  focus moves to `Try again`, as Jam's load failure does. The notice leaves when the page opens
+  or on `Dismiss`; like every notice it is held still during a session, and it is never
+  error-toned.
 - **Browsing:** the search field is empty; every shown entry is listed under its letter.
 - **Searching:** the field holds text; the matches replace the letter sections.
 - **No match:** the field holds text and nothing matches. In place of the list,
   `lexicon-empty`: "No word matches “{query}”." then the `sheet-hint` "Check the spelling, or
   type only the first letters of the word." then `Clear search` (a plain `btn`), which empties
-  the field and puts focus in it. The result count reads the first sentence. When the owner's
-  "Mentioned in other words" group is approved and finds entries, the group follows this state's
+  the field and puts focus in it. The result count reads the first sentence. When the
+  "Mentioned in other words" group finds entries, the group follows this state's
   sentences.
 - **Reopened in the same visit:** the page comes back as it was left: the same search, the same
   open entries, the same scroll position. A reload starts it fresh. Nothing about the page is

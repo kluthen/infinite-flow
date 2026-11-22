@@ -1,13 +1,5 @@
 # Out-of-Date Phrase Prompt Intent
 
-> **New in v3.**
-
-> **Changes since v3.0**
->
-> - _v3.1 new:_ a preset chosen after the phrase was made is the prompt's commonest cause
->   ([Asking Only When It Matters](#asking-only-when-it-matters))
-> - _v3.2 new:_ a Jam never meets the prompt ([Asking Only When It Matters](#asking-only-when-it-matters))
-
 ## What This Screen Is
 
 Between sessions, changing a setting never regenerates the phrase on screen: the player sets the
@@ -40,12 +32,12 @@ make a phrase out of date, since none of them changes what phrase 1 is. It appea
 starting would play a phrase that is not what the player's settings make, which the player may
 not have noticed: they may have changed the key while looking at the controls, not at the staff.
 
-**[v3.1 new]** Choosing a preset sets the controls and keeps the phrase on screen, so from v3.1 a
+Choosing a preset sets the controls and keeps the phrase on screen, so from v3.1 a
 preset chosen after the phrase was made is the prompt's commonest cause. The list then names the
 controls the preset moved, up to three, or the first two and a count of the rest, which is enough to tell the player that
 the prompt is about the preset they just chose.
 
-**[v3.2 new]** A Jam never meets the prompt. A fresh Jam has no phrase on screen to be out of
+A Jam never meets the prompt. A fresh Jam has no phrase on screen to be out of
 date, and when Jam mode keeps a doodle, a change to any of Jam's settings but the tempo writes
 phrase 1 again from it at once, so its phrase 1 is always made under the current settings. In Jam
 mode the point is to go round again on the same idea quickly, and a question at every Start after

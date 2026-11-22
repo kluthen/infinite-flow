@@ -1,6 +1,6 @@
 # Lexicon Page Research Note
 
-> **Draft.** Research for the lexicon page's first design draft, gathered 2026-11-22 through
+> **Research note.** Research for the lexicon page's design, gathered 2026-11-22 through
 > `web-researcher`, with no personal or project data in any request. Each finding names its
 > source; **[A]** marks published guidance (W3C/WAI, WCAG, WHATWG, GOV.UK, NN/g, Material,
 > Baymard, MDN reference), **[O]** what one site was seen doing. The sources are interface

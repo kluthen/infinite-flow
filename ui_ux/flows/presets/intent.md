@@ -1,16 +1,5 @@
 # Presets Intent
 
-> **New in v3.1.**
-
-> **Changes since v3.1**
->
-> - _v3.2 new:_ presets belong to session mode; Jam mode has none
->   ([Presets and Jam Mode](#presets-and-jam-mode))
-> - _v3.2 removed:_ "how presets meet v3.2's Jam" among what was left out, now settled (v3.1
->   in the [frozen copy](../../versions/v3.1/flows/presets/intent.md#what-was-left-out))
-> - _v3.3 new:_ every preset holds the Seventh chords level, each built-in at Off, and three
->   built-ins suggest raising it ([Choosing a Preset](#choosing-a-preset))
-
 Until v3.1 the player chose between two fixed styles, Neutral and Jazz, inside the foundation
 group, and could not say which decorations the melody should use. v3.1 gives every setting a
 generator reads a named starting point: a **preset**, chosen in one step from a dropdown at the
@@ -80,7 +69,7 @@ Unsaved changes are replaced without asking: the player chose a starting point, 
 before every choice would make the dropdown tiring to explore. What they had is one choice away if
 it was a preset, and saving first is always on offer while it is Custom.
 
-**[v3.3 new]** From v3.3 a preset also holds the Seventh chords level, how often a chord takes one
+From v3.3 a preset also holds the Seventh chords level, how often a chord takes one
 more note stacked on top. Every built-in holds Off, so Neutral, Jazz and the others sound as they did,
 and a preset still gives the same sound whatever came before it: choosing Bebop after raising the
 level puts it back to Off. Jazz, Bebop and Modal (Dorian) suggest raising it in their description
@@ -246,7 +235,7 @@ the guidance in force keeps them. None of this shows.
 
 ## Presets and Jam Mode
 
-**[v3.2 new]** Presets are session mode's tool, and Jam mode has none. A preset is a named
+Presets are session mode's tool, and Jam mode has none. A preset is a named
 starting point for the many settings a generator reads; a Jam reads few of its own, and takes the
 rest from the player's doodle, so there would be little for a preset to set, and steering variety
 is what the doodle and the drift do there (see [`flows/jam/`](../jam/intent.md#a-mode-of-its-own)).
@@ -255,7 +244,7 @@ session mode's preset to Custom. When the app suggests a key and mode for a dood
 takes it, only Jam's own key and mode change: the preset the player chose for their practice, and
 the keys and modes it is meant for, wait for them in session mode untouched.
 
-**[v3.2 new]** In session mode the new choices of the "During a session" group, the rhythm lock with the
+In session mode the new choices of the "During a session" group, the rhythm lock with the
 rhythm changes it allows, and which groups of settings Vary settings may move, are not held by a
 preset, like the other session options: they shape how a session's phrases follow one another,
 not what one phrase is made from, so choosing a preset never changes them and changing them never makes Custom.

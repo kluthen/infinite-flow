@@ -1,12 +1,5 @@
 # Session List Intent
 
-> **New in v3.**
-
-> **Changes since v3.0**
->
-> - _v3.1 changed:_ a row names the preset the session started with ([Focal Point](#focal-point))
-> - _v3.2 new:_ a Jam session's row says "Jam" and names no preset ([Focal Point](#focal-point))
-
 ## What This Screen Is
 
 The session list, titled **All sessions**, is the second level of the workspace's review mode.
@@ -30,14 +23,14 @@ session ("the one on Tuesday evening"). It is drawn as text in the body's colour
 rather than as a framed button, so a column of dates reads as a list, not as a wall of buttons;
 it still has a button's target size, focus ring and loading state.
 
-**[v3.1 changed]** Under the title, two quiet lines describe the session: what it was (length,
+Under the title, two quiet lines describe the session: what it was (length,
 phrases, instrument, the preset it started with), then how it is kept (favorites, played notes
 kept, pinned or not). Then the first words of the comment, in the body's colour because the
 player wrote them, cut to one line: the review shows the whole comment. The preset is the one the
 session was played with, written as it was then; renaming or deleting it later changes nothing
 on the row, which records what was played.
 
-**[v3.2 new]** A Jam session's first line starts with the word "Jam", so a player looking for the
+A Jam session's first line starts with the word "Jam", so a player looking for the
 session where they grew their own idea finds it at a glance. A word rather than an icon, because a
 word needs no legend and reads the same to a screen reader; and only that word, since the row's
 title, the date, is still how a session is told apart. The line names no preset for a Jam, since

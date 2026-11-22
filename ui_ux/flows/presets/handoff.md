@@ -1,16 +1,5 @@
 # Presets Handoff
 
-> **New in v3.1.**
-
-> **Changes since v3.1**
->
-> - _v3.2 new:_ presets are session mode's: Jam mode has no preset bar, and neither Jam's settings,
->   the rhythm lock, its allowed rhythm changes nor What may vary is held by a preset
->   ([Routing Rules](#routing-rules): Presets and Jam mode)
-> - _v3.3 changed:_ every preset also holds the Seventh chords level, every built-in at `Off`;
->   changing it makes Custom and discards the prepared phrases
->   ([Routing Rules](#routing-rules): Choosing a preset; Prepared phrases)
-
 Screens: `screens/phrase-workspace/` for the preset bar (`preset-bar`: the `preset-select` box, its
 description `field-note` and `preset-actions`), the key and mode marks and the Embellishments
 group; `screens/preset-sheet/` for the sheet in which a preset is saved as new, saved with a new
@@ -108,7 +97,7 @@ flowchart TD
      the half allows it, otherwise the half's first listed value is set;
   3. the tempo, the instrument and the "During a session" options never change.
 
-  **[v3.3 changed]** Step 1 also sets the Seventh chords level to the preset's value: every
+  Step 1 also sets the Seventh chords level to the preset's value: every
   built-in holds `Off`, so choosing one after raising the level returns it to `Off`. Wherever this
   flow names what a preset holds or what makes Custom ("the ten controls and the seven figure
   levels", "a control of the ten, or a figure level"), the level is included; the diagram's labels
@@ -245,10 +234,10 @@ flowchart TD
   restriction in force, and choosing a preset identical in values and restriction, discard
   nothing. None of it shows.
 
-  **[v3.3 changed]** Any change of the Seventh chords level discards them too, as a figure level
+  Any change of the Seventh chords level discards them too, as a figure level
   does.
 
-- **[v3.2 new]** **Presets and Jam mode** (`flows/jam/`). Presets are session mode's alone. In
+- **Presets and Jam mode** (`flows/jam/`). Presets are session mode's alone. In
   Jam mode `control-section` holds Jam's controls, with no preset bar and no key and mode marks:
   no preset is chosen, saved or renamed there, and none of Jam's settings is preset-held, so no
   change in Jam mode makes Custom or touches session mode's selection, its restriction in force or

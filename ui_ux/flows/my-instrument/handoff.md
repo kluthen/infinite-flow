@@ -1,7 +1,5 @@
 # My Instrument Handoff
 
-> **New in v3.**
-
 ## Flow
 
 ### Making, Changing and Deleting

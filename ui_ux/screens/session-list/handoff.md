@@ -1,14 +1,5 @@
 # Session List Handoff
 
-> **New in v3.**
-
-> **Changes since v3.0**
->
-> - _v3.1 changed:_ the detail line names the preset the session started with, where it named the
->   musical profile ([Components and Content](#components-and-content): Detail line)
-> - _v3.2 new:_ a Jam session's detail line begins with "Jam" and has no preset part
->   ([Components and Content](#components-and-content): Jam session's detail line)
-
 `sessions-panel` is the second level of the phrase-workspace page's review mode
 (`screens/phrase-workspace/`): while the list shows, it is rendered inside `score-panel`, after
 `score-toolbar`, in `review-panel`'s place, with every mode rule of the review
@@ -60,7 +51,7 @@ layout-workspace
 - **Row's title button.** `session-row-open`: the session date; on the most recent session's row followed by
   " · Last session" (U+00B7 with a space each side), inside the button. Its accessible name is its
   text. Activation opens the session (`flows/kept-sessions/handoff.md`, Opening a Session).
-- **[v3.1 changed]** **Detail line** (`session-row-meta`): "{length} · {n} phrases · {instrument} ·
+- **Detail line** (`session-row-meta`): "{length} · {n} phrases · {instrument} ·
   {preset}". {length}: whole minutes, "{m} min", rounded to the nearest minute, "Under 1 min"
   below 30 seconds. {n}: "1 phrase" when one. {instrument}: the instrument the session was played
   with, by the name it had then (a built-in profile's label as the instrument control writes it,
@@ -69,7 +60,7 @@ layout-workspace
   snapshot, which a later rename or deletion of that preset never changes. A session kept by v3.0
   shows the musical profile it recorded in the same form: "Neutral", "Jazz", "Custom, based on
   Neutral" or "Custom, based on Jazz".
-- **[v3.2 new]** **Jam session's detail line.** For a Jam session the detail line begins with the word "Jam" and shows no
+- **Jam session's detail line.** For a Jam session the detail line begins with the word "Jam" and shows no
   {preset} part, since Jam mode has no presets (the session still keeps its preset label): "Jam ·
   12 min · 9 phrases · {instrument}". A word, not an icon; no other row changes. A session kept
   before v3.2 is never a Jam session. Jam sessions and the others share the one list, in one

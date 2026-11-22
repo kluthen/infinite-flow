@@ -19,7 +19,10 @@ a session begins from a doodle the player plays and continues it, with its own s
 controls and the key and mode suggestion; in session mode, the rhythm lock and what Vary settings
 may move). v3.3
 (richer chords, master spec Part D) follows them: a Seventh chords level beside Harmonic motion,
-and the longer chord symbols it brings.
+and the longer chord symbols it brings. v3.4 adds one thing the player sees, the lexicon page: a
+`Lexicon` button in the footer opens every word of the project's lexicon, A to Z and by search,
+over the workspace and back (`specs/versions/v3/lexicon-page.md`); its other item, a structural
+review of the code, changes nothing in the interface.
 
 **Status.** v3.0 is released as version 3.0.0 (tag `v3.0.0` at e288d98, 2026-10-16, deployed);
 its design is frozen in `versions/v3.0/` and its working record is in `archive/v3.0/`. v3.1 is
@@ -31,8 +34,9 @@ is in `archive/v3.2/`, and the owner's hand checks follow the tag. v3.3 (richer 
 design the owner approved on 2026-11-09, is released as version 3.3.0 (tag `v3.3.0` at b2a0e3fa,
 2026-11-18); its design is frozen in `versions/v3.3/` and its working record is in
 `archive/v3.3/`, and its hand and listening checks follow the tag, the confirmation of the
-Seventh chords labels among them. The root holds the whole interface as v3.3 shipped it; the next
-release's design has not started. See `todo.md` for where the work stands.
+Seventh chords labels among them. The root is v3.4's design in progress: the whole interface as
+v3.3 shipped it, plus the lexicon page, whose design the owner validated on 2026-11-22. See
+`todo.md` for where the work stands.
 
 ## Released versions and work in progress
 
@@ -51,28 +55,20 @@ release's design has not started. See `todo.md` for where the work stands.
   approved it, before it was built, as the whole root, and corrected since only to match what
   ships.
 - Everything outside `versions/` and `archive/` is work in progress toward the next release,
-  after v3.3. It covers the whole interface, not only what the next version adds: a screen the
+  v3.4. It covers the whole interface, not only what the next version adds: a screen the
   next version extends is specified here in full, old behavior included. When a version's design is approved,
   a copy of it goes into `versions/<version>/`, and the work at the root continues toward the one
   after.
 - What the version in progress adds, changes and removes is marked, so the unchanged part never
-  has to be read to find it. A document that differs from its copy in `versions/v2/` opens with a
-  **Changes since v2** block, one line per item linking to where it sits; the spot itself carries
-  a **[v3 new]** or **[v3 changed]** tag (in a code block or stylesheet, the same words as an
-  annotation or comment). Removals are listed only in that block, pointing to the old wording in
-  `versions/`. A document new in v3 says so under its title. `grep -rn "v3 new\|v3 changed"`
-  finds every mark. The marks stay until design work on the version after starts; the copy in
-  `versions/` keeps them, so `versions/v2/` still shows what v2 changed from v1.
-- v3's three releases are marked apart, so each can be built on its own, v3.1 before v3.2. The
-  `[v3 new]` / `[v3 changed]` tags and the unprefixed change-block items are v3.0's; v3.1's are
-  `[v3.1 new]` / `[v3.1 changed]` and change-block items prefixed `_v3.1 new:_`, `_v3.1 changed:_`
-  or `_v3.1 removed:_`; v3.2's likewise. A v3.2 change to something v3.1 adds is its own tagged
-  paragraph, so a v3.1 builder reads everything but the `v3.2` marks; replaced v3.0 and v2
-  wording is in `versions/v3.0/`. v3.3's marks, `[v3.3 new]` / `[v3.3 changed]` and change-block
-  items prefixed `_v3.3 new:_` or `_v3.3 changed:_`, are layered the same way on top of v3.2's,
-  every v3.3 change being its own tagged paragraph or item so the earlier releases' text stays
-  whole. `grep -rn "v3\(\.[123]\)\? \(new\|changed\)"` finds every v3 mark; all of them are
-  cleared when v4's design starts.
+  has to be read to find it. A document that differs from its copy in `versions/v3.3/` opens with
+  a **Changes since v3.3** block, one line per item linking to where it sits; the spot itself
+  carries a **[v3.4 new]** or **[v3.4 changed]** tag (in a code block or stylesheet, the same
+  words as an annotation or comment). Removals are listed only in that block, pointing to the old
+  wording in `versions/`. A document new in v3.4 says so under its title.
+  `grep -rn "v3.4 new\|v3.4 changed"` finds every mark. The marks stay until design work on the
+  version after starts; the copy in `versions/` keeps them, so `versions/v3.3/` still shows what
+  v3.0 to v3.3 changed, layer by layer. The root's marks for v3.0 to v3.3 were cleared when
+  v3.4's design started.
 
 ## Map
 
@@ -100,9 +96,11 @@ release's design has not started. See `todo.md` for where the work stands.
   instrument, and `screens/my-instrument/` the sheet it is made in. The transposition check's
   way into it is in `flows/controller-connection/`.
 - Every token and component class the handoffs cite by name is in `src/styles/theme.css` and
-  `components.css`: v3.0's shipped in 3.0.0, v3.1's in 3.1.0, and v3.2's in 3.2.0, under
-  `v3.2 new` comments (classes, and the four guide volume tokens among the audio-mix levels).
-  v3.3 adds no token, class or motion: its one control and its chord symbols reuse existing ones.
+  `components.css`: v3.0's shipped in 3.0.0, v3.1's in 3.1.0, and v3.2's in 3.2.0. v3.3 adds no
+  token, class or motion: its one control and its chord symbols reuse existing ones. v3.4 adds no
+  token or motion; the lexicon page's own `lexicon-*` classes, specified in its handoff from
+  existing tokens, are added to `components.css` at v3.4's token-source pass, before the page is
+  built.
 - `flows/presets/` specifies choosing a preset, the Custom state, the key and mode highlight, and
   saving, renaming and deleting the player's own presets; `screens/preset-sheet/` the sheet those
   are done in. The preset dropdown and the embellishment levels sit in
@@ -111,9 +109,12 @@ release's design has not started. See `todo.md` for where the work stands.
   it keeps, tap-in, the count-in, the doodle, the first phrase written from it, and the key and
   mode suggestion. Jam mode's controls, and session mode's rhythm lock and what Vary settings may
   move, are in `screens/phrase-workspace/`.
-- `drafts/` holds designs written ahead of the owner's rulings, not yet buildable and kept out
-  of the root until adopted. `drafts/lexicon-page/` is v3.4's lexicon page: its research, its
-  screen and flow, a prototype, and proposed answers to the spec's open questions.
+- `flows/look-up-a-word/` specifies opening the lexicon page from the footer between sessions,
+  closing it, and what the browser's Back button does; `screens/lexicon-page/` specifies the
+  page: its entries, its letters and search, its keys and states.
+  `mockups/lexicon-page/index.html` is a clickable prototype of it, reading
+  `docs/music/lexicon.md` itself (not buildable truth), and `research/lexicon-page.md` the
+  research behind its design.
 - `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
 - `versions/v2/` holds the v2 design as it shipped in version 2.0.0, frozen, with a summary of the
   decisions worth keeping.

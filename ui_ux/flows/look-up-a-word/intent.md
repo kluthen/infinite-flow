@@ -2,11 +2,9 @@
 
 > **New in v3.4.**
 
-> **Draft, proposed.** Moves to `ui_ux/flows/look-up-a-word/` once the owner has ruled.
-
 ## Whose Flow It Is
 
-It serves the Curious Improviser (P1) of [`specs/personas.md`](../../../../../specs/personas.md),
+It serves the Curious Improviser (P1) of [`specs/personas.md`](../../../specs/personas.md),
 between sessions: vocabulary by exposure (P1.G1), "get to know the possibilities rather than
 study theory". P1 pokes at settings to see what happens and meets words the controls, a preset or
 the review use (Leapiness, Figure level, an enclosure, a seventh chord). The flow lets them look
@@ -35,7 +33,7 @@ state outside a session, the review included. A beginner who wonders about a wor
 at the edge of the page, not among the controls. The link is plain, beside `Your data`, with no
 icon.
 
-## Why Back Should Close It
+## Why Back Closes It
 
 The page covers the whole window and reads like a page. On a page, people press Back to leave
 it: the browser's button, a mouse's back button, Alt+Left, or the Android back gesture on a
@@ -44,17 +42,18 @@ altogether. Nothing is lost by that, since settings and the last session are kep
 but it is a jarring way to finish reading a word, and a tablet's back gesture makes it easy to do
 by accident.
 
-So the proposal gives the page one history entry while it is open, and nothing more: Back
+So the page has one history entry while it is open, and nothing more: Back
 closes it, and closing it any other way removes that entry, so the browser's history never fills
 with lexicon visits. Jumps inside the page add nothing: a beginner following related words from
 Phrase to Cadence to Tonic would otherwise need many Backs to get home. This is a small new
-pattern for the app (its first use of the address bar), which is why it is the owner's choice;
-without it, the page still works, and Back simply leaves the app as it does from the workspace.
+pattern for the app, its first use of the address bar, and the owner chose it over the
+alternative, no history entry at all, where Back leaves the app from the page as it does from
+the workspace.
 
 ## What Was Left Out
 
-- **A web address per word.** A link straight to one word would help sharing and the later API,
-  but nobody in the personas sends links, and the API step will define its own addresses. Each
+- **A web address per word.** A link straight to one word would help sharing and the lexicon's
+  API, but nobody in the personas sends links, and the API defines its own addresses. Each
   entry already has a stable address inside the page (its `id`), so adding one later costs
   little.
 - **Opening from other screens.** Word popups and links from the controls to the page are a later

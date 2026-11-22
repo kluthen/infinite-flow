@@ -1,15 +1,5 @@
 # Your Data Intent
 
-> **New in v3.**
-
-> **Changes since v3.0**
->
-> - _v3.1 new:_ the player's presets counted and listed by name, each with its own `Delete`
->   ([Focal Point](#focal-point), [Deleting](#deleting))
-> - _v3.2 new:_ the Settings line names Jam's settings ([Focal Point](#focal-point))
-> - _v3.2 new:_ Jam sessions counted with the others; deleting played notes keeps the doodles as
->   the app wrote them ([Deleting](#deleting))
-
 ## What This Screen Is
 
 **Your data** is the one place where the player sees everything the app keeps on their device and
@@ -54,7 +44,7 @@ changed somewhere else (my instrument in the instrument control, the controller 
 sheet), the section names that place rather than duplicating its controls; the sheet is an
 inventory with deletions, not a second settings page.
 
-**[v3.1 new]** The player's own presets get a section of their own, after my instrument: how
+The player's own presets get a section of their own, after my instrument: how
 many there are, then each one by name, in the order the preset box lists them, with its own
 `Delete`. A second place to delete them is deliberate. In the controls a preset is deleted by
 choosing it first, and choosing a preset replaces the settings on screen; a player at the limit
@@ -65,7 +55,7 @@ inventory: names and deletions only, no renaming and no choosing, which remain t
 All of them go at once with `Delete everything`. The line naming the settings now says "the
 preset" where it said "the musical profile", since that is what the controls now call it.
 
-**[v3.2 new]** Jam mode keeps settings of its own, apart from session mode's, so the line
+Jam mode keeps settings of its own, apart from session mode's, so the line
 naming the settings names them too, "your Jam settings", and `Delete everything` returns them to
 their defaults with the rest. They are not listed one by one: like every other setting, they are
 changed where they are set, in Jam mode's controls.
@@ -82,7 +72,7 @@ Deletions are graded by how much they take, and placed accordingly.
   under the played notes, each shown only when there is something to delete. They are plain
   buttons here: their own confirmation carries the error tone, so the overview is not a wall of
   red.
-- **[v3.1 new]** **Beside each preset:** a plain `Delete` on the preset's row, named for
+- **Beside each preset:** a plain `Delete` on the preset's row, named for
   assistive technology with the preset's name, since a list of identical "Delete" buttons says
   nothing on its own. Its confirmation is the one the controls' `Delete preset` uses, with the
   same words, "Your settings stay as they are.", because the fear is the same: deleting a preset
@@ -96,7 +86,7 @@ way to one paragraph naming what goes and saying it can't be undone, and focus g
 back, so an Enter pressed out of habit deletes nothing. Asking inside the sheet, rather than
 stacking a second sheet on top, keeps one dialog on screen and one place to come back to.
 
-**[v3.2 new]** A Jam session is a session here like any other: counted with the sessions,
+A Jam session is a session here like any other: counted with the sessions,
 deleted with them, nothing about its doodle listed. One thing is said, where it matters: deleting
 played notes takes the doodle as the player played it and keeps the doodle as the app wrote it,
 which belongs to the music, so the played-notes confirmations say that doodles stay. A player

@@ -1,16 +1,5 @@
 # Out-of-Date Phrase Prompt Handoff
 
-> **New in v3.**
-
-> **Changes since v3.0**
->
-> - _v3.1 changed:_ the named settings lose Musical profile preset and gain the seven figure
->   levels ([Components and Content](#components-and-content): {changed settings}: Figure levels)
-> - _v3.2 new:_ never in Jam mode; in session mode it compares session mode's settings only
->   ([States](#states): Never in Jam mode)
-> - _v3.3 changed:_ the named settings gain Seventh chords
->   ([Components and Content](#components-and-content): {changed settings}: Seventh chords)
-
 The sheet that opens at Start, or at the starting note, when phrase 1, the phrase on screen in
 **Ready**, was generated under settings that differ from the current ones (master spec §16). It
 opens over `screens/phrase-workspace/`, which stays in **Ready** under it. When it opens, what
@@ -52,12 +41,12 @@ sheet-backdrop
   - **List wording.** One: "Written key". Two: "Written key and Register". Three: "Written key, Register and
     Leapiness". Four or more: the first two and the count of the rest, "Written key, Register
     and {n} other settings" ({n} is 2 or more).
-  - **[v3.1 changed]** **Figure levels.** From v3.1 the list has no Musical profile preset, the field being gone,
+  - **Figure levels.** From v3.1 the list has no Musical profile preset, the field being gone,
     and gains the seven figure levels after Arpeggio chaos, by their labels: Passing tone,
     Accented passing tone, Neighbor tone, Appoggiatura, Diatonic enclosure, Chromatic approach,
     Chromatic enclosure. The preset selection itself is never named: a preset counts through the
     values it set.
-  - **[v3.3 changed]** **Seventh chords.** Seventh chords counts too, named after Harmonic motion.
+  - **Seventh chords.** Seventh chords counts too, named after Harmonic motion.
   - **What counts.** Musical profile preset counts when Neutral or Jazz differs; its customized mark alone never
     counts. Note density counts by the value the player chose, never the one a narrow window
     gives. The tempo, the session options, the audio mix, the theme, and my instrument's clef and
@@ -124,7 +113,7 @@ sheet-backdrop
 - **Never during a session, never in the review mode, never over another sheet.** The session
   action reads `Close review` while the review shows and no note starts anything then, and no
   start is possible while another sheet is open.
-- **[v3.2 new]** **Never in Jam mode.** `Start Jam`, the home note and phrase 1's first note never open
+- **Never in Jam mode.** `Start Jam`, the home note and phrase 1's first note never open
   it: a fresh Jam has no phrase 1 on screen, and with a kept doodle a change
   of any of Jam's settings but the tempo writes phrase 1 again from the doodle at once
   (`flows/jam/handoff.md`, Routing Rules), so its phrase 1 is never out of date. In session mode

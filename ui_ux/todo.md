@@ -87,15 +87,31 @@
 
 ## In Progress
 
-No design unit is in progress at the root. v3.3's checks after the tag are in Remaining; the side
-work below is paused.
+v3.4's design is in progress at the root (D488). v3.3's checks after the tag are in Remaining;
+the side work below is paused.
 
-- **v3.4's lexicon page, first design draft** (2026-11-22, D487):
-  [`drafts/lexicon-page/`](drafts/lexicon-page/README.md), with its research note, a prototype and
-  proposed answers to spec O239–O246. Waiting on the owner's rulings, which `spec-writer` takes
-  to him. Then: apply them, run `ux-critic`, move the screen and flow to the root with v3.4's
-  marks (its README, "What Adoption Changes at the Root"), and the token-source pass for the
-  `lexicon-*` classes.
+- **v3.4's lexicon page** (D487, D489, D490): the owner validated the design on 2026-11-22 and
+  ruled yes on all four choices (spec D549; spec O239–O246 closed by spec D549 and D558);
+  adopted at the root, the v3.0 to v3.3 marks cleared first
+  (D488). Written: [`screens/lexicon-page/`](screens/lexicon-page/intent.md),
+  [`flows/look-up-a-word/`](flows/look-up-a-word/intent.md), the footer's `Lexicon` in
+  `screens/phrase-workspace/handoff.md`, the lexicon's notice in `flows/saved-data/handoff.md`,
+  a Flow Index row and an Edge-Case Policy item in `strategy.md`; prototype in
+  [`mockups/lexicon-page/`](mockups/lexicon-page/index.html), research in
+  [`research/lexicon-page.md`](research/lexicon-page.md). `ux-critic`: DRIFT, five findings, all
+  settled (D491).
+  Then: the owner's approval of v3.4's design as a whole and its `versions/v3.4/` copy, and the
+  token-source pass for the `lexicon-*` classes (`src/styles/components.css`, existing tokens
+  only), before the page is built.
+- **The lexicon follow-ups, taken as a docs-only lexicon pass in v3.4 before the build** (spec
+  D560; D489): moving a few player-worthy words out of the lexicon's Internal group (Gesture and
+  answer, Open ending, Recovery, Register window, Signature figure), each with its line
+  rewritten; shortening the eight app meanings over 1,200 characters (Vary settings, Doodle, Jam,
+  Key and mode suggestion, Drift, Allowed rhythm changes, Rhythm lock, Starting note). Both are
+  lexicon edits (`docs/music/lexicon.md`), not this tree's; the page needs no change for either.
+- **The lexicon API in v3.4** (spec D555): it moves into v3.4 with the page. If it gives entries
+  addresses or reaches the page, `flows/look-up-a-word/intent.md` (What Was Left Out: a web
+  address per word, which says the API step defines its own addresses) is revisited then.
 
 ## Remaining
 
@@ -163,7 +179,8 @@ Side work, not part of a version (paused):
 
 ## Next Unit
 
-v3.4's lexicon page: once the owner has ruled on O239–O246, adopt the draft (In Progress).
+v3.4's lexicon page: the token-source pass for the `lexicon-*` classes, then the owner's approval
+of v3.4's design and its `versions/v3.4/` copy (In Progress).
 
 v3.3: released as version 3.3.0 and archived (`archive/v3.3/`). Next here is U1b, once the
 owner's listening check L2 has run, and any design finding of hand check v3.3 H6 (Remaining,
