@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.91
+Status: draft v0.92
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -18,8 +18,12 @@ work are recorded in the archived logs:
 [D390–D391](archive/v3/decisions-D390-D391.md),
 [D232–D251](archive/v3/decisions-D232-D251.md),
 [D392](archive/v3/decisions-D392.md),
-[D396–D405](archive/v3/decisions-D396-D405.md) and
-[D407–D509](archive/v3/decisions-D407-D509.md). The notes this register kept on the questions
+[D396–D405](archive/v3/decisions-D396-D405.md),
+[D407–D509](archive/v3/decisions-D407-D509.md),
+[D261–D288](archive/v3/decisions-D261-D288.md),
+[D349–D352](archive/v3/decisions-D349-D352.md),
+[D511–D520](archive/v3/decisions-D511-D520.md) and
+[D524–D536](archive/v3/decisions-D524-D536.md). The notes this register kept on the questions
 closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived verbatim in
 [archive/v2/open-questions-history.md](archive/v2/open-questions-history.md), those on the
 questions closed during v3.0 (O163, O164, O181, O182, O200, O201, O210, O211 and O220) in
@@ -27,23 +31,22 @@ questions closed during v3.0 (O163, O164, O181, O182, O200, O201, O210, O211 and
 questions closed during v3.1 (O231–O233) in
 [archive/v3/open-questions-O231-O233.md](archive/v3/open-questions-O231-O233.md), those on the
 questions closed during v3.2 (O247–O266, O268, O290 and O291) in
-[archive/v3/open-questions-history-v3.2.md](archive/v3/open-questions-history-v3.2.md), and the
-note on O306 in [archive/v3/open-questions-O306.md](archive/v3/open-questions-O306.md); each
+[archive/v3/open-questions-history-v3.2.md](archive/v3/open-questions-history-v3.2.md), the
+note on O306 in [archive/v3/open-questions-O306.md](archive/v3/open-questions-O306.md), and those
+on the questions closed during v3.3 (O165–O175, O235 and O310, with O310's own note) in
+[archive/v3/open-questions-history-v3.3.md](archive/v3/open-questions-history-v3.3.md); each
 archive's README says where each answer now lives.
 
-Open on 2026-11-09: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
+Open on 2026-11-22: O48 and O49 (later and governance), O100–O102 (v4 rhythm ratios and editor),
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352), O234–O238 (v3.4's structural review,
-D389), O239–O246 (v3.4's lexicon page, D393), and O267, O269 and O271 (v3.2's build, answered by
-the checks that follow the `3.2.0` tag, D521). v3.2 is released and none of its other questions
-is open. O270, O272–O289 and O292–O305 were never issued; the IDs reserved for v3.0's waves and
-left unused stay unused, and O177 stays unused. New IDs come from `doc-ids next spec O`.
-
-Opened on 2026-10-12 with v3.3 (D261): O165–O175, richer chords. D262 closed O174 the same day.
-D264–D273 settled the rest the same day in master spec Part D, as proposed for the owner's
-approval with Part D; O175's precedence question goes on as O176.
+D351; numbered O177 on branch `plan-migration`, D352), O234 and O236–O238 (v3.4's structural
+review, D389), O239–O246 (v3.4's lexicon page, D393), and O267, O269 and O271 (v3.2's build,
+answered by the checks that follow the `3.2.0` tag, D521). v3.3 is released (D544) and none of its
+questions is open. O270, O272–O289, O292–O305 and O307–O309 were never issued; the IDs
+reserved for v3.0's waves and left unused stay unused, and O177 stays unused. O311, reserved
+by `doc-ids` during the v3.3 archive, is unused. New IDs come from `doc-ids next spec O`.
 
 ## Later and governance (O47–O49)
 
@@ -109,20 +112,10 @@ by D234.
 ## v3.3 richer chords (O165+)
 
 Opened 2026-10-12 while recording the owner's request for richer chords as v3.3 (D261; recorded
-in [v3](versions/v3/README.md#v33--richer-chords-optional)). D262 closed O174 (the research is a
-separate item). The chord research ([docs/music/chord-research.md](../docs/music/chord-research.md))
-recommended an answer to each other question, and on 2026-10-12 spec-writer adopted them, settling
-the research's open points itself, in [master spec Part D](versions/v3/master-spec.md#part-d--v33),
-**proposed for the owner's approval with Part D**: O165 by D264 (one Seventh chords level, Off by
-default), O166 by D265 (diatonic only), O167 by D266 (runs stay three notes), O168 by D267 (the
-seventh a chord tone; endings read the triad until a listening check), O169 by D268 (a seeded
-preference per event; the cost guard), O170 by D269 (symbols, exports, the backing plays the
-seventh), O171 by D270 (presets, saved settings, Vary settings never moves the level, `ifk5.`),
-O172 by D271 (Jam and the suggestion unchanged), O173 by D272 (the STABLE wording changes listed
-for the owner) and O175's shape by D273. Their full text is in this register's history in git;
-the answers are in the [decisions log](decisions.md). If the owner amends Part D, the decision
-amended is revised, and no question comes back unless the owner reopens it. D539 closed O310
-(what a phrase may end owing once the seventh is a landing note) on 2026-11-17, as proposed.
+in [v3](versions/v3/README.md#v33--richer-chords-optional)). v3.3 is released (D544); the notes on
+the questions this section closed (O165–O175 and O310) are in the
+[v3.3 archive](archive/v3/open-questions-history-v3.3.md). O176 and O230 are still open; neither
+is v3.3's to answer.
 
 - **O176 - Style packs and the chord level: which wins** _(D273, from O175; with style packs, no
   version)_: when a later style pack sets the `seventh-chords` capability as data and the player's
@@ -209,8 +202,9 @@ version that upgrades the saved data.
 ## v3.4 structural review (O234+)
 
 Opened 2026-10-21 by `spec-writer` with v3.4 (D389). The scoping draft is
-[structural-review.md](versions/v3/structural-review.md); none of these blocks v3.1, v3.2 or v3.3.
-D536 closed O235 (what the first-load budget measures) on 2026-11-14, at v3.3's wave 4 gate.
+[structural-review.md](versions/v3/structural-review.md); none of these blocked v3.1, v3.2 or v3.3.
+D536 closed O235; the note recording it is in the
+[v3.3 archive](archive/v3/open-questions-history-v3.3.md).
 
 - **O234 - What v3.4 delivers** _(D389)_: a report with ranked recommendations only, or also the
   refactors the owner takes, built as a v3.4 build plan before v4 starts? And is v3.4 a release with

@@ -1,7 +1,7 @@
 # v3 Archive
 
 Status: archived 2026-10-16 (the v3.0 release); extended 2026-10-21 (the v3.1 release),
-2026-11-09 (O306's note) and 2026-11-09 (the v3.2 release)
+2026-11-09 (O306's note), 2026-11-09 (the v3.2 release) and 2026-11-22 (the v3.3 release)
 
 v3.0, storage, is released as version 3.0.0: the release gate, build plan
 [chunk 26](../../versions/v3/build-plan.md#chunk-26--v30-release-gate), passed on 2026-10-16, the
@@ -13,7 +13,9 @@ direction (2026-10-07) to the release gate's final sync. What v3.0 does is state
 built yet; their records stay live and will be archived here at their own releases. v3.1's record
 was archived here at its release, on 2026-10-21: see [v3.1 release](#v31-release-archived-2026-10-21)
 below, which also says what of v3.0's "left in place" list it moved. v3.2's record was archived here at its
-release, on 2026-11-09: see [v3.2 release](#v32-release-archived-2026-11-09) below.
+release, on 2026-11-09: see [v3.2 release](#v32-release-archived-2026-11-09) below. v3.3's record
+was archived here after its release, on 2026-11-22: see
+[v3.3 release](#v33-release-archived-2026-11-22) below.
 
 ## Archived here
 
@@ -613,3 +615,216 @@ The v3.0 and v3.1 build plans and the v3.1 wave log stay in place as at the v3.1
 [p32c33]: ../../versions/v3/build-plan-v3.2.md#chunk-33--240-bpm-in-jam-best-effort
 [p32c34]: ../../versions/v3/build-plan-v3.2.md#chunk-34--the-rhythm-change-shares-tuned-l3
 [p32c40]: ../../versions/v3/build-plan-v3.2.md#chunk-40--the-guide-playback
+
+## v3.3 release (archived 2026-11-22)
+
+v3.3, richer chords, is released as version 3.3.0: by the owner's ruling (D541) the release gate,
+build plan [chunk 22][p33c22], ran its machine half before his hand and listening checks, the owner
+gave his go on 2026-11-18, and the tag `v3.3.0` is on `main` at b2a0e3fa (D544). The
+[release notes](../../../docs/release/v3.3-release-notes.md) hold the evidence. What v3.3 does is
+stated in [master spec Part D][d33]. The owner skipped L1, the listening check on endings (D540),
+so chunk 21 was not built and v3.3 ships the triad reading; endings on the seventh are a
+[roadmap candidate](../../roadmap.md#candidates-not-committed). The checks after the tag (L2 with
+v3.3 H2 and any share tuning, U1b, H3–H6, M3's deciding runs) stay live in the plan's
+[follow-ups after the tag][p33fu] and in the
+[v3.3.x notes](../../versions/v3/README.md#v33x-notes-after-the-tag). The decisions that track
+them stay in the live [decisions log](../../decisions.md): D537 (the figure restated from M3's
+deciding runs), D538–D540 (chunk 21 and L1, with D539's ruling for when endings on the seventh are
+built) and D541–D542 (the release before the checks, and the failure ladder atom at the release
+sync). The live log records this archive as D544.
+
+### Archived at the v3.3 release
+
+- [decisions-D261-D288.md](decisions-D261-D288.md): decisions D261–D288, kept verbatim: v3.3's
+  direction, the chord research as its own item, master spec Part D's answers to O165–O175 and
+  its planning answers, approved with Part D (D520).
+- [decisions-D349-D352.md](decisions-D349-D352.md): decisions D349–D352, kept verbatim: the v3.1,
+  v3.2 and v3.3 build plans moved to the build-plan model under one shared v3 build workflow, and
+  the merge of branch `plan-migration`. Kept live until now because D351 shaped the v3.3 plan.
+- [decisions-D511-D520.md](decisions-D511-D520.md): decisions D511–D520, kept verbatim: Part D
+  and the v3.3 plan refreshed against v3.2 as built, and the owner's approval (gates A0 and D0).
+- [decisions-D524-D536.md](decisions-D524-D536.md): decisions D524–D536, kept verbatim: v3.2's
+  archive event, then the v3.3 build from gates I0 and C1 to wave 4's gate.
+- [open-questions-history-v3.3.md](open-questions-history-v3.3.md): the live register's header
+  paragraphs on open and closed questions, its notes on the questions closed during v3.3
+  (O165–O175, O235 and O310) and O310's own note, recovered from git, kept verbatim.
+- [readme-status-snapshot-v3.3.md](readme-status-snapshot-v3.3.md): the spec index's status
+  snapshot (`specs/README.md`, draft v0.93), kept verbatim.
+- [v3-readme-status-v3.3.md](v3-readme-status-v3.3.md): the v3 README's `Status:` paragraph as it
+  stood at the release, kept verbatim.
+
+v3.3 had no draft topic documents to archive: Part D was consolidated straight from the v3
+README's direction and the [chord research](../../../docs/music/chord-research.md), which stays in
+`docs/music/`.
+
+Not archived, though v3.3's: D537–D542 (above). D259–D260 (style packs and the sound ban, no
+version), D344–D348 (v3.0's release, whose v3.0.x notes are still open), D389 and D393–D395
+(v3.4, the lexicon API later), D406 and D521–D523 (v3.2's checks after the tag) stay live. D289
+and D525 were never issued.
+
+### Where each v3.3 decision now lives
+
+Section numbers (D5.2, D8.4, …) are those of [master spec Part D][d33]; "plan" is the
+[v3.3 build plan](../../versions/v3/build-plan-v3.3.md), complete and left in place. "History"
+marks a decision that is superseded, or that only recorded an approval, a gate event, an interim
+state or a merge; it has no live home. "Still open after the tag" marks a decision whose
+follow-up check is still owed; its home is the plan section that carries the check.
+
+#### D261–D288
+
+| Decision(s) | Subject | Now lives in |
+| --- | --- | --- |
+| D261 | v3.3, richer chords, opt-in, after a research phase; v1's D11–D13 and style packs | [v3 README, v3.3](../../versions/v3/README.md#v33--richer-chords-optional) and its [relation to v1's decisions](../../versions/v3/README.md#relation-to-v1s-decisions-and-to-style-packs); [D1][d33d1], [D2][d33d2] |
+| D262 | The chord research a separate docs-only item; the vision updated with the v3.3 direction | [v3 README, research first](../../versions/v3/README.md#research-first); [chord research](../../../docs/music/chord-research.md) |
+| D264 | One Seventh chords level, Off by default (O165) | [D2][d33d2], [D5.2][d33d52] |
+| D265 | Diatonic sevenths only (O166) | [D5.1][d33d51] |
+| D266 | The run cap stays three; the seventh may be one of the three (O167) | [D6.2][d33d62], [D12][d33d12] |
+| D267 | The seventh a chord tone; endings and the join read the triad until a listening check (O168) | [D6.1][d33d61], [D6.3][d33d63], [D12][d33d12]; the check skipped (D540), so the triad reading ships; endings on the seventh: [roadmap candidate](../../roadmap.md#candidates-not-committed) |
+| D268 | A seeded preference per harmony event; the cost guard (O169) | [D5.2][d33d52]–[D5.4][d33d54], [D10][d33d10]; the shares' tuning at L2 still open after the tag: plan [follow-ups after the tag][p33fu] |
+| D269 | Chord symbols, exports and the four-note backing (O170) | [D7.1][d33d71], [D7.2][d33d72], [D7.3][d33d73], [D12][d33d12] |
+| D270 | Presets, saved settings, Vary settings never moves the level, `ifk5.` (O171) | [D8.1][d33d81], [D8.2][d33d82], [D8.3][d33d83], [D9][d33d9] |
+| D271 | Jam and the key and mode suggestion unchanged (O172) | [D8.4][d33d84]; Jam's own level: D512 |
+| D272 | The declared-intent changes listed in Part D (O173) | [D12][d33d12] |
+| D273 | One named capability per chord family, stored by value (O175's shape); O176 opened | [D4][d33d4], [D9][d33d9], [D14][d33d14]; O176: [register](../../open-questions.md#v33-richer-chords-o165) |
+| D274 | Gaps settled while consolidating Part D | [D4][d33d4], [D5.2][d33d52], [D8.2][d33d82], [D8.3][d33d83]; point 4 (a level change drops the doodle): superseded by D513 ([D8.4][d33d84]) |
+| D275 | The triad fallback is per phrase; Strongly favored keeps at least 3 in 4 | [D5.2][d33d52], [D15][d33d15] item 5; plan [M1][p33m1] |
+| D278 | The seventh draw's position and shares | [D5.3][d33d53]; plan [chunk 12][p33c12], [M1][p33m1] |
+| D281 | What the seventh share counts | Plan [M1][p33m1]; a seed per phrase: D533 |
+| D282 | A listening check of the level and the backing (L2, v3.3 H2), still open after the tag | Plan [hand checks][p33hc], [follow-ups after the tag][p33fu] |
+| D283 | Who updates the project documents §D12 names | [D12][d33d12], [D16][d33d16]; plan [workflow deltas][p33wd], [chunk 12][p33c12], [chunk 22][p33c22] |
+| D284 | No token-source chunk for v3.3 | Plan [gates][p33gates] (D0) |
+| D285 | The change set adds the atoms §D12 missed | [D12][d33d12]; plan [gates][p33gates] (I0) |
+| D287 | A Jam's phrase 1 carries the level on every rung | [D8.4][d33d84]; plan [chunk 23][p33c23] |
+| D288 | The level ids are camelCase (amends D277) | [D9][d33d9]; plan [chunk 3][p33c3] |
+| D263 | The owner confirms the vision 0.9 wording | History: an approval, applied in `docs/` by `documentalist` |
+| D276 | The v3.3 contract confirmed once, early, with one bump | History: amended by D517 (each wording applied at its wave's sync) and confirmed at C1 (D526); [D12][d33d12], plan [gates][p33gates] |
+| D277 | The level's ids, stored beside the controls | History: the spelling superseded by D288, the placement in the request amended by D514; [D9][d33d9] |
+| D279 | Data version 5, with an upgrade that rewrites nothing | History: amended by D515 (the step rewrites the records whose shape changes); [D8.2][d33d82], plan [chunk 17][p33c17] |
+| D280 | The listening check's examples are rewritten phrases | History: L1 skipped by the owner (D540); plan [chunk 4][p33c4], [chunk 18][p33c18] |
+| D286 | Until the control ships, the app sends Off | History: an interim state, ended by chunk 19 (plan [chunk 19][p33c19]) |
+
+#### D349–D352
+
+| Decision(s) | Subject | Now lives in |
+| --- | --- | --- |
+| D349 | v3.1's build plan on the build-plan model; one shared v3 build workflow | [Build workflow](../../versions/v3/build-workflow.md); [v3.1 plan, waves](../../versions/v3/build-plan-v3.1.md#waves) |
+| D350 | v3.2's build plan on the build-plan model | [v3.2 plan, waves](../../versions/v3/build-plan-v3.2.md#waves) |
+| D351 | v3.3's build plan on the build-plan model; the owner's four questions become gates A0, C1, R0 and I0, and O230 | Plan [waves][p33waves], [gates][p33gates]; O230: [register](../../open-questions.md#v33-richer-chords-o165), still open |
+| D352 | Branch `plan-migration` merged, renumbered | History: a merge event |
+
+#### D511–D520
+
+| Decision(s) | Subject | Now lives in |
+| --- | --- | --- |
+| D512 | Jam's own level runs through all of Part D; chunk 23 builds it | [D8.4][d33d84], [D15][d33d15]; plan [chunk 23][p33c23] |
+| D513 | A level change keeps the kept doodle | [D8.4][d33d84], [D15][d33d15] item 16 |
+| D514 | The level rides the generation intent only | [D9][d33d9]; plan [chunk 3][p33c3] |
+| D515 | Data version 5 rewrites the records whose shape changes | [D8.2][d33d82]; plan [chunk 17][p33c17] |
+| D516 | The rhythm lock's walk, the carried note, and Jam measured at 180 BPM | [D5.3][d33d53], [D6.3][d33d63], [D10][d33d10] |
+| D517 | Every STABLE wording v3.3 changes confirmed once and applied wave by wave | [D12][d33d12]; plan [gates][p33gates] (C1) |
+| D518 | The backing beside v3.2's guides; H2 judges the balance, still open after the tag | [D7.3][d33d73]; plan [hand checks][p33hc], [follow-ups after the tag][p33fu] |
+| D519 | After `Start with this phrase`, phrase 1 keeps its own level | [D8.3][d33d83] |
+| D511 | Part D and the plan refreshed against v3.2 as built | History: an interim state, approved by D520; the code table: [chord research](../../../docs/music/chord-research.md#where-a-fourth-chord-note-meets-the-code) |
+| D520 | The owner approves v3.3: Part D v1.2, its plan and its design (A0, D0) | History: an approval (plan [gates][p33gates]) |
+
+#### D524–D536
+
+| Decision(s) | Subject | Now lives in |
+| --- | --- | --- |
+| D527 | A8's sentences on the Idle state apply with chunk 16, at wave 3's sync | Plan [gates][p33gates] (C1), [chunk 11][p33c11], [chunk 16][p33c16] |
+| D528 | A seventh reaches the app only after every writer and reader knows it | Plan [chunk 13][p33c13], [chunk 15][p33c15], [chunk 17][p33c17], [chunk 19][p33c19], [waves][p33waves] |
+| D529 | `rule_doodle_only_orders_candidates` revised with chunk 23 | Plan [chunk 23][p33c23] |
+| D530 | A leap recovery owed across the join is never repaid on the tonic chord's seventh | [D6.3][d33d63]; plan [chunk 5][p33c5] |
+| D531 | Chunk 18 reports join loss by cause; Jam above Off measured first through the ladder's double | Plan [M2][p33m2], [chunk 18][p33c18] |
+| D532 | Chunk 16 builds the level's change at the routing point; A4 rides with chunk 12 | Plan [gates][p33gates] (C1), [chunk 12][p33c12], [chunk 16][p33c16] |
+| D533 | M1 gives each phrase a seed of its own | Plan [M1][p33m1], [chunk 18][p33c18] |
+| D534 | Gate DP: no finer fallback, chunk 20 skipped; DP re-checked on a tuning patch's M1, still open after the tag | Plan [gates][p33gates] (DP), [M1][p33m1], [chunk 20][p33c20], [follow-ups after the tag][p33fu] |
+| D535 | ISS-019 a bug against §D6.1 and §D6.3; chunk 5's second addendum fixes it | [D6.1][d33d61], [D6.3][d33d63]; plan [chunk 5][p33c5]; ISS-019 resolved ([issues index](../../../issues/README.md)) |
+| D536 | The first-load budget counts all start-up JavaScript, 400 KiB (O235) | [D13][d33d13]; plan [M4][p33m4]; [build workflow, wave gate](../../versions/v3/build-workflow.md#wave-gate) |
+| D524 | v3.2 released and its record archived | History: an archive event ([v3.2 release](#v32-release-archived-2026-11-09)) |
+| D526 | Gate I0 cleared; C1, the bumps and the vision's v3.3 line confirmed | History: a gate event and an approval, applied in `docs/` by `documentalist`; [D12][d33d12], plan [gates][p33gates] |
+
+### Where each closed v3.3 question now lives
+
+| Question | Decision | Now lives in |
+| --- | --- | --- |
+| O165 | D264 | [D2][d33d2], [D5.2][d33d52] |
+| O166 | D265 | [D5.1][d33d51] |
+| O167 | D266 | [D6.2][d33d62] |
+| O168 | D267 | [D6.1][d33d61], [D6.3][d33d63]; endings on the seventh: [roadmap candidate](../../roadmap.md#candidates-not-committed) (D540) |
+| O169 | D268 | [D5.2][d33d52]–[D5.4][d33d54], [D10][d33d10] |
+| O170 | D269 | [D7.1][d33d71]–[D7.3][d33d73] |
+| O171 | D270 | [D8.1][d33d81]–[D8.3][d33d83], [D9][d33d9] |
+| O172 | D271 | [D8.4][d33d84] |
+| O173 | D272 | [D12][d33d12] |
+| O174 | D262 | [v3 README, research first](../../versions/v3/README.md#research-first) |
+| O175 | D273 | [D14][d33d14]; its precedence question goes on as O176, still open in the [register](../../open-questions.md#v33-richer-chords-o165) |
+| O235 | D536 | [D13][d33d13]; plan [M4][p33m4]; [build workflow, wave gate](../../versions/v3/build-workflow.md#wave-gate) |
+| O310 | D539 (live) | Plan [chunk 21][p33c21], for when endings on the seventh are built; [roadmap candidate](../../roadmap.md#candidates-not-committed) |
+
+O48, O49, O100–O102, O115, O116, O176, O180, O183, O190, O230, O234, O236–O246, O267, O269 and
+O271 stay open in the live [register](../../open-questions.md); O307–O309 were never issued.
+O311, reserved by `doc-ids` during this archive pass, is unused.
+
+### Left in place at the v3.3 release
+
+| Document | Role | Referenced from |
+| --- | --- | --- |
+| [versions/v3/master-spec.md](../../versions/v3/master-spec.md) | Parts A, B, C and D are the contract for the running code | `docs/`, `issues/`, `ui_ux/`, `specs/` |
+| [versions/v3/build-plan-v3.3.md](../../versions/v3/build-plan-v3.3.md) | The v3.3 build plan, complete; chunk 22 is the release gate's record, and its hand checks and follow-ups after the tag are live; chunk 21 holds the design of endings on the seventh, with D539, for a later version; it holds the build calls the tables above point to | `docs/release/`, `docs/generation-latency.md`, `HARDWARE-CHECKLIST.md`, `ui_ux/todo.md`, `specs/` |
+| [versions/v3/wave-log-v3.3.md](../../versions/v3/wave-log-v3.3.md) | The wave driver's record of the v3.3 build; it may still record the checks after the tag | `docs/release/`, `issues/`, `specs/` |
+| [versions/v3/build-workflow.md](../../versions/v3/build-workflow.md) | The shared v3 build workflow, with the start-up budget D536 set | `specs/` |
+| [versions/v3/README.md](../../versions/v3/README.md) | The version's scope, and the live v3.0.x, v3.2.x and v3.3.x notes | `docs/music/`, `specs/`, the v2 archive |
+| `versions/v3/` v3.4 documents | v3.4's two scoping drafts, for a milestone not started | `specs/`, `docs/music/` |
+
+The v3.0, v3.1 and v3.2 build plans, the v3.1 and v3.2 wave logs and the Jam mode draft stay in
+place as at the v3.2 release.
+
+[d33]: ../../versions/v3/master-spec.md#part-d--v33
+[d33d1]: ../../versions/v3/master-spec.md#d1-core-concept
+[d33d2]: ../../versions/v3/master-spec.md#d2-scope
+[d33d4]: ../../versions/v3/master-spec.md#d4-words-used-in-this-part
+[d33d51]: ../../versions/v3/master-spec.md#d51-the-chords
+[d33d52]: ../../versions/v3/master-spec.md#d52-four-levels
+[d33d53]: ../../versions/v3/master-spec.md#d53-how-the-planner-applies-it
+[d33d54]: ../../versions/v3/master-spec.md#d54-determinism
+[d33d61]: ../../versions/v3/master-spec.md#d61-the-seventh-is-a-chord-tone
+[d33d62]: ../../versions/v3/master-spec.md#d62-runs-stay-three-notes
+[d33d63]: ../../versions/v3/master-spec.md#d63-phrase-endings-and-the-join-read-the-triad-until-a-listening-check
+[d33d71]: ../../versions/v3/master-spec.md#d71-chord-symbols
+[d33d72]: ../../versions/v3/master-spec.md#d72-exports
+[d33d73]: ../../versions/v3/master-spec.md#d73-the-backing-plays-the-seventh
+[d33d81]: ../../versions/v3/master-spec.md#d81-presets
+[d33d82]: ../../versions/v3/master-spec.md#d82-saving-on-the-device
+[d33d83]: ../../versions/v3/master-spec.md#d83-vary-settings-and-the-session
+[d33d84]: ../../versions/v3/master-spec.md#d84-pre-generation-jam-and-the-key-and-mode-suggestion
+[d33d9]: ../../versions/v3/master-spec.md#d9-the-generation-request-the-replay-key-and-kept-sessions
+[d33d10]: ../../versions/v3/master-spec.md#d10-the-cost-guard-generation-time-with-seventh-chords
+[d33d12]: ../../versions/v3/master-spec.md#d12-contract-changes-needing-owner-confirmation
+[d33d13]: ../../versions/v3/master-spec.md#d13-existing-code-and-risks
+[d33d14]: ../../versions/v3/master-spec.md#d14-architectural-decisions-and-their-reasons
+[d33d15]: ../../versions/v3/master-spec.md#d15-definition-of-done
+[d33d16]: ../../versions/v3/master-spec.md#d16-deferred-and-open
+[p33gates]: ../../versions/v3/build-plan-v3.3.md#gates
+[p33waves]: ../../versions/v3/build-plan-v3.3.md#waves
+[p33wd]: ../../versions/v3/build-plan-v3.3.md#workflow-deltas
+[p33m1]: ../../versions/v3/build-plan-v3.3.md#m1--the-seventh-share
+[p33m2]: ../../versions/v3/build-plan-v3.3.md#m2--the-cost-guard
+[p33m4]: ../../versions/v3/build-plan-v3.3.md#m4--the-first-load-bundle
+[p33hc]: ../../versions/v3/build-plan-v3.3.md#hand-checks
+[p33c3]: ../../versions/v3/build-plan-v3.3.md#chunk-3--the-level-in-the-generation-request
+[p33c4]: ../../versions/v3/build-plan-v3.3.md#chunk-4--measurement-tools-the-seventh-census-the-cost-runs-and-the-ending-renders
+[p33c5]: ../../versions/v3/build-plan-v3.3.md#chunk-5--the-seventh-as-a-chord-tone-in-the-pitch-search
+[p33c11]: ../../versions/v3/build-plan-v3.3.md#chunk-11--presets-hold-the-level
+[p33c12]: ../../versions/v3/build-plan-v3.3.md#chunk-12--the-level-orders-the-plans
+[p33c13]: ../../versions/v3/build-plan-v3.3.md#chunk-13--musicxml-writes-the-seventh-chords
+[p33c15]: ../../versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5
+[p33c16]: ../../versions/v3/build-plan-v3.3.md#chunk-16--the-level-in-a-session-and-in-pre-generation
+[p33c17]: ../../versions/v3/build-plan-v3.3.md#chunk-17--the-level-on-the-device-data-version-5
+[p33c18]: ../../versions/v3/build-plan-v3.3.md#chunk-18--measurements-first-run-shares-cost-guard-and-ending-examples
+[p33c19]: ../../versions/v3/build-plan-v3.3.md#chunk-19--the-seventh-chords-control
+[p33c20]: ../../versions/v3/build-plan-v3.3.md#chunk-20--the-finer-fallback-conditional
+[p33c21]: ../../versions/v3/build-plan-v3.3.md#chunk-21--endings-on-the-seventh-second-option-conditional
+[p33c22]: ../../versions/v3/build-plan-v3.3.md#chunk-22--v33-release-gate
+[p33c23]: ../../versions/v3/build-plan-v3.3.md#chunk-23--jams-own-seventh-chords-level
+[p33fu]: ../../versions/v3/build-plan-v3.3.md#after-the-tag-v33x-follow-ups

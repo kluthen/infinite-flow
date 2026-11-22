@@ -116,8 +116,8 @@ Status: this file holds four parts.
   (C13, C14, C16 item 49, C17; spec D522). Built and released as version 3.2.0 on 2026-11-09
   (spec D523), the contract for the running code with Parts A and B; its hand and listening checks
   follow the tag (spec D521). Its sections are numbered C1 to C19; what v1.1 to v1.26 change is listed at the top of Part C and marked in each section they touch.
-- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.6
-  (2026-11-17), consolidated from the v3.3 direction and the chord research, refreshed against
+- **[Part D — v3.3](#part-d--v33), richer chords (seventh chords):** master spec v1.7
+  (2026-11-22), consolidated from the v3.3 direction and the chord research, refreshed against
   v3.2 as built (spec D511–D519); **approved by the owner on 2026-11-09** (spec D520); v1.3
   corrects it after the intent ingestion (spec D526); v1.4 says what a recovery owed across the join
   may land on (spec D530); v1.5 (2026-11-14) counts all start-up JavaScript against a 400 KiB
@@ -125,7 +125,10 @@ Status: this file holds four parts.
   the owner, so v3.3 ships the triad reading (§D6.3, §D15 item 9; spec D540), and v3.3's release
   before its hand and listening checks, which follow the `3.3.0` tag (§D15, §D16; spec D541). The contract wording it changes (§D12) was
   confirmed by the owner separately, on 2026-11-10 (spec D526). Chrome is the one supported
-  browser (D15, item 18; spec D399). Its sections are numbered D1 to D17.
+  browser (D15, item 18; spec D399). Its sections are numbered D1 to D17. v1.7 (2026-11-22)
+  records the release, no behaviour changed: built and released as version 3.3.0 on 2026-11-18
+  (spec D544), the contract for the running code with Parts A, B and C; its hand and listening
+  checks follow the tag.
 
 Part A's history follows.
 
@@ -4990,7 +4993,7 @@ Five layers, so that v4 keeps them (D491; the owner does not want it rewritten i
 
 ## Part D — v3.3
 
-Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.6 (2026-11-17; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D518; §D8.3's phrase 1 after `Start with this phrase`, D519; v1.3 corrects it after the intent ingestion and the contract sign-off, spec D526: the contract at 14.1.0, the wordings confirmed and two more STABLE atoms reworded, §D12; the four-note backing stated as settled, §D7.3; the spoken words left to the design, §D7.1; the finer fallback's exception, §D5.2; v1.4 says what a leap recovery owed across the join may land on, §D6.3, spec D530; v1.5, 2026-11-14, counts all start-up JavaScript against a 400 KiB budget, §D13, spec D536; v1.6, 2026-11-17, records the listening check as skipped by the owner, §D6.3 and §D15 item 9, spec D540, and the release before the hand and listening checks, §D15 and §D16, spec D541), consolidated from the
+Richer chords (optional): seventh chords. Its sections are numbered D1 to D17; a cross-reference to one carries a section sign (§D5), never to be read as a decisions-log entry. Master spec v1.7 (2026-11-22; v1.1 made §D5.2 and §D5.3 agree that the triad fallback is per phrase, and set the top level's share; v1.2 refreshes Part D against v3.2 as built, Part C v1.24 and CONTRACT 14.0.0: Jam's own level carried through every section, the kept doodle, the guide playback, the rhythm lock's walk, Jam's tempo, the storage and the STABLE atoms v3.2 promoted, spec D511–D518; §D8.3's phrase 1 after `Start with this phrase`, D519; v1.3 corrects it after the intent ingestion and the contract sign-off, spec D526: the contract at 14.1.0, the wordings confirmed and two more STABLE atoms reworded, §D12; the four-note backing stated as settled, §D7.3; the spoken words left to the design, §D7.1; the finer fallback's exception, §D5.2; v1.4 says what a leap recovery owed across the join may land on, §D6.3, spec D530; v1.5, 2026-11-14, counts all start-up JavaScript against a 400 KiB budget, §D13, spec D536; v1.6, 2026-11-17, records the listening check as skipped by the owner, §D6.3 and §D15 item 9, spec D540, and the release before the hand and listening checks, §D15 and §D16, spec D541; v1.7, 2026-11-22, records the release as version 3.3.0 on 2026-11-18, spec D544, no behaviour changed), consolidated from the
 v3.3 direction in the [v3 notes](README.md#v33--richer-chords-optional) and the chord research
 [docs/music/chord-research.md](../../../docs/music/chord-research.md), which keeps the sources, the
 construction tables and the code and atom references line by line. **Approved by the owner on
