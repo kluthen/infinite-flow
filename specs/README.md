@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.97
+Status: draft v0.98
 
 ## Status Snapshot
 
@@ -78,12 +78,16 @@ Status: draft v0.97
     no runtime dependency is added besides Tone.js (D547). v3.4 is tagged `3.4.0` (D550). v3.4
     also builds a **lexicon page**, its one player-facing item (D393, amending D389): every
     lexicon word, A–Z and by search, read from `docs/music/lexicon.md` alone (D394); its design
-    and behaviour validated by the owner (D549; [draft](versions/v3/lexicon-page.md)), its
-    master spec part not yet written. Its second step, the lexicon as an API, moved into v3.4
-    (D555, [roadmap](roadmap.md#the-lexicon-api--in-v34-d555)): a plain TypeScript module over
-    the page's parser, no server (D559). The owner left the resolution of v3.4 to the wave driver
-    (D556), who ruled the refactors' bounds (D557), the order (D558) and a docs-only lexicon pass
-    before the page's build (D560).
+    and behaviour validated by the owner (D549; [draft](versions/v3/lexicon-page.md)). Its second
+    step, the lexicon as an API, moved into v3.4 (D555,
+    [roadmap](roadmap.md#the-lexicon-api--in-v34-d555)): a plain TypeScript module over the page's
+    parser, no server (D559). The owner left the resolution of v3.4 to the wave driver (D556), who
+    ruled the refactors' bounds (D557), the order (D558) and a docs-only lexicon pass before the
+    page's build (D560), done as lexicon v1.9. Both steps are master spec
+    [Part E](versions/v3/master-spec.md#part-e--v34), approved by the driver (D564), with the page
+    in any orientation (D562) and the build failing on an empty or malformed lexicon (D563); the
+    [v3.4 build plan](versions/v3/build-plan-v3.4.md)'s wave 1 builds them in three chunks
+    (D565), waiting on the token-source pass, Part E's ingestion and the wave preflight.
   - **The owner's direction** (2026-11-22): the endgame's game is a separate app, with a
     three-way split (a library, this app, the game; D551) the structural review evaluates; v4.0
     is most probably this app's last update (D552, a direction) and holds Tone.js and
@@ -128,7 +132,9 @@ Status: draft v0.97
   as v5, D416, D417, its revisions listed in its header; its [wave log](versions/v3/wave-log-v3.2.md))
   and [v3.3](versions/v3/build-plan-v3.3.md) (v25, complete; chunk 22 is the release gate's
   record, and its hand checks and follow-ups after the tag are live, D541, D544; approved with
-  Part D, D520; its [wave log](versions/v3/wave-log-v3.3.md)). Every build plan runs wave by
+  Part D, D520; its [wave log](versions/v3/wave-log-v3.3.md)), then
+  [v3.4](versions/v3/build-plan-v3.4.md) (v1, its lexicon wave approved by the wave driver, D565;
+  its [wave log](versions/v3/wave-log-v3.4.md)). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
 - [Personas](personas.md) (draft): who the product serves.

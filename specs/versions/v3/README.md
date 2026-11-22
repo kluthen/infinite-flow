@@ -13,8 +13,9 @@ working record archived (D544); v3.4, a structural review before v4, opened as a
 (D389), with a lexicon page added as its one player-facing item (D393), the owner's first rulings
 on it of 2026-11-22 recorded (D545–D561: v3.4 tagged `3.4.0`, D550; the lexicon page's design
 validated, D549; the three-way split as the review's target, D551; the lexicon API moved into
-v3.4, D555; v3.4's questions delegated to the wave driver, D556, and ruled, D557–D560); v3.x
-direction only. The
+v3.4, D555; v3.4's questions delegated to the wave driver, D556, and ruled, D557–D560), and the
+lexicon page and API consolidated as [master spec Part E](master-spec.md#part-e--v34) with their
+[build plan](build-plan-v3.4.md), approved by the driver (D562–D565); v3.x direction only. The
 Status paragraphs this README kept until the v3.0, v3.1, v3.2 and v3.3 releases are archived
 verbatim in [archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md),
 [archive/v3/v3-readme-status-v3.1.md](../../archive/v3/v3-readme-status-v3.1.md),
@@ -92,6 +93,11 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   v3.4's one player-facing item, so D389's "no player-facing change" now holds for the review only.
   Scoping draft: [lexicon-page.md](lexicon-page.md). Its second step, an API, was planned for v4
   or v5 (D395) and is v3.4's too (D555).
+- **v3.4 master spec: [Part E](master-spec.md#part-e--v34)**, the lexicon page and the lexicon
+  API, approved by the wave driver on 2026-11-22 under the owner's delegation (D556, D564). **v3.4
+  build plan:** [build-plan-v3.4.md](build-plan-v3.4.md), v1, wave 1 (three chunks) approved
+  (D565); its [wave log](wave-log-v3.4.md). The structural review's refactors, if any, join it
+  after its report.
 - **v3.0.1 is merged into v3.0** (D212), the owner: "v3.0.1 could very well be just included
   into v3.0". This also settles where keeping sessions goes: with the review of earlier sessions
   that needs it.
@@ -846,9 +852,11 @@ source is [`docs/music/lexicon.md`](../../../docs/music/lexicon.md), read when t
 [lexicon-page.md](lexicon-page.md), kept apart from the review's draft because it is built, not
 analysed. The owner left its questions to `ux-writer` (D548), then validated its design and took
 its answers as written (D549). The API, planned for v4 or v5 (D395), is v3.4's too (D555): a
-plain TypeScript module over the page's parser, no server (D559). A docs-only lexicon pass comes
-before the page's build (D560). Open: O315 (where the API lives once the split is built)
-([register](../../open-questions.md#v34-lexicon-page-o239)).
+plain TypeScript module over the page's parser, no server (D559). A docs-only lexicon pass came
+before the page's build (D560; lexicon v1.9). Both steps are stated in
+[master spec Part E](master-spec.md#part-e--v34), approved by the wave driver (D564), and built by
+wave 1 of the [v3.4 build plan](build-plan-v3.4.md) (D565). Open: O315 (where the API lives once
+the split is built) ([register](../../open-questions.md#v34-lexicon-page-o239)).
 
 ## v3.x — Learning from positive signals
 

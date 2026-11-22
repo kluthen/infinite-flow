@@ -1,12 +1,13 @@
 # v3.4 — The Lexicon Page
 
-Status: draft v2.2 (2026-10-21; scoping, D393–D395; 2026-11-22, D548; the owner's validation of
+Status: draft v2.3 (2026-10-21; scoping, D393–D395; 2026-11-22, D548; the owner's validation of
 the design and its answers, D549; the tag, D550; the API moved into v3.4, D555; the wave driver's
 rulings under the owner's delegation, D556: the order, D558, the API's shape, D559, the lexicon
-pass, D560; a lexicon backend some day, D561). The page's behaviour (D549), its order (D558) and
-the API's shape (D559) are settled and written as fact; what is still `(proposed)` is how the page
-is built and checked (§5) and the definition of done (§8), which the master spec part settles.
-Open: only where the API lives once the split is built (O315).
+pass, D560; a lexicon backend some day, D561; v2.3, 2026-11-22: the lexicon pass done, §3 and §10,
+and the draft consolidated into [master spec Part E](master-spec.md#part-e--v34), approved by the
+wave driver, D562–D564). **Part E is the handoff and wins where this draft differs**: it settles
+what this draft still tags `(proposed)` (§5, §8) and replaces §6's code facts with a reading of
+`main` 828ab396 (Part E §E13). Open: only where the API lives once the split is built (O315).
 
 A small side project in two steps, both in v3.4, next to the
 [structural review](structural-review.md) and independent of it: step one is the page (D393);
@@ -65,15 +66,16 @@ view." (D549)
 
 ## 3. What the lexicon holds today
 
-Read 2026-11-22 (lexicon v1.8). Facts, not decisions.
+Read 2026-11-22 (lexicon v1.8), with the counts the lexicon pass changed brought to v1.9 (§10).
+Facts, not decisions, and they change with the file: the page counts from it at each build.
 
 - **334 entries** in 12 themed groups (Basics, Pitch and notation, Rhythm and meter, Melody,
   Harmony, Scales and modes, Styles, Style and identity, Texture and arranging, Instruments and
   transposition, App controls, Internal). The entries are alphabetical inside each group only, so
   an A–Z view needs one sort over all of them.
-- **16 entries sit under "Internal (no popup)"**, which the lexicon says are "never shown in the
-  UI"; the page shows the other **318** (§4). 59 `related` links in 51 shown entries point to an
-  Internal entry (Phrase's links to Gesture and answer and Open ending among them).
+- **11 entries sit under "Internal (no popup)"** in v1.9 (16 in v1.8), which the lexicon says are
+  "never shown in the UI"; the page shows the other **323** (318 in v1.8) (§4). 43 `related` links
+  in 40 shown entries point to an Internal entry (59 in 51 in v1.8).
 - **Each entry** is a `###` heading (the word as the reader sees it) followed by one-line fields,
   always in this order:
   - `id`: a unique short name, such as `half-step`;
@@ -90,9 +92,10 @@ Read 2026-11-22 (lexicon v1.8). Facts, not decisions.
 - **Formatting inside the fields is light**: a few code marks (backticks) and some emphasis; no
   links inside entries.
 - **Some app meanings are written for developers too**: 59 cite spec decisions ("spec decision
-  D214"), about 45 describe something planned or not built, a few name code files. Eight are
-  single paragraphs over 1,200 characters (Vary settings, Doodle, Jam, Key and mode suggestion,
-  Drift, Allowed rhythm changes, Rhythm lock, Starting note). The page shows them as written (§4).
+  D214"), about 45 describe something planned or not built, a few name code files. In v1.8 eight
+  were single paragraphs over 1,200 characters (Vary settings, Doodle, Jam, Key and mode
+  suggestion, Drift, Allowed rhythm changes, Rhythm lock, Starting note); after the lexicon pass
+  none is (§10). The page shows them as written (§4).
 - **Size:** the file is 345 KB; the fields the page shows, Internal entries left out, came to
   about 297 KB on v1.7 (§5).
 - **The lexicon already expects to be read by the app:** its "How to use" calls entries "meant to
@@ -104,7 +107,7 @@ Read 2026-11-22 (lexicon v1.8). Facts, not decisions.
 The behaviour the design supports. Settled by the owner's validation of the design and of
 `ux-writer`'s answers to O239–O244 and O246 (D549).
 
-- **The entries shown:** every entry outside the Internal group (318 on lexicon v1.8); the page
+- **The entries shown:** every entry outside the Internal group (323 on lexicon v1.9); the page
   states how many it holds. A related link to an Internal entry is left out.
 - **What one entry shows:**
   - always: the word, its group as a small label (on every entry), the popup line as the first
@@ -179,8 +182,12 @@ The behaviour the design supports. Settled by the owner's validation of the desi
 
 ## 6. What the code says (blast radius, 2026-10-21)
 
-Read on branch `v3.1-release` at 56aea52, through `codebase-explorer`. To be read again against
-`main` before the build plan's **Files** lines are written: v3.2 and v3.3 came after it.
+Read on branch `v3.1-release` at 56aea52, through `codebase-explorer`. **Superseded** by the
+reading of `main` 828ab396 on 2026-11-22 in [Part E §E13](master-spec.md#e13-existing-code-and-risks),
+which the build plan's **Files** lines follow; kept as it was read. Changed since: the entry
+budget is now a 400 KiB start-up budget over all JavaScript loaded at start-up (D536), the
+generation worker's 170 KiB, the entry file is found from the build's module graph (so the
+`index-` naming caveat below is gone), and `WorkspaceShell.vue` is at its size limit.
 
 - **No router and no second page.** `App.vue` renders `WorkspaceShell.vue` only; there is no
   `vue-router`, no `pushState` and no hash routing. The sheets (connection, my instrument, presets,
@@ -235,9 +242,9 @@ Read on branch `v3.1-release` at 56aea52, through `codebase-explorer`. To be rea
   measurement pass runs once the page is built, so the page is measured with the app in it. The
   lexicon pass (§10) comes before the page's build.
 - **A release:** v3.4 is tagged `3.4.0` (D550).
-- **`spec-writer`**: a short master spec part for the page (Part E of the
-  [v3 master spec](master-spec.md), proposed) covering both steps, for approval (the owner's,
-  or the wave driver's under D556); then the page's and the API's part of the v3.4 build plan.
+- **`spec-writer`**: a short master spec part for the page covering both steps, written as
+  [Part E](master-spec.md#part-e--v34) and approved by the wave driver under D556 (D564); then the
+  page's and the API's part of the [v3.4 build plan](build-plan-v3.4.md) (D565).
 - **`ux-writer`**: the design, validated by the owner (D549), moved from its draft into the
   `ui_ux/` root with v3.4's change marks: the page's screen, the "look up a word" flow and the
   footer's button. Any new class goes into `components.css`. `ux-critic` validates it there
@@ -298,13 +305,16 @@ the owner has seen the page.
 
 Both edits are taken (D560, the wave driver's ruling under D556): a docs-only pass on the lexicon
 inside v3.4, before the page's build, made by the lexicon's owners as they decide between them
-(`documentalist`, `ux-writer`). The page then shows it with no code change (D394). Not started.
+(`documentalist`, `ux-writer`). The page then shows it with no code change (D394). **Done on
+2026-11-22** (lexicon v1.9, commit 32868c5d on branch `v3.4-lexicon-pass`, with a small follow-up
+commit on Register window and the Register control entry), to merge into `main` before the page's
+build (build plan v3.4, gate L0).
 
-- **Player-worthy words in the Internal group:** Gesture and answer, Open ending, Recovery,
-  Register window and Signature figure are words a curious player would like. Moving one out of
-  the Internal group, with its popup line rewritten for a player, puts it on the page.
-- **The eight longest app meanings** (§3): split or shorten them so they read less like walls of
-  text.
+- **Player-worthy words in the Internal group:** all five moved out, their popup lines written for a
+  player: Gesture and answer (to Rhythm and meter), Open ending (Harmony), Recovery (Melody),
+  Register window (Melody; the app's own messages use the word) and Signature figure (Style and
+  identity). Internal went from 16 entries to 11, the page's words from 318 to 323.
+- **The eight longest app meanings** (§3): shortened; none is over 1,200 characters now.
 
 ## 11. Open
 

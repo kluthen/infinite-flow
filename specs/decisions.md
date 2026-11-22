@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.143
+Status: draft v2.144
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -54,7 +54,8 @@ figure restated from M3's deciding runs, the endings-on-the-seventh ruling kept 
 version, and v3.3's release before its hand and listening checks, which follow the `3.3.0` tag);
 and D544 (v3.3 released and archived); D545–D561 (the owner's first rulings on v3.4, his direction for the split and this app's
 horizon, v4.0's scope, the lexicon API in v3.4, and the wave driver's rulings under his
-delegation of v3.4). D289 and D525 are unused; so are the IDs within the
+delegation of v3.4); D562–D565 (the driver's rulings on the lexicon page's orientation and build
+failures, and his approval of Part E and the v3.4 build plan's lexicon wave). D289 and D525 are unused; so are the IDs within the
 archived range D407–D509 that its archive notice lists.
 
 ## Decision Log
@@ -310,3 +311,23 @@ archived range D407–D509 that its archive notice lists.
   ok"; "i'm usually more of a go team than whateverjs for the backend." No rule changes now; the
   browser-only rule's wording and the rest are O316. Now in:
   [lexicon page §9](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555).
+- **D562 (2026-11-22, the driver under D556): the lexicon page works in any orientation.** The
+  landscape-only rule covers the phrase workspace only; the rotate-device notice does not replace
+  the page, a list of words being readable in portrait. `documentalist`'s wave preflight checks
+  that the portrait wordings (first-release master spec, `req_landscape_phrase_workspace`,
+  `rule_session_ends_on_portrait_view`) still read true. Now in:
+  [Part E §E7](versions/v3/master-spec.md#e7-opening-and-closing).
+- **D563 (2026-11-22, the driver under D556): an empty or malformed lexicon fails the build.**
+  Malformed is the template's own rules: a required field missing, fields not the template's or
+  out of its order, an id twice, a related id naming no entry; empty is no shown entry. The page
+  needs no empty state. Now in: [Part E §E5.3](versions/v3/master-spec.md#e53-the-build-fails-on-an-empty-or-malformed-lexicon).
+- **D564 (2026-11-22, the driver under D556): master spec Part E v1.0, the lexicon page and the
+  lexicon API, is approved.** Consolidated from the draft v2.3 and the design at the `ui_ux/`
+  root, with its code facts read again on `main` 828ab396. It also settles: the read interface
+  takes its entries as input and leaves A to Z and search to the page; the entry contract's nine
+  fields; the Lexicon button does not wait for the session controller; a typed `#lexicon` is a load
+  at `#lexicon`. Now in: [Part E](versions/v3/master-spec.md#part-e--v34).
+- **D565 (2026-11-22, the driver under D556): the v3.4 build plan's lexicon wave is approved.** One
+  wave of three chunks; the read interface is built with the parser in chunk 1, so the page
+  (chunk 2) and the API's contract (chunk 3) each follow chunk 1 by one edge, as the in-wave edge
+  rule allows. Now in: [build plan v3.4](versions/v3/build-plan-v3.4.md).
