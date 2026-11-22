@@ -2,7 +2,7 @@
 # read by cve-watch. Package dependencies come from the lockfiles; list here
 # only what they don't cover.
 schema = 1
-updated = 2026-11-04
+updated = 2026-11-22
 
 [stack]
 languages = ["TypeScript 6.0"]
@@ -12,12 +12,22 @@ tooling = ["Vite 8.3", "vite-plugin-pwa 1.3", "Tailwind CSS 4.3", "Vitest 5.0", 
 deployment = ["Docker multi-stage image (node:22-alpine build, nginxinc/nginx-unprivileged:1.30-alpine runtime)", "Docker Compose, built on the VPS with --pull", "behind the VPS's shared Caddy (~/caddy, caddy:2-alpine, common to every app on the VPS, over the network caddy_infinite-flow; not ours, not pinned here)", "VPS host x86_64"]
 lockfiles = ["package-lock.json"]
 
-# Runtime versions below are those of the nginx 1.30 image (branch nginx-1.30,
-# commit 48be99a). They take effect once that branch is merged and deployed:
-# as of 2026-10-26 (read-only check) the VPS still runs nginx 1.28.2, OpenSSL
-# 3.5.5, Alpine 3.23.3 (nginxinc/nginx-unprivileged:1.28-alpine). The VPS host
-# is x86_64 (32-bit-only advisories such as OpenSSL CVE-2026-31789 do not
-# apply) and caches no nginx or node base image, so its first build pulls.
+# Runtime versions below are those of the nginx 1.30 image the Dockerfile
+# resolves to. The nginx 1.30 move (48be99a) was merged into main on
+# 2026-10-26 (316199d) and is in v3.2.0 and v3.3.0. The owner deployed main
+# 6958001 (which carries it) around 2026-10-28 (session notes; not verified on
+# the VPS), so production most likely runs 1.30.6; it runs nginx 1.28.2,
+# OpenSSL 3.5.5, Alpine 3.23.3 only if no deploy happened since 2026-10-26
+# (read-only check of that date). `scripts/vps.sh status` shows the deployed
+# commit. The VPS host is x86_64 (32-bit-only advisories such as OpenSSL
+# CVE-2026-31789 do not apply) and builds with `docker compose build --pull`.
+#
+# Registry move (checked 2026-11-22): upstream publishes nginx-unprivileged
+# releases after 1.30.6 / 1.31.7 only under Docker Hub `nginx/nginx-unprivileged`
+# (also ghcr.io/nginx/nginx-unprivileged). The old `nginxinc/` namespace the
+# Dockerfile names is frozen at 1.30.6 (last push 2026-10-19), so a rebuild
+# with --pull no longer picks up 1.30.x fixes. nginx/nginx-unprivileged:1.30-alpine
+# is 1.30.7 (digest 0c53a1f2..., 2026-11-18, Alpine 3.24.4, uid 101, :8080).
 
 # Production web server: the only component that runs in production. It serves
 # dist/ as static files on :8080, behind the VPS's TLS-terminating Caddy.
@@ -25,7 +35,7 @@ lockfiles = ["package-lock.json"]
 name = "nginx"
 version = "1.30.6"
 cpe = "cpe:2.3:a:f5:nginx_open_source"
-source = "Dockerfile runtime stage FROM nginxinc/nginx-unprivileged:1.30-alpine (floating minor tag; image of 2026-10-19, digest f5116ed4..., read offline 2026-10-26). Rebuilds pick up later 1.30.x. Production: 1.28.2 until branch nginx-1.30 is deployed"
+source = "Dockerfile runtime stage FROM nginxinc/nginx-unprivileged:1.30-alpine (floating minor tag on a frozen namespace: still 1.30.6, digest f5116ed4..., image of 2026-10-19, checked on Docker Hub 2026-11-22). Rebuilds do NOT pick up later 1.30.x: the fixed image is nginx/nginx-unprivileged:1.30-alpine (1.30.7). Production: probably 1.30.6 (deploy of main 6958001 about 2026-10-28, not verified), 1.28.2 if not deployed since 2026-10-26"
 
 # OS of the runtime image (shipped). apk packages are not scanned by cve-watch:
 # on 2026-10-26 OSV Alpine:v3.24 listed zlib 1.3.2-r0 (CVE-2026-85091, gzFile
@@ -38,7 +48,7 @@ source = "Dockerfile runtime stage FROM nginxinc/nginx-unprivileged:1.30-alpine 
 name = "Alpine Linux"
 version = "3.24.2"
 cpe = "cpe:2.3:o:alpinelinux:alpine_linux"
-source = "base of nginxinc/nginx-unprivileged:1.30-alpine (/etc/alpine-release, read offline 2026-10-26). Production: 3.23.3 until branch nginx-1.30 is deployed"
+source = "base of nginxinc/nginx-unprivileged:1.30-alpine (/etc/alpine-release, read offline 2026-10-26; tag frozen since 2026-10-19, see the registry note above). Production: probably the same, 3.23.3 if not deployed since 2026-10-26. nginx/nginx-unprivileged:1.30-alpine is on 3.24.4"
 
 # TLS library in the runtime image (libssl3/libcrypto3). nginx listens in plain
 # HTTP on :8080; TLS is terminated by Caddy, so nginx does not use it for TLS.
@@ -46,7 +56,7 @@ source = "base of nginxinc/nginx-unprivileged:1.30-alpine (/etc/alpine-release, 
 name = "OpenSSL"
 version = "3.5.9"
 cpe = "cpe:2.3:a:openssl:openssl"
-source = "apk libssl3/libcrypto3 3.5.9-r0 in nginxinc/nginx-unprivileged:1.30-alpine (read offline 2026-10-26). Production: 3.5.5 until branch nginx-1.30 is deployed"
+source = "apk libssl3/libcrypto3 3.5.9-r0 in nginxinc/nginx-unprivileged:1.30-alpine (read offline 2026-10-26; tag frozen since 2026-10-19). Production: probably the same, 3.5.5 if not deployed since 2026-10-26"
 
 # Build stage only: runs `npm ci` and `vite build`, never shipped.
 [[platform]]
