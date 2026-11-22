@@ -86,7 +86,7 @@
     font-weight: 700;
     line-height: var(--leading-tight);
   }
-  /* v3 new -- from here to "end v3 new": the brand row and the build beside the brand mark. */
+  /* the brand row and the build beside the brand mark. */
 
   /* States: none of its own (layout only). The header's first item: `brand-mark` then `build-id`
      in one row on a shared baseline, `--spacing-2` apart, wrapping if it must. Below bp-desktop
@@ -108,7 +108,6 @@
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
-  /* end v3 new */
   .brand-subtitle {
     color: var(--color-text-muted);
     font-size: var(--text-sm);
@@ -335,7 +334,7 @@
     cursor: wait;
     opacity: 0.55;
   }
-  /* v3 changed -- `btn-error` gains its own feedback states. States: default, hover,
+  /* `btn-error` has its own feedback states. States: default, hover,
      focus-visible, active, disabled, loading. Hover and active take the darker (light theme) or
      lighter (dark theme) `--color-error-hover` fill and border; active also moves the button
      down one pixel, as `btn-primary` does; focus-visible, disabled and loading are `.btn`'s. Used
@@ -716,7 +715,7 @@
      "(in use)"), hover, focus-visible, active, disabled. A vertical list of plain buttons with
      one roving tab stop; arrow keys only move focus, Enter/Space/click chooses -- see
      `screens/controller-connection/handoff.md`. Visually modeled on `.segment`. */
-  /* v3.1 changed -- `choice-list` and `choice-option` share these rules exactly. States:
+  /* `choice-list` and `choice-option` share these rules exactly. States:
      default, hover, focus-visible, active, selected (`aria-checked="true"` and `is-selected`:
      the accent fill), disabled. A vertical radiogroup of full-width options inside a sheet (the
      preset sheet's Key and mode choice): `role="radiogroup"` on the list, `role="radio"` and
@@ -1028,7 +1027,7 @@
     stroke: none;
   }
 
-  /* v3.2 changed -- Layout only: each child carries its own states. The audio mix -- the
+  /* Layout only: each child carries its own states. The audio mix -- the
      `Backing`, `Click`, `Melody guide` and `Rhythm guide` toggle buttons, in that order, then
      `mix-volume` (the `Volume` button and its popover). From bp-tablet-landscape up it stays
      one line (the toolbar's own wrap moves it under the title when needed); below, on its own
@@ -1089,7 +1088,7 @@
   .toggle-button[aria-pressed='true'] .toggle-button-state {
     color: var(--color-text);
   }
-  /* v3.2 changed -- States: closed (`hidden`: absent), open. It opens and closes instantly,
+  /* States: closed (`hidden`: absent), open. It opens and closes instantly,
      with no animation. A non-modal panel anchored under the `Volume`
      button, aligned to its inline end, holding the four volume `field-group`s (backing, click,
      melody guide, rhythm guide). The one element
@@ -1165,7 +1164,7 @@
      surface panel like `control-section`. Not
      interactive itself: hover/focus-visible/active/disabled do not apply. Appears and goes with no
      animation. Full inline size at every breakpoint: no side rail. */
-  /* v3 changed -- `sessions-panel`, the session list's panel, shares this surface. States:
+  /* `sessions-panel`, the session list's panel, shares this surface. States:
      absent, shown. */
   .review-panel,
   .sessions-panel {
@@ -1176,11 +1175,11 @@
     min-inline-size: 0;
     padding: var(--spacing-4);
   }
-  /* v3 changed -- Layout only: the heading row. `review-heading` at the inline start and
+  /* Layout only: the heading row. `review-heading` at the inline start and
      `review-session-tools` at the inline end, wrapping under the heading when they do not fit;
      stacked below bp-tablet-landscape (the width-only block after these rules). `sessions-header`
      takes the same layout, with the list's title and `Your data`. No bottom margin: the panel's
-     rows are spaced by the row rule in the v3 block below. */
+     rows are spaced by the row rule further below. */
   .review-header,
   .sessions-header {
     align-items: flex-end;
@@ -1213,7 +1212,7 @@
     font-size: var(--text-sm);
     margin: 0;
   }
-  /* v3 changed -- Layout only: the whole-session tools, a row of its own after `review-comment`:
+  /* Layout only: the whole-session tools, a row of its own after `review-comment`:
      `review-scope`, the generated-notes `review-export`, then `review-export-played`. Each child
      carries its own states. */
   .review-actions,
@@ -1225,7 +1224,7 @@
     gap: var(--spacing-3);
     min-inline-size: 0;
   }
-  /* v3 changed -- inside the whole-session tools every field (`review-scope`, Format) keeps its
+  /* inside the whole-session tools every field (`review-scope`, Format) keeps its
      natural width (the bp-mobile-landscape rule that stretches workspace segmented controls to
      the field's width does not apply here) and drops the field's bottom margin, so the row's
      controls align on one baseline. */
@@ -1257,7 +1256,7 @@
   }
   /* States: not yet engraved (its `review-staff` reserved and blank), engraved, note
      (`review-phrase-note` in place of the engraving). Not interactive itself; its header holds
-     `favorite-toggle` (v3 changed). */
+     `favorite-toggle`. */
   .review-phrase {
     border-block-start: 1px solid var(--color-border);
     min-inline-size: 0;
@@ -1267,7 +1266,7 @@
     border-block-start: 0;
     padding-block-start: 0;
   }
-  /* v3 changed -- Layout only: the phrase's number and tempo on one line, then `favorite-toggle`
+  /* Layout only: the phrase's number and tempo on one line, then `favorite-toggle`
      at its trailing end; it wraps below bp-tablet-landscape if needed, the star staying at the
      trailing end. */
   .review-phrase-header {
@@ -1327,7 +1326,7 @@
   .review-panel > .room-notice {
     padding-block: var(--spacing-6);
   }
-  /* v3 changed -- below bp-tablet-landscape (width-only, the same query as the notation layout's
+  /* below bp-tablet-landscape (width-only, the same query as the notation layout's
      split layout): the heading row stacks (the title, then `review-session-tools`) and the
      summary is not rendered. Every control of the larger screens stays on the phone. */
   @media (max-width: 63.9375rem) {
@@ -1345,7 +1344,7 @@
      `--control-group-min-inline-size` (see the bp-tablet-landscape block below), so an `Off`/`On`
      control keeps a field's usual width instead of stretching across the row. Each field carries
      its own states (a `segmented-control` and its `field-note`s). */
-  /* v3.1 changed -- `control-group-figures`, the Embellishments group, takes this layout
+  /* `control-group-figures`, the Embellishments group, takes this layout
      unchanged, and sits before `control-group-session`: below bp-tablet-landscape it stacks after
      the groups before it; from bp-tablet-landscape up it takes a row of its own, its heading and
      `control-group-intro` across the top and its seven fields in columns of at least
@@ -1376,13 +1375,13 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  /* v3 changed -- Layout only, the gap between the review's whole-session tools: wider between
+  /* Layout only, the gap between the review's whole-session tools: wider between
      groups (`review-scope`, the generated-notes `review-export`, then `review-export-played`)
      than inside one, so each control reads as its own group's. */
   .review-actions {
     column-gap: var(--spacing-5);
   }
-  /* v3 changed -- Layout only: the panel row after the whole-session tools holding the
+  /* Layout only: the panel row after the whole-session tools holding the
      `Played notes` and `Keep my played notes` `toggle-button`s and, while this session's played
      notes are kept, `Delete played notes` (each carries its own states), aligned to the inline
      start, wrapping, on a line of its own at every breakpoint. Rendered only when the session
@@ -1434,7 +1433,7 @@
     translate: 0 -50%;
   }
 
-  /* v3 new -- from here to "end v3 new": wide sheets and their sections, text fields, app
+  /* wide sheets and their sections, text fields, app
      notices, the page footer, the session list, the review's additions (row spacing, navigation,
      keeping state, session tools, comment, export scope, played-notes export, favorites), the
      cue row's links and labels, and my instrument (actions, note steppers, range row and
@@ -1856,9 +1855,8 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
-  /* end v3 new */
 
-  /* v3.1 new -- from here to "end v3.1 new": the preset bar (`preset-bar`, `preset-select`,
+  /* the preset bar (`preset-bar`, `preset-select`,
      `preset-actions`), the key and mode mark (`segment.is-marked`), the Embellishments group's
      intro (`control-group-intro`), the preset sheet's name alert (`name-alert`) and Your data's
      list of player presets (`sheet-list`, `sheet-list-row`). `choice-list` and `choice-option`
@@ -2032,9 +2030,8 @@
       margin-block-start: calc(var(--text-sm) * var(--leading-base) + var(--spacing-2));
     }
   }
-  /* end v3.1 new */
 
-  /* v3.2 new -- from here to "end v3.2 new": Jam mode and the session options' dependents. The
+  /* Jam mode and the session options' dependents. The
      header's mode switch (`mode-switch`); Jam's controls (`tap-tempo`, `doodle-readings`); Jam's
      cue row (`jam-needs-controller`, `jam-capture`, `jam-writing`); Jam's staff (`staff-jam`,
      `jam-instruction`, `jam-notice`); the kept doodle's bar (`jam-bar`) and the key and mode
@@ -2391,7 +2388,6 @@
       margin-inline-start: 0;
     }
   }
-  /* end v3.2 new */
 
   @keyframes staff-fade-in {
     from {
@@ -2443,7 +2439,7 @@
     /* The "During a session" group takes a row of its own: the whole flex line here,
        the whole grid row at bp-desktop (`grid-column`), its fields side by side. The doubled class
        outweighs the `.control-group-row > .control-group` flex rule above.
-       v3.1 changed -- the Embellishments group (`control-group-figures`) takes the same row. */
+       The Embellishments group (`control-group-figures`) takes the same row. */
     .control-group-row > .control-group.control-group-session,
     .control-group-row > .control-group.control-group-figures {
       align-items: start;

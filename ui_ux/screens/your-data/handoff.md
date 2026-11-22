@@ -1,21 +1,5 @@
 # Your Data Handoff
 
-> **New in v3.**
-
-> **Changes since v3.0**
->
-> - _v3.1 new:_ the Presets section, listing every player preset with its own `Delete`, and that
->   deletion's confirmation ([Layout Tree](#layout-tree), [Overview copy](#overview-copy),
->   [Confirmations](#confirmations), [Responsive Behavior](#responsive-behavior))
-> - _v3.1 changed:_ the Presets section's `Delete` buttons join the focus order; a preset deleted
->   here returns focus to `Done` ([Focus and Keyboard](#focus-and-keyboard))
-> - _v3.1 changed:_ the Settings line names the preset; Delete everything's confirmation names the
->   presets ([Overview copy](#overview-copy), [Confirmations](#confirmations))
-> - _v3.1 changed:_ a visit that saves nothing hides the Presets section too ([States](#states): Saving off this visit: Presets absent)
-> - _v3.2 changed:_ the Settings line names Jam's settings ([Overview copy](#overview-copy): Settings in v3.2)
-> - _v3.2 new:_ Jam sessions counted with the sessions; the played-notes confirmation says the
->   written-out doodles stay ([Overview copy](#overview-copy), [Confirmations](#confirmations))
-
 The journey around this sheet, what each deletion removes and what the page beneath shows
 afterwards are in [`flows/saved-data/handoff.md`](../../flows/saved-data/handoff.md).
 
@@ -35,9 +19,9 @@ sheet-backdrop
           h3, p, p sheet-hint
         sheet-section (My instrument)
           h3, p, p sheet-hint
-        sheet-section (Presets; v3.1 new)
+        sheet-section (Presets)
           h3, p, p sheet-hint
-          ul sheet-list (v3.1 new; only when at least one player preset is listed)
+          ul sheet-list (only when at least one player preset is listed)
             li sheet-list-row (one per player preset, in the preset box's order)
               the preset's name (plain text)
               btn (Delete; aria-label "Delete preset {name}")
@@ -58,7 +42,7 @@ sheet-backdrop
           h3, p
         sheet-actions-destructive (absent in an outdated tab -- see States)
           btn btn-error (Delete everything)
-      -- Confirmation (one of five; v3.1 changed: the preset's added)
+      -- Confirmation (one of five)
         p (what goes)
         p ("This can't be undone.")
         inline-alert alert-error (only after a failed deletion)
@@ -82,17 +66,17 @@ sheet-backdrop
 
 - **Intro:** "Everything here is kept on this device, in this browser only, for anyone who opens
   the app in it. Nothing is ever sent anywhere."
-- **[v3.1 changed]** **Settings.** `p`: "The phrase controls, the preset, the instrument choice,
+- **Settings.** `p`: "The phrase controls, the preset, the instrument choice,
   the theme, the audio mix, the During a session options and the review's choices. They come back
   as you left them." `sheet-hint`: "Delete everything returns them to their defaults."
-- **[v3.2 changed]** **Settings in v3.2.** In v3.2 the Settings `p` reads instead: "The phrase controls, the preset,
+- **Settings in v3.2.** In v3.2 the Settings `p` reads instead: "The phrase controls, the preset,
   the instrument choice, the theme, the audio mix, the During a session options, your Jam
   settings and the review's choices. They come back as you left them." The `sheet-hint` is
   unchanged: Delete everything returns Jam's settings to their defaults too.
 - **My instrument.** `p`: "{name}, made from the {template}." or "None." `sheet-hint`: "Change or
   delete it with Edit my instrument, in the controls." or, with none, "Make one with Create my
   instrument, in the controls."
-- **[v3.1 new]** **Presets.** `p`: "{n} presets of your own." ("1 preset of your own." for one), or
+- **Presets.** `p`: "{n} presets of your own." ("1 preset of your own." for one), or
   "None." `sheet-hint`: "Delete one here, or with Delete preset in the controls. Delete everything
   removes them all." (with none: "Save one with Save as new preset, in the controls."). {n} counts
   the player presets the preset box lists, more than 50 included; a record that could not be read
@@ -119,7 +103,7 @@ sheet-backdrop
   one whose summary is damaged, or one left unlisted for the visit after the device refused to
   delete it (`flows/kept-sessions/handoff.md`, A Damaged Session). `Delete every session` deletes
   it with the others, though {n} does not count it.
-  - **[v3.2 new]** **Jam sessions.** Jam sessions are counted with the others, by the same words; nothing about a
+  - **Jam sessions.** Jam sessions are counted with the others, by the same words; nothing about a
     doodle is listed.
 - **Played notes.** `btn toggle-button` "Keep my played notes" with `toggle-button-state` "on" /
   "off" (accessible name "Keep my played notes", `aria-pressed`). `sheet-hint`: "When this is on,
@@ -152,19 +136,19 @@ to the Overview, never close the sheet.
 | Every session | `Delete every session` | "Delete every session?" | "This deletes all {n} kept sessions, pinned ones included, with their favorite phrases, comments and played notes. Your settings, your instrument and the remembered controller stay." (one session: "This deletes the one kept session, with its favorite phrases, comment and played notes. …") | `Delete every session`, `Cancel` |
 | All played notes | `Delete all played notes` | "Delete all played notes?" | "This deletes the played notes kept with {n} sessions. The sessions stay, with their favorite phrases and comments." | `Delete all played notes`, `Cancel` |
 | Played notes already kept | `Keep my played notes` turned off while {n} is at least 1 (the switch is already off and saved) | "Delete the played notes already kept?" | "Your played notes won't be kept from now on. The ones already kept with {n} sessions can be deleted too; the sessions stay." | `Delete them`, `Keep them` |
-| **[v3.1 new]** Preset | a preset's `Delete` in the Presets section | "Delete the preset “{name}”?" | "Your settings stay as they are." | `Delete preset`, `Cancel` |
-| **[v3.1 changed]** Everything | `Delete everything` | "Delete everything?" | "This deletes everything the app keeps on this device: your settings, your presets, your instrument, the remembered controller and every kept session, with its favorite phrases, comments and played notes. The page then reloads and starts as on a first visit." | `Delete everything`, `Cancel` |
+| Preset | a preset's `Delete` in the Presets section | "Delete the preset “{name}”?" | "Your settings stay as they are." | `Delete preset`, `Cancel` |
+| Everything | `Delete everything` | "Delete everything?" | "This deletes everything the app keeps on this device: your settings, your presets, your instrument, the remembered controller and every kept session, with its favorite phrases, comments and played notes. The page then reloads and starts as on a first visit." | `Delete everything`, `Cancel` |
 
 The second paragraph is always "This can't be undone."
 
-**[v3.2 new]** When at least one of the sessions whose played notes are kept is a Jam
+When at least one of the sessions whose played notes are kept is a Jam
 session, the All played notes and Played notes already kept confirmations end their first
 paragraph with one more sentence: "Doodles stay as the app wrote them." Deleting played notes
 keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your Data).
 
 - **While a deletion runs,** the confirming action takes `is-loading` and the way back is
   disabled; `Close`, Escape and the backdrop do nothing until it finishes.
-- **[v3.1 changed]** **Success:** Everything reloads the page. The others return to the Overview
+- **Success:** Everything reloads the page. The others return to the Overview
   with every count updated and the space measured again; after a preset's deletion its row is
   gone from the Presets list.
 - **Failure:** the Confirmation stays, adding `inline-alert alert-error` under its paragraphs:
@@ -179,7 +163,7 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
   `Your data` (`flows/saved-data/handoff.md`, Notices). All are disabled during a session.
 - **On open:** focus moves to `Done`, the main action, without scrolling: the sheet opens scrolled
   to its top.
-- **[v3.1 changed]** **Trap:** Tab and Shift+Tab cycle through `Close`, the Overview's buttons in
+- **Trap:** Tab and Shift+Tab cycle through `Close`, the Overview's buttons in
   tree order (each preset's `Delete` in list order, `Delete every session`,
   `Keep my played notes`, `Delete all played notes`, `Delete everything`), then `Done`. In a Confirmation: `Close`, the confirming action, the way
   back. `Keep my played notes` toggles with Enter or Space and keeps focus.
@@ -188,7 +172,7 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
 - **Back to the Overview** by the way back: focus returns to the control that opened the
   Confirmation. After a successful deletion: to that control if it is still shown
   (`Keep my played notes`), else to `Done`.
-- **[v3.1 new]** **After a preset's deletion:** its `Delete` has left with its row, so focus goes
+- **After a preset's deletion:** its `Delete` has left with its row, so focus goes
   to `Done`, by the rule above. Its way back returns focus to that row's `Delete`.
 - **On close,** by `Done`, `Close`, Escape or the backdrop: focus returns to the opener. If the
   opener is no longer shown, focus goes to the first enabled of the session action, the phrase
@@ -203,7 +187,7 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
 - **Mobile landscape.** At `bp-mobile-landscape`: the sheet fills the inline size left by the backdrop's padding, up to
   `--sheet-wide-max-inline-size`; `sheet-actions` stacks its buttons full width, the first on top. Section buttons and
   `Delete everything` keep their own width, aligned to the inline start.
-- **[v3.1 new]** **Preset row.** At every breakpoint, a preset's row holds its name, then its `Delete` at its own
+- **Preset row.** At every breakpoint, a preset's row holds its name, then its `Delete` at its own
   width; a long name wraps, and when the row cannot hold both, `Delete` goes under the name, at
   the inline start.
 - **Every breakpoint.** At every breakpoint: sections stack in one column; long names (an instrument, a device) wrap;
@@ -220,12 +204,12 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
 - **Empty** (nothing kept yet, a first visit): the Overview as above, with "None.", "None
   remembered.", "No sessions kept yet." and "None kept."; `Delete every session` and
   `Delete all played notes` absent; `Delete everything` shown.
-  - **[v3.1 new]** **No presets.** The Presets section reads "None." with no list.
+  - **No presets.** The Presets section reads "None." with no list.
 - **Saving off this visit:** an outdated tab, or a visit started from the defaults because the
   saved data couldn't be read, or not within the start-up wait. Under the intro,
   `inline-alert alert-notice`, then Space used and Protection; the other five sections are
   absent.
-  - **[v3.1 new]** **Presets absent.** *Presets* is absent as well, in both visits: the sheet cannot honestly count
+  - **Presets absent.** *Presets* is absent as well, in both visits: the sheet cannot honestly count
     what the visit could not read or may not keep. The preset box still lists, in an outdated tab,
     the player presets it could read, and in a visit started from the defaults the built-in
     presets only (`flows/saved-data/handoff.md`).
@@ -250,7 +234,7 @@ keeps each Jam session's written-out doodle (`flows/saved-data/handoff.md`, Your
     be read in this visit, so it isn't listed here. Reload the page to try again, or delete
     everything to start afresh." `Delete everything` follows: the way out when reloading does not
     help, whether the data is unreadable or only slow to read.
-- **[v3.1 changed]** **Confirmation:** one of five, above.
+- **Confirmation:** one of five, above.
 - **Loading:** the space and protection lines while measured; a confirming action's
   `is-loading` while its deletion runs.
 - **Error:** a failed deletion's line in its Confirmation; "Couldn't be measured." for the space.

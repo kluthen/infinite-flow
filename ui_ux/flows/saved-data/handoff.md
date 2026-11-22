@@ -1,33 +1,10 @@
 # Saved Data Handoff
 
-> **New in v3.**
-
-> **Changes since v3.0**
+> **Changes since v3.3**
 >
-> - _v3.1 changed:_ the controls' row holds the seven embellishment levels and the preset
->   selection, in place of the musical profile selection; _v3.1 new:_ player presets, and when
->   each is written ([What Is Saved, and When](#what-is-saved-and-when))
-> - _v3.1 changed:_ saving a player preset asks the browser for protection; _v3.1 new:_ presets
->   while saving is off ([What Is Saved, and When](#what-is-saved-and-when))
-> - _v3.1 new:_ loading the presets and the selection, and settings saved by v3.0
->   ([Load](#load))
-> - _v3.1 new:_ the save-problem notice's preset wording ([Notices](#notices))
-> - _v3.1 new:_ Delete everything removes every player preset; the other deletions leave them;
->   one preset deleted from its row in Your data ([Your Data](#your-data))
-> - _v3.2 new:_ session mode's three new saved settings; Jam's settings, a saved record of their
->   own; a Jam session's doodle and the suggestion's decline; the mode and the kept doodle never
->   saved; Jam mode while saving is off ([What Is Saved, and When](#what-is-saved-and-when))
-> - _v3.2 new:_ loading the new settings and Jam's first values, and sessions kept before v3.2
->   ([Load](#load))
-> - _v3.2 new:_ Jam mode's load-failure notice beside the saving notices ([Notices](#notices))
-> - _v3.2 new:_ what the deletions remove of a Jam session and of the kept doodle, and Delete
->   everything resetting Jam's settings ([Your Data](#your-data))
-> - _v3.2 changed:_ the audio mix holds the guide playback's switches and volumes
->   ([What Is Saved, and When](#what-is-saved-and-when))
-> - _v3.3 new:_ Jam's own Seventh chords level in Jam's settings
->   ([What Is Saved, and When](#what-is-saved-and-when), [Load](#load): Jam's own Seventh chords level)
-> - _v3.3 new:_ the Seventh chords level in the settings and in every player preset, and how it
->   loads ([What Is Saved, and When](#what-is-saved-and-when), [Load](#load): The Seventh chords level)
+> - _New:_ the lexicon's load-failure notice beside the saving notices
+>   ([Notices](#notices): The lexicon's load-failure notice)
+> - _Removed:_ nothing
 
 Screens: [`phrase-workspace`](../../screens/phrase-workspace/handoff.md) (the load, the notice
 row, the footer), [`your-data`](../../screens/your-data/handoff.md) (the sheet),
@@ -43,21 +20,21 @@ Saving shows nothing, ever: no message, no indicator, no announcement.
 
 | Item                                                                                                                                          | Written when                                                                                                                                   | Notes                                                                                                                                                                                                                                                                                                                 |
 | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **[v3.1 changed]** The 14 generation controls, the seven embellishment levels and the preset selection (which preset, or Custom and its base) | The player changes one: a segment or stepper press, a slider when released, a preset chosen                                                    | The value the player chose, not the one a phrase was generated with (a chosen `Sixteenth` stays `Sixteenth` below `bp-tablet-landscape`; a level or the selection that Vary settings moved during a session is not saved). The restriction in force is not saved: it follows from the selection and the key and mode. |
-| **[v3.1 new]** Each player preset (its name, ten controls, seven levels and key and mode restriction), one record each                        | `Save` in the preset sheet for a new preset; `Save changes`; a rename saved; a deletion confirmed, which removes its record (`flows/presets/`) | Known by an internal identifier, not its name, so a rename keeps it selected and as Custom's base. Never during a session. Two tabs: each save writes a whole preset, the last write wins, the other tab sees it after a reload.                                                                                      |
-| **[v3.3 new]** The Seventh chords level, with the settings, and in each player preset's record                                                | The player changes it; a player preset is saved as above                                                                                       | Stored by value under the name of what it allows (seventh chords), never through a preset's name. Never written during a session, where nothing moves it.                                                                                                                                                             |
+| The 14 generation controls, the seven embellishment levels and the preset selection (which preset, or Custom and its base) | The player changes one: a segment or stepper press, a slider when released, a preset chosen                                                    | The value the player chose, not the one a phrase was generated with (a chosen `Sixteenth` stays `Sixteenth` below `bp-tablet-landscape`; a level or the selection that Vary settings moved during a session is not saved). The restriction in force is not saved: it follows from the selection and the key and mode. |
+| Each player preset (its name, ten controls, seven levels and key and mode restriction), one record each                        | `Save` in the preset sheet for a new preset; `Save changes`; a rename saved; a deletion confirmed, which removes its record (`flows/presets/`) | Known by an internal identifier, not its name, so a rename keeps it selected and as Custom's base. Never during a session. Two tabs: each save writes a whole preset, the last write wins, the other tab sees it after a reload.                                                                                      |
+| The Seventh chords level, with the settings, and in each player preset's record                                                | The player changes it; a player preset is saved as above                                                                                       | Stored by value under the name of what it allows (seventh chords), never through a preset's name. Never written during a session, where nothing moves it.                                                                                                                                                             |
 | The instrument profile selection                                                                                                              | The player selects one, my instrument included                                                                                                 |                                                                                                                                                                                                                                                                                                                       |
 | The theme                                                                                                                                     | The player changes it                                                                                                                          |                                                                                                                                                                                                                                                                                                                       |
-| **[v3.2 changed]** The audio mix (Backing, Click, Melody guide and Rhythm guide on or off, each volume)                                       | The player changes it; a volume when its slider is released                                                                                    | The two guides: both off, each volume at its first-load level, until the player changes them.                                                                                                                                                                                                                         |
+| The audio mix (Backing, Click, Melody guide and Rhythm guide on or off, each volume)                                       | The player changes it; a volume when its slider is released                                                                                    | The two guides: both off, each volume at its first-load level, until the player changes them.                                                                                                                                                                                                                         |
 | The three "During a session" options                                                                                                          | The player changes one                                                                                                                         | Each comes back on only if the player turned it on.                                                                                                                                                                                                                                                                   |
 | The review's preferences (format, backing track in the MIDI file, `Played notes`)                                                             | The player changes one                                                                                                                         | Not the export scope or `Include very short notes`, which are never saved.                                                                                                                                                                                                                                            |
 | `Keep my played notes`                                                                                                                        | The player changes it                                                                                                                          | Off by default.                                                                                                                                                                                                                                                                                                       |
-| **[v3.2 new]** Session mode's Rhythm lock, Allowed rhythm changes and What may vary                                                           | The player changes one                                                                                                                         | Defaults: Rhythm lock off, every allowed rhythm change off, all six groups on. The lock comes back on only if the player turned it on. No preset holds them.                                                                                                                                                          |
-| **[v3.2 new]** Jam's settings, a record of their own: Jam's tempo, written key and collection, Harmonic motion, Tension, Embellishments, Drift, Rhythm lock and Allowed rhythm changes | The player changes one in Jam mode (by hand, or the tempo by `Tap tempo`), or `Jam in {answer}` sets Jam's key and mode (from a review over either mode) | Apart from session mode's: nothing in Jam mode is written into session mode's settings, nor the reverse. Defaults: Jam's written key, collection and tempo take session mode's current values when Jam mode first opens (the tempo kept within 60 to 180 BPM), Harmonic motion `Gentle diatonic`, Tension `Lift`, Embellishments `Rarely`, Drift `Near`, the lock off and every allowed rhythm change off. The instrument, the theme and the audio mix are shared, saved once as above. |
-| **[v3.3 new]** Jam's own Seventh chords level, in Jam's record                                                                                | The player changes it in Jam mode                                                                                                              | Default `Off`; apart from session mode's level.                                                                                                                                                                                                                                                                      |
+| Session mode's Rhythm lock, Allowed rhythm changes and What may vary                                                           | The player changes one                                                                                                                         | Defaults: Rhythm lock off, every allowed rhythm change off, all six groups on. The lock comes back on only if the player turned it on. No preset holds them.                                                                                                                                                          |
+| Jam's settings, a record of their own: Jam's tempo, written key and collection, Harmonic motion, Tension, Embellishments, Drift, Rhythm lock and Allowed rhythm changes | The player changes one in Jam mode (by hand, or the tempo by `Tap tempo`), or `Jam in {answer}` sets Jam's key and mode (from a review over either mode) | Apart from session mode's: nothing in Jam mode is written into session mode's settings, nor the reverse. Defaults: Jam's written key, collection and tempo take session mode's current values when Jam mode first opens (the tempo kept within 60 to 180 BPM), Harmonic motion `Gentle diatonic`, Tension `Lift`, Embellishments `Rarely`, Drift `Near`, the lock off and every allowed rhythm change off. The instrument, the theme and the audio mix are shared, saved once as above. |
+| Jam's own Seventh chords level, in Jam's record                                                                                | The player changes it in Jam mode                                                                                                              | Default `Off`; apart from session mode's level.                                                                                                                                                                                                                                                                      |
 | A session                                                                                                                                     | Once, at its end, as its review opens                                                                                                          | Never during it; one that ends during its count-in saves nothing. Saving it deletes every unpinned older session. Its played notes go with it only while `Keep my played notes` is on.                                                                                                                                |
 | Pin, unpin, a favorite, a comment                                                                                                             | The player makes the change (a comment: on `Done`, when the field loses focus, and when the review is left or replaced)                        |                                                                                                                                                                                                                                                                                                                       |
-| **[v3.2 new]** A Jam session's doodle, and its suggestion's decline                                                                           | The doodle with its session, at its end; the decline when the player presses `Keep {key} {mode}` in its review                                 | The quantized doodle and the tempo it was played at are saved with every Jam session, whatever `Keep my played notes` says; the raw doodle notes are played notes and follow that setting.                                                                                                                            |
+| A Jam session's doodle, and its suggestion's decline                                                                           | The doodle with its session, at its end; the decline when the player presses `Keep {key} {mode}` in its review                                 | The quantized doodle and the tempo it was played at are saved with every Jam session, whatever `Keep my played notes` says; the raw doodle notes are played notes and follow that setting.                                                                                                                            |
 | My instrument                                                                                                                                 | `Save` in its sheet, or the transposition check's confirmation                                                                                 |                                                                                                                                                                                                                                                                                                                       |
 | The remembered controller                                                                                                                     | The player chooses a device (it reaches the transposition check or `Connected`); cleared by `Disconnect`                                       | Not changed by an unplug, a reattachment or deleting my instrument.                                                                                                                                                                                                                                                   |
 
@@ -68,7 +45,7 @@ during a session; anything written between Start and the session's end (the app 
 in that time); the tempo a
 Rising-tempo session reached; pre-generated phrases; the export scope; `Include very short notes`.
 
-**[v3.2 new]** **Never saved either:** being in Jam mode (every load opens session mode); the
+**Never saved either:** being in Jam mode (every load opens session mode); the
 doodle Jam mode keeps after a Jam and its readings, which live in memory only and are gone after a
 reload (the kept Jam session's review offers the doodle again); the suggestion itself, which is
 worked out again from the doodle whenever it is shown. A Jam that ends before phrase 1 sounds
@@ -88,13 +65,13 @@ first). A visit started from the defaults keeps `Delete everything`, the only de
 and the way out when reloading does not help, whether the data is unreadable or only slow to
 read (`screens/your-data/`, States), until data written by a newer version is known to exist.
 
-**[v3.1 new]** **Presets while saving is off.** A preset made, changed or renamed in either visit
+**Presets while saving is off.** A preset made, changed or renamed in either visit
 lasts for the page, under the visit's notice, with no wording of its own. Neither visit offers a
 preset deletion: `Delete preset` is absent (`flows/presets/`), and Your data has no Presets
 section. A visit started from the defaults lists the built-in presets only; an outdated tab lists
 the player presets it could read.
 
-**[v3.2 new]** **Jam mode while saving is off.** Jam mode, Jam's settings, a Jam, its review, the
+**Jam mode while saving is off.** Jam mode, Jam's settings, a Jam, its review, the
 suggestion's `Jam in {answer}` and `Keep {key} {mode}`, and `Jam again on this doodle` work in
 memory for the visit; nothing is saved, Jam's settings and the decline included, and the visit's
 deletion rules are unchanged (master spec §C10.4). A visit started from the defaults starts Jam's
@@ -109,7 +86,7 @@ deleting nothing, and its notice takes the outdated tab's wording for a visit st
 defaults (Notices). No deletion starts once newer data is known; one already running is not
 interrupted, and its outcome is told as usual (master spec §4.4).
 
-**[v3.1 changed]** **Asking for protection.** At the first pin, favorite, saved instrument or
+**Asking for protection.** At the first pin, favorite, saved instrument or
 saved player preset (made with `Save as new preset`, or changed with `Save changes`; not a rename
 or a deletion) of each visit, while the storage is not already protected, the app asks the
 browser to make it persistent. Nothing is
@@ -170,36 +147,36 @@ flowchart TD
   `Review last session` available at idle.
 - **The remembered controller** is reattached at load only when the browser already allows MIDI
   access (`flows/controller-connection/`).
-- **[v3.1 new]** **Player presets** are read with the settings, inside the start-up wait. A read
+- **Player presets** are read with the settings, inside the start-up wait. A read
   of them that fails makes the visit one started from the defaults, as a whole.
-- **[v3.1 new]** **The values win.** The controls and levels load as saved. When they differ from
+- **The values win.** The controls and levels load as saved. When they differ from
   the selected preset's, or the saved key and mode lie outside its restriction, the selection
   loads as Custom, based on that preset; when the preset no longer exists, as Custom with no base.
   Loading never moves the key or the mode. The only thing the player sees of any of this is the
   selection the preset box shows: no notice, no announcement.
-- **[v3.1 new]** **Tolerant, per preset and per field.** In a player preset, an unknown or invalid
+- **Tolerant, per preset and per field.** In a player preset, an unknown or invalid
   field takes that setting's first-load value; a figure level missing because the record predates
   that figure is Off; a missing name becomes a numbered one, as a new preset's default name is
   numbered (`flows/presets/`); in its restriction an unknown key or mode is dropped from its list,
   and an empty list or a missing restriction reads "any". A record that cannot be read at all is
   left in place and not listed; `Delete everything` still removes it.
-- **[v3.1 new]** **Settings saved by v3.0** are migrated when the database opens: the musical
+- **Settings saved by v3.0** are migrated when the database opens: the musical
   profile selection becomes that built-in preset, or Custom based on it, with that built-in's
   figure levels; then the values win, so a Jazz selection saved with Tension at Build loads as
   "Custom, based on Jazz". Sessions kept by v3.0 keep their musical profile as their preset label
   (`flows/kept-sessions/handoff.md`, Terms).
-- **[v3.2 new]** **Session mode's three new settings** load tolerantly too: an unknown or invalid
+- **Session mode's three new settings** load tolerantly too: an unknown or invalid
   value takes its default (Rhythm lock off, every allowed rhythm change off, all six groups on),
   every other setting still loading; settings saved by v3.0 or v3.1 load with those defaults.
-- **[v3.2 new]** **Jam's settings** load with the rest, inside the same load wait, and tolerantly:
+- **Jam's settings** load with the rest, inside the same load wait, and tolerantly:
   each unknown or invalid value takes its default alone (see What Is Saved, and When), every other
   setting still loading. With no record yet (a first visit, settings saved by v3.0 or v3.1, after
   `Delete everything`), Jam's written key, collection and tempo are taken from session mode's
   values when Jam mode first opens, not at load, and saved then. Being in Jam mode never comes
   back: every load opens session mode, and no doodle is kept.
-- **[v3.2 new]** **Sessions kept before v3.2.** Sessions kept before v3.2 are migrated with no doodle and open as before.
-- **[v3.3 new]** **The Seventh chords level** loads tolerantly too: a settings record or player preset written before v3.3 has none and loads at `Off`, and an unknown or invalid value loads at `Off`, every other setting still loading. The values win as for every preset-held setting: a saved level that differs from the selected preset's loads as Custom based on it. Sessions kept before v3.3 migrate with their phrases' level at `Off` and open as before.
-- **[v3.3 new]** **Jam's own Seventh chords level.** Jam's own Seventh chords level loads the same way, at `Off` when Jam's record has none or an invalid one; no preset is involved.
+- **Sessions kept before v3.2.** Sessions kept before v3.2 are migrated with no doodle and open as before.
+- **The Seventh chords level** loads tolerantly too: a settings record or player preset written before v3.3 has none and loads at `Off`, and an unknown or invalid value loads at `Off`, every other setting still loading. The values win as for every preset-held setting: a saved level that differs from the selected preset's loads as Custom based on it. Sessions kept before v3.3 migrate with their phrases' level at `Off` and open as before.
+- **Jam's own Seventh chords level.** Jam's own Seventh chords level loads the same way, at `Off` when Jam's record has none or an invalid one; no preset is involved.
 
 ## Notices
 
@@ -210,7 +187,7 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
 | Notice                          | Trigger                                                                                                                                                                          | Copy                                                                                                                                                                                                                                                                                                                                                                                                                          | Actions                | Lifetime                            |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ----------------------------------- |
 | Save failed                     | A save fails for any cause but full storage, other than a session's own and a deletion of damaged sessions (its own wording, below)                                                                                                           | "Something couldn't be saved on this device. The app keeps working, but this change may be lost when the page closes."                                                                                                                                                                                                                                                                                                        | `Dismiss`              | Until dismissed or the page closes. |
-| **[v3.1 new]** Preset not saved | A player preset's save (a new preset, `Save changes`, a rename) is refused for any cause but full storage                                                                        | "Your preset “{name}” couldn't be saved on this device. You can use it until this page closes." ({name}: the name it was saved under)                                                                                                                                                                                                                                                                                         | `Dismiss`              | Until dismissed or the page closes. |
+| Preset not saved | A player preset's save (a new preset, `Save changes`, a rename) is refused for any cause but full storage                                                                        | "Your preset “{name}” couldn't be saved on this device. You can use it until this page closes." ({name}: the name it was saved under)                                                                                                                                                                                                                                                                                         | `Dismiss`              | Until dismissed or the page closes. |
 | Storage full                    | Any save, a session's own included, is refused because storage is full                                                                                                           | "This device has no room left for the app's data, so something couldn't be saved. Deleting sessions you no longer need frees space."                                                                                                                                                                                                                                                                                          | `Your data`, `Dismiss` | Until dismissed or the page closes. |
 | Damaged sessions deleted | Kept sessions the app cannot read correctly were deleted, at load, at a session's save or when one was opened, while the visit saves (`flows/kept-sessions/handoff.md`, A Damaged Session); shown once the deletion has committed | One: "Sorry: a kept session was damaged and couldn't be read, so it was deleted." Several: "Sorry: {n} kept sessions were damaged and couldn't be read, so they were deleted." ({n} in figures) | `Dismiss` | Until dismissed or the page closes; while it shows, a further deletion of damaged sessions adds its count in place. |
 | Damaged session not deleted | A deletion of damaged sessions, other than at a session's save, is refused for any cause but full storage (a wording of the save-problem notice) | One: "A kept session was damaged and couldn't be read, and this device refused to delete it. It stays hidden until the page is reloaded." Several: "{n} kept sessions were damaged and couldn't be read, and this device refused to delete them. They stay hidden until the page is reloaded." ({n} in figures) | `Dismiss` | Until dismissed or the page closes. |
@@ -220,7 +197,7 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
 - **One notice at a time.** Save failed and Storage full are one save-problem notice in two
   wordings: a new failure while it shows switches it to the latest cause's wording in place, never
   adds a second. Damaged session not deleted is a further wording of the same notice, under the
-  same rules. **[v3.1 changed]** Preset not saved is a further wording of the same notice, under
+  same rules. Preset not saved is a further wording of the same notice, under
   the same rules. Outdated tab and Unusable data replace a save-problem notice or
   the apology (Damaged sessions deleted). The apology and the save-problem notice, the dismissible
   ones, replace each other in place, the latest shown. Unusable data, set
@@ -229,11 +206,14 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
   tab can tell that another tab ran `Delete everything` (see below); with saving off, no
   save-problem notice and no apology can arise. Outdated tab, in any wording, is never replaced:
   an apology whose deletion commits once the tab is outdated is not shown.
-- **[v3.2 new]** **Jam mode's load-failure notice** is not one of this flow's: its copy, actions
+- **Jam mode's load-failure notice** is not one of this flow's: its copy, actions
   and lifetime are in `flows/jam/handoff.md` (Opening Jam mode). The row holds it beside any
   notice above, after it, `--spacing-2` apart; the rules of one notice at a time govern the
   saving notices only, and neither kind replaces the other. Like them it is calm and held still
   during a session.
+- **[v3.4 new]** **The lexicon's load-failure notice** is not one of this flow's either: its copy,
+  actions and lifetime are in `screens/lexicon-page/handoff.md` (States: Load failure). The row
+  holds it as it holds Jam mode's, after the saving notices, and after Jam mode's when both show.
 - **After `Dismiss`,** the save-problem notice comes back only when a save fails again after a
   save has succeeded since; a run of refusals with no success between them shows it once. The
   apology comes back only with a new deletion of damaged sessions, counting that one alone. The
@@ -245,7 +225,7 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
   (Storage full when storage is full), never the apology, since nothing was deleted: the sessions stay unlisted for the visit, and the next load tries again. At a
   session's save the batch is the session's own save, so a refusal there is told as that save's
   failure is (below): by the review's keep line, plus the storage-full notice when storage is full.
-- **[v3.1 new]** **A preset's refused save** is told at once: presets are made, changed and renamed
+- **A preset's refused save** is told at once: presets are made, changed and renamed
   only outside a session, at idle or in the review mode, so the notice never waits; full storage,
   for any preset save, takes the Storage full wording. The preset stays as made or changed for
   the visit. A preset deletion that fails raises no notice: like every deletion, it keeps its
@@ -300,11 +280,10 @@ flowchart TD
   OV -->|Delete all played notes| CP[Confirm: Delete all played notes?]
   OV -->|"Keep my played notes turned off, some kept"| CK[Confirm: Delete the played notes already kept?]
   OV -->|"Delete everything (not in an outdated tab)"| CE[Confirm: Delete everything?]
-  %% v3.1 new: a preset's Delete, its confirmation and its ways out
-  OV -->|"A preset's Delete (Presets section; v3.1 new)"| CPR["Confirm: Delete the preset “{name}”? (v3.1 new)"]
-  CPR -->|"Delete preset: done (v3.1 new)"| OV
-  CPR -->|"Cancel, Escape, backdrop, Close (v3.1 new)"| OV
-  CPR -->|"Deletion fails (v3.1 new)"| CPR
+  OV -->|"A preset's Delete (Presets section)"| CPR["Confirm: Delete the preset “{name}”?"]
+  CPR -->|"Delete preset: done"| OV
+  CPR -->|"Cancel, Escape, backdrop, Close"| OV
+  CPR -->|"Deletion fails"| CPR
   CS -->|"Delete every session: done"| OV
   CP -->|"Delete all played notes: done"| OV
   CK -->|"Delete them: done"| OV
@@ -312,7 +291,7 @@ flowchart TD
   CP -->|"Cancel, Escape, backdrop, Close"| OV
   CK -->|"Keep them, Escape, backdrop, Close"| OV
   CE -->|"Cancel, Escape, backdrop, Close"| OV
-  CS & CP & CK & CE & CPR -->|"The tab becomes outdated: nothing deleted, focus to Done (the preset's: v3.1 new)"| OV
+  CS & CP & CK & CE & CPR -->|"The tab becomes outdated: nothing deleted, focus to Done"| OV
   CE -->|"Delete everything: done"| RELOAD["Page reloads into its first visit"]
   CS -->|Deletion fails| CS
   CP -->|Deletion fails| CP
@@ -339,10 +318,10 @@ flowchart TD
   - _Delete everything:_ the whole database (every setting, my instrument, the remembered
     controller, every session with everything it holds), then the page reloads. The browser's MIDI
     permission and the app's offline copy of its own files are not the app's kept data and stay.
-  - **[v3.1 new]** _Delete everything_ also removes every player preset, a record that could not be
+  - _Delete everything_ also removes every player preset, a record that could not be
     read included; the page reloads with the built-in presets only. _Delete every session_ and
     _Delete all played notes_ leave the presets as they are.
-  - **[v3.2 new]** _Delete every session_ deletes every Jam session with its doodle in both forms.
+  - _Delete every session_ deletes every Jam session with its doodle in both forms.
     _Delete all played notes_ deletes the raw doodle notes with every other kept played note and
     keeps each Jam session's written-out doodle, and the doodle Jam mode keeps stays. _Delete
     every session_ also lets go the doodle Jam mode keeps, its session being gone, silently
@@ -357,7 +336,7 @@ flowchart TD
   session list shows what remains; the cue row's links follow (`screens/phrase-workspace/`); a
   review that loses its played notes loses the lane, the `Played notes` switch and the
   played-notes export (`screens/last-session-review/`).
-- **[v3.1 new]** **After a preset's deletion,** the preset box beneath drops it from its list and,
+- **After a preset's deletion,** the preset box beneath drops it from its list and,
   when it was the selection or Custom's base, reads "Custom" (Custom with no base, the same
   values); its description line and `preset-actions` follow (`flows/presets/`).
 - **A deletion that fails** keeps the confirmation open, with one error line, and its confirming
@@ -365,5 +344,5 @@ flowchart TD
 - **Per-session deletions.** The per-session deletions (one session, one session's played notes) and deleting my instrument
   are specified with their screens: `flows/kept-sessions/`, `flows/review-and-export/`,
   `flows/my-instrument/`.
-- **[v3.1 new]** **Deleting one player preset.** Deleting one player preset, by `Delete preset` in the controls or by its row's
+- **Deleting one player preset.** Deleting one player preset, by `Delete preset` in the controls or by its row's
   `Delete` in Your data's Presets section, is specified with the presets: `flows/presets/`.

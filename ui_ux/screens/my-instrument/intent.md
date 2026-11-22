@@ -1,7 +1,5 @@
 # My Instrument Screen Intent
 
-> **New in v3.**
-
 This screen is a sheet over the workspace where the player describes their own instrument: a
 name, the lowest and highest notes they want to read, and how a written note sounds on it. It is a
 short form the player fills once, checks against what they know of their instrument, and closes.

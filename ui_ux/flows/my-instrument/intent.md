@@ -1,7 +1,5 @@
 # My Instrument Intent
 
-> **New in v3.**
-
 The app reads and writes music in the selected instrument's written pitch, and until v3.0 that
 instrument had to be one of three built-in profiles: C MIDI keyboard, B-flat tenor saxophone,
 E-flat alto saxophone. A player whose instrument goes further than its profile, or whose

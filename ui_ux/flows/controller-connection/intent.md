@@ -1,27 +1,5 @@
 # Controller Connection Intent
 
-> **Changes since v2**
->
-> - _New:_ the check can make my instrument follow the controller, warning first when that erases
->   its kept sessions ([Using the check's result for my instrument](#using-the-checks-result-for-my-instrument))
-> - _New:_ the controller is remembered across visits and reattaches at load, with no prompt
->   ([The controller remembered across visits](#the-controller-remembered-across-visits))
-> - _Changed:_ the `Connect controller` click is no longer the only audio unlock: the page's first
->   click, tap or key press anywhere unlocks sound, and the starting note waits for it after a
->   controller reattached at load ([When connecting can happen at all](#when-connecting-can-happen-at-all))
-> - _Changed:_ the header shows a badge from the load when the remembered controller is expected,
->   and the remembered controller counts as a selected input
->   ([Why a header badge, not a persistent panel](#why-a-header-badge-not-a-persistent-panel),
->   [What "connected" and "lost" mean](#what-connected-and-lost-mean))
-> - _Changed:_ with my instrument selected, the check runs against it and suggests a built-in
->   profile when one matches; the flow also serves both personas across visits
->   ([Why the transposition check is framed as a diagnostic, not a pass/fail test](#why-the-transposition-check-is-framed-as-a-diagnostic-not-a-passfail-test),
->   [Whose flow this is](#whose-flow-this-is))
-> - _Removed:_ "It does not remember a detected offset or offer a custom profile" (v2 in the
->   [frozen copy](../../versions/v2/flows/controller-connection/intent.md#why-the-transposition-check-is-framed-as-a-diagnostic-not-a-passfail-test))
-> - _v3.2 new:_ Jam mode needs a controller to start, never switches mode with one, and a Jam
->   losing it before phrase 1 ends at once ([A controller and Jam mode](#a-controller-and-jam-mode))
-
 Connecting a MIDI controller is a separate concern from generating or reading a phrase, not a
 variant state of either. Generating a phrase is about musical content: what the player wants to
 practice next. Connecting a controller is about a physical device handshake: is one plugged in,
@@ -54,7 +32,7 @@ confirmed to agree with the chosen instrument profile before a session relies on
 positive-only note acknowledgement can actually light notes up. Playing without a controller is the
 other ordinary way to use the product, and this flow must never make that path feel second-class.
 
-**[v3 new]** From v3.0 the flow also serves both goals across visits. The same player comes back to
+From v3.0 the flow also serves both goals across visits. The same player comes back to
 the same browser, practice sitting after practice sitting, and the controller they chose last time
 is simply there again, so a sitting starts with playing rather than with connecting. And when the
 check finds the controller and the instrument disagree, the player can make their own instrument
@@ -69,7 +47,7 @@ Never during a session. This is what makes the whole flow safe to be a modal she
 open there is no running phrase, no backing, and no click it could hide. It also shapes three rules
 the flow is built around:
 
-- **[v3 changed]** **The page's first click unlocks sound.** Browsers need one real click, tap or
+- **The page's first click unlocks sound.** Browsers need one real click, tap or
   key press before a page may play sound, and they do not count a MIDI note as one. Any of them,
   anywhere on the page, is enough. With no controller remembered, that first click is usually
   `Connect controller`, which also requests MIDI permission, or `Start session`, a click of its
@@ -93,7 +71,7 @@ wondering where the button went.
 
 ## What "connected" and "lost" mean
 
-**[v3 changed]** The header and the sheet use one definition throughout, so that the badge never
+The header and the sheet use one definition throughout, so that the badge never
 claims something the rest of the app does not believe. A controller is **connected** once MIDI
 permission is granted, one input is selected (the player's pick, the only device present, or the
 controller remembered from an earlier visit), and that input's port is present and open. No note has to be played first; the transposition check is a separate
@@ -186,14 +164,14 @@ translating:
   saxophone suggested. No profile is ever suggested when none would match, and none can match a
   whole-octave offset, so for that case the octave setting is the only suggestion.
 
-**[v3 changed]** The profile suggestion stays within the three built-in profiles. When my instrument
+The profile suggestion stays within the three built-in profiles. When my instrument
 is the selected instrument, the check runs against it: its name stands where a profile's would, the
 note it asks for comes from its range, and a built-in profile is suggested when one would match
 exactly. My instrument itself is never suggested by that line: the action below covers it.
 
 ## Using the check's result for my instrument
 
-**[v3 new]** On every result that is not a match, the check offers one more action after `Continue`:
+On every result that is not a match, the check offers one more action after `Continue`:
 `Use this for my instrument`. It sets my instrument's transposition so the written notes match what
 the controller plays, creating my instrument from the selected profile if there is none yet. It is
 there because the most common mismatch, a controller left at its default and sending the written
@@ -202,7 +180,7 @@ transpose setting harder to reach than one button here. It is a plain button, af
 the controller's own setting stays the first suggestion, and nothing in the result's wording
 pushes the player towards changing their instrument.
 
-**[v3 new]** It asks once before acting, inside the sheet, because it changes something kept: the
+It asks once before acting, inside the sheet, because it changes something kept: the
 confirmation says what a written C4 will sound as and, when my instrument does not exist yet, that
 it will be made from the selected profile, with its name and range. The way back is focused, so an
 Enter pressed out of habit changes nothing. On confirmation my instrument is saved and selected,
@@ -213,7 +191,7 @@ them. Only the transposition changes; the written range and the clef stay as the
 is what the player reads, and the rest of my instrument is changed in its own sheet
 (`flows/my-instrument/`).
 
-**[v3 new]** A new transposition changes what my instrument plays, so the sessions kept with it go
+A new transposition changes what my instrument plays, so the sessions kept with it go
 (`flows/my-instrument/`, What Changing It Does to Its Sessions). When my instrument has kept
 sessions, the same confirmation says so, with how many, and its confirming action takes the error
 tone and says it erases: `Use and erase`. A tab that must be reloaded erases nothing, so there the
@@ -231,7 +209,7 @@ default, informative at a glance, and one click away from the full sheet between
 
 The header element takes one of these forms:
 
-- **[v3 changed]** **`Connect controller` button** — a plain `btn`, deliberately not `btn-primary`, because
+- **`Connect controller` button** — a plain `btn`, deliberately not `btn-primary`, because
   connecting is optional support for the practice loop, not the loop itself (`Generate phrase` /
   `Regenerate phrase` keeps that role). It stays a button until a controller has actually
   connected or the browser has refused permission. A failed attempt that found no device, or an
@@ -239,7 +217,7 @@ The header element takes one of these forms:
   badge would claim a status that has not changed. From v3.0 it is also what a load shows unless
   a remembered controller is expected (see The controller remembered across visits).
 - **Connected badge** — a status dot plus the device's name, once a controller has connected.
-- **[v3 changed]** **No-controller badge** — a neutral status dot plus "No controller", once a
+- **No-controller badge** — a neutral status dot plus "No controller", once a
   controller that had connected is no longer attached: disconnected by the player, lost in a
   session that then ended, or unplugged between sessions; and from a load, while the remembered
   controller is expected but not plugged in. The no-controller badge never reverts to the `Connect controller`
@@ -294,30 +272,30 @@ Two cases at the edge of a session follow the same logic:
 
 ## The controller remembered across visits
 
-**[v3 new]** The app remembers the last controller the player chose and reselects it at the next
+The app remembers the last controller the player chose and reselects it at the next
 load, as soon as it is plugged in, the way it already recognises a controller that comes back
 within a page: no click, no sheet and no new check. The check told the player how this device
 relates to their instrument last time, and a reload does not change that.
 
-**[v3 new]** A load never raises a browser prompt. The app asks for MIDI access at load only when
+A load never raises a browser prompt. The app asks for MIDI access at load only when
 the browser already allows it for this page; otherwise the header shows `Connect controller`, as in
 v2, and the first click on it goes through the sheet. A permission prompt appearing by itself at
 every visit, before the player has done anything, would be the app asking for something the player
 did not reach for.
 
-**[v3 new]** While the remembered controller is expected but not plugged in, the header shows the
+While the remembered controller is expected but not plugged in, the header shows the
 neutral no-controller badge, exactly as for a controller unplugged between sessions, and the
 controller attaches by itself when it is plugged in. Through the sheet, a remembered controller
 found among the inputs is chosen directly and the sheet goes straight to `Connected`: the picker and
 the check are skipped, and `Run check again` is there for a player who has changed their
 controller's settings since.
 
-**[v3 new]** The memory is one device, never a history. Choosing another device replaces it.
+The memory is one device, never a history. Choosing another device replaces it.
 `Disconnect` forgets it, because that is the player choosing no controller, and a reload must not
 bring back a device the player turned away. Deleting my instrument leaves it alone, since the two
 are independent; `Delete everything` forgets it with everything else.
 
-**[v3 new]** Reattaching at load has one cost: the page has had no click yet, so it may not play
+Reattaching at load has one cost: the page has had no click yet, so it may not play
 sound. The starting note therefore waits for the page's first click, tap or key press (see When
 connecting can happen at all).
 
@@ -365,19 +343,19 @@ hide the Stop button and the staff at the very moment the player needs them.
 
 ## A controller and Jam mode
 
-**[v3.2 new]** A Jam is played on the controller: the doodle the app grows phrases from is what
+A Jam is played on the controller: the doodle the app grows phrases from is what
 the player plays into it (see [`flows/jam/`](../jam/intent.md)). So Jam mode needs a controller to
 start, but not to open. Without one, Jam mode still opens, every one of its settings can be set,
 and a doodle it keeps stays; only `Start Jam` waits, disabled, and the row above the staff, where
 the starting note would be named, says that a Jam needs a connected controller. A player can set
 up a Jam before plugging in, and is told plainly why it will not start yet.
 
-**[v3.2 new]** A controller arriving or leaving never switches the mode. The player chose the mode
+A controller arriving or leaving never switches the mode. The player chose the mode
 with the switch in the header, and a mode that changed because a cable moved would change the
 staff, the controls and the start under their eyes for a reason they did not choose. Plugging in
 at Jam mode's Idle simply makes `Start Jam` available; unplugging there makes it wait again.
 
-**[v3.2 new]** A controller lost during a Jam before its first phrase sounds, while the app is
+A controller lost during a Jam before its first phrase sounds, while the app is
 still listening to the doodle or writing phrase 1 from it, ends the Jam at once, with no
 countdown: without the controller there is no doodle to finish, and a 30-second wait would only
 keep the click going over nothing. The Jam ends as a session stopped during its count-in, back at

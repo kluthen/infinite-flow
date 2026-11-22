@@ -2,10 +2,6 @@
 
 > **New in v3.4.**
 
-> **Draft, proposed.** Nothing here is approved or buildable yet; it moves to
-> `ui_ux/flows/look-up-a-word/` once the owner has ruled. An item marked _the owner's choice_
-> waits on a ruling.
-
 The page itself, its entries, its search and its keys, are in
 [`screens/lexicon-page/handoff.md`](../../screens/lexicon-page/handoff.md).
 
@@ -34,9 +30,9 @@ flowchart TD
   P -->|"More / a related word"| E
   Q -->|"More / a related word"| E
   E -->|"a letter, or types"| P
-  P -->|"Close, Escape, or Back (the owner's choice)"| W
-  Q -->|"Close, or Back (the owner's choice); Escape empties the field first"| W
-  E -->|"Close, Escape, or Back (the owner's choice)"| W
+  P -->|"Close, Escape, or Back"| W
+  Q -->|"Close, or Back; Escape empties the field first"| W
+  E -->|"Close, Escape, or Back"| W
   S -.->|"no opening during a session"| S
 ```
 
@@ -54,14 +50,26 @@ flowchart TD
 - **Closing.** `Close`, or Escape outside a search field holding text, closes the page and
   returns focus to the footer's `Lexicon`. The workspace is as it was: the page changes no
   setting, no phrase and no kept data.
-- **The browser's Back button.** _The owner's choice._ Proposed: opening the page adds one entry
-  to the browser's history, with the address `#lexicon`; Back closes the page as `Close` does, and
-  `Close` and Escape step back over that entry, so after closing, Back and Forward behave as if
-  the page had never opened. Jumps to a letter or a related word inside the page add no history
-  entry. A load or reload at `#lexicon` opens the workspace, then the page, once the saved
-  settings are read. The alternative is no history entry and no address: Back then leaves the app
-  from the page, as it does from the workspace.
-- **No MIDI start.** While the page is open, a MIDI note starts nothing; the starting note line
-  under the staff keeps its words, and works again once the page is closed.
+- **The browser's Back button.** The page has one history entry of its own, with the address
+  `#lexicon`, and no other. Back closes the page as `Close` does.
+  - **Its entry.** Every opening adds that entry, marked as the page's own, on top of the
+    workspace's bare address, so Back from the page always lands on the workspace and never
+    leaves the app.
+  - **Closing by `Close` or Escape.** Closing steps back over the page's entry, so the
+    browser's history holds no lexicon visit and Back next goes where it would have before the
+    page opened.
+  - **Forward.** After the page closed, Forward onto its entry opens the page on that entry, as
+    the footer's `Lexicon` would but adding no entry. Wherever the footer's `Lexicon` is
+    disabled (a session, count-in included), Forward onto it opens nothing and the address is
+    replaced with the bare one.
+  - **A load at `#lexicon`.** A load or reload at `#lexicon` replaces the address with the bare
+    one, opens the workspace, then, once the saved settings are read, opens the page as a press
+    of `Lexicon` does, adding its entry.
+  - **Jumps inside the page.** A letter or a related word moves within the page without
+    navigating: its link's own navigation is cancelled, so it adds no history entry and leaves
+    the address at `#lexicon`. Its `href` stays, so it is still a link to assistive technology.
+- **No MIDI start.** While the page is open, a MIDI note starts nothing: the page counts as an
+  open sheet for the starting note, whose line under the staff is hidden, as under a sheet, and
+  comes back as it was once the page is closed.
 - **Nothing kept.** Opening, searching and reading save nothing on the device; the page's state
   lasts for the visit only.

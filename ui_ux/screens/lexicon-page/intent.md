@@ -2,19 +2,19 @@
 
 > **New in v3.4.**
 
-> **Draft, proposed.** Moves to `ui_ux/screens/lexicon-page/` once the owner has ruled. The
-> research behind it is in [`../../research.md`](../../research.md).
-
 ## What This Screen Is
 
-The lexicon, [`docs/music/lexicon.md`](../../../../../docs/music/lexicon.md), is the project's one
+The research behind this design, what the lexicon holds and how good glossary pages handle each
+choice below, is in [`research/lexicon-page.md`](../../research/lexicon-page.md).
+
+The lexicon, [`docs/music/lexicon.md`](../../../docs/music/lexicon.md), is the project's one
 list of music words, written for a reader with no music theory: every word has one plain line,
 a short definition, and, where the app gives the word a meaning of its own, what it does in
 Infinite Flow. Until now only the people building the app read it. This page puts it in front of
 the player: every word, A to Z, with a search, offline, over the workspace and back.
 
 It serves the Curious Improviser (P1) first, from
-[`specs/personas.md`](../../../../../specs/personas.md): a player who can read music but is a
+[`specs/personas.md`](../../../specs/personas.md): a player who can read music but is a
 beginner at improvisation, curious, who pokes at settings to see what happens, and who wants to
 get to know the possibilities rather than study theory (P1.G1). The page is for the moment
 between sessions when a word stops them: what is Leapiness, what does an enclosure do, why does
@@ -58,6 +58,16 @@ the rest, so typing "tension" puts the Tension control at the top and Chord exte
 called a tension) below it. When one word matches, it opens, since that is the word the player
 came for.
 
+A beginner often has the idea but not the word: they heard a horn player slide up into a note
+and do not know it is called a scoop. A list searched by name alone fails them. So, from three
+characters on, the search also looks in each word's plain line, and lists the entries it finds
+there in a group of their own, "Mentioned in other words", under the named matches: typing
+"sliding" finds Scoop, whose plain line reads "A jazz effect: sliding up into a note from a
+little below it." Kept apart,
+these looser finds never crowd out the word the player typed; starting at three characters and
+matching only the start of a word keeps the group short. The definitions and app meanings are
+not searched: they are long, and a match deep in one would explain nothing at a glance.
+
 A search that finds nothing says so in words and offers the way back, `Clear search`, with a
 hint that a shorter or differently spelled search may work. It never shows an empty page.
 
@@ -80,6 +90,10 @@ doubled word would need nothing new. The two entries already link to each other 
   player might like (gesture and answer, open ending); bringing one to the page is an edit to the
   lexicon, moving it out of the Internal group in plain words, and the page shows it at the next
   build.
+- **Nothing reworded.** Every entry shows the lexicon's own words, app meanings included, even
+  where an app meaning reads as written for the people building the app. The page never shortens
+  or hides part of one by a rule: a text that reads badly is mended in the lexicon, once, and
+  every reader of it gains.
 - **Browsing by group.** The twelve groups are a label, not a way in, in this first step.
 
 ## Visual Weight
@@ -97,5 +111,5 @@ jump to a letter or a word, which is instant, like every jump in the app.
 The page uses the lexicon's own words for every entry and very few of its own: "Lexicon" for the
 footer button and the title (the owner's word for it, explained by the intro line), "Find a word"
 for the search, "More" and "Less", "Also called", "In Infinite Flow", "Related", "Clear search".
-"Glossary" would be the more common English label; it is a one-word change if the owner prefers
-it.
+"Glossary" would be the more common English label; "Lexicon" is kept because it is the owner's
+word for the list, and the intro line says what it holds.

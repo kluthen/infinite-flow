@@ -1,19 +1,5 @@
 # Controller Connection Screen Intent
 
-> **Changes since v2**
->
-> - _New:_ the check's result offers to use it for my instrument, through a confirmation inside
->   the sheet that names the interval and warns when my instrument's sessions would go
->   ([Using the result for my instrument](#using-the-result-for-my-instrument))
-> - _New:_ the check runs against my instrument when it is selected; Connected can be reached
->   straight away for the remembered controller ([Focal point per state](#focal-point-per-state),
->   [How the check result is worded](#how-the-check-result-is-worded))
-> - _Changed:_ the app remembers one controller, never a history
->   ([What is demoted or absent entirely](#what-is-demoted-or-absent-entirely))
-> - _Removed:_ "A player reconnecting the same controller for the tenth time sees exactly the same
->   screen as the first time" (v2 in the
->   [frozen copy](../../versions/v2/screens/controller-connection/intent.md#what-is-demoted-or-absent-entirely))
-
 This screen is a sheet, not a route, and every state is built to be read in a few seconds and then
 acted on or dismissed — nothing here asks for the sustained attention the phrase workspace does.
 Each state has exactly one job, stated in its own title and body copy, with no competing message
@@ -62,7 +48,7 @@ instruction: play it. Once played, it shows exactly one result with its suggesti
 competes: no history of earlier runs, no tally of attempts, no countdown. The note played here
 never starts a session; the check is its own step.
 
-**[v3 new]** When my instrument is the selected instrument, the check is about it: the note comes
+When my instrument is the selected instrument, the check is about it: the note comes
 from its range and the result names it. A result that is not a match adds one action after
 `Continue`, `Use this for my instrument`, which leads to a confirmation inside the sheet (see Using
 the result for my instrument). A match has nothing to fix and offers nothing more.
@@ -72,7 +58,7 @@ with a working connection: re-run the check, switch device, disconnect, or finis
 state allowed to feel like a resting point rather than a step, because for a player who is done
 with this sheet, it usually is.
 
-**[v3 new]** Two things can bring the player here that v2 did not have. The controller remembered
+Two things can bring the player here that v2 did not have. The controller remembered
 from an earlier visit, found among the inputs, goes straight to Connected, with one quiet line
 saying it is the one chosen last time and that the check can be run again if its settings changed:
 the check was done then, and a reload does not change the controller. And using a check result for
@@ -97,7 +83,7 @@ should not second-guess that choice without a reason. With three profiles transp
 profile can match a whole-octave offset, so for that case the octave setting is the only
 suggestion.
 
-**[v3 new]** When my instrument is selected, the result names it instead of a profile, as "your
+When my instrument is selected, the result names it instead of a profile, as "your
 instrument, {name}", so the sentence reads naturally whatever the player called it, and the
 profile suggestion looks at all three built-in profiles. My instrument is never the suggested
 profile: `Use this for my instrument` already offers to make it match.
@@ -112,7 +98,7 @@ current picker needs, no record of how many times the check has been run, no tim
 connection. None of that changes what the player should do next, and the product keeps nothing
 about the player to be judged by.
 
-**[v3 changed]** The app remembers one thing: the controller last chosen, so it can reselect it at
+The app remembers one thing: the controller last chosen, so it can reselect it at
 the next visit. That is a convenience, not a history: one device, replaced by the next choice,
 forgotten on `Disconnect`, never shown as a list. A player reconnecting a controller they have
 never connected before sees exactly the same screens as the first time; the remembered one skips
@@ -124,7 +110,7 @@ needed to get from "no controller" to "connected and checked" is left out.
 
 ## Using the result for my instrument
 
-**[v3 new]** `Use this for my instrument` is a plain button after `Continue`, never the primary
+`Use this for my instrument` is a plain button after `Continue`, never the primary
 action: the result's own suggestion, the controller's setting, stays the first thing offered, and
 the player who just wants to play continues as before. Choosing it does not act at once. It
 changes something kept, so the sheet first shows a confirmation in its own place, not a second
@@ -137,7 +123,7 @@ instrument has kept sessions, the confirmation also says that they go and how ma
 my instrument's own sheet uses, and its action becomes `Use and erase`, in the error tone, since it
 now deletes something kept.
 
-**[v3 new]** The confirmation stays inside the sheet because the sheet is where the player already
+The confirmation stays inside the sheet because the sheet is where the player already
 is, and a sheet stacked on a sheet would leave two `Close` buttons and two backdrops to reason
 about. Its way back is a way back, not a way out: `Back`, Escape, the backdrop and `Close` all
 return to the result the player was reading.

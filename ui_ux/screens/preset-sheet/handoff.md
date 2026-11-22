@@ -1,12 +1,5 @@
 # Preset Sheet Handoff
 
-> **New in v3.1.**
-
-> **Changes since v3.1**
->
-> - _v3.3 changed:_ a saved preset also holds the Seventh chords level
->   ([What the Main Action Does](#what-the-main-action-does): Seventh chords level)
-
 The one sheet in which a player preset is saved as new, saved with a new restriction, renamed or
 deleted. It opens from `preset-actions` in the preset bar of `screens/phrase-workspace/`, at Idle,
 in the review mode and during **Loading**, never during a session. The flow around it, and what
@@ -127,7 +120,7 @@ sheet-backdrop
   as a new player preset, under the trimmed name, with the restriction chosen ("As now" being the
   restriction in force, or "any" with none), and makes it the selection: the box shows its name,
   in the **Your presets** group of the list. The sheet closes.
-- **[v3.3 changed]** **Seventh chords level.** The preset-held settings that **Save** and **Save changes** store include the
+- **Seventh chords level.** The preset-held settings that **Save** and **Save changes** store include the
   Seventh chords level, by value; the sheet asks nothing new about it.
 - **Save changes** replaces the base's values with the current preset-held settings and its
   restriction with the one chosen, and makes it the selection. The sheet closes.

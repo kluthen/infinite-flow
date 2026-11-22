@@ -1,22 +1,5 @@
 # Saved Data Intent
 
-> **New in v3.**
-
-> **Changes since v3.0**
->
-> - _v3.1 new:_ the player's presets kept, how the selection comes back, and what a visit that
->   saves nothing does with presets ([Presets](#presets))
-> - _v3.1 changed:_ saving a preset asks the browser for protection
->   ([Asking the browser to protect the data](#asking-the-browser-to-protect-the-data))
-> - _v3.1 changed:_ Delete everything removes the presets ([Your data](#your-data))
-> - _v3.2 new:_ session mode's new settings and Jam's own settings kept, each apart; the mode and
->   the doodle Jam mode keeps never kept; a doodle kept with its session in one form and not the
->   other ([Jam](#jam))
-> - _v3.2 new:_ Jam mode's load failure shares the notice row
->   ([Telling a saving problem](#telling-a-saving-problem))
-> - _v3.2 changed:_ Chrome named as the one supported browser
->   ([Asking the browser to protect the data](#asking-the-browser-to-protect-the-data))
-
 Up to v2, every visit started from the defaults and forgot everything when the page closed. v3.0
 keeps things on the player's device: settings, the last session and the sessions the player
 chose to keep, their favorites and comments, the player's own instrument, the remembered
@@ -71,7 +54,7 @@ review and changes nothing that is kept.
 
 ## Asking the browser to protect the data
 
-**[v3.2 changed]** A browser may clear a site's data when the device runs short of space, without
+A browser may clear a site's data when the device runs short of space, without
 warning, unless the site has asked for its storage to be protected and the browser agreed. Chrome,
 the one supported browser, answers silently, by its own rules, with no prompt to the player. So the app asks at the moment the
 player first keeps something they would miss (a pin, a favorite, a saved instrument), not at load:
@@ -85,7 +68,7 @@ fix, on every visit.
 The request is made at the first such act of each visit while the data is not yet protected: a
 browser's answer can change as the player keeps using the site, and asking again costs nothing.
 
-**[v3.1 changed]** Saving a preset of one's own, as a new one or by saving changes into it, is
+Saving a preset of one's own, as a new one or by saving changes into it, is
 such an act too: a player who named a setup wants to find it again. Renaming or deleting one is
 not: nothing new is kept.
 
@@ -145,12 +128,12 @@ would leave the reset controls unexplained.
 
 ## Presets
 
-**[v3.1 new]** The player's own presets are kept like the settings, each saved the moment it is
+The player's own presets are kept like the settings, each saved the moment it is
 made, changed, renamed or deleted, and silently: the preset box shows the result. The selection
 is kept too (which preset, or Custom and the preset it is based on), so the controls come back
 under the same name they were left under.
 
-**[v3.1 new]** At load, **the saved values win** over the preset's name. If the settings no
+At load, **the saved values win** over the preset's name. If the settings no
 longer match the preset selected (a built-in retuned by a later version, a preset changed in
 another tab) or the key and mode lie outside what it is meant for, the selection simply shows
 Custom, based on that preset, and if the preset is gone, Custom. The key and the mode never move
@@ -159,12 +142,12 @@ behind their back, and a player's sound must never change without them doing som
 is announced: the preset box saying "Custom, based on Jazz" is the whole story, in the place the
 player looks.
 
-**[v3.1 new]** Loading is tolerant, preset by preset and field by field, as it is for the
+Loading is tolerant, preset by preset and field by field, as it is for the
 settings: a damaged field falls back on its own, a preset that cannot be read at all is not
 listed, and nothing is said. Settings saved by v3.0 come back under the matching built-in preset,
 or Custom based on it.
 
-**[v3.1 new]** A preset that can't be saved is told at once, in the notice row, naming it, and
+A preset that can't be saved is told at once, in the notice row, naming it, and
 it can still be used until the page closes. Presets are only ever saved outside a session, so
 there is no session to wait for. In a visit that saves nothing, presets made there last for the
 page under that visit's notice, and none can be deleted there, like everything else; a visit
@@ -173,11 +156,11 @@ not be read.
 
 ## Jam
 
-**[v3.2 new]** Session mode's new options (the rhythm lock, its allowed changes, what Vary
+Session mode's new options (the rhythm lock, its allowed changes, what Vary
 settings may move) are settings like the others: kept when changed, back as the player left them.
 The lock comes back on only if the player turned it on.
 
-**[v3.2 new]** Jam mode keeps its own settings, saved apart from session mode's, so that nothing
+Jam mode keeps its own settings, saved apart from session mode's, so that nothing
 done in a Jam moves the player's practice setup, nor the reverse: Jam's key and mode, its tempo,
 the drift, its own rhythm lock and allowed changes, and its harmony and embellishment settings.
 The first time Jam mode opens, its key, mode and tempo start from session mode's (the tempo kept
@@ -188,10 +171,10 @@ Taking the suggestion's key in a review is a change to Jam's settings and is kep
 instrument, the audio mix and the theme are shared by both modes and kept once.
 `Delete everything` resets Jam's settings with every other one.
 
-**[v3.2 new]** Being in Jam mode is not kept: every visit opens in session mode, since which mode
+Being in Jam mode is not kept: every visit opens in session mode, since which mode
 the player is in describes what they are doing right now, not how they like the app set up.
 
-**[v3.2 new]** A Jam session is kept like any session. Its doodle comes in two forms, and they
+A Jam session is kept like any session. Its doodle comes in two forms, and they
 are kept by different rules (master spec §C5.14). The doodle as the app wrote it is part of the
 music, the input the player gave on purpose, so it is kept with the session without asking. The
 notes as the player played them are played notes, the most private thing the app holds, kept only
@@ -199,7 +182,7 @@ when the player switched on "Keep my played notes". Deleting the session deletes
 played notes deletes only the second. The player's "keep mine" answer to a key and mode
 suggestion is kept with the session too, so the same suggestion is never offered again.
 
-**[v3.2 new]** The doodle Jam mode keeps for the next Jam is never kept on the device: it lives
+The doodle Jam mode keeps for the next Jam is never kept on the device: it lives
 in memory, and a reload lets it go. The kept Jam session's review offers it again, so nothing is
 lost by that.
 
@@ -264,7 +247,7 @@ A session whose own save failed is the one exception: the player is already look
 and the review's line about how the session is kept says it was not saved and is best exported.
 A notice above the review saying the same thing again would be redundant.
 
-**[v3.2 new]** The same row also holds one notice that is not about saving: Jam mode couldn't
+The same row also holds one notice that is not about saving: Jam mode couldn't
 open, the first time it was asked for, because part of the app didn't load. It lives with the mode
 switch ([`flows/jam/`](../jam/intent.md#opening-jam-mode-the-first-time)), follows the row's
 rules (calm, held still during a session), and sits beside a saving notice rather than replacing
@@ -288,7 +271,7 @@ what goes, saying it can't be undone, with the way back focused. Three of them a
 - **Delete all played notes.** The played notes kept with any session go; the sessions stay, and
   the `Keep my played notes` setting stays as it is. Played notes held only in memory for the
   session that just ended, because the setting was off, are not kept data and are untouched.
-- **[v3.1 changed]** **Delete everything.** Everything the app keeps goes, the player's presets and
+- **Delete everything.** Everything the app keeps goes, the player's presets and
   the remembered controller included, and the page reloads into its first visit. Resetting every control, closing the review and
   releasing the controller in place would be a long list of special cases to get exactly right;
   a reload is the honest picture of "nothing is kept", and it is what the player will see on their

@@ -1,7 +1,5 @@
 # My Instrument Handoff
 
-> **New in v3.**
-
 The sheet where the player makes, changes and deletes their own instrument. It opens from
 `instrument-actions` in the instrument profile's `field-group` on `screens/phrase-workspace/`
 (`Create my instrument` when none exists, `Edit my instrument` once it does), at idle and while

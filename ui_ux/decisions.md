@@ -110,3 +110,34 @@ applies (D119, D135, archived; spec D414).
   archived): entries opened in place rather than a list beside a detail pane; letters as links,
   empty ones grey text; focus on open by pointer type. Proposed answers to O239–O246, with the
   owner's choices, go to `spec-writer`. Now in: `drafts/lexicon-page/README.md`.
+
+## v3.4's design starts at the root, 2026-11-22
+
+- **D488 (2026-11-22): v3.4's design starts at the root; the v3.0 to v3.3 marks are cleared.**
+  The owner's validation of the lexicon page starts v3.4's design, and `versions/v3.3/` holds
+  v3.3 with every layer of marks, so the root's change blocks, inline tags and annotations, and
+  the token source's `v3.x new` / `v3.x changed` comments, went in one mechanical pass, before
+  any v3.4 edit; layout-tree notes were reworded to the shipped state. v3.4 is marked against
+  `versions/v3.3/`. Now in: `README.md` (Released versions and work in progress).
+- **D489 (2026-11-22): the owner's rulings on the lexicon page: all four choices yes.** "OK i
+  validate lexicon view": the Internal entries stay hidden; Back closes the page through one
+  `#lexicon` history entry; the "Mentioned in other words" group; app meanings shown as written.
+  The proposed answers are accepted: spec O239–O244 and O246 closed by spec D549, O245 by spec
+  D558, so the questions D487 left open are closed. The two follow-ups (player-worthy words out
+  of Internal, the eight longest app meanings shortened) are a docs-only lexicon pass before the
+  build (spec D560). Now in: `screens/lexicon-page/handoff.md`, `flows/look-up-a-word/`.
+- **D490 (2026-11-22): the draft is adopted at the root as v3.4's design (closes D487's draft;
+  spec D549).**
+  Screen and flow moved as they were, rulings applied, draft notes dropped; the prototype is
+  `mockups/lexicon-page/`, the research `research/lexicon-page.md`; `proposed-answers.md` went
+  (its answers are spec-side now; commit 3157901a has it). Settled here: `btn`'s minimum target
+  for the 44px letters, the lexicon notice's lifetime and its place after Jam's. Now in:
+  `screens/phrase-workspace/handoff.md` (Footer), `strategy.md`, `flows/saved-data/handoff.md`.
+- **D491 (2026-11-22): `ux-critic` on v3.4's design: DRIFT, five findings, all settled here.**
+  The `#lexicon` entry's three gaps (a load at it, Forward, the in-page links) are now rules; the
+  page counts as an open sheet for the starting note; letter, `More` and focus-target states are
+  specified, empty letters told by weight and underline, not colour alone; `strategy.md` gains the
+  page's goal and its portrait exception; the footer's tags match its change block. The mark
+  clearing (D488) checked clean. A re-check found two more, settled too: every opening, a load at
+  `#lexicon` included, adds the page's entry; the title takes focus as `lexicon-title`. Now in: `flows/look-up-a-word/handoff.md` (Routing Rules),
+  `screens/lexicon-page/handoff.md`, `strategy.md`, `motion.md`, `flows/play-session/handoff.md`.

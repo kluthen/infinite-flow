@@ -1,12 +1,12 @@
 <!doctype html>
 <!--
-  Lexicon page: design prototype (draft, proposed). Not application code and not buildable truth:
-  the design is ../screens/lexicon-page/handoff.md and ../flows/look-up-a-word/handoff.md.
+  Lexicon page: design prototype. Not application code and not buildable truth: the design is
+  ui_ux/screens/lexicon-page/handoff.md and ui_ux/flows/look-up-a-word/handoff.md.
 
   Self-contained: no network, no dependency. It holds no copy of the lexicon. It reads the
   repository's own docs/music/lexicon.md, either from its relative path when served over http
   (for example `npx vite preview` is not needed: any static server at the repository root, such
-  as `python3 -m http.server` run there, then open /ui_ux/drafts/lexicon-page/prototype/), or,
+  as `python3 -m http.server` run there, then open /ui_ux/mockups/lexicon-page/), or,
   opened straight from disk, through the "Open lexicon.md" file picker.
 
   The token values below are copied from src/styles/theme.css as a design reference only; the
@@ -16,7 +16,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lexicon page prototype (draft)</title>
+<title>Lexicon page prototype</title>
 <style>
   :root {
     --font-display: Georgia, serif;
@@ -130,7 +130,7 @@
   <h1 class="sheet-title">Workspace (stand-in)</h1>
   <div id="notice-row"></div>
   <div class="proto-panel">
-    <p class="sheet-hint">Prototype controls, to try the owner's choices. Not part of the design.</p>
+    <p class="sheet-hint">Prototype controls, to try the alternatives the owner ruled on (the defaults are his rulings). Not part of the design.</p>
     <p id="source-line" class="sheet-hint">Reading the lexicon…</p>
     <label>Open lexicon.md from disk: <input type="file" id="file" accept=".md,text/markdown"></label>
     <label><input type="checkbox" id="opt-internal"> Show the Internal entries</label>
@@ -353,7 +353,7 @@ $('opt-session').addEventListener('change', () => { const on = $('opt-session').
 $('opt-dark').addEventListener('change', () => { document.documentElement.dataset.theme = $('opt-dark').checked ? 'dark' : ''; });
 $('file').addEventListener('change', async () => { const f = $('file').files[0]; if (f) load(await f.text(), f.name); });
 
-fetch('../../../../docs/music/lexicon.md').then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
+fetch('../../../docs/music/lexicon.md').then((r) => { if (!r.ok) throw new Error(r.status); return r.text(); })
   .then((t) => { load(t, 'docs/music/lexicon.md'); if (location.hash === '#lexicon') { history.replaceState(null, '', location.pathname); openView(); } })
   .catch(() => { $('source-line').textContent = 'Opened from disk: choose docs/music/lexicon.md with the file picker below.'; });
 </script>
