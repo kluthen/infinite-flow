@@ -27,9 +27,12 @@ released as version 3.1.0 (tag `v3.1.0` at 55364e7, 2026-10-21); its design is f
 `versions/v3.1/` and its working record is in `archive/v3.1/`. v3.2 (Jam mode, re-scoped on
 2026-10-21 from a session option to a mode of its own) is released as version 3.2.0 (tag
 `v3.2.0` at f93e552d, 2026-11-09); its design is frozen in `versions/v3.2/` and its working record
-is in `archive/v3.2/`, and the owner's hand checks follow the tag. The root works toward v3.3
-(richer chords), whose design the owner approved at gate D0 on 2026-11-09; it is frozen in
-`versions/v3.3/` and is now to be built. See `todo.md` for where the work stands.
+is in `archive/v3.2/`, and the owner's hand checks follow the tag. v3.3 (richer chords), whose
+design the owner approved on 2026-11-09, is released as version 3.3.0 (tag `v3.3.0` at b2a0e3fa,
+2026-11-18); its design is frozen in `versions/v3.3/` and its working record is in
+`archive/v3.3/`, and its hand and listening checks follow the tag, the confirmation of the
+Seventh chords labels among them. The root holds the whole interface as v3.3 shipped it; the next
+release's design has not started. See `todo.md` for where the work stands.
 
 ## Released versions and work in progress
 
@@ -44,10 +47,11 @@ is in `archive/v3.2/`, and the owner's hand checks follow the tag. The root work
   released as version 3.2.0: frozen before its release, as the root without its v3.3 parts, so that v3.3 is
   approved against a fixed v3.2, and corrected later only if the owner's hand checks after the
   release change the design.
-  `versions/v3.3/` is v3.3 (richer chords), approved: frozen when the owner approved it, before it
-  is built, as the whole root, and corrected later only to match what ships.
+  `versions/v3.3/` is v3.3 (richer chords), released as version 3.3.0: frozen when the owner
+  approved it, before it was built, as the whole root, and corrected since only to match what
+  ships.
 - Everything outside `versions/` and `archive/` is work in progress toward the next release,
-  v3.3. It covers the whole interface, not only what the next version adds: a screen the
+  after v3.3. It covers the whole interface, not only what the next version adds: a screen the
   next version extends is specified here in full, old behavior included. When a version's design is approved,
   a copy of it goes into `versions/<version>/`, and the work at the root continues toward the one
   after.
@@ -117,8 +121,8 @@ is in `archive/v3.2/`, and the owner's hand checks follow the tag. The root work
   document.
 - `versions/v3.2/` holds the v3.2 design (Jam) as it shipped in version 3.2.0, frozen before its
   release, with a summary of the decisions worth keeping.
-- `versions/v3.3/` holds the v3.3 design (richer chords) as approved, frozen before it is built,
-  with a summary of the decisions worth keeping.
+- `versions/v3.3/` holds the v3.3 design (richer chords) as it shipped in version 3.3.0, frozen
+  when it was approved, before it was built, with a summary of the decisions worth keeping.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
   the closed question that record answers, and the finished work tracker. `archive/v2/` holds the
   v2 working record the same way: its decision log, its closed questions and its finished work
@@ -126,6 +130,7 @@ is in `archive/v3.2/`, and the owner's hand checks follow the tag. The root work
   its finished work tracker. `archive/v3.1/` holds the v3.1 working record the same way, except
   the decisions and work items v3.1 shares with v3.2, which are in `archive/v3.2/` with the rest
   of the v3.2 working record: its decisions, its closed questions and its finished work tracker.
+  `archive/v3.3/` holds the v3.3 working record the same way.
   The live registers above stay current; the archive is kept verbatim and is never edited
   further.
 

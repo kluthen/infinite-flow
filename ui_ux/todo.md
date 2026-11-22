@@ -70,42 +70,25 @@
   `archive/v3.2/`, the entries v3.1 shared with v3.2 with it. D480 and D483 stay live until the
   owner's hand checks after the tag are done. `versions/v3.2/` is unchanged. The root keeps v3.0's
   to v3.3's change marks until v4's design starts.
+- v3.3 (richer chords), released as version 3.3.0 (tag `v3.3.0` at b2a0e3fa, 2026-11-18): unit S,
+  validated by `ux-critic` (ux D263), refreshed against v3.2 as built and validated again (ux
+  D477-D481), approved by the owner at gate D0 and frozen (ux D482), then gate U1a on the build's
+  first measured shares (ux D485, the top label `Always`). Its hand and listening checks follow
+  the tag (spec D541). Frozen design: [`versions/v3.3/`](versions/v3.3/README.md). Archived
+  record: [`archive/v3.3/todo.md`](archive/v3.3/todo.md); archived decisions:
+  [`archive/v3.3/decisions-D252-D264.md`](archive/v3.3/decisions-D252-D264.md) and
+  [`archive/v3.3/decisions-D477-D479.md`](archive/v3.3/decisions-D477-D479.md); archived
+  question: Q77 (index: [`archive/v3.3/README.md`](archive/v3.3/README.md)).
+- v3.3 milestone archive (2026-11-22, alongside the spec tree's): the v3.3 record moved to
+  `archive/v3.3/`. D480 and D483 stay live for v3.2's hand checks, D482 and D485 for v3.3's
+  checks after the tag (a finding may correct `versions/v3.3/`), D486 until it is built, and
+  D481 and D484 between them. `versions/v3.3/` is unchanged. The root keeps v3.0's to v3.3's
+  change marks until the next version's design starts.
 
 ## In Progress
 
-**v3.3 (richer chords) design**, from master spec Part D (§D1-§D17; v1.2 of 2026-11-09, proposed
-for the owner's approval with spec D264-D274 and D511-D518). Started 2026-10-12 on branch
-`v3.3-chord-research`; refreshed 2026-11-09 on branch `v3.3-refresh` against v3.2 as built. Marked
-on top of v3.0's, v3.1's and v3.2's marks, every v3.3 change its own tagged paragraph (ux D252).
-Owner's standing delegation: settled here, no question to the owner. Settled decisions: ux
-D252-D264, D477-D479; Q77 closed by spec D275 as recommended (ux D264). No `src/` edits; no new
-token (ux D261). Approved by the owner at the build plan's gate D0 on 2026-11-09 (ux D482).
-
-- **Unit S — the whole of v3.3, in one pass** (ux D262): the Seventh chords level (foundation
-  group, after Harmonic motion; Off, Sometimes, Often, Mostly, the top label now Always, ux D485;
-  its note), presets holding it and
-  three descriptions suggesting it, Vary settings' note, saved settings and loading, the seventh
-  chord symbols' look, fit and spoken words, and the review's and files' chords. Files:
-  `strategy.md`, `README.md`, `screens/phrase-workspace/`, `flows/presets/`,
-  `screens/preset-sheet/handoff.md`, `screens/stale-phrase-prompt/handoff.md`,
-  `flows/play-session/`, `flows/generate-phrase/handoff.md`, `flows/saved-data/handoff.md`,
-  `flows/review-and-export/handoff.md`, `screens/last-session-review/handoff.md`, and, for Jam's
-  own level (Q86), `flows/jam/` (list corrected by ux D477). Written 2026-10-12.
-- **Validation.** `ux-critic` on v3.3: DRIFT, four copy and marking findings, all fixed (ux D263).
-  Validated for the owner's review.
-- **Build plan review** (`specs/versions/v3/build-plan-v3.3.md`, draft v1), 2026-10-12: the label
-  mapping written into the workspace handoff; five asks of the plan recorded (ux D264), the plan's
-  edits left to its owners.
-- **Refresh against v3.2 as built** (2026-11-09; Part D v1.2, plan v4): Jam's own level through
-  `flows/jam/` and the review side, a level change keeping the kept doodle (ux D477); the phone's
-  height and the symbols (ux D478, narrowed by D481); the guides, tap tempo, the
-  suggestion row and the focus rules checked, nothing more to change (ux D479).
-  `versions/v3.2/` taken first (ux D480). `ux-critic`: DRIFT, four findings, resolved (ux D481);
-  the phone acceptance withdrawn. Asks for `spec-writer`: chunk 23's design docs add
-  `flows/review-and-export/handoff.md`; §D8.3's "never switches" allows phrase 1 after
-  `Start with this phrase`. Ready for the owner's D0.
-- **Owner's approval** (2026-11-09): gate D0 granted, "Approve both" (Part D v1.2, build plan v4
-  and this design); `versions/v3.3/` frozen the same day, the whole root, marks kept (ux D482).
+No design unit is in progress at the root. v3.3's checks after the tag are in Remaining; the side
+work below is paused.
 
 ## Remaining
 
@@ -138,8 +121,17 @@ Carried forward from v3.2:
   finding that changes the design corrects the root and `versions/v3.2/` alike, recorded in
   `decisions.md` (ux D480).
 
-Carried forward from v3.3's build:
+Carried forward from v3.3 (after the `v3.3.0` tag, spec D541):
 
+- **U1b, the Seventh chords labels on the final shares** (build plan v3.3's U1b; ux D254, D264,
+  D485): after the owner's listening check L2 (v3.3 H2), on the release gate's final M1 if L2
+  tunes nothing, or on the 3.3.x patch's M1 if it tunes the Sometimes or Favored share (and after
+  chunk 20 too, should gate DP reopen). The labels are in `screens/phrase-workspace/handoff.md`
+  (Seventh chords). A label that changes is corrected at the root and in `versions/v3.3/` alike,
+  and recorded (ux D482).
+- **Hand check v3.3 H6, the symbols at the narrowest widths**: a calibration failure at a
+  supported width, phones included, comes back here (ux D258, D481); the build never shrinks a
+  symbol to pass it. The other checks after the tag (H3-H5, M3) carry no design question.
 - **The space between a chord's root and its suffix** (ux D486): VexFlow draws "C maj7", "A m";
   a later chunk sets the suffix against the root, and the Notation Contract
   (`screens/phrase-workspace/handoff.md`, Seventh chord symbols) then says so.
@@ -154,14 +146,19 @@ Not scheduled:
 - **Q16** (`open-questions.md`): a generation action reachable from the notation-error states,
   replacing the undiscoverable instrument-profile-switch escape. Idle-only, lower priority.
 
+Side work, not part of a version (paused):
+
+- **The options panel rework** (`ui_ux/side/options-panel/`: `intent.md`, `handoff.md` and a
+  `prototype/`; in the `options-panel-refactor` worktree, not yet committed or on `main`): a
+  reorganised options panel, with its own open question OPQ1, still open.
+  - 2026-11-22: the owner reviewed the prototype: "nicer than the current version, but not quite
+    there yet". To be revisited later; nothing is decided from it yet.
+
 ## Next Unit
 
-v3.3: approved at gate D0 (ux D482), frozen in `versions/v3.3/`; in its build. U1a done on chunk
-18's first shares: Off, Sometimes, Often kept, the top label now Always (ux D485). Next here is
-U1b: the labels confirmed again on the final shares, after chunk 20 if built and L2's tuning, at
-the release gate (ux D254, D264, D485). A symbol calibration failure, or a triad layout that counting the symbols' widths
-would move, also comes back here (ux D258, D264). A build correction to the design is applied at
-the root and to `versions/v3.3/` alike, and recorded.
+v3.3: released as version 3.3.0 and archived (`archive/v3.3/`). Next here is U1b, once the
+owner's listening check L2 has run, and any design finding of hand check v3.3 H6 (Remaining,
+Carried forward from v3.3).
 
 v3.2: released as version 3.2.0 and archived (`archive/v3.2/`). Only the owner's hand checks
 after the tag remain (Remaining, Carried forward from v3.2).

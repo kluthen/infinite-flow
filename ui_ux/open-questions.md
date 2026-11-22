@@ -1,7 +1,6 @@
 # Open Questions
 
-Only questions that are truly open appear here, with the closed question of a release not yet
-shipped (Q77, for v3.3), which is archived at its release. IDs are stable; new numbers come from
+Only questions that are truly open appear here. IDs are stable; new numbers come from
 `doc-ids next ux Q` (Q65, Q78 and Q79 were never used). Closed questions are archived verbatim:
 
 - First release (v1.0): [Q15](archive/v1/open-questions-Q15.md), closed by D37.
@@ -14,6 +13,8 @@ shipped (Q77, for v3.3), which is archived at its release. IDs are stable; new n
 - v3.2 (released as version 3.2.0): [Q70 and Q72–Q75](archive/v3.2/open-questions-Q70-Q75.md)
   and [Q81–Q87](archive/v3.2/open-questions-Q81-Q87.md), every one closed; each entry names what
   closed it.
+- v3.3 (released as version 3.3.0): [Q77](archive/v3.3/open-questions-Q77.md), closed by spec
+  D275 (ux D264).
 
 Decision IDs cited here (D37, D100, …) refer to this tree's decision log; archived ones resolve
 through the header of [`decisions.md`](decisions.md).
@@ -34,21 +35,3 @@ through the header of [`decisions.md`](decisions.md).
   about the pre-session, Idle-only static workspace. **Updated 2026-09-28:** an in-session misfit
   can occur after all; ux D100 handles it as a failed generation attempt (retried, never a
   notation-error display), so Q16 stays Idle-only.
-
-## v3.3, for `spec-writer` (raised 2026-10-12)
-
-- **Q77 — At Strongly favored, does a triad replace one chord or the whole plan?** **Closed
-  2026-10-12 by spec D275** (master spec Part D v1.1 updated: as recommended, the fallback is per
-  phrase; Strongly favored must reach at least 3 in 4 chords as sevenths, measured and reported to
-  `ux-writer`, done item 5). §D5.2 says
-  Strongly favored "tries the seventh form first at every event; a triad appears only where the
-  seventh form leads to no phrase", which reads per chord. §D5.3's search tries each plan "with its
-  drawn seventh forms first, then the same plan as triads only", which falls back per plan: at
-  Strongly favored a phrase is then either all seventh chords or all triads, finer fallbacks being
-  `coding-leader`'s option only if the cost guard asks. The two read differently to a player, and
-  the level's top label, **Mostly** (ux D254), promises a seventh on nearly every chord.
-  Recommended: §D5.2 says "a phrase falls back to triads only where its seventh forms lead to no
-  phrase", matching §D5.3, and the share of harmony events in their seventh form that the build
-  records at Strongly favored (§D10, done item 5) is reported to `ux-writer`: if it is not a clear
-  majority, the label is revisited (for example "Often" and "Very often" for the top two steps).
-  No design change until then; the design stands on the recommended reading.
