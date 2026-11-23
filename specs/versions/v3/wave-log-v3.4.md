@@ -182,3 +182,10 @@ current state.
 | driver (top level)                |        driver session e6a199d9 |    52 |    161k | $2.97 |
 | ux-writer                         |     v3.4 w1 gate T0 token pass |    52 |    158k | $2.87 |
 | (! = over 300k tokens of context) |
+
+- 2026-11-23: the owner: "merge and push". `v3.4-w1` merged into `main` 977e795a and pushed; the
+  wave's worktree and branches removed. The owner accepted the report's recommendations: the VISION
+  v3.4 line; `rule_midi_starting_note` named every sheet and the lexicon page as a clarification of
+  shipped behaviour (no MAJOR bump); the `service_session_midi` and `module_lexicon_single_source`
+  wordings; DRAFT → REVIEW for the four lexicon atoms. Sent to `documentalist` on branch
+  `v3.4-w1-rulings`.
