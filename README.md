@@ -98,9 +98,12 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   the file's text in, every entry out with its group, its group's place and its line, failing on
   an empty or malformed lexicon), the shaping into shown entries (`shown-entries.ts`), the entry's
   type (`lexicon-entry.ts`) and the read interface over entries handed to it (`read-lexicon.ts`),
-  exported by `index.ts`; plain TypeScript with no DOM, browser storage, Vite-only import or
-  network, its relative imports written with their `.ts` extension because the build step runs it
-  in Node too. The build step (`scripts/lexicon-words-plugin.ts`, in the app's, the workspace
+  exported by `index.ts`; plain TypeScript with no DOM, browser storage, Vite-only import, Vue,
+  network or package import (checked by `tests/unit/lexicon/lexicon-api-boundary.spec.ts`), its
+  relative imports written with their `.ts` extension because the build step runs it in Node too.
+  It is the lexicon API ([`docs/lexicon-api.md`](docs/lexicon-api.md)); its entry contract's JSON
+  Schema, `lexicon-entry.schema.json`, sits beside it and is checked against the real lexicon's
+  output. The build step (`scripts/lexicon-words-plugin.ts`, in the app's, the workspace
   harness's and the unit tests' configurations) reads the lexicon at build time and serves the
   shown entries as the build-only module `virtual:lexicon-words` (declared in
   `src/lexicon/lexicon-words.d.ts`), emitted as `assets/lexicon-words-*.js` and reached only through
