@@ -53,3 +53,7 @@ current state.
   Sent to `spec-writer`: write D495's rule into §E8 (accepted by the driver under D556) and carry
   T0's chunk 2 notes into chunk 2 (the `footer-actions` wrapper, `lexicon-letters-button`,
   `--lexicon-bar-block-size` kept current on `lexicon-view`, `lexicon-view` outside `.layout-app`).
+- 2026-11-23: plan v3 and Part E v1.1 (8708e7b6, spec D567): §E8's open-sheet rule; chunk 2 carries
+  T0's notes (`footer-actions`, `lexicon-letters-button`, `--lexicon-bar-block-size`, the open-sheet
+  e2e case). For the wave gate: `master-spec.md` already failed `prettier --check` before this
+  commit (Part A's wide tables); check whether `npm run format:check` covers it.
