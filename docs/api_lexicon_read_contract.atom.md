@@ -1,6 +1,6 @@
 ---
 id: api_lexicon_read_contract
-status: DRAFT
+status: REVIEW
 version: 0.2
 tags: [v3, release-v3.4, lexicon, api]
 type: API
