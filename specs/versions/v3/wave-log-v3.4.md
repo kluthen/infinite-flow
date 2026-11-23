@@ -57,3 +57,10 @@ current state.
   T0's notes (`footer-actions`, `lexicon-letters-button`, `--lexicon-bar-block-size`, the open-sheet
   e2e case). For the wave gate: `master-spec.md` already failed `prettier --check` before this
   commit (Part A's wide tables); check whether `npm run format:check` covers it.
+- 2026-11-23: chunk 1 merged 688a86d3 (1a b7bc417a, 1b 7cdca3a6); no deviation. M1: the words' file
+  `lexicon-words-*.js` 305,315 B (90,261 B gzip) of 458,752 B, lexicon v1.9; start-up JavaScript
+  387,039 B of 409,600 B. Figures: 2 agents, 130 tool calls, 16.6M tokens in / 106k out, max
+  context 222k, $6.79 at API prices. For the wave gate: `atd check` on the chunk's diff; re-measure
+  M1; `verify-boundaries.spec.ts` now links 6 atoms (health-lint warning). For chunk 3: its
+  browser-free check meets `src/lexicon/lexicon-words.d.ts` (type declaration of
+  `virtual:lexicon-words` only). Chunk 2 dispatched (T0 done; order 1, 2, 3).

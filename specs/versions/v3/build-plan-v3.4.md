@@ -147,7 +147,11 @@ file, against 387,038 B at `3.3.0`, with what the page's host added named.
 
 ### Chunk 1 — The lexicon module and the build step
 
-Status: in progress
+Status: merged (w1, 688a86d3)
+Record: 1a b7bc417a, 1b 7cdca3a6, merged 688a86d3. No deviation from the spec or the design. The
+words' file is an entry chunk the plugin emits itself; `verify-boundaries.mjs` reads the first load
+from the page entries (the words' file excluded by name) and requires exactly one `lexicon-words-*`
+file. `src/lexicon/` imports carry `.ts` extensions (`allowImportingTsExtensions`).
 Wave: 1
 Depends on: A0, G0, P1 (its captures)
 Architecture capture: (a) **the single-source rule and its build step**: the lexicon file is the
@@ -234,7 +238,7 @@ never in the first load. (b) **The API's read contract**: the entry contract's n
 
 ### Chunk 2 — The lexicon page, its button and its address
 
-Status: planned
+Status: in progress
 Wave: 1
 Depends on: 1, L0, T0, P1 (its capture)
 Architecture capture: **the page's `#lexicon` history entry**
