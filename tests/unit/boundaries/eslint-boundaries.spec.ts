@@ -379,3 +379,88 @@ describe("eslint.config.js keeps Jam's code (src/jam/) behind its loader", () =>
     ).toEqual([])
   })
 })
+
+describe('eslint.config.js keeps the lexicon page (src/components/lexicon/) behind its loader', () => {
+  const pageOutsideItsLoader =
+    /Only src\/components\/lexicon\/ and its loader \(src\/components\/workspace\/load-lexicon-page\.ts\) may import src\/components\/lexicon\/: the lexicon page stays out of the first load\./
+
+  const loaderPath = 'components/workspace/load-lexicon-page.ts'
+  const pageImports: readonly { readonly from: string; readonly statement: string }[] = [
+    {
+      from: 'components/workspace/x.ts',
+      statement: "import probed from '@/components/lexicon/LexiconPage.vue'",
+    },
+    {
+      from: 'components/workspace/x.ts',
+      statement: "import probed from '../lexicon/LexiconPage.vue'",
+    },
+    {
+      from: 'components/workspace/x.ts',
+      statement: "import { LexiconPage as probed } from '@/components/lexicon/lexicon-page-module'",
+    },
+    { from: 'main.ts', statement: "import probed from './components/lexicon/LexiconPage.vue'" },
+    { from: 'jam/x.ts', statement: "import probed from '../components/lexicon/LexiconPage.vue'" },
+    {
+      from: 'components/workspace/load-jam-mode.ts',
+      statement: "import probed from '@/components/lexicon/LexiconPage.vue'",
+    },
+  ]
+
+  /** Lint a probe file that makes `importStatement` and re-exports what it imported. */
+  async function lintImport(
+    relativePath: string,
+    importStatement: string,
+  ): Promise<Linter.LintMessage[]> {
+    return lintAsSource(relativePath, `${importStatement}\nexport const probe = probed\n`)
+  }
+
+  // @test-link [[req_lexicon_page]]
+  test.each(pageImports)(
+    'rejects a planted static import of the page in src/$from: $statement',
+    async ({ from, statement }) => {
+      const messages = await lintImport(from, statement)
+      expect(messages).toHaveLength(1)
+      expect(messages[0]?.ruleId).toBe('@typescript-eslint/no-restricted-imports')
+      expect(messages[0]?.severity).toBe(2)
+      expect(messages[0]?.message).toMatch(pageOutsideItsLoader)
+    },
+  )
+
+  // @test-link [[req_lexicon_page]]
+  test('the loader may import the page dynamically and statically, and a type-only import is allowed anywhere', async () => {
+    const dynamicImport =
+      "export const probe = () => import('@/components/lexicon/lexicon-page-module')\n"
+    expect(await lintAsSource(loaderPath, dynamicImport)).toEqual([])
+    expect(
+      await lintImport(loaderPath, "import probed from '@/components/lexicon/LexiconPage.vue'"),
+    ).toEqual([])
+    const typeOnly =
+      "import type { LexiconPageState } from '@/components/lexicon/lexicon-page-state'\nexport type Probe = LexiconPageState\n"
+    expect(await lintAsSource('components/workspace/x.ts', typeOnly)).toEqual([])
+  })
+
+  // @test-link [[req_lexicon_page]]
+  test("the page's own files import each other, and the lexicon module, freely", async () => {
+    expect(
+      await lintImport('components/lexicon/x.ts', "import probed from './LexiconPage.vue'"),
+    ).toEqual([])
+    expect(
+      await lintImport(
+        'components/lexicon/x.ts',
+        "import { createLexiconReader as probed } from '@/lexicon'",
+      ),
+    ).toEqual([])
+  })
+
+  // @test-link [[module_jam_code_boundary]]
+  test("Jam's rule still holds in the page's files and its loader", async () => {
+    for (const path of ['components/lexicon/x.ts', loaderPath]) {
+      const messages = await lintImport(
+        path,
+        "import { JamWorkspace as probed } from '@/jam/jam-mode'",
+      )
+      expect(messages).toHaveLength(1)
+      expect(messages[0]?.message).toMatch(/Only src\/jam\/ and its loader/)
+    }
+  })
+})

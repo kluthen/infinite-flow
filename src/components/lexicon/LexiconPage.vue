@@ -187,7 +187,9 @@ function cycleFocus(direction: 1 | -1): void {
   }
   next ??= direction === 1 ? stops[0] : stops.at(-1)
   if (next === undefined) throw new Error('lexicon page: no tab stop (Close is missing)')
-  next.focus()
+  // A stop in the bar's staying part is always in sight; the scroll padding, which covers that
+  // part, would otherwise have the browser scroll the view to bring it out from under the bar.
+  next.focus({ preventScroll: stayingPart()?.contains(next) === true })
 }
 
 /** While the page shows: Escape empties the search field holding text, else closes; Tab is trapped. */
@@ -209,10 +211,16 @@ function handleKeydown(event: KeyboardEvent): void {
  * only its title row where the bar lets its rows into the view's flow (below bp-tablet-landscape).
  */
 function measureBar(): void {
-  if (view.value === null || bar.value === null || barRow.value === null) return
-  const staying = getComputedStyle(bar.value).display === 'contents' ? barRow.value : bar.value
+  const staying = stayingPart()
+  if (view.value === null || staying === null) return
   const height = staying.getBoundingClientRect().height
   view.value.style.setProperty('--lexicon-bar-block-size', `${height}px`)
+}
+
+/** The part of the bar that stays at the top: the whole bar, or below bp-tablet-landscape its title row. */
+function stayingPart(): HTMLElement | null {
+  if (bar.value === null || barRow.value === null) return null
+  return getComputedStyle(bar.value).display === 'contents' ? barRow.value : bar.value
 }
 let barObserver: ResizeObserver | null = null
 

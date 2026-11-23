@@ -2,12 +2,20 @@
  * Step 10 release: the browser-only operation boundary verified end to end against the production
  * preview build (port 4173) -- after the PWA service worker installs on first load, the workspace
  * reloads and completes a full generation offline, with no server dependency, and runs a session
- * offline until phrase 2 sounds with no failed request; and the two self-hosted UI typefaces
- * resolve from the precached build output rather than any network request.
+ * offline until phrase 2 sounds with no failed request; the lexicon page (v3.4) opens offline and
+ * shows its words; and the two self-hosted UI typefaces resolve from the precached build output
+ * rather than any network request.
  */
 import { expect, test } from '@playwright/test'
 
 import { generateAndAwaitReady, gotoWorkspace } from '../workspace/helpers'
+import {
+  LEXICON_WORDS_CHUNK,
+  lexiconNotice,
+  lexiconView,
+  openLexicon,
+  shownFileEntries,
+} from '../workspace/lexicon-page-helpers'
 
 /** Wait until this page's own service worker has installed and taken control. */
 async function waitForServiceWorkerReady(page: import('@playwright/test').Page): Promise<void> {
@@ -70,6 +78,39 @@ test('offline after the first load, a session runs until phrase 2 sounds with no
   // The Review lists the phrases that sounded: both.
   await expect(page.locator('.review-panel h2.review-title')).toHaveText('Last session')
   await expect(page.locator('.review-panel ol.review-list > li.review-phrase')).toHaveCount(2)
+  expect(failed).toEqual([])
+
+  await context.setOffline(false)
+})
+
+// @test-link [[req_lexicon_page]]
+test('offline after one online visit, the lexicon page opens and shows its words', async ({
+  page,
+  context,
+}) => {
+  const failed: string[] = []
+  page.on('requestfailed', (request) =>
+    failed.push(`${request.url()}: ${request.failure()?.errorText ?? 'failed'}`),
+  )
+  page.on('response', (response) => {
+    if (response.status() >= 400) failed.push(`${response.url()}: HTTP ${response.status()}`)
+  })
+  const count = shownFileEntries().length
+  await gotoWorkspace(page)
+  await waitForServiceWorkerReady(page)
+  await context.setOffline(true)
+  await page.reload()
+  await page.locator('.generation-status').waitFor({ state: 'attached' })
+
+  const words = page.waitForResponse((response) => LEXICON_WORDS_CHUNK.test(response.url()))
+  await openLexicon(page)
+
+  expect((await words).fromServiceWorker()).toBe(true)
+  await expect(lexiconView(page).locator('.lexicon-bar-row > p.sheet-hint')).toHaveText(
+    `${count} words`,
+  )
+  await expect(lexiconView(page).locator('li.lexicon-entry')).toHaveCount(count)
+  await expect(lexiconNotice(page)).toHaveCount(0)
   expect(failed).toEqual([])
 
   await context.setOffline(false)
