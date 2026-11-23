@@ -19,3 +19,30 @@ current state.
 - Open before wave 1 starts: I0 (Part E's ingestion) and P1 (the wave preflight and its three
   captures); T0 (the token-source pass) before chunk 2. No data preflight: the repo has no data
   register.
+
+## Wave 1
+
+- 2026-11-23: wave branch `v3.4-w1` cut from `main` a9f93c96 in
+  `/home/bastien/work/infinite_flow-v3.4-w1`.
+- 2026-11-23: gate I0 done (667164f6): `req_lexicon_page` DRAFT, tagged `release-v3.4`, parent
+  `user_story_controlled_phrase_generation` (confirmed by `spec-writer`); `changes-in-v3.4` on
+  `module_session_starting_note` and `rule_session_ends_on_portrait_view`.
+- 2026-11-23: gate P1 done (be24541d). Verdicts: chunks 1, 2 and 3 proceed with notes; no halt; no
+  STABLE wording changes, no contract sign-off. Captures (ARCHITECTURE, DRAFT):
+  `module_lexicon_single_source` (1), `api_lexicon_read_contract` (1, checked by 3),
+  `module_lexicon_page_history_entry` (2). Wording checks: `req_landscape_phrase_workspace` and
+  first-release master spec lines 19 and 140 fine; lines 122 and 158 amended (D562).
+- 2026-11-23: preflight corrections sent to `spec-writer`: plan v2 (7293457e). Applied: capture IDs
+  and drift checks in the Atoms lines (chunk 1: `module_jam_code_boundary`,
+  `specification_browser_only_operation_verification`; chunk 2: `module_jam_code_boundary`,
+  `module_workspace_mode`, `rule_failed_save_never_disturbs_session`, `rule_midi_starting_note`,
+  `rule_first_phrase_waits_for_saved_settings`, `service_session_midi`); chunk 2's Revisions widened
+  (`module_session_starting_note` names every sheet; `rule_session_ends_on_portrait_view` "the phrase
+  workspace"); moved blocks keep their tags. Rejected: `src/App.vue` in chunk 2's Files (`main.ts`
+  mounts only after the saved data is read).
+- For the owner (not blocking): the VISION v3.4 line (0.12 → 0.13), proposed by `documentalist`,
+  applied at the release sync after sign-off. For the wave sync: `rule_midi_starting_note` (STABLE)
+  does not name My instrument, Your data, the preset sheet or the lexicon page among the sheets that
+  block the note; the gap predates v3.4; raise it as a contract question.
+- 2026-11-23: T0 running (`ux-writer`, branch `v3.4-t0`, merged here before chunk 2). Chunk 1
+  dispatched.
