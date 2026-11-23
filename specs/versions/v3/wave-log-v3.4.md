@@ -308,3 +308,9 @@ current state.
 | coding-executor    | Library import check in verify-boundaries |    30 |     89k | $1.25 |
 | documentalist      |                  v3.4 wave 2 preflight P2 |    30 |     88k | $1.12 |
 | coding-leader      |                       v3.4 wave 2 chunk 4 |    20 |     80k | $0.85 |
+
+- 2026-11-23: the owner: "ok resolve the points you've raised, merge push". Settled as recommended:
+  `module_library_code_boundary` stays DRAFT and goes to REVIEW at the release sync with the other
+  v3.4 atoms; no ban on computed import paths in the library (none exist; the atom states the
+  limit). `v3.4-w2` merged into `main` and pushed. Next: wave 3 (P3, chunks 6 and 7), in a fresh
+  session.
