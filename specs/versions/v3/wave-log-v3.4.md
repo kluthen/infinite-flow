@@ -236,3 +236,9 @@ current state.
   16.7 s). New `lint:health` warnings: `verify-boundaries.mjs` 422 and its spec 451 effective
   lines, the spec at 7 atoms. Risks: a non-literal `import()`/`new URL()` is not checked (none in
   the library). Figures: 3 agents, 93 tool calls, 7.0M tokens in / 62k out, max context 136k, $3.87 at API prices. All chunks merged; wave gate next.
+- 2026-11-23: wave 2 gate GREEN on 025e93b7 (`npm ci` + `npm run quality`, 20:36–20:47 CET, AMD
+  Ryzen 5 PRO 8640HS, idle): unit 10,344 tests in 668 files; e2e 786 ×2 (1 skipped); a11y 86;
+  notation 121 (4 skipped); `verify:boundaries` with the library check (156 files). Start-up
+  392,293 B of 409,600 B in 18 chunks (Δ 0 against wave 1), entry 337,281 B (Δ 0). No dependency
+  change. Default `atd check` printed "No atoms found for the specified scope" (ISS-020): the sync
+  runs `atd check main...HEAD`.
