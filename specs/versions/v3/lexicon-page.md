@@ -7,7 +7,8 @@ pass, D560; a lexicon backend some day, D561; v2.3, 2026-11-22: the lexicon pass
 and the draft consolidated into [master spec Part E](master-spec.md#part-e--v34), approved by the
 wave driver, D562–D564). **Part E is the handoff and wins where this draft differs**: it settles
 what this draft still tags `(proposed)` (§5, §8) and replaces §6's code facts with a reading of
-`main` 828ab396 (Part E §E13). Open: only where the API lives once the split is built (O315).
+`main` 828ab396 (Part E §E13). Where the API lives is settled: this app, not the library (D574,
+closing O315).
 
 A small side project in two steps, both in v3.4, next to the
 [structural review](structural-review.md) and independent of it: step one is the page (D393);
@@ -289,9 +290,9 @@ the owner has seen the page.
   - its read interface is describable as a language-neutral contract: the parsed entry's shape
     written down as plain data (a JSON schema or a plain data format), so that a service in
     another language could serve the same data later (D561). The parser stays TypeScript.
-- **Where it lives** once the three-way split is built, in the library's repository or in this
-  app's, follows the [structural review](structural-review.md#q4-should-the-app-split-into-several-libraries-or-packages)'s
-  split recommendation (O315). Until then it lives in this repository.
+- **Where it lives** once the three-way split is built: this app, not the library (D574, closing
+  O315), as the [structural review's report](structural-review-report.md#5-q4-the-split)
+  recommends.
 - **A lexicon backend, some day** (D561, a direction, not scheduled): the owner: "we will need to
   have a backend at some point anyway", and "currently, the backend is only for lexicon which
   doesn't contains any user information so that's super ok." Such a backend would send nothing
@@ -318,6 +319,4 @@ build (build plan v3.4, gate L0).
 
 ## 11. Open
 
-O315 (where the API lives once the split is built), in the
-[register](../../open-questions.md#v34-lexicon-page-o239). After v3.4: O316 (the lexicon
-backend).
+None for the page or the API; O315 was closed by D574. After v3.4: O316 (the lexicon backend).

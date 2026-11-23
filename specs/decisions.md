@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.144
+Status: draft v2.145
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -55,7 +55,9 @@ version, and v3.3's release before its hand and listening checks, which follow t
 and D544 (v3.3 released and archived); D545–D561 (the owner's first rulings on v3.4, his direction for the split and this app's
 horizon, v4.0's scope, the lexicon API in v3.4, and the wave driver's rulings under his
 delegation of v3.4); D562–D565 (the driver's rulings on the lexicon page's orientation and build
-failures, and his approval of Part E and the v3.4 build plan's lexicon wave). D289 and D525 are unused; so are the IDs within the
+failures, and his approval of Part E and the v3.4 build plan's lexicon wave); D567–D568 (the
+driver's rulings on `#lexicon` under an open sheet); D569–D574 (the driver's rulings on the
+structural review's report). D289 and D525 are unused; so are the IDs within the
 archived range D407–D509 that its archive notice lists.
 
 ## Decision Log
@@ -342,3 +344,38 @@ archived range D407–D509 that its archive notice lists.
   or the prompt, as it never opens over a session. Now in:
   [Part E §E7, §E8](versions/v3/master-spec.md#e7-opening-and-closing) (v1.2) and
   [build plan v3.4](versions/v3/build-plan-v3.4.md) chunk 2.
+- **D569 (2026-11-23, the driver under D556): v3.4 takes R1, R2 and R3 from the structural review.**
+  R1 enforces the library line (a resolving import check in `verify-boundaries.mjs`, a no-DOM
+  tsconfig over `domain/`, the README boundary map corrected); R2 makes `session/` import only
+  session plus the library set; R3 moves the Jam host wiring out of `WorkspaceShell.vue`. Now in:
+  [report §7](versions/v3/structural-review-report.md#7-rulings) and
+  [build plan v3.4](versions/v3/build-plan-v3.4.md) waves 2 and 3.
+- **D570 (2026-11-23, the driver under D556): R4, the atom-spread limit above 10 is a warning for
+  test files only.** Source files keep warn above 5 and error above 10. This relaxes a quality
+  gate, knowingly: every atom-limit gate failure so far involved a test file, and broad specs
+  legitimately cover many atoms. Chunk reports still name any link they left out because of the
+  limit. Now in: [report §7](versions/v3/structural-review-report.md#7-rulings) and
+  [build plan v3.4](versions/v3/build-plan-v3.4.md) chunk 4.
+- **D571 (2026-11-23, the driver under D556): R5, the start-up budget stays at 400 KiB (409,600 B,
+  D536), and an overrun takes a lever, not a raise.** The first lever is R6 (lazy audio voices),
+  the second R7 (lazy migration codecs). Raising the budget again is the owner's call only; no
+  wave driver or chunk may do it. Answers the review's Q2. Now in:
+  [report §3](versions/v3/structural-review-report.md#3-q2-the-start-up-budget) and
+  [build plan v3.4](versions/v3/build-plan-v3.4.md).
+- **D572 (2026-11-23, the driver under D556): the review's other recommendations are deferred or
+  dropped as the principal-advisor's ranking says.** Deferred: R6–R11, R13–R15, R18, R19. Dropped:
+  R12 (regrouping `components/workspace/`), and R13's unification of the settings key list, whose
+  order feeds the replay-key contract. R16: the doc line is corrected now, the code deferred. No
+  analysis tool is kept in the repository (the point D557 left to the report). Now in:
+  [report §6, §7](versions/v3/structural-review-report.md#6-ranked-recommendations).
+- **D573 (2026-11-23, the driver under D556): the split's form, Q4.** Now: folders with enforced
+  boundaries in one package, with no file moves. At game start: a new repository holding the
+  library and the game as npm workspaces, seeded from the enforced library folders, with its own
+  ATD record; the order of steps is the report's. Informs O314 (c); does not decide O314 (a), on
+  which the game-start form depends. Now in:
+  [report §5](versions/v3/structural-review-report.md#5-q4-the-split) and O314.
+- **D574 (2026-11-23, the driver under D556): the lexicon API's home is this app, not the
+  library.** It has no edge to `domain/`, this app is its only caller, and the library is the
+  music core; being self-contained, it can move later at no cost. A Go backend (D561) would sit
+  beside this app. Closes O315. Now in:
+  [report §5](versions/v3/structural-review-report.md#5-q4-the-split).

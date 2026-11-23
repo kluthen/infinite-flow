@@ -73,7 +73,10 @@ Status: draft v0.98
   - **v3.4:** a structural review before v4, with no player-facing change: soundness for
     expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
     milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), its
-    read-only analysis started 2026-11-22. It delivers the report and the refactors the owner
+    read-only analysis started 2026-11-22; its
+    [report](versions/v3/structural-review-report.md) written and ruled on 2026-11-23: R1–R4
+    taken as waves 2 and 3 of the build plan (D569, D570), the 400 KiB budget kept with no raise
+    (D571), the rest deferred or dropped (D572), the split's form (D573). It delivers the report and the refactors the owner
     takes, as a v3.4 build plan (D545); it looks at the code as it is, not at v4's scope (D546);
     no runtime dependency is added besides Tone.js (D547). v3.4 is tagged `3.4.0` (D550). v3.4
     also builds a **lexicon page**, its one player-facing item (D393, amending D389): every
@@ -99,12 +102,11 @@ Status: draft v0.98
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go. Rhythm ratios and the rhythm editor are v5 (D553); the chord-fit check,
     review tooling and the two controller-connection ideas are dropped (D211).
-- **Open:** 19 questions: O48 and O49 (later and governance), O100–O102 (v5 rhythm), O115 and
+- **Open:** 18 questions: O48 and O49 (later and governance), O100–O102 (v5 rhythm), O115 and
   O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
   (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
-  reopening fails), O230 (a stale replay-key wording in a STABLE atom), O315 (where v3.4's
-  lexicon API lives once the split is built), O313, O314 and O316 (the personas once the game is
-  separate; what the v4.0 horizon leaves to settle; the lexicon backend), O267 (a doodle note
+  reopening fails), O230 (a stale replay-key wording in a STABLE atom), O313, O314 and O316 (the
+  personas once the game is separate; what the v4.0 horizon leaves to settle; the lexicon backend), O267 (a doodle note
   played before the
   doodle's first barline, v3.2 wave 6), O269 (a legato doodle read as Heavily varied, at v3.2
   H5) and O271 (a note start off the doodle's grid, at v3.2 H4); the last three after the `3.2.0`

@@ -1,6 +1,10 @@
 # v3.4 — Structural Review
 
-Status: draft v1.4 (2026-11-22; scoping, D389; the lexicon page noted, D393; the owner's first
+Status: v1.5, report written; rulings D569–D574 (2026-11-23: the
+[report](structural-review-report.md) answers Q1–Q4; R1–R4 are taken as waves 2 and 3 of the
+[v3.4 build plan](build-plan-v3.4.md), D569, D570; the 400 KiB budget is kept with no raise, D571;
+the rest is deferred or dropped, D572; the split's form, D573; the lexicon API's home, D574).
+Draft v1.4 (2026-11-22; scoping, D389; the lexicon page noted, D393; the owner's first
 rulings, D545–D547; the tag, D550; the three-way split as the target, D551; the owner's v4.0
 horizon, D552, and v4.0's scope, D553; v3.4's questions delegated to the wave driver, D556, and
 its rulings on the refactors' bounds and the order, D557, D558; a backend some day, D561).
@@ -11,7 +15,7 @@ three-way split, which Q4 evaluates (D551), the bounds of a refactor (D557), and
 measurement pass runs once the lexicon page is built (D558). No v3.4 question of the review is
 open; O314 holds what the v4.0 horizon (D552) leaves open, O316 the backend. The read-only part of
 the analysis (the code facts and the tooling research) started on 2026-11-22, with no tool
-installed; this draft frames the questions it must answer and does not answer them.
+installed; this document frames the questions, and the report answers them.
 
 Serves no persona goal directly: it adds no player-facing behaviour. It protects the delivery of
 every later goal on the way to the [endgame](../../vision/endgame.md), without planning for any
@@ -224,7 +228,7 @@ not an answer.
 - **The lexicon API's home** (D555, D559): v3.4 builds the lexicon API as a plain TypeScript
   module over the page's parser ([lexicon page §9](lexicon-page.md#9-step-two-the-lexicon-api-d555)).
   Whether it belongs to the library or to this app follows this question's split recommendation
-  (O315); the review says which, with its reason.
+  (O315); the review says which, with its reason. Settled: this app (D574, closing O315).
 - **A backend some day** (D561, a direction, not scheduled): the owner: "we will need to have a
   backend at some point anyway", and "currently, the backend is only for lexicon which doesn't
   contains any user information". The review notes which part of the split such a lexicon
@@ -288,5 +292,5 @@ separately (proposed).
 
 None of the review's own questions is open ([register](../../open-questions.md#v34-structural-review-o234)).
 Bearing on Q4, after v3.4 or alongside it: the personas and vision revision the three-way split
-calls for is O313; what the owner's v4.0 horizon leaves to settle is O314; the lexicon API's home
-is O315; the backend is O316.
+calls for is O313; what the owner's v4.0 horizon leaves to settle is O314; the backend is O316.
+The lexicon API's home was O315, closed by D574.
