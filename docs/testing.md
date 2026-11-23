@@ -2368,6 +2368,35 @@ words' file reached only dynamically: no violation, and the words' file, an entr
 on its own, is not a page entry nor counted in the startup JavaScript),
 `entry-imports-lexicon.json` (a planted static import puts `src/lexicon/` and the page in the first
 load) and `entry-imports-lexicon-words.json` (the entry imports the words statically).
+`tests/unit/boundaries/eslint-boundaries.spec.ts` checks the ESLint rule that keeps the page's code
+behind its loader: a planted static import of `src/components/lexicon/` from the workspace, the app
+root or `src/jam/` is rejected; the loader's imports, type-only imports and the page's own imports
+are allowed.
+
+### The lexicon page's tests
+
+The page (`src/components/lexicon/`) is tested over a made-up list of shown entries read through
+the read interface, never over the real words (`tests/unit/components/lexicon/`):
+
+| File                     | What it holds or checks                                                                                                                                                                                                                                                                                  |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lexicon-fixture.ts`     | `FIXTURE_ENTRIES`, made-up entries shaped for the page's rules (an accented word, a doubled word in two groups, other names, a hyphen, an apostrophe, inline marks, plain lines mentioning other words); `fixtureEntry(fields)` for one more; `fixtureReader(entries?)`, through the read interface.     |
+| `lexicon-text.spec.ts`   | The inline marks built as text parts (bold, emphasis, code dropped, anything else as written) and the search's folding.                                                                                                                                                                                  |
+| `lexicon-order.spec.ts`  | A to Z, the letters (with "#" only when needed), the sections, doubled words' order and qualifier.                                                                                                                                                                                                       |
+| `lexicon-search.spec.ts` | What the search matches, its five tiers, the name a match was found by, the mentions from three characters; definitions and app meanings never searched.                                                                                                                                                 |
+| `LexiconPage.spec.ts`    | The page mounted in jsdom: the list and the entries, More, marks never read as HTML, the jumps cancelling their navigation, the search's states and its delayed result count, focus on open, the trap, Escape, the state kept for the visit, and the bar's measured height (a stubbed `ResizeObserver`). |
+
+The workspace's side (`tests/unit/components/workspace/`): `use-lexicon-page.spec.ts` (the host:
+loading once, a session cancelling the load, the failed load and Try again, closing, and every
+history rule) over `fake-lexicon-history.ts`, a fake of the history seam
+(`src/components/workspace/lexicon-history.ts`): a list of entries and the one the browser is on;
+`back()`, `forward()` and `type(hash)` move it and tell the host at once, while the page's own step
+back waits for `settle()`, as the browser's does. `lexicon-history.spec.ts` checks the real seam
+over jsdom's window; `load-lexicon-page.spec.ts` the loader over mocked imports;
+`LayoutFooter.spec.ts` the footer's two buttons and the lexicon's load-failure notice. The
+end-to-end specs `tests/e2e/workspace/lexicon-page*.spec.ts` run the page in the browser, its
+history entry included; the accessibility suite checks its states, and the offline spec opens it
+with the network off.
 
 ### Browser boundary fixtures
 

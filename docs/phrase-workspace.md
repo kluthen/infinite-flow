@@ -54,6 +54,8 @@ App.vue
       RhythmLockField.vue         (Jam's own lock, its note in Jam's words)
       DoodleReadings.vue          (doodle-readings, or its note while no doodle is kept)
     ConnectionSheet.vue           (lazy chunk, while the connection sheet is open)
+    LexiconPage.vue               (lazy chunk, while the lexicon page shows; v3.4)
+      LexiconEntry.vue            (one entry: word, group, plain line, More)
     OrientationNotice.vue
 ```
 
@@ -99,8 +101,43 @@ are read-only, the settings they show, the session's start settings), `useSessio
 (`use-session-options.ts`: the "During a session" options), `useControllerConnection`
 (`use-controller-connection.ts`: the `controller-status` form, the connection sheet and its open
 flag, over `useControllerStatus` and `useConnectionSheet`), `useWorkspaceFocus`
-(`use-workspace-focus.ts`: focus after a session end, a late room notice and the sheet's close)
-and `useReviewNavigation`.
+(`use-workspace-focus.ts`: focus after a session end, a late room notice and the sheet's close),
+`useReviewNavigation`, `createWorkspaceStarts` (`workspace-starts.ts`: the Start click, Jam
+mode's starting note and the start's one jump, moved out of the shell unchanged in v3.4 to keep
+it within its size limit) and `useLexiconPage` (below).
+
+### The lexicon page (v3.4)
+
+`layout-footer` holds `footer-note`, then `footer-actions` with `Your data` and `Lexicon`
+(`LayoutFooter.vue`), the two wrapping together under the note. Each button has its own disabled
+flag: `Your data` is disabled during a session and before the session controller has loaded;
+`Lexicon` only during a session, count-in included. `Lexicon` opens the lexicon page through its
+host, `useLexiconPage` (`use-lexicon-page.ts`): the first opening of a visit loads the page's code
+and the lexicon's words (`load-lexicon-page.ts`, a dynamic import of
+`src/components/lexicon/lexicon-page-module.ts` and of `virtual:lexicon-words`, once, the failed
+file retried under a fresh address as Jam's loader does), `Lexicon` taking `is-loading` and
+`aria-busy` meanwhile; a session started during the load cancels the opening, and a sheet opened
+during it (the stale-phrase prompt included) stops it, even if closed again before the load ends,
+so a later press opens the page; a failed load shows the lexicon's load-failure notice in
+`AppNoticeRow.vue`, after Jam's, focus on its `Try again` unless a sheet is open. The page renders
+after the sheets, outside `.layout-app`, so the portrait guard leaves it shown; `.layout-app` is
+`inert` while it shows. It counts in `anySheetOpen` (Jam's start conditions) and in the open-sheet
+flag the shell emits as `connection-sheet-open-change`, which the MIDI side reads: no note starts a
+session, a count-in or a Jam, and the starting note's line hides, while it shows. Close, Escape and
+Back close it, focus back on `Lexicon`.
+
+**Its history entry.** The page is the app's first use of the browser's history, all through the
+history seam `lexicon-history.ts` (no component touches `window.history` or the address). Every
+opening pushes one entry at `#lexicon`, marked as the page's in its history state, on top of the
+bare address. Every `popstate` and `hashchange` is reconciled: on the page's own entry (Forward) the
+page reopens without adding an entry, or, during a session or under a sheet (the stale-phrase
+prompt included), only the address is replaced with the bare one; at an unmarked `#lexicon` (a
+typed address) the address is replaced and the page opens as a press of `Lexicon` does, adding its
+own entry, or nothing opens during a session or under a sheet; anywhere else, an open page closes
+(Back). Close and Escape step back over the page's entry, so the history keeps no lexicon visit. A
+load or reload at `#lexicon` has its address replaced while the shell sets up and the page opened
+once it is mounted: `main.ts` mounts the app only after the saved data is read. Jumps inside the
+page (a letter, a related word) cancel their link's navigation.
 
 ## Session wiring
 
