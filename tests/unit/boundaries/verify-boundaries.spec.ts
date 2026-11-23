@@ -5,10 +5,11 @@
  * `midi/`, `storage/`, `session/`, `export/`, `components/` and `other/` directories) but lives
  * outside it, so the real `npm run verify:boundaries` scan never sees these deliberately forbidden
  * calls. The build-output scan runs over file names
- * and over a throwaway directory tree made in the system temp directory. Jam's code boundary runs
- * over the module-graph fixtures in `tests/fixtures/boundaries/module-graphs/`, shaped like the
- * build's `dist/.vite/module-graph.json`. The first-load budget's startup-JavaScript total runs
- * over a throwaway build output whose chunks have known sizes.
+ * and over a throwaway directory tree made in the system temp directory. Jam's code boundary and
+ * the lexicon's first-load boundary run over the module-graph fixtures in
+ * `tests/fixtures/boundaries/module-graphs/`, shaped like the build's
+ * `dist/.vite/module-graph.json`. The first-load budget's startup-JavaScript total runs over a
+ * throwaway build output whose chunks have known sizes.
  */
 import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -19,8 +20,12 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 import {
   buildOutputBoundaryViolations,
+  chunkByteBudget,
   firstLoadJamViolations,
+  firstLoadLexiconViolations,
   jamChunkFileNames,
+  lexiconWordsFileNames,
+  pageEntryChunks,
   readModuleGraph,
   scanBuildOutputBoundaries,
   scanSourceBoundaries,
@@ -391,5 +396,64 @@ describe('verify-boundaries first-load budget: all JavaScript loaded at startup'
     } finally {
       await rm(root, { recursive: true, force: true })
     }
+  })
+})
+
+describe("verify-boundaries the lexicon's first-load boundary and its words' budget", () => {
+  type ModuleGraph = Awaited<ReturnType<typeof readModuleGraph>>
+
+  /** One module-graph fixture, parsed. */
+  async function moduleGraphFixture(name: string): Promise<ModuleGraph> {
+    return JSON.parse(await readFile(new URL(name, moduleGraphFixtures), 'utf8')) as ModuleGraph
+  }
+
+  // @test-link [[module_lexicon_single_source]]
+  test("the lexicon's code and words loaded only on demand are no violation, and the words' file is not a page entry", async () => {
+    const graph = await moduleGraphFixture('lexicon-loaded-on-demand.json')
+    expect(firstLoadLexiconViolations(graph)).toEqual([])
+    expect(firstLoadJamViolations(graph)).toEqual([])
+    expect(pageEntryChunks(graph).map(({ fileName }) => fileName)).toEqual(['assets/index-a1.js'])
+    expect(lexiconWordsFileNames(graph)).toEqual(['assets/lexicon-words-c3.js'])
+  })
+
+  // @test-link [[module_lexicon_single_source]]
+  test('a planted static import that puts src/lexicon/ and the page in the first load is a violation', async () => {
+    const graph = await moduleGraphFixture('entry-imports-lexicon.json')
+    expect(firstLoadLexiconViolations(graph)).toEqual([
+      { chunk: 'assets/shared-b2.js', module: 'src/components/lexicon/LexiconPage.vue' },
+      { chunk: 'assets/shared-b2.js', module: 'src/lexicon/read-lexicon.ts' },
+    ])
+  })
+
+  // @test-link [[module_lexicon_single_source]]
+  test("a static import of the lexicon's words from the entry is a violation", async () => {
+    const graph = await moduleGraphFixture('entry-imports-lexicon-words.json')
+    expect(firstLoadLexiconViolations(graph)).toEqual([
+      { chunk: 'assets/lexicon-words-c3.js', module: 'virtual:lexicon-words' },
+    ])
+  })
+
+  // @test-link [[module_lexicon_single_source]]
+  test("the words' file is not counted in the startup JavaScript", async () => {
+    const root = await mkdtemp(join(tmpdir(), 'verify-boundaries-'))
+    try {
+      await mkdir(join(root, 'assets'))
+      await writeFile(join(root, 'assets/index-a1.js'), 'x'.repeat(300))
+      await writeFile(join(root, 'assets/LexiconPage-b2.js'), 'x'.repeat(50))
+      await writeFile(join(root, 'assets/lexicon-words-c3.js'), 'x'.repeat(9000))
+      const graph = await moduleGraphFixture('lexicon-loaded-on-demand.json')
+      const startup = await startupJavaScriptBytes(root, graph)
+      expect(startup.totalBytes).toBe(300)
+      expect(startup.entryBytes).toBe(300)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
+  // @test-link [[module_lexicon_single_source]]
+  test("the words' file has its own 448 KiB budget, every other new file 100 KiB", () => {
+    expect(chunkByteBudget('lexicon-words-B6DOSTWA.js').budget).toBe(458_752)
+    expect(chunkByteBudget('LexiconPage-b2.js').budget).toBe(102_400)
+    expect(chunkByteBudget('read-lexicon-d4.js').budget).toBe(102_400)
   })
 })

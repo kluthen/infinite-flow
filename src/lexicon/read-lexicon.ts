@@ -1,4 +1,4 @@
-import type { LexiconEntry } from './lexicon-entry'
+import type { LexiconEntry } from './lexicon-entry.ts'
 
 /** The read interface over the lexicon's shown entries. */
 // @spec-link [[api_lexicon_read_contract]]

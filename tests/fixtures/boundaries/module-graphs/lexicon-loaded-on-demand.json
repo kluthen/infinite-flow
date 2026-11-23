@@ -1,0 +1,25 @@
+{
+  "chunks": [
+    {
+      "fileName": "assets/index-a1.js",
+      "isEntry": true,
+      "imports": [],
+      "dynamicImports": ["assets/LexiconPage-b2.js"],
+      "modules": ["src/App.vue", "src/main.ts"]
+    },
+    {
+      "fileName": "assets/LexiconPage-b2.js",
+      "isEntry": false,
+      "imports": [],
+      "dynamicImports": ["assets/lexicon-words-c3.js"],
+      "modules": ["src/components/lexicon/LexiconPage.vue", "src/lexicon/read-lexicon.ts"]
+    },
+    {
+      "fileName": "assets/lexicon-words-c3.js",
+      "isEntry": true,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": ["virtual:lexicon-words"]
+    }
+  ]
+}

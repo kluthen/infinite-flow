@@ -2,6 +2,7 @@
   "compilerOptions": {
     "composite": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "allowJs": true,
     "checkJs": true,
@@ -30,8 +31,11 @@
     "vite.notation-harness.config.ts",
     "vite.workspace-harness.config.ts",
     "scripts/**/*.mjs",
+    "scripts/**/*.ts",
+    "src/lexicon/*.ts",
     "tests/unit/boundaries/**/*.ts",
     "tests/unit/code-health/**/*.ts",
     "tests/unit/scripts/build-commit.spec.ts"
-  ]
+  ],
+  "exclude": ["src/lexicon/*.d.ts"]
 }

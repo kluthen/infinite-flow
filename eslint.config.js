@@ -215,7 +215,13 @@ export default [
     rules: boundaryRules(audioContextGlobals, midiAccessProperties),
   },
   {
-    files: ['tests/**/*.ts', 'playwright.config.ts', 'vitest.config.ts', 'scripts/**/*.mjs'],
+    files: [
+      'tests/**/*.ts',
+      'playwright.config.ts',
+      'vitest.config.ts',
+      'scripts/**/*.mjs',
+      'scripts/**/*.ts',
+    ],
     languageOptions: {
       globals: globals.node,
     },

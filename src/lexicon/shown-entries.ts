@@ -1,5 +1,5 @@
-import type { LexiconEntry } from './lexicon-entry'
-import type { ParsedLexiconEntry } from './parse-lexicon'
+import type { LexiconEntry } from './lexicon-entry.ts'
+import type { ParsedLexiconEntry } from './parse-lexicon.ts'
 
 /**
  * Split an `aliases` field into other names: at each comma outside parentheses, each name trimmed

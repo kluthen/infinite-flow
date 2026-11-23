@@ -12,11 +12,12 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
 import { appVersionDefine } from './scripts/app-version-define.mjs'
+import { lexiconWordsPlugin } from './scripts/lexicon-words-plugin.ts'
 
 export default defineConfig({
   define: appVersionDefine(),
   root: 'tests/e2e/workspace-harness',
-  plugins: [vue(), tailwindcss()],
+  plugins: [vue(), tailwindcss(), lexiconWordsPlugin()],
   resolve: {
     alias: {
       // The harness-only substitute for the lazy engraver loader: same public shape, but can arm
