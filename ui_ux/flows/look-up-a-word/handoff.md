@@ -17,7 +17,7 @@ flowchart TD
   P["lexicon-page: Browsing, or as left earlier in the visit"]
   Q["lexicon-page: Searching / No match"]
   E["lexicon-page: an entry opened, focus on its word"]
-  W -->|"Lexicon"| L
+  W -->|"Lexicon, or #lexicon reached (a load, Forward, typed)"| L
   L -->|"yes"| LD
   L -->|"no"| P
   LD -->|"loaded"| P
@@ -33,7 +33,7 @@ flowchart TD
   P -->|"Close, Escape, or Back"| W
   Q -->|"Close, or Back; Escape empties the field first"| W
   E -->|"Close, Escape, or Back"| W
-  S -.->|"no opening during a session"| S
+  S -.->|"no opening during a session; #lexicon reached: the address only is replaced"| S
 ```
 
 ## Routing Rules
@@ -41,6 +41,9 @@ flowchart TD
 - **Opening.** The footer's `Lexicon` opens the page from the workspace at idle, in either mode,
   or in the review mode, with or without a sheet having been open before; never during a session,
   count-in included, where it is disabled.
+  - **No wait for the session controller.** Unlike `Your data`, which stays disabled until the
+    session controller has loaded, `Lexicon` does not wait for it: the page does not need it, so
+    the button is enabled while the controller still loads, as long as no session runs.
 - **Loading once.** The page's part of the app loads at the first opening of a visit and stays
   loaded; later openings show the page at once, as it was left.
 - **A session during the load.** A session that starts while the page is loading (by `Start
@@ -63,8 +66,18 @@ flowchart TD
     disabled (a session, count-in included), Forward onto it opens nothing and the address is
     replaced with the bare one.
   - **A load at `#lexicon`.** A load or reload at `#lexicon` replaces the address with the bare
-    one, opens the workspace, then, once the saved settings are read, opens the page as a press
-    of `Lexicon` does, adding its entry.
+    one, opens the workspace, then, once the saved settings are read and the workspace is drawn,
+    opens the page as a press of `Lexicon` does, adding its entry.
+  - **`#lexicon` reached any other way.** `#lexicon` reached while the app is open, other than
+    by the page's own entry (typed into the address bar, for one), is handled as a load at
+    `#lexicon`: the address is replaced with the bare one and the page opens as a press of
+    `Lexicon` does, adding its own entry. During a session, count-in included, only the address
+    is replaced; the page does not open.
+  - **Under an open sheet.** While any sheet is open over the workspace (Your data, the
+    connection sheet, My instrument, the preset sheet or another), the footer's `Lexicon` cannot
+    be pressed, so
+    `#lexicon` reached by Forward, by a load or any other way opens nothing: only the address is
+    replaced with the bare one, and the sheet stays as it is, nothing in it lost.
   - **Jumps inside the page.** A letter or a related word moves within the page without
     navigating: its link's own navigation is cancelled, so it adds no history entry and leaves
     the address at `#lexicon`. Its `href` stays, so it is still a link to assistive technology.

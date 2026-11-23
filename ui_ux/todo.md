@@ -100,9 +100,10 @@ the side work below is paused.
   [`mockups/lexicon-page/`](mockups/lexicon-page/index.html), research in
   [`research/lexicon-page.md`](research/lexicon-page.md). `ux-critic`: DRIFT, five findings, all
   settled (D491).
-  Then: the owner's approval of v3.4's design as a whole and its `versions/v3.4/` copy, and the
-  token-source pass for the `lexicon-*` classes (`src/styles/components.css`, existing tokens
-  only), before the page is built.
+  Token-source pass (gate T0) done on branch `v3.4-t0` (D492-D495): the `lexicon-*` classes and
+  `footer-actions` in `src/styles/components.css`, Part E's two flow points in the flow;
+  `ux-critic` DRIFT, three findings, all settled (D495).
+  Then: the owner's approval of v3.4's design as a whole and its `versions/v3.4/` copy.
 - **The lexicon follow-ups, taken as a docs-only lexicon pass in v3.4 before the build** (spec
   D560; D489): moving a few player-worthy words out of the lexicon's Internal group (Gesture and
   answer, Open ending, Recovery, Register window, Signature figure), each with its line
@@ -179,8 +180,8 @@ Side work, not part of a version (paused):
 
 ## Next Unit
 
-v3.4's lexicon page: the token-source pass for the `lexicon-*` classes, then the owner's approval
-of v3.4's design and its `versions/v3.4/` copy (In Progress).
+v3.4's lexicon page: the owner's approval of v3.4's design and its `versions/v3.4/` copy (In
+Progress); the token-source pass is done (D492-D495).
 
 v3.3: released as version 3.3.0 and archived (`archive/v3.3/`). Next here is U1b, once the
 owner's listening check L2 has run, and any design finding of hand check v3.3 H6 (Remaining,

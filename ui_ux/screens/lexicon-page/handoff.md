@@ -20,7 +20,7 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
       lexicon-search (role="search"; new class)
         field-label (label for the field; "Find a word")
         text-input (input type="search", autocomplete="off", spellcheck="false")
-      btn (Letters; below bp-tablet-landscape only)
+      btn lexicon-letters-button (Letters; below bp-tablet-landscape only; new class)
       sheet-close (btn, "Close")
     nav lexicon-letters (aria-label="Letters"; new class)
       ul
@@ -55,7 +55,8 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
 ```
 
 - **New classes.** `lexicon-view`, `lexicon-title`, `lexicon-bar`, `lexicon-bar-row`, `lexicon-search`,
-  `lexicon-letters`, `lexicon-letter` with its `is-empty` state, `lexicon-body`, `lexicon-section`,
+  `lexicon-letters-button`, `lexicon-letters`, `lexicon-letter` with its `is-empty` state,
+  `lexicon-body`, `lexicon-section`,
   `lexicon-letter-heading`, `lexicon-list`, `lexicon-entry`, `lexicon-entry-head`,
   `lexicon-word`, `lexicon-group`, `lexicon-popup`, `lexicon-more`, `lexicon-detail`,
   `lexicon-related`, `lexicon-link`, `lexicon-result-count`, `lexicon-mentions` and
@@ -77,8 +78,10 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
 - **Title row.** `lexicon-bar-row` holds, in this order, `sheet-title` "Lexicon", the count
   `sheet-hint` "{n} words" ("1 word" for one), `lexicon-search`, `Letters` below
   `bp-tablet-landscape` only, then `Close`, at the inline end. The search field takes the space
-  left, up to `--text-input-max-inline-size`. The row wraps only when the width cannot hold it;
-  `Close` stays at the end of the first line.
+  left, never less than `--control-group-min-inline-size`; the field in it grows up to
+  `--text-input-max-inline-size`. The row is one line from `bp-mobile-landscape` up; below it, it
+  takes two lines, the title, the count and `Close` on the first, `Close` at its end, the search
+  and `Letters` on the second.
 - **Search field.** `lexicon-search` is a `field-label` "Find a word" and a `text-input` of
   type `search`, the label before the field on one line. The field has no placeholder: the label
   says what it is for, and the intro says what to type. Chrome's own clear button in the field
@@ -96,12 +99,14 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
 - **Intro.** The body opens with a `sheet-hint` paragraph: "The music words and the controls
   Infinite Flow uses, each in plain words. Choose a letter, or type part of a word in Find a
   word." It stays in both browsing and searching.
-- **Reading column.** `lexicon-body` is centred, at most `--sheet-wide-max-inline-size` wide (a
-  comfortable reading line at `--text-md`), with `--spacing-4` padding on each side and
-  `--spacing-6` at its end.
+- **Reading column.** `lexicon-body` is centred, its text at most `--sheet-wide-max-inline-size`
+  wide (a comfortable reading line at `--text-md`), with `--spacing-4` padding on each side and
+  at its top, and `--spacing-6` at its end. Its blocks (the intro, then the letter sections; or
+  the matches, `lexicon-empty` and `lexicon-mentions`) are `--spacing-6` apart.
 - **Letter section.** `lexicon-section` opens with `lexicon-letter-heading`, the letter in
   `--font-display` at `--text-2xl`, with a `--color-border` hairline under it; its entries
-  follow, `--spacing-5` apart, each but the first with a hairline above it.
+  follow `--spacing-3` below it, `--spacing-5` apart, each but the first with a hairline above it
+  and `--spacing-5` between that hairline and its head.
 
 ### One entry
 
@@ -182,12 +187,15 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
   by another name shows that name first in its "Also called" line, in bold.
 - **Result count.** `lexicon-result-count` (`role="status"`, polite) reads "{n} words match
   “{query}”." ("1 word matches …"). It is written once the typing pauses for half a second, so a
-  screen reader is not read every keystroke; the list itself follows every keystroke.
+  screen reader is not read every keystroke; the list itself follows every keystroke. It is
+  visually hidden, as the workspace's generation status is: the list shows the matches, and the
+  no-match state shows its own sentence.
 - **Mentioned in other words.** From three characters on,
   `lexicon-mentions` lists below the matches every other entry whose popup line contains the
-  query as the start of a word, under the `h3` "Mentioned in other words" and the `sheet-hint`
-  "Their name doesn't contain “{query}”, but their short line does." Absent when it would be
-  empty. The definition and the app meaning are never searched.
+  query as the start of a word, under the `h3` "Mentioned in other words" (`--font-display` at
+  `--text-xl`) and the `sheet-hint` "Their name doesn't contain “{query}”, but their short line
+  does.", with a `--color-border` hairline above the group. Absent when it would be empty. The
+  definition and the app meaning are never searched.
 - **Leaving the search.** Emptying the field, by Chrome's clear button, by Escape in the field,
   or by deleting its text, returns to browsing at the top of the list.
 - **A letter while searching.** The letter row stays usable while searching: choosing a letter
@@ -204,8 +212,11 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
 - **No navigation.** A letter or a related link moves within the page: its link's own navigation
   is cancelled, so the address stays `#lexicon` and no history entry is added
   (`flows/look-up-a-word/handoff.md`, Routing Rules: The browser's Back button).
-- **Below the bar.** Every jump target keeps clear of the bar at its current height (one or two
-  letter rows), so no heading lands hidden under it.
+- **Below the bar.** Every jump target, and every element focused by Tab, keeps clear of the
+  part of the bar that stays at the top at its current height (one or two letter rows), with
+  `--spacing-3` to spare, so no heading lands hidden under it. The page measures that part
+  (`lexicon-bar`, or `lexicon-bar-row` below `bp-tablet-landscape`) and keeps its height on
+  `lexicon-view` as `--lexicon-bar-block-size`, which the view's scroll padding reads.
 - **The browser's find.** Chrome's own find in page searches the whole page, closed details
   included, and opens the one holding a found word: no extra behaviour is designed for it.
 
@@ -219,7 +230,8 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
 - **Trap.** Tab and Shift+Tab stay inside the view, in this order, which is also the visual
   order: the search field, `Letters` when shown, `Close`, each letter with words, then the body:
   each entry's `More` and, in an open entry, its related links, in reading order; `Clear search`
-  in the no-match state.
+  in the no-match state. Below `bp-mobile-landscape`, where `Close` sits on the line above the
+  search, the order stays the same.
 - **Letters.** Each letter with words is one tab stop, as a link; Enter follows it. A letter
   with no word is skipped.
 - **More.** Enter or Space opens or closes the entry, focus staying on it.
