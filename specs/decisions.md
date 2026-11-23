@@ -336,3 +336,9 @@ archived range D407–D509 that its archive notice lists.
   §E8 left uncovered (ux D495); closing the sheet first was rejected, as it could discard what the
   player typed. Now in: [Part E §E8](versions/v3/master-spec.md#e8-the-browsers-history-and-the-address)
   (v1.1) and [build plan v3.4](versions/v3/build-plan-v3.4.md) chunk 2.
+- **D568 (2026-11-23, the driver under D556): the stale-phrase prompt counts as an open sheet for
+  `#lexicon`, and a sheet opened during the page's first load stops its opening.** Two choices
+  chunk 2's owner made where Part E was silent, extending D567: the page never stacks over a sheet
+  or the prompt, as it never opens over a session. Now in:
+  [Part E §E7, §E8](versions/v3/master-spec.md#e7-opening-and-closing) (v1.2) and
+  [build plan v3.4](versions/v3/build-plan-v3.4.md) chunk 2.

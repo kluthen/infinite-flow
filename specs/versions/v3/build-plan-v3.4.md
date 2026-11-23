@@ -1,6 +1,9 @@
 # Infinite Flow v3.4 — Build Plan
 
-Status: v3 (2026-11-23): gate T0's notes written into chunk 2 (ux D492, D493, D495), and §E8's
+Status: v4 (2026-11-23): chunk 2's two spec-silent choices written in (Part E v1.2, spec D568):
+the stale-phrase prompt counts as an open sheet for `#lexicon`, and a sheet opened during the
+first load stops the opening.
+v3 (2026-11-23): gate T0's notes written into chunk 2 (ux D492, D493, D495), and §E8's
 open-sheet rule (Part E v1.1, spec D567).
 v2 (2026-11-23): wave 1's preflight corrections (gate P1) written in: the captured atoms'
 IDs, the atoms the preflight found, chunk 2's widened revisions and its notes; no new ruling.
@@ -246,8 +249,9 @@ Architecture capture: **the page's `#lexicon` history entry**
 own, marked as such and pushed at every opening on top of the bare address; Back closes the page;
 Close and Escape step back over the entry; Forward onto it reopens the page except during a session,
 where the address is replaced with the bare one; a load, a reload or a typed `#lexicon` is replaced
-with the bare address, then the page opens and adds its entry; under an open sheet, `#lexicon`
-reached any way opens nothing and only the address is replaced (spec D567); jumps inside the page
+with the bare address, then the page opens and adds its entry; under an open sheet, the
+stale-phrase prompt included, `#lexicon` reached any way opens nothing and only the address is
+replaced (spec D567, D568); jumps inside the page
 cancel their link's navigation. All through one injected history seam.
 
 - **Goal:** the player opens the lexicon page from the footer between sessions, browses it A to Z,
@@ -273,7 +277,9 @@ cancel their link's navigation. All through one injected history seam.
     flag becomes one per button: `Your data` keeps waiting for the controller, `Lexicon` does not);
     the page's host, in a module of its own: the loader, loading once, keeping the module and asking
     for a fresh address on Try again as `load-jam-mode.ts` does; the button's loading state; a session
-    started during the load cancelling the opening; the load-failure notice in `AppNoticeRow.vue`
+    started during the load cancelling the opening, and a sheet opened during it (the stale-phrase
+    prompt included) stopping it, even if closed again before the load ends (spec D568); the
+    load-failure notice in `AppNoticeRow.vue`
     after Jam's, with Try again and Dismiss and the focus on Try again; the page counted in
     `anySheetOpen` and in the open-sheet flag `reportSheetsOpen` emits (the flag the MIDI side
     reads as `connectionSheetOpen`, which already counts My instrument, Your data and the preset
@@ -281,8 +287,9 @@ cancel their link's navigation. All through one injected history seam.
     hides; focus back to the button on close; the history seam and §E8's model (a load at
     `#lexicon` opens the page once the shell is mounted: `main.ts` mounts the app only after the
     saved data is read, so `src/App.vue` needs no change; `#lexicon` reached while any sheet is
-    open opens nothing, only the address being replaced and the sheet left as it was, spec D567,
-    ux D495, the look up a word flow's Routing Rules); the page rendered beside the sheets, outside
+    open, the stale-phrase prompt counted as one, opens nothing, only the address being replaced
+    and the sheet left as it was, spec D567, D568, ux D495, the look up a word flow's Routing
+    Rules); the page rendered beside the sheets, outside
     `.layout-app`, so the portrait guard leaves it shown ([§E7](master-spec.md#e7-opening-and-closing),
     spec D562); an ESLint import rule: only the loader imports `src/components/lexicon/` statically,
     as Jam's rule does (copying `jamImportPattern`). `WorkspaceShell.vue` stays within 600
@@ -290,8 +297,9 @@ cancel their link's navigation. All through one injected history seam.
     (the shell carries 18).
   - **The end-to-end tests:** a new spec for the page (A to Z, a letter, search and its tiers, one
     match, no match, mentions, a related jump, More, Close, Escape, Back, Forward, a load at
-    `#lexicon`, a typed `#lexicon`, `#lexicon` reached under an open sheet, a session started
-    during the load, a failed load and Try again,
+    `#lexicon`, a typed `#lexicon`, `#lexicon` reached under an open sheet and under the
+    stale-phrase prompt, a session started during the load, a sheet opened during the load, a
+    failed load and Try again,
     a MIDI note while open, a portrait view, the keyboard alone), added to the `test:e2e` list; the
     page's states in the accessibility suite; the page and its words offline in the release suite.
   - **Out:** the API's schema and document (chunk 3); any change to `src/styles/` (T0's) or to
@@ -343,7 +351,9 @@ cancel their link's navigation. All through one injected history seam.
   `rule_session_ends_on_portrait_view`: "As outside a session, the app has no portrait layout below
   the desktop layout's width: …" becomes "As outside a session, the phrase workspace has no
   portrait layout below the desktop layout's width: …", the rest unchanged (spec D562); and
-  `module_lexicon_page_history_entry` as built, the open-sheet rule included (spec D567).
+  `module_lexicon_page_history_entry` as built, the open-sheet rule included with the stale-phrase
+  prompt counted as a sheet, and a sheet opened during the first load stopping the opening
+  (spec D567, D568).
 - **Done when:**
   - Every shown entry is on the page under its letter and found by its word and each other name;
     the count matches the file; an entry shows and opens as §E6 says, marks shown as text.
@@ -352,11 +362,13 @@ cancel their link's navigation. All through one injected history seam.
   - The button sits after `Your data`, the two in `footer-actions` and wrapping together under the
     note, `Lexicon` disabled during a session and the count-in, enabled before the controller has
     loaded; the first opening loads; a session started during the load cancels
-    it; a failed load shows the notice and Try again opens the page.
+    it, and a sheet opened during it stops it, the page staying closed when the load ends even if
+    the sheet has closed by then; a failed load shows the notice and Try again opens the page.
   - No MIDI note starts a session, a count-in or a Jam while the page is open, and the starting
     note's line hides and returns.
-  - Each history rule of §E8 holds in the end-to-end spec, the open-sheet rule included: the sheet
-    stays open with what was typed in it; the address is `#lexicon` only while the page is open.
+  - Each history rule of §E8 holds in the end-to-end spec, the open-sheet rule included, under a
+    sheet and under the stale-phrase prompt: the sheet stays open with what was typed in it; the
+    address is `#lexicon` only while the page is open.
   - At one and at two letter rows, and below `bp-tablet-landscape`, a letter's jump and a Tab
     focus land clear of the bar's staying part: `--lexicon-bar-block-size` on `lexicon-view`
     follows its measured height.
