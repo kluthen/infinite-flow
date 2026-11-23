@@ -97,3 +97,10 @@ current state.
   warning. Figures: 7 agents, 366 tool calls, 48.8M tokens in / 308k out, max context 314k (over
   300k: the first owner, which ran to its 100-call pause with the page, host, history and 44
   browser tests in one context), $21.76 at API prices. All chunks merged; wave gate next.
+- 2026-11-23: wave gate green on a1660fd9+8dc07f95 (`npm run quality`, exit 0; the driver's machine,
+  not the reference machine): unit 10,325 tests in 668 files; end-to-end 786 passed in each of the
+  two lanes; accessibility 86; notation 121; `atd:lint`, `atd:check` pass (`atd check main...HEAD`:
+  26 atoms, all with code and tests). No sweep (plan delta). M2: start-up JavaScript 392,293 B of
+  409,600 B (+5,255 B since 387,038 B at `3.3.0`: the footer's button and the page's host), entry
+  chunk 337,281 B (+5,255 B since 332,026 B). M1: the words' file 305,315 B (90,611 B gzip) of
+  458,752 B, lexicon v1.9. No dependency change: no `security-advisor` check. Wave sync dispatched.
