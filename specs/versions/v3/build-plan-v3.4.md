@@ -1,6 +1,8 @@
 # Infinite Flow v3.4 — Build Plan
 
-Status: v1 (2026-11-22): written; the lexicon wave (wave 1) approved by the wave driver under the
+Status: v2 (2026-11-23): wave 1's preflight corrections (gate P1) written in: the captured atoms'
+IDs, the atoms the preflight found, chunk 2's widened revisions and its notes; no new ruling.
+v1 (2026-11-22): written; the lexicon wave (wave 1) approved by the wave driver under the
 owner's delegation (spec D556, D565). Gates A0, G0 and L0 done.
 
 The lexicon page and the lexicon API, written from
@@ -199,8 +201,12 @@ never in the first load. (b) **The API's read contract**: the entry contract's n
   sources), 5, 6, 13.
 - **Design docs:** [`screens/lexicon-page/handoff.md`](../../../ui_ux/screens/lexicon-page/handoff.md)
   (What the Page Shows of the Lexicon; States: Empty).
-- **Atoms:** (v3.4) the two ARCHITECTURE atoms P1 captures (the single-source rule and its build
-  step; the API's read contract); (v1) `req_browser_only_first_release`.
+- **Atoms:** (v3.4) the two ARCHITECTURE atoms P1 captured: `module_lexicon_single_source` (the
+  single-source rule and its build step) and `api_lexicon_read_contract` (the API's read contract);
+  (v3.2) `module_jam_code_boundary` (drift check: linked in `scripts/verify-boundaries.mjs`, whose
+  first-load boundary the lexicon's copies, and in `tests/unit/boundaries/verify-boundaries.spec.ts`);
+  (v2) `specification_browser_only_operation_verification` (STABLE: the no-network check in
+  `verify-boundaries.mjs` stays as it is); (v1) `req_browser_only_first_release`.
 - **Revisions:** none.
 - **Done when:**
   - The parser's output on the real lexicon holds every entry outside the Internal group, with the
@@ -255,12 +261,17 @@ link's navigation. All through one injected history seam.
     for a fresh address on Try again as `load-jam-mode.ts` does; the button's loading state; a session
     started during the load cancelling the opening; the load-failure notice in `AppNoticeRow.vue`
     after Jam's, with Try again and Dismiss and the focus on Try again; the page counted in
-    `anySheetOpen` and in the open-sheet flag `reportSheetsOpen` emits, so no MIDI note starts a
-    session, a count-in or a Jam and the starting note's line hides; focus back to the button on
-    close; the history seam and §E8's model; the page rendered beside the sheets, outside
+    `anySheetOpen` and in the open-sheet flag `reportSheetsOpen` emits (the flag the MIDI side
+    reads as `connectionSheetOpen`, which already counts My instrument, Your data and the preset
+    sheet), so no MIDI note starts a session, a count-in or a Jam and the starting note's line
+    hides; focus back to the button on close; the history seam and §E8's model (a load at
+    `#lexicon` opens the page once the shell is mounted: `main.ts` mounts the app only after the
+    saved data is read, so `src/App.vue` needs no change); the page rendered beside the sheets, outside
     `.layout-app`, so the portrait guard leaves it shown ([§E7](master-spec.md#e7-opening-and-closing),
     spec D562); an ESLint import rule: only the loader imports `src/components/lexicon/` statically,
-    as Jam's rule does. `WorkspaceShell.vue` stays within 600 effective lines.
+    as Jam's rule does (copying `jamImportPattern`). `WorkspaceShell.vue` stays within 600
+    effective lines; a block moved out of it to stay there takes its `@spec-link` tags with it
+    (the shell carries 18).
   - **The end-to-end tests:** a new spec for the page (A to Z, a letter, search and its tiers, one
     match, no match, mentions, a related jump, More, Close, Escape, Back, Forward, a load at
     `#lexicon`, a typed `#lexicon`, a session started during the load, a failed load and Try again,
@@ -294,14 +305,28 @@ link's navigation. All through one injected history seam.
   [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md) (Starting note: The
   lexicon page), [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md)
   (Notices), [`motion.md`](../../../ui_ux/motion.md) (Rules).
-- **Atoms:** (v3.4) the BUSINESS atom I0 records (the player looks up every shown word, A to Z and
-  by search, offline, between sessions), the ARCHITECTURE atom P1 captures for the history entry,
-  and chunk 1's two (drift check); (v3.0) `req_your_data` (STABLE: the footer's other button,
-  unchanged); (v3.2) `rule_jam_start_conditions`; (v2) `module_session_starting_note`,
-  `rule_session_start_conditions` and `rule_session_ends_on_portrait_view`; (v1)
-  `req_landscape_phrase_workspace` (the portrait rule, still true of the workspace).
-- **Revisions:** revise `module_session_starting_note` (the lexicon page joins the sheets under
-  which no note starts a session), and the history-entry atom as built.
+- **Atoms:** (v3.4) `req_lexicon_page` (the BUSINESS atom I0 recorded: the player looks up every
+  shown word, A to Z and by search, offline, between sessions), `module_lexicon_page_history_entry`
+  (the history entry P1 captured), and chunk 1's `module_lexicon_single_source` and
+  `api_lexicon_read_contract` (drift check); (v3.2) `rule_jam_start_conditions`;
+  `module_jam_code_boundary` (the new ESLint rule copies `jamImportPattern`;
+  `tests/unit/boundaries/eslint-boundaries.spec.ts`); `module_workspace_mode` (linked in
+  `AppNoticeRow.vue` and `WorkspaceShell.vue`: Jam's load-failure notice leaves the focus where it
+  is while any sheet is open, and the page now counts as one); (v3.0) `req_your_data` (STABLE: the
+  footer's other button, unchanged); `rule_failed_save_never_disturbs_session` (STABLE, linked in
+  `AppNoticeRow.vue`); `rule_first_phrase_waits_for_saved_settings` (STABLE: a load at `#lexicon`
+  waits for the saved settings); (v2) `module_session_starting_note`,
+  `rule_session_start_conditions` and `rule_session_ends_on_portrait_view`; `rule_midi_starting_note`
+  (STABLE, wording unchanged); `service_session_midi` (drift check at the wave sync: its interface
+  reads "whether the connection sheet is open", a flag that counts every sheet and the page);
+  (v1) `req_landscape_phrase_workspace` (the portrait rule, still true of the workspace).
+- **Revisions:** revise `module_session_starting_note`: its rule and its interface name the sheets
+  under which no note starts a session as all the flag counts (the connection sheet, the
+  stale-phrase prompt, My instrument, Your data, the preset sheet) and the lexicon page;
+  `rule_session_ends_on_portrait_view`: "As outside a session, the app has no portrait layout below
+  the desktop layout's width: …" becomes "As outside a session, the phrase workspace has no
+  portrait layout below the desktop layout's width: …", the rest unchanged (spec D562); and
+  `module_lexicon_page_history_entry` as built.
 - **Done when:**
   - Every shown entry is on the page under its letter and found by its word and each other name;
     the count matches the file; an entry shows and opens as §E6 says, marks shown as text.
@@ -323,7 +348,8 @@ link's navigation. All through one injected history seam.
   edits (its point); the start-up figure (M2) is placed at the wave gate.
 - **Split rule:** 2a, the page in `src/components/lexicon/` with its component and model tests,
   reached only from tests; 2b, the button, the host, the loader, the notice, the open-sheet flag,
-  the history seam, the shell's wiring (and any block moved out of it), the ESLint rule and the
+  the history seam, the shell's wiring (and any block moved out of it, with its `@spec-link`
+  tags), the ESLint rule and the
   end-to-end, accessibility and offline tests.
 
 ### Chunk 3 — The lexicon API's contract
@@ -359,9 +385,9 @@ Architecture capture: none of its own; it checks chunk 1's API read contract and
 - **Spec sections:** [§E9](master-spec.md#e9-the-lexicon-api), [§E14](master-spec.md#e14-architectural-decisions-and-their-reasons);
   item 15.
 - **Design docs:** none (no interface).
-- **Atoms:** (v3.4) chunk 1's API read contract atom (drift check against the schema and the
-  document); (v1) `req_browser_only_first_release`.
-- **Revisions:** the API read contract atom, if the document words its contract more exactly than
+- **Atoms:** (v3.4) `api_lexicon_read_contract`, chunk 1's (drift check against the schema and
+  the document); (v1) `req_browser_only_first_release`.
+- **Revisions:** `api_lexicon_read_contract`, if the document words its contract more exactly than
   the capture did.
 - **Done when:**
   - The schema is in `src/lexicon/`, its nine fields required and no other allowed; the real
