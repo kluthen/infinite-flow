@@ -241,7 +241,12 @@ never in the first load. (b) **The API's read contract**: the entry contract's n
 
 ### Chunk 2 — The lexicon page, its button and its address
 
-Status: in progress (resumed from WIP e0ca927c)
+Status: merged (w1, a1660fd9)
+Record: 2a 57c05801, 2b 0e6f8878, merged a1660fd9. Stopped once on a design gap (the searching
+state's heading order), settled by ux D496 and resumed. Spec-silent choices recorded as spec D568.
+The starts moved out of `WorkspaceShell.vue` into `workspace-starts.ts` with their tags (596
+effective lines); the lexicon accessibility checks are in `accessibility-lexicon.spec.ts`; the
+host makes `.layout-app` inert while the page shows; bar controls take focus without scrolling.
 Wave: 1
 Depends on: 1, L0, T0, P1 (its capture)
 Architecture capture: **the page's `#lexicon` history entry**

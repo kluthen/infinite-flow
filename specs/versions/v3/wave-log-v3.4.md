@@ -89,3 +89,11 @@ current state.
   For the wave sync: `api_lexicon_read_contract` revision candidate (the document words the check
   more exactly). Figures: 1 agent, 40 tool calls, 3.5M tokens in / 35k out, max context 116k, $1.86
   at API prices. Chunk 2 resumed from e0ca927c (fresh owner).
+- 2026-11-23: chunk 2 merged a1660fd9 (2a 57c05801, 2b 0e6f8878), resumed by a fresh owner from the
+  WIP: the D496 heading, the D568 load watcher (only while a load runs: one set up at the start read
+  `anySheetOpen` before the shell declared it), the Tab-from-a-scrolled-view test. Choice: a failed
+  load after a sheet stopped the opening still shows the notice, the focus staying in the sheet.
+  47 Playwright tests pass (default lane only). `lexicon-page-history.spec.ts` past the 400-line
+  warning. Figures: 7 agents, 366 tool calls, 48.8M tokens in / 308k out, max context 314k (over
+  300k: the first owner, which ran to its 100-call pause with the page, host, history and 44
+  browser tests in one context), $21.76 at API prices. All chunks merged; wave gate next.
