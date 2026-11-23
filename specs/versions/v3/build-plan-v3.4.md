@@ -527,7 +527,9 @@ Architecture capture: none of its own; it checks chunk 1's API read contract and
 
 ### Chunk 4 — The test files' atom-spread limit
 
-Status: in progress
+Status: merged (w2, 9d823690)
+Record: 0f40a81f; no deviation. Beyond Files: the §6 quotes in `scripts/code-health-check.mjs`'s
+header and in `config.mjs`'s `ATD_EXEMPT_PATHS` comment updated to match the new §6 wording.
 Wave: 2
 Size: S
 Depends on: P2 (its verdict)
@@ -561,7 +563,7 @@ Architecture capture: none (tooling).
 
 ### Chunk 5 — The library line enforced
 
-Status: planned
+Status: in progress
 Wave: 2
 Size: S
 Depends on: P2 (the library-boundary capture)

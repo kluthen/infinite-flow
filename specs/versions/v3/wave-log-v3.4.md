@@ -224,3 +224,8 @@ current state.
   fast-gate leftover removed; chunk 5's Atoms line names the capture).
 - 2026-11-23: chunk 4 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c4`,
   branch `v3.4-c4-test-atom-limit`).
+- 2026-11-23: chunk 4 merged 9d823690 (0f40a81f): a test file above 10 atoms now warns; source
+  files keep their error; `npm run lint:health` 0 errors, 979 warnings over 1,625 files. Beyond
+  Files: two comments quoting §6. Figures: 1 agent, 20 tool calls, 1.3M tokens in / 11k out, max
+  context 80k, $0.85. Chunk 5 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c5`,
+  branch `v3.4-c5-library-line`).
