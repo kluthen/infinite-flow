@@ -23,6 +23,7 @@ dependents:
   - [[module_rhythm_skeleton_allocator]]
   - [[module_rhythm_variety_grammar]]
   - [[req_embellishment_figure_levels]]
+  - [[req_lexicon_page]]
   - [[req_my_instrument]]
   - [[req_presets]]
   - [[req_seventh_chords_level]]
