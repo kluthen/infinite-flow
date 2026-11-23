@@ -5,7 +5,7 @@
  * at all). Types only; the checks live in the engraver, the decisions in the workspace session.
  */
 import type { WrittenKey } from '@/domain/notation/written-phrase-types'
-import type { StaffViewport } from './notation-layout-policy'
+import type { StaffViewport } from '../domain/notation/staff-layout'
 
 /**
  * The staff's current layout inputs, as PhraseScore measures them: container width and viewport,

@@ -6,7 +6,7 @@
  * Pure: it reads no clock and holds no state.
  */
 
-import type { IdlePhraseSettings } from '../composables/workspace-session-result'
+import type { IdlePhraseSettings } from './idle-phrase-settings'
 import { CHORD_FAMILY_IDS, type ChordFamilyId } from '../domain/chords/chord-families'
 import type { GenerationControls } from '../domain/controls/generation-controls'
 import type { FigureId } from '../domain/figures/figure-levels'

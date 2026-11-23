@@ -5,10 +5,10 @@
  * that fire its scheduled events, the rolling display (./workspace-session-display.ts), the steps
  * of phrases 2 on, the runner, and the watchers of its other ends.
  */
-import { countInDisplayAt } from '@/session/count-in-display'
+import { countInDisplayAt } from './count-in-display'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import type { AudioTime, SessionSettings } from '@/session/session-types'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { SteeringBlock } from '@/domain/generation/steering-block'
 import { forwardPresence } from './workspace-adaptive-tempo'

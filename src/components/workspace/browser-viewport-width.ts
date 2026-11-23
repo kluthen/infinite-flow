@@ -4,7 +4,7 @@
  * below-tablet-landscape blocks use (`src/styles/components.css`), so the density rule and the
  * layout always agree on which side of 64rem the window is.
  */
-import type { ViewportWidthProvider } from '@/composables/viewport-width'
+import type { ViewportWidthProvider } from '@/session/viewport-width'
 
 /** The media query that matches while the window is narrower than `bp-tablet-landscape` (64rem). */
 export const BELOW_TABLET_LANDSCAPE_MEDIA_QUERY = '(max-width: 63.9375rem)'

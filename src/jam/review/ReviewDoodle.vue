@@ -24,7 +24,7 @@ import { reviewStaffStyle } from '@/components/review/review-staff-style'
 import type { ReviewEngraver, ReviewStaffReservation } from '@/components/review/review-types'
 import { describeDoodle } from '@/domain/notation/score-description'
 import { isStaffLayoutFailure, NotationError } from '@/notation/notation-error'
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffViewport } from '@/domain/notation/staff-layout'
 import type { ReviewedPhrase, SessionDoodle } from '@/session/session-history'
 import {
   cutSystemsAtDoodleEnd,

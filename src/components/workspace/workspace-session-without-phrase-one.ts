@@ -12,7 +12,7 @@ import type { Seed } from '@/domain/random/seed'
 import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import type { DoodleReadings } from '@/jam/doodle-controls'
 import type { PlayedNoteEvent } from '@/midi/played-note-tracker'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import { createAudioTimeAgenda } from '@/session/session-agenda'
 import {
   createSessionHistory,

@@ -235,6 +235,24 @@ function isInLibrary(relativePath) {
 }
 
 /**
+ * The session core's folder, relative to the application source root with a trailing slash: its
+ * `.ts` files may import only files inside it and in the library set, and no package. It is not
+ * part of the library set: a library file still imports no session file.
+ */
+const sessionDirectory = 'session/'
+
+/**
+ * Whether a path relative to the application source root (forward slashes) lies in the session
+ * folder; the folder itself counts as inside.
+ *
+ * @param {string} relativePath
+ * @returns {boolean}
+ */
+function isInSession(relativePath) {
+  return `${relativePath}/`.startsWith(sessionDirectory)
+}
+
+/**
  * The node itself when it is a string literal or a template literal with no substitution, the two
  * forms a module path is written in; undefined for any other expression.
  *
@@ -298,16 +316,17 @@ function namedModuleSpecifier(node) {
 }
 
 /**
- * The library-boundary label one specifier breaks, written in the library file at `relativePath`
- * (relative to the application source root, forward slashes), or undefined when it resolves inside
- * the library set. `@/` resolves to the source root and `./` or `../` against the file's folder; a
- * specifier starting with `/` lies outside; any other specifier names a package.
+ * Where one specifier written in the file at `relativePath` (relative to the application source
+ * root, forward slashes) resolves: `@/` to the source root and `./` or `../` against the file's
+ * folder, normalized; a specifier starting with `/` is kept as written, and lies outside. Null for
+ * any other specifier, which names a package. The second field says whether the target lies
+ * outside the source root (absolute, or climbing above it).
  *
  * @param {string} relativePath
  * @param {string} specifier
- * @returns {string | undefined}
+ * @returns {{ target: string, escapesRoot: boolean } | null}
  */
-function libraryBoundaryOf(relativePath, specifier) {
+function resolveSpecifier(relativePath, specifier) {
   let target
   if (specifier.startsWith('@/')) {
     target = posix.normalize(specifier.slice(2))
@@ -316,25 +335,60 @@ function libraryBoundaryOf(relativePath, specifier) {
   } else if (specifier.startsWith('/')) {
     target = specifier
   } else {
-    return 'library boundary: package import'
+    return null
   }
   const escapesRoot = target === '..' || target.startsWith('../') || target.startsWith('/')
+  return { target, escapesRoot }
+}
+
+/**
+ * The library-boundary label one specifier breaks, written in the library file at `relativePath`
+ * (relative to the application source root, forward slashes), or undefined when it resolves inside
+ * the library set (see `resolveSpecifier`).
+ *
+ * @param {string} relativePath
+ * @param {string} specifier
+ * @returns {string | undefined}
+ */
+function libraryBoundaryOf(relativePath, specifier) {
+  const resolved = resolveSpecifier(relativePath, specifier)
+  if (resolved === null) return 'library boundary: package import'
+  const { target, escapesRoot } = resolved
   if (!escapesRoot && isInLibrary(target)) return undefined
   return `library boundary: resolves to ${target} outside the library set`
 }
 
 /**
- * Every import of one library file that leaves the library set or names a package, given its path
- * relative to the application source root (forward slashes, e.g. `domain/phrase/phrase.ts`) and
- * its contents. The file is parsed, so comments and strings never count, and each specifier is
- * resolved, not matched by its text. The line is the 1-based line of the specifier.
+ * The session-boundary label one specifier breaks, written in the session file at `relativePath`
+ * (relative to the application source root, forward slashes), or undefined when it resolves inside
+ * the session folder or the library set (see `resolveSpecifier`).
+ *
+ * @param {string} relativePath
+ * @param {string} specifier
+ * @returns {string | undefined}
+ */
+function sessionBoundaryOf(relativePath, specifier) {
+  const resolved = resolveSpecifier(relativePath, specifier)
+  if (resolved === null) return 'session boundary: package import'
+  const { target, escapesRoot } = resolved
+  if (!escapesRoot && (isInSession(target) || isInLibrary(target))) return undefined
+  return `session boundary: resolves to ${target} outside session and the library set`
+}
+
+/**
+ * Every import of one file that `boundaryOf` labels (a label for a broken boundary, undefined
+ * for an allowed import), given its path relative to the application source root (forward
+ * slashes) and its contents. The file is parsed, so comments and strings never count, and each
+ * specifier is resolved, not matched by its text: a static import (`import type` included), an
+ * `export … from`, a dynamic `import()`, an `import()` type and a `new URL(…, import.meta.url)`.
+ * The line is the 1-based line of the specifier.
  *
  * @param {string} relativePath
  * @param {string} contents
+ * @param {(relativePath: string, specifier: string) => string | undefined} boundaryOf
  * @returns {{ line: number, specifier: string, boundary: string }[]}
  */
-// @spec-link [[module_library_code_boundary]]
-export function libraryImportViolations(relativePath, contents) {
+function importViolations(relativePath, contents, boundaryOf) {
   const sourceFile = ts.createSourceFile(
     relativePath,
     contents,
@@ -345,14 +399,14 @@ export function libraryImportViolations(relativePath, contents) {
   /** @type {{ line: number, specifier: string, boundary: string }[]} */
   const violations = []
   /**
-   * Record the specifier `node` names when it leaves the library set, then visit its children.
+   * Record the specifier `node` names when it breaks the boundary, then visit its children.
    *
    * @param {ts.Node} node
    */
   const visit = (node) => {
     const literal = namedModuleSpecifier(node)
     if (literal !== undefined) {
-      const boundary = libraryBoundaryOf(relativePath, literal.text)
+      const boundary = boundaryOf(relativePath, literal.text)
       if (boundary !== undefined) {
         const { line } = sourceFile.getLineAndCharacterOfPosition(literal.getStart(sourceFile))
         violations.push({ line: line + 1, specifier: literal.text, boundary })
@@ -365,28 +419,82 @@ export function libraryImportViolations(relativePath, contents) {
 }
 
 /**
- * Scan every `.ts` file of the library set under `sourceRoot` (the directory that stands for the
- * application's `src/`) and report each import that leaves the set or names a package, with paths
- * relative to `sourceRoot` in forward slashes, so the same scan runs over the real `src/` or over a
- * fixture tree laid out like it. A library folder missing from the tree is simply not scanned.
+ * Every import of one library file that leaves the library set or names a package, given its path
+ * relative to the application source root (forward slashes, e.g. `domain/phrase/phrase.ts`) and
+ * its contents (see `importViolations`).
+ *
+ * @param {string} relativePath
+ * @param {string} contents
+ * @returns {{ line: number, specifier: string, boundary: string }[]}
+ */
+// @spec-link [[module_library_code_boundary]]
+export function libraryImportViolations(relativePath, contents) {
+  return importViolations(relativePath, contents, libraryBoundaryOf)
+}
+
+/**
+ * Every import of one session file that leaves the session folder and the library set or names a
+ * package, given its path relative to the application source root (forward slashes, e.g.
+ * `session/session-engine.ts`) and its contents (see `importViolations`).
+ *
+ * @param {string} relativePath
+ * @param {string} contents
+ * @returns {{ line: number, specifier: string, boundary: string }[]}
+ */
+// @spec-link [[module_session_code_boundary]]
+export function sessionImportViolations(relativePath, contents) {
+  return importViolations(relativePath, contents, sessionBoundaryOf)
+}
+
+/**
+ * Scan every `.ts` file under `sourceRoot` (the directory that stands for the application's
+ * `src/`) that `inScope` selects, and report each import `violationsOf` finds, with paths relative
+ * to `sourceRoot` in forward slashes, so the same scan runs over the real `src/` or over a fixture
+ * tree laid out like it.
+ *
+ * @param {string} sourceRoot
+ * @param {(relativePath: string) => boolean} inScope
+ * @param {(relativePath: string, contents: string) => { line: number, specifier: string, boundary: string }[]} violationsOf
+ * @returns {Promise<{ files: string[], violations: { file: string, line: number, specifier: string, boundary: string }[] }>}
+ */
+async function scanImportBoundary(sourceRoot, inScope, violationsOf) {
+  const files = (await authoredSourceFiles(sourceRoot))
+    .map((absolutePath) => relative(sourceRoot, absolutePath).split(sep).join('/'))
+    .filter((file) => extname(file) === '.ts' && inScope(file))
+    .sort()
+  const violations = []
+  for (const file of files) {
+    const contents = await readFile(join(sourceRoot, file), 'utf8')
+    for (const violation of violationsOf(file, contents)) {
+      violations.push({ file, ...violation })
+    }
+  }
+  return { files, violations }
+}
+
+/**
+ * Scan every `.ts` file of the library set under `sourceRoot` and report each import that leaves
+ * the set or names a package (see `scanImportBoundary`). A library folder missing from the tree is
+ * simply not scanned.
  *
  * @param {string} sourceRoot
  * @returns {Promise<{ files: string[], violations: { file: string, line: number, specifier: string, boundary: string }[] }>}
  */
 // @spec-link [[module_library_code_boundary]]
 export async function scanLibraryBoundary(sourceRoot) {
-  const files = (await authoredSourceFiles(sourceRoot))
-    .map((absolutePath) => relative(sourceRoot, absolutePath).split(sep).join('/'))
-    .filter((file) => extname(file) === '.ts' && isInLibrary(file))
-    .sort()
-  const violations = []
-  for (const file of files) {
-    const contents = await readFile(join(sourceRoot, file), 'utf8')
-    for (const violation of libraryImportViolations(file, contents)) {
-      violations.push({ file, ...violation })
-    }
-  }
-  return { files, violations }
+  return scanImportBoundary(sourceRoot, isInLibrary, libraryImportViolations)
+}
+
+/**
+ * Scan every `.ts` file of the session folder under `sourceRoot` and report each import that
+ * leaves session and the library set or names a package (see `scanImportBoundary`).
+ *
+ * @param {string} sourceRoot
+ * @returns {Promise<{ files: string[], violations: { file: string, line: number, specifier: string, boundary: string }[] }>}
+ */
+// @spec-link [[module_session_code_boundary]]
+export async function scanSessionBoundary(sourceRoot) {
+  return scanImportBoundary(sourceRoot, isInSession, sessionImportViolations)
 }
 
 /**
@@ -636,6 +744,8 @@ export async function startupJavaScriptBytes(outputRoot, graph) {
  * The full boundary verification run by `npm run verify:boundaries`: the authored-source
  * scan of `src/`, the library boundary (every `.ts` file of src/domain/, src/generation-worker/,
  * src/export/midi/ and src/export/musicxml/ imports only those folders and no package), the
+ * session boundary (every `.ts` file of src/session/ imports only src/session/ and the library
+ * set, and no package), the
  * Workbox runtime-caching setting, the precache manifest, the build output's
  * audio-asset scan, the first-load budget (all JavaScript loaded at startup), the per-chunk size
  * budgets (the lexicon's words' file included), Jam's code boundary (no src/jam/ module in the
@@ -653,6 +763,13 @@ async function verifyBoundaries() {
     fileURLToPath(new URL('../src/', import.meta.url)),
   )
   for (const { file, line, specifier, boundary } of libraryViolations) {
+    violations.push(`src/${file}:${line} imports '${specifier}' (${boundary})`)
+  }
+
+  const { files: sessionFiles, violations: sessionViolations } = await scanSessionBoundary(
+    fileURLToPath(new URL('../src/', import.meta.url)),
+  )
+  for (const { file, line, specifier, boundary } of sessionViolations) {
     violations.push(`src/${file}:${line} imports '${specifier}' (${boundary})`)
   }
 
@@ -764,6 +881,9 @@ async function verifyBoundaries() {
   )
   console.log(
     `Library boundary passed: ${libraryFiles.length} library files import only the library set and no package.`,
+  )
+  console.log(
+    `Session boundary passed: ${sessionFiles.length} session files import only session, the library set and no package.`,
   )
   const jamChunks = jamChunkFileNames(moduleGraph)
   console.log(

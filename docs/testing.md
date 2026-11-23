@@ -1288,7 +1288,7 @@ discrete-event simulation: no real time passes.
 ## Fake window width
 
 The workspace session reads the window's position against `bp-tablet-landscape` through an
-injected `ViewportWidthProvider` (`src/composables/viewport-width.ts`). Unit tests replace it with
+injected `ViewportWidthProvider` (`src/session/viewport-width.ts`). Unit tests replace it with
 `createFakeViewportWidth(initiallyBelowTabletLandscape?)` from
 `tests/unit/composables/fake-viewport-width.ts`, which never touches `matchMedia`:
 
@@ -2434,6 +2434,15 @@ library set (a relative import, a type-only import, an `@/` import, an `export �
 `import()`, a `new URL(…, import.meta.url)`, the package `vue`) and is rejected with its line and
 specifier; `library-imports.ts` imports only into the set and `harmony/relative-inside.ts` imports
 `../notation/…`, which resolves to `src/domain/notation/`, and both pass.
+
+`session/` holds the session-boundary fixtures as well as its two browser-call files:
+`verify-boundaries.spec.ts` runs `scanSessionBoundary` over the tree. `audio-import.ts` (a value
+import from `audio/`), `notation-type-import.ts` (an `@/` type-only import from `notation/`),
+`composable-type-import.ts` (a type-only import from `composables/`), `re-export.ts` (an
+`export … from` into `audio/`) and `package-import.ts` (the package `vue`) are each rejected with
+their line and specifier; `session-and-library-imports.ts` imports only into session and every
+folder of the library set, and passes. An inline probe adds an `import()`, a
+`new URL(…, import.meta.url)` and an `import()` type that leave the set.
 
 Inline probes in both specs widen the fixtures: every always-forbidden call (the network, the
 microphone, `document.cookie`, `cookieStore`, `localStorage`, `sessionStorage`, `caches`, media

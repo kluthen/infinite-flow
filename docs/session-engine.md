@@ -62,7 +62,7 @@ The session controller's pure pieces live here too, under the same boundary (see
 | File                          | Holds                                                                                                                       |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | `session-start-conditions.ts` | `sessionStartBlocker(facts)`: the first start condition that fails, or `null`.                                              |
-| `count-in-display.ts`         | `countInDisplayAt(startAt, tempo, now)`: each count-in beat's state, and when the display changes.                          |
+
 | `session-agenda.ts`           | `createAudioTimeAgenda()`: actions due at audio times, fired when the clock reaches them.                                   |
 | `session-window.ts`           | The session window rule: the layout a session holds, and whether a window change ends it.                                   |
 | `rolling-display.ts`          | The rolling display as a pure plan: the playhead's measure, what each system shows, what waits.                             |
@@ -70,6 +70,10 @@ The session controller's pure pieces live here too, under the same boundary (see
 | `starting-note.ts`            | `startingNoteOf(timeline, written)`: the note that starts a session from a MIDI controller, and its label.                  |
 | `session-acknowledgement.ts`  | `createSessionAcknowledgement(options)`: one session's acknowledgement, phrase by phrase, and its compensated played notes. |
 | `session-midi-timers.ts`      | The silence timeout and the reconnection countdown as pure arithmetic on the audio clock.                                   |
+
+The count-in display, `countInDisplayAt(startAt, tempo, now)` (each count-in beat's state, and when
+the display changes), reads its beat times from the click track, so it sits on the app side, beside
+its callers: `src/components/workspace/count-in-display.ts`.
 
 `createSessionEngine(deps, start)` takes the start time, the chosen settings, phrase 1 (its
 intent and its successful outcome), the settings-mutation flag (`SessionStart.mutation`),
@@ -1073,7 +1077,7 @@ then replaces the workspace. Otherwise it asks the staff planner's phrase-indepe
 at the legibility floor, about the **held** layout: its two system positions in the window's
 height budget, whichever layout is held, only while the window is below `bp-tablet-landscape`
 (from it up the window gives no height budget); then the held layout's width, with
-`planStaffWidthRoom` (`src/notation/notation-layout-policy.ts`), the staff container's width and
+`planStaffWidthRoom` (`src/domain/notation/staff-layout.ts`), the staff container's width and
 phrase 1's fixed parts. Those fixed parts (the leading clef, key signature and time
 signature, and the system padding) are measured once per session by the engraver's
 `measureStaffFixedParts`, for phrase 1's written key signature; until they are measured, only the

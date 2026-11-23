@@ -26,7 +26,7 @@ import {
   GenerationWorkerCrashError,
   GenerationWorkerTransportError,
 } from '@/generation-worker/generation-worker-client'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { WindowShapeReading } from '@/session/session-browser-ports'
 import {

@@ -4,8 +4,8 @@
  * changes, so a caller schedules one update per beat instead of polling every frame. The beat
  * times come from the click track itself, so the display and the click always agree.
  */
-import { beatAt, countInEndsAt, createClickPlan } from '../audio/click-track'
-import type { AudioTime } from './session-types'
+import { beatAt, countInEndsAt, createClickPlan } from '@/audio/click-track'
+import type { AudioTime } from '@/session/session-types'
 
 /** How one count-in beat shows: not reached yet, clicking now, or already clicked. */
 // @spec-link [[rule_count_in_shown_on_screen]]

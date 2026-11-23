@@ -10,7 +10,7 @@
  * interruption is the controller's.
  */
 import type { NotationError } from '@/notation/notation-error'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import type { StaffFixedParts, StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { SessionBrowserPorts, WindowShapeReading } from '@/session/session-browser-ports'
 import type { SessionEndCause } from '@/session/session-types'

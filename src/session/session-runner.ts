@@ -10,7 +10,7 @@
  * abort signal, aborted when the engine cancels that attempt.
  */
 
-import type { ViewportWidthProvider } from '../composables/viewport-width'
+import type { ViewportWidthProvider } from './viewport-width'
 import type { GenerationIntent } from '../domain/generation/generation-intent'
 import type { GenerationOutcome } from '../domain/generation/orchestration/orchestration-types'
 import {

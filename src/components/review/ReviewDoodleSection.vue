@@ -10,7 +10,7 @@
  */
 import { computed, ref, useId } from 'vue'
 
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffViewport } from '@/domain/notation/staff-layout'
 import type { ReviewedPhrase, SessionDoodle } from '@/session/session-history'
 import type { PlayedNotesPitchScale } from './played-notes-lane-geometry'
 import type { ReviewEngravingOutcome } from './review-engraving-window'

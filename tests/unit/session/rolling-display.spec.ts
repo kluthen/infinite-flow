@@ -8,7 +8,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { MeasureIndex } from '@/domain/events/measure'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import {
   isPhraseOnScreen,
   phrasesShownOrWaiting,

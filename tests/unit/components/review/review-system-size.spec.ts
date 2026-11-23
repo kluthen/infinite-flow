@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 
 import { reviewSystemPositionUnits } from '@/components/review/review-system-size'
 import { makeMyInstrument } from '@/domain/profile/my-instrument'
-import { NOTATION_SYSTEM_POSITION_UNITS } from '@/notation/notation-layout-policy'
+import { NOTATION_SYSTEM_POSITION_UNITS } from '@/domain/notation/staff-layout'
 import { recordedRecords } from './review-fixtures'
 
 /** My instrument written C2 to C4, in `clef`. */

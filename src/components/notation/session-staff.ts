@@ -10,7 +10,7 @@ import {
   NOTATION_SYSTEM_POSITION_UNITS,
   type StaffLayout,
   type StaffViewport,
-} from '@/notation/notation-layout-policy'
+} from '@/domain/notation/staff-layout'
 import type { ScoreOverlays } from '@/notation/score-overlays'
 import {
   slotKey,

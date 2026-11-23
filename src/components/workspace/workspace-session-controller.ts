@@ -59,7 +59,7 @@ import {
 } from '@/session/session-start-conditions'
 import type { SessionSettings } from '@/session/session-types'
 import { isPortraitBelowDesktop } from '@/session/session-window'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import type { StartingNote } from '@/session/starting-note'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'

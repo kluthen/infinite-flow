@@ -6,7 +6,7 @@
  */
 import type { MyInstrumentSessions } from '@/composables/use-generation-session'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
-import type { CountInDisplay } from '@/session/count-in-display'
+import type { CountInDisplay } from './count-in-display'
 import type { ExportableHistory } from '@/export/export-file'
 import type { SessionHistory } from '@/session/session-history'
 import type { SessionTransportEvent } from '@/session/session-runner'
@@ -17,7 +17,7 @@ import type {
   SessionWithoutPhraseOne,
   StartWithoutPhraseOne,
 } from './workspace-session-without-phrase-one'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import type { SessionStaff } from '@/components/notation/session-staff'
 import type { KeptSessionRow } from './use-kept-sessions'
 import type { ControllerLostCountdown } from './workspace-session-midi'

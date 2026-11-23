@@ -3,7 +3,7 @@
  * `bp-tablet-landscape` is whatever the test says, and a crossing reaches subscribers only when the
  * test makes it, so width-dependent behaviour is tested without a browser or `matchMedia`.
  */
-import type { ViewportWidthProvider } from '@/composables/viewport-width'
+import type { ViewportWidthProvider } from '@/session/viewport-width'
 
 export interface FakeViewportWidth extends ViewportWidthProvider {
   /**
