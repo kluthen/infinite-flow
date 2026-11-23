@@ -42,7 +42,7 @@ import {
   GenerationFailedError,
   type WorkspaceGeneratedPhrase,
 } from '@/composables/workspace-session-result'
-import type { ViewportWidthProvider } from '@/composables/viewport-width'
+import type { ViewportWidthProvider } from '@/session/viewport-width'
 import type { FreshJamSettingsSource } from '@/jam/fresh-jam-settings'
 import type { JamPhraseOneSettings } from '@/jam/jam-phrase-one-attempts'
 import type { KeptDoodleAttempt } from '@/jam/kept-doodle-phrase-one'

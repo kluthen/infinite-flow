@@ -5,8 +5,8 @@ import {
   GenerationFailedError,
   createWorkspaceGenerate,
   withSessionSeed,
-  type IdlePhraseSettings,
 } from '@/composables/workspace-session-result'
+import type { IdlePhraseSettings } from '@/session/idle-phrase-settings'
 import { DEFAULT_GENERATION_CONTROLS } from '@/domain/controls/profile-selection'
 import {
   createGenerationIntent,

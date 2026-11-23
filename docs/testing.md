@@ -1288,7 +1288,7 @@ discrete-event simulation: no real time passes.
 ## Fake window width
 
 The workspace session reads the window's position against `bp-tablet-landscape` through an
-injected `ViewportWidthProvider` (`src/composables/viewport-width.ts`). Unit tests replace it with
+injected `ViewportWidthProvider` (`src/session/viewport-width.ts`). Unit tests replace it with
 `createFakeViewportWidth(initiallyBelowTabletLandscape?)` from
 `tests/unit/composables/fake-viewport-width.ts`, which never touches `matchMedia`:
 

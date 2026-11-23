@@ -13,7 +13,7 @@
 import type { SessionStaff, SessionSystem } from '@/components/notation/session-staff'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { AudioTransport } from '@/audio/audio-transport'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import {
   isPhraseOnScreen,

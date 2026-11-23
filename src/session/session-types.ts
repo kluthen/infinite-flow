@@ -5,7 +5,7 @@
  * clock, carried on every event; nothing here reads a clock.
  */
 
-import type { ViewportWidthProvider } from '../composables/viewport-width'
+import type { ViewportWidthProvider } from './viewport-width'
 import type { ChordFamilies } from '../domain/chords/chord-families'
 import type { GenerationControls } from '../domain/controls/generation-controls'
 import type { FigureId, FigureLevels } from '../domain/figures/figure-levels'

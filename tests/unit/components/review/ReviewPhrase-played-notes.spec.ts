@@ -19,7 +19,7 @@ import {
 import type { ReviewStaffReservation } from '@/components/review/review-types'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { NotationError } from '@/notation/notation-error'
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffViewport } from '@/domain/notation/staff-layout'
 import type { RecordedPlayedNote, SessionHistoryRecord } from '@/session/session-history'
 import { fakePhraseEngraver, resetFakePhraseEngraver } from '../notation/fake-phrase-engraver'
 import { recordedRecords } from './review-fixtures'

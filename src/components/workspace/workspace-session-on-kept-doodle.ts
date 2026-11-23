@@ -11,7 +11,7 @@
  * session controller's chunk.
  */
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import { keptDoodleSessionStart } from './jam-pregeneration'
 import type { StartedOnKeptDoodle } from './session-jam-part'

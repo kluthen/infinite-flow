@@ -11,7 +11,7 @@ import type { InstrumentClef } from '@/domain/profile/instrument-clef'
 import { measureSeconds } from '@/session/session-timing'
 import type { SessionPhrase } from '@/session/session-types'
 import type { FitCandidate } from '@/session/session-runner'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import { fitsHeldLayout, writtenPhraseOf } from './held-layout-fit'
 import {
   dispatchAt,

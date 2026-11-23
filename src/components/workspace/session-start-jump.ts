@@ -6,7 +6,7 @@
  * `staff-viewport` inside the viewport. The arithmetic is pure; `jumpForSessionStart` measures the
  * page and scrolls it.
  */
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 
 /** The page's geometry at the Start click, in viewport pixels (block axis). */
 // @spec-link [[service_session_start]]

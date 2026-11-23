@@ -26,7 +26,7 @@ import {
   staffPositionBlockPx,
 } from '@/components/notation/staff-viewport-reading'
 import { NOTATION_PHONE_LAYOUT_MEDIA_QUERY } from '@/notation/notation-layout-policy'
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffViewport } from '@/domain/notation/staff-layout'
 import { NotationError } from '@/notation/notation-error'
 import type { EmptySystemStaff } from '@/notation/vexflow-empty-system-engraver'
 import {

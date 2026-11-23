@@ -87,11 +87,8 @@ import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import { makeSeed } from '@/domain/random/seed'
 import PhraseScore, { type EngravedPayload } from '@/components/notation/PhraseScore.vue'
 import type { NotationError } from '@/notation/notation-error'
-import {
-  NOTATION_SYSTEM_POSITION_UNITS,
-  planStaffPlacement,
-  planSystemPositionUnits,
-} from '@/notation/notation-layout-policy'
+import { planStaffPlacement, planSystemPositionUnits } from '@/notation/notation-layout-policy'
+import { NOTATION_SYSTEM_POSITION_UNITS } from '@/domain/notation/staff-layout'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { loadVexflowEngraver, type VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 import { resolveGlyphIdentities } from '@/notation/note-identity'

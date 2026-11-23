@@ -24,7 +24,7 @@ import { NotationError } from './notation-error'
 import {
   NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE,
   NOTATION_MAX_STAFF_SPACE_PX,
-} from './notation-layout-policy'
+} from '../domain/notation/staff-layout'
 import { buildStaveNote } from './vexflow-mapping'
 
 /** The check note's scale: the score's largest staff space, so the lone note reads at a glance. */

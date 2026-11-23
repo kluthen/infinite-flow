@@ -6,24 +6,26 @@ import type { InstrumentProfile } from '@/domain/profile/instrument-profile'
 import { NotationError } from '@/notation/notation-error'
 import {
   NOTATION_CHORD_SYMBOL_GAP_UNITS,
-  NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE,
-  NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX,
-  NOTATION_MAX_STAFF_SPACE_PX,
-  NOTATION_MIN_MEASURE_WIDTH_UNITS,
-  NOTATION_SYSTEM_POSITION_UNITS,
   heldViewport,
   planChordSymbolShortfall,
   planMeasureMinWidth,
   planStaffPlacement,
-  planStaffPositions,
   planStaffRoom,
   planSystemLayout,
-  type StaffViewport,
   type SystemLayoutInput,
   type SystemLayoutOutcome,
   type SystemLayoutPlan,
   type WrittenRangeInClef,
 } from '@/notation/notation-layout-policy'
+import {
+  NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE,
+  NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX,
+  NOTATION_MAX_STAFF_SPACE_PX,
+  NOTATION_MIN_MEASURE_WIDTH_UNITS,
+  NOTATION_SYSTEM_POSITION_UNITS,
+  planStaffPositions,
+  type StaffViewport,
+} from '@/domain/notation/staff-layout'
 
 const MAX_SCALE = NOTATION_MAX_STAFF_SPACE_PX / NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE
 const FLOOR_SCALE =

@@ -10,7 +10,7 @@
  */
 import { onScopeDispose, watch } from 'vue'
 
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'
 import type { JamKeptDoodle } from '@/jam/use-kept-doodle'
 import type { JamPregenerationFacts, JamPregenerationLoader } from './jam-pregeneration'

@@ -14,10 +14,8 @@ import {
   deriveTranspositionInterval,
   type MyInstrumentTransposition,
 } from '@/domain/profile/transposition-interval'
-import {
-  NOTATION_SYSTEM_POSITION_UNITS,
-  planSystemPositionUnits,
-} from '@/notation/notation-layout-policy'
+import { planSystemPositionUnits } from '@/notation/notation-layout-policy'
+import { NOTATION_SYSTEM_POSITION_UNITS } from '@/domain/notation/staff-layout'
 
 /** The one spelling of each pitch class in the sheet: never a double sharp or flat. */
 const NOTE_LETTERS = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'] as const

@@ -8,7 +8,7 @@ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ReviewPanel from '@/components/review/ReviewPanel.vue'
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffViewport } from '@/domain/notation/staff-layout'
 import { fakePhraseEngraver, resetFakePhraseEngraver } from '../notation/fake-phrase-engraver'
 import {
   deliverIntersections,

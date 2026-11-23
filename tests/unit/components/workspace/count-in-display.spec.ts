@@ -6,7 +6,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { countInDisplayAt, type CountInDisplay } from '@/session/count-in-display'
+import { countInDisplayAt, type CountInDisplay } from '@/components/workspace/count-in-display'
 
 const START_AT = 10
 const EPSILON = 1e-6

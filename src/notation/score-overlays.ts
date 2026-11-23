@@ -10,7 +10,7 @@
  */
 import type { ExpectedNoteIdentity } from '../domain/acknowledgement/expected-note'
 import type { MeasureIndex } from '../domain/events/measure'
-import { NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE } from './notation-layout-policy'
+import { NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE } from '../domain/notation/staff-layout'
 import { noteIdentityKey } from './note-identity'
 import type { ScoreOverlays } from './score-overlay-state'
 

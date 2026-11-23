@@ -13,22 +13,24 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE,
-  NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX,
-  NOTATION_MAX_STAFF_SPACE_PX,
   NOTATION_POSITION_END_CLEARANCE_UNITS,
   NOTATION_STAFF_INK_ABOVE_TOP_LINE_UNITS,
   NOTATION_STAFF_INK_BELOW_TOP_LINE_UNITS,
-  NOTATION_SYSTEM_POSITION_UNITS,
   planBeamGroupMaxSpanSteps,
   planStaffInk,
   planStaffPlacement,
-  planStaffPositions,
   planSystemLayout,
   planSystemPositionUnits,
-  type StaffViewport,
   type WrittenRangeInClef,
 } from '@/notation/notation-layout-policy'
+import {
+  NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE,
+  NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX,
+  NOTATION_MAX_STAFF_SPACE_PX,
+  NOTATION_SYSTEM_POSITION_UNITS,
+  planStaffPositions,
+  type StaffViewport,
+} from '@/domain/notation/staff-layout'
 import { COLLECTIONS } from '@/domain/controls/generation-controls'
 import type { PitchClassNumber } from '@/domain/harmony/harmony-types'
 import {

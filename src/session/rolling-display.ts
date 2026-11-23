@@ -7,7 +7,7 @@
 
 import type { MeasureIndex } from '../domain/events/measure'
 import { PHRASE_MEASURE_COUNT } from '../domain/generation/generation-request-envelope'
-import type { StaffLayout, SystemPart } from '../notation/notation-layout-policy'
+import type { StaffLayout, SystemPart } from '../domain/notation/staff-layout'
 import type { AudioTime } from './session-types'
 
 export type { SystemPart }

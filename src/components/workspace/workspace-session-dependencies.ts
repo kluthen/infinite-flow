@@ -11,7 +11,7 @@ import type {
 import type { GenerationOutcome } from '@/domain/generation/orchestration/orchestration-types'
 import type { PresetIdSource } from '@/domain/presets/preset-save-choices'
 import type { Seed } from '@/domain/random/seed'
-import type { ViewportWidthProvider } from '@/composables/viewport-width'
+import type { ViewportWidthProvider } from '@/session/viewport-width'
 import type { SessionRunner, SessionRunnerDependencies } from '@/session/session-runner'
 import type { SessionBrowserPorts } from '@/session/session-browser-ports'
 import type { AudioTransport } from '@/audio/audio-transport'

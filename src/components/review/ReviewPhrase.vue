@@ -17,10 +17,7 @@ import { describeWrittenPhrase } from '@/domain/notation/score-description'
 import { notationInputFromOutcome } from '@/domain/notation/notation-input'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { isStaffLayoutFailure, NotationError } from '@/notation/notation-error'
-import {
-  NOTATION_SYSTEM_POSITION_UNITS,
-  type StaffViewport,
-} from '@/notation/notation-layout-policy'
+import { NOTATION_SYSTEM_POSITION_UNITS, type StaffViewport } from '@/domain/notation/staff-layout'
 import type { ReviewedPhrase } from '@/session/session-history'
 import type { PlayedNotesPitchScale } from './played-notes-lane-geometry'
 import {

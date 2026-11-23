@@ -55,10 +55,8 @@ import { generationFailureAlertText } from '@/composables/generation-failure-ale
 import PhraseScore from '@/components/notation/PhraseScore.vue'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { ExpectedNoteIdentity } from '@/domain/acknowledgement/expected-note'
-import {
-  NOTATION_PHONE_LAYOUT_MEDIA_QUERY,
-  NOTATION_SYSTEM_POSITION_UNITS,
-} from '@/notation/notation-layout-policy'
+import { NOTATION_PHONE_LAYOUT_MEDIA_QUERY } from '@/notation/notation-layout-policy'
+import { NOTATION_SYSTEM_POSITION_UNITS } from '@/domain/notation/staff-layout'
 import type { NotationError } from '@/notation/notation-error'
 import type { JamStaffState, JamWorkspaceProps } from '@/jam/jam-view-types'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
