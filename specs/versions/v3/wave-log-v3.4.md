@@ -64,3 +64,12 @@ current state.
   M1; `verify-boundaries.spec.ts` now links 6 atoms (health-lint warning). For chunk 3: its
   browser-free check meets `src/lexicon/lexicon-words.d.ts` (type declaration of
   `virtual:lexicon-words` only). Chunk 2 dispatched (T0 done; order 1, 2, 3).
+- 2026-11-23: chunk 2 stopped before merge on a design gap: axe `heading-order` fails in the
+  searching state (Light and Dark): the lexicon page handoff (Layout Tree, Searching) puts the
+  matches' `h4.lexicon-word` right after `h2#lexicon-title`. Branch `v3.4-c2-lexicon-page`: 2a
+  4f9d074e, WIP 2b e0ca927c; worktree `/home/bastien/work/infinite_flow-v3.4-c2` kept. Everything
+  else built: 42 of 44 browser tests pass (the 2 failures are this gap); `WorkspaceShell.vue` 596
+  effective lines (the starts moved to `workspace-starts.ts`, tags with them); start-up JavaScript
+  392,213 B (not gating). Sent: the heading to `ux-writer`; the chunk owner's two spec-silent
+  choices to `spec-writer` (the stale-phrase prompt blocks `#lexicon` as a sheet; a sheet opened
+  during the page's load stops the opening). Chunk 3 goes ahead.

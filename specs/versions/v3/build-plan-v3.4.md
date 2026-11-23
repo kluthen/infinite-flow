@@ -238,7 +238,7 @@ never in the first load. (b) **The API's read contract**: the entry contract's n
 
 ### Chunk 2 — The lexicon page, its button and its address
 
-Status: in progress
+Status: blocked (on the searching state's heading order, design gap → `ux-writer`; WIP e0ca927c)
 Wave: 1
 Depends on: 1, L0, T0, P1 (its capture)
 Architecture capture: **the page's `#lexicon` history entry**
