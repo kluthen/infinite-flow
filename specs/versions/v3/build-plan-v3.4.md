@@ -88,7 +88,7 @@ and [risks](structural-review-evidence/F-principal-advisor-ranking.md#4-risks-an
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
 | 1    | 1 The lexicon module and the build step (1a, 1b) · 2 The lexicon page, its button and its address (2a, 2b) · 3 The lexicon API's contract | A0, G0, I0, P1; L0 and T0 (2). In-wave 1 → 2 and 1 → 3: chunk 1's captures fix the entry contract, the read interface and the build-only module the other two read. Chunks 2 and 3 have no path between them and share no source file.                                                                                                                                                  | merged (2026-11-23, 977e795a) |
 | 2    | 4 The test files' atom-spread limit · 5 The library line enforced                                                                         | Wave 1 merged; R1's rulings (done); P2 (5: the library-boundary capture). Tooling, with the full gate, like any wave: chunk 5 adds a type project that `vue-tsc --build` and `npm run build` both use. Chunks 4 and 5 have no path between them and share no file. Two chunks: chunk 6 needs chunk 5's check, and 5 → 6 → 7 is a chain of three, longer than an in-wave chain may be.   | gated (2026-11-23, 1c4dfc93)  |
-| 3    | 6 `session/` one-way · 7 The Jam host out of the shell                                                                                    | Wave 2 merged; P3. App code, with the full end-to-end gate. In-wave 6 → 7: an order edge, not an interface, and no file forces it (spec D575): κ is 1, and R3 is easier to judge once R2's moves are settled. Chunk 7 starts from chunk 6's merged code and reads no new interface from it, so no capture fixes one. Two chunks: the chain above, and nothing else is planned for v3.4. | planned                       |
+| 3    | 6 `session/` one-way · 7 The Jam host out of the shell                                                                                    | Wave 2 merged; P3. App code, with the full end-to-end gate. In-wave 6 → 7: an order edge, not an interface, and no file forces it (spec D575): κ is 1, and R3 is easier to judge once R2's moves are settled. Chunk 7 starts from chunk 6's merged code and reads no new interface from it, so no capture fixes one. Two chunks: the chain above, and nothing else is planned for v3.4. | in progress                   |
 
 The [release gate](#release-gate) follows wave 3. κ is 1
 ([build workflow](build-workflow.md#concurrency-and-order)): inside wave 2 the order is 4, then 5;
@@ -614,7 +614,7 @@ ESLint pattern cannot tell `domain/notation` (`../notation`) from `src/notation`
 
 ### Chunk 6 — `session/` one-way
 
-Status: planned
+Status: in progress
 Wave: 3
 Size: M
 Depends on: 5 (its check and its spec), P3

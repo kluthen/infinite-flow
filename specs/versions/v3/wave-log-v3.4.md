@@ -314,3 +314,24 @@ current state.
   v3.4 atoms; no ban on computed import paths in the library (none exist; the atom states the
   limit). `v3.4-w2` merged into `main` and pushed. Next: wave 3 (P3, chunks 6 and 7), in a fresh
   session.
+
+## Wave 3
+
+- 2026-11-23: wave 2 merged into `main` 8250efe2 and pushed. Wave branch `v3.4-w3` cut from
+  8250efe2 in `/home/bastien/work/infinite_flow-v3.4-w3`. Chunks 6 and 7.
+- 2026-11-23: preflight P3 (`documentalist`, 47950fdf). Chunk 6: PROCEED WITH NOTES; governing
+  `module_library_code_boundary` (DRAFT), `module_session_code_boundary` (captured at P3, DRAFT,
+  tagged `release-v3.4`, parent `req_rolling_practice_session`: a sibling rather than an edit, since
+  the library atom sets no rule on files outside the set), `req_rolling_practice_session`; drift
+  check on `module_session_rolling_display`, `module_notation_layout_preflight`,
+  `module_idle_window_width_density`, `module_session_seed_plan`. Note: cut 2 would hit its own stop
+  condition, because the two planners throw `NotationError` (`src/notation/notation-error.ts`,
+  outside the library set). Chunk 7: PROCEED WITH NOTES; governing `module_workspace_mode`,
+  `module_jam_code_boundary`. Note: the shell links 10 distinct atoms, so taking out the Jam block
+  leaves 9, and one more block must go to reach ≤ 8. `atd check --full`: 16 NO_IMPL (+1, the
+  pre-code capture; back to 15 once 6b links it), 1 NO_TESTS.
+- 2026-11-23: the driver's ruling under the owner's delegation (spec D556): `NotationError` moves
+  into `src/domain/notation/` with cut 2, and `src/notation/` re-exports it (spec D576). P3's
+  corrections and the ruling go to `spec-writer`: plan v5.3 0546c9a8, P3's status 86d60d82.
+- 2026-11-23: chunk 6 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c6`,
+  branch `v3.4-c6-session-one-way`).
