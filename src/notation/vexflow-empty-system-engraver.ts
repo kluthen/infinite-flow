@@ -16,15 +16,17 @@ import { Barline, Stave } from 'vexflow/bravura'
 
 import { NotationError } from './notation-error'
 import {
-  NOTATION_MIN_MEASURE_WIDTH_UNITS,
-  NOTATION_SYSTEM_POSITION_UNITS,
   planStaffPlacement,
   planSystemLayout,
-  type StaffViewport,
   type SystemLayoutOutcome,
   type SystemLayoutPlan,
   type WrittenRangeInClef,
 } from './notation-layout-policy'
+import {
+  NOTATION_MIN_MEASURE_WIDTH_UNITS,
+  NOTATION_SYSTEM_POSITION_UNITS,
+  type StaffViewport,
+} from '../domain/notation/staff-layout'
 import type { StaffKeySignature, StaffNoRoomCause } from './staff-fit-types'
 import {
   addClefAndKey,

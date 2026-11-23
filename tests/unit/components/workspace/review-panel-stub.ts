@@ -14,7 +14,7 @@ import type {
   PlayedNotesUnavailable,
   ReviewExportScope,
 } from '@/components/review/review-types'
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffViewport } from '@/domain/notation/staff-layout'
 import type { SessionHistoryRecord } from '@/session/session-history'
 
 /** The panel stand-in, named as the real one so a spec finds it by name. */

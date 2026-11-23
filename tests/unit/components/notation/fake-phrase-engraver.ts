@@ -14,7 +14,7 @@ import { createLoadingStaffDrawing } from '@/components/notation/load-staff-draw
 import type { MeasureIndex } from '@/domain/events/measure'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { MeasureAnchors } from '@/notation/engraving-anchors'
-import type { StaffViewport, SystemPart } from '@/notation/notation-layout-policy'
+import type { StaffViewport, SystemPart } from '@/domain/notation/staff-layout'
 import type { VexflowEngraverModule } from '@/notation/vexflow-engraver-loader'
 
 const SVG_NS = 'http://www.w3.org/2000/svg'

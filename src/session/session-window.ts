@@ -17,7 +17,7 @@ import {
   planStaffPositions,
   planStaffWidthRoom,
   type StaffLayout,
-} from '../notation/notation-layout-policy'
+} from '../domain/notation/staff-layout'
 
 /** Why a window change ends the session; the engine's end cause for all three is `staff-not-shown`. */
 // @spec-link [[rule_session_ends_on_portrait_view]]

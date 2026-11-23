@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.145
+Status: draft v2.146
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -56,8 +56,9 @@ and D544 (v3.3 released and archived); D545–D561 (the owner's first rulings on
 horizon, v4.0's scope, the lexicon API in v3.4, and the wave driver's rulings under his
 delegation of v3.4); D562–D565 (the driver's rulings on the lexicon page's orientation and build
 failures, and his approval of Part E and the v3.4 build plan's lexicon wave); D567–D568 (the
-driver's rulings on `#lexicon` under an open sheet); D569–D574 (the driver's rulings on the
-structural review's report and the build plan's open points after it). D289 and D525 are unused; so are the IDs within the
+driver's rulings on `#lexicon` under an open sheet); D569–D576 (the driver's rulings on the
+structural review's report, the build plan's open points after it, and `NotationError` in
+chunk 6). D289 and D525 are unused; so are the IDs within the
 archived range D407–D509 that its archive notice lists.
 
 ## Decision Log
@@ -387,3 +388,9 @@ archived range D407–D509 that its archive notice lists.
   `spec-writer`'s first task when v4.0's master spec starts; nothing changes now. Now in:
   [build plan v3.4](versions/v3/build-plan-v3.4.md),
   [report §2.1](versions/v3/structural-review-report.md#21-the-prerequisites).
+- **D576 (2026-11-23, the driver under D556): `NotationError` moves with chunk 6's cut 2.** It
+  goes into `src/domain/notation/` beside the moved layout names and `src/notation/` re-exports
+  it, so the class keeps one identity. The two planners throw it, so cut 2 can't meet the library
+  line without it; it imports nothing, so no non-library value enters. Chunk 6's stop condition
+  stays for anything else. Now in:
+  [build plan v3.4, chunk 6](versions/v3/build-plan-v3.4.md#chunk-6--session-one-way).

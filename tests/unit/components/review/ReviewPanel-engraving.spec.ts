@@ -14,7 +14,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ReviewPanel from '@/components/review/ReviewPanel.vue'
 import { transformToWrittenPhrase } from '@/domain/notation/written-phrase'
 import { NotationError } from '@/notation/notation-error'
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffViewport } from '@/domain/notation/staff-layout'
 import type { SessionHistoryRecord } from '@/session/session-history'
 import { fakePhraseEngraver, resetFakePhraseEngraver } from '../notation/fake-phrase-engraver'
 import {

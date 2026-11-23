@@ -104,7 +104,10 @@ flag, over `useControllerStatus` and `useConnectionSheet`), `useWorkspaceFocus`
 (`use-workspace-focus.ts`: focus after a session end, a late room notice and the sheet's close),
 `useReviewNavigation`, `createWorkspaceStarts` (`workspace-starts.ts`: the Start click, Jam
 mode's starting note and the start's one jump, moved out of the shell unchanged in v3.4 to keep
-it within its size limit) and `useLexiconPage` (below).
+it within its size limit, then `Stop` too), `useJamHost` (`use-jam-host.ts`: the workspace's
+mode and all the Jam wiring over it, from `useWorkspaceMode` to the Jam ports and the kept
+doodle's bar, with the handlers of Jam's controls and Jam's load-failure notice, moved out of the
+shell unchanged in v3.4, in the same setup order) and `useLexiconPage` (below).
 
 ### The lexicon page (v3.4)
 
@@ -795,7 +798,7 @@ generated at or above the width. The pieces, and why they are built this way:
   the rule pure lets every case be unit-tested without a browser, and gives the session engine the
   same function the workspace uses.
 - **The width comes through an injected provider, read at generation.** The session takes a
-  `ViewportWidthProvider` (`src/composables/viewport-width.ts`) and reads it each time it builds a
+  `ViewportWidthProvider` (`src/session/viewport-width.ts`) and reads it each time it builds a
   generation intent (`freshIntentFromControls`, once per attempt of a fit run, whatever started the
   run), so a phrase takes the width the window has when that phrase is generated. It also subscribes
   to the provider's crossings and mirrors them in `state.noteDensityContext`, so the controls and

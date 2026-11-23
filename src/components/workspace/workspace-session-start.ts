@@ -12,7 +12,7 @@
  */
 import type { WorkspaceSessionResult } from '@/composables/workspace-session-result'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
-import type { StaffLayout } from '@/notation/notation-layout-policy'
+import type { StaffLayout } from '@/domain/notation/staff-layout'
 import { createAudioTimeAgenda } from '@/session/session-agenda'
 import { createSessionHistory } from '@/session/session-history'
 import type { ReadyPhrase } from '@/session/session-ready-phrases'

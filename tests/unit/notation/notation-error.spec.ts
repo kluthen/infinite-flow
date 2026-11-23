@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { NotationError as LibraryNotationError } from '@/domain/notation/notation-error'
+import { planStaffWidthRoom } from '@/domain/notation/staff-layout'
 import { isStaffLayoutFailure, NotationError } from '@/notation/notation-error'
 
 // @test-link [[module_notation_layout_preflight]]
@@ -16,6 +18,18 @@ describe('NotationError', () => {
     const error = new NotationError('notation_container_unavailable', 'no container', {})
 
     expect(error.cause).toBeUndefined()
+  })
+
+  it('is one class whether read from the library or from notation', () => {
+    expect(NotationError).toBe(LibraryNotationError)
+    expect(() =>
+      planStaffWidthRoom({
+        containerWidthPx: 0,
+        leadingWidth: 60,
+        systemPadding: 10,
+        layout: 'split',
+      }),
+    ).toThrow(NotationError)
   })
 })
 

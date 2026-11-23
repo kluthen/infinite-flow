@@ -8,7 +8,7 @@ import type {
   StaffFitPlanner,
 } from '@/components/workspace/workspace-session-controller-types'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffViewport } from '@/domain/notation/staff-layout'
 import type { StaffFitVerdict } from '@/notation/staff-fit-types'
 
 /** A frame port stepped by hand. */

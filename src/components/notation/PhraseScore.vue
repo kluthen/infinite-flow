@@ -53,11 +53,8 @@ import { onMounted, onUnmounted, ref, useId, watch } from 'vue'
 
 import { describeWrittenPhrase, type ScoreDescription } from '@/domain/notation/score-description'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
-import {
-  heldViewport,
-  NOTATION_PHONE_LAYOUT_MEDIA_QUERY,
-  type StaffViewport,
-} from '@/notation/notation-layout-policy'
+import { heldViewport, NOTATION_PHONE_LAYOUT_MEDIA_QUERY } from '@/notation/notation-layout-policy'
+import { type StaffViewport } from '@/domain/notation/staff-layout'
 import { NotationError } from '@/notation/notation-error'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import { NO_SCORE_OVERLAYS, type ScoreOverlays } from '@/notation/score-overlay-state'

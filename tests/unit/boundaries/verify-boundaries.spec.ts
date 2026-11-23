@@ -5,7 +5,8 @@
  * `midi/`, `storage/`, `session/`, `export/`, `components/` and `other/` directories) but lives
  * outside it, so the real `npm run verify:boundaries` scan never sees these deliberately forbidden
  * calls. The library-boundary scan runs over the same tree's `domain/` imports and over the real
- * `src/`. The build-output scan runs over file names
+ * `src/`, the session-boundary scan over its `session/` imports and over the real `src/`. The
+ * build-output scan runs over file names
  * and over a throwaway directory tree made in the system temp directory. Jam's code boundary and
  * the lexicon's first-load boundary run over the module-graph fixtures in
  * `tests/fixtures/boundaries/module-graphs/`, shaped like the build's
@@ -31,7 +32,9 @@ import {
   readModuleGraph,
   scanBuildOutputBoundaries,
   scanLibraryBoundary,
+  scanSessionBoundary,
   scanSourceBoundaries,
+  sessionImportViolations,
   sourceBoundaryViolations,
   startupJavaScriptBytes,
 } from '../../../scripts/verify-boundaries.mjs'
@@ -57,6 +60,13 @@ const packageImport = 'library boundary: package import'
 /** The library-boundary label of an import that resolves to `target` (relative to `src/`). */
 function outsideLibrary(target: string): string {
   return `library boundary: resolves to ${target} outside the library set`
+}
+
+const sessionPackageImport = 'session boundary: package import'
+
+/** The session-boundary label of an import that resolves to `target` (relative to `src/`). */
+function outsideSession(target: string): string {
+  return `session boundary: resolves to ${target} outside session and the library set`
 }
 
 /** Every directory an always-forbidden call is probed in, the three allowlisted ones included. */
@@ -380,6 +390,111 @@ describe('verify-boundaries library boundary over the fixture tree and the real 
   // @test-link [[module_library_code_boundary]]
   test('the real src/ has no library violation', async () => {
     const real = await scanLibraryBoundary(applicationSourceRoot)
+    expect(real.files.length).toBeGreaterThan(0)
+    expect(real.violations).toEqual([])
+  })
+})
+
+describe('verify-boundaries session boundary over the fixture tree and the real src/', () => {
+  let scan: Awaited<ReturnType<typeof scanSessionBoundary>>
+
+  beforeAll(async () => {
+    scan = await scanSessionBoundary(fixtureSourceRoot)
+  })
+
+  /** The session violations of one fixture file; throws if the scan never saw that file. */
+  function violationsOf(file: string): { line: number; specifier: string; boundary: string }[] {
+    if (!scan.files.includes(file)) {
+      throw new Error(`fixture ${file} was not scanned; scanned: ${scan.files.join(', ')}`)
+    }
+    return scan.violations
+      .filter((violation) => violation.file === file)
+      .map(({ line, specifier, boundary }) => ({ line, specifier, boundary }))
+  }
+
+  // @test-link [[module_session_code_boundary]]
+  test('only the .ts files of session/ are scanned, so files outside it, the library included, get no session rule', () => {
+    expect(scan.files.length).toBeGreaterThan(0)
+    expect(scan.files.every((file) => file.startsWith('session/') && file.endsWith('.ts'))).toBe(
+      true,
+    )
+    expect(scan.files).not.toContain('domain/re-export.ts')
+  })
+
+  // @test-link [[module_session_code_boundary]]
+  test('a value import from audio is rejected with its line and specifier', () => {
+    expect(violationsOf('session/audio-import.ts')).toEqual([
+      {
+        line: 1,
+        specifier: '../audio/click-track',
+        boundary: outsideSession('audio/click-track'),
+      },
+    ])
+  })
+
+  // @test-link [[module_session_code_boundary]]
+  test('a type-only import from notation, through @/, is rejected the same way', () => {
+    expect(violationsOf('session/notation-type-import.ts')).toEqual([
+      {
+        line: 1,
+        specifier: '@/notation/notation-layout-policy',
+        boundary: outsideSession('notation/notation-layout-policy'),
+      },
+    ])
+  })
+
+  // @test-link [[module_session_code_boundary]]
+  test('a type-only import from a composable is rejected', () => {
+    expect(violationsOf('session/composable-type-import.ts')).toEqual([
+      {
+        line: 1,
+        specifier: '../composables/window-width',
+        boundary: outsideSession('composables/window-width'),
+      },
+    ])
+  })
+
+  // @test-link [[module_session_code_boundary]]
+  test('an export … from leaving session and the library set is rejected', () => {
+    expect(violationsOf('session/re-export.ts')).toEqual([
+      { line: 2, specifier: '../audio/mixer', boundary: outsideSession('audio/mixer') },
+    ])
+  })
+
+  // @test-link [[module_session_code_boundary]]
+  test('a package import is rejected', () => {
+    expect(violationsOf('session/package-import.ts')).toEqual([
+      { line: 1, specifier: 'vue', boundary: sessionPackageImport },
+    ])
+  })
+
+  // @test-link [[module_session_code_boundary]]
+  test('imports into session and every folder of the library set pass, and comments and strings never count', () => {
+    expect(violationsOf('session/session-and-library-imports.ts')).toEqual([])
+  })
+
+  // @test-link [[module_session_code_boundary]]
+  test('a dynamic import(), a new URL(…, import.meta.url) and an import() type leaving the set are rejected', () => {
+    const probe = [
+      "export const load = () => import('../components/workspace/workspace-view')",
+      "export const url = new URL('../audio/worklet.ts', import.meta.url)",
+      "export type Staff = import('../notation/staff').Staff",
+      "export const engine = () => import('./session-engine')",
+    ].join('\n')
+    expect(sessionImportViolations('session/probe.ts', probe)).toEqual([
+      {
+        line: 1,
+        specifier: '../components/workspace/workspace-view',
+        boundary: outsideSession('components/workspace/workspace-view'),
+      },
+      { line: 2, specifier: '../audio/worklet.ts', boundary: outsideSession('audio/worklet.ts') },
+      { line: 3, specifier: '../notation/staff', boundary: outsideSession('notation/staff') },
+    ])
+  })
+
+  // @test-link [[module_session_code_boundary]]
+  test('the real src/ has no session violation', async () => {
+    const real = await scanSessionBoundary(applicationSourceRoot)
     expect(real.files.length).toBeGreaterThan(0)
     expect(real.violations).toEqual([])
   })

@@ -88,7 +88,7 @@
      - The engraving scale there is the largest that fits both the phrase's width and this
        height, capped at the notation maximum, and never below the legibility floor (5 CSS px
        per staff space, NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX in
-       src/notation/notation-layout-policy.ts). The two system positions take their block size
+       src/domain/notation/staff-layout.ts). The two system positions take their block size
        from the height side of that scale, which does not depend on any phrase, so a refill or a
        new phrase never changes the staff area; a phrase that needs a smaller scale for its width
        draws smaller inside its positions.
@@ -103,8 +103,9 @@
        of the score, never the notation-error state, and no session can start; during a session
        the session ends exactly as Stop ends it.
      Rough sizing: each system position is 16 staff spaces tall unless a saved my instrument
-     needs more (NOTATION_SYSTEM_POSITION_UNITS, the floor of planSystemPositionUnits in
-     src/notation/notation-layout-policy.ts), so at the floor two systems need
+     needs more (NOTATION_SYSTEM_POSITION_UNITS in src/domain/notation/staff-layout.ts, the floor
+     of planSystemPositionUnits in src/notation/notation-layout-policy.ts), so at the floor two
+     systems need
      2 x 16 spaces x 5 px = 160 px; the cue row (96 px), its gap (12 px), the phone block
      padding (2 x 8 px) and the border (2 x 1 px) add 126 px, so the staff needs about 286 px of
      small viewport height. My instrument's range bound per clef keeps the size at most 24

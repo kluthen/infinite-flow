@@ -314,3 +314,154 @@ current state.
   v3.4 atoms; no ban on computed import paths in the library (none exist; the atom states the
   limit). `v3.4-w2` merged into `main` and pushed. Next: wave 3 (P3, chunks 6 and 7), in a fresh
   session.
+
+## Wave 3
+
+- 2026-11-23: wave 2 merged into `main` 8250efe2 and pushed. Wave branch `v3.4-w3` cut from
+  8250efe2 in `/home/bastien/work/infinite_flow-v3.4-w3`. Chunks 6 and 7.
+- 2026-11-23: preflight P3 (`documentalist`, 47950fdf). Chunk 6: PROCEED WITH NOTES; governing
+  `module_library_code_boundary` (DRAFT), `module_session_code_boundary` (captured at P3, DRAFT,
+  tagged `release-v3.4`, parent `req_rolling_practice_session`: a sibling rather than an edit, since
+  the library atom sets no rule on files outside the set), `req_rolling_practice_session`; drift
+  check on `module_session_rolling_display`, `module_notation_layout_preflight`,
+  `module_idle_window_width_density`, `module_session_seed_plan`. Note: cut 2 would hit its own stop
+  condition, because the two planners throw `NotationError` (`src/notation/notation-error.ts`,
+  outside the library set). Chunk 7: PROCEED WITH NOTES; governing `module_workspace_mode`,
+  `module_jam_code_boundary`. Note: the shell links 10 distinct atoms, so taking out the Jam block
+  leaves 9, and one more block must go to reach ≤ 8. `atd check --full`: 16 NO_IMPL (+1, the
+  pre-code capture; back to 15 once 6b links it), 1 NO_TESTS.
+- 2026-11-23: the driver's ruling under the owner's delegation (spec D556): `NotationError` moves
+  into `src/domain/notation/` with cut 2, and `src/notation/` re-exports it (spec D576). P3's
+  corrections and the ruling go to `spec-writer`: plan v5.3 0546c9a8, P3's status 86d60d82.
+- 2026-11-23: chunk 6 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c6`,
+  branch `v3.4-c6-session-one-way`).
+- 2026-11-23: chunk 6 merged e104e7bd (6a 87b99789, 6b 7fe2b5ad): `verify:boundaries` checks 40
+  session files (0 violations; the new scan found the 6 cut imports on the branch before the
+  chunk); the layout names and two helpers in `src/domain/notation/staff-layout.ts`, `NotationError`
+  in `src/domain/notation/` with the old path as a re-export (a spec case checks one class); the
+  count-in end-to-end specs 24/24; `lint:health` 0 errors. Start-up 392,415 B (+122 against the wave
+  2 gate; M2 at the gate). For the sync: `module_session_rolling_display`,
+  `service_idle_generation_session`, `module_notation_layout_preflight` name moved paths. Left:
+  three CSS comments name the old path of two constants (`theme.css`, `components.css`), sent to
+  `ux-writer`. Figures: 1 agent, 82 tool calls, 11.4M tokens in / 50k out, max context 211k, $4.26
+  at API prices. Chunk 7 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c7`,
+  branch `v3.4-c7-jam-host-out`).
+- 2026-11-23: `ux-writer` d25e6574: the three style comments name `src/domain/notation/staff-layout.ts`
+  (comment text only).
+- 2026-11-23: chunk 7 merged 1b51c1dd (18538648): the Jam block in
+  `src/components/workspace/use-jam-host.ts` (`useJamHost`, 1 atom); the extra block out is Stop
+  (`rule_stop_ends_session`, `stopSession` in `workspace-starts.ts`); `WorkspaceShell.vue` at 475
+  effective lines (was 596) and 8 atoms (was 10). `useJamIdleCue` and `useJamPortsAndBar` now run
+  earlier in setup (computeds and one `provide`, no watcher). Jam boundary checks pass; the Jam and
+  kept-Jam end-to-end specs 33/33; a new `use-jam-host.spec.ts` (8 tests). Start-up 394,052 B in
+  the chunk's build (+1,759 against the wave 2 gate; M2 at the gate). For the sync:
+  `module_workspace_mode` (built in `use-jam-host.ts` now), `module_jam_idle_notes` (partly
+  stale), `module_jam_settings` (still true); `rule_stop_ends_session`'s link moved. Figures: 1
+  agent, 68 tool calls, 8.3M tokens in / 57k out, max context 169k, $3.52 at API prices. All
+  chunks merged; wave gate next.
+- 2026-11-23: the owner: "you may complete the v3.4 entirely". The driver runs wave 3's gate and
+  sync, merges wave 3 into `main`, runs the release gate, the release sync and the archive; push,
+  the `3.4.0` tag, the deploy and H1 (the owner sees the page) stay the owner's.
+- 2026-11-23: wave 3 gate GREEN on 83f00256 (`npm ci` + `npm run quality`, 21:42–21:53 CET, AMD
+  Ryzen 5 PRO 8640HS, idle): unit 10,362 tests in 669 files; e2e 786 ×2 (1 skipped); a11y 86;
+  notation 121 (4 skipped); `lint:health` 0 errors, 980 warnings; `verify:boundaries`: library 158
+  files, session 40 files, Jam's first load clean. M2: start-up 394,052 B of 409,600 B in 19 chunks
+  (+1,759 against the wave 2 gate, where about 0 was expected; chunk 6 +122, chunk 7 the rest, its
+  composable's dependency object and getters; a new 0.28 kB `notation-error` chunk), entry
+  338,760 B (+1,479). Within budget (15,548 B left): no lever. No dependency change. Default
+  `atd check` "No atoms found" (ISS-020): the sync runs `atd check main...HEAD`.
+- 2026-11-23: wave 3 sync f9278376 (`documentalist`): path rewordings only, no drift.
+  `module_session_rolling_display` 0.8, `service_idle_generation_session` 0.13,
+  `module_notation_layout_preflight` 1.3, `module_workspace_mode` 0.4, `module_jam_idle_notes` 0.6;
+  `module_jam_settings`, `module_session_code_boundary`, `module_idle_fit_round` and the drift-check
+  atoms aligned. `atd check main...HEAD`: 134 atoms OK; `--full`: 15 NO_IMPL and 1 NO_TESTS, the
+  baseline. Left loose, not false (driver: no change): "the shell's useFreshJam" in
+  `module_jam_session_end`, `module_session_start_without_phrase_one`, `service_session_controller`
+  (the host is the shell's own setup).
+- 2026-11-23: v3.4 release sync 0d32e559 (`documentalist`): `changes-in-v3.4` removed (2 atoms);
+  `module_library_code_boundary` (the owner's ruling) and `module_session_code_boundary` (driver,
+  D556) DRAFT → REVIEW; the 6 `release-v3.4` atoms all REVIEW. STABLE proposals in the change set
+  part H3 (the lexicon four after H1; `module_session_starting_note` and
+  `rule_session_ends_on_portrait_view` now if the owner wishes; the boundary atoms a release later).
+  CONTRACT: recommendation keep 19.0.1 (no v3.4 atom is STABLE; MINOR comes with the first STABLE
+  promotion), the owner's call. Change set parts F–H added. Gate R1 closes with this wave.
+- 2026-11-23: wave 3 reported. Cost: 9 agents (the release gate's included), 437 tool calls,
+  47.0M tokens in / 278k out, max context 211k (chunk 6), $21.42 at API prices. No agent over
+  300k.
+
+#### Wave 3 figures
+
+#### v3.4 wave 3
+
+- Time: 2026-11-23 21:08 → 2026-11-23 22:22 (1h14)
+- Agents: 9 · tool calls: 437 · model turns: 435
+- Tokens in: 47.0M (fresh 898, cache write 1.3M, cache read 45.8M) · out: 278k
+- Max context: 211k (coding-leader: v3.4 wave 3 chunk 6)
+- Cost: $21.42 at API list prices (checked 2026-11-12)
+- Ends: at its last tagged agent (not merged yet)
+- Not counted: other top-level sessions active in the window, with no agent of this wave: cefe6134
+
+#### By role
+
+| role               | agents | calls | tokens in |  out |   cost | share | max ctx |
+| ------------------ | -----: | ----: | --------: | ---: | -----: | ----: | ------: |
+| coding-leader      |      3 |   226 |     28.3M | 150k | $11.92 |   56% |    211k |
+| documentalist      |      2 |   104 |      8.6M |  59k |  $4.06 |   19% |    139k |
+| driver (top level) |      1 |    46 |      6.7M |  35k |  $3.05 |   14% |    162k |
+| reviewer           |      1 |    32 |      1.7M |  18k |  $1.08 |    5% |     77k |
+| spec-writer        |      1 |    22 |      1.4M |  14k |  $0.95 |    4% |     82k |
+| ux-writer          |      1 |     7 |      304k |   3k |  $0.35 |    2% |     47k |
+
+#### By chunk
+
+| chunk          | agents | calls | tokens in | out |   cost | share | max ctx |
+| -------------- | -----: | ----: | --------: | --: | -----: | ----: | ------: |
+| 6              |      1 |    82 |     11.4M | 50k |  $4.26 |   20% |    211k |
+| 7              |      1 |    68 |      8.3M | 57k |  $3.52 |   16% |    169k |
+| outside chunks |        |       |           |     | $13.63 |   64% |         |
+
+#### By activity (tool calls)
+
+| activity    | calls | share | writes | results |
+| ----------- | ----: | ----: | -----: | ------: |
+| dispatch    |     8 |    2% |        |      8k |
+| doc-get     |     7 |    2% |        |     17k |
+| plan        |    45 |   10% |      3 |    199k |
+| spec        |    19 |    4% |        |     80k |
+| design      |     2 |    0% |        |      4k |
+| intent      |    32 |    7% |        |     94k |
+| other docs  |    52 |   12% |      9 |    243k |
+| source      |   126 |   29% |     20 |    383k |
+| checks      |    66 |   15% |        |    117k |
+| git         |    40 |    9% |        |     68k |
+| shell other |    26 |    6% |      2 |     63k |
+| skills      |     5 |    1% |        |     174 |
+| other files |     1 |    0% |        |     64k |
+| other tools |     8 |    2% |        |     488 |
+
+#### Largest contexts
+
+| agent              |                             task | calls | max ctx |  cost |
+| ------------------ | -------------------------------: | ----: | ------: | ----: |
+| coding-leader      |              v3.4 wave 3 chunk 6 |    82 |    211k | $4.26 |
+| coding-leader      |              v3.4 wave 3 chunk 7 |    68 |    169k | $3.52 |
+| coding-leader      | v3.4 release gate automated part |    76 |    165k | $4.13 |
+| driver (top level) |          driver session af34b0a5 |    46 |    162k | $3.05 |
+| documentalist      |  v3.4 wave 3 sync + release sync |    67 |    139k | $2.57 |
+
+## Release gate (2026-11-23)
+
+On `v3.4-w3` before its merge (the owner: "you may complete the v3.4 entirely").
+
+- Automated part, `coding-leader`: c8d70bac (`package.json` 3.4.0; no test pins the version);
+  3fb32547 (`docs/release/v3.4-release-notes.md`: 18 rows of §E15, 13 verified, item 13 verified
+  and measured, items 7 and 14 thin, item 17 a record, item 18 = H1 open; 84 test titles resolve
+  at HEAD; the structural review's §6 deliverables; M1, M2, M3); cae703a4 (the reviewer's five
+  non-blocking notes; verdict OKAY); cf57bee2 (the gate's result, M1 re-measured).
+- `npm run quality` on cae703a4, 22:10–22:21 CET, AMD Ryzen 5 PRO 8640HS, idle: green, nothing
+  re-run. Unit 10,362 in 669 files; e2e 786 ×2 (1 skipped); a11y 86; notation 121 (4 skipped);
+  start-up 394,052 B of 409,600 B in 19 chunks, entry 338,760 B; M1 305,315 B / 90,611 B gz.
+- `v3.4-w3` merged into `main` by the driver (the owner's go above). Open for the owner: push; H1
+  (sees the page, notes' Hand checks); the `3.4.0` tag; CONTRACT 19.0.1 (recommended) or 19.1.0;
+  the STABLE proposals (change set H3); whether H1's steps go into `HARDWARE-CHECKLIST.md`; the
+  VPS redeploy. After the tag: `spec-writer` and `ux-writer` archive v3.4 (milestone archive).

@@ -17,7 +17,7 @@ import { computed, readonly, ref, shallowRef, watch, type ComputedRef, type Ref 
 
 import { loadReviewArea, loadReviewPanel } from '@/components/review/load-review-panel'
 import type { GeneratedNotesFormat } from '@/components/review/review-types'
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffViewport } from '@/domain/notation/staff-layout'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { ReviewPreferences } from '@/storage/records/setting-defaults'
 import type { SaveSettings } from '@/storage/settings-saver'

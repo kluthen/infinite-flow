@@ -30,7 +30,7 @@ import type {
 import type { ProfileSelectionOutcome } from './generation-session-profile-switch'
 import type { PostPrewarm } from './generation-session-prewarm'
 import type { StaffLayoutReports } from './generation-session-room-notice'
-import type { ViewportWidthProvider } from './viewport-width'
+import type { ViewportWidthProvider } from '@/session/viewport-width'
 
 export type ThemePreference = 'System' | 'Light' | 'Dark'
 export type SessionOperation = 'idle' | 'generating' | 'notating'

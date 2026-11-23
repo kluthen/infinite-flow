@@ -39,7 +39,7 @@ import {
   NOTATION_SYSTEM_POSITION_UNITS,
   planStaffPositions,
   type StaffViewport,
-} from '@/notation/notation-layout-policy'
+} from '@/domain/notation/staff-layout'
 import { loadVexflowEngraver } from '@/notation/vexflow-engraver-loader'
 import type { ReviewedPhrase, SessionDoodle } from '@/session/session-history'
 import type { SessionKeeping } from '@/components/workspace/workspace-session-controller-types'

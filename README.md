@@ -83,6 +83,13 @@ set from `src/domain/` (it is `src/notation/`) but stays in it from `src/domain/
 `window` or any other browser API. The line constrains what the library imports, not which files
 import the library.
 
+`src/session/`, the session core, has a line of its own, one-way: a session file imports only
+`src/session/` and the library set, type-only imports included, and no package, so the app's
+other parts (audio, notation, the composables, the workspace) are built on the session core and
+never the other way round. `npm run verify:boundaries` checks it the same way, by resolving every
+path. Session is not part of the library set: a library file still imports no session file. The
+line sets no rule on the files that import session.
+
 - `src/domain/**` — pure, serializable, Vue/browser-free musical logic: events, time, random
   streams, instrument profiles, controls, harmony, rhythm, pitch planning and validation,
   generation-request/result orchestration, note acknowledgement (`src/domain/acknowledgement/`:
@@ -146,8 +153,10 @@ import the library.
   phrase replay key and its headless replay. It is in the library set.
 - `src/notation/` — the browser side of engraving, built on the written phrase that
   `src/domain/notation/` holds (the concert-to-written transformation, `written-phrase.ts`, and its
-  types): the layout policy (`notation-layout-policy.ts`, the breakpoints and staff layout the
-  session window also reads) and the VexFlow engraving adapter, loaded lazily (`vexflow-engraver-loader.ts` is the sole static importer of the engraver module);
+  types): the layout policy (`notation-layout-policy.ts`, built on the window arithmetic of
+  `src/domain/notation/staff-layout.ts` that the session window also reads; `notation-error.ts`
+  re-exports the library's `NotationError`, so it stays one class) and the VexFlow engraving
+  adapter, loaded lazily (`vexflow-engraver-loader.ts` is the sole static importer of the engraver module);
   `note-identity.ts`, which names each engraved note with the identity acknowledgement reports, and
   `score-overlays.ts`, which draws the start marker, playhead band and acknowledged notes onto the
   engraved SVG; and `staff-fit-types.ts`, the layout inputs and verdicts of the engraver's two pure
@@ -170,7 +179,7 @@ import the library.
   in-memory session history, which records every phrase that sounded with the inputs that
   reproduce it, and the notes the player played; the adapter that turns a recorded session into
   the export encoders' inputs; and the session screen's pure pieces: the start conditions, the
-  count-in display, the audio-time agenda, the session window rule, the rolling display's plan
+  audio-time agenda, the session window rule, the rolling display's plan
   (where the playhead is and what each staff system shows), the browser ports a session uses, the
   starting note, a session's acknowledgement and its MIDI timers (silence timeout, reconnection
   countdown); and the settings-mutation engine (`settings-mutation.ts` with its scale table
@@ -178,12 +187,13 @@ import the library.
   (`session-settings-change.ts`, `session-mutation-step.ts`, `session-engine-state.ts`) and the
   carry-in adapted to a change (`carry-in-adaptation.ts`); and adaptive tempo, its pure schedule
   (`adaptive-tempo.ts`) and each phrase's tempo fixed at its deadline (`session-tempo-step.ts`);
-  and the multi-phrase tension arc's four-phrase cycle (`tension-arc-cycle.ts`). Besides the
-  library it imports the generation worker client's errors (`session-runner.ts`), the click plan
-  from `src/audio/` (`count-in-display.ts`), the layout breakpoints from `src/notation/`
-  (`session-window.ts`, and a type in `rolling-display.ts`), two types from `src/composables/`
-  (`viewport-width.ts`, `workspace-session-result.ts`) and the export encoders' input types. It
-  never imports `src/storage/` (enforced by ESLint). See
+  and the multi-phrase tension arc's four-phrase cycle (`tension-arc-cycle.ts`); and two types the
+  app passes in, the injected window-width seam (`viewport-width.ts`) and the settings an Idle
+  phrase was generated under (`idle-phrase-settings.ts`). It imports only itself and the library
+  set (see above), the generation worker client's errors (`session-runner.ts`), the layout
+  breakpoints and room checks of `src/domain/notation/staff-layout.ts` (`session-window.ts`, and
+  two types in `rolling-display.ts`) and the export encoders' input types among them. It never
+  imports `src/storage/` (enforced by ESLint). See
   [`docs/session-engine.md`](docs/session-engine.md).
 - `src/audio/` — the audio transport, and the only place allowed to use Web Audio (see Runtime
   Constraints): the app's one `AudioContext`, created on the player's click, the look-ahead
@@ -194,7 +204,8 @@ import the library.
   sibling modules `generation-session-*.ts`, among them `generation-session-fit-round.ts`, the idle
   fit run, and `generation-session-room-notice.ts`, the reactions around the room notice;
   `use-notation-coordinator.ts`, which also answers the session's fit and room checks;
-  `workspace-session-result.ts`; and `viewport-width.ts`, the injected window-width seam): state
+  and `workspace-session-result.ts`, which reads the window-width seam's type and the Idle
+  phrase's settings from `src/session/`): state
   held in memory, no singletons. They store nothing themselves: the control actions compare the
   player's choices with the settings saver's pure helpers (`generation-session-control-actions.ts`
   imports `chosenControlChanges` and `sameSelection` from `src/storage/settings-saver.ts`), and a
@@ -203,6 +214,8 @@ import the library.
   holds the root session composition (`create-workspace-session.ts`, its types in
   `workspace-session-types.ts` and `workspace-session-dependencies.ts`, with the `matchMedia` width
   provider in `browser-viewport-width.ts` and the session's browser adapters in `browser-*.ts`),
+  the count-in display (`count-in-display.ts`, which reads its beat times from `src/audio/`'s
+  click plan),
   the session controller (`workspace-session-controller.ts`, loaded as its own chunk together
   with the sibling modules it is split into, with `workspace-session-runner.ts`, its runner starter, with the player's `Vary settings` and
   `Tension across phrases` choices) and the
@@ -224,7 +237,8 @@ import the library.
   (`tsconfig.node.json`) because it imports the `.mjs` script.
 - `tests/fixtures/boundaries/src/` — small source files laid out like `src/` (`audio/`, `midi/`,
   `storage/`, `session/`, `export/`, `components/`, `other/`) that call the restricted browser APIs
-  on purpose, and `domain/`, whose imports leave the library set on purpose. They sit outside `src/`, so the real lint and boundary scan never treat them as
+  on purpose, `domain/`, whose imports leave the library set on purpose, and `session/`, whose
+  imports leave session and the library set on purpose. They sit outside `src/`, so the real lint and boundary scan never treat them as
   application code; the boundary unit tests lint and scan them as if they were in `src/`.
 - `tests/fixtures/musicxml/` — the MusicXML export's golden files and the vendored MusicXML 4.0
   schema (with an XML catalog for offline validation); see [`docs/testing.md`](docs/testing.md).
@@ -270,7 +284,7 @@ import the library.
   (`src/storage/settings-saver.ts`). See
   [`docs/storage.md`](docs/storage.md#the-load-before-the-first-draw).
 - `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier, the
-  library line's import check included;
+  library line's and the session line's import checks included;
   `replay-phrase.mjs`, the headless phrase replay behind `npm run replay:phrase` (see
   [Phrase replay key](docs/phrase-workspace.md#phrase-replay-key)); and `app-version-define.mjs`,
   the build-time `define` of the app version and the build's commit id for the Vite and Vitest

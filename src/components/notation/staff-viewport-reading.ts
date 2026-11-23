@@ -6,11 +6,8 @@
  * and the shared system-position size, from the notation layout's planner. Shared by the session's
  * staff (./PhraseScore.vue) and Jam's empty system, so both size their positions alike.
  */
-import {
-  NOTATION_PHONE_LAYOUT_MEDIA_QUERY,
-  planStaffPositions,
-  type StaffViewport,
-} from '@/notation/notation-layout-policy'
+import { NOTATION_PHONE_LAYOUT_MEDIA_QUERY } from '@/notation/notation-layout-policy'
+import { planStaffPositions, type StaffViewport } from '@/domain/notation/staff-layout'
 
 /** Find the enclosing `staff-frame`, whose computed style carries the height budget. */
 function staffFrame(root: HTMLElement): HTMLElement {

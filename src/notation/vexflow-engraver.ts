@@ -32,20 +32,22 @@ import { NotationError } from './notation-error'
 import { resolveGlyphIdentities } from './note-identity'
 import { tagSystemNoteParts, type TaggedNoteGlyph } from './note-part-tags'
 import {
-  NOTATION_SYSTEM_POSITION_UNITS,
   planChordSymbolShortfall,
   planMeasureMinWidth,
   planStaffPlacement,
   planStaffRoom,
   planSystemLayout,
-  type StaffLayout,
-  type StaffNoRoom,
   type StaffNotesTooWide,
-  type StaffViewport,
   type SystemLayoutOutcome,
   type SystemLayoutPlan,
-  type SystemPart,
 } from './notation-layout-policy'
+import {
+  NOTATION_SYSTEM_POSITION_UNITS,
+  type StaffLayout,
+  type StaffNoRoom,
+  type StaffViewport,
+  type SystemPart,
+} from '../domain/notation/staff-layout'
 import type {
   StaffFitVerdict,
   StaffFixedParts,

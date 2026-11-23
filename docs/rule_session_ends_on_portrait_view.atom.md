@@ -2,7 +2,7 @@
 id: rule_session_ends_on_portrait_view
 status: REVIEW
 priority: 1
-tags: [v2, release-v2.0, session, session-end, orientation, changes-in-v3.4]
+tags: [v2, release-v2.0, session, session-end, orientation]
 parents:
   - [[req_landscape_phrase_workspace]]
   - [[rule_stop_ends_session]]

@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ReviewPanel from '@/components/review/ReviewPanel.vue'
 import type { ExportRequest, GeneratedNotesFormat } from '@/components/review/review-types'
-import type { StaffViewport } from '@/notation/notation-layout-policy'
+import type { StaffViewport } from '@/domain/notation/staff-layout'
 import type { SessionHistoryRecord } from '@/session/session-history'
 import type { SessionKeeping } from '@/components/workspace/workspace-session-controller-types'
 import { sessionDate } from '@/components/review/session-date'
