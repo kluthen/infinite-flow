@@ -23,6 +23,7 @@ flowchart TD
   LD -->|"loaded"| P
   LD -->|"failed"| F
   LD -->|"a session started meanwhile"| S
+  LD -->|"a sheet opened meanwhile, the stale-phrase prompt included: the opening stops, the workspace stays under its sheet"| W
   F -->|"Try again"| L
   P -->|"types in Find a word"| Q
   Q -->|"empties the field, or chooses a letter"| P
@@ -48,6 +49,11 @@ flowchart TD
   loaded; later openings show the page at once, as it was left.
 - **A session during the load.** A session that starts while the page is loading (by `Start
   session` or the starting note) cancels the opening; the page does not open when the load ends.
+  - **A sheet during the load.** A sheet opened while the page is loading (Your data, the
+    connection sheet, My instrument, the preset sheet, the stale-phrase prompt or another) stops
+    the opening too: the page does not open when the load ends, even if the sheet has closed by
+    then, so it never stacks over a sheet. A later press of `Lexicon` opens it, at once if the
+    load has ended.
 - **Load failure.** A failed load opens nothing and shows the lexicon's load-failure notice in
   `app-notice-row`, whose `Try again` is a press of `Lexicon`.
 - **Closing.** `Close`, or Escape outside a search field holding text, closes the page and
@@ -74,8 +80,9 @@ flowchart TD
     `Lexicon` does, adding its own entry. During a session, count-in included, only the address
     is replaced; the page does not open.
   - **Under an open sheet.** While any sheet is open over the workspace (Your data, the
-    connection sheet, My instrument, the preset sheet or another), the footer's `Lexicon` cannot
-    be pressed, so
+    connection sheet, My instrument, the preset sheet, the stale-phrase prompt or another; for
+    these rules the stale-phrase prompt counts as a sheet), the footer's `Lexicon` cannot be
+    pressed, so
     `#lexicon` reached by Forward, by a load or any other way opens nothing: only the address is
     replaced with the bare one, and the sheet stays as it is, nothing in it lost.
   - **Jumps inside the page.** A letter or a related word moves within the page without

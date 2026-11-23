@@ -103,6 +103,8 @@ the side work below is paused.
   Token-source pass (gate T0) done on branch `v3.4-t0` (D492-D495): the `lexicon-*` classes and
   `footer-actions` in `src/styles/components.css`, Part E's two flow points in the flow;
   `ux-critic` DRIFT, three findings, all settled (D495).
+  Build gap from wave 1 chunk 2, on branch `v3.4-t1` (D496): the matches' visually hidden `h3`
+  "Matching words", class `lexicon-matches-heading`; and spec D568 mirrored in the flow (D497).
   Then: the owner's approval of v3.4's design as a whole and its `versions/v3.4/` copy.
 - **The lexicon follow-ups, taken as a docs-only lexicon pass in v3.4 before the build** (spec
   D560; D489): moving a few player-worthy words out of the lexicon's Internal group (Gesture and

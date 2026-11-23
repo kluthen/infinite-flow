@@ -47,7 +47,9 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
               p lexicon-related ("Related: " then lexicon-link a, …; absent when none is shown)
     -- Searching (the search field holds text)
     p lexicon-result-count (role="status")
-    ul lexicon-list (the matches, best first; each li a lexicon-entry as above)
+    section (the matches; aria-labelledby its heading; absent when nothing matches)
+      h3 lexicon-matches-heading (visually hidden; "Matching words")
+      ul lexicon-list (the matches, best first; each li a lexicon-entry as above)
     section lexicon-mentions (from three characters; absent when it would be empty)
       h3 ("Mentioned in other words"), p sheet-hint, ul lexicon-list
     lexicon-empty (no match; new class)
@@ -59,8 +61,8 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
   `lexicon-body`, `lexicon-section`,
   `lexicon-letter-heading`, `lexicon-list`, `lexicon-entry`, `lexicon-entry-head`,
   `lexicon-word`, `lexicon-group`, `lexicon-popup`, `lexicon-more`, `lexicon-detail`,
-  `lexicon-related`, `lexicon-link`, `lexicon-result-count`, `lexicon-mentions` and
-  `lexicon-empty` are the page's own. Each is specified below from existing tokens only (the page
+  `lexicon-related`, `lexicon-link`, `lexicon-result-count`, `lexicon-matches-heading`,
+  `lexicon-mentions` and `lexicon-empty` are the page's own. Each is specified below from existing tokens only (the page
   needs no new token), and is added to `src/styles/components.css` at v3.4's token-source pass,
   before the page is built.
 - **Reused classes.** `sheet-title`, `sheet-hint`, `sheet-close`, `btn`, `field-label`,
@@ -107,6 +109,11 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
   `--font-display` at `--text-2xl`, with a `--color-border` hairline under it; its entries
   follow `--spacing-3` below it, `--spacing-5` apart, each but the first with a hairline above it
   and `--spacing-5` between that hairline and its head.
+- **Heading outline.** In every state the page's headings step down one level at a time, so a
+  screen reader's heading list reads as the page does: the `h2` title; then an `h3` per group of
+  entries (each letter while browsing; "Matching words" and "Mentioned in other words" while
+  searching); then each entry's word as an `h4`, and "In Infinite Flow" as an `h5` inside it. An
+  entry is the same `h4` in every state, so no state changes its markup.
 
 ### One entry
 
@@ -185,6 +192,13 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
   press.
 - **The match shown.** Each match is a full `lexicon-entry`, closed, as in browsing; a match found
   by another name shows that name first in its "Also called" line, in bold.
+- **Matches heading.** The matches sit in a `section` labelled by the `h3`
+  `lexicon-matches-heading` "Matching words", the counterpart of the letter heading while
+  browsing and of "Mentioned in other words" below. It is visually hidden, as the result count
+  is: on screen the list under the bar is plainly the matches, and a visible heading would only
+  push them down. It is static text with no count or query in it (the result count says those,
+  once the typing pauses), so a screen reader moving by heading never meets a stale number. It is
+  absent with the matches when nothing matches.
 - **Result count.** `lexicon-result-count` (`role="status"`, polite) reads "{n} words match
   “{query}”." ("1 word matches …"). It is written once the typing pauses for half a second, so a
   screen reader is not read every keystroke; the list itself follows every keystroke. It is
@@ -267,8 +281,10 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
 - **Closed:** the footer's `Lexicon` button is shown, enabled outside a session.
 - **Loading:** the first opening in a visit loads the page's part of the app. The `Lexicon`
   button takes `is-loading` and `aria-busy="true"` until it has loaded; everything else stays
-  usable, and the page opens once it has. A session started meanwhile cancels the opening: the
-  page never opens over a session.
+  usable, and the page opens once it has. A session started meanwhile cancels the opening, and
+  so does a sheet opened meanwhile (the stale-phrase prompt included), even one closed again
+  before the load ends: the page never opens over a session or a sheet
+  (`flows/look-up-a-word/handoff.md`, Routing Rules: A session during the load).
 - **Load failure:** the page's part of the app did not load. Nothing opens; `app-notice-row`
   shows an `app-notice`: "The lexicon couldn't open because part of the app didn't load. Check
   that you're online, then try again.", with `Try again` (a press of `Lexicon`) and `Dismiss`;
@@ -276,7 +292,8 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
   or on `Dismiss`; like every notice it is held still during a session, and it is never
   error-toned.
 - **Browsing:** the search field is empty; every shown entry is listed under its letter.
-- **Searching:** the field holds text; the matches replace the letter sections.
+- **Searching:** the field holds text; the matches, under their visually hidden heading
+  "Matching words", replace the letter sections.
 - **No match:** the field holds text and nothing matches. In place of the list,
   `lexicon-empty`: "No word matches “{query}”." then the `sheet-hint` "Check the spelling, or
   type only the first letters of the word." then `Clear search` (a plain `btn`), which empties

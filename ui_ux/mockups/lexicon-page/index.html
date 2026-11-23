@@ -265,7 +265,7 @@ function runSearch() {
     ? shown.filter((e) => !matched.has(e) && (' ' + e.foldedPopup).includes(' ' + q)) : [];
   const shownQ = esc(raw.trim());
   let html = '';
-  if (matches.length) html += `<ul class="lexicon-list">${matches.map((m) => entryHtml(m.e, 's', m.alias)).join('')}</ul>`;
+  if (matches.length) html += `<section aria-labelledby="matches-h"><h3 class="lexicon-matches-heading visually-hidden" id="matches-h">Matching words</h3><ul class="lexicon-list">${matches.map((m) => entryHtml(m.e, 's', m.alias)).join('')}</ul></section>`;
   else html += `<div class="lexicon-empty"><p>No word matches “${shownQ}”.</p><p class="sheet-hint">Check the spelling, or type only the first letters of the word.</p><button class="btn" type="button" id="clear">Clear search</button></div>`;
   if (mentions.length) html += `<section class="lexicon-mentions" aria-labelledby="mentions-h"><h3 id="mentions-h">Mentioned in other words</h3>
       <p class="sheet-hint">Their name doesn't contain “${shownQ}”, but their short line does.</p>

@@ -2667,8 +2667,13 @@
   }
   /* States: empty, written (`role="status"`, polite). The search's result count, for screen
      readers: visually hidden, as `generation-status` is, since the list itself shows the
-     matches and the no-match state shows its own sentence. */
-  .lexicon-result-count {
+     matches and the no-match state shows its own sentence.
+     `lexicon-matches-heading` -- States: none of its own (not a focus target). The matches'
+     `h3` "Matching words", hidden the same way: it keeps the headings stepping one level at a
+     time (`h2` title, `h3` group, `h4` word) while searching, and the list under the bar
+     already reads as the matches on screen. */
+  .lexicon-result-count,
+  .lexicon-matches-heading {
     block-size: var(--size-visually-hidden);
     clip-path: inset(50%);
     inline-size: var(--size-visually-hidden);
