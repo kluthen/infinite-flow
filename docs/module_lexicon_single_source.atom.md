@@ -1,7 +1,7 @@
 ---
 id: module_lexicon_single_source
-status: DRAFT
-version: 0.1
+status: REVIEW
+version: 0.2
 priority: 1
 tags: [v3, release-v3.4, lexicon, build, performance]
 parents:
@@ -25,7 +25,7 @@ The build stops, naming the entry's word and its line in the file, when an entry
 The words go into a built file of their own, reached only through a dynamic import, with a size budget of its own, 448 KiB; every other new file keeps the general per-file limit. No module of the lexicon module or of the page, and none of the words, is in the app's first load (the entry file and every file it imports statically), checked on the build's module graph as Jam's boundary is. The words' file is precached by the service worker with every other built file, so the page works offline.
 
 ## TECHNICAL INTERFACE
-The build step is a Vite plugin that runs the parser in src/lexicon/ over the lexicon file in docs/music/ and serves the shown entries as a build-only module, with its type declaration in src/lexicon/; it is registered in vite.config.ts, vite.workspace-harness.config.ts and vitest.config.ts. The build-only module is imported only dynamically. scripts/verify-boundaries.mjs, run by npm run verify:boundaries after npm run build, holds the words' file within its own budget and fails when a src/lexicon/ or src/components/lexicon/ module, or the build-only module, is in the first load.
+The build step is a Vite plugin that runs the parser in src/lexicon/ over the lexicon file in docs/music/ and serves the shown entries as a build-only module, with its type declaration in src/lexicon/; it is registered in vite.config.ts, vite.workspace-harness.config.ts and vitest.config.ts. The build-only module is imported only dynamically. scripts/verify-boundaries.mjs, run by npm run verify:boundaries after npm run build, holds the words' file within its own budget and fails when a src/lexicon/ or src/components/lexicon/ module, or the build-only module, is in the first load; it also fails unless the build emits exactly one lexicon-words-* file. In eslint.config.js, lexiconPageImportPattern refuses a static import of src/components/lexicon/ from outside it and its loader, type-only imports allowed.
 
 ## EXPECTATION
 - The app shows the lexicon's entries only from the lexicon file, read at build time; no generated copy and no real entry's plain line is committed under src/, public/ or tests/.

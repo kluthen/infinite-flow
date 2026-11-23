@@ -1,6 +1,6 @@
 ---
 id: module_lexicon_page_history_entry
-status: DRAFT
+status: REVIEW
 parents:
   - [[req_lexicon_page]]
 layer: ARCHITECTURE

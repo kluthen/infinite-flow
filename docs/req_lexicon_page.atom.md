@@ -1,6 +1,6 @@
 ---
 id: req_lexicon_page
-status: DRAFT
+status: REVIEW
 parents:
   - [[user_story_controlled_phrase_generation]]
 type: REQUIREMENT
