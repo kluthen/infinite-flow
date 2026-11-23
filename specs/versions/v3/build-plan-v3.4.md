@@ -614,7 +614,13 @@ ESLint pattern cannot tell `domain/notation` (`../notation`) from `src/notation`
 
 ### Chunk 6 — `session/` one-way
 
-Status: in progress
+Status: merged (w3, e104e7bd)
+Record: 6a 87b99789, 6b 7fe2b5ad; no deviation. Layout names in `src/domain/notation/staff-layout.ts`
+(also the private `assertContainerWidth`, now exported, and `assertHeightBudget`, which need only
+`NotationError`); `NotationError` in `src/domain/notation/notation-error.ts`, the old path a
+re-export file; `src/session/viewport-width.ts`, `src/session/idle-phrase-settings.ts`. Left: the
+comments in `src/styles/theme.css` (about 90, 106) and `components.css` (about 195) still name the
+old path of two constants.
 Wave: 3
 Size: M
 Depends on: 5 (its check and its spec), P3
@@ -703,7 +709,7 @@ links it (`@spec-link`, and its spec cases `@test-link`).
 
 ### Chunk 7 — The Jam host out of the shell
 
-Status: planned
+Status: in progress
 Wave: 3
 Size: M
 Depends on: 6 (order only, spec D575: R3 is judged once R2's moves are settled), P3

@@ -335,3 +335,14 @@ current state.
   corrections and the ruling go to `spec-writer`: plan v5.3 0546c9a8, P3's status 86d60d82.
 - 2026-11-23: chunk 6 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c6`,
   branch `v3.4-c6-session-one-way`).
+- 2026-11-23: chunk 6 merged e104e7bd (6a 87b99789, 6b 7fe2b5ad): `verify:boundaries` checks 40
+  session files (0 violations; the new scan found the 6 cut imports on the branch before the
+  chunk); the layout names and two helpers in `src/domain/notation/staff-layout.ts`, `NotationError`
+  in `src/domain/notation/` with the old path as a re-export (a spec case checks one class); the
+  count-in end-to-end specs 24/24; `lint:health` 0 errors. Start-up 392,415 B (+122 against the wave
+  2 gate; M2 at the gate). For the sync: `module_session_rolling_display`,
+  `service_idle_generation_session`, `module_notation_layout_preflight` name moved paths. Left:
+  three CSS comments name the old path of two constants (`theme.css`, `components.css`), sent to
+  `ux-writer`. Figures: 1 agent, 82 tool calls, 11.4M tokens in / 50k out, max context 211k, $4.26
+  at API prices. Chunk 7 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c7`,
+  branch `v3.4-c7-jam-host-out`).
