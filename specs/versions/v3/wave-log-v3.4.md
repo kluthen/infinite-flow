@@ -79,3 +79,7 @@ current state.
   resume adds a watcher on the open sheet (as on `sessionActive`). `ux-writer` asked to mirror D568
   in the look up a word flow with the heading fix. Chunk 3 dispatched (branch
   `v3.4-c3-lexicon-api`).
+- 2026-11-23: design gap settled: 1771e6a0 on `v3.4-t1`, merged 1663d739. ux D496: a visually
+  hidden `h3.lexicon-matches-heading` "Matching words" heads a `section` round the matches while
+  searching (absent when nothing matches); ux D497: D568 mirrored in the look up a word flow;
+  `ux-critic` ALIGNED. Chunk 2 unblocked; it resumes after chunk 3 (κ = 1).
