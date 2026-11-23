@@ -370,3 +370,18 @@ current state.
   composable's dependency object and getters; a new 0.28 kB `notation-error` chunk), entry
   338,760 B (+1,479). Within budget (15,548 B left): no lever. No dependency change. Default
   `atd check` "No atoms found" (ISS-020): the sync runs `atd check main...HEAD`.
+- 2026-11-23: wave 3 sync f9278376 (`documentalist`): path rewordings only, no drift.
+  `module_session_rolling_display` 0.8, `service_idle_generation_session` 0.13,
+  `module_notation_layout_preflight` 1.3, `module_workspace_mode` 0.4, `module_jam_idle_notes` 0.6;
+  `module_jam_settings`, `module_session_code_boundary`, `module_idle_fit_round` and the drift-check
+  atoms aligned. `atd check main...HEAD`: 134 atoms OK; `--full`: 15 NO_IMPL and 1 NO_TESTS, the
+  baseline. Left loose, not false (driver: no change): "the shell's useFreshJam" in
+  `module_jam_session_end`, `module_session_start_without_phrase_one`, `service_session_controller`
+  (the host is the shell's own setup).
+- 2026-11-23: v3.4 release sync 0d32e559 (`documentalist`): `changes-in-v3.4` removed (2 atoms);
+  `module_library_code_boundary` (the owner's ruling) and `module_session_code_boundary` (driver,
+  D556) DRAFT → REVIEW; the 6 `release-v3.4` atoms all REVIEW. STABLE proposals in the change set
+  part H3 (the lexicon four after H1; `module_session_starting_note` and
+  `rule_session_ends_on_portrait_view` now if the owner wishes; the boundary atoms a release later).
+  CONTRACT: recommendation keep 19.0.1 (no v3.4 atom is STABLE; MINOR comes with the first STABLE
+  promotion), the owner's call. Change set parts F–H added. Gate R1 closes with this wave.
