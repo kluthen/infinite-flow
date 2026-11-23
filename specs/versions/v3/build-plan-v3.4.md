@@ -1,6 +1,8 @@
 # Infinite Flow v3.4 — Build Plan
 
-Status: v5 (2026-11-23): the structural review's waves 2 and 3 added (chunks 4–7, gates P2 and P3,
+Status: v5.1 (2026-11-23): the driver's rulings on v5's open points (spec D575): wave 2's gate is
+the full one; chunk 6 comes before 7 for order, not for a shared file.
+v5 (2026-11-23): the structural review's waves 2 and 3 added (chunks 4–7, gates P2 and P3,
 gate R1 updated; spec D569–D574).
 v4 (2026-11-23): chunk 2's two spec-silent choices written in (Part E v1.2, spec D568):
 the stale-phrase prompt counts as an open sheet for `#lexicon`, and a sheet opened during the
@@ -92,8 +94,8 @@ and [risks](structural-review-evidence/F-principal-advisor-ranking.md#4-risks-an
 | Wave | Chunks                                                                                                                                    | Waits for                                                                                                                                                                                                                              | Status                        |
 | ---- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
 | 1    | 1 The lexicon module and the build step (1a, 1b) · 2 The lexicon page, its button and its address (2a, 2b) · 3 The lexicon API's contract | A0, G0, I0, P1; L0 and T0 (2). In-wave 1 → 2 and 1 → 3: chunk 1's captures fix the entry contract, the read interface and the build-only module the other two read. Chunks 2 and 3 have no path between them and share no source file. | merged (2026-11-23, 977e795a) |
-| 2 | 4 The test files' atom-spread limit · 5 The library line enforced | Wave 1 merged; R1's rulings (done); P2 (5: the library-boundary capture). Tooling, with the [fast gate](#workflow-deltas). Chunks 4 and 5 have no path between them and share no file. Two chunks: chunk 6 needs chunk 5's check, and 5 → 6 → 7 is a chain of three, longer than an in-wave chain may be; nor would the app-code chunks gate on wave 2's fast gate. | planned |
-| 3 | 6 `session/` one-way · 7 The Jam host out of the shell | Wave 2 merged; P3. App code, with the full end-to-end gate. In-wave 6 → 7: an order edge from a shared file, not an interface (chunk 6 edits `src/composables/workspace-session-result.ts`, whose `WorkspaceSessionResult` `WorkspaceShell.vue:68` imports); chunk 7 starts from chunk 6's merged code and reads no new interface from it, so no capture fixes one. Two chunks: the chain above, and nothing else is planned for v3.4. | planned |
+| 2 | 4 The test files' atom-spread limit · 5 The library line enforced | Wave 1 merged; R1's rulings (done); P2 (5: the library-boundary capture). Tooling, with the full gate, like any wave: chunk 5 adds a type project that `vue-tsc --build` and `npm run build` both use. Chunks 4 and 5 have no path between them and share no file. Two chunks: chunk 6 needs chunk 5's check, and 5 → 6 → 7 is a chain of three, longer than an in-wave chain may be; nor would the app-code chunks gate on wave 2's fast gate. | planned |
+| 3 | 6 `session/` one-way · 7 The Jam host out of the shell | Wave 2 merged; P3. App code, with the full end-to-end gate. In-wave 6 → 7: an order edge, not an interface, and no file forces it (spec D575): κ is 1, and R3 is easier to judge once R2's moves are settled. Chunk 7 starts from chunk 6's merged code and reads no new interface from it, so no capture fixes one. Two chunks: the chain above, and nothing else is planned for v3.4. | planned |
 
 The [release gate](#release-gate) follows wave 3. κ is 1
 ([build workflow](build-workflow.md#concurrency-and-order)): inside wave 2 the order is 4, then 5;
@@ -164,11 +166,7 @@ The [build workflow](build-workflow.md) holds for v3.4 with release name `v3.4`:
 - **Atom-spread limit:** from chunk 4, more than 10 distinct atoms in a test file is a warning
   (spec D570). A chunk report still names every link it left out because of the limit, source or
   test.
-- **Wave 2's fast gate.** Wave 2 changes tooling, a type project and documents, no app code, so its
-  gate runs `npm run quality`'s steps up to and including `npm run verify:boundaries`, then
-  `npm run atd:lint` and `npm run atd:check`, and the bundle figure; not the end-to-end,
-  pregeneration, accessibility or notation suites. If either chunk changes a file the app runs, the
-  gate runs the whole `npm run quality`. Wave 3's gate is the full one.
+
 - **The sync sees moves only against a base.** Default `atd check` cannot see moves, staged changes
   or untracked files
   ([ISS-020](../../../issues/ISS-020_20261114_atd_check_empty_on_committed_tree.md)). Wave 3's
@@ -694,7 +692,7 @@ written into the library-boundary atom is P3's verdict.
 Status: planned
 Wave: 3
 Size: M
-Depends on: 6 (the shared file in the waves table), P3
+Depends on: 6 (order only, spec D575: R3 is judged once R2's moves are settled), P3
 Architecture capture: none: the Jam boundary is unchanged.
 
 - **Goal:** the Jam host wiring leaves `WorkspaceShell.vue`, the file every feature passes through

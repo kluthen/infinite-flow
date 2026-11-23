@@ -57,7 +57,7 @@ horizon, v4.0's scope, the lexicon API in v3.4, and the wave driver's rulings un
 delegation of v3.4); D562–D565 (the driver's rulings on the lexicon page's orientation and build
 failures, and his approval of Part E and the v3.4 build plan's lexicon wave); D567–D568 (the
 driver's rulings on `#lexicon` under an open sheet); D569–D574 (the driver's rulings on the
-structural review's report). D289 and D525 are unused; so are the IDs within the
+structural review's report and the build plan's open points after it). D289 and D525 are unused; so are the IDs within the
 archived range D407–D509 that its archive notice lists.
 
 ## Decision Log
@@ -379,3 +379,11 @@ archived range D407–D509 that its archive notice lists.
   music core; being self-contained, it can move later at no cost. A Go backend (D561) would sit
   beside this app. Closes O315. Now in:
   [report §5](versions/v3/structural-review-report.md#5-q4-the-split).
+- **D575 (2026-11-23, the driver under D556): the build plan's open points after the review.**
+  Chunk 6 stops and reports if a moved value would pull in code outside the library. Chunk 6
+  comes before 7 because κ is 1 and R3 is easier to judge once R2's moves are settled; no file
+  forces it. Wave 2's gate is the full `npm run quality`, like any wave's. Session's one-way rule
+  in an atom is P3's call. Revising `prerequisites.md` (staleness, the library line, K) is
+  `spec-writer`'s first task when v4.0's master spec starts; nothing changes now. Now in:
+  [build plan v3.4](versions/v3/build-plan-v3.4.md),
+  [report §2.1](versions/v3/structural-review-report.md#21-the-prerequisites).

@@ -136,7 +136,9 @@ foundation is urgent for v4.0; nothing in it is urgent for v3.4 beyond what R1 a
   O314 (a). The document's own "premature now" list (K before v4, J, I beyond capability flags,
   G's import half) still holds for v3.4: nothing in the evidence asks for them.
 
-This report does not revise the prerequisites document.
+This report does not revise the prerequisites document. Revising it (its staleness, the library
+line, K multi-voice) is `spec-writer`'s first task when v4.0's master spec starts; nothing changes
+now (D575).
 
 ## 3. Q2: the start-up budget
 
@@ -318,7 +320,7 @@ Every recommendation in §6 is ruled: R1–R3 by D569, R4 by D570, R5 by D571, R
 by D572.
 
 The refactors taken are built in [build plan v3.4](build-plan-v3.4.md), waves 2 and 3:
-- wave 2, tooling, fast gate: chunk 4 (R4), then chunk 5 (R1);
+- wave 2, tooling, full gate: chunk 4 (R4), then chunk 5 (R1);
 - wave 3, app code, full e2e gate: chunk 6 (R2), then chunk 7 (R3).
 
 ## 8. The candidate rule table (E §2.3)
