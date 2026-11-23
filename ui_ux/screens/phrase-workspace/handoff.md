@@ -2,8 +2,8 @@
 
 > **Changes since v3.3**
 >
-> - _New:_ the footer's `Lexicon` button, after `Your data` ([Layout Tree](#layout-tree),
->   [Page frame](#page-frame): Footer)
+> - _New:_ the footer's `Lexicon` button, after `Your data`, the two held in `footer-actions`
+>   ([Layout Tree](#layout-tree), [Page frame](#page-frame): Footer)
 > - _New:_ the lexicon's load-failure notice in the notice row ([Page frame](#page-frame):
 >   Notice row)
 > - _Changed:_ the footer holds both buttons at every breakpoint
@@ -253,8 +253,9 @@ layout-app
           field-note (only while no doodle is kept: "They show here once you've played a doodle.")
   layout-footer (the page's last block, after layout-workspace and so after control-section; one row that wraps)
     footer-note ("Your settings and sessions are kept on this device only.")
-    btn (Your data; opens screens/your-data/; disabled during a session)
-    btn (v3.4 new; Lexicon; opens screens/lexicon-page/; disabled during a session; is-loading while the page first loads)
+    footer-actions (v3.4 new; the two buttons, kept together when the row wraps)
+      btn (Your data; opens screens/your-data/; disabled during a session)
+      btn (v3.4 new; Lexicon; opens screens/lexicon-page/; disabled during a session; is-loading while the page first loads)
 ```
 
 ## Components and Content
@@ -275,7 +276,7 @@ layout-app
   - **Jam's load-failure notice.** One more notice, Jam's load-failure notice, beside the saving notices, is specified with the mode switch (see **The mode switch**); its `Try again` acts as a press of `Jam`.
   - **[v3.4 new]** **The lexicon's load-failure notice.** One more notice, shown when the lexicon page's part of the app does not load, is specified with the page ([`screens/lexicon-page/handoff.md`](../lexicon-page/handoff.md), States: Load failure); its `Try again` acts as a press of the footer's `Lexicon`.
 - **Footer.** `layout-footer` is the page's last block, after `layout-workspace` (so after `control-section`), at every breakpoint and in every state, the review mode included: one row that wraps, holding `footer-note`, "Your settings and sessions are kept on this device only.", then a plain `btn` reading `Your data`, which opens the Your data sheet (`screens/your-data/`, `flows/saved-data/`). The button is disabled during a session, count-in included, with `btn`'s ordinary disabled look, and enabled at idle and in the review mode. The session list's header has the same button (`screens/session-list/`).
-  - **[v3.4 new]** **The Lexicon button.** After `Your data`, a plain `btn` reading `Lexicon` opens the lexicon page (`screens/lexicon-page/`, `flows/look-up-a-word/`), with no icon. Like `Your data`, it is disabled during a session, count-in included, with `btn`'s ordinary disabled look, and enabled at idle, in either mode, and in the review mode. At the first opening in a visit, while the page's part of the app loads, it takes `is-loading` with `aria-busy="true"`; everything else stays usable. When the page closes, focus returns to it.
+  - **[v3.4 new]** **The Lexicon button.** After `Your data`, the two held together in `footer-actions`, a plain `btn` reading `Lexicon` opens the lexicon page (`screens/lexicon-page/`, `flows/look-up-a-word/`), with no icon. Like `Your data`, it is disabled during a session, count-in included, with `btn`'s ordinary disabled look, and enabled at idle, in either mode, and in the review mode. At the first opening in a visit, while the page's part of the app loads, it takes `is-loading` with `aria-busy="true"`; everything else stays usable. When the page closes, focus returns to it.
 
 ### Score panel and staff
 
@@ -591,7 +592,7 @@ layout-app
 - **Seventh chords field.** The Seventh chords field sits in the foundation group's column after harmonic motion at every named breakpoint, its four segments wrapping within the field when the column is narrow, as every `segmented-control` does; no segment is cut, and its note wraps within the field.
 - **Key and mode marks.** The key and mode marks (`is-marked`) are the same at every breakpoint, the dot keeping `--segment-mark-size` whatever the segment's size, including segments wrapped onto a second line; the restriction `field-note` wraps within its field.
 - **Notice row.** `app-notice-row` spans the width of `layout-workspace` at every named breakpoint; each `app-notice` keeps its sentence and its buttons on one row when they fit and wraps them, the buttons at the inline end, when they do not.
-- **[v3.4 changed]** **Footer.** `layout-footer` is the same at every named breakpoint: one row, `footer-note` then the `Your data` and `Lexicon` buttons, `--spacing-2` apart, the two buttons wrapping together under the note when the width runs out, `Lexicon` staying after `Your data`.
+- **[v3.4 changed]** **Footer.** `layout-footer` is the same at every named breakpoint: one row, `footer-note` then `footer-actions`, holding the `Your data` and `Lexicon` buttons `--spacing-2` apart, so the two buttons wrap together under the note when the width runs out, `Lexicon` staying after `Your data`.
 - **Idle cue row wording.** In `session-cue-row` at idle: from `bp-tablet-landscape` up, `review-link` reads "Review last session" and `start-note-line` takes its longer before-the-first-click wording; below `bp-tablet-landscape`, "Last session" and the shorter wording, so that the line and both links stay on one line within `--session-cue-row-block-size`. `sessions-link` reads "All sessions" at every breakpoint.
 - **Instrument segments.** The instrument profile's `segmented-control` wraps its segments within the field at every breakpoint once my instrument's segment is added, as the written-key control does; no segment is cut.
 - **Build id.** At every named breakpoint, `build-id` sits beside `brand-mark` on its baseline and never wraps inside itself. Below `bp-desktop`, `header-actions` takes a row of its own, so the brand row always has room for it, phones in landscape included; at `bp-desktop` it sits between `brand-mark` and `header-actions`.

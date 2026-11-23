@@ -98,9 +98,8 @@ v3.3 shipped it, plus the lexicon page, whose design the owner validated on 2026
 - Every token and component class the handoffs cite by name is in `src/styles/theme.css` and
   `components.css`: v3.0's shipped in 3.0.0, v3.1's in 3.1.0, and v3.2's in 3.2.0. v3.3 adds no
   token, class or motion: its one control and its chord symbols reuse existing ones. v3.4 adds no
-  token or motion; the lexicon page's own `lexicon-*` classes, specified in its handoff from
-  existing tokens, are added to `components.css` at v3.4's token-source pass, before the page is
-  built.
+  token or motion; its classes, the lexicon page's own `lexicon-*` classes and the footer's
+  `footer-actions`, all from existing tokens, are in `components.css` (v3.4's token-source pass).
 - `flows/presets/` specifies choosing a preset, the Custom state, the key and mode highlight, and
   saving, renaming and deleting the player's own presets; `screens/preset-sheet/` the sheet those
   are done in. The preset dropdown and the embellishment levels sit in

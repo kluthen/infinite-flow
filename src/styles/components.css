@@ -1574,9 +1574,9 @@
     flex: 0 0 auto;
   }
 
-  /* States: default only; its button carries `.btn`'s states, disabled during a session
+  /* States: default only; its buttons carry `.btn`'s states, disabled during a session
      included. The page's last block, after `control-section` inside `layout-app`: one wrapping
-     row holding `footer-note`, then one `btn` ("Your data"). */
+     row holding `footer-note`, then `footer-actions` (v3.4 changed: was one `btn`, "Your data"). */
   .layout-footer {
     align-items: center;
     color: var(--color-text-muted);
@@ -1589,6 +1589,16 @@
   /* Static: the footer's one-line note. */
   .footer-note {
     margin: 0;
+  }
+  /* v3.4 new */
+  /* States: none of its own (layout only; its buttons carry `.btn`'s states). The footer's
+     buttons, `Your data` then `Lexicon`, `--spacing-2` apart, kept together: when the footer's
+     row runs out of width, the two wrap under `footer-note` as one. */
+  .footer-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
   }
 
   /* The rows of `review-panel` (`review-nav`, `review-header`, `review-comment`,
@@ -2364,6 +2374,390 @@
   .field-group.is-readonly .field-group.is-readonly {
     outline: none;
   }
+
+  /* v3.4 new -- from here to "end v3.4 new": the lexicon page (`screens/lexicon-page/handoff.md`,
+     Layout Tree, Components and Content, Responsive Behavior). Its own classes, from existing
+     tokens only; the classes it reuses (`sheet-title`, `sheet-hint`, `sheet-close`, `btn`,
+     `field-label`, `text-input`) keep their own rules and states. The lexicon's breakpoint
+     queries are width-only, with no orientation: the page is reading, not playing, and works in
+     portrait too (it is rendered outside `layout-app`, so the portrait guard never hides it). */
+
+  /* States: default, entering/leaving (the sheet's opacity transition, `--duration-feedback`
+     with `--ease-out-fast`, reduced under `prefers-reduced-motion` by the rule at the end of this
+     file). The page itself (`role="dialog"`): a full-viewport surface on `--color-canvas` at
+     `--z-sheet`, with no backdrop, no scrim, no border and no shadow, so it reads as a page, not
+     a box. It scrolls vertically inside itself, never horizontally, and never hands its scroll on
+     to the workspace beneath. Not interactive itself: hover/focus-visible/active/disabled do not
+     apply. Jumps are never smooth (`motion.md`).
+     Below the bar: every jump target and every focused element keeps clear of the part of the
+     bar that stays at the top (`lexicon-bar` from bp-tablet-landscape, `lexicon-bar-row` below
+     it), with `--spacing-3` to spare. That part's height changes with the width (one or two
+     letter rows), so the page measures it and sets it on `lexicon-view` as
+     `--lexicon-bar-block-size`, keeping it current while the page shows, as the review drawing
+     sets `--played-note-pitch`: a measurement, not a design value. */
+  .lexicon-view {
+    background: var(--color-canvas);
+    color: var(--color-text);
+    inset: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    position: fixed;
+    scroll-padding-block-start: calc(var(--lexicon-bar-block-size) + var(--spacing-3));
+    transition: opacity var(--duration-feedback) var(--ease-out-fast);
+    z-index: var(--z-sheet);
+  }
+  /* The page's paragraphs, headings and lists carry no margin of their own: the grid gaps below
+     space them, as `sheet-body` does for a sheet's paragraphs. */
+  .lexicon-view :where(p, h2, h3, h4, h5, ul) {
+    margin: 0;
+  }
+
+  /* States: none of its own (layout only). The band at the top of the view, across its full
+     width: `--color-surface`, a `--color-border` hairline under it, `--spacing-3` padding, its
+     two rows (`lexicon-bar-row`, `lexicon-letters`) `--spacing-2` apart. It stays at the top while
+     `lexicon-body` scrolls under it; below bp-tablet-landscape only its title row stays (the
+     width-only block at the end of the lexicon's rules). */
+  .lexicon-bar {
+    background: var(--color-surface);
+    border-block-end: 1px solid var(--color-border);
+    display: grid;
+    gap: var(--spacing-2);
+    inset-block-start: 0;
+    padding: var(--spacing-3);
+    position: sticky;
+    z-index: var(--z-sticky);
+  }
+  /* States: none of its own (layout only). The title row, in this order: `sheet-title`
+     (`lexicon-title`), the count (`sheet-hint`), `lexicon-search`, `Letters`
+     (`lexicon-letters-button`, below bp-tablet-landscape only), then `sheet-close`. One line
+     from bp-mobile-landscape up: the search takes the space left, so `Close` sits at the inline
+     end. Below bp-mobile-landscape the row cannot hold them all and takes two lines, `Close`
+     staying at the end of the first (the width-only block at the end of the lexicon's rules). */
+  .lexicon-bar-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2) var(--spacing-3);
+  }
+  .lexicon-bar-row > .sheet-close {
+    margin-inline-start: auto;
+  }
+  .lexicon-bar-row > .sheet-hint {
+    white-space: nowrap;
+  }
+  /* States: default, focused (`:focus-visible`). Composed as `sheet-title lexicon-title`: the
+     page's h2 with `tabindex="-1"`, a focus target only from the page (the opening with a coarse
+     pointer), never from Tab, unlike `sheet-title` elsewhere; no hover, active or disabled
+     state. `lexicon-letter-heading` and `lexicon-word` share this focus treatment: the
+     `--shadow-focus` ring with `--radius-sm` and no outline, as `review-title`'s, and no other
+     highlight. */
+  .lexicon-title:focus-visible,
+  .lexicon-letter-heading:focus-visible,
+  .lexicon-word:focus-visible {
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+  /* States: none of its own (layout only; the label and the field keep `field-label`'s and
+     `text-input`'s). The search landmark (`role="search"`): the `field-label` "Find a word" then
+     the `text-input` of type `search`, on one line, `--spacing-2` apart. It takes the row's
+     space left, never less than `--control-group-min-inline-size`; the field inside grows up to
+     `text-input`'s own `--text-input-max-inline-size`. */
+  .lexicon-search {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    gap: var(--spacing-2);
+    min-inline-size: var(--control-group-min-inline-size);
+  }
+  .lexicon-search > .field-label {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .lexicon-search > .text-input {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+  /* States: shown (below bp-tablet-landscape), absent (from it up). Composed as
+     `btn lexicon-letters-button`, reading `Letters`: it jumps back to the letter row, which
+     scrolls away with the words below bp-tablet-landscape. Its hover, focus-visible, active and
+     disabled states are `btn`'s. */
+  .lexicon-letters-button {
+    flex: 0 0 auto;
+  }
+
+  /* States: none of its own (layout only). The `nav` "Letters": one item per letter, A to Z, in
+     one row that wraps, `--spacing-1` apart, with no list markers. */
+  .lexicon-letters > ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1);
+    list-style: none;
+    padding: 0;
+  }
+  /* States (a letter with words, an `a`): default, hover, focus-visible, active. States (a letter
+     with none, a `span` with `is-empty`): default only, never focusable, never interactive.
+     A square at least `btn`'s minimum target (the 44px accessibility floor, `btn`'s 2.75rem),
+     the letter centred in it, in `--font-ui` at `--text-md`, with `--radius-sm` and no border.
+     With words: `--color-accent`, bold and underlined; hover `--color-surface-muted` behind it;
+     focus-visible the `--shadow-focus` ring; active `--color-accent-hover`. With none:
+     `--color-text-muted`, regular weight, not underlined. The weight and the underline, not the
+     colour alone, tell the two apart (the two colours are close in lightness). */
+  .lexicon-letter {
+    align-items: center;
+    border-radius: var(--radius-sm);
+    color: var(--color-accent);
+    display: inline-flex;
+    font-family: var(--font-ui);
+    font-size: var(--text-md);
+    font-weight: 700;
+    justify-content: center;
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+    text-decoration: underline;
+    transition:
+      background-color var(--duration-feedback) var(--ease-out-fast),
+      color var(--duration-feedback) var(--ease-out-fast);
+  }
+  .lexicon-letter:not(.is-empty):hover {
+    background: var(--color-surface-muted);
+  }
+  .lexicon-letter:not(.is-empty):focus-visible {
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+  .lexicon-letter:not(.is-empty):active {
+    color: var(--color-accent-hover);
+  }
+  .lexicon-letter.is-empty {
+    color: var(--color-text-muted);
+    cursor: default;
+    font-weight: 400;
+    text-decoration: none;
+  }
+
+  /* States: none of its own (layout only). The reading column, centred: its content at most
+     `--sheet-wide-max-inline-size` wide (a comfortable line at `--text-md`), with `--spacing-4`
+     on each inline side, `--spacing-4` above and `--spacing-6` at its end. Its blocks (the intro,
+     each letter section; or the matches, `lexicon-empty` and `lexicon-mentions`) are
+     `--spacing-6` apart. Long words and long app meanings wrap; nothing scrolls sideways. */
+  .lexicon-body {
+    display: grid;
+    gap: var(--spacing-6);
+    margin-inline: auto;
+    max-inline-size: calc(var(--sheet-wide-max-inline-size) + 2 * var(--spacing-4));
+    overflow-wrap: anywhere;
+    padding: var(--spacing-4) var(--spacing-4) var(--spacing-6);
+  }
+  /* States: none of its own (layout only). One letter's section: its heading, then its
+     `lexicon-list`, `--spacing-3` below it. */
+  .lexicon-section {
+    display: grid;
+    gap: var(--spacing-3);
+  }
+  /* States: default, focused (`:focus-visible`, the ring above). The letter's `h3`, with
+     `tabindex="-1"`: a focus target only from the page (a jump to its letter), never from Tab.
+     The letter in `--font-display` at `--text-2xl`, a `--color-border` hairline under it. */
+  .lexicon-letter-heading {
+    border-block-end: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+  }
+  /* States: none of its own (layout only). A list of entries with no markers: a letter's
+     entries, the matches, or the mentions. Its entries are `--spacing-5` apart, each but the
+     first with a `--color-border` hairline above it, `--spacing-5` above its head. */
+  .lexicon-list {
+    display: grid;
+    gap: var(--spacing-5);
+    list-style: none;
+    padding: 0;
+  }
+  /* States: none of its own (layout only; its `More` is `lexicon-more`). One entry, an `li`
+     with the entry's id: its head, plain line, other names and `More`, `--spacing-1` apart. */
+  .lexicon-entry {
+    display: grid;
+    gap: var(--spacing-1);
+  }
+  .lexicon-entry + .lexicon-entry {
+    border-block-start: 1px solid var(--color-border);
+    padding-block-start: var(--spacing-5);
+  }
+  /* States: none of its own (layout only). The entry's head: `lexicon-word` then
+     `lexicon-group`, one row that wraps, on the word's baseline. */
+  .lexicon-entry-head {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-1) var(--spacing-3);
+  }
+  /* States: default, focused (`:focus-visible`, the ring above). The entry's `h4`, with
+     `tabindex="-1"`: a focus target only from the page (a related word followed), never from
+     Tab. The word exactly as the lexicon heads it, in `--font-display` at `--text-lg`. */
+  .lexicon-word {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+  }
+  /* Static. The entry's group as the lexicon names it ("Harmony", "App controls"), in
+     `--text-sm`, `--color-text-muted`. */
+  .lexicon-group {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+  /* Static. The entry's plain line, always shown, at `--text-md` in `--color-text`. */
+  .lexicon-popup {
+    color: var(--color-text);
+    font-size: var(--text-md);
+  }
+  /* States (its `summary`): default (closed, "More"), open ("Less"), hover, focus-visible,
+     active. The entry's `details`, closed by default; each opens and closes on its own, with no
+     animation. Its `summary` keeps Chrome's own disclosure marker (it stays a list item), is at
+     least `btn`'s minimum target high and only as wide as its text, in `--color-accent`; hover
+     and active `--color-accent-hover`; focus-visible the `--shadow-focus` ring with
+     `--radius-sm`. */
+  .lexicon-more > summary {
+    color: var(--color-accent);
+    cursor: pointer;
+    inline-size: fit-content;
+    min-block-size: 2.75rem;
+    padding-block: var(--spacing-2);
+    transition: color var(--duration-feedback) var(--ease-out-fast);
+  }
+  .lexicon-more > summary:hover,
+  .lexicon-more > summary:active {
+    color: var(--color-accent-hover);
+  }
+  .lexicon-more > summary:focus-visible {
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+  /* States: none of its own (layout only). An open entry's detail, its blocks `--spacing-3`
+     apart: the definition; the `h5` "In Infinite Flow" (`--text-md`, bold) and the app meaning,
+     when the entry has one; then `lexicon-related`. */
+  .lexicon-detail {
+    display: grid;
+    gap: var(--spacing-3);
+  }
+  .lexicon-detail > h5 {
+    font-size: var(--text-md);
+    font-weight: 700;
+  }
+  /* Static (its links are `lexicon-link`). "Related: " then the related words, separated by
+     commas, wrapping as text. */
+  .lexicon-related {
+    color: var(--color-text);
+  }
+  /* States: default, hover, focus-visible, active. An inline text link to an entry on the page:
+     `--color-accent`, underlined; hover and active `--color-accent-hover`; focus-visible the
+     `--shadow-focus` ring with `--radius-sm`. No visited colour of its own. */
+  .lexicon-link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    transition: color var(--duration-feedback) var(--ease-out-fast);
+  }
+  .lexicon-link:hover,
+  .lexicon-link:active {
+    color: var(--color-accent-hover);
+  }
+  .lexicon-link:focus-visible {
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-focus);
+    outline: none;
+  }
+  /* States: empty, written (`role="status"`, polite). The search's result count, for screen
+     readers: visually hidden, as `generation-status` is, since the list itself shows the
+     matches and the no-match state shows its own sentence. */
+  .lexicon-result-count {
+    block-size: var(--size-visually-hidden);
+    clip-path: inset(50%);
+    inline-size: var(--size-visually-hidden);
+    margin: calc(var(--size-visually-hidden) * -1);
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+  }
+  /* States: absent (under three characters, or nothing to list), shown. The "Mentioned in other
+     words" group after the matches: a `--color-border` hairline above it and `--spacing-5`
+     under that, then its `h3` in `--font-display` at `--text-xl`, its `sheet-hint` and its
+     `lexicon-list`, `--spacing-3` apart. */
+  .lexicon-mentions {
+    border-block-start: 1px solid var(--color-border);
+    display: grid;
+    gap: var(--spacing-3);
+    padding-block-start: var(--spacing-5);
+  }
+  .lexicon-mentions > h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+  }
+  /* States: absent, shown (the search matches nothing). Its sentence, its `sheet-hint` and
+     `Clear search` (a plain `btn`, keeping its own width at the inline start), `--spacing-3`
+     apart. */
+  .lexicon-empty {
+    display: grid;
+    gap: var(--spacing-3);
+    justify-items: start;
+  }
+
+  /* Below bp-tablet-landscape (width-only): only the title row stays at the top. `lexicon-bar`
+     lets its two rows take part in the view's flow, the title row taking the bar's surface,
+     hairline and padding and staying at the top, the letter row sitting at the head of the page,
+     aligned with the reading column, and scrolling away with the words; `Letters` shows. */
+  @media (max-width: 63.9375rem) {
+    .lexicon-bar {
+      display: contents;
+    }
+    .lexicon-bar-row {
+      background: var(--color-surface);
+      border-block-end: 1px solid var(--color-border);
+      inset-block-start: 0;
+      padding: var(--spacing-3);
+      position: sticky;
+      z-index: var(--z-sticky);
+    }
+    .lexicon-letters {
+      margin-inline: auto;
+      max-inline-size: calc(var(--sheet-wide-max-inline-size) + 2 * var(--spacing-4));
+      padding: var(--spacing-3) var(--spacing-4) 0;
+    }
+  }
+  /* From bp-tablet-landscape up (width-only): the letter row stays in the bar, so `Letters` is
+     absent. */
+  @media (min-width: 64rem) {
+    .lexicon-letters-button {
+      display: none;
+    }
+  }
+  /* Below bp-mobile-landscape (width-only): the title row takes two lines, `Close` at the end of
+     the first after the title and the count, the search and `Letters` on the second. Focus order
+     stays the markup's (the search, `Letters`, `Close`). */
+  @media (max-width: 47.9375rem) {
+    .lexicon-bar-row {
+      display: grid;
+      grid-template-areas:
+        'title count close'
+        'search search letters';
+      grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+    .lexicon-bar-row > .lexicon-title {
+      grid-area: title;
+    }
+    .lexicon-bar-row > .sheet-hint {
+      grid-area: count;
+    }
+    .lexicon-bar-row > .sheet-close {
+      grid-area: close;
+    }
+    .lexicon-bar-row > .lexicon-search {
+      grid-area: search;
+      min-inline-size: 0;
+    }
+    .lexicon-bar-row > .lexicon-letters-button {
+      grid-area: letters;
+    }
+  }
+  /* end v3.4 new */
 
   /* Below bp-tablet-landscape (width-only, the same query as the notation layout's split layout
      and the cue row's shorter labels): `jam-notice` takes `jam-instruction`'s place while it
