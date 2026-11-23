@@ -1,6 +1,8 @@
 # Infinite Flow v3.4 — Build Plan
 
-Status: v2 (2026-11-23): wave 1's preflight corrections (gate P1) written in: the captured atoms'
+Status: v3 (2026-11-23): gate T0's notes written into chunk 2 (ux D492, D493, D495), and §E8's
+open-sheet rule (Part E v1.1, spec D567).
+v2 (2026-11-23): wave 1's preflight corrections (gate P1) written in: the captured atoms'
 IDs, the atoms the preflight found, chunk 2's widened revisions and its notes; no new ruling.
 v1 (2026-11-22): written; the lexicon wave (wave 1) approved by the wave driver under the
 owner's delegation (spec D556, D565). Gates A0, G0 and L0 done.
@@ -240,22 +242,30 @@ Architecture capture: **the page's `#lexicon` history entry**
 own, marked as such and pushed at every opening on top of the bare address; Back closes the page;
 Close and Escape step back over the entry; Forward onto it reopens the page except during a session,
 where the address is replaced with the bare one; a load, a reload or a typed `#lexicon` is replaced
-with the bare address, then the page opens and adds its entry; jumps inside the page cancel their
-link's navigation. All through one injected history seam.
+with the bare address, then the page opens and adds its entry; under an open sheet, `#lexicon`
+reached any way opens nothing and only the address is replaced (spec D567); jumps inside the page
+cancel their link's navigation. All through one injected history seam.
 
 - **Goal:** the player opens the lexicon page from the footer between sessions, browses it A to Z,
   searches it, and closes it by Close, Escape or Back, offline, by keyboard alone and in any
   orientation.
 - **Scope:**
   - **2a, the page (`src/components/lexicon/`):** the view as the design lays it out (the bar, the
-    count, the search field, the letter row, the reading column, the entries with More, the
-    related links, the "Mentioned in other words" group, the no-match state and the result count),
-    and its model: the A to Z order and letters, doubled words, the search's matching, tiers and
+    count, the search field, `Letters` with T0's `lexicon-letters-button` class, the letter row,
+    the reading column, the entries with More, the related links, the "Mentioned in other words"
+    group, the no-match state and the result count; ux D492), and its model: the A to Z order and letters, doubled words, the search's matching, tiers and
     mentions ([§E6](master-spec.md#e6-the-page)), and the inline marks built as text, never as HTML.
     It reads the entries only through chunk 1's read interface over the build-only module. Focus
-    targets, the trap and the keys inside the page; its state kept for the visit.
-  - **2b, opening and the address (`src/components/workspace/`):** the footer's `Lexicon` after
-    `Your data`, disabled only while a session runs, count-in included (the footer's one `disabled`
+    targets, the trap and the keys inside the page; its state kept for the visit. The bar's
+    measurement: the page measures the part of the bar that stays at the top (`lexicon-bar`, or
+    `lexicon-bar-row` below `bp-tablet-landscape`) and keeps its height current on `lexicon-view`
+    as `--lexicon-bar-block-size`, which the view's scroll padding in `components.css` reads, so
+    no jump target and no element focused by Tab lands under the bar (ux D492; the lexicon page's
+    Moving Around the Page: Below the bar).
+  - **2b, opening and the address (`src/components/workspace/`):** the footer's `Your data` and
+    `Lexicon` held in a `footer-actions` wrapper in `LayoutFooter.vue`, so the two wrap together
+    under the note (ux D493; the phrase workspace's Layout Tree and Responsive Behavior: Footer),
+    `Lexicon` after `Your data`, disabled only while a session runs, count-in included (the footer's one `disabled`
     flag becomes one per button: `Your data` keeps waiting for the controller, `Lexicon` does not);
     the page's host, in a module of its own: the loader, loading once, keeping the module and asking
     for a fresh address on Try again as `load-jam-mode.ts` does; the button's loading state; a session
@@ -266,7 +276,9 @@ link's navigation. All through one injected history seam.
     sheet), so no MIDI note starts a session, a count-in or a Jam and the starting note's line
     hides; focus back to the button on close; the history seam and §E8's model (a load at
     `#lexicon` opens the page once the shell is mounted: `main.ts` mounts the app only after the
-    saved data is read, so `src/App.vue` needs no change); the page rendered beside the sheets, outside
+    saved data is read, so `src/App.vue` needs no change; `#lexicon` reached while any sheet is
+    open opens nothing, only the address being replaced and the sheet left as it was, spec D567,
+    ux D495, the look up a word flow's Routing Rules); the page rendered beside the sheets, outside
     `.layout-app`, so the portrait guard leaves it shown ([§E7](master-spec.md#e7-opening-and-closing),
     spec D562); an ESLint import rule: only the loader imports `src/components/lexicon/` statically,
     as Jam's rule does (copying `jamImportPattern`). `WorkspaceShell.vue` stays within 600
@@ -274,7 +286,8 @@ link's navigation. All through one injected history seam.
     (the shell carries 18).
   - **The end-to-end tests:** a new spec for the page (A to Z, a letter, search and its tiers, one
     match, no match, mentions, a related jump, More, Close, Escape, Back, Forward, a load at
-    `#lexicon`, a typed `#lexicon`, a session started during the load, a failed load and Try again,
+    `#lexicon`, a typed `#lexicon`, `#lexicon` reached under an open sheet, a session started
+    during the load, a failed load and Try again,
     a MIDI note while open, a portrait view, the keyboard alone), added to the `test:e2e` list; the
     page's states in the accessibility suite; the page and its words offline in the release suite.
   - **Out:** the API's schema and document (chunk 3); any change to `src/styles/` (T0's) or to
@@ -300,7 +313,7 @@ link's navigation. All through one injected history seam.
   Around the Page; Focus and Keyboard; Responsive Behavior; States),
   [`flows/look-up-a-word/handoff.md`](../../../ui_ux/flows/look-up-a-word/handoff.md) (Flow; Routing
   Rules), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
-  (Page frame: Footer; The Lexicon button; The lexicon's load-failure notice; Responsive Behavior:
+  (Layout Tree; Page frame: Footer; The Lexicon button; The lexicon's load-failure notice; Responsive Behavior:
   Footer; Session count-in: The lexicon; The starting note line: Under the lexicon page),
   [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md) (Starting note: The
   lexicon page), [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md)
@@ -326,19 +339,23 @@ link's navigation. All through one injected history seam.
   `rule_session_ends_on_portrait_view`: "As outside a session, the app has no portrait layout below
   the desktop layout's width: …" becomes "As outside a session, the phrase workspace has no
   portrait layout below the desktop layout's width: …", the rest unchanged (spec D562); and
-  `module_lexicon_page_history_entry` as built.
+  `module_lexicon_page_history_entry` as built, the open-sheet rule included (spec D567).
 - **Done when:**
   - Every shown entry is on the page under its letter and found by its word and each other name;
     the count matches the file; an entry shows and opens as §E6 says, marks shown as text.
   - A to Z, the letters, doubled words and the search behave as §E6 says, each case a unit test on
     a fixture list read through the read interface.
-  - The button sits after `Your data`, disabled during a session and the count-in, enabled before
-    the controller has loaded; the first opening loads; a session started during the load cancels
+  - The button sits after `Your data`, the two in `footer-actions` and wrapping together under the
+    note, `Lexicon` disabled during a session and the count-in, enabled before the controller has
+    loaded; the first opening loads; a session started during the load cancels
     it; a failed load shows the notice and Try again opens the page.
   - No MIDI note starts a session, a count-in or a Jam while the page is open, and the starting
     note's line hides and returns.
-  - Each history rule of §E8 holds in the end-to-end spec; the address is `#lexicon` only while
-    the page is open.
+  - Each history rule of §E8 holds in the end-to-end spec, the open-sheet rule included: the sheet
+    stays open with what was typed in it; the address is `#lexicon` only while the page is open.
+  - At one and at two letter rows, and below `bp-tablet-landscape`, a letter's jump and a Tab
+    focus land clear of the bar's staying part: `--lexicon-bar-block-size` on `lexicon-view`
+    follows its measured height.
   - The page opens, reads and closes in a portrait view below the desktop layout's width.
   - The page and its words open offline after one visit; the accessibility suite passes on its
     states; the keyboard alone reaches everything in the design's order.
@@ -347,7 +364,8 @@ link's navigation. All through one injected history seam.
 - **Verification:** chunk checks; the new end-to-end spec and the accessibility and offline specs it
   edits (its point); the start-up figure (M2) is placed at the wave gate.
 - **Split rule:** 2a, the page in `src/components/lexicon/` with its component and model tests,
-  reached only from tests; 2b, the button, the host, the loader, the notice, the open-sheet flag,
+  reached only from tests (the bar's measurement included); 2b, the footer's `footer-actions` and
+  its button, the host, the loader, the notice, the open-sheet flag,
   the history seam, the shell's wiring (and any block moved out of it, with its `@spec-link`
   tags), the ESLint rule and the
   end-to-end, accessibility and offline tests.

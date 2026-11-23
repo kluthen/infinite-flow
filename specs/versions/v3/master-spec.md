@@ -129,13 +129,14 @@ Status: this file holds five parts.
   records the release, no behaviour changed: built and released as version 3.3.0 on 2026-11-18
   (spec D544), the contract for the running code with Parts A, B and C; its hand and listening
   checks follow the tag.
-- **[Part E — v3.4](#part-e--v34), the lexicon page and the lexicon API:** master spec v1.0
-  (2026-11-22), consolidated from the [lexicon page draft](lexicon-page.md) (v2.3) and the v3.4
+- **[Part E — v3.4](#part-e--v34), the lexicon page and the lexicon API:** master spec v1.1
+  (2026-11-23; v1.0 2026-11-22), consolidated from the [lexicon page draft](lexicon-page.md) (v2.3) and the v3.4
   design at the `ui_ux/` root; **approved by the wave driver on 2026-11-22 under the owner's
   delegation of v3.4** (spec D556, D564). Its code facts were read again on `main` 828ab396
   (§E13). It changes no STABLE guarantee (§E12). Its sections are numbered E1 to E17. v3.4's other
   item, the structural review, is not in Part E: its report and any refactors it takes are
-  specified and planned on their own ([structural review](structural-review.md)).
+  specified and planned on their own ([structural review](structural-review.md)). v1.1 adds §E8's
+  rule for `#lexicon` reached under an open sheet (spec D567).
 
 Part A's history follows.
 
@@ -5942,8 +5943,8 @@ device.
 ## Part E — v3.4
 
 The lexicon page and the lexicon API. Its sections are numbered E1 to E17; a cross-reference to
-one carries a section sign (§E5), never to be read as a decisions-log entry. Master spec v1.0
-(2026-11-22), consolidated from the [lexicon page draft](lexicon-page.md) (v2.3, spec D393–D395,
+one carries a section sign (§E5), never to be read as a decisions-log entry. Master spec v1.1
+(2026-11-23; v1.0 2026-11-22), consolidated from the [lexicon page draft](lexicon-page.md) (v2.3, spec D393–D395,
 D549, D555, D558–D561) and the v3.4 design at the `ui_ux/` root (the lexicon page's screen, the
 "look up a word" flow and the footer's button; ux D488–D491), with the wave driver's rulings on
 the page's orientation (spec D562) and on the build failing for an empty or malformed lexicon
@@ -5952,6 +5953,8 @@ delegation of v3.4's resolution (spec D556: "you're free to handle the resolutio
 to your suggestions"); the owner keeps the `3.4.0` tag's go. The page's behaviour is the design the
 owner validated on 2026-11-22 ("OK i validate lexicon view", spec D549). v3.4 is built on v3.3 as
 released (version 3.3.0, Parts A to D). Where this part and the draft differ, this part wins.
+v1.1 (2026-11-23) adds §E8's rule for `#lexicon` reached under an open sheet, settled by the
+design's token-source pass (ux D495) and accepted by the wave driver (spec D567).
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term, and the page this part specifies
@@ -6234,6 +6237,11 @@ history entry of its own, address `#lexicon`, and no other.
 - **`#lexicon` reached any other way** while the app is open, such as typed into the address bar,
   is handled as a load at `#lexicon`: the address is replaced with the bare one and the page opens
   as a press of Lexicon does, adding its own entry; during a session only the address is replaced.
+- **Under an open sheet.** While any sheet is open over the workspace (Your data, the connection
+  sheet, My instrument, the preset sheet or another), Lexicon cannot be pressed, so `#lexicon`
+  reached by Forward, by a load or any other way opens nothing: only the address is replaced with
+  the bare one, and the sheet stays as it was. Closing the sheet first was rejected: it could
+  discard what the player typed in it (spec D567).
 - **Jumps inside the page** (a letter, a related word) move within the page without navigating:
   their link's own navigation is cancelled, so they add no history entry and leave the address at
   `#lexicon`. Their links keep their targets, so they are still links to assistive technology.

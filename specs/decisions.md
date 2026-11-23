@@ -331,3 +331,8 @@ archived range D407–D509 that its archive notice lists.
   wave of three chunks; the read interface is built with the parser in chunk 1, so the page
   (chunk 2) and the API's contract (chunk 3) each follow chunk 1 by one edge, as the in-wave edge
   rule allows. Now in: [build plan v3.4](versions/v3/build-plan-v3.4.md).
+- **D567 (2026-11-23, the driver under D556): `#lexicon` reached under an open sheet opens
+  nothing; only the address is replaced, the sheet staying as it was.** Gate T0 settled the case
+  §E8 left uncovered (ux D495); closing the sheet first was rejected, as it could discard what the
+  player typed. Now in: [Part E §E8](versions/v3/master-spec.md#e8-the-browsers-history-and-the-address)
+  (v1.1) and [build plan v3.4](versions/v3/build-plan-v3.4.md) chunk 2.
