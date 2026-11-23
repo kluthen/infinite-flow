@@ -10,6 +10,7 @@ type: REQUIREMENT
 priority: 1
 human_name: Rolling Practice Session
 dependents:
+  - [[module_library_code_boundary]]
   - [[module_notation_note_identity_overlays]]
   - [[module_session_phrase_steps]]
   - [[module_session_rolling_display]]
