@@ -46,3 +46,10 @@ current state.
   block the note; the gap predates v3.4; raise it as a contract question.
 - 2026-11-23: T0 running (`ux-writer`, branch `v3.4-t0`, merged here before chunk 2). Chunk 1
   dispatched.
+- 2026-11-23: gate T0 done: 86a57594 on `v3.4-t0`, merged into `v3.4-w1` 05556e43. The page's
+  `lexicon-*` classes plus `lexicon-letters-button` and `footer-actions` (ux D492, D493); the two
+  §E11 flow points (ux D494); `ux-critic` DRIFT, three findings fixed (ux D495), including a new
+  rule: a `#lexicon` arriving while a sheet is open opens nothing, only the address is replaced.
+  Sent to `spec-writer`: write D495's rule into §E8 (accepted by the driver under D556) and carry
+  T0's chunk 2 notes into chunk 2 (the `footer-actions` wrapper, `lexicon-letters-button`,
+  `--lexicon-bar-block-size` kept current on `lexicon-view`, `lexicon-view` outside `.layout-app`).
