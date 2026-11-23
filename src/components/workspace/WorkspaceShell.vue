@@ -32,8 +32,9 @@
  * ends with the page footer and hosts the Your data sheet (./use-your-data.ts), opened from the
  * footer, the session list's header and the storage-full notice, loaded on demand. It hosts the
  * preset bar's actions and the preset sheet (./use-preset-sheet.ts), loaded on demand, whose
- * refused saves the notice row tells. It holds the workspace's mode (./use-workspace-mode.ts),
- * session mode at every load: the header's mode switch changes it, Jam's view takes the staff's
+ * refused saves the notice row tells. Its Jam host (./use-jam-host.ts) holds the workspace's mode
+ * (./use-workspace-mode.ts) and all of Jam below, session mode at every load: the header's mode
+ * switch changes it, Jam's view takes the staff's
  * place while Jam mode shows, and while Jam mode opens the controls are read-only and both header
  * actions disabled; whether session mode is held is reported to the workspace as it changes. A
  * failed opening shows Jam's load-failure notice in the notice row, focus on its `Try again`
@@ -61,7 +62,7 @@
  * its taps, as a change by hand; while it listens, Jam's Idle cue hides the starting note and the
  * controller's notes there are taps.
  */
-import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 
 import type { PostPrewarm } from '@/composables/generation-session-prewarm'
 import type { GenerationSession } from '@/composables/use-generation-session'
@@ -69,9 +70,6 @@ import type { WorkspaceSessionResult } from '@/composables/workspace-session-res
 import ControlPanel from '@/components/controls/ControlPanel.vue'
 import type { WrittenPhrase } from '@/domain/notation/written-phrase-types'
 import type { NotationError } from '@/notation/notation-error'
-import type { JamStaffState } from '@/jam/jam-view-types'
-import type { JamSettingsChange } from '@/jam/jam-settings'
-import type { InstrumentProfileId } from '@/domain/profile/instrument-profiles'
 import type { StaffLayoutInputs } from '@/notation/staff-fit-types'
 import type { AudioTransport } from '@/audio/audio-transport'
 import type { SavedDataLoad } from '@/storage-bootstrap'
@@ -112,20 +110,9 @@ import { useMyInstrumentSheet } from './use-my-instrument-sheet'
 import { usePresetSheet, type PresetStore } from './use-preset-sheet'
 import { useYourData } from './use-your-data'
 import { useLexiconPage } from './use-lexicon-page'
-import { loadJamMode } from './load-jam-mode'
-import { useWorkspaceMode } from './use-workspace-mode'
-import { useJamIdleCue } from './use-jam-idle-cue'
-import { useJamSettings } from './use-jam-settings'
-import { useFreshJam } from './use-fresh-jam'
-import { useKeptDoodleHost } from './use-kept-doodle-host'
-import { useTapTempoHost } from './use-tap-tempo-host'
-import { useJamViewProps } from './use-jam-view-props'
-import { useKeptDoodlePhrase, type KeptDoodleGeneration } from './use-kept-doodle-phrase'
-import { useJamPregeneration } from './use-jam-pregeneration'
+import { useJamHost } from './use-jam-host'
+import type { KeptDoodleGeneration } from './use-kept-doodle-phrase'
 import type { JamPregenerationLoader } from './jam-pregeneration'
-import { useKeptDoodleJam } from './use-kept-doodle-jam'
-import { useJamPortsAndBar } from './use-jam-bar'
-import type { FreshJamStartFacts } from './session-action-policy'
 import type { HeldModeNoteRoute } from './workspace-session-midi'
 
 // The stale-phrase prompt, in its own chunk: only a stale phrase 1 at a start needs it.
@@ -291,150 +278,53 @@ const reviewShowing = computed(
     props.controller?.state.listShowing === true,
 )
 
-/**
- * A failed opening of Jam mode sends focus to its notice's `Try again`, unless a sheet is
- * open as the wait ends: focus then stays in the sheet, the notice showing all the same.
- */
-// @spec-link [[module_workspace_mode]]
-function focusJamTryAgainOutsideSheets(): void {
-  if (!anySheetOpen.value) requireNoticeRow().focusJamTryAgain()
-}
-
-// The workspace's mode: session mode at every load, Jam's code loaded on the first press of Jam.
-// @spec-link [[module_workspace_mode]]
-const workspaceMode = useWorkspaceMode({
-  operationRunning: () => state.value.operation !== 'idle' || jamPhraseRunning.value,
+// The workspace's Jam (./use-jam-host.ts): its mode, Jam's code loaded on the first press of
+// Jam, and all the shell wires over it, Jam's Idle cue and the kept doodle's bar included.
+const {
+  workspaceMode,
+  settingsReadonly,
+  jamStaffState,
+  keptDoodle,
+  keptPhrase,
+  freshJam,
+  keptDoodleJam,
+  jamTapTempo,
+  jamViewProps,
+  jamTempo,
+  jamControls,
+  jamControlsProps,
+  jamIdleCue,
+  jamBar,
+  handleJamSettingChange,
+  handleJamInstrumentChange,
+  handleRetryJamNotation,
+  handleDismissJamFailure,
+} = useJamHost({
+  idle: () => state.value,
+  controller: () => props.controller,
+  requireController,
+  audio: props.audio,
+  prewarm: () => props.prewarm,
+  jamSettingsRecords: () => props.jamSettingsRecords,
+  keptDoodleGeneration: props.keptDoodleGeneration,
+  jamPregeneration: props.jamPregeneration,
   sessionActive: () => sessionActive.value,
   reviewShowing: () => reviewShowing.value,
-  load: loadJamMode,
+  controlsReadonly: () => controlsReadonly.value,
+  instrumentChoice: () => instrumentChoice.value,
+  systemPositionUnits: () => systemPositionUnits.value,
+  anySheetOpen: () => anySheetOpen.value,
+  controllerConnected: () => controllerStatus.form.value.kind === 'connected',
   onHeldChange: (held) => {
     emit('session-mode-held-change', held)
     void props.session.actions.holdInstrumentSwitches(held)
   },
-  onLoadFailed: () => void nextTick(focusJamTryAgainOutsideSheets),
-})
-/**
- * The controls are read-only: during a session, as the session holds them, while Jam opens, and
- * during the Loading of Jam's phrase 1.
- */
-const settingsReadonly = computed(
-  () => controlsReadonly.value || workspaceMode.opening.value || jamPhraseRunning.value,
-)
-
-// Jam's own settings, made the first time Jam mode shows in the visit.
-// @spec-link [[module_workspace_mode]]
-const jamSettings = useJamSettings({
-  jamModule: () => workspaceMode.jamModule.value,
-  jamShowing: () => workspaceMode.jamView.value !== null,
-  records: () => props.jamSettingsRecords,
-  sessionControls: () => state.value.controls,
-  instrumentProfileId: () => state.value.controls.instrumentProfileId,
-  saveSettings: injectSaveSettings(),
-})
-
-/** What Jam's staff shows while Jam mode shows (Start Jam's conditions read it); null otherwise. */
-const jamStaffState = ref<JamStaffState | null>(null)
-watch(workspaceMode.jamView, (view) => {
-  if (view === null) jamStaffState.value = null
-})
-
-// Jam mode's kept doodle, made once Jam's code loads: what keeps it reaches it here, and leaving
-// Jam mode or the player's deletion of the session it comes from lets it go.
-const keptDoodle = useKeptDoodleHost({
-  jamModule: () => workspaceMode.jamModule.value,
-  jamShowing: () => workspaceMode.jamView.value !== null,
-  lastDeletion: () => props.controller?.state.lastDeletion ?? null,
-  instrument: () =>
-    selectedInstrumentProfile(state.value.controls.instrumentProfileId, state.value.myInstrument),
-  keyAndMode: (jam) => jamSettings.reviewKeyAndMode(jam),
-})
-
-// Jam's phrase 1 written from the kept doodle at Idle, on a staff of its own.
-const keptPhrase = useKeptDoodlePhrase({
-  generation: props.keptDoodleGeneration,
-  jamModule: () => workspaceMode.jamModule.value,
-  jamShowing: () => workspaceMode.jamView.value !== null,
-  kept: () => keptDoodle.kept.value,
-  settings: () => jamSettings.view.value,
-  instrument: () => instrumentChoice.value,
-})
-const jamPhraseRunning = computed(() => keptPhrase.state.operation !== 'idle')
-
-// Jam's own pre-generation queue, from the kept doodle's phrase 1: a Jam started on it takes its
-// ready phrases with `take(heldLayout)`.
-const jamPregeneration = useJamPregeneration({
-  load: props.jamPregeneration,
-  jamModule: () => workspaceMode.jamModule.value,
-  phrase: keptPhrase,
-  kept: () => keptDoodle.kept.value,
-  settings: () => jamSettings.view.value,
-  instrument: () => instrumentChoice.value,
-  facts: () => ({
-    jamShowing: workspaceMode.jamView.value !== null,
-    sessionActive: sessionActive.value,
-    reviewShowing: reviewShowing.value,
-    orientationNoticeShown: props.controller?.state.orientationNoticeShown === true,
-  }),
-})
-
-// A fresh Jam: its start, what it shows while it runs, `jam-notice` after it, and its doodle kept
-// at its end with a review.
-// @spec-link [[module_workspace_mode]]
-const freshJam = useFreshJam({
-  jamModule: () => workspaceMode.jamModule.value,
-  jamShowing: () => workspaceMode.jamView.value !== null,
-  controller: requireController,
-  settings: () => jamSettings.view.value,
-  instrument: () => instrumentChoice.value,
-  lastEnd: () => props.controller?.state.lastEnd ?? null,
-  jamStaffState: () => jamStaffState.value,
-  keepDoodle: keptDoodle.keep,
-})
-
-// The Jam `Start Jam` starts: on the kept doodle (as from Ready) when one is kept, else a fresh one.
-const keptDoodleJam = useKeptDoodleJam({
-  controller: requireController,
-  kept: () => keptDoodle.kept.value,
-  phrase: keptPhrase,
-  tempo: () => jamSettings.view.value?.controls.tempo ?? null,
-  take: jamPregeneration.take,
-  lastEnd: () => props.controller?.state.lastEnd ?? null,
-  startFresh: freshJam.start,
-})
-
-// Jam's tap tempo, made once Jam's code loads: its taps set Jam's tempo as a change by hand.
-const jamTapTempo = useTapTempoHost({
-  jamModule: () => workspaceMode.jamModule.value,
-  jamShowing: () => workspaceMode.jamView.value !== null,
-  readonly: () => settingsReadonly.value,
-  controllerConnected: () => jamStartFacts().controllerConnected,
-  audio: props.audio,
-  tempo: () => jamSettings.view.value?.settings.tempo ?? null,
-  setTempo: (tempo) => handleJamSettingChange({ tempo }),
-})
-
-// What Jam's view and Jam's controls are given, and Jam's tempo for the header's `tempo-readout`.
-const {
-  view: jamViewProps,
-  tempo: jamTempo,
-  controls: jamControls,
-  controlsProps: jamControlsProps,
-} = useJamViewProps({
-  jamModule: () => workspaceMode.jamModule.value,
-  jamShowing: () => workspaceMode.jamView.value !== null,
-  jam: () => jamSettings.view.value,
-  sessionControls: () => state.value.controls,
-  sessionFigureLevels: () => state.value.figureLevels,
-  instrument: () => instrumentChoice.value,
-  systemPositionUnits: () => systemPositionUnits.value,
-  prewarm: () => props.prewarm,
-  noticeShown: () => freshJam.noticeShown.value,
-  tapTempo: () => jamTapTempo.view.value,
-  readonly: () => settingsReadonly.value,
-  operationRunning: () => state.value.operation !== 'idle',
-  freshReadings: () => freshJam.readings.value,
-  keptReadings: () => keptDoodle.kept.value?.readings ?? null,
-  belowTabletLandscape: () => state.value.noteDensityContext.belowTabletLandscape,
+  focusJamTryAgain: () => requireNoticeRow().focusJamTryAgain(),
+  focusFallback: () => focusFallback(),
+  closeReview: (between) => reviewNavigation.closeReview(between),
+  header: () => focusParts().header,
+  scorePanel: () => scorePanel.value,
+  selectInstrumentProfile: (id) => controlPanelActions.selectInstrumentProfile(id),
 })
 
 // The player presets' refused saves, which the preset actions tell and the notice row hears.
@@ -563,35 +453,8 @@ const anySheetOpen = computed(
     lexiconPage.shown.value,
 )
 
-/** The facts a fresh Jam's start is judged on, now. */
-function jamStartFacts(): FreshJamStartFacts {
-  return {
-    controllerLoaded: props.controller !== null,
-    controllerConnected: controllerStatus.form.value.kind === 'connected',
-    sessionActive: sessionActive.value,
-    reviewShowing: reviewShowing.value,
-    sheetOpen: anySheetOpen.value,
-    orientationNoticeShown: props.controller?.state.orientationNoticeShown === true,
-    jamStaffShown: jamStaffState.value === 'shown',
-  }
-}
-
-// Jam mode's Idle cue: the starting note while a Jam could start (the home note, or the kept
-// doodle's phrase 1's first note), or `jam-needs-controller`; none while tap tempo listens.
-const jamIdleCue = useJamIdleCue({
-  jamModule: () => workspaceMode.jamModule.value,
-  jamShowing: () => workspaceMode.jamView.value !== null,
-  settings: () => jamViewProps.value,
-  startFacts: jamStartFacts,
-  pageAwaitsClick: () =>
-    props.controller?.state.pageActivated !== true && !props.audio.isUnlocked(),
-  keptPhrase: keptDoodleJam.phraseCue,
-  tapListening: jamTapTempo.isListening,
-  tap: jamTapTempo.tap,
-})
-
 // The starts from the screen (./workspace-starts.ts): the Start click, Jam mode's starting note,
-// what precedes a start and the start's one instant jump.
+// what precedes a start and the start's one instant jump; and `Stop`.
 const starts = createWorkspaceStarts({
   controller: requireController,
   root: () => layoutRoot.value,
@@ -626,12 +489,6 @@ function workspacePart(selector: string): Element {
   const element = layoutRoot.value?.querySelector(selector) ?? null
   if (element === null) throw new Error(`workspace shell: ${selector} is not mounted`)
   return element
-}
-
-/** `Stop`, from the header or the phone's compact one. */
-// @spec-link [[rule_stop_ends_session]]
-function handleStopSession(): void {
-  requireController().stop()
 }
 
 /**
@@ -677,58 +534,10 @@ const reviewNavigation = useReviewNavigation({
   focusTarget,
 })
 
-// What a Jam session's Review reaches of the workspace's Jam (its key and mode, the shared
-// instrument, `Jam in {answer}`, `Jam again on this doodle`, which keeps its doodle, and a decline,
-// which reaches the kept doodle from its session), and the kept doodle's bar over the same.
-// @spec-link [[module_workspace_mode]]
-const jamBar = useJamPortsAndBar({
-  jamSettings,
-  instrument: () =>
-    selectedInstrumentProfile(state.value.controls.instrumentProfileId, state.value.myInstrument),
-  settingChanged: () => freshJam.settingChanged(),
-  mode: () => workspaceMode.mode.value,
-  selectJam: () => workspaceMode.select('jam'),
-  jamShown: () => loadJamMode().then(() => nextTick()),
-  closeReview: (between) => reviewNavigation.closeReview(between),
-  jamModule: () => workspaceMode.jamModule.value,
-  keptDoodle,
-  loading: () => jamPhraseRunning.value,
-  sessionActive: () => sessionActive.value,
-  controller: requireController,
-  header: () => focusParts().header,
-})
-
-/** A change of one of Jam's settings at Idle: saved by Jam's code; `jam-notice` goes. */
-// @spec-link [[module_workspace_mode]]
-function handleJamSettingChange(change: JamSettingsChange): void {
-  freshJam.settingChanged()
-  jamSettings.change(change)
-}
-
-/** The instrument changed from Jam's controls: a change of a Jam setting too. */
-function handleJamInstrumentChange(id: InstrumentProfileId): void {
-  freshJam.settingChanged()
-  controlPanelActions.selectInstrumentProfile(id)
-}
-
-/** The header's `Retry notation` in Jam mode: Jam's staff engraves its empty system again. */
-// @spec-link [[module_workspace_mode]]
-function handleRetryJamNotation(): void {
-  if (scorePanel.value === null) throw new Error('workspace shell: the score panel is not mounted')
-  scorePanel.value.retryJamNotation()
-}
-
 /** The mounted notice row; asking for it while it shows no notice is a defect. */
 function requireNoticeRow(): InstanceType<typeof AppNoticeRow> {
   if (noticeRow.value === null) throw new Error('workspace shell: the notice row is not shown')
   return noticeRow.value
-}
-
-/** Jam's load-failure notice's `Dismiss`: the notice goes, focus to the fallback. */
-// @spec-link [[module_workspace_mode]]
-function handleDismissJamFailure(): void {
-  workspaceMode.dismissFailure()
-  focusFallback()
 }
 
 /** `Dismiss`: remove the notice, and move focus to the workspace's fallback. */
@@ -767,7 +576,7 @@ const controlPanelActions = useControlPanelActions(props.session)
       @select-mode="workspaceMode.select"
       @retry-jam-notation="handleRetryJamNotation"
       @start-session="starts.startSession"
-      @stop-session="handleStopSession"
+      @stop-session="starts.stopSession"
       @close-review="reviewNavigation.closeReview"
       @open-connection-sheet="openConnectionSheet"
     />
@@ -808,7 +617,7 @@ const controlPanelActions = useControlPanelActions(props.session)
         :kept-start-marker="jamIdleCue.startMarker.value"
         :jam-bar="jamBar"
         @jam-staff-state="jamStaffState = $event"
-        @stop-session="handleStopSession"
+        @stop-session="starts.stopSession"
         @show-review="reviewNavigation.showReview"
         @show-sessions="reviewNavigation.showSessions"
         @scroll-to-top="props.scrollToPageTop()"

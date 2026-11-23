@@ -1,7 +1,8 @@
 /**
  * The phrase workspace's starts from the screen, which the shell (./WorkspaceShell.vue) wires: the
  * Start click, Jam mode's starting note, what precedes a start inside its click, and the start's
- * one instant jump (./session-start-jump.ts) for the layout the session holds.
+ * one instant jump (./session-start-jump.ts) for the layout the session holds; and `Stop`, which
+ * ends the running session.
  */
 import { jumpForSessionStart, startStaffViewport, type SessionJumpView } from './session-start-jump'
 import type { SessionController } from './workspace-session-controller-types'
@@ -26,15 +27,16 @@ export interface WorkspaceStartsOptions {
   readonly startJam: () => void
 }
 
-/** The workspace's starts. */
+/** The workspace's starts, and its `Stop`. */
 export interface WorkspaceStarts {
   readonly prepareStart: () => void
   readonly startSession: () => void
   readonly jumpAfterStart: () => void
   readonly startByJamNote: () => void
+  readonly stopSession: () => void
 }
 
-/** The workspace's starts over what they reach. */
+/** The workspace's starts, and its `Stop`, over what they reach. */
 export function createWorkspaceStarts(options: WorkspaceStartsOptions): WorkspaceStarts {
   /** What precedes a start inside its click: the volume popover closed, a late landing cleared. */
   function prepareStart(): void {
@@ -87,5 +89,11 @@ export function createWorkspaceStarts(options: WorkspaceStartsOptions): Workspac
     jumpAfterStart()
   }
 
-  return { prepareStart, startSession, jumpAfterStart, startByJamNote }
+  /** `Stop`, from the header or the phone's compact one. */
+  // @spec-link [[rule_stop_ends_session]]
+  function stopSession(): void {
+    options.controller().stop()
+  }
+
+  return { prepareStart, startSession, jumpAfterStart, startByJamNote, stopSession }
 }
