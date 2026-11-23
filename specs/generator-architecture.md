@@ -120,7 +120,7 @@ MIDI integration is not part of v1 and sits outside the evaluator. When v2 adds 
 - Randomness is injected through the request seed. The same request must regenerate the same four measures, allowing a phrase to be inspected and tested.
 - A user-triggered regeneration keeps the control policy but creates a new seed. The generated result retains that seed for exact reproduction.
 - Generator stages may attach musical annotations such as tension role, chord degree, or source transformation. Consumers may use these annotations, but must not infer hidden generator state.
-- The application orchestration layer chooses and connects planner implementations. Individual planners do not select, instantiate, or import one another.
+- The application orchestration layer chooses and connects planner implementations. Individual planners do not select or instantiate one another. They do import one another today: pitch imports harmony, and pitch and rhythm import generation (carry-in, steering, candidate ranking), so `domain/` holds an internal import cycle across generation, pitch, rhythm and validation. The v3.4 structural review found it and left the code as it is (R16, D572; [report](versions/v3/structural-review-report.md#6-ranked-recommendations)).
 
 ## Deferred Architecture Questions
 
