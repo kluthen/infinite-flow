@@ -208,3 +208,19 @@ current state.
   analysis tool kept (D572); the split's form (D573); O315 closed (D574). Build plan v5 adds wave 2
   (chunks 4 and 5) and wave 3 (chunks 6 and 7), with gates P2 and P3. Branch `v3.4-review-report`,
   not merged.
+
+## Wave 2
+
+- 2026-11-23: the review's branch merged into `main` bce1fce3 (spec D569–D575, plan v5.1). Wave
+  branch `v3.4-w2` cut from bce1fce3 in `/home/bastien/work/infinite_flow-v3.4-w2`. Chunks 4 and 5.
+- 2026-11-23: preflight P2 (`documentalist`, 66f4dec5). Chunk 4: PROCEED, no governing entry
+  (tooling, ATD-exempt). Chunk 5: PROCEED; governing `module_library_code_boundary` (captured, DRAFT,
+  tagged `release-v3.4`; parents chosen by `documentalist`: `user_story_controlled_phrase_generation`,
+  `req_rolling_practice_session`, `req_session_export`, `req_played_notes_export`; promotion is the
+  owner's call), `module_jam_code_boundary` (REVIEW),
+  `specification_browser_only_operation_verification` (STABLE); no STABLE wording changes. The atom
+  ends on "sets no rule on the files outside the set that import the library", so P3 may extend it
+  for session or add a sibling. Plan corrections to `spec-writer`: plan v5.2 6d48ba3b (wave 2 row's
+  fast-gate leftover removed; chunk 5's Atoms line names the capture).
+- 2026-11-23: chunk 4 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c4`,
+  branch `v3.4-c4-test-atom-limit`).
