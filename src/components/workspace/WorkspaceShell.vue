@@ -92,7 +92,8 @@ import WorkspaceHeader from './WorkspaceHeader.vue'
 import ScorePanel from './ScorePanel.vue'
 import OrientationNotice from './OrientationNotice.vue'
 import { createMixVolumePopover } from './mix-volume-popover'
-import { jumpForSessionStart, startStaffViewport, type SessionJumpView } from './session-start-jump'
+import type { SessionJumpView } from './session-start-jump'
+import { createWorkspaceStarts } from './workspace-starts'
 import { createWorkspaceFocusMoves } from './session-end-focus'
 import type { SessionController } from './workspace-session-controller-types'
 import {
@@ -110,6 +111,7 @@ import { useWorkspaceFocus } from './use-workspace-focus'
 import { useMyInstrumentSheet } from './use-my-instrument-sheet'
 import { usePresetSheet, type PresetStore } from './use-preset-sheet'
 import { useYourData } from './use-your-data'
+import { useLexiconPage } from './use-lexicon-page'
 import { loadJamMode } from './load-jam-mode'
 import { useWorkspaceMode } from './use-workspace-mode'
 import { useJamIdleCue } from './use-jam-idle-cue'
@@ -227,6 +229,7 @@ const layoutRoot = ref<HTMLElement | null>(null)
 const header = ref<InstanceType<typeof WorkspaceHeader> | null>(null)
 const scorePanel = ref<InstanceType<typeof ScorePanel> | null>(null)
 const noticeRow = ref<InstanceType<typeof AppNoticeRow> | null>(null)
+const footer = ref<InstanceType<typeof LayoutFooter> | null>(null)
 
 // The one volume popover of the page: its id is unique, since the workspace is rendered once.
 // @spec-link [[req_session_audio_mix]]
@@ -496,18 +499,32 @@ const presetSheet = usePresetSheet({
   tellRefusedSave: refusedPresetSaves.tell,
   root: () => layoutRoot.value,
 })
+// The lexicon page (./use-lexicon-page.ts), opened from the footer's `Lexicon`, and its
+// `#lexicon` history entry; it cannot open under a sheet, the stale-phrase prompt included.
+const lexiconPage = useLexiconPage({
+  sessionActive: () => sessionActive.value,
+  sheetOpen: () => anySheetOpen.value || props.controller?.state.stalePhrasePrompt != null,
+  workspace: () => layoutRoot.value,
+  focusOpener: () => footer.value?.focusLexicon(),
+  focusTryAgain: () => requireNoticeRow().focusLexiconTryAgain(),
+  focusFallback: () => focusFallback(),
+})
 let connectionSheetShown = false
 /** Tell the workspace whether any of its sheets is open now. */
+// @spec-link [[module_session_starting_note]]
+// @spec-link [[req_lexicon_page]]
 function reportSheetsOpen(): void {
   const open =
     myInstrumentSheet.sheetOpen.value ||
     yourData.sheet.value !== null ||
-    presetSheet.sheetOpen.value
+    presetSheet.sheetOpen.value ||
+    lexiconPage.shown.value
   emit('connection-sheet-open-change', connectionSheetShown || open)
 }
 watch(myInstrumentSheet.sheetOpen, reportSheetsOpen)
 watch(yourData.sheet, reportSheetsOpen, { flush: 'sync' })
 watch(presetSheet.sheetOpen, reportSheetsOpen, { flush: 'sync' })
+watch(() => lexiconPage.shown.value, reportSheetsOpen, { flush: 'sync' })
 
 // The header's `controller-status` and the connection sheet it opens.
 const {
@@ -533,13 +550,17 @@ const {
   rememberedController: props.rememberedController,
 })
 
-/** True while any sheet is open: the connection, My instrument, Your data or preset sheet. */
+/**
+ * True while any sheet is open: the connection, My instrument, Your data or preset sheet, or the
+ * lexicon page, which counts as one.
+ */
 const anySheetOpen = computed(
   () =>
     connectionSheetOpen.value ||
     myInstrumentSheet.sheetOpen.value ||
     yourData.sheet.value !== null ||
-    presetSheet.sheetOpen.value,
+    presetSheet.sheetOpen.value ||
+    lexiconPage.shown.value,
 )
 
 /** The facts a fresh Jam's start is judged on, now. */
@@ -569,23 +590,24 @@ const jamIdleCue = useJamIdleCue({
   tap: jamTapTempo.tap,
 })
 
-/**
- * Jam mode's starting note, played while a Jam could start (the home note, or the kept
- * doodle's phrase 1's first note): the start `Start Jam` takes, its one instant jump included (ux
- * D452); focus stays where it is.
- */
-// @spec-link [[module_workspace_mode]]
-function handleJamHomeNote(): void {
-  prepareStart()
-  keptDoodleJam.start()
-  jumpAfterStart()
-}
+// The starts from the screen (./workspace-starts.ts): the Start click, Jam mode's starting note,
+// what precedes a start and the start's one instant jump.
+const starts = createWorkspaceStarts({
+  controller: requireController,
+  root: () => layoutRoot.value,
+  jumpView: () => props.jumpView,
+  closeVolumePopover: () => mixPopover.closeForSessionStart(),
+  clearLateRoomNotice: () => workspaceFocus.clearLateRoomNotice(),
+  jamShowing: () => workspaceMode.jamView.value !== null,
+  doodleKept: () => keptDoodle.kept.value !== null,
+  startJam: () => keptDoodleJam.start(),
+})
 emit('held-mode-notes-change', {
   meaningOf: jamIdleCue.meaningOf,
-  start: handleJamHomeNote,
+  start: starts.startByJamNote,
   hear: jamIdleCue.hear,
 })
-emit('after-note-start-change', jumpAfterStart)
+emit('after-note-start-change', starts.jumpAfterStart)
 
 defineExpose({
   /** True while the connection sheet is open (see `ConnectionSheetHost.connectionSheetOpen`). */
@@ -604,47 +626,6 @@ function workspacePart(selector: string): Element {
   const element = layoutRoot.value?.querySelector(selector) ?? null
   if (element === null) throw new Error(`workspace shell: ${selector} is not mounted`)
   return element
-}
-
-/** What precedes a start inside its click: the volume popover closed, a late landing cleared. */
-function prepareStart(): void {
-  mixPopover.closeForSessionStart()
-  workspaceFocus.clearLateRoomNotice()
-}
-
-/**
- * The Start click, synchronously: close the volume popover, start the session (which
- * unlocks the audio and asks for the screen locks inside this click), then make the start's one
- * instant jump for the layout the session holds. Focus stays on the session action. With a stale
- * phrase 1 nothing starts: the controller opens the stale-phrase prompt instead.
- */
-// @spec-link [[rule_session_start_conditions]]
-// @spec-link [[req_landscape_phrase_workspace]]
-function handleStartSession(): void {
-  prepareStart()
-  if (workspaceMode.jamView.value !== null) {
-    keptDoodleJam.start()
-    jumpAfterStart()
-  } else if (requireController().start() === 'started') jumpAfterStart()
-}
-
-/**
- * The start's one instant jump, for the layout the session just started holds, to the
- * staff in sight at the start: session mode's, or in Jam mode Jam's own (its empty staff, or with a
- * doodle kept the staff showing its phrase 1).
- */
-function jumpAfterStart(): void {
-  const layout = requireController().state.heldLayout
-  if (layout === null) throw new Error('workspace shell: a started session holds no staff layout')
-  const root = layoutRoot.value
-  if (root === null) throw new Error('workspace shell: the workspace is not mounted')
-  const jamStaff = keptDoodle.kept.value === null ? 'jam-empty' : 'jam-kept-doodle'
-  const staffViewport = startStaffViewport(
-    root,
-    workspaceMode.jamView.value === null ? 'session' : jamStaff,
-  )
-  const parts = { workspace: root, cueRow: workspacePart('.session-cue-row'), staffViewport }
-  jumpForSessionStart(props.jumpView, parts, layout)
 }
 
 /** `Stop`, from the header or the phone's compact one. */
@@ -785,20 +766,23 @@ const controlPanelActions = useControlPanelActions(props.session)
       :jam-tempo="jamTempo"
       @select-mode="workspaceMode.select"
       @retry-jam-notation="handleRetryJamNotation"
-      @start-session="handleStartSession"
+      @start-session="starts.startSession"
       @stop-session="handleStopSession"
       @close-review="reviewNavigation.closeReview"
       @open-connection-sheet="openConnectionSheet"
     />
     <div class="layout-workspace">
       <AppNoticeRow
-        v-if="appNotice !== null || workspaceMode.loadFailed.value"
+        v-if="appNotice !== null || workspaceMode.loadFailed.value || lexiconPage.loadFailed.value"
         ref="noticeRow"
         :notice="appNotice"
         :disabled="appNoticeActionsDisabled"
         :jam-load-failed="workspaceMode.loadFailed.value"
+        :lexicon-load-failed="lexiconPage.loadFailed.value"
         @jam-try-again="workspaceMode.retry"
         @jam-dismiss="handleDismissJamFailure"
+        @lexicon-try-again="lexiconPage.press"
+        @lexicon-dismiss="lexiconPage.dismissFailure"
         @dismiss="handleDismissAppNotice"
         @reload="reloadPage"
         @your-data="yourData.open"
@@ -879,8 +863,12 @@ const controlPanelActions = useControlPanelActions(props.session)
       />
     </div>
     <LayoutFooter
-      :disabled="sessionActive || controller === null"
+      ref="footer"
+      :your-data-disabled="sessionActive || controller === null"
+      :lexicon-disabled="sessionActive"
+      :lexicon-loading="lexiconPage.loading.value"
       @open-your-data="yourData.open"
+      @open-lexicon="lexiconPage.press"
     />
   </main>
   <component
@@ -926,10 +914,11 @@ const controlPanelActions = useControlPanelActions(props.session)
     v-if="controller?.state.stalePhrasePrompt"
     :controller="controller"
     :regenerate="session.actions.regenerate"
-    :prepare-start="prepareStart"
-    :after-start="jumpAfterStart"
+    :prepare-start="starts.prepareStart"
+    :after-start="starts.jumpAfterStart"
     :focus-target="focusTarget"
     :focus-fallback="focusFallback"
   />
+  <component :is="lexiconPage.view" />
   <OrientationNotice />
 </template>

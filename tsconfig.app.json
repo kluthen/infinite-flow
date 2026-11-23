@@ -18,6 +18,7 @@
     "src/**/*.ts",
     "src/**/*.vue",
     "src/**/*.d.ts",
+    "scripts/lexicon-words-plugin.ts",
     "tests/unit/**/*.ts",
     "tests/perf/**/*.ts",
     "tests/sweep/**/*.ts",

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:infinite-flow:lexicon-entry/v1",
+  "title": "Lexicon entry, version 1",
+  "description": "One shown entry of the Infinite Flow lexicon, as the lexicon API hands it out (docs/lexicon-api.md). Every field is required and no other field is allowed. Text fields hold the lexicon's light inline marks as written.",
+  "type": "object",
+  "required": [
+    "id",
+    "word",
+    "otherNames",
+    "popup",
+    "definition",
+    "appMeaning",
+    "related",
+    "group",
+    "groupOrder"
+  ],
+  "properties": {
+    "id": {
+      "description": "The entry's id, unique among the entries.",
+      "type": "string"
+    },
+    "word": {
+      "description": "The entry's heading, as written.",
+      "type": "string"
+    },
+    "otherNames": {
+      "description": "Its other names, in the lexicon's order; empty when the lexicon says none.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "popup": {
+      "description": "Its plain line, as written.",
+      "type": "string"
+    },
+    "definition": {
+      "description": "Its definition, as written.",
+      "type": "string"
+    },
+    "appMeaning": {
+      "description": "Its app meaning, as written; null when the entry has none.",
+      "type": ["string", "null"]
+    },
+    "related": {
+      "description": "The ids of its related entries that are shown entries, in the lexicon's order.",
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "group": {
+      "description": "Its group's name, as the lexicon heads it.",
+      "type": "string"
+    },
+    "groupOrder": {
+      "description": "Its group's place in the lexicon's order, from 1.",
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "additionalProperties": false
+}

@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
 
 import { appVersionDefine } from './scripts/app-version-define.mjs'
+import { lexiconWordsPlugin } from './scripts/lexicon-words-plugin.ts'
 import { moduleGraphPlugin } from './scripts/module-graph-plugin.mjs'
 
 export default defineConfig({
@@ -26,6 +27,10 @@ export default defineConfig({
     // Writes dist/.vite/module-graph.json (each JS chunk's modules and imports), which
     // scripts/verify-boundaries.mjs reads to keep Jam's code (src/jam/) out of the first load.
     moduleGraphPlugin(),
+    // Reads docs/music/lexicon.md through src/lexicon/'s parser at build time and serves its shown
+    // entries as `virtual:lexicon-words`, emitted as the file lexicon-words-*.js; an empty or
+    // malformed lexicon fails the build.
+    lexiconWordsPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {

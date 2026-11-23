@@ -1,6 +1,13 @@
 # Infinite Flow v3.4 — Build Plan
 
-Status: v1 (2026-11-22): written; the lexicon wave (wave 1) approved by the wave driver under the
+Status: v4 (2026-11-23): chunk 2's two spec-silent choices written in (Part E v1.2, spec D568):
+the stale-phrase prompt counts as an open sheet for `#lexicon`, and a sheet opened during the
+first load stops the opening.
+v3 (2026-11-23): gate T0's notes written into chunk 2 (ux D492, D493, D495), and §E8's
+open-sheet rule (Part E v1.1, spec D567).
+v2 (2026-11-23): wave 1's preflight corrections (gate P1) written in: the captured atoms'
+IDs, the atoms the preflight found, chunk 2's widened revisions and its notes; no new ruling.
+v1 (2026-11-22): written; the lexicon wave (wave 1) approved by the wave driver under the
 owner's delegation (spec D556, D565). Gates A0, G0 and L0 done.
 
 The lexicon page and the lexicon API, written from
@@ -47,18 +54,18 @@ D545, D557); its measurement pass runs after this plan's wave 1 is built (spec D
 | **A0** | [Part E](master-spec.md#part-e--v34) v1.0 and this plan approved, under the owner's delegation of v3.4 (spec D556). The owner keeps the `3.4.0` tag's go.                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | The wave driver                | Every chunk  | done (2026-11-22, spec D564, D565)                                                            |
 | **G0** | The draft's code facts ([lexicon page §6](lexicon-page.md#6-what-the-code-says-blast-radius-2026-10-21), read on v3.1 code) read again on `main`, so the **Files** lines name real code.                                                                                                                                                                                                                                                                                                                                                                                                                                            | `spec-writer`                  | Every chunk  | done (2026-11-22, on 828ab396: [§E13](master-spec.md#e13-existing-code-and-risks))            |
 | **L0** | The lexicon pass (spec D560): player-worthy words out of Internal, the longest app meanings shortened, docs only. It must be on `main` before wave 1's branch is cut, or merged into the wave branch before chunk 2's branch is cut.                                                                                                                                                                                                                                                                                                                                                                                                | `documentalist`, `ux-writer`   | 2            | done (2026-11-22, lexicon v1.9, 32868c5d and its follow-up on `v3.4-lexicon-pass`; spec D560) |
-| **T0** | The token-source pass: `ux-writer` adds the page's `lexicon-*` classes to `src/styles/components.css`, from existing tokens only, as [`screens/lexicon-page/handoff.md`](../../../ui_ux/screens/lexicon-page/handoff.md) specifies them (Layout Tree: New classes; Components and Content), and writes Part E's two flow points ([§E11](master-spec.md#e11-for-the-interface-design)) into [`flows/look-up-a-word/handoff.md`](../../../ui_ux/flows/look-up-a-word/handoff.md); `ux-critic` checks the classes against the handoff, as it required. On the wave branch before chunk 2's branch is cut (or on `main` before wave 1). | `ux-writer`, `ux-critic`       | 2            | open                                                                                          |
-| **I0** | `documentalist` ingests Part E (skill `atd-spec-ingestion`, milestone refinement): the BUSINESS atom of [§E12](master-spec.md#e12-what-v34s-lexicon-part-changes-in-earlier-guarantees-and-atoms) as DRAFT, tagged `release-v3.4`; `changes-in-v3.4` on the atoms §E12 says to revise; no STABLE atom, CONTRACT or VISION touched. It may run in the same pass as P1.                                                                                                                                                                                                                                                               | `documentalist`                | P1           | open                                                                                          |
-| **P1** | Wave 1's preflight: a verdict per chunk, and before any code the captures the chunks name: the single-source rule and its build step (chunk 1), the API's read contract (chunk 1), the page's `#lexicon` history entry (chunk 2). In the same pass, the wording checks of §E12: `module_session_starting_note` (the page joins its sheets), and the portrait wordings for spec D562 (`req_landscape_phrase_workspace`, `rule_session_ends_on_portrait_view`, and [the first release master spec](../../first-release-master-spec.md)'s lines on portrait views, around its lines 19, 122 and 158).                                  | `documentalist`                | 1, 2, 3      | open                                                                                          |
+| **T0** | The token-source pass: `ux-writer` adds the page's `lexicon-*` classes to `src/styles/components.css`, from existing tokens only, as [`screens/lexicon-page/handoff.md`](../../../ui_ux/screens/lexicon-page/handoff.md) specifies them (Layout Tree: New classes; Components and Content), and writes Part E's two flow points ([§E11](master-spec.md#e11-for-the-interface-design)) into [`flows/look-up-a-word/handoff.md`](../../../ui_ux/flows/look-up-a-word/handoff.md); `ux-critic` checks the classes against the handoff, as it required. On the wave branch before chunk 2's branch is cut (or on `main` before wave 1). | `ux-writer`, `ux-critic`       | 2            | done (2026-11-23, 86a57594, merged 05556e43; ux D492–D495)                                    |
+| **I0** | `documentalist` ingests Part E (skill `atd-spec-ingestion`, milestone refinement): the BUSINESS atom of [§E12](master-spec.md#e12-what-v34s-lexicon-part-changes-in-earlier-guarantees-and-atoms) as DRAFT, tagged `release-v3.4`; `changes-in-v3.4` on the atoms §E12 says to revise; no STABLE atom, CONTRACT or VISION touched. It may run in the same pass as P1.                                                                                                                                                                                                                                                               | `documentalist`                | P1           | done (2026-11-23, 667164f6: `req_lexicon_page` DRAFT)                                         |
+| **P1** | Wave 1's preflight: a verdict per chunk, and before any code the captures the chunks name: the single-source rule and its build step (chunk 1), the API's read contract (chunk 1), the page's `#lexicon` history entry (chunk 2). In the same pass, the wording checks of §E12: `module_session_starting_note` (the page joins its sheets), and the portrait wordings for spec D562 (`req_landscape_phrase_workspace`, `rule_session_ends_on_portrait_view`, and [the first release master spec](../../first-release-master-spec.md)'s lines on portrait views, around its lines 19, 122 and 158).                                  | `documentalist`                | 1, 2, 3      | done (2026-11-23, be24541d; plan v2 7293457e)                                                 |
 | **DP** | Data preflight: not run. The repo has no data register ([build workflow](build-workflow.md#data-register)), so no chunk carries a **Data** line.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | —                              | —            | not needed                                                                                    |
 | **H1** | The owner sees the page before the `3.4.0` tag's go ([§E15](master-spec.md#e15-definition-of-done) item 18).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | The owner                      | Release gate | open                                                                                          |
 | **R1** | The structural review closes: its report, the driver's rulings on it (spec D556), and any refactor waves it adds to this plan, built and gated.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `spec-writer`, the wave driver | Release gate | open                                                                                          |
 
 ## Waves
 
-| Wave | Chunks                                                                                                                                    | Waits for                                                                                                                                                                                                                              | Status  |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| 1    | 1 The lexicon module and the build step (1a, 1b) · 2 The lexicon page, its button and its address (2a, 2b) · 3 The lexicon API's contract | A0, G0, I0, P1; L0 and T0 (2). In-wave 1 → 2 and 1 → 3: chunk 1's captures fix the entry contract, the read interface and the build-only module the other two read. Chunks 2 and 3 have no path between them and share no source file. | planned |
+| Wave | Chunks                                                                                                                                    | Waits for                                                                                                                                                                                                                              | Status |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| 1    | 1 The lexicon module and the build step (1a, 1b) · 2 The lexicon page, its button and its address (2a, 2b) · 3 The lexicon API's contract | A0, G0, I0, P1; L0 and T0 (2). In-wave 1 → 2 and 1 → 3: chunk 1's captures fix the entry contract, the read interface and the build-only module the other two read. Chunks 2 and 3 have no path between them and share no source file. | gated  |
 
 Waves after 1 come only from the structural review (gate R1): the refactors it takes, written into
 this plan after its report. The [release gate](#release-gate) follows the last of them. κ is 1
@@ -143,7 +150,11 @@ file, against 387,038 B at `3.3.0`, with what the page's host added named.
 
 ### Chunk 1 — The lexicon module and the build step
 
-Status: planned
+Status: merged (w1, 688a86d3)
+Record: 1a b7bc417a, 1b 7cdca3a6, merged 688a86d3. No deviation from the spec or the design. The
+words' file is an entry chunk the plugin emits itself; `verify-boundaries.mjs` reads the first load
+from the page entries (the words' file excluded by name) and requires exactly one `lexicon-words-*`
+file. `src/lexicon/` imports carry `.ts` extensions (`allowImportingTsExtensions`).
 Wave: 1
 Depends on: A0, G0, P1 (its captures)
 Architecture capture: (a) **the single-source rule and its build step**: the lexicon file is the
@@ -199,8 +210,12 @@ never in the first load. (b) **The API's read contract**: the entry contract's n
   sources), 5, 6, 13.
 - **Design docs:** [`screens/lexicon-page/handoff.md`](../../../ui_ux/screens/lexicon-page/handoff.md)
   (What the Page Shows of the Lexicon; States: Empty).
-- **Atoms:** (v3.4) the two ARCHITECTURE atoms P1 captures (the single-source rule and its build
-  step; the API's read contract); (v1) `req_browser_only_first_release`.
+- **Atoms:** (v3.4) the two ARCHITECTURE atoms P1 captured: `module_lexicon_single_source` (the
+  single-source rule and its build step) and `api_lexicon_read_contract` (the API's read contract);
+  (v3.2) `module_jam_code_boundary` (drift check: linked in `scripts/verify-boundaries.mjs`, whose
+  first-load boundary the lexicon's copies, and in `tests/unit/boundaries/verify-boundaries.spec.ts`);
+  (v2) `specification_browser_only_operation_verification` (STABLE: the no-network check in
+  `verify-boundaries.mjs` stays as it is); (v1) `req_browser_only_first_release`.
 - **Revisions:** none.
 - **Done when:**
   - The parser's output on the real lexicon holds every entry outside the Internal group, with the
@@ -226,7 +241,12 @@ never in the first load. (b) **The API's read contract**: the entry contract's n
 
 ### Chunk 2 — The lexicon page, its button and its address
 
-Status: planned
+Status: merged (w1, a1660fd9)
+Record: 2a 57c05801, 2b 0e6f8878, merged a1660fd9. Stopped once on a design gap (the searching
+state's heading order), settled by ux D496 and resumed. Spec-silent choices recorded as spec D568.
+The starts moved out of `WorkspaceShell.vue` into `workspace-starts.ts` with their tags (596
+effective lines); the lexicon accessibility checks are in `accessibility-lexicon.spec.ts`; the
+host makes `.layout-app` inert while the page shows; bar controls take focus without scrolling.
 Wave: 1
 Depends on: 1, L0, T0, P1 (its capture)
 Architecture capture: **the page's `#lexicon` history entry**
@@ -234,36 +254,57 @@ Architecture capture: **the page's `#lexicon` history entry**
 own, marked as such and pushed at every opening on top of the bare address; Back closes the page;
 Close and Escape step back over the entry; Forward onto it reopens the page except during a session,
 where the address is replaced with the bare one; a load, a reload or a typed `#lexicon` is replaced
-with the bare address, then the page opens and adds its entry; jumps inside the page cancel their
-link's navigation. All through one injected history seam.
+with the bare address, then the page opens and adds its entry; under an open sheet, the
+stale-phrase prompt included, `#lexicon` reached any way opens nothing and only the address is
+replaced (spec D567, D568); jumps inside the page
+cancel their link's navigation. All through one injected history seam.
 
 - **Goal:** the player opens the lexicon page from the footer between sessions, browses it A to Z,
   searches it, and closes it by Close, Escape or Back, offline, by keyboard alone and in any
   orientation.
 - **Scope:**
   - **2a, the page (`src/components/lexicon/`):** the view as the design lays it out (the bar, the
-    count, the search field, the letter row, the reading column, the entries with More, the
-    related links, the "Mentioned in other words" group, the no-match state and the result count),
-    and its model: the A to Z order and letters, doubled words, the search's matching, tiers and
+    count, the search field, `Letters` with T0's `lexicon-letters-button` class, the letter row,
+    the reading column, the entries with More, the related links, the "Mentioned in other words"
+    group, the no-match state and the result count; ux D492), and its model: the A to Z order and letters, doubled words, the search's matching, tiers and
     mentions ([§E6](master-spec.md#e6-the-page)), and the inline marks built as text, never as HTML.
     It reads the entries only through chunk 1's read interface over the build-only module. Focus
-    targets, the trap and the keys inside the page; its state kept for the visit.
-  - **2b, opening and the address (`src/components/workspace/`):** the footer's `Lexicon` after
-    `Your data`, disabled only while a session runs, count-in included (the footer's one `disabled`
+    targets, the trap and the keys inside the page; its state kept for the visit. The bar's
+    measurement: the page measures the part of the bar that stays at the top (`lexicon-bar`, or
+    `lexicon-bar-row` below `bp-tablet-landscape`) and keeps its height current on `lexicon-view`
+    as `--lexicon-bar-block-size`, which the view's scroll padding in `components.css` reads, so
+    no jump target and no element focused by Tab lands under the bar (ux D492; the lexicon page's
+    Moving Around the Page: Below the bar).
+  - **2b, opening and the address (`src/components/workspace/`):** the footer's `Your data` and
+    `Lexicon` held in a `footer-actions` wrapper in `LayoutFooter.vue`, so the two wrap together
+    under the note (ux D493; the phrase workspace's Layout Tree and Responsive Behavior: Footer),
+    `Lexicon` after `Your data`, disabled only while a session runs, count-in included (the footer's one `disabled`
     flag becomes one per button: `Your data` keeps waiting for the controller, `Lexicon` does not);
     the page's host, in a module of its own: the loader, loading once, keeping the module and asking
     for a fresh address on Try again as `load-jam-mode.ts` does; the button's loading state; a session
-    started during the load cancelling the opening; the load-failure notice in `AppNoticeRow.vue`
+    started during the load cancelling the opening, and a sheet opened during it (the stale-phrase
+    prompt included) stopping it, even if closed again before the load ends (spec D568); the
+    load-failure notice in `AppNoticeRow.vue`
     after Jam's, with Try again and Dismiss and the focus on Try again; the page counted in
-    `anySheetOpen` and in the open-sheet flag `reportSheetsOpen` emits, so no MIDI note starts a
-    session, a count-in or a Jam and the starting note's line hides; focus back to the button on
-    close; the history seam and §E8's model; the page rendered beside the sheets, outside
+    `anySheetOpen` and in the open-sheet flag `reportSheetsOpen` emits (the flag the MIDI side
+    reads as `connectionSheetOpen`, which already counts My instrument, Your data and the preset
+    sheet), so no MIDI note starts a session, a count-in or a Jam and the starting note's line
+    hides; focus back to the button on close; the history seam and §E8's model (a load at
+    `#lexicon` opens the page once the shell is mounted: `main.ts` mounts the app only after the
+    saved data is read, so `src/App.vue` needs no change; `#lexicon` reached while any sheet is
+    open, the stale-phrase prompt counted as one, opens nothing, only the address being replaced
+    and the sheet left as it was, spec D567, D568, ux D495, the look up a word flow's Routing
+    Rules); the page rendered beside the sheets, outside
     `.layout-app`, so the portrait guard leaves it shown ([§E7](master-spec.md#e7-opening-and-closing),
     spec D562); an ESLint import rule: only the loader imports `src/components/lexicon/` statically,
-    as Jam's rule does. `WorkspaceShell.vue` stays within 600 effective lines.
+    as Jam's rule does (copying `jamImportPattern`). `WorkspaceShell.vue` stays within 600
+    effective lines; a block moved out of it to stay there takes its `@spec-link` tags with it
+    (the shell carries 18).
   - **The end-to-end tests:** a new spec for the page (A to Z, a letter, search and its tiers, one
     match, no match, mentions, a related jump, More, Close, Escape, Back, Forward, a load at
-    `#lexicon`, a typed `#lexicon`, a session started during the load, a failed load and Try again,
+    `#lexicon`, a typed `#lexicon`, `#lexicon` reached under an open sheet and under the
+    stale-phrase prompt, a session started during the load, a sheet opened during the load, a
+    failed load and Try again,
     a MIDI note while open, a portrait view, the keyboard alone), added to the `test:e2e` list; the
     page's states in the accessibility suite; the page and its words offline in the release suite.
   - **Out:** the API's schema and document (chunk 3); any change to `src/styles/` (T0's) or to
@@ -289,31 +330,53 @@ link's navigation. All through one injected history seam.
   Around the Page; Focus and Keyboard; Responsive Behavior; States),
   [`flows/look-up-a-word/handoff.md`](../../../ui_ux/flows/look-up-a-word/handoff.md) (Flow; Routing
   Rules), [`screens/phrase-workspace/handoff.md`](../../../ui_ux/screens/phrase-workspace/handoff.md)
-  (Page frame: Footer; The Lexicon button; The lexicon's load-failure notice; Responsive Behavior:
+  (Layout Tree; Page frame: Footer; The Lexicon button; The lexicon's load-failure notice; Responsive Behavior:
   Footer; Session count-in: The lexicon; The starting note line: Under the lexicon page),
   [`flows/play-session/handoff.md`](../../../ui_ux/flows/play-session/handoff.md) (Starting note: The
   lexicon page), [`flows/saved-data/handoff.md`](../../../ui_ux/flows/saved-data/handoff.md)
   (Notices), [`motion.md`](../../../ui_ux/motion.md) (Rules).
-- **Atoms:** (v3.4) the BUSINESS atom I0 records (the player looks up every shown word, A to Z and
-  by search, offline, between sessions), the ARCHITECTURE atom P1 captures for the history entry,
-  and chunk 1's two (drift check); (v3.0) `req_your_data` (STABLE: the footer's other button,
-  unchanged); (v3.2) `rule_jam_start_conditions`; (v2) `module_session_starting_note`,
-  `rule_session_start_conditions` and `rule_session_ends_on_portrait_view`; (v1)
-  `req_landscape_phrase_workspace` (the portrait rule, still true of the workspace).
-- **Revisions:** revise `module_session_starting_note` (the lexicon page joins the sheets under
-  which no note starts a session), and the history-entry atom as built.
+- **Atoms:** (v3.4) `req_lexicon_page` (the BUSINESS atom I0 recorded: the player looks up every
+  shown word, A to Z and by search, offline, between sessions), `module_lexicon_page_history_entry`
+  (the history entry P1 captured), and chunk 1's `module_lexicon_single_source` and
+  `api_lexicon_read_contract` (drift check); (v3.2) `rule_jam_start_conditions`;
+  `module_jam_code_boundary` (the new ESLint rule copies `jamImportPattern`;
+  `tests/unit/boundaries/eslint-boundaries.spec.ts`); `module_workspace_mode` (linked in
+  `AppNoticeRow.vue` and `WorkspaceShell.vue`: Jam's load-failure notice leaves the focus where it
+  is while any sheet is open, and the page now counts as one); (v3.0) `req_your_data` (STABLE: the
+  footer's other button, unchanged); `rule_failed_save_never_disturbs_session` (STABLE, linked in
+  `AppNoticeRow.vue`); `rule_first_phrase_waits_for_saved_settings` (STABLE: a load at `#lexicon`
+  waits for the saved settings); (v2) `module_session_starting_note`,
+  `rule_session_start_conditions` and `rule_session_ends_on_portrait_view`; `rule_midi_starting_note`
+  (STABLE, wording unchanged); `service_session_midi` (drift check at the wave sync: its interface
+  reads "whether the connection sheet is open", a flag that counts every sheet and the page);
+  (v1) `req_landscape_phrase_workspace` (the portrait rule, still true of the workspace).
+- **Revisions:** revise `module_session_starting_note`: its rule and its interface name the sheets
+  under which no note starts a session as all the flag counts (the connection sheet, the
+  stale-phrase prompt, My instrument, Your data, the preset sheet) and the lexicon page;
+  `rule_session_ends_on_portrait_view`: "As outside a session, the app has no portrait layout below
+  the desktop layout's width: …" becomes "As outside a session, the phrase workspace has no
+  portrait layout below the desktop layout's width: …", the rest unchanged (spec D562); and
+  `module_lexicon_page_history_entry` as built, the open-sheet rule included with the stale-phrase
+  prompt counted as a sheet, and a sheet opened during the first load stopping the opening
+  (spec D567, D568).
 - **Done when:**
   - Every shown entry is on the page under its letter and found by its word and each other name;
     the count matches the file; an entry shows and opens as §E6 says, marks shown as text.
   - A to Z, the letters, doubled words and the search behave as §E6 says, each case a unit test on
     a fixture list read through the read interface.
-  - The button sits after `Your data`, disabled during a session and the count-in, enabled before
-    the controller has loaded; the first opening loads; a session started during the load cancels
-    it; a failed load shows the notice and Try again opens the page.
+  - The button sits after `Your data`, the two in `footer-actions` and wrapping together under the
+    note, `Lexicon` disabled during a session and the count-in, enabled before the controller has
+    loaded; the first opening loads; a session started during the load cancels
+    it, and a sheet opened during it stops it, the page staying closed when the load ends even if
+    the sheet has closed by then; a failed load shows the notice and Try again opens the page.
   - No MIDI note starts a session, a count-in or a Jam while the page is open, and the starting
     note's line hides and returns.
-  - Each history rule of §E8 holds in the end-to-end spec; the address is `#lexicon` only while
-    the page is open.
+  - Each history rule of §E8 holds in the end-to-end spec, the open-sheet rule included, under a
+    sheet and under the stale-phrase prompt: the sheet stays open with what was typed in it; the
+    address is `#lexicon` only while the page is open.
+  - At one and at two letter rows, and below `bp-tablet-landscape`, a letter's jump and a Tab
+    focus land clear of the bar's staying part: `--lexicon-bar-block-size` on `lexicon-view`
+    follows its measured height.
   - The page opens, reads and closes in a portrait view below the desktop layout's width.
   - The page and its words open offline after one visit; the accessibility suite passes on its
     states; the keyboard alone reaches everything in the design's order.
@@ -322,13 +385,19 @@ link's navigation. All through one injected history seam.
 - **Verification:** chunk checks; the new end-to-end spec and the accessibility and offline specs it
   edits (its point); the start-up figure (M2) is placed at the wave gate.
 - **Split rule:** 2a, the page in `src/components/lexicon/` with its component and model tests,
-  reached only from tests; 2b, the button, the host, the loader, the notice, the open-sheet flag,
-  the history seam, the shell's wiring (and any block moved out of it), the ESLint rule and the
+  reached only from tests (the bar's measurement included); 2b, the footer's `footer-actions` and
+  its button, the host, the loader, the notice, the open-sheet flag,
+  the history seam, the shell's wiring (and any block moved out of it, with its `@spec-link`
+  tags), the ESLint rule and the
   end-to-end, accessibility and offline tests.
 
 ### Chunk 3 — The lexicon API's contract
 
-Status: planned
+Status: merged (w1, a7200fe5)
+Record: ff146150, merged a7200fe5. No deviation. The browser-free check also refuses a file read
+(`node:fs`) and a package import (the capture's "no runtime dependency"); the ambient
+`declare module 'virtual:lexicon-words'` in `lexicon-words.d.ts` is a type declaration, not a use.
+`api_lexicon_read_contract` is a revision candidate at the wave sync.
 Wave: 1
 Depends on: 1, P1 (chunk 1's API read contract capture)
 Architecture capture: none of its own; it checks chunk 1's API read contract and states it.
@@ -359,9 +428,9 @@ Architecture capture: none of its own; it checks chunk 1's API read contract and
 - **Spec sections:** [§E9](master-spec.md#e9-the-lexicon-api), [§E14](master-spec.md#e14-architectural-decisions-and-their-reasons);
   item 15.
 - **Design docs:** none (no interface).
-- **Atoms:** (v3.4) chunk 1's API read contract atom (drift check against the schema and the
-  document); (v1) `req_browser_only_first_release`.
-- **Revisions:** the API read contract atom, if the document words its contract more exactly than
+- **Atoms:** (v3.4) `api_lexicon_read_contract`, chunk 1's (drift check against the schema and
+  the document); (v1) `req_browser_only_first_release`.
+- **Revisions:** `api_lexicon_read_contract`, if the document words its contract more exactly than
   the capture did.
 - **Done when:**
   - The schema is in `src/lexicon/`, its nine fields required and no other allowed; the real

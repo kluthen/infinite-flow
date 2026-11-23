@@ -125,6 +125,25 @@ const jamImportPattern = {
 }
 
 /**
+ * The lexicon page's code (src/components/lexicon/), imported statically from outside it: only
+ * its loader may (type-only imports aside), as for Jam's code.
+ */
+// @spec-link [[module_lexicon_single_source]]
+const lexiconPageImportPattern = {
+  group: [
+    '@/components/lexicon',
+    '@/components/lexicon/**',
+    '**/components/lexicon',
+    '**/components/lexicon/**',
+    '../lexicon',
+    '../lexicon/**',
+  ],
+  allowTypeImports: true,
+  message:
+    'Only src/components/lexicon/ and its loader (src/components/workspace/load-lexicon-page.ts) may import src/components/lexicon/: the lexicon page stays out of the first load.',
+}
+
+/**
  * The no-restricted-globals / no-restricted-properties rule pair for one part of src/,
  * given the directory-scoped globals and properties still forbidden there. The forbidden
  * persistence APIs and the always-forbidden APIs are included everywhere, src/storage/ included.
@@ -215,7 +234,13 @@ export default [
     rules: boundaryRules(audioContextGlobals, midiAccessProperties),
   },
   {
-    files: ['tests/**/*.ts', 'playwright.config.ts', 'vitest.config.ts', 'scripts/**/*.mjs'],
+    files: [
+      'tests/**/*.ts',
+      'playwright.config.ts',
+      'vitest.config.ts',
+      'scripts/**/*.mjs',
+      'scripts/**/*.ts',
+    ],
     languageOptions: {
       globals: globals.node,
     },
@@ -251,11 +276,39 @@ export default [
   // first load; a dynamic import() is not checked by the rule. The typescript-eslint variant of
   // the rule is used on purpose: it is a separate rule, so this block does not replace the core
   // no-restricted-imports options of the vexflow and storage blocks above, and it lets type-only
-  // imports through.
+  // imports through. Likewise nothing outside src/components/lexicon/ and its loader imports the
+  // lexicon page's code statically. A later block's options replace an earlier one's for the
+  // files both match, so each set of files gets every pattern that applies to it in one block.
   // @spec-link [[module_jam_code_boundary]]
   {
     files: ['src/**/*.{js,mjs,ts,vue}'],
-    ignores: ['src/jam/**', 'src/components/workspace/load-jam-mode.ts'],
+    ignores: [
+      'src/jam/**',
+      'src/components/workspace/load-jam-mode.ts',
+      'src/components/lexicon/**',
+      'src/components/workspace/load-lexicon-page.ts',
+    ],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        { patterns: [jamImportPattern, lexiconPageImportPattern] },
+      ],
+    },
+  },
+  {
+    files: ['src/jam/**/*.{js,mjs,ts,vue}', 'src/components/workspace/load-jam-mode.ts'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        { patterns: [lexiconPageImportPattern] },
+      ],
+    },
+  },
+  {
+    files: [
+      'src/components/lexicon/**/*.{js,mjs,ts,vue}',
+      'src/components/workspace/load-lexicon-page.ts',
+    ],
     rules: {
       '@typescript-eslint/no-restricted-imports': ['error', { patterns: [jamImportPattern] }],
     },

@@ -141,3 +141,42 @@ applies (D119, D135, archived; spec D414).
   clearing (D488) checked clean. A re-check found two more, settled too: every opening, a load at
   `#lexicon` included, adds the page's entry; the title takes focus as `lexicon-title`. Now in: `flows/look-up-a-word/handoff.md` (Routing Rules),
   `screens/lexicon-page/handoff.md`, `strategy.md`, `motion.md`, `flows/play-session/handoff.md`.
+
+## v3.4's token-source pass (gate T0), 2026-11-23
+
+- **D492 (2026-11-23): the lexicon page's classes are in the token source, from existing tokens
+  only; the handoff's open details settled here.** `Letters` gets a class of its own
+  (`lexicon-letters-button`), shown below bp-tablet-landscape by the token source; the result
+  count is visually hidden; the title row takes two lines below bp-mobile-landscape, `Close` on
+  the first; the lexicon's queries are width-only (it works in portrait); the body's blocks are
+  `--spacing-6` apart, the mentions' heading `--text-xl`. The bar's height is a measurement the
+  page sets on the view (`--lexicon-bar-block-size`, as `--played-note-pitch`), read by its
+  scroll padding. Now in: `screens/lexicon-page/handoff.md`, `src/styles/components.css`.
+- **D493 (2026-11-23): the footer's two buttons sit in `footer-actions`.** The handoff wants
+  them `--spacing-2` apart and wrapping together under the note, which `layout-footer`'s one
+  flex row cannot do, and chunk 2 may not touch `src/styles/`. Now in:
+  `screens/phrase-workspace/handoff.md` (Layout Tree; Responsive Behavior: Footer).
+- **D494 (2026-11-23): master spec Part E's two flow points are in the flow (spec §E11).**
+  `Lexicon` does not wait for the session controller (§E7); `#lexicon` reached any other way,
+  typed for one, is handled as a load at `#lexicon` (§E8). Now in:
+  `flows/look-up-a-word/handoff.md` (Routing Rules: Opening; The browser's Back button).
+- **D495 (2026-11-23): `ux-critic` on gate T0: DRIFT, three findings, settled here.** The
+  classes match the handoff value by value. `#lexicon` reached under an open sheet (Forward, a
+  load, typed) opens nothing and only replaces the address, since `Lexicon` cannot be pressed
+  there; the rejected alternative, closing the sheet first, could discard what the player typed.
+  §E8 does not cover this case; `spec-writer` to mirror it. The "unlike `Your data`" wording and
+  the README's class line are fixed. Now in: `flows/look-up-a-word/handoff.md` (Routing Rules),
+  `README.md`.
+- **D496 (2026-11-23): the lexicon page's matches get a visually hidden `h3`, "Matching
+  words".** The searching state put each match's `h4` right after the `h2` title (axe
+  `heading-order`, wave 1 chunk 2). Rejected: the result count as the heading (a live region
+  written after a pause, so the heading would be empty or stale while typing), and the words one
+  level lower while searching (the matches would sit level with "Mentioned in other words", and
+  an entry's markup would change by state). Now in: `screens/lexicon-page/handoff.md` (Layout
+  Tree; How Search Works: Matches heading; Components and Content: Heading outline),
+  `src/styles/components.css`.
+- **D497 (2026-11-23): spec D568 mirrored in the flow.** The stale-phrase prompt counts as a sheet
+  for `#lexicon` reached under it, and a sheet opened during the page's first load stops the
+  opening, even if closed before the load ends; a later press of `Lexicon` opens the page. Now
+  in: `flows/look-up-a-word/handoff.md` (Flow; Routing Rules: A session during the load, Under an
+  open sheet), `screens/lexicon-page/handoff.md` (States: Loading).

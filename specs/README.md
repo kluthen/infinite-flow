@@ -85,7 +85,9 @@ Status: draft v0.98
     ruled the refactors' bounds (D557), the order (D558) and a docs-only lexicon pass before the
     page's build (D560), done as lexicon v1.9. Both steps are master spec
     [Part E](versions/v3/master-spec.md#part-e--v34), approved by the driver (D564), with the page
-    in any orientation (D562) and the build failing on an empty or malformed lexicon (D563); the
+    in any orientation (D562), the build failing on an empty or malformed lexicon (D563) and
+    `#lexicon` under an open sheet, the stale-phrase prompt included, opening nothing, and a sheet
+    opened during the page's first load stopping its opening (D567, D568, Part E v1.2); the
     [v3.4 build plan](versions/v3/build-plan-v3.4.md)'s wave 1 builds them in three chunks
     (D565), waiting on the token-source pass, Part E's ingestion and the wave preflight.
   - **The owner's direction** (2026-11-22): the endgame's game is a separate app, with a
