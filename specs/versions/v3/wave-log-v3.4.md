@@ -104,3 +104,81 @@ current state.
   409,600 B (+5,255 B since 387,038 B at `3.3.0`: the footer's button and the page's host), entry
   chunk 337,281 B (+5,255 B since 332,026 B). M1: the words' file 305,315 B (90,611 B gzip) of
   458,752 B, lexicon v1.9. No dependency change: no `security-advisor` check. Wave sync dispatched.
+- 2026-11-23: wave sync 3772ae7a (`documentalist`): revisions applied, statuses unchanged:
+  `module_session_starting_note` 0.7 (every sheet and the lexicon page), `rule_session_ends_on_portrait_view`
+  0.2 ("the phrase workspace"), `module_lexicon_page_history_entry` 0.2 (as built, D567, D568),
+  `api_lexicon_read_contract` 0.2 (as `docs/lexicon-api.md` words it). Links added above
+  `reportSheetsOpen`, `lexiconPageImportPattern`, `chunkByteBudget`; the starts' three tags moved
+  intact. Drift aligned: `module_jam_code_boundary`, `specification_browser_only_operation_verification`,
+  `module_workspace_mode`. Not applied (not in the Revisions): `service_session_midi` interface wording
+  (one flag for every sheet); `module_lexicon_single_source` interface gap (the ESLint rule, the
+  exactly-one words' file check). `atd check main...HEAD`: 26 atoms OK; `atd:lint`, `lint:health`
+  (0 errors), `lint:links` pass. `doc-ids compare main v3.4-w1`: 0 collisions.
+- 2026-11-23: wave 1 gated; reported to the owner. Asked: merge `v3.4-w1` into `main` (and push)?
+  the VISION v3.4 line (0.12 → 0.13); `rule_midi_starting_note` (STABLE, CONTRACT 19.0.0): name
+  every sheet and the lexicon page among what blocks the note (MAJOR 20.0.0, or a clarification of
+  shipped behaviour); the two non-STABLE wordings above; DRAFT → REVIEW for `req_lexicon_page`,
+  `module_lexicon_single_source`, `api_lexicon_read_contract`, `module_lexicon_page_history_entry`.
+  Open after the merge: H1 (the owner sees the page before the tag), R1 (structural review: its
+  measurement pass runs now, spec D558). Branches kept until the merge: `v3.4-c1-lexicon-module`,
+  `v3.4-c2-lexicon-page`, `v3.4-c3-lexicon-api`.
+
+#### v3.4 wave 1
+
+- Time: 2026-11-23 15:18 → 2026-11-23 17:09 (1h50)
+- Agents: 16 · tool calls: 829 · model turns: 786
+- Tokens in: 98.1M (fresh 2k, cache write 2.3M, cache read 95.7M) · out: 661k
+- Max context: 314k (coding-leader: v3.4 w1 chunk 2 lexicon page)
+- Cost: $44.39 at API list prices (checked 2026-11-12)
+- Ends: at its last tagged agent (not merged yet)
+
+#### By role
+
+| role               | agents | calls | tokens in |  out |   cost | share | max ctx |
+| ------------------ | -----: | ----: | --------: | ---: | -----: | ----: | ------: |
+| coding-leader      |      4 |   330 |     47.6M | 307k | $20.64 |   47% |    314k |
+| coding-executor    |      1 |   101 |     15.2M |  91k |  $6.12 |   14% |    263k |
+| documentalist      |      2 |   112 |     11.3M |  77k |  $5.24 |   12% |    150k |
+| ux-writer          |      2 |    86 |      8.1M |  66k |  $4.15 |    9% |    158k |
+| spec-writer        |      3 |    97 |      6.1M |  45k |  $3.28 |    7% |    104k |
+| driver (top level) |      1 |    52 |      7.0M |  42k |  $2.97 |    7% |    161k |
+| ux-critic          |      3 |    51 |      2.6M |  33k |  $1.99 |    4% |     98k |
+
+#### By chunk
+
+| chunk          | agents | calls | tokens in |  out |   cost | share | max ctx |
+| -------------- | -----: | ----: | --------: | ---: | -----: | ----: | ------: |
+| 1              |      2 |   130 |     16.6M | 106k |  $6.79 |   15% |    222k |
+| 2              |      7 |   366 |     48.8M | 308k | $21.76 |   49% |    314k |
+| 3              |      1 |    40 |      3.5M |  35k |  $1.86 |    4% |    116k |
+| outside chunks |        |       |           |      | $13.98 |   31% |         |
+
+#### By activity (tool calls)
+
+| activity    | calls | share | writes | results |
+| ----------- | ----: | ----: | -----: | ------: |
+| dispatch    |    14 |    2% |        |     14k |
+| doc-get     |    19 |    2% |        |     77k |
+| plan        |    43 |    5% |     14 |    172k |
+| spec        |    61 |    7% |      1 |    228k |
+| design      |    54 |    7% |      2 |    204k |
+| intent      |    48 |    6% |      6 |    148k |
+| other docs  |    73 |    9% |     16 |    254k |
+| source      |   217 |   26% |     41 |    659k |
+| checks      |   169 |   20% |        |    225k |
+| git         |    75 |    9% |        |    146k |
+| shell other |    30 |    4% |      3 |     97k |
+| skills      |     9 |    1% |        |     299 |
+| other files |     2 |    0% |        |     76k |
+| other tools |    15 |    2% |        |     915 |
+
+#### Largest contexts
+
+| agent                             |                           task | calls | max ctx |  cost |
+| --------------------------------- | -----------------------------: | ----: | ------: | ----: |
+| ! coding-leader                   |   v3.4 w1 chunk 2 lexicon page |   101 |    314k | $9.95 |
+| coding-executor                   |     E2E tests for lexicon page |   101 |    263k | $6.12 |
+| coding-leader                     | v3.4 w1 chunk 1 lexicon module |   105 |    222k | $5.95 |
+| driver (top level)                |        driver session e6a199d9 |    52 |    161k | $2.97 |
+| ux-writer                         |     v3.4 w1 gate T0 token pass |    52 |    158k | $2.87 |
+| (! = over 300k tokens of context) |
