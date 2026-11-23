@@ -385,3 +385,83 @@ current state.
   `rule_session_ends_on_portrait_view` now if the owner wishes; the boundary atoms a release later).
   CONTRACT: recommendation keep 19.0.1 (no v3.4 atom is STABLE; MINOR comes with the first STABLE
   promotion), the owner's call. Change set parts F–H added. Gate R1 closes with this wave.
+- 2026-11-23: wave 3 reported. Cost: 9 agents (the release gate's included), 437 tool calls,
+  47.0M tokens in / 278k out, max context 211k (chunk 6), $21.42 at API prices. No agent over
+  300k.
+
+#### Wave 3 figures
+
+#### v3.4 wave 3
+
+- Time: 2026-11-23 21:08 → 2026-11-23 22:22 (1h14)
+- Agents: 9 · tool calls: 437 · model turns: 435
+- Tokens in: 47.0M (fresh 898, cache write 1.3M, cache read 45.8M) · out: 278k
+- Max context: 211k (coding-leader: v3.4 wave 3 chunk 6)
+- Cost: $21.42 at API list prices (checked 2026-11-12)
+- Ends: at its last tagged agent (not merged yet)
+- Not counted: other top-level sessions active in the window, with no agent of this wave: cefe6134
+
+#### By role
+
+| role               | agents | calls | tokens in |  out |   cost | share | max ctx |
+| ------------------ | -----: | ----: | --------: | ---: | -----: | ----: | ------: |
+| coding-leader      |      3 |   226 |     28.3M | 150k | $11.92 |   56% |    211k |
+| documentalist      |      2 |   104 |      8.6M |  59k |  $4.06 |   19% |    139k |
+| driver (top level) |      1 |    46 |      6.7M |  35k |  $3.05 |   14% |    162k |
+| reviewer           |      1 |    32 |      1.7M |  18k |  $1.08 |    5% |     77k |
+| spec-writer        |      1 |    22 |      1.4M |  14k |  $0.95 |    4% |     82k |
+| ux-writer          |      1 |     7 |      304k |   3k |  $0.35 |    2% |     47k |
+
+#### By chunk
+
+| chunk          | agents | calls | tokens in | out |   cost | share | max ctx |
+| -------------- | -----: | ----: | --------: | --: | -----: | ----: | ------: |
+| 6              |      1 |    82 |     11.4M | 50k |  $4.26 |   20% |    211k |
+| 7              |      1 |    68 |      8.3M | 57k |  $3.52 |   16% |    169k |
+| outside chunks |        |       |           |     | $13.63 |   64% |         |
+
+#### By activity (tool calls)
+
+| activity    | calls | share | writes | results |
+| ----------- | ----: | ----: | -----: | ------: |
+| dispatch    |     8 |    2% |        |      8k |
+| doc-get     |     7 |    2% |        |     17k |
+| plan        |    45 |   10% |      3 |    199k |
+| spec        |    19 |    4% |        |     80k |
+| design      |     2 |    0% |        |      4k |
+| intent      |    32 |    7% |        |     94k |
+| other docs  |    52 |   12% |      9 |    243k |
+| source      |   126 |   29% |     20 |    383k |
+| checks      |    66 |   15% |        |    117k |
+| git         |    40 |    9% |        |     68k |
+| shell other |    26 |    6% |      2 |     63k |
+| skills      |     5 |    1% |        |     174 |
+| other files |     1 |    0% |        |     64k |
+| other tools |     8 |    2% |        |     488 |
+
+#### Largest contexts
+
+| agent              |                             task | calls | max ctx |  cost |
+| ------------------ | -------------------------------: | ----: | ------: | ----: |
+| coding-leader      |              v3.4 wave 3 chunk 6 |    82 |    211k | $4.26 |
+| coding-leader      |              v3.4 wave 3 chunk 7 |    68 |    169k | $3.52 |
+| coding-leader      | v3.4 release gate automated part |    76 |    165k | $4.13 |
+| driver (top level) |          driver session af34b0a5 |    46 |    162k | $3.05 |
+| documentalist      |  v3.4 wave 3 sync + release sync |    67 |    139k | $2.57 |
+
+## Release gate (2026-11-23)
+
+On `v3.4-w3` before its merge (the owner: "you may complete the v3.4 entirely").
+
+- Automated part, `coding-leader`: c8d70bac (`package.json` 3.4.0; no test pins the version);
+  3fb32547 (`docs/release/v3.4-release-notes.md`: 18 rows of §E15, 13 verified, item 13 verified
+  and measured, items 7 and 14 thin, item 17 a record, item 18 = H1 open; 84 test titles resolve
+  at HEAD; the structural review's §6 deliverables; M1, M2, M3); cae703a4 (the reviewer's five
+  non-blocking notes; verdict OKAY); cf57bee2 (the gate's result, M1 re-measured).
+- `npm run quality` on cae703a4, 22:10–22:21 CET, AMD Ryzen 5 PRO 8640HS, idle: green, nothing
+  re-run. Unit 10,362 in 669 files; e2e 786 ×2 (1 skipped); a11y 86; notation 121 (4 skipped);
+  start-up 394,052 B of 409,600 B in 19 chunks, entry 338,760 B; M1 305,315 B / 90,611 B gz.
+- `v3.4-w3` merged into `main` by the driver (the owner's go above). Open for the owner: push; H1
+  (sees the page, notes' Hand checks); the `3.4.0` tag; CONTRACT 19.0.1 (recommended) or 19.1.0;
+  the STABLE proposals (change set H3); whether H1's steps go into `HARDWARE-CHECKLIST.md`; the
+  VPS redeploy. After the tag: `spec-writer` and `ux-writer` archive v3.4 (milestone archive).
