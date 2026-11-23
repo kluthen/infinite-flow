@@ -83,3 +83,9 @@ current state.
   hidden `h3.lexicon-matches-heading` "Matching words" heads a `section` round the matches while
   searching (absent when nothing matches); ux D497: D568 mirrored in the look up a word flow;
   `ux-critic` ALIGNED. Chunk 2 unblocked; it resumes after chunk 3 (κ = 1).
+- 2026-11-23: chunk 3 merged a7200fe5 (ff146150); no deviation. Schema draft 2020-12
+  `urn:infinite-flow:lexicon-entry/v1`, nine fields required, none other; the browser-free check
+  reads `src/lexicon/` through the TypeScript parser and also refuses `node:fs` and package imports.
+  For the wave sync: `api_lexicon_read_contract` revision candidate (the document words the check
+  more exactly). Figures: 1 agent, 40 tool calls, 3.5M tokens in / 35k out, max context 116k, $1.86
+  at API prices. Chunk 2 resumed from e0ca927c (fresh owner).

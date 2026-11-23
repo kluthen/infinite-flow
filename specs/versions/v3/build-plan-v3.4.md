@@ -241,7 +241,7 @@ never in the first load. (b) **The API's read contract**: the entry contract's n
 
 ### Chunk 2 — The lexicon page, its button and its address
 
-Status: ready (resumes from WIP e0ca927c once chunk 3 merges; κ = 1)
+Status: in progress (resumed from WIP e0ca927c)
 Wave: 1
 Depends on: 1, L0, T0, P1 (its capture)
 Architecture capture: **the page's `#lexicon` history entry**
@@ -388,7 +388,11 @@ cancel their link's navigation. All through one injected history seam.
 
 ### Chunk 3 — The lexicon API's contract
 
-Status: in progress
+Status: merged (w1, a7200fe5)
+Record: ff146150, merged a7200fe5. No deviation. The browser-free check also refuses a file read
+(`node:fs`) and a package import (the capture's "no runtime dependency"); the ambient
+`declare module 'virtual:lexicon-words'` in `lexicon-words.d.ts` is a type declaration, not a use.
+`api_lexicon_read_contract` is a revision candidate at the wave sync.
 Wave: 1
 Depends on: 1, P1 (chunk 1's API read contract capture)
 Architecture capture: none of its own; it checks chunk 1's API read contract and states it.
