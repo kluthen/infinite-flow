@@ -563,7 +563,10 @@ Architecture capture: none (tooling).
 
 ### Chunk 5 — The library line enforced
 
-Status: in progress
+Status: merged (w2, f7cc1e81)
+Record: ca37fd93; no deviation. Beyond Files: `package.json`'s `format` lists name
+`tsconfig.domain.json`; `docs/testing.md`'s `verify:boundaries` row. M3: +0.7 s (16.0 → 16.7 s,
+AMD Ryzen 5 PRO 8640HS, 2026-11-23). README drift point 8 needed no change.
 Wave: 2
 Size: S
 Depends on: P2 (the library-boundary capture)

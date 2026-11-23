@@ -229,3 +229,10 @@ current state.
   Files: two comments quoting §6. Figures: 1 agent, 20 tool calls, 1.3M tokens in / 11k out, max
   context 80k, $0.85. Chunk 5 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c5`,
   branch `v3.4-c5-library-line`).
+- 2026-11-23: chunk 5 merged f7cc1e81 (ca37fd93): `verify:boundaries` checks 156 library files
+  (TypeScript's parser, every specifier resolved; 0 violations); `tsconfig.domain.json` (no DOM)
+  referenced from `tsconfig.json`, a planted `document` use failed it (TS2584, not committed);
+  README's Directory Boundaries states the line, drift points 1–7 corrected. M3: +0.7 s (16.0 →
+  16.7 s). New `lint:health` warnings: `verify-boundaries.mjs` 422 and its spec 451 effective
+  lines, the spec at 7 atoms. Risks: a non-literal `import()`/`new URL()` is not checked (none in
+  the library). Figures: 3 agents, 93 tool calls, 7.0M tokens in / 62k out, max context 136k, $3.87 at API prices. All chunks merged; wave gate next.
