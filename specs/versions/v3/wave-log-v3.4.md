@@ -346,3 +346,19 @@ current state.
   `ux-writer`. Figures: 1 agent, 82 tool calls, 11.4M tokens in / 50k out, max context 211k, $4.26
   at API prices. Chunk 7 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c7`,
   branch `v3.4-c7-jam-host-out`).
+- 2026-11-23: `ux-writer` d25e6574: the three style comments name `src/domain/notation/staff-layout.ts`
+  (comment text only).
+- 2026-11-23: chunk 7 merged 1b51c1dd (18538648): the Jam block in
+  `src/components/workspace/use-jam-host.ts` (`useJamHost`, 1 atom); the extra block out is Stop
+  (`rule_stop_ends_session`, `stopSession` in `workspace-starts.ts`); `WorkspaceShell.vue` at 475
+  effective lines (was 596) and 8 atoms (was 10). `useJamIdleCue` and `useJamPortsAndBar` now run
+  earlier in setup (computeds and one `provide`, no watcher). Jam boundary checks pass; the Jam and
+  kept-Jam end-to-end specs 33/33; a new `use-jam-host.spec.ts` (8 tests). Start-up 394,052 B in
+  the chunk's build (+1,759 against the wave 2 gate; M2 at the gate). For the sync:
+  `module_workspace_mode` (built in `use-jam-host.ts` now), `module_jam_idle_notes` (partly
+  stale), `module_jam_settings` (still true); `rule_stop_ends_session`'s link moved. Figures: 1
+  agent, 68 tool calls, 8.3M tokens in / 57k out, max context 169k, $3.52 at API prices. All
+  chunks merged; wave gate next.
+- 2026-11-23: the owner: "you may complete the v3.4 entirely". The driver runs wave 3's gate and
+  sync, merges wave 3 into `main`, runs the release gate, the release sync and the archive; push,
+  the `3.4.0` tag, the deploy and H1 (the owner sees the page) stay the owner's.

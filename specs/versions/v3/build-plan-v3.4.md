@@ -709,7 +709,10 @@ links it (`@spec-link`, and its spec cases `@test-link`).
 
 ### Chunk 7 — The Jam host out of the shell
 
-Status: in progress
+Status: merged (w3, 1b51c1dd)
+Record: 18538648; no deviation. The composable is `src/components/workspace/use-jam-host.ts`; the
+extra block out is Stop (`rule_stop_ends_session`): `stopSession` in `workspace-starts.ts`. The
+shell at 475 effective lines and 8 atoms.
 Wave: 3
 Size: M
 Depends on: 6 (order only, spec D575: R3 is judged once R2's moves are settled), P3
