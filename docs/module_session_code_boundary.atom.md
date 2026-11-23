@@ -1,6 +1,6 @@
 ---
 id: module_session_code_boundary
-status: DRAFT
+status: REVIEW
 type: MODULE
 layer: ARCHITECTURE
 version: 0.1

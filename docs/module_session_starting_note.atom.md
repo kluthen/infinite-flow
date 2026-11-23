@@ -12,7 +12,7 @@ parents:
 layer: ARCHITECTURE
 version: 0.7
 priority: 1
-tags: [workspace, session, midi, changes-in-v3.4]
+tags: [workspace, session, midi]
 ---
 
 # Session Starting Note

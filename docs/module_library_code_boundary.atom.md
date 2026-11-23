@@ -1,6 +1,6 @@
 ---
 id: module_library_code_boundary
-status: DRAFT
+status: REVIEW
 priority: 1
 tags: [v3, release-v3.4, library, boundaries]
 parents:
