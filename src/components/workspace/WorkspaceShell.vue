@@ -511,6 +511,8 @@ const lexiconPage = useLexiconPage({
 })
 let connectionSheetShown = false
 /** Tell the workspace whether any of its sheets is open now. */
+// @spec-link [[module_session_starting_note]]
+// @spec-link [[req_lexicon_page]]
 function reportSheetsOpen(): void {
   const open =
     myInstrumentSheet.sheetOpen.value ||

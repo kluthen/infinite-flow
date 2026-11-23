@@ -128,6 +128,7 @@ const jamImportPattern = {
  * The lexicon page's code (src/components/lexicon/), imported statically from outside it: only
  * its loader may (type-only imports aside), as for Jam's code.
  */
+// @spec-link [[module_lexicon_single_source]]
 const lexiconPageImportPattern = {
   group: [
     '@/components/lexicon',

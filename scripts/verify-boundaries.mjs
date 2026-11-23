@@ -393,6 +393,7 @@ const chunkByteBudgets = [
  * @param {string} assetName
  * @returns {{ budget: number, label: string }}
  */
+// @spec-link [[module_lexicon_single_source]]
 export function chunkByteBudget(assetName) {
   const matched = chunkByteBudgets.find(({ prefix }) => assetName.startsWith(prefix))
   return matched ?? { budget: defaultChunkByteBudget, label: 'other JS chunk' }
