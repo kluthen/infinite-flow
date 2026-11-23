@@ -388,7 +388,7 @@ cancel their link's navigation. All through one injected history seam.
 
 ### Chunk 3 — The lexicon API's contract
 
-Status: planned
+Status: in progress
 Wave: 1
 Depends on: 1, P1 (chunk 1's API read contract capture)
 Architecture capture: none of its own; it checks chunk 1's API read contract and states it.

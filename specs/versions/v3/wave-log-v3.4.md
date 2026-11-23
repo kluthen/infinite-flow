@@ -73,3 +73,9 @@ current state.
   392,213 B (not gating). Sent: the heading to `ux-writer`; the chunk owner's two spec-silent
   choices to `spec-writer` (the stale-phrase prompt blocks `#lexicon` as a sheet; a sheet opened
   during the page's load stops the opening). Chunk 3 goes ahead.
+- 2026-11-23: plan v4 and Part E v1.2 (be7925c4, spec D568, driver under D556): the stale-phrase
+  prompt counts as a sheet for the `#lexicon` rules; a sheet opened during the page's load stops the
+  opening even if it closes before the load ends. Chunk 2's WIP checks only at the load's end: its
+  resume adds a watcher on the open sheet (as on `sessionActive`). `ux-writer` asked to mirror D568
+  in the look up a word flow with the heading fix. Chunk 3 dispatched (branch
+  `v3.4-c3-lexicon-api`).
