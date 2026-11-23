@@ -71,6 +71,18 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
 
 ## Directory Boundaries
 
+The library set is four folders: `src/domain/`, `src/generation-worker/`, `src/export/midi/` and
+`src/export/musicxml/`, the music core, the phrase generator and the export files' encoders. A
+file in the set imports only files in the set, type-only imports included, and no package; the
+rest of the app is built on the library, never the other way round. `npm run verify:boundaries`
+holds the line by resolving every `import … from`, `export … from`, `import()` and `new URL()`
+path, written relative or through `@/`, rather than matching its text: `../notation` leaves the
+set from `src/domain/` (it is `src/notation/`) but stays in it from `src/domain/pitch/` (it is
+`src/domain/notation/`). `src/domain/` also type-checks with no DOM library and no ambient types
+(`tsconfig.domain.json`, part of `npm run typecheck`), so no domain file can name `document`,
+`window` or any other browser API. The line constrains what the library imports, not which files
+import the library.
+
 - `src/domain/**` — pure, serializable, Vue/browser-free musical logic: events, time, random
   streams, instrument profiles, controls, harmony, rhythm, pitch planning and validation,
   generation-request/result orchestration, note acknowledgement (`src/domain/acknowledgement/`:
@@ -87,13 +99,20 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   [`docs/midi-tuning.md`](docs/midi-tuning.md#very-short-notes-m1)), and the quantized doodle
   (`src/domain/doodle/`: the type of a Jam's doodle once quantized, one line of one to four
   measures in whole ticks with no tempo, its validating constructor and its parser).
-- `src/jam/` — Jam mode's code; for now the doodle quantizer (`doodle-quantizer.ts`), which turns
-  a capture's raw played notes into the quantized doodle with integer arithmetic, and what Jam
-  reads from that doodle, pure and in whole numbers: the seven controls with the register window
-  phrase 1's join reads (`doodle-controls.ts`, the rhythm readings and the doodle's rests in
-  `doodle-rhythm-reading.ts`), the steering block (`steering-block-builder.ts`) and phrase 1's
-  join from the doodle's last note, or none outside the range or every window (`doodle-join.ts`).
-  Nothing outside `src/jam/` imports the quantizer (enforced by ESLint).
+- `src/jam/` — Jam mode's code, app code built on the library and on the session engine,
+  components, notation, MIDI, audio and storage (Jam's settings record): Jam's view and its Idle
+  (its Vue components, the capture, tap-in), Jam's settings (`jam-settings.ts`), the path to
+  phrase 1 (`jam-phrase-one.ts`), the key and mode suggestion (`key-suggestion/`) and the doodle
+  sections of the review and the exports (`review/`, `export/`); the doodle quantizer
+  (`doodle-quantizer.ts`), which turns a capture's raw played notes into the quantized doodle with
+  integer arithmetic, and what Jam reads from that doodle, pure and in whole numbers: the seven
+  controls with the register window phrase 1's join reads (`doodle-controls.ts`, the rhythm
+  readings and the doodle's rests in `doodle-rhythm-reading.ts`), the steering block
+  (`steering-block-builder.ts`) and phrase 1's join from the doodle's last note, or none outside
+  the range or every window (`doodle-join.ts`). Nothing outside `src/jam/` but its loader
+  (`src/components/workspace/load-jam-mode.ts`) imports a `src/jam/` module statically, type-only
+  imports aside (enforced by ESLint), and no `src/jam/` module is in the first load
+  (`npm run verify:boundaries`).
 - `src/lexicon/` — the lexicon module: the parser of `docs/music/lexicon.md` (`parse-lexicon.ts`,
   the file's text in, every entry out with its group, its group's place and its line, failing on
   an empty or malformed lexicon), the shaping into shown entries (`shown-entries.ts`), the entry's
@@ -122,20 +141,28 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   (`use-lexicon-page.ts`) and its history seam (`lexicon-history.ts`), the app's only use of the
   browser's history and the address's `#` part.
 - `src/generation-worker/` — the typed request/response protocol and handler that run generation
-  inside a dedicated module Web Worker, off the main thread.
-- `src/notation/` — the concert-to-written transformation types and the VexFlow engraving adapter,
-  loaded lazily (`vexflow-engraver-loader.ts` is the sole static importer of the engraver module);
+  inside a dedicated module Web Worker, off the main thread, with the client and the browser
+  `Worker` port (`browser-generation-worker.ts`) that `create-workspace-session.ts` wires, and the
+  phrase replay key and its headless replay. It is in the library set.
+- `src/notation/` — the browser side of engraving, built on the written phrase that
+  `src/domain/notation/` holds (the concert-to-written transformation, `written-phrase.ts`, and its
+  types): the layout policy (`notation-layout-policy.ts`, the breakpoints and staff layout the
+  session window also reads) and the VexFlow engraving adapter, loaded lazily (`vexflow-engraver-loader.ts` is the sole static importer of the engraver module);
   `note-identity.ts`, which names each engraved note with the identity acknowledgement reports, and
   `score-overlays.ts`, which draws the start marker, playhead band and acknowledged notes onto the
   engraved SVG; and `staff-fit-types.ts`, the layout inputs and verdicts of the engraver's two pure
   pre-draw checks, `planWrittenPhraseFit` and `planStaffRoomForKey` (see
   [`docs/notation-engraving.md`](docs/notation-engraving.md)).
-- `src/export/` — pure, browser-free encoders that turn a session's phrases into the bytes of one
-  export file; `musicxml/` holds the generated-notes MusicXML encoder, `midi/` the generated-notes
-  and played-notes MIDI encoders; `generated-notes-file.ts` builds the one file the Review
-  downloads (loaded on demand through `load-generated-notes-export.ts`), and `browser-download.ts`
-  hands it to the browser. It never imports `src/storage/` (enforced by ESLint). See
-  [`docs/export.md`](docs/export.md).
+- `src/export/` — the export files. Its two encoder folders, in the library set, are pure and
+  browser-free and turn a session's phrases into the bytes of one export file: `musicxml/` holds
+  the generated-notes MusicXML encoder, `midi/` the generated-notes and played-notes MIDI
+  encoders. The rest is app side: `export-file.ts`, what every export file shares, and
+  `favorites-selection.ts`, the phrases an export scope holds; `generated-notes-file.ts` and
+  `played-notes-file.ts` build the files from a recorded session through `src/session/`'s adapter
+  (`session-history-export.ts`, which in turn names the encoders' input types), the generated-notes
+  file loaded on demand through `load-generated-notes-export.ts`; and `browser-download.ts`, the
+  folder's one browser use, hands a file to the browser. It never imports `src/storage/` (enforced
+  by ESLint). See [`docs/export.md`](docs/export.md).
 - `src/session/` — the session engine: pure, deterministic, Vue/browser-free logic that turns a
   running session's timed events (audio time in seconds, carried on each event, never read from a
   clock) into generation requests, fit checks, read-ahead phrases, the struggling notice and the
@@ -151,8 +178,12 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   (`session-settings-change.ts`, `session-mutation-step.ts`, `session-engine-state.ts`) and the
   carry-in adapted to a change (`carry-in-adaptation.ts`); and adaptive tempo, its pure schedule
   (`adaptive-tempo.ts`) and each phrase's tempo fixed at its deadline (`session-tempo-step.ts`);
-  and the multi-phrase tension arc's four-phrase cycle (`tension-arc-cycle.ts`). It never
-  imports `src/storage/` (enforced by ESLint). See
+  and the multi-phrase tension arc's four-phrase cycle (`tension-arc-cycle.ts`). Besides the
+  library it imports the generation worker client's errors (`session-runner.ts`), the click plan
+  from `src/audio/` (`count-in-display.ts`), the layout breakpoints from `src/notation/`
+  (`session-window.ts`, and a type in `rolling-display.ts`), two types from `src/composables/`
+  (`viewport-width.ts`, `workspace-session-result.ts`) and the export encoders' input types. It
+  never imports `src/storage/` (enforced by ESLint). See
   [`docs/session-engine.md`](docs/session-engine.md).
 - `src/audio/` — the audio transport, and the only place allowed to use Web Audio (see Runtime
   Constraints): the app's one `AudioContext`, created on the player's click, the look-ahead
@@ -163,8 +194,11 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   sibling modules `generation-session-*.ts`, among them `generation-session-fit-round.ts`, the idle
   fit run, and `generation-session-room-notice.ts`, the reactions around the room notice;
   `use-notation-coordinator.ts`, which also answers the session's fit and room checks;
-  `workspace-session-result.ts`; and `viewport-width.ts`, the injected window-width seam): no
-  persistence, no singletons.
+  `workspace-session-result.ts`; and `viewport-width.ts`, the injected window-width seam): state
+  held in memory, no singletons. They store nothing themselves: the control actions compare the
+  player's choices with the settings saver's pure helpers (`generation-session-control-actions.ts`
+  imports `chosenControlChanges` and `sameSelection` from `src/storage/settings-saver.ts`), and a
+  few modules name storage types.
 - `src/components/**` — Vue presentation components, props-in/events-out; `src/components/workspace/`
   holds the root session composition (`create-workspace-session.ts`, its types in
   `workspace-session-types.ts` and `workspace-session-dependencies.ts`, with the `matchMedia` width
@@ -190,7 +224,7 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   (`tsconfig.node.json`) because it imports the `.mjs` script.
 - `tests/fixtures/boundaries/src/` — small source files laid out like `src/` (`audio/`, `midi/`,
   `storage/`, `session/`, `export/`, `components/`, `other/`) that call the restricted browser APIs
-  on purpose. They sit outside `src/`, so the real lint and boundary scan never treat them as
+  on purpose, and `domain/`, whose imports leave the library set on purpose. They sit outside `src/`, so the real lint and boundary scan never treat them as
   application code; the boundary unit tests lint and scan them as if they were in `src/`.
 - `tests/fixtures/musicxml/` — the MusicXML export's golden files and the vendored MusicXML 4.0
   schema (with an XML catalog for offline validation); see [`docs/testing.md`](docs/testing.md).
@@ -224,12 +258,19 @@ no separate prior build. `npm run quality` builds once (via its own `npm run bui
   (`record-envelope.ts`), the app version records carry (`app-version.ts`), and the record codecs
   (`records/`: the settings codec, and the kept-session codec that turns a finished session into
   its stored records and back), and the save policy that decides when a write reaches
-  the port (`save-policy.ts`, `save-policy-requests.ts`). The rest of the app reaches it only
-  through an injected port. `src/storage-bootstrap.ts`, beside `main.ts`, loads the saved
-  settings through it before the app is mounted, under the start-up wait; the player's settings
-  are saved through the policy as they change (`src/storage/settings-saver.ts`). See
+  the port (`save-policy.ts`, `save-policy-requests.ts`). Reads and writes go through the injected
+  port; other modules also import storage directly, mostly for types, and by value for the app
+  version, the setting defaults, the kept-session summary, the storage estimate, the settings
+  saver and the controller record (components), the kept-session record codec (components, by
+  dynamic import), the record envelope and the settings record (Jam's settings), and the settings
+  saver's helpers (composables). In the other direction the record codecs import session and audio
+  code, and `records/setting-defaults.ts` two UI types. `src/storage-bootstrap.ts`, beside
+  `main.ts`, loads the saved settings through it before the app is mounted, under the start-up
+  wait; the player's settings are saved through the policy as they change
+  (`src/storage/settings-saver.ts`). See
   [`docs/storage.md`](docs/storage.md#the-load-before-the-first-draw).
-- `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier;
+- `scripts/` — `verify-boundaries.mjs`, the deterministic boundary/precache verifier, the
+  library line's import check included;
   `replay-phrase.mjs`, the headless phrase replay behind `npm run replay:phrase` (see
   [Phrase replay key](docs/phrase-workspace.md#phrase-replay-key)); and `app-version-define.mjs`,
   the build-time `define` of the app version and the build's commit id for the Vite and Vitest
@@ -300,8 +341,6 @@ Chromium is currently the only supported browser; `playwright.config.ts` defines
 ```
 UI (Vue components, props-in/events-out)
   -> session composables (use-generation-session, use-notation-coordinator)
-    -> Web Worker (generation-worker/, typed correlated protocol)
-      -> domain orchestration: harmony -> rhythm -> pitch -> validation
     -> session controller (Start/Stop, the audio-time agenda, screen locks, every end)
       -> session engine (src/session/: pure timed-event engine; its runner uses the same Worker)
       -> last-session Review (lazy panel) -> export (lazy encoders) -> one browser download
@@ -310,6 +349,9 @@ UI (Vue components, props-in/events-out)
     -> MIDI input (src/midi/: one controller, played notes on the audio clock)
       <- controller connection (header controller-status, lazy connection sheet, transposition check)
     -> notation (lazy VexFlow engraver, loaded on demand)
+  -> Web Worker (generation-worker/, typed correlated protocol; created and wired by
+     components/workspace/create-workspace-session.ts, reached through the injected generate seam)
+    -> domain orchestration: harmony -> rhythm -> pitch -> validation
 ```
 
 - **UI.** `App.vue` builds one root `WorkspaceSession` for the tab's lifetime via
