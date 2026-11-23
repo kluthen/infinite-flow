@@ -6,7 +6,10 @@ parents:
 type: REQUIREMENT
 version: 0.1
 tags: [v3, release-v3.4, lexicon, workspace]
-dependents: []
+dependents:
+  - [[api_lexicon_read_contract]]
+  - [[module_lexicon_page_history_entry]]
+  - [[module_lexicon_single_source]]
 layer: BUSINESS
 priority: 1
 human_name: The Lexicon Page
