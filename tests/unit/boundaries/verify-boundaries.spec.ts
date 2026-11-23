@@ -4,7 +4,8 @@
  * `tests/fixtures/boundaries/src/`, which is laid out like the application's `src/` (`audio/`,
  * `midi/`, `storage/`, `session/`, `export/`, `components/` and `other/` directories) but lives
  * outside it, so the real `npm run verify:boundaries` scan never sees these deliberately forbidden
- * calls. The build-output scan runs over file names
+ * calls. The library-boundary scan runs over the same tree's `domain/` imports and over the real
+ * `src/`. The build-output scan runs over file names
  * and over a throwaway directory tree made in the system temp directory. Jam's code boundary and
  * the lexicon's first-load boundary run over the module-graph fixtures in
  * `tests/fixtures/boundaries/module-graphs/`, shaped like the build's
@@ -25,15 +26,18 @@ import {
   firstLoadLexiconViolations,
   jamChunkFileNames,
   lexiconWordsFileNames,
+  libraryImportViolations,
   pageEntryChunks,
   readModuleGraph,
   scanBuildOutputBoundaries,
+  scanLibraryBoundary,
   scanSourceBoundaries,
   sourceBoundaryViolations,
   startupJavaScriptBytes,
 } from '../../../scripts/verify-boundaries.mjs'
 
 const fixtureSourceRoot = fileURLToPath(new URL('../../fixtures/boundaries/src/', import.meta.url))
+const applicationSourceRoot = fileURLToPath(new URL('../../../src/', import.meta.url))
 const moduleGraphFixtures = new URL('../../fixtures/boundaries/module-graphs/', import.meta.url)
 
 const audioOutsideAudioDirectory =
@@ -48,6 +52,12 @@ const persistence = 'ephemeral-state boundary: browser persistence API found'
 const sampledAudio =
   'synthesized-backing boundary: sampled or decoded audio API found (voices are oscillators and gains only)'
 const audioAsset = 'synthesized-backing boundary: audio or sample asset found in the build output'
+const packageImport = 'library boundary: package import'
+
+/** The library-boundary label of an import that resolves to `target` (relative to `src/`). */
+function outsideLibrary(target: string): string {
+  return `library boundary: resolves to ${target} outside the library set`
+}
 
 /** Every directory an always-forbidden call is probed in, the three allowlisted ones included. */
 const probedDirectories = ['audio', 'midi', 'storage', 'other'] as const
@@ -233,6 +243,145 @@ describe('verify-boundaries per-file check of every always-forbidden API', () =>
   test('oscillators and gains are allowed under the audio directory', () => {
     const voice = 'const tone = context.createOscillator()\nconst level = context.createGain()\n'
     expect(sourceBoundaryViolations('audio/voice.ts', voice)).toEqual([])
+  })
+})
+
+describe('verify-boundaries library boundary over the fixture tree and the real src/', () => {
+  let scan: Awaited<ReturnType<typeof scanLibraryBoundary>>
+
+  beforeAll(async () => {
+    scan = await scanLibraryBoundary(fixtureSourceRoot)
+  })
+
+  /** The library violations of one fixture file; throws if the scan never saw that file. */
+  function violationsOf(file: string): { line: number; specifier: string; boundary: string }[] {
+    if (!scan.files.includes(file)) {
+      throw new Error(`fixture ${file} was not scanned; scanned: ${scan.files.join(', ')}`)
+    }
+    return scan.violations
+      .filter((violation) => violation.file === file)
+      .map(({ line, specifier, boundary }) => ({ line, specifier, boundary }))
+  }
+
+  // @test-link [[module_library_code_boundary]]
+  test('only the .ts files of the library set are scanned', () => {
+    expect(scan.files.length).toBeGreaterThan(0)
+    expect(scan.files.every((file) => file.startsWith('domain/') && file.endsWith('.ts'))).toBe(
+      true,
+    )
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test('a relative import leaving the set is rejected with its line and specifier', () => {
+    expect(violationsOf('domain/relative-import.ts')).toEqual([
+      {
+        line: 1,
+        specifier: '../notation/staff-layout',
+        boundary: outsideLibrary('notation/staff-layout'),
+      },
+    ])
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test('a type-only import leaving the set is rejected', () => {
+    expect(violationsOf('domain/type-import.ts')).toEqual([
+      { line: 1, specifier: '../session/session', boundary: outsideLibrary('session/session') },
+    ])
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test('an @/ import leaving the set is rejected', () => {
+    expect(violationsOf('domain/alias-import.ts')).toEqual([
+      {
+        line: 1,
+        specifier: '@/components/format-time',
+        boundary: outsideLibrary('components/format-time'),
+      },
+    ])
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test('an export … from leaving the set is rejected', () => {
+    expect(violationsOf('domain/re-export.ts')).toEqual([
+      { line: 2, specifier: '../audio/mixer', boundary: outsideLibrary('audio/mixer') },
+    ])
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test('a dynamic import() leaving the set is rejected', () => {
+    expect(violationsOf('domain/dynamic-import.ts')).toEqual([
+      {
+        line: 3,
+        specifier: '../components/workspace/workspace-view',
+        boundary: outsideLibrary('components/workspace/workspace-view'),
+      },
+    ])
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test('a new URL(…, import.meta.url) leaving the set is rejected', () => {
+    expect(violationsOf('domain/module-url.ts')).toEqual([
+      {
+        line: 3,
+        specifier: '../session/session-worker.ts',
+        boundary: outsideLibrary('session/session-worker.ts'),
+      },
+    ])
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test('a package import is rejected', () => {
+    expect(violationsOf('domain/package-import.ts')).toEqual([
+      { line: 1, specifier: 'vue', boundary: packageImport },
+    ])
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test('imports into the generation worker, the encoders, @/domain/ and a sibling pass, and comments and strings never count', () => {
+    expect(violationsOf('domain/library-imports.ts')).toEqual([])
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test('the same ../notation/ text resolves inside from a domain subfolder and outside from domain/', () => {
+    expect(violationsOf('domain/harmony/relative-inside.ts')).toEqual([])
+    expect(violationsOf('domain/relative-import.ts').map(({ specifier }) => specifier)).toEqual([
+      '../notation/staff-layout',
+    ])
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test.each(['node:fs', '@scope/package', 'virtual:lexicon-words', 'vexflow'])(
+    'the package specifier %s is rejected',
+    (specifier) => {
+      expect(
+        libraryImportViolations('generation-worker/probe.ts', `import '${specifier}'\n`),
+      ).toEqual([{ line: 1, specifier, boundary: packageImport }])
+    },
+  )
+
+  // @test-link [[module_library_code_boundary]]
+  test('an absolute path or one climbing above src/ is rejected, an import() type leaving the set too', () => {
+    const probe = [
+      "import '/src/domain/phrase'",
+      "import '../../../outside'",
+      "export type Session = import('../../session/session').Session",
+    ].join('\n')
+    expect(libraryImportViolations('export/midi/probe.ts', probe)).toEqual([
+      { line: 1, specifier: '/src/domain/phrase', boundary: outsideLibrary('/src/domain/phrase') },
+      { line: 2, specifier: '../../../outside', boundary: outsideLibrary('../outside') },
+      {
+        line: 3,
+        specifier: '../../session/session',
+        boundary: outsideLibrary('session/session'),
+      },
+    ])
+  })
+
+  // @test-link [[module_library_code_boundary]]
+  test('the real src/ has no library violation', async () => {
+    const real = await scanLibraryBoundary(applicationSourceRoot)
+    expect(real.files.length).toBeGreaterThan(0)
+    expect(real.violations).toEqual([])
   })
 })
 
