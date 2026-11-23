@@ -362,3 +362,11 @@ current state.
 - 2026-11-23: the owner: "you may complete the v3.4 entirely". The driver runs wave 3's gate and
   sync, merges wave 3 into `main`, runs the release gate, the release sync and the archive; push,
   the `3.4.0` tag, the deploy and H1 (the owner sees the page) stay the owner's.
+- 2026-11-23: wave 3 gate GREEN on 83f00256 (`npm ci` + `npm run quality`, 21:42–21:53 CET, AMD
+  Ryzen 5 PRO 8640HS, idle): unit 10,362 tests in 669 files; e2e 786 ×2 (1 skipped); a11y 86;
+  notation 121 (4 skipped); `lint:health` 0 errors, 980 warnings; `verify:boundaries`: library 158
+  files, session 40 files, Jam's first load clean. M2: start-up 394,052 B of 409,600 B in 19 chunks
+  (+1,759 against the wave 2 gate, where about 0 was expected; chunk 6 +122, chunk 7 the rest, its
+  composable's dependency object and getters; a new 0.28 kB `notation-error` chunk), entry
+  338,760 B (+1,479). Within budget (15,548 B left): no lever. No dependency change. Default
+  `atd check` "No atoms found" (ISS-020): the sync runs `atd check main...HEAD`.
