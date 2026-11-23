@@ -7,6 +7,7 @@ version: 0.4
 parents:
   - [[req_session_export]]
 dependents:
+  - [[module_library_code_boundary]]
   - [[module_review_export_pipeline]]
   - [[rule_played_notes_export_aligns_with_generated_midi]]
   - [[rule_played_notes_export_omits_stray_notes]]

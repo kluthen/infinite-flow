@@ -1,7 +1,8 @@
 import { realpathSync } from 'node:fs'
-import { extname, join, relative, sep } from 'node:path'
+import { extname, join, posix, relative, sep } from 'node:path'
 import { readFile, readdir, stat } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
+import ts from 'typescript'
 
 const sourceExtensions = new Set(['.css', '.js', '.jsx', '.ts', '.tsx', '.vue'])
 /**
@@ -210,6 +211,179 @@ export async function scanSourceBoundaries(sourceRoot) {
     const contents = await readFile(absolutePath, 'utf8')
     for (const boundary of sourceBoundaryViolations(file, contents)) {
       violations.push({ file, boundary })
+    }
+  }
+  return { files, violations }
+}
+
+/**
+ * The library set: the four folders of `src/`, relative to it with a trailing slash, whose `.ts`
+ * files may import only files inside them and no package (the music core, the generation worker,
+ * the MIDI and MusicXML encoders).
+ */
+const libraryDirectories = ['domain/', 'generation-worker/', 'export/midi/', 'export/musicxml/']
+
+/**
+ * Whether a path relative to the application source root (forward slashes) lies in the library
+ * set; a library folder itself (e.g. `domain`, reached by an index import) counts as inside.
+ *
+ * @param {string} relativePath
+ * @returns {boolean}
+ */
+function isInLibrary(relativePath) {
+  return libraryDirectories.some((directory) => `${relativePath}/`.startsWith(directory))
+}
+
+/**
+ * The node itself when it is a string literal or a template literal with no substitution, the two
+ * forms a module path is written in; undefined for any other expression.
+ *
+ * @param {ts.Node | undefined} node
+ * @returns {ts.StringLiteral | ts.NoSubstitutionTemplateLiteral | undefined}
+ */
+function moduleSpecifierLiteral(node) {
+  if (
+    node !== undefined &&
+    (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node))
+  ) {
+    return node
+  }
+  return undefined
+}
+
+/**
+ * Whether a node is `import.meta.url`.
+ *
+ * @param {ts.Node | undefined} node
+ * @returns {boolean}
+ */
+function isImportMetaUrl(node) {
+  return (
+    node !== undefined &&
+    ts.isPropertyAccessExpression(node) &&
+    node.name.text === 'url' &&
+    ts.isMetaProperty(node.expression) &&
+    node.expression.keywordToken === ts.SyntaxKind.ImportKeyword &&
+    node.expression.name.text === 'meta'
+  )
+}
+
+/**
+ * The module specifier one AST node names, when the node is a place a module path is written: an
+ * import declaration (`import type` and side-effect imports included), an `export … from`, a
+ * dynamic `import('…')`, an `import('…')` type, or `new URL('…', import.meta.url)`.
+ *
+ * @param {ts.Node} node
+ * @returns {ts.StringLiteral | ts.NoSubstitutionTemplateLiteral | undefined}
+ */
+function namedModuleSpecifier(node) {
+  if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
+    return moduleSpecifierLiteral(node.moduleSpecifier)
+  }
+  if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword) {
+    return moduleSpecifierLiteral(node.arguments[0])
+  }
+  if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)) {
+    return moduleSpecifierLiteral(node.argument.literal)
+  }
+  if (
+    ts.isNewExpression(node) &&
+    ts.isIdentifier(node.expression) &&
+    node.expression.text === 'URL' &&
+    isImportMetaUrl(node.arguments?.[1])
+  ) {
+    return moduleSpecifierLiteral(node.arguments?.[0])
+  }
+  return undefined
+}
+
+/**
+ * The library-boundary label one specifier breaks, written in the library file at `relativePath`
+ * (relative to the application source root, forward slashes), or undefined when it resolves inside
+ * the library set. `@/` resolves to the source root and `./` or `../` against the file's folder; a
+ * specifier starting with `/` lies outside; any other specifier names a package.
+ *
+ * @param {string} relativePath
+ * @param {string} specifier
+ * @returns {string | undefined}
+ */
+function libraryBoundaryOf(relativePath, specifier) {
+  let target
+  if (specifier.startsWith('@/')) {
+    target = posix.normalize(specifier.slice(2))
+  } else if (specifier.startsWith('./') || specifier.startsWith('../')) {
+    target = posix.normalize(posix.join(posix.dirname(relativePath), specifier))
+  } else if (specifier.startsWith('/')) {
+    target = specifier
+  } else {
+    return 'library boundary: package import'
+  }
+  const escapesRoot = target === '..' || target.startsWith('../') || target.startsWith('/')
+  if (!escapesRoot && isInLibrary(target)) return undefined
+  return `library boundary: resolves to ${target} outside the library set`
+}
+
+/**
+ * Every import of one library file that leaves the library set or names a package, given its path
+ * relative to the application source root (forward slashes, e.g. `domain/phrase/phrase.ts`) and
+ * its contents. The file is parsed, so comments and strings never count, and each specifier is
+ * resolved, not matched by its text. The line is the 1-based line of the specifier.
+ *
+ * @param {string} relativePath
+ * @param {string} contents
+ * @returns {{ line: number, specifier: string, boundary: string }[]}
+ */
+// @spec-link [[module_library_code_boundary]]
+export function libraryImportViolations(relativePath, contents) {
+  const sourceFile = ts.createSourceFile(
+    relativePath,
+    contents,
+    ts.ScriptTarget.Latest,
+    false,
+    ts.ScriptKind.TS,
+  )
+  /** @type {{ line: number, specifier: string, boundary: string }[]} */
+  const violations = []
+  /**
+   * Record the specifier `node` names when it leaves the library set, then visit its children.
+   *
+   * @param {ts.Node} node
+   */
+  const visit = (node) => {
+    const literal = namedModuleSpecifier(node)
+    if (literal !== undefined) {
+      const boundary = libraryBoundaryOf(relativePath, literal.text)
+      if (boundary !== undefined) {
+        const { line } = sourceFile.getLineAndCharacterOfPosition(literal.getStart(sourceFile))
+        violations.push({ line: line + 1, specifier: literal.text, boundary })
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(sourceFile)
+  return violations
+}
+
+/**
+ * Scan every `.ts` file of the library set under `sourceRoot` (the directory that stands for the
+ * application's `src/`) and report each import that leaves the set or names a package, with paths
+ * relative to `sourceRoot` in forward slashes, so the same scan runs over the real `src/` or over a
+ * fixture tree laid out like it. A library folder missing from the tree is simply not scanned.
+ *
+ * @param {string} sourceRoot
+ * @returns {Promise<{ files: string[], violations: { file: string, line: number, specifier: string, boundary: string }[] }>}
+ */
+// @spec-link [[module_library_code_boundary]]
+export async function scanLibraryBoundary(sourceRoot) {
+  const files = (await authoredSourceFiles(sourceRoot))
+    .map((absolutePath) => relative(sourceRoot, absolutePath).split(sep).join('/'))
+    .filter((file) => extname(file) === '.ts' && isInLibrary(file))
+    .sort()
+  const violations = []
+  for (const file of files) {
+    const contents = await readFile(join(sourceRoot, file), 'utf8')
+    for (const violation of libraryImportViolations(file, contents)) {
+      violations.push({ file, ...violation })
     }
   }
   return { files, violations }
@@ -460,7 +634,9 @@ export async function startupJavaScriptBytes(outputRoot, graph) {
 
 /**
  * The full boundary verification run by `npm run verify:boundaries`: the authored-source
- * scan of `src/`, the Workbox runtime-caching setting, the precache manifest, the build output's
+ * scan of `src/`, the library boundary (every `.ts` file of src/domain/, src/generation-worker/,
+ * src/export/midi/ and src/export/musicxml/ imports only those folders and no package), the
+ * Workbox runtime-caching setting, the precache manifest, the build output's
  * audio-asset scan, the first-load budget (all JavaScript loaded at startup), the per-chunk size
  * budgets (the lexicon's words' file included), Jam's code boundary (no src/jam/ module in the
  * first load) and the lexicon's (no src/lexicon/ or src/components/lexicon/ module, and none of
@@ -472,6 +648,13 @@ async function verifyBoundaries() {
     fileURLToPath(new URL('../src/', import.meta.url)),
   )
   const violations = sourceViolations.map(({ file, boundary }) => `src/${file} (${boundary})`)
+
+  const { files: libraryFiles, violations: libraryViolations } = await scanLibraryBoundary(
+    fileURLToPath(new URL('../src/', import.meta.url)),
+  )
+  for (const { file, line, specifier, boundary } of libraryViolations) {
+    violations.push(`src/${file}:${line} imports '${specifier}' (${boundary})`)
+  }
 
   const viteConfigPath = new URL('../vite.config.ts', import.meta.url)
   const viteConfig = await readFile(viteConfigPath, 'utf8')
@@ -578,6 +761,9 @@ async function verifyBoundaries() {
   console.log(
     `First-load budget passed: startup JavaScript ${startup.totalBytes} B of ${startupJavaScriptByteBudget} B, in ${startup.chunks.length} chunk(s) (the entry chunk and its static imports). ` +
       `Entry chunk alone (reported, not gated): ${startup.entryBytes} B.`,
+  )
+  console.log(
+    `Library boundary passed: ${libraryFiles.length} library files import only the library set and no package.`,
   )
   const jamChunks = jamChunkFileNames(moduleGraph)
   console.log(

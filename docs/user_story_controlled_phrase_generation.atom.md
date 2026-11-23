@@ -20,6 +20,7 @@ dependents:
   - [[module_generation_request_construction]]
   - [[module_harmony_candidate_domain]]
   - [[module_idle_generation_error_recovery]]
+  - [[module_library_code_boundary]]
   - [[module_rhythm_skeleton_allocator]]
   - [[module_rhythm_variety_grammar]]
   - [[req_embellishment_figure_levels]]

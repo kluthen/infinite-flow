@@ -208,3 +208,109 @@ current state.
   analysis tool kept (D572); the split's form (D573); O315 closed (D574). Build plan v5 adds wave 2
   (chunks 4 and 5) and wave 3 (chunks 6 and 7), with gates P2 and P3. Branch `v3.4-review-report`,
   not merged.
+
+## Wave 2
+
+- 2026-11-23: the review's branch merged into `main` bce1fce3 (spec D569–D575, plan v5.1). Wave
+  branch `v3.4-w2` cut from bce1fce3 in `/home/bastien/work/infinite_flow-v3.4-w2`. Chunks 4 and 5.
+- 2026-11-23: preflight P2 (`documentalist`, 66f4dec5). Chunk 4: PROCEED, no governing entry
+  (tooling, ATD-exempt). Chunk 5: PROCEED; governing `module_library_code_boundary` (captured, DRAFT,
+  tagged `release-v3.4`; parents chosen by `documentalist`: `user_story_controlled_phrase_generation`,
+  `req_rolling_practice_session`, `req_session_export`, `req_played_notes_export`; promotion is the
+  owner's call), `module_jam_code_boundary` (REVIEW),
+  `specification_browser_only_operation_verification` (STABLE); no STABLE wording changes. The atom
+  ends on "sets no rule on the files outside the set that import the library", so P3 may extend it
+  for session or add a sibling. Plan corrections to `spec-writer`: plan v5.2 6d48ba3b (wave 2 row's
+  fast-gate leftover removed; chunk 5's Atoms line names the capture).
+- 2026-11-23: chunk 4 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c4`,
+  branch `v3.4-c4-test-atom-limit`).
+- 2026-11-23: chunk 4 merged 9d823690 (0f40a81f): a test file above 10 atoms now warns; source
+  files keep their error; `npm run lint:health` 0 errors, 979 warnings over 1,625 files. Beyond
+  Files: two comments quoting §6. Figures: 1 agent, 20 tool calls, 1.3M tokens in / 11k out, max
+  context 80k, $0.85. Chunk 5 dispatched (`coding-leader`, `/home/bastien/work/infinite_flow-v3.4-c5`,
+  branch `v3.4-c5-library-line`).
+- 2026-11-23: chunk 5 merged f7cc1e81 (ca37fd93): `verify:boundaries` checks 156 library files
+  (TypeScript's parser, every specifier resolved; 0 violations); `tsconfig.domain.json` (no DOM)
+  referenced from `tsconfig.json`, a planted `document` use failed it (TS2584, not committed);
+  README's Directory Boundaries states the line, drift points 1–7 corrected. M3: +0.7 s (16.0 →
+  16.7 s). New `lint:health` warnings: `verify-boundaries.mjs` 422 and its spec 451 effective
+  lines, the spec at 7 atoms. Risks: a non-literal `import()`/`new URL()` is not checked (none in
+  the library). Figures: 3 agents, 93 tool calls, 7.0M tokens in / 62k out, max context 136k, $3.87 at API prices. All chunks merged; wave gate next.
+- 2026-11-23: wave 2 gate GREEN on 025e93b7 (`npm ci` + `npm run quality`, 20:36–20:47 CET, AMD
+  Ryzen 5 PRO 8640HS, idle): unit 10,344 tests in 668 files; e2e 786 ×2 (1 skipped); a11y 86;
+  notation 121 (4 skipped); `verify:boundaries` with the library check (156 files). Start-up
+  392,293 B of 409,600 B in 18 chunks (Δ 0 against wave 1), entry 337,281 B (Δ 0). No dependency
+  change. Default `atd check` printed "No atoms found for the specified scope" (ISS-020): the sync
+  runs `atd check main...HEAD`.
+- 2026-11-23: wave 2 sync 1c4dfc93 (`documentalist`): no drift; `module_library_code_boundary`'s
+  interface now names the two limits (computed `import()`/`new URL()` paths unchecked; a bare
+  folder import counts as inside). `atd check main...HEAD`: 14 atoms OK; `--full`: 15 NO_IMPL and
+  1 NO_TESTS, the baseline. `doc-ids compare main v3.4-w2`: 0 collisions.
+- 2026-11-23: wave 2 reported to the owner. Asked: merge and push. Driver's recommendations (D556):
+  `module_library_code_boundary` stays DRAFT until the release sync, then REVIEW with the other
+  v3.4 atoms; no ban on computed import paths (none exist, the check states the limit). Wave cost:
+  8 agents, 227 tool calls, 20.1M tokens in / 150k out, max context 194k, $10.82 at API prices.
+
+#### Wave 2 figures
+
+### v3.4 wave 2
+
+- Time: 2026-11-23 19:36 → 2026-11-23 20:49 (1h13)
+- Agents: 8 · tool calls: 227 · model turns: 220
+- Tokens in: 20.1M (fresh 464, cache write 686k, cache read 19.4M) · out: 150k
+- Max context: 194k (driver (top level): driver session cefe6134)
+- Cost: $10.82 at API list prices (checked 2026-11-12)
+- Ends: at its last tagged agent (not merged yet)
+- Not counted: other top-level sessions active in the window, with no agent of this wave: e6a199d9
+
+### By role
+
+| role               | agents | calls | tokens in | out |  cost | share | max ctx |
+| ------------------ | -----: | ----: | --------: | --: | ----: | ----: | ------: |
+| driver (top level) |      1 |    56 |      8.6M | 53k | $4.07 |   38% |    194k |
+| coding-leader      |      2 |    66 |      5.9M | 40k | $2.91 |   27% |    136k |
+| documentalist      |      2 |    52 |      3.0M | 23k | $1.82 |   17% |     88k |
+| coding-executor    |      1 |    30 |      1.8M | 23k | $1.25 |   12% |     89k |
+| codebase-explorer  |      1 |    17 |      545k | 10k | $0.56 |    5% |     52k |
+| spec-writer        |      1 |     6 |      235k |  2k | $0.22 |    2% |     42k |
+
+### By chunk
+
+| chunk          | agents | calls | tokens in | out |  cost | share | max ctx |
+| -------------- | -----: | ----: | --------: | --: | ----: | ----: | ------: |
+| 4              |      1 |    20 |      1.3M | 11k | $0.85 |    8% |     80k |
+| 5              |      3 |    93 |      7.0M | 62k | $3.87 |   36% |    136k |
+| outside chunks |        |       |           |     | $6.11 |   56% |         |
+
+### By activity (tool calls)
+
+| activity    | calls | share | writes | results |
+| ----------- | ----: | ----: | -----: | ------: |
+| dispatch    |    11 |    5% |        |     11k |
+| doc-get     |     3 |    1% |        |      7k |
+| plan        |    16 |    7% |        |    112k |
+| spec        |    13 |    6% |      2 |     56k |
+| intent      |    13 |    6% |        |     43k |
+| other docs  |    40 |   18% |     11 |    188k |
+| source      |    39 |   17% |      6 |    129k |
+| checks      |    43 |   19% |        |     59k |
+| git         |    18 |    8% |        |     93k |
+| shell other |    19 |    8% |      2 |     23k |
+| skills      |     4 |    2% |        |     137 |
+| other tools |     8 |    4% |        |     427 |
+
+### Largest contexts
+
+| agent              |                                      task | calls | max ctx |  cost |
+| ------------------ | ----------------------------------------: | ----: | ------: | ----: |
+| driver (top level) |                   driver session cefe6134 |    56 |    194k | $4.07 |
+| coding-leader      |                       v3.4 wave 2 chunk 5 |    46 |    136k | $2.06 |
+| coding-executor    | Library import check in verify-boundaries |    30 |     89k | $1.25 |
+| documentalist      |                  v3.4 wave 2 preflight P2 |    30 |     88k | $1.12 |
+| coding-leader      |                       v3.4 wave 2 chunk 4 |    20 |     80k | $0.85 |
+
+- 2026-11-23: the owner: "ok resolve the points you've raised, merge push". Settled as recommended:
+  `module_library_code_boundary` stays DRAFT and goes to REVIEW at the release sync with the other
+  v3.4 atoms; no ban on computed import paths in the library (none exist; the atom states the
+  limit). `v3.4-w2` merged into `main` and pushed. Next: wave 3 (P3, chunks 6 and 7), in a fresh
+  session.

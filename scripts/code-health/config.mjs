@@ -12,15 +12,21 @@ export const MAX_NESTING = 4
 /** Distinct atom ids linked from one file above which the file is an ATD-spread warning. */
 export const ATD_WARN_DISTINCT = 5
 
-/** Distinct atom ids linked from one file above which the file is an ATD-spread error. */
+/**
+ * Distinct atom ids linked from one source file above which the file is an ATD-spread error. A
+ * test file (isTestFile, sources.mjs) has no error limit: above ATD_WARN_DISTINCT it is a warning
+ * however many ids it links, so a broad spec links every atom it covers (spec D570).
+ */
 export const ATD_ERROR_DISTINCT = 10
 
 /**
  * ATD scope. CODING_RULE.md §1: "Declared intent is for business behaviour only. Tooling,
  * scripts, debug, logging, diagnostics, app bootstrap and test plumbing (fixtures, harnesses,
  * shared helpers) stand outside it: they get no intent and need no links. They still follow every
- * other rule in this file." §6: "≥1 link per business file, ≤10 distinct atoms or entries (warn >5
- * distinct); repeated links to the same id count once. Files outside intent scope (§1) are exempt."
+ * other rule in this file." §6: "≥1 link per business file; repeated links to the same id count
+ * once. A source file links ≤10 distinct atoms or entries (warn >5 distinct). A test file warns
+ * above 5 distinct and never errors, so a broad spec links every atom it covers. Files outside
+ * intent scope (§1) are exempt."
  *
  * A file matching this list is outside that scope: it needs no ATD link and has no distinct-atom
  * limit, but the links it does carry are still checked (phantom id, unattached link, link kind by
