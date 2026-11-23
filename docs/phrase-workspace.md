@@ -104,7 +104,10 @@ flag, over `useControllerStatus` and `useConnectionSheet`), `useWorkspaceFocus`
 (`use-workspace-focus.ts`: focus after a session end, a late room notice and the sheet's close),
 `useReviewNavigation`, `createWorkspaceStarts` (`workspace-starts.ts`: the Start click, Jam
 mode's starting note and the start's one jump, moved out of the shell unchanged in v3.4 to keep
-it within its size limit) and `useLexiconPage` (below).
+it within its size limit, then `Stop` too), `useJamHost` (`use-jam-host.ts`: the workspace's
+mode and all the Jam wiring over it, from `useWorkspaceMode` to the Jam ports and the kept
+doodle's bar, with the handlers of Jam's controls and Jam's load-failure notice, moved out of the
+shell unchanged in v3.4, in the same setup order) and `useLexiconPage` (below).
 
 ### The lexicon page (v3.4)
 
