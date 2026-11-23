@@ -229,6 +229,41 @@ export async function scanSourceBoundaries(sourceRoot) {
 const jamSourceDirectory = 'src/jam/'
 
 /**
+ * The lexicon's words' file, as the module graph names it: the build-only module
+ * `virtual:lexicon-words` that scripts/lexicon-words-plugin.ts emits as `assets/lexicon-words-*.js`.
+ * The build emits it as an entry of its own so it exists whatever imports it; the app reaches it
+ * only through a dynamic `import()`, so it is not one of the page's entries.
+ */
+const lexiconWordsFilePrefix = 'assets/lexicon-words-'
+const lexiconWordsModule = 'virtual:lexicon-words'
+
+/** Where the lexicon module and the lexicon page's code live, as the module graph names them. */
+const lexiconSourceDirectories = ['src/lexicon/', 'src/components/lexicon/']
+
+/**
+ * Whether a chunk, by its file name relative to the build output root, is the lexicon's words'
+ * file.
+ *
+ * @param {string} fileName
+ * @returns {boolean}
+ */
+function isLexiconWordsFile(fileName) {
+  return fileName.startsWith(lexiconWordsFilePrefix)
+}
+
+/**
+ * The page's entry chunks: every entry chunk but the lexicon's words' file, which the build emits
+ * as an entry only so that it exists on its own (see lexiconWordsFilePrefix).
+ *
+ * @param {ModuleGraph} graph
+ * @returns {GraphChunk[]}
+ */
+// @spec-link [[module_lexicon_single_source]]
+export function pageEntryChunks(graph) {
+  return graph.chunks.filter((chunk) => chunk.isEntry && !isLexiconWordsFile(chunk.fileName))
+}
+
+/**
  * The build's module graph, read from `<outputRoot>/.vite/module-graph.json`. A missing
  * file fails loudly (ENOENT), like a missing dist/sw.js: the check needs a production build.
  *
@@ -245,8 +280,9 @@ export async function readModuleGraph(outputRoot) {
 }
 
 /**
- * The chunks of the first load: every entry chunk and every chunk they import statically,
- * transitively. Chunks imported only dynamically load on demand and stay out of it.
+ * The chunks of the first load: every page entry chunk (see pageEntryChunks) and every chunk they
+ * import statically, transitively. Chunks imported only dynamically load on demand and stay out of
+ * it.
  *
  * @param {ModuleGraph} graph
  * @returns {GraphChunk[]}
@@ -254,7 +290,7 @@ export async function readModuleGraph(outputRoot) {
 function firstLoadChunks(graph) {
   const byFileName = new Map(graph.chunks.map((chunk) => [chunk.fileName, chunk]))
   const reached = new Set()
-  const pending = graph.chunks.filter((chunk) => chunk.isEntry)
+  const pending = pageEntryChunks(graph)
   while (pending.length > 0) {
     const chunk = pending.pop()
     if (chunk === undefined || reached.has(chunk)) continue
@@ -282,6 +318,84 @@ export function firstLoadJamViolations(graph) {
       .filter((module) => module.startsWith(jamSourceDirectory))
       .map((module) => ({ chunk: chunk.fileName, module })),
   )
+}
+
+/**
+ * Every module of the lexicon module or the lexicon page (src/lexicon/, src/components/lexicon/),
+ * and the lexicon's words (`virtual:lexicon-words`), that the first load holds (see
+ * firstLoadChunks), with the chunk that holds it: they load only on demand, so the list is empty
+ * in a sound build.
+ *
+ * @param {ModuleGraph} graph
+ * @returns {{ chunk: string, module: string }[]}
+ */
+// @spec-link [[module_lexicon_single_source]]
+export function firstLoadLexiconViolations(graph) {
+  return firstLoadChunks(graph).flatMap((chunk) =>
+    chunk.modules
+      .filter(
+        (module) =>
+          module === lexiconWordsModule ||
+          lexiconSourceDirectories.some((directory) => module.startsWith(directory)),
+      )
+      .map((module) => ({ chunk: chunk.fileName, module })),
+  )
+}
+
+/**
+ * The lexicon's words' file in the build, by file name, for the check's report of its size; an
+ * empty list when the build has none.
+ *
+ * @param {ModuleGraph} graph
+ * @returns {string[]}
+ */
+export function lexiconWordsFileNames(graph) {
+  return graph.chunks.map((chunk) => chunk.fileName).filter(isLexiconWordsFile)
+}
+
+/**
+ * Per-chunk minified-size budgets (bytes), matched by file-name prefix, for every JS chunk but the
+ * page's entry chunk, which the first-load budget covers. The lazy VexFlow engraver chunk
+ * (src/notation/vexflow-engraver-loader.ts) embeds the Bravura/Academico fonts and is
+ * intentionally large -- see its budget and the matching comment on vite.config.ts's
+ * `chunkSizeWarningLimit`, which silences Vite's own generic size warning in favor of this
+ * targeted check. The lexicon's words' file holds every shown entry's text (v3.4, spec D549: room
+ * for the lexicon to grow by half). Every other JS chunk is expected to stay small; an unmatched
+ * chunk falls back to the tightest budget so unexpected new chunks are still guarded.
+ */
+const generationWorkerChunkByteBudget = 170 * 1024
+const vexflowEngraverChunkByteBudget = 800 * 1024
+const lexiconWordsChunkByteBudget = 448 * 1024
+const defaultChunkByteBudget = 100 * 1024
+
+const chunkByteBudgets = [
+  {
+    prefix: 'generation.worker-',
+    budget: generationWorkerChunkByteBudget,
+    label: 'generation Worker chunk (generation.worker-*.js)',
+  },
+  {
+    prefix: 'vexflow-engraver-',
+    budget: vexflowEngraverChunkByteBudget,
+    label: 'VexFlow engraver chunk (vexflow-engraver-*.js)',
+  },
+  {
+    prefix: 'lexicon-words-',
+    budget: lexiconWordsChunkByteBudget,
+    label: "lexicon's words' file (lexicon-words-*.js)",
+  },
+]
+
+/**
+ * The size budget of one JS chunk of `dist/assets/`, by its file name there (e.g.
+ * `lexicon-words-abc.js`), with the label the check reports it under.
+ *
+ * @param {string} assetName
+ * @returns {{ budget: number, label: string }}
+ */
+export function chunkByteBudget(assetName) {
+  const matched = chunkByteBudgets.find(({ prefix }) => assetName.startsWith(prefix))
+  return matched ?? { budget: defaultChunkByteBudget, label: 'other JS chunk' }
 }
 
 /**
@@ -347,8 +461,10 @@ export async function startupJavaScriptBytes(outputRoot, graph) {
  * The full boundary verification run by `npm run verify:boundaries`: the authored-source
  * scan of `src/`, the Workbox runtime-caching setting, the precache manifest, the build output's
  * audio-asset scan, the first-load budget (all JavaScript loaded at startup), the per-chunk size
- * budgets and Jam's code boundary (no src/jam/ module in the first
- * load, read from the build's module graph). Throws with every violation found.
+ * budgets (the lexicon's words' file included), Jam's code boundary (no src/jam/ module in the
+ * first load) and the lexicon's (no src/lexicon/ or src/components/lexicon/ module, and none of
+ * the lexicon's words, in the first load), both read from the build's module graph. Throws with
+ * every violation found.
  */
 async function verifyBoundaries() {
   const { files, violations: sourceViolations } = await scanSourceBoundaries(
@@ -406,35 +522,9 @@ async function verifyBoundaries() {
    */
   const startupJavaScriptByteBudget = 400 * 1024
 
-  /**
-   * Per-chunk minified-size budgets (bytes), matched by file-name prefix, for every JS chunk but
-   * the entry chunk, which the first-load budget covers. The lazy VexFlow engraver chunk
-   * (src/notation/vexflow-engraver-loader.ts) embeds the Bravura/Academico fonts and is
-   * intentionally large -- see its budget and the matching comment on vite.config.ts's
-   * `chunkSizeWarningLimit`, which silences Vite's own generic size warning in favor of this
-   * targeted check. Every other JS chunk is expected to stay small; an unmatched chunk falls back to
-   * the tightest budget so unexpected new chunks are still guarded.
-   */
-  const generationWorkerChunkByteBudget = 170 * 1024
-  const vexflowEngraverChunkByteBudget = 800 * 1024
-  const defaultChunkByteBudget = 100 * 1024
-
-  const chunkByteBudgets = [
-    {
-      prefix: 'generation.worker-',
-      budget: generationWorkerChunkByteBudget,
-      label: 'generation Worker chunk (generation.worker-*.js)',
-    },
-    {
-      prefix: 'vexflow-engraver-',
-      budget: vexflowEngraverChunkByteBudget,
-      label: 'VexFlow engraver chunk (vexflow-engraver-*.js)',
-    },
-  ]
-
   const distRoot = fileURLToPath(new URL('../dist/', import.meta.url))
   const moduleGraph = await readModuleGraph(distRoot)
-  const entryChunks = moduleGraph.chunks.filter((chunk) => chunk.isEntry).map((c) => c.fileName)
+  const entryChunks = pageEntryChunks(moduleGraph).map((chunk) => chunk.fileName)
 
   const startup = await startupJavaScriptBytes(distRoot, moduleGraph)
   if (startup.totalBytes > startupJavaScriptByteBudget) {
@@ -448,9 +538,7 @@ async function verifyBoundaries() {
     if (!entry.isFile() || extname(entry.name) !== '.js') continue
     jsChunkCount += 1
     if (entryChunks.includes(`assets/${entry.name}`)) continue
-    const matchedBudget = chunkByteBudgets.find(({ prefix }) => entry.name.startsWith(prefix))
-    const budget = matchedBudget?.budget ?? defaultChunkByteBudget
-    const label = matchedBudget?.label ?? 'other JS chunk'
+    const { budget, label } = chunkByteBudget(entry.name)
     const { size } = await stat(join(distAssetsPath.pathname, entry.name))
     if (size > budget) {
       violations.push(
@@ -464,13 +552,27 @@ async function verifyBoundaries() {
     violations.push(`dist/${chunk} (Jam's code boundary: ${module} is in the first load)`)
   }
 
+  // The lexicon's boundary: no module of the lexicon module or page, and none of its words, in the
+  // first load.
+  for (const { chunk, module } of firstLoadLexiconViolations(moduleGraph)) {
+    violations.push(
+      `dist/${chunk} (the lexicon's first-load boundary: ${module} is in the first load)`,
+    )
+  }
+  const lexiconWordsFiles = lexiconWordsFileNames(moduleGraph)
+  if (lexiconWordsFiles.length !== 1) {
+    violations.push(
+      `dist/assets (the build must emit exactly one lexicon's words' file lexicon-words-*.js, found ${lexiconWordsFiles.length})`,
+    )
+  }
+
   if (violations.length > 0) {
     throw new Error(`Boundary violation(s) found: ${violations.join('; ')}`)
   }
 
   console.log(
     `Boundary verification passed for ${files.length} authored source files, ${outputFiles.length} build-output files with no audio or sample asset, ${precacheableAssetCount} precacheable dist/assets entries, and ${jsChunkCount} JS chunk(s) within budget ` +
-      `(startup JavaScript ${startupJavaScriptByteBudget / 1024} kB, generation.worker ${generationWorkerChunkByteBudget / 1024} kB, vexflow-engraver ${vexflowEngraverChunkByteBudget / 1024} kB, other ${defaultChunkByteBudget / 1024} kB).`,
+      `(startup JavaScript ${startupJavaScriptByteBudget / 1024} kB, generation.worker ${generationWorkerChunkByteBudget / 1024} kB, vexflow-engraver ${vexflowEngraverChunkByteBudget / 1024} kB, lexicon-words ${lexiconWordsChunkByteBudget / 1024} kB, other ${defaultChunkByteBudget / 1024} kB).`,
   )
   console.log(
     `First-load budget passed: startup JavaScript ${startup.totalBytes} B of ${startupJavaScriptByteBudget} B, in ${startup.chunks.length} chunk(s) (the entry chunk and its static imports). ` +
@@ -480,6 +582,10 @@ async function verifyBoundaries() {
   console.log(
     `Jam's code boundary passed: no src/jam/ module in the first load. Entry chunk: ${await chunkSizes(distRoot, entryChunks)}. ` +
       `Jam's chunks: ${jamChunks.length > 0 ? await chunkSizes(distRoot, jamChunks) : 'none in the build'}.`,
+  )
+  console.log(
+    `The lexicon's first-load boundary passed: no src/lexicon/ or src/components/lexicon/ module, and not the lexicon's words, in the first load. ` +
+      `The lexicon's words' file: ${await chunkSizes(distRoot, lexiconWordsFiles)} of ${lexiconWordsChunkByteBudget} B.`,
   )
 }
 
