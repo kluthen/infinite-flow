@@ -192,7 +192,8 @@
      NOTATION_PHONE_LAYOUT_MEDIA_QUERY (src/notation/notation-layout-policy.ts), so the CSS and
      the engraver always agree on which side of the breakpoint they are. There the engraving
      scale is the largest that fits both the width and the height, never below the legibility
-     floor (5 CSS px per staff space, NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX in the same file).
+     floor (5 CSS px per staff space, NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX in
+     src/domain/notation/staff-layout.ts).
      The frame has no minimum block size; its block padding drops to
      `--staff-frame-padding-block-phone` (the inline padding stays `--staff-frame-padding`, since
      the width does not limit the phone's staff); its maximum is the phone staff budget plus
