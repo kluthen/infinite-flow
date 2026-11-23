@@ -1,19 +1,10 @@
 # Infinite Flow v3.4 — Build Plan
 
-Status: v5.2 (2026-11-23): P2's plan corrections: wave 2's fast-gate leftover removed; chunk 5 names its atoms.
-v5.1 (2026-11-23): the driver's rulings on v5's open points (spec D575): wave 2's gate is
-the full one; chunk 6 comes before 7 for order, not for a shared file.
-v5 (2026-11-23): the structural review's waves 2 and 3 added (chunks 4–7, gates P2 and P3,
-gate R1 updated; spec D569–D574).
-v4 (2026-11-23): chunk 2's two spec-silent choices written in (Part E v1.2, spec D568):
-the stale-phrase prompt counts as an open sheet for `#lexicon`, and a sheet opened during the
-first load stops the opening.
-v3 (2026-11-23): gate T0's notes written into chunk 2 (ux D492, D493, D495), and §E8's
-open-sheet rule (Part E v1.1, spec D567).
-v2 (2026-11-23): wave 1's preflight corrections (gate P1) written in: the captured atoms'
-IDs, the atoms the preflight found, chunk 2's widened revisions and its notes; no new ruling.
-v1 (2026-11-22): written; the lexicon wave (wave 1) approved by the wave driver under the
-owner's delegation (spec D556, D565). Gates A0, G0 and L0 done.
+Status: v5.3 (2026-11-23): P3's plan corrections (chunk 6's new atom, moved names, files and sync
+notes; chunk 7's line ranges and atom count) and the driver's ruling that `NotationError` moves
+with chunk 6's cut 2 (spec D576).
+Approved by the wave driver under the owner's delegation (spec D556): the lexicon wave, wave 1
+(spec D565); the structural review's waves 2 and 3 from his rulings on it (spec D569–D575).
 
 The lexicon page and the lexicon API, written from
 [master spec Part E](master-spec.md#part-e--v34) (v1.0, 2026-11-22, approved by the wave driver:
@@ -70,9 +61,10 @@ and [risks](structural-review-evidence/F-principal-advisor-ranking.md#4-risks-an
   with no DOM library. From chunk 6, `src/session/` may import only session and that set.
 - **The atom-spread limit above 10 is a warning for test files** from chunk 4 (spec D570); source
   files keep their error above 10.
-- **Files move.** Chunk 6 moves `count-in-display.ts` out of `src/session/` and types and constants
-  out of `src/notation/notation-layout-policy.ts` and two composables; chunk 7 moves the Jam host
-  wiring out of `WorkspaceShell.vue`. A builder starting after them reads the new paths.
+- **Files move.** Chunk 6 moves `count-in-display.ts` out of `src/session/`, the layout names
+  `session/` reads and `NotationError` out of `src/notation/` into `src/domain/notation/` (notation
+  re-exports them), and two types out of the composables; chunk 7 moves the Jam host wiring out of
+  `WorkspaceShell.vue`. A builder starting after them reads the new paths.
 
 ## Gates
 
@@ -88,7 +80,7 @@ and [risks](structural-review-evidence/F-principal-advisor-ranking.md#4-risks-an
 | **H1** | The owner sees the page before the `3.4.0` tag's go ([§E15](master-spec.md#e15-definition-of-done) item 18).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | The owner                      | Release gate          | open                                                                                          |
 | **R1** | The structural review closes: its [report](structural-review-report.md) and the driver's rulings on it under the owner's delegation ([§7](structural-review-report.md#7-rulings); spec D556, D569–D574), then the refactor waves they add, waves 2 and 3, built and gated.                                                                                                                                                                                                                                                                                                                                                          | `spec-writer`, the wave driver | Release gate          | open: the report and the rulings done (2026-11-23, spec D569–D574); waves 2 and 3 remain      |
 | **P2** | Wave 2's preflight: a verdict for chunks 4 and 5, and before chunk 5's branch is cut the architecture capture of the library boundary (skill `atd-architecture-capture`, an ARCHITECTURE atom as `module_jam_code_boundary` is): chunk 5's **Architecture capture**. Chunk 4 is tooling and has no atom.                                                                                                                                                                                                                                                                                                                            | `documentalist`                | 4, 5 (the capture: 5) | done (2026-11-23, 66f4dec5: `module_library_code_boundary` DRAFT; plan v5.2 6d48ba3b)         |
-| **P3** | Wave 3's preflight: a verdict for chunks 6 and 7 over their **Files**, naming the atoms whose links move with the code and whose interface prose names a moved path; it says whether session's one-way line (chunk 6) is recorded in P2's library-boundary atom before chunk 6 or needs no intent work. No other capture: neither chunk decides an interface.                                                                                                                                                                                                                                                                       | `documentalist`                | 6, 7                  | open                                                                                          |
+| **P3** | Wave 3's preflight: a verdict for chunks 6 and 7 over their **Files**, naming the atoms whose links move with the code and whose interface prose names a moved path; it says whether session's one-way line (chunk 6) is recorded in P2's library-boundary atom before chunk 6 or needs no intent work. No other capture: neither chunk decides an interface.                                                                                                                                                                                                                                                                       | `documentalist`                | 6, 7                  | done (2026-11-23, 47950fdf: `module_session_code_boundary` DRAFT; plan v5.3)                  |
 
 ## Waves
 
@@ -626,8 +618,8 @@ Status: planned
 Wave: 3
 Size: M
 Depends on: 5 (its check and its spec), P3
-Architecture capture: none of its own: session's line is a rule of chunk 5's check; whether it is
-written into the library-boundary atom is P3's verdict.
+Architecture capture: `module_session_code_boundary` (captured at P3, 47950fdf, DRAFT); 6b's check
+links it (`@spec-link`, and its spec cases `@test-link`).
 
 - **Goal:** `src/session/` imports only session and the library set, so the session core is ready
   to join the library, and the one value cycle between session and audio is gone.
@@ -641,15 +633,22 @@ written into the library-boundary atom is P3's verdict.
      `src/components/workspace/`), its test with it. `audio/click-track.ts`'s import of session
      stays, the allowed direction, so the value cycle disappears.
   2. **The layout values.** What `session-window.ts` (values and a type, its import ending at line 20) and `rolling-display.ts:10` (types) take from `src/notation/notation-layout-policy.ts`
-     moves into `src/domain/notation/`: the breakpoint constants, `StaffLayout` and `SystemPart`,
-     and `planStaffPositions` and `planStaffWidthRoom`, which `session-window.ts` imports too;
-     `notation-layout-policy.ts` re-imports them, so notation stays a sink. A moved value that needs
-     code outside the library set (`NotationError`, say) stops the chunk: it reports to the driver
-     and moves nothing wider.
+     moves into `src/domain/notation/`: the breakpoint constants, `StaffLayout`, `SystemPart`,
+     `StaffViewport`, `planStaffPositions`, `planStaffWidthRoom` and what they need
+     (`StaffNoRoom`, `StaffPositionsOutcome`, `StaffWidthRoomInput`, `MAX_SCALE`/`FLOOR_SCALE`,
+     `assertSystemPositionUnits`, and the five constants `NOTATION_ENGRAVING_UNITS_PER_STAFF_SPACE`,
+     `NOTATION_LEGIBILITY_FLOOR_STAFF_SPACE_PX`, `NOTATION_MAX_STAFF_SPACE_PX`,
+     `NOTATION_SYSTEM_POSITION_UNITS`, `NOTATION_MIN_MEASURE_WIDTH_UNITS`), and `NotationError`
+     (`src/notation/notation-error.ts`, which the two planners throw; spec D576), which
+     `src/notation/` re-exports so the class keeps one identity. `heldViewport` stays in notation.
+     `notation-layout-policy.ts` re-imports them, so notation stays a sink. Any other moved value
+     that needs code outside the library set stops the chunk: it reports to the driver and moves
+     nothing wider.
   3. **The two composable types.** `ViewportWidthProvider` (`src/composables/viewport-width.ts`,
      imported by `session-runner.ts:13` and `session-types.ts:8`) and `IdlePhraseSettings`
      (`src/composables/workspace-session-result.ts`, imported by `stale-phrase-one.ts:9`) move into
-     session; the composables re-import them.
+     session; the composables re-import them. `IdlePhraseSettings` goes into a new session file
+     (`session-types.ts` is at 10 atoms).
   4. **The rule.** Chunk 5's check gains one: `src/session/` imports only session and the library
      set, types included, no package.
   - `session-types.ts` is at 10 atoms: a moved type carrying links goes into a new session file.
@@ -662,29 +661,39 @@ written into the library-boundary atom is P3's verdict.
   its importers `src/components/workspace/workspace-session-controller-types.ts`,
   `src/components/workspace/workspace-session-begin.ts`; `src/session/session-window.ts`,
   `rolling-display.ts`, `session-runner.ts`, `session-types.ts` (or a new session file),
-  `stale-phrase-one.ts`; `src/notation/notation-layout-policy.ts` and a new file in
-  `src/domain/notation/`; `src/composables/viewport-width.ts`,
-  `src/composables/workspace-session-result.ts`; `scripts/verify-boundaries.mjs`; tests: the
-  importers' and the moved names' unit tests, the `vi.mock` strings naming a moved path,
+  `stale-phrase-one.ts`; `src/notation/notation-layout-policy.ts`, `src/notation/notation-error.ts`
+  (moved, re-exported) and the new files in `src/domain/notation/`;
+  `src/composables/viewport-width.ts`, `src/composables/workspace-session-result.ts`;
+  `scripts/verify-boundaries.mjs`; tests: the importers' and the moved names' unit tests, among
+  them `tests/unit/notation/notation-layout-policy.spec.ts` and
+  `tests/unit/notation/system-position-size.spec.ts`, the `vi.mock` strings naming a moved path,
   `tests/unit/boundaries/verify-boundaries.spec.ts` and a breaking fixture under
-  `tests/fixtures/boundaries/src/session/`; `README.md` (Directory Boundaries).
+  `tests/fixtures/boundaries/src/session/`; `README.md` (Directory Boundaries); the prose docs
+  naming a moved path: `docs/session-engine.md` (about lines 65, 1076),
+  `docs/notation-engraving.md` (about 18, 122, 135), `docs/phrase-workspace.md` (about 798),
+  `docs/testing.md` (about 1291).
 - **Spec sections:** [report §6](structural-review-report.md#6-ranked-recommendations) (R2) and
   [§7](structural-review-report.md#7-rulings) (spec D569); the
   [sketch](structural-review-evidence/F-principal-advisor-ranking.md#3-sketches-of-the-v34-items)
   (R2).
 - **Design docs:** none (no interface).
-- **Atoms:** no new atom; links move with their code, among them `rule_count_in_shown_on_screen`
-  (in `count-in-display.ts`); the others on moved names P3 lists. Drift check: the library-boundary
+- **Atoms:** one new atom, `module_session_code_boundary` (P3); links move with their code, among
+  them `rule_count_in_shown_on_screen` (in `count-in-display.ts`) and
+  `module_notation_layout_preflight` (on `NotationError`); the others on moved names P3 lists. Drift check: the library-boundary
   atom (P2), and the ARCHITECTURE atoms linked in the files it edits, `module_session_rolling_display`,
   `module_notation_layout_preflight`, `module_idle_window_width_density` and
   `module_session_seed_plan`.
 - **Revisions:** path rewordings only, in the interface sections of the atoms P3 names (a moved
-  file's path); IDs and rules unchanged.
+  file's path); IDs and rules unchanged. For the sync: `service_idle_generation_session`'s
+  interface names `IdlePhraseSettings` in `src/composables/workspace-session-result.ts`, reworded
+  once it moves; re-read `module_session_rolling_display`, `module_notation_layout_preflight` and
+  `module_idle_fit_round`.
 - **Done when:**
   - `npm run verify:boundaries` passes with session's rule, and fails on a session fixture
     importing audio, notation, a composable or a package (tests).
   - Every importer of a moved name reads it from its new home; no `vi.mock` string names an old
-    path (a grep over `tests/`); no harness-aliased file moved.
+    path (a grep over `tests/`); no harness-aliased file moved. `NotationError` is one class,
+    re-exported from `src/notation/`, so its `instanceof` checks are unchanged.
   - The session, notation and composables unit tests, the end-to-end specs that cover the count-in,
     and `npm run typecheck` pass; `session-types.ts` stays within 10 atoms (`npm run lint:health`).
 - **Verification:** chunk checks; `npm run verify:boundaries`; the count-in end-to-end specs (its
@@ -705,7 +714,8 @@ Architecture capture: none: the Jam boundary is unchanged.
   gate.
 - **Scope:**
   - **The move:** the Jam host imports (`WorkspaceShell.vue:115-127`, `loadJamMode`,
-    `useJamIdleCue` … `useJamPortsAndBar`) and their setup calls (about lines 326–422) into one
+    `useJamIdleCue` … `useJamPortsAndBar`) and their setup calls and handlers (lines 294–438,
+    581–610, 680–731) into one
     composable in `src/components/workspace/`, which returns what the template binds; the setup
     order kept; the `@spec-link` tags move with the code they sit on.
   - **The Jam boundary:** `loadJamMode` stays the only value route to `src/jam/` (the ESLint Jam
@@ -723,9 +733,14 @@ Architecture capture: none: the Jam boundary is unchanged.
 - **Design docs:** none (no interface).
 - **Atoms:** no new atom; links move with their code: (v3.2) `module_workspace_mode` (linked on the
   shell's Jam block; its other links in the shell count toward the target below); drift check
-  `module_jam_code_boundary`, `module_workspace_mode`, and the atoms P3 lists.
+  `module_jam_code_boundary`, `module_workspace_mode`, and the atoms P3 lists. The shell links 10
+  distinct atoms today; moving every `module_workspace_mode` link leaves 9, so the target of 8
+  needs one more block out (the Scope's "unless one is needed" allows it; the chunk owner picks
+  it).
 - **Revisions:** path rewordings only, in the interface sections of the atoms P3 names; IDs and
-  rules unchanged.
+  rules unchanged. For the sync: re-read the interface prose of `module_workspace_mode`,
+  `module_jam_idle_notes` and `module_jam_settings`, and of the atoms linked in the non-Jam block
+  if one moves.
 - **Done when:**
   - `WorkspaceShell.vue` is at 500 effective lines or fewer and links 8 distinct atoms or fewer;
     the new composable links 10 or fewer (`npm run lint:health`).
