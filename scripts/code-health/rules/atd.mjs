@@ -264,7 +264,8 @@ function hasNothingToLink(source) {
 
 /**
  * The distinct-atom spread finding of a file, at line 1: an error above
- * ATD_ERROR_DISTINCT distinct ids, a warning above ATD_WARN_DISTINCT, nothing otherwise.
+ * ATD_ERROR_DISTINCT distinct ids in a source file, a warning above ATD_WARN_DISTINCT (in a test
+ * file, however many ids it links), nothing otherwise.
  *
  * @param {ParsedSource} source
  * @param {AtdLink[]} links
@@ -273,7 +274,7 @@ function hasNothingToLink(source) {
 function spreadFindings(source, links) {
   const count = new Set(links.map((link) => link.id)).size
   const linked = `atd: ${count} distinct atom ids linked`
-  if (count > ATD_ERROR_DISTINCT) {
+  if (count > ATD_ERROR_DISTINCT && !source.isTest) {
     const message = `${linked}, above the error limit of ${ATD_ERROR_DISTINCT}`
     return [createFinding(source, 'atd', 'ERROR', 1, message)]
   }

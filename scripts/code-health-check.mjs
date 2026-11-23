@@ -8,9 +8,10 @@
  * intent is for business behaviour only. Tooling, scripts, debug, logging, diagnostics, app
  * bootstrap and test plumbing (fixtures, harnesses, shared helpers) stand outside it: they get no
  * intent and need no links. They still follow every other rule in this file." §6: "≥1 link per
- * business file, ≤10 distinct atoms or entries (warn >5 distinct); repeated links to the same id
- * count once. Files outside intent scope (§1) are exempt." This project's intent is ATD, so its
- * links are `@spec-link` / `@test-link`.
+ * business file; repeated links to the same id count once. A source file links ≤10 distinct atoms
+ * or entries (warn >5 distinct). A test file warns above 5 distinct and never errors, so a broad
+ * spec links every atom it covers. Files outside intent scope (§1) are exempt." This project's
+ * intent is ATD, so its links are `@spec-link` / `@test-link`.
  *
  * The out-of-scope paths are listed in code-health/config.mjs (ATD_EXEMPT_PATHS); the links those
  * files do carry are still checked. Size, nesting and documentation rules apply to all code.

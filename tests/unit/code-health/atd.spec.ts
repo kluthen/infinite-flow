@@ -1,6 +1,11 @@
 // @vitest-environment node
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { dirname, join } from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
+import { runCodeHealthCheck } from '../../../scripts/code-health-check.mjs'
 import { analyzeSource } from '../../../scripts/code-health/analyze.mjs'
 import { checkAtd, isAtdScopeExempt } from '../../../scripts/code-health/rules/atd.mjs'
 import { parseSource } from '../../../scripts/code-health/sources.mjs'
@@ -19,6 +24,23 @@ function atdOf(path: string, text: string): string[] {
 function linkedFunctions(ids: string[]): string {
   return ids
     .map((id, index) => `// @spec-link [[${id}]]\nexport function f${index}() {}`)
+    .join('\n')
+}
+
+/** A module of one documented exported function per id, each linked to that id. */
+function documentedLinkedFunctions(ids: string[]): string {
+  return ids
+    .map(
+      (id, index) =>
+        `/** Does ${index}. */\n// @spec-link [[${id}]]\nexport function f${index}() {}`,
+    )
+    .join('\n')
+}
+
+/** A spec of one suite per id, each linked to that id. */
+function linkedSuites(ids: string[]): string {
+  return ids
+    .map((id, index) => `// @test-link [[${id}]]\ndescribe('suite ${index}', () => {})`)
     .join('\n')
 }
 
@@ -132,6 +154,53 @@ describe('atd distinct-atom spread', () => {
     expect(atdOf('src/a.ts', linkedFunctions(atomRange(11)))).toEqual([
       'ERROR 1 atd: 11 distinct atom ids linked, above the error limit of 10',
     ])
+  })
+
+  it('applies the test files limit to a *.spec.* file under src/', () => {
+    expect(atdOf('src/a.spec.ts', linkedSuites(atomRange(6)))).toEqual([
+      'WARN 1 atd: 6 distinct atom ids linked, above the warning limit of 5',
+    ])
+    expect(atdOf('src/a.spec.ts', linkedSuites(atomRange(12)))).toEqual([
+      'WARN 1 atd: 12 distinct atom ids linked, above the warning limit of 5',
+    ])
+  })
+
+  it('warns, never errors, about a test file above 10 distinct ids', () => {
+    expect(atdOf('tests/unit/a.spec.ts', linkedSuites(atomRange(5)))).toEqual([])
+    expect(atdOf('tests/unit/a.spec.ts', linkedSuites(atomRange(11)))).toEqual([
+      'WARN 1 atd: 11 distinct atom ids linked, above the warning limit of 5',
+    ])
+  })
+
+  it('exits 0 on a test file of 11 distinct ids and 1 on a source file of 11', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'code-health-atd-'))
+    try {
+      const atoms = atomRange(11).map((id): [string, string] => [
+        `docs/${id}.atom.md`,
+        `---\nid: ${id}\n---\n`,
+      ])
+      const files: [string, string][] = [
+        ...atoms,
+        ['tests/unit/broad.spec.ts', linkedSuites(atomRange(11))],
+        ['src/broad.ts', documentedLinkedFunctions(atomRange(11))],
+      ]
+      for (const [file, text] of files) {
+        await mkdir(dirname(join(root, file)), { recursive: true })
+        await writeFile(join(root, file), text)
+      }
+      const onTest = await runCodeHealthCheck(['tests'], root)
+      expect(onTest.output).toContain(
+        'WARN tests/unit/broad.spec.ts:1 atd: 11 distinct atom ids linked, above the warning limit of 5',
+      )
+      expect(onTest.exitCode).toBe(0)
+      const onSource = await runCodeHealthCheck(['src'], root)
+      expect(onSource.output).toContain(
+        'ERROR src/broad.ts:1 atd: 11 distinct atom ids linked, above the error limit of 10',
+      )
+      expect(onSource.exitCode).toBe(1)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
   })
 
   it('counts an id linked several times once', () => {

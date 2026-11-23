@@ -95,8 +95,10 @@ defaults; a project changes them only in its checker's configuration, with the r
   atom or entry; a comment that copies them drifts unnoticed, because intent syncs compare the
   record with the code, never with its comments. Write what the code does and how; let the link
   carry why.
-- **Intent link density:** ≥1 link per business file, ≤10 distinct atoms or entries (warn >5
-  distinct); repeated links to the same id count once. Files outside intent scope (§1) are exempt.
+- **Intent link density:** ≥1 link per business file; repeated links to the same id count once. A
+  source file links ≤10 distinct atoms or entries (warn >5 distinct). A test file warns above 5
+  distinct and never errors, so a broad spec links every atom it covers. Files outside intent scope
+  (§1) are exempt.
   Bypass tokens are for genuine exceptions (third-party or generated code), never for silencing your
   own.
 
