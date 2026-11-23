@@ -230,7 +230,7 @@ record is archived at [archive/v2/](archive/v2/README.md).
 - **The owner's words** (2026-10-21): "For later (v4 or v5 depending on how they goes) we will turn
   this in a proper API."
 - **Its shape** (D559): a plain TypeScript module over the page's build-time parser, a typed read
-  interface, no server. Where it lives once the split is built is O315.
+  interface, no server. It lives in this app, not the library (D574, closing O315).
 - **A lexicon backend some day** (D561, a direction, not scheduled): lexicon only, no user data,
   Go preferred; what it would change in the browser-only rule is O316.
 

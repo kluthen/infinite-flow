@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.95
+Status: draft v0.96
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -41,8 +41,8 @@ Open on 2026-11-22: O48 and O49 (later and governance), O100–O102 (v5 rhythm r
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352), O315 (v3.4's lexicon API: where it lives,
-D555, D559), O313, O314 and O316 (the three-way split, this app's horizon and a lexicon backend,
+D351; numbered O177 on branch `plan-migration`, D352), O313, O314 and O316 (the three-way split,
+this app's horizon and a lexicon backend,
 D551–D553, D561), and O267, O269 and O271 (v3.2's build,
 answered by the checks that follow the `3.2.0` tag, D521). v3.3 is released (D544) and none of its
 questions is open. O270, O272–O289, O292–O305 and O307–O309 were never issued; the IDs
@@ -212,7 +212,9 @@ scope); D547 ruled the dependency part of O238 and narrowed it. The same day D55
 (v3.4 is tagged `3.4.0`) and D551 closed O236 (the game is a separate app: the owner favours a
 three-way split, library, this app and the game). The owner then left the resolution of v3.4 to
 the wave driver (D556), whose D557 closed O238 (the bounds of a refactor, and the analysis
-tools). None of the review's own questions is open.
+tools). None of the review's own questions is open. On 2026-11-23 the report was written
+([structural-review-report.md](versions/v3/structural-review-report.md)) and the driver ruled on
+it (D569–D574).
 
 ## v3.4 lexicon page (O239+)
 
@@ -222,19 +224,9 @@ structural review. On 2026-11-22 the owner left them to `ux-writer`, who researc
 proposed its design and an answer to each (D548); the same day the owner validated the design,
 and D549 closed O239–O244 and O246 with `ux-writer`'s answers as written. The lexicon API joined
 v3.4 the same day (D555). Under the owner's delegation (D556), the wave driver's D558 closed O245
-(the page is built before the measurement pass) and D559 settled the API's shape, leaving O315
-open.
-
-- **O315 - Where the lexicon API lives once the split is built** _(D555, D559, D551;
-  [lexicon page §9](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555))_: D559 settled
-  what it is (a plain TypeScript module over the page's parser, a typed read interface, no
-  server, this app its first caller) and left only its home: the library's repository or this
-  app's. It follows the structural review's split recommendation
-  ([Q4](versions/v3/structural-review.md#q4-should-the-app-split-into-several-libraries-or-packages));
-  until then it lives in this repository. Needed before the split is built, not before v3.4's
-  API chunk.
-
-## After v3.4: the split and this app's horizon (O313+)
+(the page is built before the measurement pass) and D559 settled the API's shape. On 2026-11-23
+the driver's D574 closed O315: the lexicon API lives in this app, not the library. None of the
+lexicon page's questions is open.
 
 ## After v3.4: the split and this app's horizon (O313+)
 
@@ -268,9 +260,16 @@ the structural review's analysis.
   library repository, this app's, the game's) rather than one repository with enforced
   boundaries; the structural review's Q4 weighs both, with what separate repositories alone cost
   (ATD across repositories, versioning and publishing the library, CI, the VPS deploy, agents
-  working across repositories). Proposed: (c) is ruled with the review's Q4 recommendation, under
-  D556; (a) when the owner reviews v5+ ("we will have to review this later"), at the latest
-  before v4's master spec.
+  working across repositories). The driver's D573 (2026-11-23, under D556) gives (c) its form from
+  the review's Q4: folders with enforced boundaries in one package now; at game start, a new
+  repository holding the library and the game as npm workspaces, with its own ATD record
+  ([report §5](versions/v3/structural-review-report.md#5-q4-the-split)). That form is cheap only
+  if this app stops at v4.0, so it does not decide (a). **Risk carried to (a):** if this app must
+  keep receiving library changes, it consumes the library as a versioned package (`tsc` output,
+  semver tags), and the ATD record needs a re-cut: 79–122 two-sided atoms split, 62–84 parents
+  re-rooted, a MAJOR CONTRACT bump, and new IDs for the split halves, in tension with D557
+  (review evidence D §3.3). Escalate it when (a) is ruled, not before. Proposed: (a) when the
+  owner reviews v5+ ("we will have to review this later"), at the latest before v4's master spec.
 - **O316 - The lexicon backend: when, in which repository, and the browser-only rule** _(D561;
   [lexicon page §9](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555))_: the owner:
   "we will need to have a backend at some point anyway"; "currently, the backend is only for

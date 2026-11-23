@@ -189,3 +189,22 @@ current state.
   shipped behaviour (no MAJOR bump); the `service_session_midi` and `module_lexicon_single_source`
   wordings; DRAFT → REVIEW for the four lexicon atoms. Sent to `documentalist` on branch
   `v3.4-w1-rulings`.
+
+## The structural review (gate R1)
+
+- 2026-11-22: the read-only parts A to D (the import graph and seams, code health and friction,
+  tooling and Tone.js research, the ATD cost of a move or split), on `main` 7af3628c (D: 1c4fc24f).
+- 2026-11-23: the measurement pass (part E, spec D558) on `main` 2ea48d1c, after wave 1's merge,
+  with the analysis tools in a throwaway worktree; nothing committed. All start-up JS is
+  392,293 B of 409,600 (17,307 B left); the candidate rule set has 0 violations on the library and
+  the encoders. Where E disagrees with A or B, E wins.
+- 2026-11-23: the principal-advisor's ranking (part F): R1–R4 for v3.4 as two waves, R5 as a ruling,
+  the rest deferred or dropped.
+- 2026-11-23: `spec-writer` kept the evidence, parts A to F, in
+  [structural-review-evidence/](structural-review-evidence/README.md), wrote the
+  [report](structural-review-report.md), and logged the driver's rulings under the owner's
+  delegation (spec D556): R1–R3 taken (D569); R4, a relaxed gate for test files (D570); the 400 KiB
+  budget kept, an overrun taking a lever, never a raise (D571); the rest deferred or dropped, no
+  analysis tool kept (D572); the split's form (D573); O315 closed (D574). Build plan v5 adds wave 2
+  (chunks 4 and 5) and wave 3 (chunks 6 and 7), with gates P2 and P3. Branch `v3.4-review-report`,
+  not merged.

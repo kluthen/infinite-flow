@@ -836,7 +836,10 @@ probably this app's last update (D552, a direction; O314), and v4.0 is Tone.js a
 with roles (D553). The owner then left the resolution of v3.4 to the wave driver (D556), who
 ruled the bounds of a refactor and the analysis tools (D557) and the measurement pass's place
 after the lexicon page (D558). None of the review's own questions is open
-([register](../../open-questions.md#v34-structural-review-o234)).
+([register](../../open-questions.md#v34-structural-review-o234)). On 2026-11-23 the
+[report](structural-review-report.md) was written and the driver ruled on it: R1–R4 taken as
+waves 2 and 3 of the [v3.4 build plan](build-plan-v3.4.md) (D569, D570), the 400 KiB budget kept
+with no raise (D571), the rest deferred or dropped (D572), the split's form (D573).
 
 ### The lexicon page (D393)
 
@@ -855,8 +858,8 @@ its answers as written (D549). The API, planned for v4 or v5 (D395), is v3.4's t
 plain TypeScript module over the page's parser, no server (D559). A docs-only lexicon pass came
 before the page's build (D560; lexicon v1.9). Both steps are stated in
 [master spec Part E](master-spec.md#part-e--v34), approved by the wave driver (D564), and built by
-wave 1 of the [v3.4 build plan](build-plan-v3.4.md) (D565). Open: O315 (where the API lives once
-the split is built) ([register](../../open-questions.md#v34-lexicon-page-o239)).
+wave 1 of the [v3.4 build plan](build-plan-v3.4.md) (D565). The API lives in this app, not the
+library (D574, closing O315).
 
 ## v3.x — Learning from positive signals
 
