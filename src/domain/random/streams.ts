@@ -15,7 +15,7 @@ import type { Seed } from './seed'
  * rather than silently reproducing different sequences under the same registry identity.
  */
 // @spec-link [[module_named_stream_pseudorandomness]]
-export const STREAM_REGISTRY_VERSION = 1
+export const STREAM_REGISTRY_VERSION = 2
 
 /**
  * The closed, versioned registry of stream labels. Typed as a literal union (not
@@ -28,6 +28,7 @@ export const STREAM_LABELS = [
   'pitch',
   'register-resolution',
   'tie-breaking',
+  'fill-shape',
 ] as const
 
 /** The closed union of registered named-stream labels. */
