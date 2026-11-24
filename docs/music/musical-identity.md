@@ -106,7 +106,7 @@ lexicon:
 | Area                   | Built today (v3.0)                                                                                                                                                     | Planned for v3.1                                                           | Not expressible yet                                                                                           |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Timbre and tone        | The app sounds only the click and the v2 backing: a bass on a triangle wave, chords on sine waves, fixed for every preset; the player's own instrument sounds the lead | nothing                                                                    | any per-identity sound; v4 proposes a synth library (Tone.js or similar), synths and effects only, no samples |
-| Register               | Register: Low, Middle, High, Varying; one one-octave [register window](lexicon.md#register-window) per phrase                                                          | held by presets                                                            | "spikes" outside the window; per-voice registers                                                              |
+| Register               | Register: Low, Middle, High, Varying; one [register window](lexicon.md#register-window) per phrase (half the range, at least one octave)                                                          | held by presets                                                            | "spikes" outside the window; per-voice registers                                                              |
 | Pitch material         | Collection: 9 seven-note scales and modes; Neutral (in the scale) or Jazz (brief chromatic approaches)                                                                 | key and mode restriction (guides, never blocks); seven figure levels       | banned or favoured pitches; five- and six-note scales; harmonic minor; held blue notes                        |
 | Harmony                | Harmonic motion: Static, Gentle diatonic, Active diatonic; root-position triads from fixed four-bar templates                                                          | held by presets                                                            | sevenths; chosen progressions; chromatic progressions; voicings; cadence habits beyond the templates          |
 | Melody                 | Contour (4 shapes), Leapiness (4 levels), Arpeggio chaos, Tension (one scheduled tension figure)                                                                       | held by presets; figure levels favour passing tones, enclosures and others | a stored signature motif; interval preferences beyond leap caps                                               |
@@ -422,7 +422,7 @@ and always shaped the same way (always a short, accented note, always after a lo
 **Hard or soft.** Range limits are hard (the instrument's range is a "law" in Meyer's sense).
 Register preference is soft. Spikes are best scheduled (a planned number per phrase) or weighted.
 
-**App.** Today the Register control picks one one-octave window for the whole phrase
+**App.** Today the Register control picks one window, half the instrument's range and at least one octave, for the whole phrase
 ([register window](lexicon.md#register-window)); nothing can leave it, so spikes are impossible.
 The closest figure is [octave displacement](embellishment-catalogue.md#22-octave-displacement)
 (entry 22, not built): a note moved up or down an octave.
@@ -671,8 +671,8 @@ answers before the player finishes are recognisable by behaviour before any note
 3. **Repetition builds identity.** Every source shows recognition growing with exposure. The
    signature motif should recur across phrases and sessions, varied but with its contour and
    rhythm kept.
-4. **Too restrictive to make music.** Hard constraints stack. "A minor without G" in one
-   one-octave window leaves about 7 of the window's 13 pitches; add Smooth leaps, a Falling contour and
+4. **Too restrictive to make music.** Hard constraints stack. "A minor without G" in a
+   one-octave window (a built-in instrument's) leaves about 7 of the window's 13 pitches; add Smooth leaps, a Falling contour and
    Sparse rests, and the generator's search may run out of candidates. With G banned from the
    harmony too, only four of the seven A-minor triads remain (A minor, B diminished, D minor, F
    major). Each hard constraint should come with a check that enough material remains, and a

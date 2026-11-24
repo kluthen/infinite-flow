@@ -231,7 +231,8 @@ exactly the capabilities that lift most entries by one or two steps.
 - **Tuning:** appoggiatura and chromatic passing tone favoured; leaps of a sixth and octave on the
   way to the climax, then stepwise descent (inference); chord points for ii7, IV, iv (mixture),
   V7; tempo suggestion 60–90 BPM.
-- **Restriction:** a range wider than one octave (today one window); chromatic notes allowed as
+- **Restriction:** a range wider than one octave (today one register window: half the
+  instrument's range, so one octave on the built-in instruments); chromatic notes allowed as
   melody notes, not only as approaches.
 - **Manipulation:** an arch with one planned high point in bar 3 (inference); a borrowed iv or
   flat-VI before the cadence (S281); a chromatic-mediant move in place of a plain V (S282);
