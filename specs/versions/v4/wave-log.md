@@ -63,3 +63,34 @@ state.
   phone Volume popover anchor; a72daef3 `ux-critic`'s two low findings fixed; 9038b11c ux D510
   records the design set's approval), merged into the wave branch. Q90 stays open for hand check
   HT; the `ui_ux/versions/v4.0/` copy is still `ux-writer`'s next step (after Q90).
+- 2026-11-24: chunk 1 (spike) built, b79c5c93 on `v4.0-c1-spike` (worktree
+  `/home/bastien/work/infinite_flow-v4.0-c1` kept for the owner's checks; `SPIKE-REPORT.md` there
+  holds the serving and phone/HS steps). 6 agents, 298 tool calls, 31.8M tokens in / 320k out, max
+  context 193k, $20.52 at API prices.
+
+  M3, laptop half (AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB, Debian 13 / Linux 6.12, headless
+  Chromium 153, 48 kHz; 2026-11-24):
+
+  | Measure                                            | A (Tone.js 15.1.22)                                                                                          | B (Web Audio + one AudioWorklet)   |
+  | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------- |
+  | Chunk size                                         | pass: 239,762 B min / 58,710 B gz, one lazy chunk                                                            | pass: ≈4.5 kB + worklet file       |
+  | Start-up budget                                    | pass: 394,687 B index-only (+635 B, widened seam); Tone not in first load                                    | same                               |
+  | Offline                                            | pass                                                                                                         | pass (worklet precached)           |
+  | One context                                        | pass: 1 live AudioContext on the click (+2 OfflineAudioContexts: reverb impulse, a probe)                    | pass: 1                            |
+  | Onset accuracy                                     | pass: max 33 frames                                                                                          | pass: max 6 frames                 |
+  | In-graph delay                                     | pass: 0                                                                                                      | pass: 0                            |
+  | Main thread                                        | **fail over 30 min**: forced GCs 104 → 224 ms, extra 50–100 ms frames from minute 17; load on Start 54–61 ms | pass: nothing over 50 ms in 30 min |
+  | Audio thread (laptop)                              | 0 underruns / 30 min                                                                                         | 0 underruns / 30 min               |
+  | Playhead                                           | **fail over 30 min**: ≤ 19.3 ms to minute 18, then up to 42.8 ms                                             | pass: max 17.0 ms                  |
+  | Start-up (laptop)                                  | count-in 135–184 ms after click; ready before phrase 1                                                       | count-in 109–154 ms                |
+  | Stop                                               | pass (reverb tail cut)                                                                                       | pass                               |
+  | Lifecycle                                          | **fail**: JS heap 10.5 → 26.1 MB in 30 min; native AudioParams retained ≈390/s                               | pass                               |
+  | CSP (nginx, edited header)                         | pass: 0 violations, `clockSource` worker (without `blob:`: 844 underruns)                                    | pass                               |
+  | Audio thread (phone), start-up (phone), sound (HS) | open: owner                                                                                                  | open: owner                        |
+
+  Provisional reading: A fails a laptop row (a leak inside Tone; cause a lead, not confirmed), a
+  case the survey's decision rule has no branch for; in its spirit the rule points to B, pending
+  the phone rows and HS (gate SPK). Deviations: A follows §9.2 (eight parts, one Reverb; no
+  Compressor or FeedbackDelay from the survey's list); A's PolySynth books 12 voices and
+  `lookAhead` 0.25 s. Side finding filed on `main` as ISS-021 (808a2f3d): the production Docker
+  image doesn't build since v3.4 (`.dockerignore` leaves out `docs/music/lexicon.md`).
