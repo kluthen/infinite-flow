@@ -1,9 +1,9 @@
 /**
  * The arranger on a hand-built phrase: one part per system voice in the fixed voice order, the
  * backing's and the guides' parts converted from their renderers' unchanged output, the Thirds and
- * Counter-melody parts carrying exactly their part functions' notes, Fills and Drums empty while
- * their rules are unbuilt; pure, frozen and the same for the same phrase; an unknown arranger
- * version rejected.
+ * Counter-melody and Fills parts carrying exactly their part functions' notes, Drums the groove of
+ * its part function; pure, frozen and the same for the same phrase; an unknown arranger version
+ * rejected.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -24,6 +24,8 @@ import {
 } from '@/domain/backing/accompaniment-part'
 import { renderBacking } from '@/domain/backing/backing-renderer'
 import { counterMelodyPart } from '@/domain/backing/counter-melody-part'
+import { drumsPart } from '@/domain/backing/drums-part'
+import { fillsPart } from '@/domain/backing/fills-part'
 import { renderGuide } from '@/domain/backing/guide-renderer'
 import { leadFacts } from '@/domain/backing/lead-facts'
 import { thirdsPart } from '@/domain/backing/thirds-part'
@@ -111,7 +113,9 @@ describe('arrangeAccompaniment', () => {
   // @test-link [[req_accompaniment_parts]]
   // @test-link [[req_highlighting_part]]
   // @test-link [[req_contrasting_part]]
-  it("gives Thirds and Counter-melody their functions' notes, Fills and Drums empty until built", () => {
+  // @test-link [[req_responding_part]]
+  // @test-link [[req_drum_part]]
+  it("gives Thirds, Counter-melody, Fills and Drums their functions' notes", () => {
     const parts = arrangeAccompaniment(PHRASE, SETTINGS)
     const lead = leadFacts(PHRASE.timeline, HARMONY)
     expect(parts.slice(4).map((part) => part.voice)).toEqual([...PART_VOICES])
@@ -120,7 +124,10 @@ describe('arrangeAccompaniment', () => {
     expect(counterMelody!.notes).toEqual(counterMelodyPart(PHRASE, lead))
     expect(thirds!.notes.length).toBeGreaterThan(0)
     expect(counterMelody!.notes.length).toBeGreaterThan(0)
-    expect([fills!.notes, drums!.notes]).toEqual([[], []])
+    expect(drums!.notes).toEqual(drumsPart())
+    expect(drums!.notes).toHaveLength(48)
+    expect(fills!.notes).toEqual(fillsPart(PHRASE, lead))
+    expect(fills!.notes.length).toBeGreaterThan(0)
   })
 
   // @test-link [[rule_parts_deterministic]]
