@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.98
+Status: draft v0.99
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -48,7 +48,8 @@ O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (oct
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O313, O314 and O316 (the three-way split,
 this app's horizon and a lexicon backend,
-D551–D553, D561), and O267, O269 and O271 (v3.2's build,
+D551–D553, D561), O317–O322 (v4.0's accompaniment with roles and its sound library), and O267,
+O269 and O271 (v3.2's build,
 answered by the checks that follow the `3.2.0` tag, D521). v3.3 and v3.4 are released (D544,
 D579) and none of their questions is open; O230 (a stale replay-key wording, numbered O177 on
 branch `plan-migration`, D352) closed with D577. O270, O272–O289, O292–O305 and O307–O309 were never issued; the IDs
@@ -264,6 +265,39 @@ the structural review's analysis.
   first network request; whether the app keeps working offline with its built-in copy; the
   privacy notice's wording (no user data, but a request the VPS sees). No rule changes before
   then.
+
+## v4.0 accompaniment with roles (O317+)
+
+Opened 2026-11-24 by `spec-writer` with v4.0's spec session (D553, D580, D581). O317–O321 are the
+owner's: each changes what the player hears or sees. O322 is settled by the sound-library spike.
+Drafts: [accompaniment roles](versions/v4/accompaniment-roles.md),
+[arranger](versions/v4/arranger.md), [sound library](versions/v4/sound-library.md).
+
+- **O317 - Which roles v4.0 ships** _([roles §4](versions/v4/accompaniment-roles.md#4-roles-proposed-o317))_:
+  one technique per family, each in its simplest form, or fewer, or more? Proposed: the backing as
+  today (foundation), plus parallel thirds and sixths on the lead's long and accented notes
+  (highlighting), a slow counter-melody on guide tones (contrasting) and fills in the lead's gaps
+  (responding). Smaller: backing plus fills. Larger: add echo, comping or a walking bass.
+- **O318 - Who chooses the voices, and how many play at once** _([roles §5](versions/v4/accompaniment-roles.md#5-choosing-and-combining-proposed-o318))_:
+  proposed: a switch and a volume per system voice, as the guides; new voices off by default; the
+  app writes every note and keeps at most two relation voices sounding at once. Alternatives: one
+  accompaniment style the player picks, or the app picking voices per phrase.
+- **O319 - Drums in v4.0** _([roles §4](versions/v4/accompaniment-roles.md#4-roles-proposed-o317))_:
+  proposed: in, as one simple groove (kick, snare on the backbeat, hi-hat), off by default, with
+  its own switch; the click keeps its own switch and the count-in stays the click. Out keeps the
+  click alone and saves the drum sounds and MIDI channel 10.
+- **O320 - Whether any system voice is drawn on the score** _(D581; [roles §6](versions/v4/accompaniment-roles.md#6-display-o320))_:
+  proposed: none, as today: each voice heard, with its switch and volume; the chord symbols keep
+  showing the harmony. Costs of the others: a "who is playing" mark (small), cue notes in the lead's
+  staff (a VexFlow spike), a second staff (a new score design, no fit on a phone).
+- **O321 - Whether a responding voice answers the written phrase or the notes played** _(D580;
+  [roles §8](versions/v4/accompaniment-roles.md#8-responding-to-what-o321))_: proposed: the
+  generated lead, known before it sounds, deterministic and without latency; answering the played
+  notes (and so the wrong ones) is the game's turn-based exchange (D551).
+- **O322 - The sound-library spike's outcome** _([sound library §2](versions/v4/sound-library.md#2-what-the-spike-must-settle-o322))_:
+  Tone.js or the plain Web Audio fallback, its version, its chunk budget, when it loads given the
+  synchronous Start, and the CSP's `worker-src blob:`. Proposed answers are in the draft; the spike
+  decides by the survey's rule.
 
 ## v3.2 build (O267+)
 

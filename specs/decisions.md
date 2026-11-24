@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.149
+Status: draft v2.150
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -224,3 +224,28 @@ archive notice lists.
   the register's notes on the questions closed during v3.4, and the former status snapshots. Part
   E, the v3.4 build plan, its wave log, both scoping drafts and the structural review's report and
   evidence stay in place. Still live: D575–D578 and H1 ([v3.4.x notes](versions/v3/README.md#v34x-notes-after-the-tag)). No question was decided.
+
+- **D580 (2026-11-24): the player plays the lead only.** The owner: "Note we still expect the
+  player only to play the lead role." Every accompaniment voice is a system voice the app always
+  plays; the player never takes one in v4.0. Consequence: v4.0's several voices sit beside the one
+  monophonic lead, so K need not make the timeline polyphonic; whether a responding voice answers
+  the written phrase or the notes played stays open (O321). Now in:
+  [v4 README](versions/v4/README.md#settled-direction), [roles §1](versions/v4/accompaniment-roles.md#1-concept).
+- **D581 (2026-11-24): today the other sounds have no display beyond volume and on/off.** The
+  owner: "There are currently no display provided for other tracks (except, volume and
+  activation)." True as built, with three precisions: bass and chords share one switch and slider;
+  the backing's harmony shows as chord symbols, and the count-in as beat marks; the count-in
+  sounds whatever the click's switch says. Whether v4.0 keeps it so is O320. Now in:
+  [roles §3](versions/v4/accompaniment-roles.md#3-today-as-built-d581).
+- **D582 (2026-11-24): v4.0's spec uses the lexicon's terms.** Accompaniment, accompaniment role
+  (named by technique), voice and system voice; "lead" is the player's line; the owner's "tracks"
+  are system voices heard through mix channels. Keeps one term per concept across the drafts.
+  Now in: [roles §2](versions/v4/accompaniment-roles.md#2-terms-d582).
+- **D583 (2026-11-24): the prerequisites are revised for v4.0, D575's first task done.** What is
+  built is marked, the endgame rows are the game's (D551), the whole-file seed and snippets v5's
+  (O314 (a)), the library line added as foundation O, and K worked out: the lead stays the
+  timeline, system voices are parts beside it from one seeded arranger (proposed). Now in:
+  [prerequisites](versions/prerequisites.md#0-where-this-stands-2026-11-24).
+- **D584 (2026-11-24): Tone.js issue #1457 does not block v4.0.** It breaks `setContext` on our
+  own context in Firefox only, and Chrome is the one supported browser (D399). Revisit if the
+  browser scope widens. Now in: [sound library §1](versions/v4/sound-library.md#1-settled).

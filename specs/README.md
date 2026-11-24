@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.100
+Status: draft v0.101
 
 ## Status Snapshot
 
@@ -87,11 +87,14 @@ Status: draft v0.100
   Composer. A shared [context of use](personas.md#context-of-use) covers all three: a laptop or
   desktop in Chrome first (the one supported browser, D399), at music-stand distance, no click
   while playing.
-- **Next: v4.0** ([v4](versions/v4/README.md)): Tone.js and accompaniment with roles, the other v4
-  items moved to v5 (D553); most probably this app's last update (D552, a direction; O314). Not
-  yet specced. Its first task, when its master spec starts, is revising
-  [prerequisites.md](versions/prerequisites.md) against the structural review (D575;
-  [report §2.1](versions/v3/structural-review-report.md#21-the-prerequisites)).
+- **Now: v4.0's spec session** ([v4](versions/v4/README.md), opened 2026-11-24): Tone.js and
+  accompaniment with roles, the other v4 items moved to v5 (D553); most probably this app's last
+  update (D552, a direction; O314). The player plays the lead only (D580); today the other sounds
+  have only a switch and a volume (D581). [Prerequisites](versions/prerequisites.md) revised
+  (D583): K, the multi-voice representation, is the urgent foundation, proposed as parts beside
+  the monophonic lead from one seeded arranger. Three drafts:
+  [accompaniment roles](versions/v4/accompaniment-roles.md), [arranger](versions/v4/arranger.md),
+  [sound library](versions/v4/sound-library.md). Waiting on the owner: O317–O321.
   - **The owner's direction** (2026-11-22): the endgame's game is a separate app, with a
     three-way split (a library, this app, the game; D551); its form, folders with enforced
     boundaries in one package now and a new repository for the library and the game at game
@@ -101,7 +104,8 @@ Status: draft v0.100
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go. Rhythm ratios and the rhythm editor are v5 (D553); the chord-fit check,
     review tooling and the two controller-connection ideas are dropped (D211).
-- **Open:** 17 questions: O48 and O49 (later and governance), O100–O102 (v5 rhythm), O115 and
+- **Open:** 23 questions: O317–O322 (v4.0: roles, choosing them, drums, display, responding, the
+  sound-library spike), O48 and O49 (later and governance), O100–O102 (v5 rhythm), O115 and
   O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
   (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
   reopening fails), O313, O314 and O316 (the
