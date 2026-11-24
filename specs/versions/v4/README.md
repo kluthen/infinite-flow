@@ -5,7 +5,8 @@ Status: direction (2026-09-25; the rhythm ratios and the rhythm editor moved her
 other items moved to v5; the lexicon API moved to v3.4, D555; revising the prerequisites noted as
 v4.0's first task 2026-11-24, D575; v4.0's spec session opened 2026-11-24, the prerequisites
 revised, D583, and three drafts started; the owner's rulings and master spec v1.0 the same day,
-D585–D595). Master spec consolidated, awaiting the owner's approval. "v4+" is the
+D585–D595; the master spec approved the same day, D596). Master spec approved; the design set
+next, then the build plan. "v4+" is the
 user's placement. The owner expects v4.0 to be this app's last update most probably (D552, a
 direction; [O314](../../open-questions.md#after-v34-the-split-and-this-apps-horizon-o313)).
 
@@ -17,8 +18,8 @@ direction; [O314](../../open-questions.md#after-v34-the-split-and-this-apps-hori
   keeping, blast radius.
 - [Sound library](sound-library.md): the spike, Tone.js's integration, the sound ban's rewording.
 - **[Master spec v1.0](master-spec.md)** (2026-11-24, D595): consolidated from the drafts below
-  after the owner's rulings (D585–D594); it wins where they differ. Awaits the owner's approval
-  before the build plan.
+  after the owner's rulings (D585–D594); it wins where they differ. Approved by the owner
+  (D596); the build plan waits for `ux-writer`'s design set (§12).
 - Open questions: [O322](../../open-questions.md#v40-accompaniment-with-roles-o317), settled by
   the sound-library spike; O317–O321 are ruled (D585–D589).
 - Foundations: [prerequisites](../prerequisites.md), revised for v4.0 (D583); K is the urgent one.

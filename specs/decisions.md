@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.151
+Status: draft v2.152
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -299,3 +299,7 @@ archive notice lists.
 - **D595 (2026-11-24): v4.0's master spec v1.0 is consolidated.** The owner's "you may start
   processing all this", with no owner-level question left, is the go to consolidate. It awaits his
   approval before the build plan. Now in: [v4.0 master spec](versions/v4/master-spec.md).
+- **D596 (2026-11-24): v4.0's master spec v1.0 is approved.** The owner: "ok approved.", given the
+  spec with the timbre table and D593's four interpretations unchanged. The build plan waits for
+  `ux-writer`'s design set (§12), which starts once branch `v4.0-spec` is merged into `main`. Now in:
+  [v4.0 master spec](versions/v4/master-spec.md).

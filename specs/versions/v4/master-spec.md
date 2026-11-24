@@ -1,7 +1,7 @@
 # v4.0 — Master Spec: Accompaniment with Roles and a Sound Library
 
 Status: v1.0 (2026-11-24), consolidated from the v4.0 drafts after the owner's rulings of the same
-day. For the owner's approval before its build plan is written. Where it differs from the drafts
+day. **Approved by the owner on 2026-11-24.** Its build plan waits for the design set (§12). Where it differs from the drafts
 ([accompaniment roles](accompaniment-roles.md), [arranger](arranger.md),
 [sound library](sound-library.md)) or from the [prerequisites](../prerequisites.md), this document
 wins.
