@@ -1,7 +1,9 @@
 # Infinite Flow v3.4 — Build Plan
 
-Status: v5.4 (2026-11-24): gate H1 moves after the `3.4.0` tag, by the owner's go to tag first
-(spec D578).
+Status: v5.5 (2026-11-24): complete. v5.4 with the release recorded: the release gate passed and
+the tag `v3.4.0` is on `main` at 17e631e4 (spec D579); gate H1 stays open after the tag
+([gates](#gates)). v5.4 (2026-11-24) moved gate H1 after the `3.4.0` tag, by the owner's go to
+tag first (spec D578).
 Approved by the wave driver under the owner's delegation (spec D556): the lexicon wave, wave 1
 (spec D565); the structural review's waves 2 and 3 from his rulings on it (spec D569–D575).
 

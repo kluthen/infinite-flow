@@ -7,20 +7,20 @@ built as version 3.2.0 on 2026-11-09 (tag `v3.2.0` at f93e552d; D521, D523), sta
 [master spec Part C](master-spec.md#part-c--v32), its hand and listening checks after the tag
 ([v3.2.x notes](#v32x-notes-after-the-tag)), its working record archived (D524); v3.3 released as
 version 3.3.0 on 2026-11-18 (tag `v3.3.0` at b2a0e3fa; D541, D544), stated in
-[master spec Part D](master-spec.md#part-d--v33), L1 skipped and the triad reading shipped (D540),
-its hand and listening checks after the tag ([v3.3.x notes](#v33x-notes-after-the-tag)), its
-working record archived (D544); v3.4, a structural review before v4, opened as a scoping draft
-(D389), with a lexicon page added as its one player-facing item (D393), the owner's first rulings
-on it of 2026-11-22 recorded (D545–D561: v3.4 tagged `3.4.0`, D550; the lexicon page's design
-validated, D549; the three-way split as the review's target, D551; the lexicon API moved into
-v3.4, D555; v3.4's questions delegated to the wave driver, D556, and ruled, D557–D560), and the
-lexicon page and API consolidated as [master spec Part E](master-spec.md#part-e--v34) with their
-[build plan](build-plan-v3.4.md), approved by the driver (D562–D565); v3.x direction only. The
-Status paragraphs this README kept until the v3.0, v3.1, v3.2 and v3.3 releases are archived
-verbatim in [archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md),
+[master spec Part D](master-spec.md#part-d--v33), its hand and listening checks after the tag
+([v3.3.x notes](#v33x-notes-after-the-tag)), its working record archived (D544); v3.4 released as
+version 3.4.0 on 2026-11-24 (tag `v3.4.0` at 17e631e4; D578, D579): the lexicon page and the
+lexicon API stated in [master spec Part E](master-spec.md#part-e--v34), the structural review's
+[report](structural-review-report.md) and the refactors it took, built from the
+[v3.4 build plan](build-plan-v3.4.md), the owner's hand check H1 after the tag
+([v3.4.x notes](#v34x-notes-after-the-tag)), its working record archived (D579). v3.4 is the last
+v3 milestone; v3.x is direction only. The Status paragraphs this README kept until the v3.0, v3.1,
+v3.2, v3.3 and v3.4 releases are archived verbatim in
+[archive/v3/v3-readme-status.md](../../archive/v3/v3-readme-status.md),
 [archive/v3/v3-readme-status-v3.1.md](../../archive/v3/v3-readme-status-v3.1.md),
-[archive/v3/v3-readme-status-v3.2.md](../../archive/v3/v3-readme-status-v3.2.md) and
-[archive/v3/v3-readme-status-v3.3.md](../../archive/v3/v3-readme-status-v3.3.md).
+[archive/v3/v3-readme-status-v3.2.md](../../archive/v3/v3-readme-status-v3.2.md),
+[archive/v3/v3-readme-status-v3.3.md](../../archive/v3/v3-readme-status-v3.3.md) and
+[archive/v3/v3-readme-status-v3.4.md](../../archive/v3/v3-readme-status-v3.4.md).
 
 **Serves:** P3, the Fledgling Composer: "I liked that gimmick, I play it, and see where it goes."
 Also every tester on an instrument v1 doesn't ship. See [personas](../../personas.md).
@@ -94,10 +94,13 @@ Also every tester on an instrument v1 doesn't ship. See [personas](../../persona
   Scoping draft: [lexicon-page.md](lexicon-page.md). Its second step, an API, was planned for v4
   or v5 (D395) and is v3.4's too (D555).
 - **v3.4 master spec: [Part E](master-spec.md#part-e--v34)**, the lexicon page and the lexicon
-  API, approved by the wave driver on 2026-11-22 under the owner's delegation (D556, D564). **v3.4
-  build plan:** [build-plan-v3.4.md](build-plan-v3.4.md), v1, wave 1 (three chunks) approved
-  (D565); its [wave log](wave-log-v3.4.md). The structural review's refactors, if any, join it
-  after its report.
+  API, approved by the wave driver on 2026-11-22 under the owner's delegation (D556, D564). Built
+  and released as version 3.4.0 on 2026-11-24 (D579). What follows the tag is in
+  [v3.4.x notes](#v34x-notes-after-the-tag). **v3.4 build plan:**
+  [build-plan-v3.4.md](build-plan-v3.4.md), v5.5, complete: wave 1 the lexicon page and API
+  (D565), waves 2 and 3 the structural review's refactors (D569–D575); its
+  [wave log](wave-log-v3.4.md). Rulings D389, D393–D395 and D544–D574 archived
+  ([archive/v3/](../../archive/v3/README.md#v34-release-archived-2026-11-24)).
 - **v3.0.1 is merged into v3.0** (D212), the owner: "v3.0.1 could very well be just included
   into v3.0". This also settles where keeping sessions goes: with the review of earlier sessions
   that needs it.
@@ -839,7 +842,10 @@ after the lexicon page (D558). None of the review's own questions is open
 ([register](../../open-questions.md#v34-structural-review-o234)). On 2026-11-23 the
 [report](structural-review-report.md) was written and the driver ruled on it: R1–R4 taken as
 waves 2 and 3 of the [v3.4 build plan](build-plan-v3.4.md) (D569, D570), the 400 KiB budget kept
-with no raise (D571), the rest deferred or dropped (D572), the split's form (D573).
+with no raise (D571), the rest deferred or dropped (D572), the split's form (D573). Waves 2 and 3
+were built and gated, and v3.4 was released as version 3.4.0 on 2026-11-24 (D579). Revising
+[prerequisites.md](../prerequisites.md) against the report is `spec-writer`'s first task when
+v4.0's master spec starts (D575; [report §2.1](structural-review-report.md#21-the-prerequisites)).
 
 ### The lexicon page (D393)
 
@@ -860,6 +866,23 @@ before the page's build (D560; lexicon v1.9). Both steps are stated in
 [master spec Part E](master-spec.md#part-e--v34), approved by the wave driver (D564), and built by
 wave 1 of the [v3.4 build plan](build-plan-v3.4.md) (D565). The API lives in this app, not the
 library (D574, closing O315).
+
+### v3.4.x notes (after the tag)
+
+By the owner's go of 2026-11-24 (D578), v3.4 is released as `3.4.0` before his hand check H1, as
+v3.3 was before its checks (D541). The release gate passed and the tag `v3.4.0` is on `main` at
+17e631e4 (D579), with CONTRACT at 19.1.0. Still to come, when the owner chooses:
+
+- **H1:** the owner opens the lexicon page, browses it A to Z, opens an entry, searches a word and
+  closes it ([§E15](master-spec.md#e15-definition-of-done) item 18; build plan
+  [gate H1](build-plan-v3.4.md#gates)); the result is recorded in the
+  [release notes](../../../docs/release/v3.4-release-notes.md#h1-the-owner-sees-the-page).
+- **The lexicon four's STABLE promotion:** they stay REVIEW until H1; their promotion (intent
+  change set H3) is then proposed again to the owner (D578).
+- **The VPS deploy** of 3.4.0, the owner's.
+
+A finding at H1 becomes an issue or a ruling; the owner decides the corrective measure then, built
+as a 3.4.x fix.
 
 ## v3.x — Learning from positive signals
 

@@ -1,7 +1,8 @@
 # v3 Archive
 
 Status: archived 2026-10-16 (the v3.0 release); extended 2026-10-21 (the v3.1 release),
-2026-11-09 (O306's note), 2026-11-09 (the v3.2 release) and 2026-11-22 (the v3.3 release)
+2026-11-09 (O306's note), 2026-11-09 (the v3.2 release), 2026-11-22 (the v3.3 release) and
+2026-11-24 (the v3.4 release)
 
 v3.0, storage, is released as version 3.0.0: the release gate, build plan
 [chunk 26](../../versions/v3/build-plan.md#chunk-26--v30-release-gate), passed on 2026-10-16, the
@@ -15,7 +16,8 @@ was archived here at its release, on 2026-10-21: see [v3.1 release](#v31-release
 below, which also says what of v3.0's "left in place" list it moved. v3.2's record was archived here at its
 release, on 2026-11-09: see [v3.2 release](#v32-release-archived-2026-11-09) below. v3.3's record
 was archived here after its release, on 2026-11-22: see
-[v3.3 release](#v33-release-archived-2026-11-22) below.
+[v3.3 release](#v33-release-archived-2026-11-22) below. v3.4's record was archived here after
+its release, on 2026-11-24: see [v3.4 release](#v34-release-archived-2026-11-24) below.
 
 ## Archived here
 
@@ -828,3 +830,178 @@ place as at the v3.2 release.
 [p33c22]: ../../versions/v3/build-plan-v3.3.md#chunk-22--v33-release-gate
 [p33c23]: ../../versions/v3/build-plan-v3.3.md#chunk-23--jams-own-seventh-chords-level
 [p33fu]: ../../versions/v3/build-plan-v3.3.md#after-the-tag-v33x-follow-ups
+
+## v3.4 release (archived 2026-11-24)
+
+v3.4, the structural review and the lexicon page, is released as version 3.4.0: the release gate
+passed on the merged waves 1 to 3, the owner gave his go to tag before his hand check H1 (D578),
+and the tag `v3.4.0` is on `main` at 17e631e4 (D579). The
+[release notes](../../../docs/release/v3.4-release-notes.md) hold the evidence. What the lexicon
+page and the lexicon API do is stated in [master spec Part E][e34]; the structural review's answers,
+rulings, deferred recommendations and the split's form are in its [report][rp], left in place.
+The owner's hand check H1 and the lexicon four's STABLE promotion after it stay live in the plan's
+[gates][p34gates] and the [v3.4.x notes](../../versions/v3/README.md#v34x-notes-after-the-tag).
+The decisions that track them stay in the live [decisions log](../../decisions.md): D575 (the
+build plan's open points after the review, with the revision of `prerequisites.md` that is
+`spec-writer`'s first task when v4.0's master spec starts, cross-linked from the
+[v4 README](../../versions/v4/README.md#depends-on)), D576 (`NotationError` with chunk 6), D577
+(O230's close) and D578 (v3.4 tagged before H1). The live log records this archive as D579.
+
+### Archived at the v3.4 release
+
+- [decisions-D389.md](decisions-D389.md): decision D389, kept verbatim: v3.4 opened as a
+  structural review, the last v3 milestone.
+- [decisions-D393-D395.md](decisions-D393-D395.md): decisions D393–D395, kept verbatim: the
+  lexicon page added to v3.4, its one source, and the lexicon API placed in v4 or v5.
+- [decisions-D544-D574.md](decisions-D544-D574.md): decisions D544–D574, kept verbatim: v3.3's
+  archive event; the owner's first rulings on v3.4 and his direction for this app's horizon; his
+  delegation of v3.4 to the wave driver and the driver's rulings under it, from the refactors'
+  bounds through Part E's approval, the lexicon page's last choices and the structural review's
+  report.
+- [open-questions-history-v3.4.md](open-questions-history-v3.4.md): the live register's header
+  paragraphs on open and closed questions, its two v3.4 sections (all their questions closed),
+  and the notes of the questions closed during v3.4 (O230, O234, O236–O246, O312 and O315),
+  recovered from git, kept verbatim.
+- [readme-status-snapshot-v3.4.md](readme-status-snapshot-v3.4.md): the spec index's status
+  snapshot (`specs/README.md`, draft v0.99), kept verbatim.
+- [v3-readme-status-v3.4.md](v3-readme-status-v3.4.md): the v3 README's `Status:` paragraph as it
+  stood at the release, kept verbatim.
+
+No v3.4 document moves: each is still a live home, or is linked from a file this pass may not
+edit (see [left in place](#left-in-place-at-the-v34-release)).
+
+Not archived, though v3.4's: D575–D578 (above). D259–D260 (style packs and the sound ban, no
+version), D344–D348 (v3.0's release, whose v3.0.x notes are still open), D406 and D521–D523
+(v3.2's checks after the tag) and D537–D542 (v3.3's checks after the tag) stay live. D543 and
+D566 were never issued.
+
+### Where each v3.4 decision now lives
+
+Section numbers (E5, E9.3, …) are those of [master spec Part E][e34]; "review" is the
+[structural review][sr] scoping document and "report" its [report][rp], both left in place;
+"plan" is the [v3.4 build plan](../../versions/v3/build-plan-v3.4.md), complete and left in place.
+"History" marks a decision that is superseded, or that only recorded an approval, a process step,
+an event or an order applied; it has no live home.
+
+#### D389, D393–D395
+
+| Decision(s) | Subject                                                                    | Now lives in                                                                                         |
+| ----------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| D389        | v3.4, a structural review, the last v3 milestone, after v3.3 and before v4 | [v3 README, v3.4](../../versions/v3/README.md#v34--structural-review); review [§1][sr1], [§2][sr2]   |
+| D393        | v3.4 also builds a lexicon page, step one of a side project; D389 amended  | [E1][e1], [E2][e2]; [v3 README, the lexicon page](../../versions/v3/README.md#the-lexicon-page-d393) |
+| D394        | The lexicon page's only source is `docs/music/lexicon.md`                  | [E5][e5]                                                                                             |
+| D395        | The lexicon API in v4 or v5                                                | History: superseded by D555 ([E9][e9])                                                               |
+
+#### D544–D574
+
+| Decision(s) | Subject                                                                                    | Now lives in                                                                                                                                                                              |
+| ----------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D545        | v3.4 delivers the report and the refactors taken, as a build plan (O234)                   | Review [§6][sr6]; plan [waves][p34waves]                                                                                                                                                  |
+| D546        | The review looks at the code as it is, not at v4's scope (O237)                            | Review [§3][sr3], [Q1][srq1]                                                                                                                                                              |
+| D547        | No new runtime dependency besides Tone.js                                                  | Review [§3][sr3], [Q2][srq2]; [E15][e15] item 15                                                                                                                                          |
+| D549        | The lexicon page's design validated, `ux-writer`'s answers taken (O239–O244, O246)         | [E5.1][e51], [E6][e6], [E7][e7], [E8][e8], [E10][e10]                                                                                                                                     |
+| D551        | The game a separate app; a three-way split (O236)                                          | Review [Q4][srq4]; report [§5][rp5]; its personas: O313, open in the [register](../../open-questions.md#after-v34-the-split-and-this-apps-horizon-o313)                                   |
+| D552        | v4.0 most probably this app's last update (a direction)                                    | [Roadmap](../../roadmap.md); [versions](../../versions/README.md); O314, open in the [register](../../open-questions.md#after-v34-the-split-and-this-apps-horizon-o313)                   |
+| D553        | v4.0 is Tone.js and accompaniment with roles; v4's other items to v5                       | [v4 README](../../versions/v4/README.md#settled-direction); [v5+ README](../../versions/v5-plus/README.md#moved-from-v4-d553); [roadmap](../../roadmap.md#3-v4--accompaniment-with-roles) |
+| D554        | Microphone input out of scope in any version                                               | [v5+ README](../../versions/v5-plus/README.md#out-of-scope-microphone-input-d554)                                                                                                         |
+| D555        | The lexicon API moves into v3.4                                                            | [E9][e9]; [roadmap](../../roadmap.md#the-lexicon-api--in-v34-d555)                                                                                                                        |
+| D556        | The owner delegates the resolution of v3.4 to the wave driver                              | Review [§7][sr7]; its rulings are D557–D578                                                                                                                                               |
+| D557        | A refactor's bounds; the analysis tools (O238)                                             | Review [§3][sr3], [Q3][srq3], [§7][sr7]                                                                                                                                                   |
+| D559        | The lexicon API a plain TypeScript module, no server                                       | [E9][e9]                                                                                                                                                                                  |
+| D561        | A lexicon backend some day, in Go (a direction)                                            | [E16][e16]; O316, open in the [register](../../open-questions.md#after-v34-the-split-and-this-apps-horizon-o313)                                                                          |
+| D562        | The lexicon page works in any orientation                                                  | [E7][e7]                                                                                                                                                                                  |
+| D563        | An empty or malformed lexicon fails the build                                              | [E5.3][e53]                                                                                                                                                                               |
+| D567        | `#lexicon` under an open sheet opens nothing                                               | [E8][e8]                                                                                                                                                                                  |
+| D568        | The stale-phrase prompt counts as a sheet; a sheet opened during the first load stops it   | [E7][e7], [E8][e8]                                                                                                                                                                        |
+| D569        | R1, R2 and R3 taken                                                                        | Report [§7][rp7]; plan [chunk 5][p34c5], [chunk 6][p34c6], [chunk 7][p34c7]                                                                                                               |
+| D570        | R4: the atom-spread limit above 10 a warning for test files only                           | Report [§7][rp7]; plan [chunk 4][p34c4]                                                                                                                                                   |
+| D571        | R5: the start-up budget stays at 400 KiB; an overrun takes a lever, a raise is the owner's | Report [§3][rp3]; plan [M2][p34m2]                                                                                                                                                        |
+| D572        | The other recommendations deferred or dropped                                              | Report [§6][rp6], [§7][rp7]                                                                                                                                                               |
+| D573        | The split's form (O314 (c))                                                                | Report [§5][rp5]; O314, open in the [register](../../open-questions.md#after-v34-the-split-and-this-apps-horizon-o313)                                                                    |
+| D574        | The lexicon API's home is this app (O315)                                                  | [E9.3][e93], [E16][e16]; report [§5][rp5]                                                                                                                                                 |
+| D544        | v3.3 released and its record archived                                                      | History: an archive event ([v3.3 release](#v33-release-archived-2026-11-22))                                                                                                              |
+| D548        | The lexicon page's questions go to `ux-writer` first                                       | History: a process step, ended by D549                                                                                                                                                    |
+| D550        | v3.4 is tagged `3.4.0` (O312)                                                              | History: applied, tag `v3.4.0` (D579); review [§6][sr6]                                                                                                                                   |
+| D558        | The lexicon part first, the measurement pass after the page (O245)                         | History: an order, applied; plan [waves][p34waves]                                                                                                                                        |
+| D560        | A docs-only lexicon pass before the page's build                                           | History: done as lexicon v1.9; plan [gates][p34gates] (L0)                                                                                                                                |
+| D564        | Part E v1.0 approved                                                                       | History: an approval; plan [gates][p34gates] (A0)                                                                                                                                         |
+| D565        | The plan's lexicon wave approved                                                           | History: an approval; plan [waves][p34waves]                                                                                                                                              |
+
+### Where each closed v3.4 question now lives
+
+| Question | Decision    | Now lives in                                                                |
+| -------- | ----------- | --------------------------------------------------------------------------- |
+| O230     | D577 (live) | The atom `module_tension_arc_cycle`, its wording revised by `documentalist` |
+| O234     | D545        | Review [§6][sr6]; its tag sub-question went on as O312                      |
+| O236     | D551        | Review [Q4][srq4]; report [§5][rp5]                                         |
+| O237     | D546        | Review [§3][sr3]                                                            |
+| O238     | D547, D557  | Review [§3][sr3], [Q3][srq3]                                                |
+| O239     | D549        | [E5.1][e51]                                                                 |
+| O240     | D549        | [E6][e6]                                                                    |
+| O241     | D549        | [E6][e6]                                                                    |
+| O242     | D549        | [E5.2][e52], [E10][e10]                                                     |
+| O243     | D549        | [E7][e7], [E8][e8]                                                          |
+| O244     | D549        | [E6][e6]                                                                    |
+| O245     | D558        | History: an order, applied (plan [waves][p34waves])                         |
+| O246     | D549        | [E3][e3]                                                                    |
+| O312     | D550        | Review [§6][sr6]; tag `v3.4.0` (D579)                                       |
+| O315     | D574        | [E9.3][e93]; report [§5][rp5]                                               |
+
+O48, O49, O100–O102, O115, O116, O176, O180, O183, O190, O267, O269, O271, O313, O314 and O316
+stay open in the live [register](../../open-questions.md). No question ID was reserved during this
+archive pass; D579 was.
+
+### Left in place at the v3.4 release
+
+| Document                                                                                          | Role                                                                                                                                                                                                                                     | Referenced from                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [versions/v3/master-spec.md](../../versions/v3/master-spec.md)                                    | Parts A to E are the contract for the running code                                                                                                                                                                                       | `docs/`, `issues/`, `ui_ux/`, `specs/`                                                                                                             |
+| [versions/v3/build-plan-v3.4.md](../../versions/v3/build-plan-v3.4.md)                            | The v3.4 build plan, complete; its release gate's record, and gate H1 after the tag is live; it holds the build calls the tables above point to                                                                                          | `docs/release/`, `specs/`                                                                                                                          |
+| [versions/v3/wave-log-v3.4.md](../../versions/v3/wave-log-v3.4.md)                                | The wave driver's record of the v3.4 build; it may still record H1                                                                                                                                                                       | `docs/release/`, `issues/`, `specs/`                                                                                                               |
+| [versions/v3/structural-review-report.md](../../versions/v3/structural-review-report.md)          | v3.4's deliverable: the answers to Q1–Q4, the rulings, the deferred recommendations (R6–R11, R13–R15, R18, R19, the levers an overrun takes), the split's form for game start, and §2.1, the input to revising `prerequisites.md` (D575) | `docs/release/`, `specs/generator-architecture.md`, `specs/`                                                                                       |
+| [versions/v3/structural-review-evidence/](../../versions/v3/structural-review-evidence/README.md) | The analysts' parts A to F, which the report cites by part and section                                                                                                                                                                   | `docs/release/`, `issues/` (ISS-020), `specs/`                                                                                                     |
+| [versions/v3/structural-review.md](../../versions/v3/structural-review.md)                        | The review's scope, questions and definition of done (§6), which the release notes check; the home of D545–D547, D551, D556 and D557                                                                                                     | `docs/release/`, `specs/`                                                                                                                          |
+| [versions/v3/lexicon-page.md](../../versions/v3/lexicon-page.md)                                  | The lexicon page's draft v2.3, consolidated into Part E, which wins where they differ; Part E cites it as its source, and its §9 records the API's step                                                                                  | `ui_ux/` (README, decisions, todo, the lexicon page's screen intent), which this pass may not edit; `specs/` (Part E, roadmap, v4 and v5+ READMEs) |
+| [versions/v3/README.md](../../versions/v3/README.md)                                              | The version's scope, and the live v3.0.x, v3.2.x, v3.3.x and v3.4.x notes                                                                                                                                                                | `docs/music/`, `specs/`, the v2 archive                                                                                                            |
+
+The v3.0 to v3.3 build plans, the v3.1 to v3.3 wave logs, the shared build workflow and the Jam
+mode draft stay in place as at the v3.3 release.
+
+[e34]: ../../versions/v3/master-spec.md#part-e--v34
+[e1]: ../../versions/v3/master-spec.md#e1-core-concept
+[e2]: ../../versions/v3/master-spec.md#e2-scope
+[e3]: ../../versions/v3/master-spec.md#e3-personas-and-goals-served
+[e5]: ../../versions/v3/master-spec.md#e5-the-single-source
+[e51]: ../../versions/v3/master-spec.md#e51-what-the-lexicon-holds
+[e52]: ../../versions/v3/master-spec.md#e52-how-the-text-reaches-the-page
+[e53]: ../../versions/v3/master-spec.md#e53-the-build-fails-on-an-empty-or-malformed-lexicon
+[e6]: ../../versions/v3/master-spec.md#e6-the-page
+[e7]: ../../versions/v3/master-spec.md#e7-opening-and-closing
+[e8]: ../../versions/v3/master-spec.md#e8-the-browsers-history-and-the-address
+[e9]: ../../versions/v3/master-spec.md#e9-the-lexicon-api
+[e93]: ../../versions/v3/master-spec.md#e93-where-it-lives-later
+[e10]: ../../versions/v3/master-spec.md#e10-size-offline-and-the-first-load
+[e15]: ../../versions/v3/master-spec.md#e15-definition-of-done
+[e16]: ../../versions/v3/master-spec.md#e16-deferred-and-open
+[sr]: ../../versions/v3/structural-review.md
+[sr1]: ../../versions/v3/structural-review.md#1-why-in-the-owners-words
+[sr2]: ../../versions/v3/structural-review.md#2-where-it-sits
+[sr3]: ../../versions/v3/structural-review.md#3-what-it-is-not
+[srq1]: ../../versions/v3/structural-review.md#q1-is-the-architecture-sound-for-expansion
+[srq2]: ../../versions/v3/structural-review.md#q2-should-the-entry-budget-be-lowered-and-how
+[srq3]: ../../versions/v3/structural-review.md#q3-which-refactoring-opportunities-are-worth-taking
+[srq4]: ../../versions/v3/structural-review.md#q4-should-the-app-split-into-several-libraries-or-packages
+[sr6]: ../../versions/v3/structural-review.md#6-deliverables
+[sr7]: ../../versions/v3/structural-review.md#7-who-does-what-proposed
+[rp]: ../../versions/v3/structural-review-report.md
+[rp3]: ../../versions/v3/structural-review-report.md#3-q2-the-start-up-budget
+[rp5]: ../../versions/v3/structural-review-report.md#5-q4-the-split
+[rp6]: ../../versions/v3/structural-review-report.md#6-ranked-recommendations
+[rp7]: ../../versions/v3/structural-review-report.md#7-rulings
+[p34gates]: ../../versions/v3/build-plan-v3.4.md#gates
+[p34waves]: ../../versions/v3/build-plan-v3.4.md#waves
+[p34m2]: ../../versions/v3/build-plan-v3.4.md#m2--the-start-up-figure
+[p34c4]: ../../versions/v3/build-plan-v3.4.md#chunk-4--the-test-files-atom-spread-limit
+[p34c5]: ../../versions/v3/build-plan-v3.4.md#chunk-5--the-library-line-enforced
+[p34c6]: ../../versions/v3/build-plan-v3.4.md#chunk-6--session-one-way
+[p34c7]: ../../versions/v3/build-plan-v3.4.md#chunk-7--the-jam-host-out-of-the-shell
