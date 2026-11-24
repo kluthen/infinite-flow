@@ -1,5 +1,11 @@
 # Review and Export Intent
 
+> **Changes since v3.4**
+>
+> - _Changed:_ the MIDI file's accompaniment tracks, and the choice remembered
+>   ([Taking It Out](#taking-it-out))
+> - _Removed:_ nothing
+
 ## Whose Flow This Is
 
 This flow starts where a session ends, and wherever a kept session is opened
@@ -285,8 +291,11 @@ picks.
 
 - **MusicXML** is the default, because it keeps what the review shows, the notation, and opens in
   notation programs such as MuseScore.
-- **MIDI** suits a music production program. Only for MIDI, the player can also include the
-  backing track, off unless they ask for it.
+- **[v4.0 changed]** **MIDI** suits a music production program. Only for MIDI, the player can
+  also include the accompaniment tracks, off unless they ask for it: the backing, and each part
+  that was on when the session ended, one track each, so the file can be remixed. A line under
+  the switch names those parts, because the session's end decides them, not the moment a part
+  was switched on.
 
 First in the export row, a choice of scope governs both exports: `Whole session` or
 `Favorites only`. The exported phrases come in session order, each keeping its session phrase
@@ -296,8 +305,8 @@ would quietly export only part of the next session. Without a favorite, `Favorit
 unavailable and says why; when no favorite phrase holds a played note, the played-notes export is
 unavailable under that scope, and says why too.
 
-The format and the backing-track choice are remembered, as is the `Played notes`
-switch: a player who exports MIDI with the backing every time sets it once. They come back after a
+**[v4.0 changed]** The format and the accompaniment-tracks choice are remembered, as is the
+`Played notes` switch: a player who exports MIDI with the accompaniment every time sets it once. They come back after a
 reload, like every other setting.
 
 A second button exports the notes the player played, as a MIDI file: the only

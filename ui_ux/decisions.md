@@ -128,3 +128,50 @@ applies (D119, D135, archived; spec D414).
   shipped state. The token source's three `v3.4` comments go at the start of v4.0's token-source
   pass, its first v4.0 edit, so `src/` is untouched by the design. v4.0 is marked against
   `versions/v3.4/`. Now in: `README.md` (Released versions and work in progress).
+
+## v4.0's design: the parts in the mix, 2026-11-24
+
+Settled under the owner's design delegation (spec D593: layout is `ux-writer`'s), against the
+approved master spec (spec D596), §12's six items.
+
+- **D500 (2026-11-24): the mix takes two fixed rows; the parts are the second, with `Volume`.**
+  Row one keeps `Backing`, `Click` and the guides in their order; row two holds the four parts in
+  a group named "Accompaniment parts", then `Volume`. A row never splits from
+  bp-tablet-landscape up; the rows sit beside the title, so the toolbar grows by one line.
+  Rejected: a free wrap, a "More" menu, the parts in the `Volume` panel (one more click for a
+  switch reached mid-session, and the lights hidden). Now in:
+  `screens/phrase-workspace/handoff.md` (Audio mix: Two lines; Responsive Behavior: The mix's
+  lines), `strategy.md` (Trade-offs).
+- **D501 (2026-11-24): the parts' labels are the working names, each an App controls word in the
+  lexicon.** `Thirds`, `Counter-melody`, `Fills`, `Drums`, in the spec's order, full at every
+  breakpoint: each is the musical word for the part's job, so the label teaches it (P1.G1). The
+  four entries (`control-*` ids, popup lines in the handoff) and the app-meaning updates of the
+  music words they lean on are added with the build, since the built lexicon page shows the
+  file and must not describe parts that do not exist yet. Now in:
+  `screens/phrase-workspace/handoff.md` (Audio mix: The parts' lexicon words).
+- **D502 (2026-11-24): each playing light sits inside its part's switch, after the state word;
+  a filled disc lit, a hollow ring unlit.** Shape and fill, not colour, tell the states, at
+  `--part-light-size`, readable from the stand; instant change; `aria-hidden`, nothing announced.
+  At the switch's end it reads as an indicator, not a radio button. The phone keeps it there, out
+  of view in its sessions with the toolbar, not repeated in the cue row. Rejected: a row of
+  lights (matched to names by eye). Now in: `screens/phrase-workspace/handoff.md` (Audio mix: The
+  part switches; Cue row: Phone cue actions), `motion.md`.
+- **D503 (2026-11-24): the `Volume` panel holds eight sliders, in two columns from
+  bp-tablet-landscape up; the parts' starting levels.** The parts' sliders reach silence. Starting
+  values, each a fraction of the part voice's own peak, for the token source and the listening
+  check to retune: Thirds 0.5 (below the melody guide's 0.8: the doubling should blend, not
+  lead), Counter-melody 0.5 (behind the lead), Fills 0.6 and Drums 0.6 (as the rhythm guide);
+  every minimum 0. Now in: `screens/phrase-workspace/handoff.md` (Audio mix: Volume popover;
+  Responsive Behavior: Volume panel columns), `todo.md` (v4.0's token-source pass).
+- **D504 (2026-11-24): sounds unavailable: the part switches disabled, reading off, with one
+  line; a slow load shows nothing.** The note reads "Their sounds didn't load. Check that you're
+  online, then reload the page."; the saved choice is kept (as Rising tempo keeps an unavailable
+  `On`), the sliders stay live, and a failure during a session waits for its end, since the
+  toolbar never changes size then. Now in: `screens/phrase-workspace/handoff.md` (Audio mix: The
+  part switches; Edge cases), `strategy.md` (Edge-Case Policy: The parts' sounds at the edges).
+- **D505 (2026-11-24): the export option reads `Accompaniment tracks`, with a line naming what it
+  holds.** "Tracks" is the MIDI word (master spec §4); the line, "The backing only." or "The
+  backing, plus the parts on when the session ended: {parts}.", says what the session's end
+  decided. A choice saved for `Backing track` carries over. Now in:
+  `screens/last-session-review/handoff.md` (Exports: Generated-notes export),
+  `flows/review-and-export/handoff.md` (Export).

@@ -101,8 +101,22 @@
 
 ## In Progress
 
-Nothing. v3.4 is released and archived; the root is the design as v3.4 shipped it, keeping its
-v3.4 marks until the next version's design starts. The side work below is paused.
+**v4.0 (accompaniment with roles), master spec `specs/versions/v4/master-spec.md` (spec D596),
+§12's design set**, on branch `v4.0-design`. Started 2026-11-24; v3.4's marks cleared (D499).
+Written and self-checked (D500-D505):
+
+- the four part switches in the mix's second row, each with its playing light; the `Volume`
+  panel's eight sliders; the parts' unavailable and loading states; the parts' lexicon words and
+  popup lines (`screens/phrase-workspace/`);
+- the parts in a session, a fresh Jam and the session's end (`flows/play-session/`, `flows/jam/`);
+- the export option `Accompaniment tracks` and its line (`screens/last-session-review/`,
+  `flows/review-and-export/`); the saved mix (`flows/saved-data/`);
+- `strategy.md` (goals, context, trade-off, edge-case policy) and `motion.md`.
+
+Validation: `ux-critic` (see Next Unit). Then the owner's approval, the `versions/v4.0/`
+copy, and the token-source pass.
+
+The side work below is paused.
 
 ## Remaining
 
@@ -119,6 +133,20 @@ Standing working rules (ux D119, D135, archived; still in force):
   more than it is worth.
 - The Review stays simple: no side tools; per-phrase tools at the end of each phrase's line,
   whole-session tools beside the export.
+
+v4.0, after the owner approves the design:
+
+- **v4.0's token-source pass** (after approval, before the build, as v3.x's): first clear the
+  token source's three `v3.4` comments (D499), then add `mix-row`, `mix-parts`, `part-light`
+  (`is-lit`), `mix-volume-panel` (two columns from bp-tablet-landscape up), `mix-parts-note`,
+  `--part-light-size` (proposed 1rem), `--part-light-ring-width` (proposed 0.125rem), and
+  `--mix-{thirds,counter-melody,fills,drums}-volume-{min,default}` at D503's starting values.
+  The toolbar's grid for **The mix's lines** is settled there.
+- **The lexicon entries** (D501): the four App controls entries and the app-meaning updates of
+  Accompaniment, Counter-melody, Fill, Groove and Parallel thirds and sixths, added with the build
+  by whoever keeps the lexicon, from the popup lines in `screens/phrase-workspace/handoff.md`.
+- **The listening check** (master spec §13 item 11) retunes D503's starting levels; a change is
+  a token value only.
 
 Carried forward from v3.2:
 
@@ -178,6 +206,9 @@ Side work, not part of a version (paused):
     there yet". To be revisited later; nothing is decided from it yet.
 
 ## Next Unit
+
+v4.0: `ux-critic`'s validation of the v4.0 design set, its findings settled; then the owner's
+approval (gate), the `versions/v4.0/` copy, and the token-source pass (Remaining).
 
 v3.4: released as version 3.4.0 and archived (`archive/v3.4/`). Next here is any design finding
 of H1, the owner's look at the lexicon page (Remaining, Carried forward from v3.4).

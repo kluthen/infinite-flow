@@ -22,7 +22,11 @@ may move). v3.3
 and the longer chord symbols it brings. v3.4 adds one thing the player sees, the lexicon page: a
 `Lexicon` button in the footer opens every word of the project's lexicon, A to Z and by search,
 over the workspace and back (`specs/versions/v3/lexicon-page.md`); its other item, a structural
-review of the code, changes nothing in the interface.
+review of the code, changes nothing in the interface. v4.0 (accompaniment with roles,
+`specs/versions/v4/master-spec.md`) adds four parts the app plays beside the player's line,
+`Thirds`, `Counter-melody`, `Fills` and `Drums`: four more switches in a second line of the audio
+mix, each with a playing light, four more sliders in the `Volume` panel, and the review's MIDI
+option renamed `Accompaniment tracks`; nothing is drawn on the score.
 
 **Status.** v3.0 is released as version 3.0.0 (tag `v3.0.0` at e288d98, 2026-10-16, deployed);
 its design is frozen in `versions/v3.0/` and its working record is in `archive/v3.0/`. v3.1 is
@@ -109,6 +113,10 @@ See `todo.md` for where the work stands.
   token, class or motion: its one control and its chord symbols reuse existing ones. v3.4 adds no
   token or motion; its classes, the lexicon page's own `lexicon-*` classes and the footer's
   `footer-actions`, all from existing tokens, are in `components.css` (v3.4's token-source pass).
+  v4.0's new tokens and classes (`mix-row`, `mix-parts`, `part-light`, `mix-volume-panel`,
+  `mix-parts-note`, `--part-light-size`, `--part-light-ring-width` and the four parts'
+  `--mix-*-volume-*` levels) are named in the handoffs and added to the token source at v4.0's
+  token-source pass, after the owner approves the design.
 - `flows/presets/` specifies choosing a preset, the Custom state, the key and mode highlight, and
   saving, renaming and deleting the player's own presets; `screens/preset-sheet/` the sheet those
   are done in. The preset dropdown and the embellishment levels sit in

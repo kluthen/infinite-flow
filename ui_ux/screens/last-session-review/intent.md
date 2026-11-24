@@ -1,5 +1,11 @@
 # Last Session Review Intent
 
+> **Changes since v3.4**
+>
+> - _Changed:_ the accompaniment option and the line naming its tracks
+>   ([The Export](#the-export))
+> - _Removed:_ nothing
+
 ## What This Screen Is
 
 The review is a mode of the workspace page, not a page of its own. It shows one
@@ -155,16 +161,24 @@ opens and is not remembered, since a remembered `Favorites only` would quietly e
 next session. Without a favorite, `Favorites only` is shown unavailable with the reason beside it
 ("No favorites in this session yet."), which also tells a new player that favorites exist.
 
-The generated-notes export is one group: a choice of format, the backing option when it applies,
-and one button. The format is a two-option switch rather than two buttons, because the product's
+**[v4.0 changed]** The generated-notes export is one group: a choice of format, the
+accompaniment option when it applies, and one button. The format is a two-option switch rather than two buttons, because the product's
 rule is one action per kind of content: the generated notes are one kind, in either format, and
 the played notes are the other, with their own button beside this one. MusicXML comes first and
-is the default, because it keeps what the review shows, the notation. The backing track only
-exists in the MIDI file, so its switch appears only while MIDI is chosen, rather than sitting
-there disabled with an explanation beside it.
+is the default, because it keeps what the review shows, the notation. The accompaniment tracks
+only exist in the MIDI file, so their switch appears only while MIDI is chosen, rather than
+sitting there disabled with an explanation beside it.
 
-The format and the backing choice are remembered, after a reload too: a player
-who always exports MIDI with the backing sets it once.
+**[v4.0 new]** The switch reads "Accompaniment tracks" rather than v3.4's "Backing track": it
+now brings the backing and every part that was on when the session ended, each on its own track.
+"Tracks" says what a music program will show. One short line under it names what this session's
+file would hold, "The backing only." or "The backing, plus the parts on when the session ended:
+Thirds and Drums.", because the session's end decides it: a part switched on halfway is exported
+for the whole session, and a player who turned Fills off near the end would otherwise look for
+it in vain. The review stays simple: it is a line, not a choice of tracks.
+
+**[v4.0 changed]** The format and the accompaniment choice are remembered, after a reload too: a
+player who always exports MIDI with the accompaniment sets it once.
 
 The button is not the page's primary action. While the review shows, that emphasis belongs to
 `Close review` in the header, the next step for every player; a second primary button further
