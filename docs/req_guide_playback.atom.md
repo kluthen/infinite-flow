@@ -8,6 +8,7 @@ tags: [v3, release-v3.2, session, audio]
 parents:
   - [[req_rolling_practice_session]]
 dependents:
+  - [[entity_accompaniment_part]]
   - [[module_guide_playback_layers]]
   - [[rule_guide_changes_only_sound]]
   - [[rule_guide_fixed_voices]]

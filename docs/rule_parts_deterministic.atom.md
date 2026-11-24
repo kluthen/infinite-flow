@@ -8,7 +8,8 @@ layer: BUSINESS
 version: 0.1
 priority: 1
 tags: [v4, release-v4.0, session, audio, accompaniment]
-dependents: []
+dependents:
+  - [[module_accompaniment_arranger]]
 type: RULE
 ---
 

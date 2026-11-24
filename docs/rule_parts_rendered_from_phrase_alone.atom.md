@@ -4,7 +4,8 @@ status: DRAFT
 priority: 1
 parents:
   - [[req_accompaniment_parts]]
-dependents: []
+dependents:
+  - [[module_accompaniment_arranger]]
 type: RULE
 layer: BUSINESS
 version: 0.1
