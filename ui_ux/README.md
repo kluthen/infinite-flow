@@ -34,9 +34,11 @@ is in `archive/v3.2/`, and the owner's hand checks follow the tag. v3.3 (richer 
 design the owner approved on 2026-11-09, is released as version 3.3.0 (tag `v3.3.0` at b2a0e3fa,
 2026-11-18); its design is frozen in `versions/v3.3/` and its working record is in
 `archive/v3.3/`, and its hand and listening checks follow the tag, the confirmation of the
-Seventh chords labels among them. The root is v3.4's design in progress: the whole interface as
-v3.3 shipped it, plus the lexicon page, whose design the owner validated on 2026-11-22. See
-`todo.md` for where the work stands.
+Seventh chords labels among them. v3.4 (the lexicon page), whose design the owner validated on
+2026-11-22, is released as version 3.4.0 (tag `v3.4.0` at 17e631e4, 2026-11-24); its design is
+frozen in `versions/v3.4/` and its working record is in `archive/v3.4/`, and the owner's look at
+the built page follows the tag. The root is the whole interface as v3.4 shipped it; the next
+version's design has not started. See `todo.md` for where the work stands.
 
 ## Released versions and work in progress
 
@@ -53,9 +55,12 @@ v3.3 shipped it, plus the lexicon page, whose design the owner validated on 2026
   release change the design.
   `versions/v3.3/` is v3.3 (richer chords), released as version 3.3.0: frozen when the owner
   approved it, before it was built, as the whole root, and corrected since only to match what
-  ships.
-- Everything outside `versions/` and `archive/` is work in progress toward the next release,
-  v3.4. It covers the whole interface, not only what the next version adds: a screen the
+  ships. `versions/v3.4/` is v3.4 (the lexicon page), released as version 3.4.0: frozen at its
+  release, the copy not having been taken at approval, as the whole root, and corrected later
+  only if the owner's look at the page after the release changes the design.
+- Everything outside `versions/` and `archive/` is the work toward the next release; until its
+  design starts, it is v3.4 as shipped. It covers the whole interface, not only what the next
+  version adds: a screen the
   next version extends is specified here in full, old behavior included. When a version's design is approved,
   a copy of it goes into `versions/<version>/`, and the work at the root continues toward the one
   after.
@@ -66,9 +71,10 @@ v3.3 shipped it, plus the lexicon page, whose design the owner validated on 2026
   words as an annotation or comment). Removals are listed only in that block, pointing to the old
   wording in `versions/`. A document new in v3.4 says so under its title.
   `grep -rn "v3.4 new\|v3.4 changed"` finds every mark. The marks stay until design work on the
-  version after starts; the copy in `versions/` keeps them, so `versions/v3.3/` still shows what
-  v3.0 to v3.3 changed, layer by layer. The root's marks for v3.0 to v3.3 were cleared when
-  v3.4's design started.
+  version after starts, and are cleared then, before its first edit; the copy in `versions/`
+  keeps them, so `versions/v3.4/` shows what v3.4 changed and `versions/v3.3/` what v3.0 to v3.3
+  changed, layer by layer. The root's marks for v3.0 to v3.3 were cleared when v3.4's design
+  started.
 
 ## Map
 
@@ -113,7 +119,7 @@ v3.3 shipped it, plus the lexicon page, whose design the owner validated on 2026
   page: its entries, its letters and search, its keys and states.
   `mockups/lexicon-page/index.html` is a clickable prototype of it, reading
   `docs/music/lexicon.md` itself (not buildable truth), and `research/lexicon-page.md` the
-  research behind its design.
+  research behind its design; both stay here, though they belong to v3.4 alone.
 - `open-questions.md`, `decisions.md`, and `todo.md` are working registers. Read `todo.md` before extending this set.
 - `versions/v2/` holds the v2 design as it shipped in version 2.0.0, frozen, with a summary of the
   decisions worth keeping.
@@ -126,6 +132,8 @@ v3.3 shipped it, plus the lexicon page, whose design the owner validated on 2026
   release, with a summary of the decisions worth keeping.
 - `versions/v3.3/` holds the v3.3 design (richer chords) as it shipped in version 3.3.0, frozen
   when it was approved, before it was built, with a summary of the decisions worth keeping.
+- `versions/v3.4/` holds the v3.4 design (the lexicon page) as it shipped in version 3.4.0,
+  frozen at its release, with a summary of the decisions worth keeping.
 - `archive/v1/` holds the closed first-release (v1.0) working record: the complete decision log,
   the closed question that record answers, and the finished work tracker. `archive/v2/` holds the
   v2 working record the same way: its decision log, its closed questions and its finished work
@@ -133,7 +141,7 @@ v3.3 shipped it, plus the lexicon page, whose design the owner validated on 2026
   its finished work tracker. `archive/v3.1/` holds the v3.1 working record the same way, except
   the decisions and work items v3.1 shares with v3.2, which are in `archive/v3.2/` with the rest
   of the v3.2 working record: its decisions, its closed questions and its finished work tracker.
-  `archive/v3.3/` holds the v3.3 working record the same way.
+  `archive/v3.3/` and `archive/v3.4/` hold the v3.3 and v3.4 working records the same way.
   The live registers above stay current; the archive is kept verbatim and is never edited
   further.
 

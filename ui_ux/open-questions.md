@@ -1,7 +1,8 @@
 # Open Questions
 
 Only questions that are truly open appear here. IDs are stable; new numbers come from
-`doc-ids next ux Q` (Q65, Q78 and Q79 were never used). Closed questions are archived verbatim:
+`doc-ids next ux Q` (Q65, Q78, Q79, Q88 and Q89 were never used). Closed questions are archived
+verbatim:
 
 - First release (v1.0): [Q15](archive/v1/open-questions-Q15.md), closed by D37.
 - v2 (released as version 2.0.0): [Q17–Q64](archive/v2/open-questions-Q17-Q64.md), every one
@@ -15,6 +16,8 @@ Only questions that are truly open appear here. IDs are stable; new numbers come
   closed it.
 - v3.3 (released as version 3.3.0): [Q77](archive/v3.3/open-questions-Q77.md), closed by spec
   D275 (ux D264).
+- v3.4 (released as version 3.4.0) raised no question in this register: the lexicon page's
+  questions were the spec tree's (spec O239–O246).
 
 Decision IDs cited here (D37, D100, …) refer to this tree's decision log; archived ones resolve
 through the header of [`decisions.md`](decisions.md).

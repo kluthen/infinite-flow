@@ -52,8 +52,8 @@ the workspace.
 
 ## What Was Left Out
 
-- **A web address per word.** A link straight to one word would help sharing and the lexicon's
-  API, but nobody in the personas sends links, and the API defines its own addresses. Each
+- **A web address per word.** A link straight to one word would help sharing, but nobody in the
+  personas sends links, and the lexicon's API, a read interface with no network, needs none. Each
   entry already has a stable address inside the page (its `id`), so adding one later costs
   little.
 - **Opening from other screens.** Word popups and links from the controls to the page are a later
