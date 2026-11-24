@@ -1,8 +1,9 @@
 /**
  * The arranger on a hand-built phrase: one part per system voice in the fixed voice order, the
- * backing's and the guides' parts converted from their renderers' unchanged output, the four
- * accompaniment parts present and empty while their rules are unbuilt; pure, frozen and the same
- * for the same phrase; an unknown arranger version rejected.
+ * backing's and the guides' parts converted from their renderers' unchanged output, the Thirds and
+ * Counter-melody parts carrying exactly their part functions' notes, Fills and Drums empty while
+ * their rules are unbuilt; pure, frozen and the same for the same phrase; an unknown arranger
+ * version rejected.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -22,7 +23,10 @@ import {
   type ArrangerPhrase,
 } from '@/domain/backing/accompaniment-part'
 import { renderBacking } from '@/domain/backing/backing-renderer'
+import { counterMelodyPart } from '@/domain/backing/counter-melody-part'
 import { renderGuide } from '@/domain/backing/guide-renderer'
+import { leadFacts } from '@/domain/backing/lead-facts'
+import { thirdsPart } from '@/domain/backing/thirds-part'
 import { makeConcertPitch } from '@/domain/events/concert-pitch'
 import { makeMeasure } from '@/domain/events/measure'
 import { makeNoteEvent, makeRestEvent } from '@/domain/events/measure-event'
@@ -104,13 +108,19 @@ describe('arrangeAccompaniment', () => {
     expect(parts[2]!.notes).toHaveLength(4)
   })
 
-  // @test-link [[rule_part_rests_when_no_note_fits]]
   // @test-link [[req_accompaniment_parts]]
-  it('gives the four accompaniment parts, empty while their rules are unbuilt', () => {
+  // @test-link [[req_highlighting_part]]
+  // @test-link [[req_contrasting_part]]
+  it("gives Thirds and Counter-melody their functions' notes, Fills and Drums empty until built", () => {
     const parts = arrangeAccompaniment(PHRASE, SETTINGS)
-    expect(parts.slice(4).map((part) => [part.voice, part.notes])).toEqual(
-      PART_VOICES.map((voice) => [voice, []]),
-    )
+    const lead = leadFacts(PHRASE.timeline, HARMONY)
+    expect(parts.slice(4).map((part) => part.voice)).toEqual([...PART_VOICES])
+    const [thirds, counterMelody, fills, drums] = parts.slice(4)
+    expect(thirds!.notes).toEqual(thirdsPart(PHRASE, lead))
+    expect(counterMelody!.notes).toEqual(counterMelodyPart(PHRASE, lead))
+    expect(thirds!.notes.length).toBeGreaterThan(0)
+    expect(counterMelody!.notes.length).toBeGreaterThan(0)
+    expect([fills!.notes, drums!.notes]).toEqual([[], []])
   })
 
   // @test-link [[rule_parts_deterministic]]
