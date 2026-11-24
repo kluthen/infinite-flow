@@ -254,7 +254,12 @@ Architecture capture: none (nothing is merged)
 
 ### Chunk 2 — The part shape and the arranger
 
-Status: in progress
+Status: merged (w1, 334f9968)
+Record: 48010891, merged 334f9968. No deviation. Choices inside the chunk: `AccompanimentSettings`
+is `{ arrangerVersion: 1 }` (no setting changes a part's notes); converted parts' velocities 72
+(backing, = the MIDI export's) and 64 (guides); roles `foundation` (backing, drums) and `guide`;
+mix channel ids `backing`, `melody-guide`, `rhythm-guide`, `thirds`, `counter-melody`, `fills`,
+`drums` (chunk 5 uses them).
 Wave: 1
 Depends on: A0, P1 (its captures; `entity_accompaniment_part`'s TECHNICAL INTERFACE reworded to
 spec D602 by `documentalist` before the brief)
@@ -301,7 +306,7 @@ phrase's parts, with one function per new part in a file of its own, and the lea
 
 ### Chunk 3 — Thirds and Counter-melody
 
-Status: planned
+Status: in progress
 Wave: 1
 Depends on: 2 (P1's captures fix the per-part function)
 Architecture capture: none

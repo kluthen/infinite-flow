@@ -94,3 +94,10 @@ state.
   Compressor or FeedbackDelay from the survey's list); A's PolySynth books 12 voices and
   `lookAhead` 0.25 s. Side finding filed on `main` as ISS-021 (808a2f3d): the production Docker
   image doesn't build since v3.4 (`.dockerignore` leaves out `docs/music/lexicon.md`).
+- 2026-11-24: chunk 2 merged 334f9968 (48010891): part shape, arranger, lead facts, four empty
+  parts, the M4 harness (`npm run measure:arranger`; phone page `arranger-cost.html` on the
+  workspace harness dev server). Corpus guard green (563 tests); parts corpus: 844 replay-key
+  phrases, v3.2 backing files byte-identical from parts. Laptop smoke M4: worst 1.856 ms. Choices
+  on its Record line (settings shape, velocities, roles, channel ids). Paused once by the API
+  usage limit, resumed from its red tests. 1 agent, 95 tool calls, 12.3M tokens in / 77k out, max
+  context 215k, $5.79 at API prices. Chunk 3 started.
