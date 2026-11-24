@@ -128,3 +128,10 @@ state.
   `module_named_stream_pseudorandomness` (label `fill-shape`, named registry 1 → 2, its two false
   sentences), and the responding-part atoms absorb D604 and D605. 4 agents, 130 tool calls, 11.9M
   tokens in / 139k out, max context 161k, $7.80 at API prices. Chunk 5 started.
+- 2026-11-24: chunk 5 merged 419d1741 (6973f2ee): four mix channels, eight settings keys at data
+  version 1 (tolerant loading, no upgrade step), parts off at 0.5/0.5/0.6/0.6 from the tokens; v3.4
+  records load unchanged, a changed part setting saves and reloads (fake-indexeddb). Estimated
+  first-load growth ≈ +0.6 KB. Each session's bus now sets 16 gains at unlock (parts muted): e2e
+  gain logs are the wave gate's to check. 2 agents, 93 tool calls, 9.8M tokens in / 56k out, max
+  context 180k, $4.19 at API prices. Every chunk of wave 1 is merged (chunk 1, the spike, is never
+  merged and waits on SPK). Wave gate started.
