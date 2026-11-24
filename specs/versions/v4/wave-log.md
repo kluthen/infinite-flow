@@ -135,3 +135,19 @@ state.
   gain logs are the wave gate's to check. 2 agents, 93 tool calls, 9.8M tokens in / 56k out, max
   context 180k, $4.19 at API prices. Every chunk of wave 1 is merged (chunk 1, the spike, is never
   merged and waits on SPK). Wave gate started.
+
+### Wave 1 gate (2026-11-24, AMD Ryzen 5 PRO 8640HS, 12 threads, 11 GiB, Debian 13 / Linux 6.12)
+
+- First `npm run quality` stopped at the code-health lint: `settings-record.ts` linked 11 atoms
+  (limit 10), chunk 5's duplicate `rule_parts_off_by_default` link (the parts' defaults are set in
+  `readAudioMixDesign`, already linked). Fixed on the wave branch, ef9aedaf.
+- `npm run quality` green: unit 678 files / 10,502 tests; build; `verify:boundaries` (65 JS chunks,
+  library, session, Jam and lexicon boundaries); e2e 786 passed, 1 skipped, twice (pregeneration
+  on and off); a11y 86; notation 121 (4 skipped); `atd:lint` pass. `atd:check` printed "No atoms
+  found" (ISS-020: the sync runs `atd check main...HEAD` instead).
+- `npm run test:sweep`: 13 files, 167 tests green.
+- M1: start-up JavaScript 394,895 B (+843 B on v3.4's 394,052; 19 chunks), entry 339,603 B (+843 B
+  on 338,760); budget 409,600 B, 14,705 B left.
+- M4, laptop: worst render 2.142 ms (`c-keyboard-levels3-Dorian-s3`), cold pass 1.945 ms, median
+  0.109 ms, p95 0.168 ms over 844 phrases × 5; verdict main thread. The reference phone's figure
+  is the owner's (gate figure on the phone only).
