@@ -223,7 +223,7 @@ item 7). Wave 3's gate adds the lights against the playhead's tolerance (item 6)
 
 ### Chunk 1 — The sound-library spike
 
-Status: planned
+Status: in progress
 Wave: 1
 Depends on: A0, P1, S1
 Architecture capture: none (nothing is merged)
