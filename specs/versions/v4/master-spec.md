@@ -1,7 +1,10 @@
 # v4.0 — Master Spec: Accompaniment with Roles and a Sound Library
 
-Status: v1.0 (2026-11-24), consolidated from the v4.0 drafts after the owner's rulings of the same
-day. **Approved by the owner on 2026-11-24.** Its build plan waits for the design set (§12). Where it differs from the drafts
+Status: v1.0.1 (2026-11-24), consolidated from the v4.0 drafts after the owner's rulings of the same
+day. **Approved by the owner on 2026-11-24** (v1.0). v1.0.1, the same day, after the intent
+ingestion: the fill's chord named, the turn made four notes, the P1.G2 row's wording (§3, §6.5);
+the intent record's values and wording (§11, §14); no behaviour the owner approved changes. Its
+build plan waits for the design set (§12). Where it differs from the drafts
 ([accompaniment roles](accompaniment-roles.md), [arranger](arranger.md),
 [sound library](sound-library.md)) or from the [prerequisites](../prerequisites.md), this document
 wins.
@@ -76,7 +79,7 @@ The [personas](../../personas.md) are unchanged for v4.0.
 | Goal                                                                                     | v4.0                                                                                                                                                         |
 | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **P1.G1, vocabulary by exposure:** play whatever gets generated and feel how ideas sound | Served partly: the player hears, on demand, how a line is doubled, countered and answered, and the playing lights say which part they are hearing           |
-| **P1.G2, real-time reading and dexterity**                                               | Protected, not advanced: the score is unchanged, every new part is off by default, and no part sounds on the lead's own pitch at the same time except the doubling's deliberate fusion |
+| **P1.G2, real-time reading and dexterity**                                               | Protected, not advanced: the score is unchanged, every new part is off by default, and no new part sounds the lead's own pitch with it: Thirds stay a third or sixth below, the counter-melody keeps its own lane, and fills play only in the lead's rests |
 | **P2.S1, endless fresh material read at a higher BPM**                                   | Neutral: nothing changes unless a part is switched on                                                                                                       |
 | **P3.C2, take it out** to a widely known format                                          | Served partly: the MIDI export carries each part switched on as its own track                                                                               |
 
@@ -176,13 +179,15 @@ it sounds, never the notes the player played.
 - **Rhythm:** eighth notes, starting one eighth after the rest begins, at most four; the last note
   lasts until the rest ends or for one beat, whichever is shorter. A rest with room for fewer
   notes takes fewer.
-- **Target:** the last note is the chord tone nearest the lead's next note, not equal to it (ties
-  below), so the fill leads into the lead's entry. A rest that ends the phrase targets the chord's
-  root nearest the window's centre.
+- **Target:** the last note's chord is the chord sounding at that note's start. The last note is
+  that chord's tone nearest the lead's next note, not equal to it (ties below), so the fill leads
+  into the lead's entry. A rest that ends the phrase targets that chord's root nearest the window's
+  centre.
 - **Shape:** one of five, drawn per fill from the phrase's seed: rising arpeggio, falling arpeggio
   (chord tones of the chord sounding at each note), rising scale, falling scale (steps of the
-  phrase's scale), or a turn around the target (the target, a step above, the target, a step
-  below, the target). The notes before the target are built backwards from it.
+  phrase's scale), or a turn around the target (a step above, the target, a step below, the
+  target). Every shape is four notes long, built backwards from the target; a fill with room for
+  fewer notes plays the shape's last ones, so it always ends on the target.
 - **Register:** inside the lead's window. A note that would leave it reverses the shape's
   direction.
 
@@ -396,7 +401,10 @@ Grounded on `main` at 6d4c33c3.
 true of the guides alone now), `module_guide_playback_layers` (the seam's roles; the sounding layer
 the library replaces), `req_session_audio_mix` (eight controls become sixteen),
 `vision_infinite_flow_first_release` (the backing's description, the release list), and
-`rule_guide_fixed_voices` if its comparison with the backing's sound no longer holds.
+`rule_guide_fixed_voices` if its comparison with the backing's sound no longer holds. Also
+`specification_browser_only_operation_verification`, which lists "playback of the generated lead
+line" among the capabilities blocking a release: the melody guide has played the lead since v3.2,
+so that item is dropped. Atoms state the tunable values as they stand (§14).
 `entity_concert_event_timeline` holds.
 
 ## 12. For the design
@@ -443,6 +451,8 @@ The interface is `ux-writer`'s. What it designs, within this spec:
 - **Tuned at the listening check:** every timbre and effect level, the lanes' numbers (the floor at
   MIDI 48, the counter-melody's 3 to 15 half steps), the velocities and the default volumes, and
   whether the chords' top at E4 should move down now that more voices share the middle register.
+  The intent record states today's values; the sync after the listening check rewords any that
+  change.
 - **Deferred to the game:** instrument and sound selection; live answers to what the player plays
   (turn-based exchanges); more roles and per-style grooves.
 - **Not taken:** fills or bass approaches that lead into the next phrase's first chord (they need

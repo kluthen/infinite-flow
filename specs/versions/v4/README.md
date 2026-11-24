@@ -17,7 +17,8 @@ direction; [O314](../../open-questions.md#after-v34-the-split-and-this-apps-hori
 - [Arranger](arranger.md): the multi-voice representation, the arranger, playing, exports,
   keeping, blast radius.
 - [Sound library](sound-library.md): the spike, Tone.js's integration, the sound ban's rewording.
-- **[Master spec v1.0](master-spec.md)** (2026-11-24, D595): consolidated from the drafts below
+- **[Master spec v1.0.1](master-spec.md)** (2026-11-24, D595; v1.0.1 after the intent
+  ingestion, D597–D600, nothing approved changed): consolidated from the drafts below
   after the owner's rulings (D585–D594); it wins where they differ. Approved by the owner
   (D596); the build plan waits for `ux-writer`'s design set (§12).
 - Open questions: [O322](../../open-questions.md#v40-accompaniment-with-roles-o317), settled by

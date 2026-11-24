@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.152
+Status: draft v2.153
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -303,3 +303,24 @@ archive notice lists.
   spec with the timbre table and D593's four interpretations unchanged. The build plan waits for
   `ux-writer`'s design set (§12), which starts once branch `v4.0-spec` is merged into `main`. Now in:
   [v4.0 master spec](versions/v4/master-spec.md).
+
+- **D597 (2026-11-24, under the owner's design delegation, ux D119): master spec v1.0.1, three
+  fixes from the intent ingestion.** The fill's target chord is the chord sounding at the target
+  note's start. The turn becomes four notes (step above, target, step below, target), every shape
+  is four long and a shorter fill plays its last notes, so it always ends on the target. The P1.G2
+  row says no new part sounds the lead's pitch with it. Nothing approved changes. Now in:
+  [§6.5](versions/v4/master-spec.md#65-fills-responding), [§3](versions/v4/master-spec.md#3-personas-and-goals-served).
+- **D598 (2026-11-24, the driver under the owner's design delegation): atoms keep today's tunable
+  values.** The floor at MIDI 48, the counter-melody's 3 to 15 half steps and the drum velocities
+  stay in the atoms as numbers; the sync after the listening check rewords any that change. Now
+  in: [§14](versions/v4/master-spec.md#14-deferred-and-open).
+- **D599 (2026-11-24, the driver under the owner's design delegation): drop "playback of the
+  generated lead line" from `specification_browser_only_operation_verification`'s release
+  blockers.** It contradicts v3.2's melody guide. `documentalist` rewords the STABLE atom at the
+  first wave sync with the other A items, inside that sync's MAJOR bump; no atom edit now. Now in:
+  [§11](versions/v4/master-spec.md#11-the-existing-system).
+- **D600 (2026-11-24, the driver under the owner's design delegation): v4.0's CONTRACT bump policy
+  adopted.** No bump at ingestion; one MAJOR per wave sync that applies an A item (the first
+  20.0.0); a MINOR per promotion at the release sync. `rule_no_recorded_sound` goes STABLE in the
+  same sync as A1, so the sample ban stays on the surface. Now in:
+  [change set part B](../docs/release/v4.0-intent-change-set.md#b-the-contract-no-bump-now).
