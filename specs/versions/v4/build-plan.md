@@ -306,7 +306,9 @@ phrase's parts, with one function per new part in a file of its own, and the lea
 
 ### Chunk 3 — Thirds and Counter-melody
 
-Status: in progress
+Status: merged (w1, d854b945)
+Record: 08d8184d, merged d854b945. No deviation. Constants from §6.3, §6.4, §10.5: floor 48, lane
+3–15 below the window with floor 48, velocities 64. Readings sent to `spec-writer` (wave log).
 Wave: 1
 Depends on: 2 (P1's captures fix the per-part function)
 Architecture capture: none
@@ -336,7 +338,7 @@ Architecture capture: none
 
 ### Chunk 4 — Fills and Drums
 
-Status: planned
+Status: in progress
 Wave: 1
 Depends on: 2 (P1's captures fix the per-part function), P1 (the two responding atoms reworded)
 Architecture capture: none

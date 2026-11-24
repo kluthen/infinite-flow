@@ -101,3 +101,15 @@ state.
   on its Record line (settings shape, velocities, roles, channel ids). Paused once by the API
   usage limit, resumed from its red tests. 1 agent, 95 tool calls, 12.3M tokens in / 77k out, max
   context 215k, $5.79 at API prices. Chunk 3 started.
+- 2026-11-24: chunk 3 merged d854b945 (08d8184d): Thirds and Counter-melody, every rule of §6.3
+  and §6.4 an invariant over 884 phrases (the four replay-key corpora, 844, which hold no seventh
+  chord, plus a seeded seventh-chord supplement of 40). 5,985 Thirds notes, 2,244 Counter-melody
+  notes. 4 agents, 128 tool calls, 10.4M tokens in / 159k out, max context 149k, $7.99 at API
+  prices. Readings for `spec-writer` (batched with chunk 4's and 5's): (1) "parallel" fifths and
+  octaves read per the lexicon, contrary-motion ("consecutive") fifths skipped too; (2) parallel
+  octaves can't occur at a chord change (bass on the root, guide tones never the root); (3)
+  counting the seventh never changes the Thirds choice (diatonic chords); (4) my-baritone's High
+  window (49–62) gets no Counter-melody, its lane below the floor (40 phrases), for L1; (5) the
+  floor leaves 1,145 lead notes undoubled in low windows, for L1; (6) the timing assumes chords of
+  two beats or more (true today); (7) a chord with no guide tone in the lane keeps the previous
+  note. Chunk 4 started.
