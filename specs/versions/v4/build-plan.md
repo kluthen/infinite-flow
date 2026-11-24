@@ -1,6 +1,8 @@
 # Infinite Flow v4.0 — Build Plan
 
-Status: v1 (2026-11-24): first draft, for the owner's approval (gate A0).
+Status: v2 (2026-11-24): approved by the owner (spec D601); wave 1's preflight corrections (P1)
+written into chunks 2–5, 7, 8 and 9, with spec D602 (the renderers keep their output types) and
+D603 (A6's settings half at wave 3's sync).
 
 Written from the [v4.0 master spec](master-spec.md) v1.0.1 (approved by the owner on 2026-11-24,
 spec D596; v1.0.1 by spec D597) and the v4.0 design at the `ui_ux/` root (ux D499–D507, merged on
@@ -48,7 +50,7 @@ again on ade38c12 for this plan (gate G0). The plan follows the build-plan model
 | **I0**  | `documentalist` ingests the master spec: DRAFT atoms, `changes-in-v4.0` marks, part A's wordings drafted.                                                                                                                                                                                                                                                                             | `documentalist`                  | P1                                           | done (2026-11-24, 256031e6)             |
 | **T0**  | The token-source pass ([`ui_ux/todo.md`](../../../ui_ux/todo.md), v4.0's token-source pass): the three `v3.4` comments cleared, then `mix-row`, `mix-parts`, `part-light` (`is-lit`), `mix-volume-panel`, `mix-parts-note`, `--part-light-size`, `--part-light-ring-width` and `--mix-{thirds,counter-melody,fills,drums}-volume-{min,default}` at ux D503's starting values, in `src/styles/`; `ux-critic` checks them against the handoff. On `main` before wave 1, or on the wave branch before chunk 5's branch is cut. | `ux-writer`, `ux-critic`         | 5, 9                                         | open                                    |
 | **S1**  | `security-advisor` dependency check (skill `dependency-gating-protocol`, preflight) on `tone` 15.1.22 and its runtime dependencies (`standardized-audio-context`, `tslib`), before chunk 1 installs it on the spike branch.                                                                                                                                                             | `security-advisor`               | 1                                            | done (2026-11-24, clear; see the wave log) |
-| **C1**  | The owner signs off part A's STABLE wordings (A1–A6), recorded in the change set and in the commit that applies each (build workflow, contract sign-off).                                                                                                                                                                                                                             | The owner, `documentalist`       | The merges of 6 (A1), 8 (A5, A6), 9 (A2–A4)  | open                                    |
+| **C1**  | The owner signs off part A's STABLE wordings (A1–A6), recorded in the change set and in the commit that applies each (build workflow, contract sign-off).                                                                                                                                                                                                                             | The owner, `documentalist`       | The merges of 6 (A1), 8 (A5, A6's kept sessions), 9 (A2–A4, A6's settings) | open                                    |
 | **P1**  | Wave 1's preflight: a verdict per chunk; before any code, the captures of chunk 2 (`entity_accompaniment_part`, `module_accompaniment_arranger`); `rule_responding_part_target` and `rule_responding_part_shapes` reworded to master spec v1.0.1 (spec D597: the target's chord, the four-note turn).                                                                                     | `documentalist`                  | 1–5                                          | done (2026-11-24, d00357dd)             |
 | **SPK** | The spike's decision (O322): the measure table of [M3](#m3--the-spike) on the reference laptop and the owner's Android phone, and **hand check HS**, the owner hearing adapters A and B and accepting one. Decided by the survey's rule ([master spec §9.1](master-spec.md#91-the-library)); recorded as a decision closing O322; `spec-writer` marks chunk 6's standing scope.         | The wave driver, the owner       | 6                                            | open                                    |
 | **P2**  | Wave 2's preflight: a verdict per chunk; before any code, chunk 6's capture (the sound library's loading and sounding, and the recorded-sound boundary with the library chunk's budget and the security policy) and chunk 7's (a phrase's parts queued and sounded by part).                                                                                                          | `documentalist`                  | 6, 7, 8                                      | open                                    |
@@ -161,8 +163,9 @@ branches `v4.0-w<n>` in `/home/bastien/work/infinite_flow-v4.0-w<n>`, chunk bran
 - **Intent:** **Atoms** lines name the `release-v4.0` DRAFT atoms first, then existing atoms kept
   true; **Revisions** name the `changes-in-v4.0` atoms and the part A items. A part A item applies
   at the sync of the wave whose chunk builds it, with that wave's MAJOR bump (spec D600): wave 2
-  applies A1, A5 and A6 (20.0.0), with `rule_no_recorded_sound` promoted and spec D599's rewording;
-  wave 3 applies A2, A3 and A4 (21.0.0). Wave 4's sync rewords any number L1 moved (spec D598).
+  applies A1, A5 and A6's kept-session half (20.0.0), with `rule_no_recorded_sound` promoted and
+  spec D599's rewording; wave 3 applies A2, A3, A4 and A6's settings half, the eight mix keys chunk
+  5 builds (21.0.0, spec D603). Wave 4's sync rewords any number L1 moved (spec D598).
 - **The lexicon entries land with the chunks that build what they describe** (ux D501): chunk 9
   adds the four App controls entries (`Thirds`, `Counter-melody`, `Fills`, `Drums`, from the popup
   lines in the [phrase workspace handoff](../../../ui_ux/screens/phrase-workspace/handoff.md)) and
@@ -253,37 +256,47 @@ Architecture capture: none (nothing is merged)
 
 Status: planned
 Wave: 1
-Depends on: A0, P1 (its captures)
+Depends on: A0, P1 (its captures; `entity_accompaniment_part`'s TECHNICAL INTERFACE reworded to
+spec D602 by `documentalist` before the brief)
 Architecture capture: (a) **`entity_accompaniment_part`**: a phrase's accompaniment as a list of
 parts beside the unchanged timeline, each with its voice, role, mix channel and notes; a note's
 start and length in whole-note fractions from the phrase's start, a concert pitch or a drum sound
 (kick, snare, closed hi-hat), and a velocity; the backing's two voices and the two guides in the
-same shape. (b) **`module_accompaniment_arranger`**: one pure function in `src/domain/backing/`
+same shape, converted from the renderers' unchanged output (spec D602). (b)
+**`module_accompaniment_arranger`**: one pure function in `src/domain/backing/`
 from the phrase's timeline, harmony, window, scale, seed and the accompaniment settings to the
 phrase's parts, with one function per new part in a file of its own, and the lead's facts
 (chord tones, long notes, rests) recomputed in a shared helper; inside the library line.
 
 - **Goal:** one shape for every system voice, and the arranger that renders it, with the four new
   parts present and empty (a rest is always legal), so chunks 3 and 4 fill their own files.
-- **Scope:** the part and note types; the arranger; the lead-facts helper; `renderBacking` and
-  `renderGuide` giving parts (their rules unchanged); the four part functions returning no notes;
-  the transport and the generated-notes export reading the backing's and guides' parts. Out: any
-  part's notes, any sound, settings, the interface.
-- **Files:** `src/domain/backing/backing-renderer.ts`, `guide-renderer.ts`, new
-  `accompaniment-part.ts`, `accompaniment-arranger.ts`, `lead-facts.ts`, `thirds-part.ts`,
-  `counter-melody-part.ts`, `fills-part.ts`, `drums-part.ts`; `src/audio/transport-session.ts`;
-  `src/export/generated-notes-file.ts`; their unit tests.
+- **Scope:** the part and note types, and the conversion of the backing's and guides' rendered
+  notes into parts; the arranger, giving a phrase's backing parts, guide parts and the four new
+  parts; the lead-facts helper; the four part functions returning no notes. `renderBacking` and
+  `renderGuide` stay as they are, output types included (spec D602), so none of their importers
+  changes: `src/audio/backing-track.ts`, `guide-track.ts`, `transport-session.ts`,
+  `src/export/generated-notes-file.ts` and the test helpers `tests/unit/audio/backing-harmony.ts`,
+  `tests/unit/export/backing-and-files-v32-sessions.ts`, `tests/unit/scripts/seventh-endings-plan.ts`.
+  Out: any part's notes; the transport reading parts (chunk 7) and the export reading them (chunk
+  8); any sound, settings, the interface.
+- **Files:** new in `src/domain/backing/`: `accompaniment-part.ts` (the types and the conversion),
+  `accompaniment-arranger.ts`, `lead-facts.ts`, and the stubs `thirds-part.ts`,
+  `counter-melody-part.ts`, `fills-part.ts`, `drums-part.ts`; their unit tests. Read only:
+  `backing-renderer.ts`, `guide-renderer.ts`.
 - **Spec sections:** [§6.1](master-spec.md#61-rules-every-part-keeps),
   [§6.2](master-spec.md#62-backing), [§10.1](master-spec.md#101-the-lead-stays-one-voice-the-accompaniment-sits-beside-it),
   [§10.2](master-spec.md#102-one-pure-arranger-on-the-library-side); items 2, 3.
-- **Atoms:** `rule_parts_rendered_from_phrase_alone`, `rule_parts_read_chord_as_written`,
-  `rule_part_rests_when_no_note_fits`, `rule_parts_deterministic` (v4.0); `req_session_backing_track`,
-  `entity_concert_event_timeline` (kept true). Drift check: `module_library_code_boundary`,
-  `module_guide_playback_layers`.
-- **Revisions:** none (the layers' atom is revised with chunk 7).
-- **Done when:** the backing's and guides' notes are byte-identical on the corpora; the arranger
-  returns the four parts empty for every corpus phrase; `src/domain/` still type-checks with no DOM
-  and imports no package.
+- **Atoms:** `req_accompaniment_parts`, `rule_parts_rendered_from_phrase_alone`,
+  `rule_parts_read_chord_as_written`, `rule_part_rests_when_no_note_fits`,
+  `rule_parts_deterministic`, `entity_accompaniment_part`, `module_accompaniment_arranger` (v4.0);
+  `req_session_backing_track`, `entity_concert_event_timeline`, `req_guide_playback`,
+  `rule_melody_guide_notes`, `rule_rhythm_guide_notes` (kept true). Drift check:
+  `module_library_code_boundary`, `module_guide_playback_layers`.
+- **Revisions:** none: the renderers keep their output types (spec D602), so
+  `module_guide_playback_layers` stays true until chunk 7 revises it.
+- **Done when:** the renderers' goldens pass untouched; the backing's and guides' parts carry the
+  renderers' notes unchanged on the corpora; the arranger returns the four new parts empty for every
+  corpus phrase; `src/domain/` still type-checks with no DOM and imports no package.
 - **Verification:** chunk checks; the corpus guard; M4's harness placed at wave 1's gate.
 
 ### Chunk 3 — Thirds and Counter-melody
@@ -308,7 +321,8 @@ Architecture capture: none
   `rule_highlighting_part_pitch`, `rule_highlighting_part_floor`, `req_contrasting_part`,
   `rule_contrasting_part_lane`, `rule_contrasting_part_guide_tones`,
   `rule_contrasting_part_voice_leading`, `rule_contrasting_part_timing`,
-  `rule_at_most_two_relation_parts` (v4.0).
+  `rule_at_most_two_relation_parts`, `module_accompaniment_arranger`, `entity_accompaniment_part`
+  (v4.0).
 - **Revisions:** none.
 - **Done when:** every rule of §6.3 and §6.4 holds as an invariant over a seeded corpus of phrases
   covering every built-in window, My instrument, seventh chords on and off, and chromatic lead
@@ -327,17 +341,21 @@ Architecture capture: none
 - **Scope:** Fills: rests of a beat or longer; eighths from one eighth in, at most four; the target
   on the chord sounding at its start; the five four-note shapes, a shorter fill playing a shape's
   last notes; the window, reversing a shape that would leave it; the shape drawn from a new named
-  stream of the phrase's seed, the registry's version stepped. Drums: the one groove with its
-  velocities. Out: sound, settings.
+  stream of the phrase's seed, its label in the named registry only (`STREAM_LABELS`,
+  `STREAM_REGISTRY_VERSION` stepped), the indexed registry and its version untouched. Drums: the
+  one groove with its velocities. Out: sound, settings.
 - **Files:** `src/domain/backing/fills-part.ts`, `drums-part.ts`; `src/domain/random/streams.ts`;
   their unit tests.
 - **Spec sections:** [§6.5](master-spec.md#65-fills-responding), [§6.7](master-spec.md#67-drums-foundation),
   [§6.6](master-spec.md#66-how-many-relation-parts-sound-at-once); items 1, 3, 4.
 - **Atoms:** `req_responding_part`, `rule_responding_part_in_long_rests`,
   `rule_responding_part_rhythm`, `rule_responding_part_target`, `rule_responding_part_shapes`,
-  `rule_responding_part_register`, `req_drum_part`, `rule_at_most_two_relation_parts` (v4.0);
-  `module_named_stream_pseudorandomness` (kept true).
-- **Revisions:** `module_named_stream_pseudorandomness` (the new stream, the registry's step).
+  `rule_responding_part_register`, `req_drum_part`, `rule_at_most_two_relation_parts`,
+  `module_accompaniment_arranger`, `entity_accompaniment_part` (v4.0);
+  `module_named_stream_pseudorandomness`, `module_settings_mutation` (kept true).
+- **Revisions:** `module_named_stream_pseudorandomness`: the new label and the named registry's
+  step; its two sentences the stream makes false go ("no generation stage draws from a named
+  stream", and `deriveNamedStream` having no caller outside its file).
 - **Done when:** every rule of §6.5 and §6.7 holds over the corpus of chunk 3; Thirds and Fills
   never overlap; the lead's draws are unchanged on every replay-key corpus.
 - **Verification:** chunk checks; the corpus guard; the sweep placed at wave 1's gate.
@@ -353,8 +371,10 @@ Architecture capture: none
   default, starting volumes from the token source.
 - **Scope:** four mix channels in `sound-roles.ts`' channel list and `AudioMix`; their gains;
   eight settings keys with defaults and tolerant loading, so v3.4 settings load with the parts off
-  at their default volumes; saving on change through the existing path. Out: the switches on
-  screen (chunk 9), any sound (chunks 6, 7).
+  at their default volumes; saving on change through the existing path. Tolerant loading only: no
+  new settings data version and no upgrade step, either of which would change STABLE
+  `module_settings_upgrade_step` and need the owner's sign-off. Out: the switches on screen (chunk
+  9), any sound (chunks 6, 7).
 - **Files:** `src/audio/audio-mix.ts`, `src/audio/sound-roles.ts` (the channel list only),
   `src/storage/records/settings-record.ts`, `src/storage/records/setting-defaults.ts`; their unit
   tests.
@@ -364,8 +384,10 @@ Architecture capture: none
   [saved data](../../../ui_ux/flows/saved-data/handoff.md) (What Is Saved, and When).
 - **Atoms:** `rule_parts_off_by_default` (v4.0); `req_session_audio_mix`,
   `rule_settings_saved_on_change`, `rule_saved_settings_load_tolerantly` (kept true; A2–A4 apply
-  with chunk 9).
-- **Revisions:** none in wave 1 (A2–A4 at wave 3's sync).
+  with chunk 9), `module_settings_upgrade_step`, `rule_outdated_tab_reads_what_it_can`,
+  `rule_click_volume_never_silent`, `module_guide_playback_layers` (its mix layer) (kept true).
+- **Revisions:** none in wave 1: A2–A4 and A6's settings half (the eight mix keys) apply at wave
+  3's sync, with chunk 9 (spec D603).
 - **Done when:** v3.4 settings records load unchanged with the four parts off; a changed part
   setting saves and reloads.
 - **Verification:** chunk checks (storage on `fake-indexeddb`).
@@ -438,10 +460,11 @@ for the output latency as the playhead is (the lights' source).
   a part switched off silent at once, switched on joining at its next note; never in the count-in
   or a fresh Jam's capture, writing or read-in; the parts joining at the next phrase start when the
   library becomes ready mid-session; the heard-note signal for the lights; the arranger's render
-  where M4 put it. Out: the switches and lights on screen (chunk 9).
+  where M4 put it; the backing and the guides queued from their parts, no longer from the
+  renderers' output (spec D602). Out: the switches and lights on screen (chunk 9).
 - **Files:** `src/audio/transport-session.ts`, `src/audio/audio-transport.ts`,
-  `src/audio/audio-ports.ts`, `src/audio/backing-track.ts`; the workspace session start and phrase
-  wiring (`src/components/workspace/workspace-session-start.ts`,
+  `src/audio/audio-ports.ts`, `src/audio/backing-track.ts`, `src/audio/guide-track.ts`; the
+  workspace session start and phrase wiring (`src/components/workspace/workspace-session-start.ts`,
   `workspace-session-phrases.ts`); their tests.
 - **Spec sections:** [§6.1](master-spec.md#61-rules-every-part-keeps),
   [§7](master-spec.md#7-the-playing-lights), [§8](master-spec.md#8-controls),
@@ -452,20 +475,23 @@ for the output latency as the playhead is (the lights' source).
 - **Atoms:** `req_accompaniment_parts`, `rule_parts_play_from_phrase_one`,
   `rule_parts_change_only_sound`, `rule_part_switch_takes_effect`, `rule_app_writes_every_part_note`,
   `rule_playing_light_follows_heard_sound` (v4.0); `rule_jam_no_backing_before_phrase_one`,
-  `rule_click_volume_never_silent` (kept true). Drift check: `module_guide_playback_layers`.
+  `rule_click_volume_never_silent`, `module_session_transport_tempo_map`,
+  `module_session_start_without_phrase_one`, `req_guide_playback`, `rule_melody_guide_notes`,
+  `rule_rhythm_guide_notes` (kept true). Drift check: `module_guide_playback_layers`.
 - **Revisions:** `rule_stop_ends_session`, `rule_playhead_follows_audio_clock`,
   `module_guide_playback_layers`.
 - **Done when:** a harness session with every part on plays each part's notes at their audio times;
   a mid-session switch behaves as §8 states; Jam's parts start with phrase 1; Stop fades every
   voice and the reverb's tail.
 - **Verification:** chunk checks; the corpus guard; M5 at wave 2's gate.
-- **Split rule:** 7a the transport and the bus; 7b the session wiring, Jam and the heard-note signal.
+- **Split rule:** 7a the transport and the bus (with the backing and guide tracks); 7b the session
+  wiring, Jam and the heard-note signal.
 
 ### Chunk 8 — Kept sessions and the MIDI export
 
 Status: planned
 Wave: 2
-Depends on: wave 1 (2–5), C1 (merge, A5 and A6)
+Depends on: wave 1 (2–5), C1 (merge, A5 and A6's kept-session half)
 Architecture capture: none (the kept record's new fields are worded from the built code at the
 sync, A6)
 
@@ -476,7 +502,8 @@ sync, A6)
   part whose sounds failed during the session recorded off; the MIDI encoder writing the Backing
   track plus one track per part on at the end, rendered again for every exported phrase, drums on
   channel 10 with GM notes 36, 38, 42, the other parts at velocity 64; for the whole session and for
-  favorites. MusicXML unchanged. Out: the option's wording on screen (chunk 10).
+  favorites; the export taking the backing from the arranger's parts, no longer from
+  `renderBacking`'s output (spec D602). MusicXML unchanged. Out: the option's wording on screen (chunk 10).
 - **Files:** `src/storage/records/kept-session-record.ts`, `kept-session-body.ts`,
   `kept-session-body-read.ts`; `src/session/session-history.ts`; `src/export/generated-notes-file.ts`,
   `src/export/midi/midi-encoder.ts`, `src/export/midi/midi-tracks.ts`,
@@ -487,8 +514,10 @@ sync, A6)
   (Exports: Generated-notes export).
 - **Atoms:** `rule_accompaniment_export_parts`, `rule_accompaniment_export_tracks`,
   `rule_earlier_kept_sessions_export_backing_only` (v4.0); `rule_guide_never_exported`,
-  `rule_generated_notes_musicxml_export`, `rule_favorites_only_export` (kept true).
-- **Revisions:** A5 `rule_kept_session_content`, A6 (the shapes, gate C1);
+  `rule_generated_notes_musicxml_export`, `rule_favorites_only_export`, `req_session_export` (kept
+  true).
+- **Revisions:** A5 `rule_kept_session_content`, A6's kept-session half (the record's and codec's
+  shapes, gate C1, spec D603);
   `rule_generated_notes_midi_export`, `module_review_export_pipeline`.
 - **Done when:** a v3.4 kept session loads and exports byte-identically; a v4.0 session with parts
   on exports their tracks; the MIDI file of the backing-only case is unchanged.
@@ -499,7 +528,7 @@ sync, A6)
 
 Status: planned
 Wave: 3
-Depends on: wave 2, T0, P3, C1 (merge, A2–A4)
+Depends on: wave 2, T0, P3, C1 (merge, A2–A4 and A6's settings half)
 Architecture capture: none
 
 - **Goal:** the player sees, switches and hears the four parts, and their lights say which one is
@@ -526,7 +555,8 @@ Architecture capture: none
   `rule_playing_light_not_colour_alone`, `rule_parts_never_drawn`, `rule_parts_off_by_default`,
   `rule_parts_unavailable_without_sound_library` (v4.0).
 - **Revisions:** A2 `req_session_audio_mix`, A3 `rule_settings_saved_on_change`, A4
-  `rule_saved_settings_load_tolerantly` (gate C1).
+  `rule_saved_settings_load_tolerantly`, A6's settings half (the eight mix keys chunk 5 built; gate
+  C1, spec D603).
 - **Done when:** the handoff's pieces hold in the harness at every breakpoint; the lights follow the
   heard notes within the playhead's tolerance; no new part is drawn on the score.
 - **Verification:** chunk checks; the accessibility suite for the mix; hand check HT after merge.

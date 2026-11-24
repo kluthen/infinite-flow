@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.153
+Status: draft v2.154
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -324,3 +324,24 @@ archive notice lists.
   20.0.0); a MINOR per promotion at the release sync. `rule_no_recorded_sound` goes STABLE in the
   same sync as A1, so the sample ban stays on the surface. Now in:
   [change set part B](../docs/release/v4.0-intent-change-set.md#b-the-contract-no-bump-now).
+- **D601 (2026-11-24): the owner agrees to v4.0's open asks.** His "agreed": the VISION 0.14 line
+  is approved; part A's STABLE wordings A1–A6 are signed off as drafted (gate C1; `documentalist`
+  records it in the change set and applies each at the sync the plan names); the v4.0 design set
+  (ux D499–D507) is approved (gate D0, recorded by `ux-writer`); build plan v1 is approved (gate
+  A0: "you may work on v4.0 wave 1"). Now in: [change set part C](../docs/release/v4.0-intent-change-set.md#c-vision-v40-line-proposed-for-the-owners-sign-off),
+  [part A](../docs/release/v4.0-intent-change-set.md#a-the-stable-wordings-for-the-owners-sign-off-drafted-2026-11-24-not-applied),
+  [build plan gates](versions/v4/build-plan.md#gates).
+- **D602 (2026-11-24, wave 1's preflight): the backing and guide renderers keep their output
+  types.** Chunk 2 converts their notes into parts beside the arranger's four; the transport reads
+  parts from chunk 7, the generated-notes export from chunk 8. Why: changing the types reaches four
+  more source files and three test helpers in wave 1 and leaves `module_guide_playback_layers`
+  stale until chunk 7; this keeps chunk 2 in `src/domain/` and that atom true. Rejected: the
+  renderers giving parts in chunk 2, split in two. `entity_accompaniment_part`'s TECHNICAL
+  INTERFACE is reworded to match before chunk 2's brief. Now in:
+  [chunk 2](versions/v4/build-plan.md#chunk-2--the-part-shape-and-the-arranger), chunks 7 and 8.
+- **D603 (2026-11-24, wave 1's preflight): A6's settings half applies with A2–A4 at wave 3's
+  sync.** The eight mix keys chunk 5 builds are worded into the STABLE atoms at chunk 9's merge;
+  A6's kept-session half stays with A5 at chunk 8's. Why: chunk 5 takes no new data version and no
+  upgrade step, and no control sets the keys before chunk 9, so P1 let it proceed with A2–A4
+  waiting; applying it at wave 1 would add a third MAJOR bump (spec D600) for keys nobody can set.
+  Now in: [workflow deltas](versions/v4/build-plan.md#workflow-deltas), chunks 5, 8, 9.
