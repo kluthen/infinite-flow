@@ -254,7 +254,7 @@ Architecture capture: none (nothing is merged)
 
 ### Chunk 2 — The part shape and the arranger
 
-Status: planned
+Status: in progress
 Wave: 1
 Depends on: A0, P1 (its captures; `entity_accompaniment_part`'s TECHNICAL INTERFACE reworded to
 spec D602 by `documentalist` before the brief)
