@@ -29,6 +29,14 @@ const TOKENS: Readonly<Record<string, string>> = {
   '--mix-rhythm-guide-volume-min': ' 0',
   '--mix-melody-guide-volume-default': ' 0.8',
   '--mix-rhythm-guide-volume-default': ' 0.6',
+  '--mix-thirds-volume-min': ' 0',
+  '--mix-counter-melody-volume-min': ' 0',
+  '--mix-fills-volume-min': ' 0',
+  '--mix-drums-volume-min': ' 0',
+  '--mix-thirds-volume-default': ' 0.5',
+  '--mix-counter-melody-volume-default': ' 0.5',
+  '--mix-fills-volume-default': ' 0.6',
+  '--mix-drums-volume-default': ' 0.6',
 }
 
 /** A computed-style stub answering from `tokens`, with CSS's empty string when missing. */
@@ -43,6 +51,10 @@ const RANGE: AudioMixRange = {
   backingVolumeMin: 0,
   melodyGuideVolumeMin: 0,
   rhythmGuideVolumeMin: 0,
+  thirdsVolumeMin: 0,
+  counterMelodyVolumeMin: 0,
+  fillsVolumeMin: 0,
+  drumsVolumeMin: 0,
   volumeMax: 1,
 }
 
@@ -62,10 +74,41 @@ const GUIDES_OFF_GAINS = {
   'rhythm-guide-volume': 0.6,
 } as const
 
-/** Each guide's minimum field in the range. */
-const GUIDE_MIN_FIELD = {
+/** The four parts off at their first-load levels, for the mixes that do not vary them. */
+const PARTS_OFF = {
+  thirdsOn: false,
+  thirdsVolume: 0.5,
+  counterMelodyOn: false,
+  counterMelodyVolume: 0.5,
+  fillsOn: false,
+  fillsVolume: 0.6,
+  drumsOn: false,
+  drumsVolume: 0.6,
+} as const
+
+/** The gains of `PARTS_OFF`. */
+const PARTS_OFF_GAINS = {
+  'thirds-enable': 0,
+  'thirds-volume': 0.5,
+  'counter-melody-enable': 0,
+  'counter-melody-volume': 0.5,
+  'fills-enable': 0,
+  'fills-volume': 0.6,
+  'drums-enable': 0,
+  'drums-volume': 0.6,
+} as const
+
+/** The four parts' channels. */
+const PART_CHANNELS = ['thirds', 'counter-melody', 'fills', 'drums'] as const
+
+/** Each guide's and each part's minimum field in the range. */
+const MIN_FIELD = {
   'melody-guide': 'melodyGuideVolumeMin',
   'rhythm-guide': 'rhythmGuideVolumeMin',
+  thirds: 'thirdsVolumeMin',
+  'counter-melody': 'counterMelodyVolumeMin',
+  fills: 'fillsVolumeMin',
+  drums: 'drumsVolumeMin',
 } as const
 
 // @test-link [[req_session_audio_mix]]
@@ -79,6 +122,7 @@ describe('reading the mix design', () => {
         backingOn: true,
         backingVolume: 0.8,
         ...GUIDES_OFF,
+        ...PARTS_OFF,
       },
       range: RANGE,
     })
@@ -104,14 +148,48 @@ describe('reading the mix design', () => {
     expect(design.range).toMatchObject({ melodyGuideVolumeMin: 0.1, rhythmGuideVolumeMin: 0.05 })
   })
 
+  // @test-link [[rule_parts_off_by_default]]
+  it("reads each part's minimum and first-load volume from its own tokens, all four parts off", () => {
+    const tokens = {
+      ...TOKENS,
+      '--mix-thirds-volume-min': ' 0.1',
+      '--mix-counter-melody-volume-min': ' 0.05',
+      '--mix-fills-volume-min': ' 0.15',
+      '--mix-drums-volume-min': ' 0.2',
+      '--mix-thirds-volume-default': ' 0.3',
+      '--mix-counter-melody-volume-default': ' 0.4',
+      '--mix-fills-volume-default': ' 0.7',
+      '--mix-drums-volume-default': ' 0.9',
+    }
+    const design = readAudioMixDesign(styleOf(tokens))
+    expect(design.defaults).toMatchObject({
+      backingOn: true,
+      thirdsOn: false,
+      thirdsVolume: 0.3,
+      counterMelodyOn: false,
+      counterMelodyVolume: 0.4,
+      fillsOn: false,
+      fillsVolume: 0.7,
+      drumsOn: false,
+      drumsVolume: 0.9,
+    })
+    expect(design.range).toMatchObject({
+      thirdsVolumeMin: 0.1,
+      counterMelodyVolumeMin: 0.05,
+      fillsVolumeMin: 0.15,
+      drumsVolumeMin: 0.2,
+    })
+  })
+
   // @test-link [[req_session_audio_mix]]
-  it.each(['--mix-melody-guide-volume-min', '--mix-rhythm-guide-volume-min'])(
-    'throws when the guide minimum %s is below silence',
-    (name) => {
-      const tokens = { ...TOKENS, [name]: '-0.1' }
-      expect(() => readAudioMixDesign(styleOf(tokens))).toThrow(/below 0/)
-    },
-  )
+  it.each([
+    '--mix-melody-guide-volume-min',
+    '--mix-rhythm-guide-volume-min',
+    ...PART_CHANNELS.map((channel) => `--mix-${channel}-volume-min`),
+  ])('throws when the minimum %s is below silence', (name) => {
+    const tokens = { ...TOKENS, [name]: '-0.1' }
+    expect(() => readAudioMixDesign(styleOf(tokens))).toThrow(/below 0/)
+  })
 
   it.each(Object.keys(TOKENS))('throws when %s is missing', (name) => {
     const tokens = { ...TOKENS, [name]: '' }
@@ -134,6 +212,8 @@ describe('reading the mix design', () => {
     ['--mix-backing-volume-default', '1.5'],
     ['--mix-melody-guide-volume-default', '1.5'],
     ['--mix-rhythm-guide-volume-default', '-0.1'],
+    ['--mix-thirds-volume-default', '1.5'],
+    ['--mix-drums-volume-default', '-0.1'],
   ])('throws when %s = %s lies outside its range', (name, value) => {
     const tokens = { ...TOKENS, [name]: value }
     expect(() => readAudioMixDesign(styleOf(tokens))).toThrow(/range/)
@@ -175,10 +255,10 @@ describe('validating volumes', () => {
   })
 
   // @test-link [[req_session_audio_mix]]
-  it.each(GUIDE_ROLES)(
+  it.each([...GUIDE_ROLES, ...PART_CHANNELS])(
     'lets the %s volume reach its minimum and the maximum, no further',
     (guide) => {
-      const range: AudioMixRange = { ...RANGE, [GUIDE_MIN_FIELD[guide]]: 0.1 }
+      const range: AudioMixRange = { ...RANGE, [MIN_FIELD[guide]]: 0.1 }
       for (const level of [0.1, 0.5, 1]) {
         expect(() => validateChannelVolume(guide, level, range)).not.toThrow()
       }
@@ -200,6 +280,7 @@ describe('mix gains', () => {
         backingOn: false,
         backingVolume: 0.6,
         ...GUIDES_OFF,
+        ...PARTS_OFF,
       }),
     ).toEqual({
       'click-enable': 1,
@@ -207,6 +288,7 @@ describe('mix gains', () => {
       'backing-enable': 0,
       'backing-volume': 0.6,
       ...GUIDES_OFF_GAINS,
+      ...PARTS_OFF_GAINS,
     })
     expect(
       mixGains({
@@ -215,6 +297,7 @@ describe('mix gains', () => {
         backingOn: true,
         backingVolume: 0,
         ...GUIDES_OFF,
+        ...PARTS_OFF,
       }),
     ).toEqual({
       'click-enable': 0,
@@ -222,12 +305,13 @@ describe('mix gains', () => {
       'backing-enable': 1,
       'backing-volume': 0,
       ...GUIDES_OFF_GAINS,
+      ...PARTS_OFF_GAINS,
     })
   })
 
   // @test-link [[req_session_audio_mix]]
   // @test-link [[req_guide_playback]]
-  it('gives all eight gains, two per channel, each guide its own enable and volume', () => {
+  it('gives all sixteen gains, two per channel, each guide and each part its own enable and volume', () => {
     const mix: AudioMix = {
       clickOn: true,
       clickVolume: 0.3,
@@ -237,6 +321,14 @@ describe('mix gains', () => {
       melodyGuideVolume: 0.45,
       rhythmGuideOn: false,
       rhythmGuideVolume: 0.25,
+      thirdsOn: true,
+      thirdsVolume: 0.1,
+      counterMelodyOn: false,
+      counterMelodyVolume: 0.2,
+      fillsOn: true,
+      fillsVolume: 0.35,
+      drumsOn: false,
+      drumsVolume: 0.9,
     }
     const gains = mixGains(mix)
     expect(gains).toEqual({
@@ -248,6 +340,14 @@ describe('mix gains', () => {
       'melody-guide-volume': 0.45,
       'rhythm-guide-enable': 0,
       'rhythm-guide-volume': 0.25,
+      'thirds-enable': 1,
+      'thirds-volume': 0.1,
+      'counter-melody-enable': 0,
+      'counter-melody-volume': 0.2,
+      'fills-enable': 1,
+      'fills-volume': 0.35,
+      'drums-enable': 0,
+      'drums-volume': 0.9,
     })
     expect(Object.keys(gains)).toEqual([
       'click-enable',
@@ -258,6 +358,14 @@ describe('mix gains', () => {
       'melody-guide-volume',
       'rhythm-guide-enable',
       'rhythm-guide-volume',
+      'thirds-enable',
+      'thirds-volume',
+      'counter-melody-enable',
+      'counter-melody-volume',
+      'fills-enable',
+      'fills-volume',
+      'drums-enable',
+      'drums-volume',
     ])
     expect(mixGains({ ...mix, melodyGuideOn: false, rhythmGuideOn: true })).toMatchObject({
       'melody-guide-enable': 0,

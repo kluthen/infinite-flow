@@ -1,5 +1,5 @@
 /**
- * The Web Audio output against a recording fake context: the eight mix gains and their wiring, how
+ * The Web Audio output against a recording fake context: the sixteen mix gains and their wiring, how
  * a gain change is scheduled, the audio clock readings, the interruption notice, that nothing
  * ever suspends or closes the context, and how the one real context is opened.
  */
@@ -26,7 +26,7 @@ describe('the mix gains', () => {
     const backingEnable = mixNode(output, fake, 'backing-enable')
     const backingVolume = mixNode(output, fake, 'backing-volume')
 
-    expect(fake.gains).toHaveLength(8)
+    expect(fake.gains).toHaveLength(16)
     expect(pathToDestination(clickEnable, fake.destination)).toEqual([
       clickEnable,
       clickVolume,
@@ -53,8 +53,8 @@ describe('the mix gains', () => {
       const enable = mixNode(output, fake, `${guide}-enable`)
       const volume = mixNode(output, fake, `${guide}-volume`)
 
-      expect(new Set(gains).size).toBe(8)
-      expect(fake.gains).toHaveLength(8)
+      expect(new Set(gains).size).toBe(16)
+      expect(fake.gains).toHaveLength(16)
       expect(pathToDestination(enable, fake.destination)).toEqual([
         enable,
         volume,
@@ -73,7 +73,7 @@ describe('the mix gains', () => {
     const backingEnable = mixNode(output, fake, 'backing-enable')
 
     output.openSessionBus()
-    const fades = fake.gains.slice(8, 11)
+    const fades = fake.gains.slice(16, 19)
     expect(fades.map((fade) => fade.outputs)).toEqual([
       [clickVolume],
       [clickEnable],
@@ -90,7 +90,7 @@ describe('the mix gains', () => {
     const rhythmEnable = mixNode(output, fake, 'rhythm-guide-enable')
 
     const bus = output.openSessionBus()
-    const fades = fake.gains.slice(8)
+    const fades = fake.gains.slice(16)
     expect(fades).toHaveLength(5)
     expect(fades.slice(3).map((fade) => fade.outputs)).toEqual([[melodyEnable], [rhythmEnable]])
 
@@ -119,10 +119,12 @@ describe('the mix gains', () => {
 
   // @test-link [[req_session_audio_mix]]
   // @test-link [[req_guide_playback]]
-  it('starts all eight gains at 1, both guides included', () => {
+  it('starts all sixteen gains at 1, both guides and the four parts included', () => {
     const fake = createFakeWebAudioContext()
     createWebAudioOutput(fake.port, fake.performanceNow)
-    expect(fake.gains.map((node) => node.gain.value)).toEqual([1, 1, 1, 1, 1, 1, 1, 1])
+    expect(fake.gains.map((node) => node.gain.value)).toEqual([
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    ])
   })
 
   // @test-link [[req_session_audio_mix]]

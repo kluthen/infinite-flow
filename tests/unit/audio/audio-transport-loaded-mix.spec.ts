@@ -13,7 +13,8 @@ import { RIG_START, themeDesign } from './transport-rig'
 
 /**
  * A saved mix unlike the design's defaults: click off and quiet, backing on and soft, the melody
- * guide on and soft, the rhythm guide off and quiet.
+ * guide on and soft, the rhythm guide off and quiet, Thirds and Fills on, Counter-melody and Drums
+ * off, each at a level other than its default.
  */
 const LOADED_MIX: AudioMix = {
   clickOn: false,
@@ -24,6 +25,14 @@ const LOADED_MIX: AudioMix = {
   melodyGuideVolume: 0.45,
   rhythmGuideOn: false,
   rhythmGuideVolume: 0.3,
+  thirdsOn: true,
+  thirdsVolume: 0.2,
+  counterMelodyOn: false,
+  counterMelodyVolume: 0.15,
+  fillsOn: true,
+  fillsVolume: 0.7,
+  drumsOn: false,
+  drumsVolume: 0.4,
 }
 
 /** A transport on a fresh fake rig, starting from the mix `loadedMix` gives. */
@@ -94,6 +103,26 @@ describe('the audio transport: the loaded mix', () => {
         at: RIG_START,
         scheduledAt: RIG_START,
       },
+      { kind: 'gain', gain: 'thirds-enable', value: 1, at: RIG_START, scheduledAt: RIG_START },
+      { kind: 'gain', gain: 'thirds-volume', value: 0.2, at: RIG_START, scheduledAt: RIG_START },
+      {
+        kind: 'gain',
+        gain: 'counter-melody-enable',
+        value: 0,
+        at: RIG_START,
+        scheduledAt: RIG_START,
+      },
+      {
+        kind: 'gain',
+        gain: 'counter-melody-volume',
+        value: 0.15,
+        at: RIG_START,
+        scheduledAt: RIG_START,
+      },
+      { kind: 'gain', gain: 'fills-enable', value: 1, at: RIG_START, scheduledAt: RIG_START },
+      { kind: 'gain', gain: 'fills-volume', value: 0.7, at: RIG_START, scheduledAt: RIG_START },
+      { kind: 'gain', gain: 'drums-enable', value: 0, at: RIG_START, scheduledAt: RIG_START },
+      { kind: 'gain', gain: 'drums-volume', value: 0.4, at: RIG_START, scheduledAt: RIG_START },
     ])
   })
 
