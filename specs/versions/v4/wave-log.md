@@ -21,3 +21,7 @@ state.
   `/home/bastien/work/infinite_flow-v4.0-w1`. Dispatched: P1 (`documentalist`, on the wave
   branch), S1 (`security-advisor`, verdict only), T0 (`ux-writer`, branch `v4.0-t0-tokens` from
   the wave branch, merged into it before chunk 5's branch is cut).
+- 2026-11-24: the owner answered "agreed, push to main whenever", read as agreement with every
+  open ask: the VISION 0.14 line (change set part C), part A's STABLE wordings A1–A6 as drafted
+  (gate C1, to be recorded by `documentalist` at the syncs that apply them), and the design set
+  (D0's record in `ui_ux/decisions.md`). `main` 4f34d81e pushed (11 commits since 6d4c33c3).
