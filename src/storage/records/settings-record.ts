@@ -376,7 +376,6 @@ const CHORD_FAMILY_PARSERS: GroupParsers<ChordFamilies> = Object.fromEntries(
  * none, and each part loads off at the design's first-load level.
  */
 // @spec-link [[rule_saved_settings_load_tolerantly]]
-// @spec-link [[rule_parts_off_by_default]]
 const MIX_PARSERS: GroupParsers<AudioMix> = {
   clickOn: readBoolean,
   clickVolume: volume(validateClickVolume),
