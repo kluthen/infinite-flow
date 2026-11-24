@@ -17,7 +17,7 @@ type: MODULE
 layer: ARCHITECTURE
 human_name: Seeded Tie Keys and Pseudorandom Streams
 version: 0.8
-tags: seed
+tags: seed,changes-in-v4.0
 ---
 
 # Seeded Tie Keys and Pseudorandom Streams

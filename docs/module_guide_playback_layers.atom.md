@@ -4,7 +4,7 @@ status: REVIEW
 type: MODULE
 version: 0.2
 priority: 1
-tags: [v3, release-v3.2, session, audio]
+tags: [v3, release-v3.2, session, audio, changes-in-v4.0]
 parents:
   - [[req_guide_playback]]
   - [[req_session_audio_mix]]
