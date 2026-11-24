@@ -328,8 +328,8 @@ archive notice lists.
   is approved; part A's STABLE wordings A1–A6 are signed off as drafted (gate C1; `documentalist`
   records it in the change set and applies each at the sync the plan names); the v4.0 design set
   (ux D499–D507) is approved (gate D0, recorded by `ux-writer`); build plan v1 is approved (gate
-  A0: "you may work on v4.0 wave 1"). Now in: [change set part C](../docs/release/v4.0-intent-change-set.md#c-vision-v40-line-proposed-for-the-owners-sign-off),
-  [part A](../docs/release/v4.0-intent-change-set.md#a-the-stable-wordings-for-the-owners-sign-off-drafted-2026-11-24-not-applied),
+  A0: "you may work on v4.0 wave 1"). Now in: [change set part C](../docs/release/v4.0-intent-change-set.md#c-vision-v40-line-signed-off-2026-11-24-applied-014),
+  [part A](../docs/release/v4.0-intent-change-set.md#a-the-stable-wordings-signed-off-2026-11-24-applied-at-the-wave-syncs),
   [build plan gates](versions/v4/build-plan.md#gates).
 - **D602 (2026-11-24, wave 1's preflight): the backing and guide renderers keep their output
   types.** Chunk 2 converts their notes into parts beside the arranger's four; the transport reads
