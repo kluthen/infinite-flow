@@ -122,3 +122,9 @@ state.
   phrase-end ties below and the eighth-long drum hit decided; three corpus facts added to L1's
   scope (my-baritone High without Counter-melody, Thirds' floor in low windows, most fills under
   four notes). Master spec v1.0.2. Chunk 4's owner resumed with the ruling.
+- 2026-11-24: chunk 4 merged a27079cb (f2650eba), to D604 and D605: 1,398 fills in 493 of 884
+  phrases, none empty; 64 whole-shape flips, 60 per-note fallbacks, 7 turn steps on the other
+  side; corpus guard green (731 tests; lead draws and indexed streams unchanged). For the wave sync:
+  `module_named_stream_pseudorandomness` (label `fill-shape`, named registry 1 → 2, its two false
+  sentences), and the responding-part atoms absorb D604 and D605. 4 agents, 130 tool calls, 11.9M
+  tokens in / 139k out, max context 161k, $7.80 at API prices. Chunk 5 started.

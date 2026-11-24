@@ -338,7 +338,10 @@ Architecture capture: none
 
 ### Chunk 4 — Fills and Drums
 
-Status: in progress
+Status: merged (w1, a27079cb)
+Record: f2650eba, merged a27079cb. Stopped once on §6.5's reversal reading (WIP 493ce817), built
+to spec D604 and D605. `STREAM_REGISTRY_VERSION` 1 → 2 with `fill-shape`; the named-stream golden
+regenerated as v2 (label mixing only, no lead stage draws from it). Drum hits an eighth (D605).
 Wave: 1
 Depends on: 2 (P1's captures fix the per-part function), P1 (the two responding atoms reworded)
 Architecture capture: none
@@ -369,7 +372,7 @@ Architecture capture: none
 
 ### Chunk 5 — The parts' mix channels and saved settings
 
-Status: planned
+Status: in progress
 Wave: 1
 Depends on: A0, P1, T0 (the volume tokens)
 Architecture capture: none
