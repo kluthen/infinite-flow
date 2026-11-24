@@ -212,3 +212,10 @@ After the owner's approval (gate A0, build plan v4), on wave branch `v4.0-w1`.
   popover aligned to its end ran past the viewport's inline start. The compact `Volume` keeps
   its own anchor. Now in: `screens/phrase-workspace/handoff.md` (Responsive Behavior: Mix
   controls placement).
+
+## The owner's approval of the v4.0 design, 2026-11-24
+
+- **D510 (2026-11-24): the owner approves v4.0's design set (ux D499-D507), gate D0.** His
+  "agreed" to v4.0's open asks (spec D601) covers the design as validated, Q90 still open for
+  the look on the reference tablet. The `versions/v4.0/` copy is not taken yet (next in
+  `todo.md`). Now in: `todo.md` (In Progress).

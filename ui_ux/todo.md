@@ -115,7 +115,7 @@ Written and self-checked (D500-D505):
 
 Validation: `ux-critic`, DRIFT with four findings, settled (D506); a re-check passed them and
 rejected D506's widened tablet jump, withdrawn (D507), the tablet fit now open as Q90. The owner
-approved the design (build plan v4, gate A0). Token-source pass, gate T0, done on branch
+approved the design (gate D0, spec D601, D510). Token-source pass, gate T0, done on branch
 `v4.0-t0-tokens` (D508, D509). Next: the `versions/v4.0/` copy.
 
 The side work below is paused.
