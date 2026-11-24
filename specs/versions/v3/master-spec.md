@@ -5959,7 +5959,8 @@ v1.1 (2026-11-23) adds §E8's rule for `#lexicon` reached under an open sheet, s
 design's token-source pass (ux D495) and accepted by the wave driver (spec D567). v1.2
 (2026-11-23) adds two choices chunk 2's owner made where Part E was silent, accepted by the wave
 driver (spec D568): the stale-phrase prompt counts as an open sheet for §E8's rules, and a sheet
-opened while the page loads stops its opening (§E7).
+opened while the page loads stops its opening (§E7). v1.3 (2026-11-24) moves §E15 item 18's hand
+check after the `3.4.0` tag, by the owner's go to tag first (spec D578).
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term, and the page this part specifies
@@ -6495,7 +6496,8 @@ check.
     passes.
 17. **Declared intent:** the new BUSINESS and ARCHITECTURE atoms of §E12 are recorded and linked, the
     starting-note atom names the page, and no STABLE wording changed.
-18. **The owner has seen the page** before the `3.4.0` tag's go (a recorded hand check).
+18. **The owner has seen the page** (a recorded hand check), after the `3.4.0` tag as a v3.4.x
+    follow-up (spec D578).
 
 ## E16. Deferred and open
 
