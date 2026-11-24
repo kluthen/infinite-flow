@@ -1,9 +1,11 @@
 # v4.0 — Master Spec: Accompaniment with Roles and a Sound Library
 
-Status: v1.0.1 (2026-11-24), consolidated from the v4.0 drafts after the owner's rulings of the same
+Status: v1.0.2 (2026-11-24), consolidated from the v4.0 drafts after the owner's rulings of the same
 day. **Approved by the owner on 2026-11-24** (v1.0). v1.0.1, the same day, after the intent
 ingestion: the fill's chord named, the turn made four notes, the P1.G2 row's wording (§3, §6.5);
-the intent record's values and wording (§11, §14); no behaviour the owner approved changes. Its
+the intent record's values and wording (§11, §14); no behaviour the owner approved changes.
+v1.0.2, the same day, during wave 1: the fill's register rule read as the whole shape reversed,
+and the readings of chunks 3 and 4 (§6.5, §6.7, §14; spec D604, D605). Its
 build plan waits for the design set (§12). Where it differs from the drafts
 ([accompaniment roles](accompaniment-roles.md), [arranger](arranger.md),
 [sound library](sound-library.md)) or from the [prerequisites](../prerequisites.md), this document
@@ -177,19 +179,25 @@ it sounds, never the notes the player played.
 
 - **Where:** in every lead rest at least one beat long. Nowhere else.
 - **Rhythm:** eighth notes, starting one eighth after the rest begins, at most four; the last note
-  lasts until the rest ends or for one beat, whichever is shorter. A rest with room for fewer
-  notes takes fewer.
+  lasts until the rest ends or for one beat, whichever is shorter. A note starts only where a whole
+  eighth fits before the rest ends; a rest with room for fewer notes takes fewer.
 - **Target:** the last note's chord is the chord sounding at that note's start. The last note is
   that chord's tone nearest the lead's next note, not equal to it (ties below), so the fill leads
   into the lead's entry. A rest that ends the phrase targets that chord's root nearest the window's
-  centre.
+  centre (ties below).
 - **Shape:** one of five, drawn per fill from the phrase's seed: rising arpeggio, falling arpeggio
   (chord tones of the chord sounding at each note), rising scale, falling scale (steps of the
-  phrase's scale), or a turn around the target (a step above, the target, a step below, the
-  target). Every shape is four notes long, built backwards from the target; a fill with room for
-  fewer notes plays the shape's last ones, so it always ends on the target.
-- **Register:** inside the lead's window. A note that would leave it reverses the shape's
-  direction.
+  phrase's scale), or a turn around the target (a scale step above, the target, a scale step below,
+  the target). Every shape is four notes long, built backwards from the target; a fill with room
+  for fewer notes plays the shape's last ones, so it always ends on the target. One draw per rest
+  of a beat or longer, in the rests' order, taken before the fill is built, so an empty fill still
+  takes its draw.
+- **Register:** inside the lead's window. When any note the fill plays would leave it, the whole
+  shape is built in the opposite direction from the target: a rising arpeggio becomes a falling
+  one, a rising scale a falling one. The turn keeps its own rule: a step that would leave the window
+  is taken on the target's other side. When the reversed shape leaves the window too, the drawn
+  shape is built note by note back from the target and continues the other way at each note that
+  would leave it, so it may zigzag. When nothing fits, the fill is empty.
 
 ### 6.6 How many relation parts sound at once
 
@@ -200,7 +208,8 @@ Counter-melody may sound with either. Drums and the backing are the foundation a
 ### 6.7 Drums (foundation)
 
 One groove, the same in every measure: kick drum on beats 1 and 3, snare drum on beats 2 and 4,
-closed hi-hat on every eighth. Velocities: kick 100, snare 90, hi-hat 70 on the beat and 50 off it.
+closed hi-hat on every eighth, each hit an eighth long. Velocities: kick 100, snare 90, hi-hat 70
+on the beat and 50 off it.
 No fills, no variation, no random draw. The click keeps its own switch and the count-in stays the
 click: drums never count in.
 
@@ -451,6 +460,9 @@ The interface is `ux-writer`'s. What it designs, within this spec:
 - **Tuned at the listening check:** every timbre and effect level, the lanes' numbers (the floor at
   MIDI 48, the counter-melody's 3 to 15 half steps), the velocities and the default volumes, and
   whether the chords' top at E4 should move down now that more voices share the middle register.
+  Also heard there (spec D605): a low instrument's High window gets no Counter-melody (its lane
+  falls below the floor), the floor leaves low windows' lead notes undoubled, and most fills are
+  one to three notes (a one-beat rest gives a single eighth on the target).
   The intent record states today's values; the sync after the listening check rewords any that
   change.
 - **Deferred to the game:** instrument and sound selection; live answers to what the player plays

@@ -345,3 +345,21 @@ archive notice lists.
   upgrade step, and no control sets the keys before chunk 9, so P1 let it proceed with A2–A4
   waiting; applying it at wave 1 would add a third MAJOR bump (spec D600) for keys nobody can set.
   Now in: [workflow deltas](versions/v4/build-plan.md#workflow-deltas), chunks 5, 8, 9.
+- **D604 (2026-11-24, the driver under the owner's design delegation): a fill that would leave the
+  window reverses as a whole shape.** §6.5's "reverses the shape's direction" means the whole
+  shape, built the other way from the target; the turn moves its step to the target's other side;
+  if the reversed shape leaves the window too, the fill falls back to turning per note; only then
+  is it empty. Why: "the shape's direction" names the shape, and each fill stays recognisable as
+  its named shape; the fallback keeps fills from being lost. Rejected: per-note reversal as the
+  main rule (zigzags and repeated pitches; chunk 4's WIP 493ce817 reversed 131 of 1,398 corpus
+  fills that way). `rule_responding_part_register` (DRAFT) is reworded at wave 1's sync. Now in:
+  [§6.5](versions/v4/master-spec.md#65-fills-responding).
+- **D605 (2026-11-24, wave 1): chunks 3 and 4's readings.** Confirmed as written: parallel fifths
+  and octaves per the lexicon (contrary motion and compound intervals count), the turn's step a
+  scale step, a fill note only where a whole eighth fits, the target among window pitches, each
+  arpeggio note on its own chord. Settled where §6 was silent: one shape draw per rest before the
+  fill is built, a phrase-end target's tie below, drum hits an eighth long. §6.4's timing assumes
+  chords of two beats or more, which the harmony planner guarantees (two or four beats); shorter
+  chords would reopen it. Three facts go to the listening check (gate L1). Now in:
+  [§6.5](versions/v4/master-spec.md#65-fills-responding), [§6.7](versions/v4/master-spec.md#67-drums-foundation),
+  [§14](versions/v4/master-spec.md#14-deferred-and-open), [gate L1](versions/v4/build-plan.md#gates).
