@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.146
+Status: draft v2.147
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -394,3 +394,8 @@ archived range D407–D509 that its archive notice lists.
   line without it; it imports nothing, so no non-library value enters. Chunk 6's stop condition
   stays for anything else. Now in:
   [build plan v3.4, chunk 6](versions/v3/build-plan-v3.4.md#chunk-6--session-one-way).
+- **D577 (2026-11-24, the driver under D556, settling v3.4's leftovers at the owner's request):
+  O230's proposal is taken.** `module_tension_arc_cycle`'s replay-key wording becomes a
+  wording-only revision that names no key version; no guarantee changes. `documentalist` applies
+  it now, on branch `v3.4-tidy-intent`. Closes O230. Now in:
+  [`module_tension_arc_cycle`](../docs/module_tension_arc_cycle.atom.md).

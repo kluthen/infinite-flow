@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.96
+Status: draft v0.97
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -37,15 +37,15 @@ on the questions closed during v3.3 (O165–O175, O235 and O310, with O310's own
 [archive/v3/open-questions-history-v3.3.md](archive/v3/open-questions-history-v3.3.md); each
 archive's README says where each answer now lives.
 
-Open on 2026-11-22: O48 and O49 (later and governance), O100–O102 (v5 rhythm ratios and editor),
+Open on 2026-11-24: O48 and O49 (later and governance), O100–O102 (v5 rhythm ratios and editor),
 O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later),
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
-whose read-only reopening fails), O230 (a stale replay-key wording in a STABLE atom, opened with
-D351; numbered O177 on branch `plan-migration`, D352), O313, O314 and O316 (the three-way split,
+whose read-only reopening fails), O313, O314 and O316 (the three-way split,
 this app's horizon and a lexicon backend,
 D551–D553, D561), and O267, O269 and O271 (v3.2's build,
 answered by the checks that follow the `3.2.0` tag, D521). v3.3 is released (D544) and none of its
-questions is open. O270, O272–O289, O292–O305 and O307–O309 were never issued; the IDs
+questions is open. O230 (a stale replay-key wording, numbered O177 on branch `plan-migration`,
+D352) closed with D577. O270, O272–O289, O292–O305 and O307–O309 were never issued; the IDs
 reserved for v3.0's waves and left unused stay unused, and O177 stays unused. O311, reserved
 by `doc-ids` during the v3.3 archive, is unused. New IDs come from `doc-ids next spec O`.
 
@@ -115,25 +115,14 @@ by D234.
 Opened 2026-10-12 while recording the owner's request for richer chords as v3.3 (D261; recorded
 in [v3](versions/v3/README.md#v33--richer-chords-optional)). v3.3 is released (D544); the notes on
 the questions this section closed (O165–O175 and O310) are in the
-[v3.3 archive](archive/v3/open-questions-history-v3.3.md). O176 and O230 are still open; neither
-is v3.3's to answer.
+[v3.3 archive](archive/v3/open-questions-history-v3.3.md). O176 is still open and isn't v3.3's to
+answer; O230, also opened here, closed with D577.
 
 - **O176 - Style packs and the chord level: which wins** _(D273, from O175; with style packs, no
   version)_: when a later style pack sets the `seventh-chords` capability as data and the player's
   Seventh chords level says otherwise, which applies, and how the player sees it? Not needed
   before style packs (D259, merged from branch `v4-accompaniment-research` on 2026-10-19).
   Proposed: decided with style packs.
-
-- **O230 - A stale replay-key wording in `module_tension_arc_cycle`** _(D351; from the v3.3 build
-  plan's owner questions; outside v3.3)_: the STABLE atom `module_tension_arc_cycle` (outside the
-  contract surface) still says a session phrase's replay key keeps "the unchanged `ifk1.` format",
-  which v3.0's `ifk2.` already breaks and neither earlier intent change set lists. The plan had
-  proposed correcting it at v3.0 chunk 18's capture; that chunk is merged and the wording stands.
-  Open: who corrects it, and when? Proposed: a wording-only revision (no guarantee changes) that
-  names no key version, confirmed by the owner and applied by `documentalist` at the next intent
-  pass that touches it, I0 at the latest; v3.3's
-  [chunk 15](versions/v3/build-plan-v3.3.md#chunk-15--replay-key-ifk5) must not repeat it for
-  `ifk5.`. It blocks no chunk.
 
 ## v3.0 wave 2 (O180+)
 
