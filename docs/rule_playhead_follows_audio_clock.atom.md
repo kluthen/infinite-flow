@@ -1,7 +1,7 @@
 ---
 id: rule_playhead_follows_audio_clock
 status: REVIEW
-tags: [v2, release-v2.0, v2.4-check, session, audio]
+tags: [v2, release-v2.0, v2.4-check, session, audio, changes-in-v4.0]
 dependents:
   - [[module_session_rolling_display]]
   - [[module_session_staff_overlays]]

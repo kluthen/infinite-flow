@@ -1,7 +1,7 @@
 ---
 id: module_review_export_pipeline
 status: REVIEW
-tags: review,export,session-history,privacy
+tags: review,export,session-history,privacy,changes-in-v4.0
 type: MODULE
 priority: 1
 parents:

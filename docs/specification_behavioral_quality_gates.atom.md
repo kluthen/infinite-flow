@@ -7,7 +7,7 @@ version: 0.4
 type: SPECIFICATION
 layer: ARCHITECTURE
 priority: 1
-tags: verification,behavioral-quality,release-gate,v2,release-v2.0,revised-for-v2
+tags: verification,behavioral-quality,release-gate,v2,release-v2.0,revised-for-v2,changes-in-v4.0
 parents:
   - [[req_four_measure_phrase]]
   - [[req_rolling_practice_session]]
