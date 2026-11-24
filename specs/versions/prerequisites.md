@@ -176,8 +176,7 @@ session inactivity timing, adaptive tempo, v4 accompaniment and endgame voices.
 ### C. MIDI input layer
 
 **Status (2026-11-24).** Built (v2): `midi/`, 8 files. v4.0 needs nothing new from it: the
-system voices answer the generated lead, not the played notes, unless
-[O321](../open-questions.md#v40-accompaniment-with-roles-o317) says otherwise.
+system voices answer the written phrase, not the played notes (D589).
 
 **What it is.**
 
@@ -438,7 +437,8 @@ highlighting, contrasting, responding), sharing one harmony and one clock.
   no role but the field name, no velocity, no unpitched note, no seeded choice, and only the
   backing reads no lead.
 
-**What v4.0 needs (inference, from the research and the owner's D580).** The player plays the lead
+**What v4.0 needs (from the research and the owner's D580; adopted as v4.0's design, D594, and
+stated in the [v4.0 master spec §10](v4/master-spec.md#10-architecture)).** The player plays the lead
 only, so v4.0's several voices are all system voices, and they all follow the one lead. K for
 v4.0 is therefore **not** a polyphonic timeline. It is the generalisation of the renderers' output:
 
@@ -449,7 +449,7 @@ v4.0 is therefore **not** a polyphonic timeline. It is the generalisation of the
 2. **A phrase's accompaniment is a list of parts,** one per system voice: its voice id, its
    accompaniment role, and its notes. A part note is today's `{pitch, start, duration}` plus what
    the roles need: a velocity (accents, a doubling softer than the lead), and an unpitched kind
-   for drums if [O319](../open-questions.md#v40-accompaniment-with-roles-o317) takes them. Bass,
+   for drums, which v4.0 takes (D587). Bass,
    chords and the two guides become parts of the same shape, so the transport, the mix and the
    exports handle one kind of thing.
 3. **One pure, seeded arranger** on the library side of the line (O), in `src/domain/backing/` or
@@ -462,7 +462,7 @@ v4.0 is therefore **not** a polyphonic timeline. It is the generalisation of the
    update (D552), a version field on the stored settings is enough to detect a change.
 5. **No new replay key** if the arranger's inputs stay outside the generation intent: an `ifk5.`
    key encodes the intent only (`phrase-replay-key.ts:4-23`). The accompaniment settings would
-   then travel beside the key, not in it. (proposed)
+   then travel beside the key, not in it.
 
 **What it costs, against the 2026-09-25 estimate (L).** M, not L (inference): no change to the
 timeline, the generator, the notation or the twelve timeline readers; a new domain module, the
@@ -485,8 +485,8 @@ per system voice.
 
 **Status (2026-11-24).** The display-state half is built (v2): `notation/note-identity.ts` and
 `score-overlay-state.ts`. The display-effect half is the game's. Whether v4.0 draws any system
-voice on the score is [O320](../open-questions.md#v40-accompaniment-with-roles-o317); the
-proposed answer draws none, so L needs nothing for v4.0.
+voice on the score was O320: none is drawn, each part has a playing light instead (D588), so L
+needs nothing for v4.0.
 
 **What it is.** A deliberate transform stage between the faithful written view and the
 engraver.
@@ -646,7 +646,7 @@ master spec; nothing changes before.
 | `req_session_backing_track`           | Bass and block chords "synthesized … from simple oscillators, with no sample library"; "no accompaniment with musical roles such as harmonizing, responding to or contrasting" | Roles are v4.0's scope (D553). The sound ban becomes recorded samples and audio assets only (owner, 2026-10-11; [sound library survey](../../docs/sound-library-survey.md#open-questions) item 1) |
 | `rule_guide_sound_from_oscillators`   | "only from the browser's own oscillators and gains: no sample, no audio file, no new library"                                                                             | A sound library is v4.0's scope; the guides' voices move with it or stay on oscillators ([sound library](v4/sound-library.md))                          |
 | `module_guide_playback_layers`        | The seam's four sound roles; "the sounding … turns one note into an oscillator"                                                                                           | The seam widens to the accompaniment's roles; the sounding part is the one the library replaces (D491)                                                 |
-| `req_session_audio_mix`               | Eight mix controls: backing, click, melody guide, rhythm guide                                                                                                             | One more channel per system voice, if [O318](../open-questions.md#v40-accompaniment-with-roles-o317) gives each its switch                              |
+| `req_session_audio_mix`               | Eight mix controls: backing, click, melody guide, rhythm guide                                                                                                             | One more channel per part, each with its switch (D586)                                                                                                   |
 | `vision_infinite_flow_first_release`  | "a simple, deterministic backing track (bass and block chords)"; its out-of-scope list through v3.4                                                                       | Adds v4.0. "A monophonic musician" still holds: the player plays the lead only (D580)                                                                   |
 | `entity_concert_event_timeline`       | Exactly four measures, one voice                                                                                                                                           | Not amended by v4.0: system voices sit beside the timeline (§2 K)                                                                                       |
 
@@ -659,7 +659,8 @@ are reworded to ban recorded sound and audio assets (`scripts/verify-boundaries.
 
 The IDs point to the register. Revised 2026-11-24: O34–O38, O43 and O45 were answered for v2
 (D72–D108; [v2 archive](../archive/v2/README.md)) and O47 for v3.1 (D216); O33 and O32 earlier, as
-marked. O48 and O49 are still open. v4.0's questions are O317–O322.
+marked. O48 and O49 are still open. v4.0's questions were O317–O322; O317–O321 are ruled
+(D585–D589) and O322 waits on the spike.
 
 - **[O34]** **Continuation boundary.** Does v2's rolling phrase need only a boundary state (last chord,
   last pitch, pending figure, tie), or must phrase N+1 see more of phrase N? Is O10 settled

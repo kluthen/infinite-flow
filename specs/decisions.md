@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.150
+Status: draft v2.151
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -249,3 +249,53 @@ archive notice lists.
 - **D584 (2026-11-24): Tone.js issue #1457 does not block v4.0.** It breaks `setContext` on our
   own context in Firefox only, and Chrome is the one supported browser (D399). Revisit if the
   browser scope widens. Now in: [sound library §1](versions/v4/sound-library.md#1-settled).
+
+- **D585 (2026-11-24): v4.0's parts, O317 as proposed.** The owner: "agreed to your
+  recomendations." The backing's notes stay; three relation parts join it: parallel thirds and
+  sixths on the lead's long and strong-beat notes, a slow counter-melody on guide tones, fills in
+  the lead's rests. Closes O317. Now in: [master spec §6](versions/v4/master-spec.md#6-the-parts).
+- **D586 (2026-11-24): one switch and one volume per part, off by default, the app writes every
+  note, at most two relation parts at once, O318 as proposed.** The owner: "agreed to your
+  recomendations." Closes O318. Now in: [§8](versions/v4/master-spec.md#8-controls), [§6.6](versions/v4/master-spec.md#66-how-many-relation-parts-sound-at-once).
+- **D587 (2026-11-24): drums are in, O319 as proposed.** The owner: "agreed to your
+  recomendations." One groove (kick on 1 and 3, snare on 2 and 4, hi-hat eighths), off by default,
+  its own switch; the click stays separate and the count-in stays the click. Closes O319. Now in:
+  [§6.7](versions/v4/master-spec.md#67-drums-foundation).
+- **D588 (2026-11-24): no system voice is drawn on the score; each part gets a playing light.**
+  The owner: "4: light." Of O320's options, the small "who is playing" mark, no notes. Closes O320.
+  Now in: [§7](versions/v4/master-spec.md#7-the-playing-lights), [§2](versions/v4/master-spec.md#2-scope).
+- **D589 (2026-11-24): responding parts answer the written phrase.** The owner: "5: written phrase
+  of course." Live answers to the notes played are the game's turn-based exchanges. Closes O321.
+  Now in: [§6.5](versions/v4/master-spec.md#65-fills-responding).
+- **D590 (2026-11-24): instrument selection is locked in v4.0.** The owner: "Instrument selection
+  (for tone js) should remain locked for now (no exposition for this setting in this version, but
+  expect this to be a highly important feature in the game.)" No setting shows a part's sound; each
+  voice's sound is a data entry behind the sound-roles seam, so the game can expose it. A game item
+  for O314 (a). Now in: [§9.3](versions/v4/master-spec.md#93-sound-as-data-selection-locked).
+- **D591 (2026-11-24, under the owner's delegation): the timbres.** The owner: "I'll let you select
+  appropriate timbres for accompaniments." Tone.js synths only: bass a filtered-square MonoSynth;
+  chords an FM electric piano; thirds a soft AMSynth; counter-melody a slow-attack filtered-saw
+  MonoSynth; fills an FM mallet; kick MembraneSynth, snare NoiseSynth, hi-hat MetalSynth; one short
+  shared reverb. Kept apart from the melody guide's sine by register, brightness and attack; all
+  tuned at the v4.0 listening check, O57's successor. Now in: [§9.2](versions/v4/master-spec.md#92-timbres).
+- **D592 (2026-11-24): O322's integration answers settled; the library choice stays with the
+  spike.** Tone.js 15.1.22 pinned; its chunk lazy, fetched at idle, with a named budget of 300 KiB
+  minified and 80 KiB compressed; no AudioWorklet classes; CSP `worker-src 'self' blob:`; Start
+  stays synchronous, a late library leaving the backing on oscillators; the reverb tail cut at Stop.
+  They need no measurement. Tone.js or the fallback needs it; O322 narrows to that. Now in:
+  [§9.1](versions/v4/master-spec.md#91-the-library), [§9.4](versions/v4/master-spec.md#94-loading), [§10.6](versions/v4/master-spec.md#106-budgets-security-policy-and-boundaries).
+- **D593 (2026-11-24, under the owner's design delegation): v4.0's minor design points.** Each
+  part's rules as §6 states them (notes chosen, lanes, timing), deterministic but for the fill's
+  shape; drums and backing outside the two-part cap, which holds by construction; lights lit while
+  the part sounds, held across silences under a beat, only in a running session, none for backing,
+  click and guides; parts in Jam as in plain sessions; MIDI export of the parts on at the session's
+  end. Layout is `ux-writer`'s. Now in: [§6](versions/v4/master-spec.md#6-the-parts), [§7](versions/v4/master-spec.md#7-the-playing-lights),
+  [§10.5](versions/v4/master-spec.md#105-exports).
+- **D594 (2026-11-24): K and the arranger are v4.0's design.** The lead stays the monophonic
+  timeline; the accompaniment is parts beside it, from one pure arranger on the library side,
+  rendered and never stored; no new replay key. Why: the player plays only the lead, so nothing
+  needs a polyphonic timeline, and the generator, notation and timeline readers stay untouched.
+  Now in: [§10](versions/v4/master-spec.md#10-architecture), [prerequisites §2 K](versions/prerequisites.md#k-multi-voice-representation).
+- **D595 (2026-11-24): v4.0's master spec v1.0 is consolidated.** The owner's "you may start
+  processing all this", with no owner-level question left, is the go to consolidate. It awaits his
+  approval before the build plan. Now in: [v4.0 master spec](versions/v4/master-spec.md).

@@ -1,6 +1,6 @@
 # v4.0 — The Arranger and the Multi-voice Representation
 
-Status: draft v1 (2026-11-24). How v4.0's system voices are produced, carried, played, kept and
+Status: draft v1 (2026-11-24), consolidated into the [master spec](master-spec.md) v1.0 the same day (D595); the master spec wins where they differ, and the (proposed) tags here were ruled there (D585–D594). How v4.0's system voices are produced, carried, played, kept and
 exported. What the player hears is in [accompaniment roles](accompaniment-roles.md); the sound in
 [sound library](sound-library.md). The foundation analysis (K) is
 [prerequisites §2 K](../prerequisites.md#k-multi-voice-representation). Code facts were checked

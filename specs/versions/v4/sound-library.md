@@ -1,6 +1,6 @@
 # v4.0 — The Sound Library
 
-Status: draft v1 (2026-11-24). How v4.0's system voices get distinct timbres. Grounded in the
+Status: draft v1 (2026-11-24), consolidated into the [master spec](master-spec.md) v1.0 the same day (D595); the master spec wins where they differ, and the (proposed) tags here were ruled there (D585–D594). How v4.0's system voices get distinct timbres. Grounded in the
 [sound library survey](../../../docs/sound-library-survey.md) (2026-10-11) and the structural
 review's Tone.js research,
 [evidence C §6](../v3/structural-review-evidence/C-tooling-and-tonejs-research.md#6-tonejs-today)

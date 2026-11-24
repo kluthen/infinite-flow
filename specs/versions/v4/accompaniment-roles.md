@@ -1,6 +1,6 @@
 # v4.0 — Accompaniment with Roles
 
-Status: draft v1 (2026-11-24). What the player hears and controls. How it is built is in
+Status: draft v1 (2026-11-24), consolidated into the [master spec](master-spec.md) v1.0 the same day (D595); the master spec wins where they differ, and the (proposed) tags here were ruled there (D585–D594). What the player hears and controls. How it is built is in
 [arranger](arranger.md); the sound is in [sound library](sound-library.md). Settled items are
 stated as fact; tentative ones are tagged (proposed). Open questions are cited by their register
 ID ([open questions](../../open-questions.md#v40-accompaniment-with-roles-o317)).

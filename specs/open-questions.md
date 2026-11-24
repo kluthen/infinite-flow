@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.99
+Status: draft v0.100
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -48,7 +48,7 @@ O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (oct
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O313, O314 and O316 (the three-way split,
 this app's horizon and a lexicon backend,
-D551–D553, D561), O317–O322 (v4.0's accompaniment with roles and its sound library), and O267,
+D551–D553, D561), O322 (v4.0's sound library: Tone.js or the fallback, by the spike), and O267,
 O269 and O271 (v3.2's build,
 answered by the checks that follow the `3.2.0` tag, D521). v3.3 and v3.4 are released (D544,
 D579) and none of their questions is open; O230 (a stale replay-key wording, numbered O177 on
@@ -239,7 +239,8 @@ the structural review's analysis.
   the items moved from v4 (rhythm ratios and the rhythm editor with O100–O102, wider rhythm
   mutations, the whole-file seed); cross-device review (no earlier than v6); style packs; v3.x's
   learning from positive signals; the Firefox and Safari widening: to the game, to the library,
-  stay here, or drop? (c) **The split's form:** the owner leans to separate repositories (a
+  stay here, or drop? Noted for the game (D590): instrument and sound selection, locked in v4.0,
+  which the owner expects to be a highly important game feature. (c) **The split's form:** the owner leans to separate repositories (a
   library repository, this app's, the game's) rather than one repository with enforced
   boundaries; the structural review's Q4 weighs both, with what separate repositories alone cost
   (ATD across repositories, versioning and publishing the library, CI, the VPS deploy, agents
@@ -268,36 +269,15 @@ the structural review's analysis.
 
 ## v4.0 accompaniment with roles (O317+)
 
-Opened 2026-11-24 by `spec-writer` with v4.0's spec session (D553, D580, D581). O317–O321 are the
-owner's: each changes what the player hears or sees. O322 is settled by the sound-library spike.
-Drafts: [accompaniment roles](versions/v4/accompaniment-roles.md),
-[arranger](versions/v4/arranger.md), [sound library](versions/v4/sound-library.md).
+Opened 2026-11-24 by `spec-writer` with v4.0's spec session (D553, D580, D581). The owner ruled
+O317–O321 the same day as proposed, O320 with the playing light (D585–D589); O322's integration
+answers are settled (D592). The [v4.0 master spec](versions/v4/master-spec.md) states them.
 
-- **O317 - Which roles v4.0 ships** _([roles §4](versions/v4/accompaniment-roles.md#4-roles-proposed-o317))_:
-  one technique per family, each in its simplest form, or fewer, or more? Proposed: the backing as
-  today (foundation), plus parallel thirds and sixths on the lead's long and accented notes
-  (highlighting), a slow counter-melody on guide tones (contrasting) and fills in the lead's gaps
-  (responding). Smaller: backing plus fills. Larger: add echo, comping or a walking bass.
-- **O318 - Who chooses the voices, and how many play at once** _([roles §5](versions/v4/accompaniment-roles.md#5-choosing-and-combining-proposed-o318))_:
-  proposed: a switch and a volume per system voice, as the guides; new voices off by default; the
-  app writes every note and keeps at most two relation voices sounding at once. Alternatives: one
-  accompaniment style the player picks, or the app picking voices per phrase.
-- **O319 - Drums in v4.0** _([roles §4](versions/v4/accompaniment-roles.md#4-roles-proposed-o317))_:
-  proposed: in, as one simple groove (kick, snare on the backbeat, hi-hat), off by default, with
-  its own switch; the click keeps its own switch and the count-in stays the click. Out keeps the
-  click alone and saves the drum sounds and MIDI channel 10.
-- **O320 - Whether any system voice is drawn on the score** _(D581; [roles §6](versions/v4/accompaniment-roles.md#6-display-o320))_:
-  proposed: none, as today: each voice heard, with its switch and volume; the chord symbols keep
-  showing the harmony. Costs of the others: a "who is playing" mark (small), cue notes in the lead's
-  staff (a VexFlow spike), a second staff (a new score design, no fit on a phone).
-- **O321 - Whether a responding voice answers the written phrase or the notes played** _(D580;
-  [roles §8](versions/v4/accompaniment-roles.md#8-responding-to-what-o321))_: proposed: the
-  generated lead, known before it sounds, deterministic and without latency; answering the played
-  notes (and so the wrong ones) is the game's turn-based exchange (D551).
-- **O322 - The sound-library spike's outcome** _([sound library §2](versions/v4/sound-library.md#2-what-the-spike-must-settle-o322))_:
-  Tone.js or the plain Web Audio fallback, its version, its chunk budget, when it loads given the
-  synchronous Start, and the CSP's `worker-src blob:`. Proposed answers are in the draft; the spike
-  decides by the survey's rule.
+- **O322 - Tone.js or the plain Web Audio fallback** _(D592; [master spec §9.1](versions/v4/master-spec.md#91-the-library))_:
+  settled by the sound-library spike's measurements (one audio context, onsets, in-graph delay,
+  the playhead, main and audio threads on the reference phone with every part and the reverb on)
+  and the owner's listening, by the survey's decision rule. Not the owner's to rule in advance;
+  needed at the build's first wave.
 
 ## v3.2 build (O267+)
 
