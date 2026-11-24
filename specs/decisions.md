@@ -1,6 +1,6 @@
 # Decisions
 
-Status: draft v2.147
+Status: draft v2.148
 
 Append-only record of settled decisions. Earlier logs are archived verbatim:
 
@@ -399,3 +399,10 @@ archived range D407–D509 that its archive notice lists.
   wording-only revision that names no key version; no guarantee changes. `documentalist` applies
   it now, on branch `v3.4-tidy-intent`. Closes O230. Now in:
   [`module_tension_arc_cycle`](../docs/module_tension_arc_cycle.atom.md).
+- **D578 (2026-11-24): v3.4 is tagged first; H1 follows the `3.4.0` tag, as D541 did for v3.3.**
+  The owner: "you may do the tagging and archiving of v3.4; i'll deploy later", the go of D550
+  before H1. H1 becomes a v3.4.x follow-up; the lexicon four stay REVIEW until it, then their
+  STABLE promotion (change set H3) is proposed again. The VPS deploy is the owner's, later. Now in:
+  [Part E §E15](versions/v3/master-spec.md#e15-definition-of-done) item 18,
+  [build plan v3.4, gates](versions/v3/build-plan-v3.4.md#gates),
+  [release notes, H1](../docs/release/v3.4-release-notes.md#h1-the-owner-sees-the-page).

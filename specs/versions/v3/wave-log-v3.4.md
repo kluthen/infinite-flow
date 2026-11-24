@@ -469,3 +469,5 @@ On `v3.4-w3` before its merge (the owner: "you may complete the v3.4 entirely").
   `v3.4-promotions`: `module_session_starting_note` and `rule_session_ends_on_portrait_view` REVIEW
   → STABLE, onto the surface; CONTRACT 19.0.1 → 19.1.0 (MINOR), VISION 0.13; the lexicon four stay
   REVIEW until H1.
+- The owner's go to tag (2026-11-24): "you may do the tagging and archiving of v3.4; i'll deploy
+  later". Spec D578: `3.4.0` is tagged before H1, which follows as a v3.4.x check. Next: the tag.
