@@ -121,6 +121,14 @@
   /* The fixed inline size of a `toggle-button`'s state word ("on" / "off"), so the button keeps
      one width in both states. */
   --toggle-button-state-inline-size: 3ch;
+  /* v4.0 new */
+  /* A part's playing light (`part-light`), inside its switch after the state word: the disc's
+     outer size, and the width of the ring that draws it unlit (lit, the disc is filled). Sized to
+     be told apart, filled from hollow, from the reference tablet on its stand, 70 to 100 cm
+     away; the look on the stand may retune them, a token change only. The ring is drawn at the
+     3:1 non-text floor (`--color-text-muted` unlit, `--color-accent` lit). */
+  --part-light-size: 1rem;
+  --part-light-ring-width: 0.125rem;
   /* The fixed inline size of a tempo shown as "{tempo} BPM": the header's `tempo-readout` and
      the tempo stepper's `input-stepper-value`, both with tabular digits. Sized in `ch` of their
      own font for the widest value, "240 BPM" (7 characters, the capitals of "BPM" wider than a
@@ -312,7 +320,13 @@
      voice's full level. Both minimums reach silence, as the backing's does. They share
      `--mix-volume-max` and `--mix-volume-step`. The melody's first level is the backing's; the
      rhythm's is lower, so that with both guides on the melody leads. The guides' on/off
-     defaults (both off) are not tokens. */
+     defaults (both off) are not tokens.
+     v4.0 new: the four accompaniment parts' levels, named by part, each a fraction of its own
+     part voice's peak; every minimum reaches silence; they share `--mix-volume-max` and
+     `--mix-volume-step`. Starting values for the listening check to retune: Thirds below the
+     melody guide (the doubling should blend, not lead), Counter-melody as low (behind the lead),
+     Fills and Drums at the rhythm guide's level. The parts' on/off defaults (all off) are not
+     tokens. */
   :root {
     --mix-backing-volume-min: 0;
     --mix-click-volume-min: 0.2;
@@ -324,6 +338,15 @@
     --mix-rhythm-guide-volume-min: 0;
     --mix-melody-guide-volume-default: 0.8;
     --mix-rhythm-guide-volume-default: 0.6;
+    /* v4.0 new */
+    --mix-thirds-volume-min: 0;
+    --mix-counter-melody-volume-min: 0;
+    --mix-fills-volume-min: 0;
+    --mix-drums-volume-min: 0;
+    --mix-thirds-volume-default: 0.5;
+    --mix-counter-melody-volume-default: 0.5;
+    --mix-fills-volume-default: 0.6;
+    --mix-drums-volume-default: 0.6;
   }
 
   /* Accessibility floor: 4.5:1 normal text, 3:1 large text and controls, 44px minimum targets. */
