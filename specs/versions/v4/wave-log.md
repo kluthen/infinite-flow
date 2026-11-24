@@ -113,3 +113,12 @@ state.
   floor leaves 1,145 lead notes undoubled in low windows, for L1; (6) the timing assumes chords of
   two beats or more (true today); (7) a chord with no guide tone in the lane keeps the previous
   note. Chunk 4 started.
+- 2026-11-24: chunk 4 stopped before merging on an open reading (WIP 493ce817 on
+  `v4.0-c4-fills-drums`): §6.5's "reverses the shape's direction", per note (built) or the whole
+  shape. The wave driver ruled the whole shape, under the owner's design delegation; recorded by
+  `spec-writer` as spec D604 (d7730b82), with the per-note reading as fallback and an empty fill
+  last, and "any note" meaning the notes the fill plays. Spec D605 settles the chunks' readings:
+  chunk 3's seven confirmed (6, chords of two beats or more, decided); chunk 4's draw order,
+  phrase-end ties below and the eighth-long drum hit decided; three corpus facts added to L1's
+  scope (my-baritone High without Counter-melody, Thirds' floor in low windows, most fills under
+  four notes). Master spec v1.0.2. Chunk 4's owner resumed with the ruling.
