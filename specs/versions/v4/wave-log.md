@@ -36,3 +36,15 @@ state.
   `securitypolicyviolation`). Adapter B's worklet loads from a same-origin file, never a blob
   (that would need `script-src blob:` and a fresh check). Any worklet-based Tone class in chunk 6
   calls `security-advisor` again. S2 checks exactly these four packages and updates `.tech`.
+- 2026-11-24: gate P1 done (d00357dd). Verdicts: chunks 1–4 proceed; chunk 5 proceeds with
+  sign-off pending (A2–A4 under C1 at chunk 9's merge, as planned; a new settings data version or
+  upgrade step would change STABLE `module_settings_upgrade_step`: the plan's "tolerant loading, no
+  upgrade" avoids it). Chunk 4: the fill-shape label goes into the named registry only
+  (`STREAM_LABELS` / `STREAM_REGISTRY_VERSION`); the indexed registry stays untouched. Captures
+  (ARCHITECTURE, DRAFT 0.1): `entity_accompaniment_part`, `module_accompaniment_arranger`.
+  Reworded to spec D597 (DRAFT 0.2): `rule_responding_part_target`, `rule_responding_part_shapes`.
+  Plan corrections sent to `spec-writer` (chunk 2's Files: the renderers' importers in
+  `src/audio/` and three test helpers; chunk 2's Revisions: `module_guide_playback_layers`; kept-true
+  atoms for chunks 2–5; A6's settings half vs chunk 5), with the owner's rulings of today to record
+  (VISION 0.14, C1, the design set). Left for a later sync: `entity_concert_event_timeline`'s old
+  implementation note.
