@@ -1,6 +1,6 @@
 ---
 id: module_session_starting_note
-status: REVIEW
+status: STABLE
 dependents: []
 type: MODULE
 human_name: Session Starting Note

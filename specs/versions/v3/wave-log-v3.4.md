@@ -465,3 +465,7 @@ On `v3.4-w3` before its merge (the owner: "you may complete the v3.4 entirely").
   (sees the page, notes' Hand checks); the `3.4.0` tag; CONTRACT 19.0.1 (recommended) or 19.1.0;
   the STABLE proposals (change set H3); whether H1's steps go into `HARDWARE-CHECKLIST.md`; the
   VPS redeploy. After the tag: `spec-writer` and `ux-writer` archive v3.4 (milestone archive).
+- The owner's "promote" on change set H3 (2026-11-24), applied by `documentalist` on
+  `v3.4-promotions`: `module_session_starting_note` and `rule_session_ends_on_portrait_view` REVIEW
+  → STABLE, onto the surface; CONTRACT 19.0.1 → 19.1.0 (MINOR), VISION 0.13; the lexicon four stay
+  REVIEW until H1.
