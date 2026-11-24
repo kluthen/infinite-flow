@@ -3,14 +3,38 @@
 Status: direction (2026-09-25; the rhythm ratios and the rhythm editor moved here from v3
 2026-10-07, D211; v4.0's scope ruled 2026-11-22, D553: Tone.js and accompaniment with roles, the
 other items moved to v5; the lexicon API moved to v3.4, D555; revising the prerequisites noted as
-v4.0's first task 2026-11-24, D575). Not yet specced. "v4+" is the
+v4.0's first task 2026-11-24, D575; v4.0's spec session opened 2026-11-24, the prerequisites
+revised, D583, and three drafts started; the owner's rulings and master spec v1.0 the same day,
+D585–D595; the master spec approved the same day, D596). Master spec approved; the design set
+next, then the build plan. "v4+" is the
 user's placement. The owner expects v4.0 to be this app's last update most probably (D552, a
 direction; [O314](../../open-questions.md#after-v34-the-split-and-this-apps-horizon-o313)).
+
+## Drafts (2026-11-24)
+
+- [Accompaniment roles](accompaniment-roles.md): what the player hears and controls; the roles,
+  choosing them, the display, responding.
+- [Arranger](arranger.md): the multi-voice representation, the arranger, playing, exports,
+  keeping, blast radius.
+- [Sound library](sound-library.md): the spike, Tone.js's integration, the sound ban's rewording.
+- **[Master spec v1.0](master-spec.md)** (2026-11-24, D595): consolidated from the drafts below
+  after the owner's rulings (D585–D594); it wins where they differ. Approved by the owner
+  (D596); the build plan waits for `ux-writer`'s design set (§12).
+- Open questions: [O322](../../open-questions.md#v40-accompaniment-with-roles-o317), settled by
+  the sound-library spike; O317–O321 are ruled (D585–D589).
+- Foundations: [prerequisites](../prerequisites.md), revised for v4.0 (D583); K is the urgent one.
 
 ## Settled direction
 
 - **v4.0's scope** (D553): the owner, 2026-11-22: "keep tonejs and accompaniment with roles on
   v4.0". v4.0 holds the two items below and nothing else.
+- **The player plays the lead only** (D580): the owner, 2026-11-24: "we still expect the player
+  only to play the lead role". Every accompaniment voice is a system voice.
+- **Today the other sounds have no display beyond volume and on/off** (D581), with the precisions
+  in [accompaniment roles §3](accompaniment-roles.md#3-today-as-built-d581). Whether v4.0 keeps it
+  so was O320: no score display, a playing light per part (D588).
+- **Instrument selection is locked in v4.0** (D590): no setting shows a part's sound; each sound is
+  data behind the sound-roles seam, for the game to expose.
 - **Accompaniment with side instruments** that have distinct roles: **highlighting,
   contrasting and responding** to the player's line. This goes beyond v2's rudimentary bass and
   chord backing.
@@ -59,7 +83,6 @@ version". Its record is in v3.4's [lexicon page §9](../v3/lexicon-page.md#9-ste
 ## Depends on
 
 - v2's backing and audio timing.
-- Early building blocks: [prerequisites.md](../prerequisites.md), being drafted. Revising it
-  against v3.4's structural review (its staleness, the library line, and K) is `spec-writer`'s
-  first task when v4.0's master spec starts (D575;
-  [report §2.1](../v3/structural-review-report.md#21-the-prerequisites)).
+- Early building blocks: [prerequisites.md](../prerequisites.md), revised for v4.0 against v3.4's
+  structural review (D575, D583): K, the multi-voice representation, is the one urgent foundation,
+  proposed in [§2 K](../prerequisites.md#k-multi-voice-representation).

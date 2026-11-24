@@ -529,7 +529,7 @@ a comma after a letter lowers it an octave, `-` is a tie, `"C"` is a chord symbo
 - **Generator today:** no as a figure. Displacing a step makes a 10–11 semitone jump: legal only under Leaping or
   Angular, counts as a large leap that needs recovery
   ([melodic-control-models.md](melodic-control-models.md#leap-budgets-preserve-direction-within-the-selected-register-window)),
-  and must fit the one-octave register window
+  and must fit the register window (half the instrument's range, at least one octave)
   ([saxophone-profile-ranges.md](saxophone-profile-ranges.md#overlapping-windows-preserve-route-for-contour-and-recovery)).
 - **Weights:** limited by those rules whatever the weight (proposed).
 

@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.98
+Status: draft v0.100
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -48,7 +48,8 @@ O115 and O116 (v3.x learning), O176 (style packs and the chord level), O180 (oct
 O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer version's database
 whose read-only reopening fails), O313, O314 and O316 (the three-way split,
 this app's horizon and a lexicon backend,
-D551–D553, D561), and O267, O269 and O271 (v3.2's build,
+D551–D553, D561), O322 (v4.0's sound library: Tone.js or the fallback, by the spike), and O267,
+O269 and O271 (v3.2's build,
 answered by the checks that follow the `3.2.0` tag, D521). v3.3 and v3.4 are released (D544,
 D579) and none of their questions is open; O230 (a stale replay-key wording, numbered O177 on
 branch `plan-migration`, D352) closed with D577. O270, O272–O289, O292–O305 and O307–O309 were never issued; the IDs
@@ -238,7 +239,8 @@ the structural review's analysis.
   the items moved from v4 (rhythm ratios and the rhythm editor with O100–O102, wider rhythm
   mutations, the whole-file seed); cross-device review (no earlier than v6); style packs; v3.x's
   learning from positive signals; the Firefox and Safari widening: to the game, to the library,
-  stay here, or drop? (c) **The split's form:** the owner leans to separate repositories (a
+  stay here, or drop? Noted for the game (D590): instrument and sound selection, locked in v4.0,
+  which the owner expects to be a highly important game feature. (c) **The split's form:** the owner leans to separate repositories (a
   library repository, this app's, the game's) rather than one repository with enforced
   boundaries; the structural review's Q4 weighs both, with what separate repositories alone cost
   (ATD across repositories, versioning and publishing the library, CI, the VPS deploy, agents
@@ -264,6 +266,18 @@ the structural review's analysis.
   first network request; whether the app keeps working offline with its built-in copy; the
   privacy notice's wording (no user data, but a request the VPS sees). No rule changes before
   then.
+
+## v4.0 accompaniment with roles (O317+)
+
+Opened 2026-11-24 by `spec-writer` with v4.0's spec session (D553, D580, D581). The owner ruled
+O317–O321 the same day as proposed, O320 with the playing light (D585–D589); O322's integration
+answers are settled (D592). The [v4.0 master spec](versions/v4/master-spec.md) states them.
+
+- **O322 - Tone.js or the plain Web Audio fallback** _(D592; [master spec §9.1](versions/v4/master-spec.md#91-the-library))_:
+  settled by the sound-library spike's measurements (one audio context, onsets, in-graph delay,
+  the playhead, main and audio threads on the reference phone with every part and the reverb on)
+  and the owner's listening, by the survey's decision rule. Not the owner's to rule in advance;
+  needed at the build's first wave.
 
 ## v3.2 build (O267+)
 

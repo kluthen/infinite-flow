@@ -1,6 +1,6 @@
 # Prerequisites — Building Blocks Later Versions Need
 
-Status: draft v0.1 (2026-09-25; the chord-fit check's placement updated 2026-10-03, D174; the check dropped 2026-10-07, D211; microphone input out of scope in any version, 2026-11-22, D554). Preliminary analysis, not a decision document.
+Status: draft v0.2 (2026-09-25; the chord-fit check's placement updated 2026-10-03, D174; the check dropped 2026-10-07, D211; microphone input out of scope in any version, 2026-11-22, D554; revised for v4.0 on 2026-11-24 against the v3.4 structural review, D575, D583: what is built marked, the game's and v5's rows placed, the library line added as foundation O, and K worked out for v4.0). Preliminary analysis, not a decision document.
 
 The user asked for "preliminary work of seeking what's necessary to build prior some items
 proposed for later version to occur". This document maps each planned capability (v1.0 through
@@ -10,50 +10,87 @@ premature.
 
 Reading rules:
 
-- Statements about the code cite a file and were checked by reading it on 2026-09-25.
+- Statements about the code cite a file and were checked by reading it on 2026-09-25, unless they
+  are dated 2026-11-24: those were checked on `main` at 6d4c33c3 (v3.4.0 plus its archive). Each
+  foundation's **Current state (2026-09-25)** is kept as the analysis it was; its **Status
+  (2026-11-24)** line above it says what is true now.
 - Anything not directly checked is tagged **(inference)**.
 - Gap sizes (S/M/L) are **estimates (inference)**, not effort commitments:
   - S = a local change to one module.
   - M = a new module, or a change crossing a few modules.
   - L = a new subsystem, or an architectural change touching the generator contract.
-- Foundation letters (A–N) are local labels for this document only. They are not open-question
-  IDs. Questions are listed unnumbered at the end, for the owner of the register to number.
+- Foundation letters (A–O) are local labels for this document only. They are not open-question
+  IDs. The questions at the end point to the register.
 - Decision numbers (Dnn) refer to the
   [2026-09-25 archive](../archive/2026-09-25-personas-and-vision/decisions-D47-D71.md). O10 refers to the
   [register](../open-questions.md); O24 is resolved (D108) — see
   [v2/master-spec.md §9](v2/master-spec.md#9-the-end-of-measure-chord-fit-check).
 
+## 0. Where this stands (2026-11-24)
+
+The v3.4 structural review asked whether this list is still right and which items are urgent
+([report §2.1](v3/structural-review-report.md#21-the-prerequisites)). This revision answers it.
+
+- **As a map, it holds.** Each capability still rests on the foundations named below.
+- **Most of it is built.** v2 and v3 built A (minimal form), B, C, D, E, F, G (export), H, L
+  (display-state half), M (for v1.0's variety) and N (by stored timelines and versioned replay
+  keys). §1 marks each row; each foundation's status line says how far.
+- **Who needs the rest has changed.** The game is a separate app on the other side of a library
+  (D551), and v4.0 is most probably this app's last update (D552), holding Tone.js and
+  accompaniment with roles only (D553). So:
+  - the endgame rows are **the game's**, built on the library, and wait for game start;
+  - the whole-file seed and library snippets are **v5's**, and wait on
+    [O314](../open-questions.md#after-v34-the-split-and-this-apps-horizon-o313) (a), which may move
+    them to the game; their analysis stays here, unrevised, until then;
+  - for this app, one capability is left: **v4.0's accompaniment with roles**, on K, B, A and D.
+- **One foundation was missing: the library line** (O below). It is built and enforced since v3.4.
+- **The one urgent item is K, the multi-voice representation**, for v4.0. The player plays the lead
+  only (D580), so K does not have to make the timeline polyphonic: §2 K proposes how v4.0 carries
+  several system voices beside the one lead.
+
 ## 1. Dependency map
 
-| Capability                                                                                                 | Version | Depends on foundations                                | Exists today                                                                                    | Gap                                        |
-| ---------------------------------------------------------------------------------------------------------- | ------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| Open instrument templates, transposition as data (D56, D57)                                                | v1.0    | H                                                     | Partly: profile parser exists; ids, notation modes and transpositions are closed literal unions | M                                          |
-| Rhythmic variety, Mixed retired (D59, D60)                                                                 | v1.0    | M, I                                                  | Partly: density-keyed cell catalogs; variety concept absent                                     | M (pending the ISS-004 feasibility review) |
-| Rolling phrase continuing its own output (D51, D65)                                                        | v2      | A, B, E, N, plus a latency budget                     | No: fixed four-measure one-shot generation, no prior-context input                              | L                                          |
-| MIDI input, expected-note acknowledgement (D52)                                                            | v2      | C, B, H, L                                            | No MIDI code; no event identity through notation                                                | M–L                                        |
-| End-of-measure chord-fit check (D108; a v3 nice-to-have since D174; **dropped**, D211)                      | none    | C, D, B                                               | Partly: chord events per measure and an internal chord-tone fact exist                          | S–M, now that D108 has settled the rule    |
-| Backing audio: bass, block chords, click (D63, D70)                                                        | v2      | B, D                                                  | No audio code at all                                                                            | M–L                                        |
-| Session model, last-session review (D62, D67)                                                              | v2      | E, C, N                                               | No: the session holds one result, no history                                                    | M                                          |
-| MusicXML / MIDI export (D62, D67)                                                                          | v2      | G, E                                                  | No                                                                                              | M                                          |
-| Adaptive tempo, opt-in (D66, D101)                                                                         | v2      | B, C, D, E                                            | No (flat schedule, D101; no longer depends on the chord-fit check)                              | S once B–E exist                           |
-| Played-note privacy (D69)                                                                                  | v2      | E (in memory), G (export choice)                      | Trivially satisfied today: nothing is played or stored                                          | S                                          |
-| Embellishment and style flags (D59)                                                                        | v2/v3   | I, J, M                                               | Partly: appoggiatura, enclosure, passing and neighbor figures exist; no trill/mordent/grace     | M–L                                        |
-| MIDI-seeded continuation (D53)                                                                             | v3      | A (full form), C, O10                                 | No                                                                                              | L                                          |
-| "My instrument" configuration (D55)                                                                        | v3      | H, F                                                  | Partly: the profile parser is a usable validation boundary                                      | S–M after H                                |
-| Local persistence (D55)                                                                                    | v3      | F, N                                                  | No, and forbidden in v1 by an atom (see §4)                                                     | M                                          |
-| Earlier-session review                                                                                     | v3      | E, F, N                                               | No                                                                                              | M                                          |
-| Accompaniment with roles (D70)                                                                             | v4      | K, B, A, D                                            | No: the timeline is monophonic                                                                  | L                                          |
-| Whole-file seed import (D65)                                                                               | v4      | G (import), A, M                                      | No: 4/4-only meter, sixteenth-grid-only time policy                                             | L                                          |
-| Library, snippet as seed (D65, D68)                                                                        | v5+     | G, F, A, E                                            | No                                                                                              | L                                          |
-| Microphone input (D55; out of scope in any version, D554)                                                  | Out     | C generalized to an input-source port, H (input kind) | No                                                                                              | L                                          |
-| Character presets: scale restriction, banned pitches, ornament preferences, gimmicks, register personality | Endgame | I, J, M, A                                            | Partly: control bundles only                                                                    | L                                          |
-| Multiple system voices                                                                                     | Endgame | K, B                                                  | No                                                                                              | L                                          |
-| Turn-based phrase exchanges                                                                                | Endgame | A, K, M (short phrases)                               | No: phrase length is fixed at 4                                                                 | L                                          |
-| Status effects: blindness, tone deaf, pitch scare                                                          | Endgame | L (display-effect layer), I                           | Partly: one clean insertion point (WrittenPhrase) exists                                        | M                                          |
+Placement since 2026-11-24: **built** (with the version), **v4.0**, **v5** (D553; may move to the
+game, O314 (a)), **game** (D551; was "endgame"), **out**, or **dropped**.
+
+| Capability                                                                                                 | Placement           | Depends on foundations                                | State on 2026-11-24                                                                                 |
+| ---------------------------------------------------------------------------------------------------------- | ------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Open instrument templates, transposition as data (D56, D57)                                                | Built, v1.0 and v3.0 | H                                                     | Built: open transposition data, three presets and My instrument                                    |
+| Rhythmic variety, Mixed retired (D59, D60)                                                                 | Built, v1.0         | M, I                                                  | Built: `rhythm-variety.ts` replaces Mixed                                                           |
+| Rolling phrase continuing its own output (D51, D65)                                                        | Built, v2           | A, B, E, N, plus a latency budget                     | Built: carry-in, pre-generation                                                                     |
+| MIDI input, expected-note acknowledgement (D52)                                                            | Built, v2           | C, B, H, L                                            | Built: `midi/`, note identity, overlays                                                             |
+| End-of-measure chord-fit check (D108; a v3 nice-to-have since D174)                                       | Dropped (D211)      | C, D, B                                               | Not built                                                                                           |
+| Backing audio: bass, block chords, click (D63, D70)                                                        | Built, v2           | B, D                                                  | Built: `domain/backing/`, `audio/`                                                                  |
+| Session model, last-session review (D62, D67)                                                              | Built, v2           | E, C, N                                               | Built                                                                                               |
+| MusicXML / MIDI export (D62, D67)                                                                          | Built, v2           | G, E                                                  | Built: `export/midi`, `export/musicxml`                                                             |
+| Adaptive tempo, opt-in (D66, D101)                                                                         | Built, v2           | B, C, D, E                                            | Built                                                                                               |
+| Played-note privacy (D69)                                                                                  | Built, v2 and v3.0  | E (in memory), G (export choice)                      | Built: opt-in keeping, on the device only                                                           |
+| Embellishment and style flags (D59)                                                                        | Built, v3.1         | I, J, M                                               | Built: seven figures with levels, presets; no trill, mordent or grace note                         |
+| MIDI-seeded continuation (D53)                                                                             | Built, v3.2 (Jam)   | A (full form), C, O10                                 | Built as Jam: a doodle grows phrases                                                                |
+| "My instrument" configuration (D55)                                                                        | Built, v3.0         | H, F                                                  | Built                                                                                               |
+| Local persistence (D55)                                                                                    | Built, v3.0         | F, N                                                  | Built: `storage/`, codecs, migrations                                                               |
+| Earlier-session review                                                                                     | Built, v3.0         | E, F, N                                               | Built: kept sessions                                                                                |
+| Accompaniment with roles (D70)                                                                             | **v4.0** (D553)     | K, B, A, D                                            | B, A (minimal) and D built; K is the gap (§2 K)                                                     |
+| Whole-file seed import (D65)                                                                               | v5 (D553)           | G (import), A, M                                      | No: 4/4-only meter, sixteenth-grid-only time policy                                                 |
+| Library, snippet as seed (D65, D68)                                                                        | v5+ (O314 (a))      | G, F, A, E                                            | No                                                                                                  |
+| Microphone input (D55; out of scope in any version, D554)                                                  | Out                 | C generalized to an input-source port, H (input kind) | No                                                                                                  |
+| Character presets: scale restriction, banned pitches, ornament preferences, gimmicks, register personality | Game (D551)         | I, J, M, A, O                                         | Partly: presets of generation settings (v3.1), capability flags                                     |
+| Multiple system voices                                                                                     | Game (D551)         | K, B, O                                               | v4.0's K is the first step, in this app                                                             |
+| Turn-based phrase exchanges                                                                                | Game (D551)         | A, K, M (short phrases), O                            | No: phrase length is fixed at 4                                                                     |
+| Status effects: blindness, tone deaf, pitch scare                                                          | Game (D551)         | L (display-effect layer), I, O                        | Partly: one clean insertion point (WrittenPhrase) exists                                            |
+
+The table as it stood on 2026-09-25, with its gap sizes, is in this file's git history (before
+the v4.0 revision); its rows are kept above, re-placed.
 
 ## 2. Foundations
 
 ### A. Continuation-capable generation contract
+
+**Status (2026-11-24).** The minimal form is built (v2): `domain/generation/carry-in` and the
+session's carry-in adaptation (review evidence A §3.4). Jam (v3.2) grows phrases from a played
+doodle, a first full form. v4.0 adds one reader: the arranger reads the phrase it accompanies and,
+for a fill leading into the next phrase, that phrase's first chord (§2 K). The file seed's and the
+game's forms wait (v5, game).
 
 **What it is.** A way to generate phrase N+1 so that it follows on from material that is
 already fixed. The fixed material can be the previous generated phrase (v2), a played motif
@@ -68,7 +105,7 @@ already fixed. The fixed material can be the previous generated phrase (v2), a p
 **Needed by:** the rolling phrase (v2), MIDI-seeded continuation (v3), the whole-file seed (v4),
 library snippets (v5+) and endgame exchanges.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - There is no input for prior context.
   - `GenerationRequest` (`src/domain/generation/generation-request.ts`) carries only
@@ -107,6 +144,11 @@ answered before v2 is specced.
 
 ### B. Musical clock and audio scheduler (transport)
 
+**Status (2026-11-24).** Built (v2): the audio transport, the look-ahead scheduler and the worker
+wake timer (review evidence B §5.1, §5.2). v4.0 keeps it the only clock (v4 constraint 1). One
+change: the session bus must become async-aware, since `import('tone')` is asynchronous and
+`openSessionBus` is not ([report §9](v3/structural-review-report.md#9-v40-inputs) item 5).
+
 **What it is.**
 
 - A single time source mapping musical positions (measure, `Rational` offset) to audio-context
@@ -117,7 +159,7 @@ answered before v2 is specced.
 **Needed by:** backing audio, the rolling display and playhead, the end-of-measure check,
 session inactivity timing, adaptive tempo, v4 accompaniment and endgame voices.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - There is no audio code. A search of `src/` for `AudioContext`, `Tone`, `requestMIDIAccess`,
   `performance.now` and `setInterval` finds nothing.
@@ -133,6 +175,9 @@ session inactivity timing, adaptive tempo, v4 accompaniment and endgame voices.
 
 ### C. MIDI input layer
 
+**Status (2026-11-24).** Built (v2): `midi/`, 8 files. v4.0 needs nothing new from it: the
+system voices answer the written phrase, not the played notes (D589).
+
 **What it is.**
 
 - Web MIDI access, and device selection with permission handling.
@@ -145,7 +190,7 @@ session inactivity timing, adaptive tempo, v4 accompaniment and endgame voices.
 **Needed by:** acknowledgement, the chord-fit check, the session start and 30 s timeout,
 adaptive tempo, review of played notes and the v3 seed.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - There is none.
 - Atoms `rule_optional_midi_privacy`, `req_browser_only_first_release` and
@@ -155,11 +200,16 @@ adaptive tempo, review of played notes and the v3 seed.
 
 ### D. Harmony-facing facts on the result
 
+**Status (2026-11-24).** Built for the backing (v2) and the guides (v3.2): the renderers in
+`src/domain/backing/` read the phrase's harmony events, and since v3.3 a harmony event can carry
+a seventh. The chord-fit check that also needed D was dropped (D211). v4.0's arranger reads the
+same facts plus the lead's notes (§2 K).
+
 **What it is.** Per-measure chord and scale material exposed on the result in a form that
 consumers can use without re-running the planner: the backing voicer, the chord-fit check and
 future accompaniment.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - The timeline's measures already carry a harmonic role and a chord event or sustained-harmony
   marker (atom `entity_concert_event_timeline`).
@@ -179,13 +229,16 @@ D108). The gap is small and no longer blocked; see
 
 ### E. Session model with phrase history
 
+**Status (2026-11-24).** Built (v2 in memory, v3.0 kept sessions): history stores each phrase's
+timeline as well as its reproduction inputs (D88, answering O37).
+
 **What it is.**
 
 - An ordered session record: start and end, the phrases displayed (with the request, seed and
   timeline of each), the played notes, marks, and tempo changes.
 - Everything is held in memory in v2.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - `GenerationSessionState` in `src/composables/use-generation-session.ts` holds one `result`,
   one `latestIntent` and an `operation` state. There is no history.
@@ -203,6 +256,9 @@ standalone phrases.**
 
 ### F. Persistence port
 
+**Status (2026-11-24).** Built (v3.0): `storage/`, with its codecs and migrations, opt-in played
+notes and a schema version.
+
 **What it is.**
 
 - A storage abstraction (local only, per D64 and D69), with an in-memory implementation and a
@@ -210,7 +266,7 @@ standalone phrases.**
 - Opt-in and delete operations for played notes.
 - A schema version on everything stored.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - There is none. A search of `src/` for `localStorage`, `sessionStorage` and `indexedDB` finds
   nothing.
@@ -222,6 +278,10 @@ standalone phrases.**
 
 ### G. Music-file serializers
 
+**Status (2026-11-24).** Export is built (v2; the played-notes file since D129). v4.0 widens it:
+each system voice needs a place in the exports (§2 K). Import is v5's (the whole-file seed, D553)
+and waits on O314 (a); O48 stays open with it.
+
 **What it is.**
 
 - **Export (v2):** MusicXML from the written view, and Standard MIDI File from concert pitch
@@ -230,7 +290,7 @@ standalone phrases.**
   played events.
 - **Import (v4 whole-file seed, v5+ library):** parse, then normalize to the event model.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - There is none.
 - Export is well supported by what exists (inference):
@@ -248,6 +308,10 @@ standalone phrases.**
 
 ### H. Open instrument template schema
 
+**Status (2026-11-24).** Built (v1.0, v3.0): profiles carry open transposition data
+(`src/domain/profile/instrument-profile.ts`, `transposition-interval.ts`), the three built-ins are
+presets, and My instrument is a second source of the same record. No input kind (D554).
+
 **What it is.** Instrument templates as declarative data:
 
 - an identity and a label;
@@ -256,7 +320,7 @@ standalone phrases.**
 - later, the input kind (MIDI or microphone, for D55; the microphone is now out of scope in any
   version, D554).
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - `InstrumentProfileId = 'c-keyboard' | 'bb-tenor' | 'eb-alto'` is a closed union
   (`src/domain/profile/instrument-profile.ts`). Profiles carry no transposition.
@@ -277,6 +341,10 @@ transposition) and v3 "my instrument" (v5+ microphone input is out of scope in a
 
 ### I. Extensible musical-profile (character) schema
 
+**Status (2026-11-24).** The capability flags are built (`module_musical_profile_capabilities`;
+no `profile !== 'Jazz'` check is left in `src/`), and v3.1's presets are records of generation
+settings. The character schema beyond that is the game's (D551).
+
 **What it is.** A profile as declarative data that can express more than a bundle of control
 values:
 
@@ -286,7 +354,7 @@ values:
 - register tendencies;
 - a signature motif.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - `MUSICAL_PROFILES = ['Neutral', 'Jazz']` is a closed array (`generation-controls.ts`).
 - `PROFILE_BUNDLES` (`profile-selection.ts`) holds control values only: harmonic motion,
@@ -307,6 +375,11 @@ flags are needed by v2/v3.
 
 ### J. Ornament and figure vocabulary
 
+**Status (2026-11-24).** v3.1 built seven figures with levels (`src/domain/figures/figure-levels.ts`:
+passing tone, accented passing tone, neighbor tone, appoggiatura, diatonic and chromatic
+enclosure, chromatic approach). Trill, mordent, turn and grace note are still absent; they are
+the game's or a style pack's, not v4.0's.
+
 **What it is.** Named figures the generator can place and the notation can show.
 
 - These exist today: passing, neighbor, appoggiatura, enclosure.
@@ -314,7 +387,7 @@ flags are needed by v2/v3.
 - A decision is needed per ornament: an **expanded-events** figure or a **notated symbol**
   (`tr`, `~`) with playback expansion. (inference)
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - Figures live in `src/domain/pitch/pitch-figures.ts` (`ActiveFigurePath`, `FreeObligation`,
   `FigureState`).
@@ -333,7 +406,7 @@ flags are needed by v2/v3.
 **What it is.** A result carrying several voices, each with a role (lead, bass, chords,
 highlighting, contrasting, responding), sharing one harmony and one clock.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - It is monophonic by construction. `NoteEvent` and `RestEvent` have no voice or channel field
   (`measure-event.ts`).
@@ -344,7 +417,76 @@ highlighting, contrasting, responding), sharing one harmony and one clock.
 
 **Earliest version.** v4.
 
+**Status (2026-11-24): still monophonic, and v4.0 does not need it to stop being so.** Checked on
+6d4c33c3:
+
+- The lead is one voice. `ConcertEventTimeline.measures` is a 4-tuple of `Measure`s
+  (`src/domain/events/timeline.ts:27-29`), and `NoteEvent`/`RestEvent` carry no voice, channel or
+  part field (`measure-event.ts:39-57`). Twelve files outside `src/domain/` read the timeline
+  (audio, export, session, storage, Jam, the worker, one workspace file).
+- **System voices already live beside the timeline, not in it.** Two pure renderers in
+  `src/domain/backing/` turn one phrase into parts: `renderBacking(harmony, meter)` gives
+  `RenderedBacking {bass, chords}` (`backing-renderer.ts:270`), and `renderGuide(timeline,
+  harmony)` gives `RenderedGuide {melody, rhythm}` (`guide-renderer.ts:143`). Both are lists of
+  `{pitch, start, duration}` in whole-note rationals from the phrase's start. They are rendered
+  per phrase when the phrase is queued on the transport (`src/audio/transport-session.ts:181-213`),
+  routed by sound role (`src/audio/sound-roles.ts:30`) to a mix channel, and never stored: kept
+  sessions store the harmony, and the export renders the backing again from it
+  (`src/export/generated-notes-file.ts:94-101`).
+- That is already a multi-voice representation for system voices, of a narrow kind: fixed pairs,
+  no role but the field name, no velocity, no unpitched note, no seeded choice, and only the
+  backing reads no lead.
+
+**What v4.0 needs (from the research and the owner's D580; adopted as v4.0's design, D594, and
+stated in the [v4.0 master spec §10](v4/master-spec.md#10-architecture)).** The player plays the lead
+only, so v4.0's several voices are all system voices, and they all follow the one lead. K for
+v4.0 is therefore **not** a polyphonic timeline. It is the generalisation of the renderers' output:
+
+1. **The lead stays the monophonic timeline,** unchanged, the authority every system voice reads
+   and none may change (the arranger never edits the player's phrase; research
+   [accompaniment-systems §8.1](../../docs/music/accompaniment-systems.md#81-recommended-family-role-based-rules-over-style-templates)
+   item 3).
+2. **A phrase's accompaniment is a list of parts,** one per system voice: its voice id, its
+   accompaniment role, and its notes. A part note is today's `{pitch, start, duration}` plus what
+   the roles need: a velocity (accents, a doubling softer than the lead), and an unpitched kind
+   for drums, which v4.0 takes (D587). Bass,
+   chords and the two guides become parts of the same shape, so the transport, the mix and the
+   exports handle one kind of thing.
+3. **One pure, seeded arranger** on the library side of the line (O), in `src/domain/backing/` or
+   a sibling, renders the parts from the phrase's timeline, its harmony and the session's
+   accompaniment settings. Its choices draw from new named streams (N: a registry bump), so the
+   same phrase and settings always give the same accompaniment.
+4. **Still rendered, never stored,** as the backing is today: kept sessions keep the harmony and
+   the timeline, plus the accompaniment settings, and the review and the exports render the parts
+   again. This holds only while the arranger is the same; since v4.0 is meant to be the last
+   update (D552), a version field on the stored settings is enough to detect a change.
+5. **No new replay key** if the arranger's inputs stay outside the generation intent: an `ifk5.`
+   key encodes the intent only (`phrase-replay-key.ts:4-23`). The accompaniment settings would
+   then travel beside the key, not in it.
+
+**What it costs, against the 2026-09-25 estimate (L).** M, not L (inference): no change to the
+timeline, the generator, the notation or the twelve timeline readers; a new domain module, the
+renderers' output widened, the transport's per-phrase queue and the session bus taking parts by
+role, the mix taking channels by role (already the §C19.6 design), and the exports given one part
+per system voice.
+
+**Two gaps the research's roles hit** (checked 2026-11-24):
+
+- **The next phrase's harmony is not known** when a phrase's backing is queued: phrase N is queued
+  at the start of phrase N−1's last measure and N+1 is requested only when N starts sounding
+  (`src/session/session-engine.ts:217-234`). A fill or a bass approach that leads into the next
+  phrase's first chord needs it. Proposed: v4.0's roles do without it (a fill ends on the phrase's
+  own last chord); asking the engine to hold two look-ahead phrases is a larger change.
+- **The lead's chord-tone facts are internal to generation** (`pitch-validation-types.ts:63-84`),
+  not on the result. The arranger recomputes them from the timeline and the harmony, which is
+  cheap and keeps the generator untouched.
+
 ### L. Display-state and display-effect layer
+
+**Status (2026-11-24).** The display-state half is built (v2): `notation/note-identity.ts` and
+`score-overlay-state.ts`. The display-effect half is the game's. Whether v4.0 draws any system
+voice on the score was O320: none is drawn, each part has a playing light instead (D588), so L
+needs nothing for v4.0.
 
 **What it is.** A deliberate transform stage between the faithful written view and the
 engraver.
@@ -358,7 +500,7 @@ engraver.
 - **Endgame need:** blindness hides or obscures notation, and "pitch scare" presumably alters
   what is shown (undefined, per the endgame doc).
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - The pipeline is `transformToWrittenPhrase` (`written-phrase.ts`) → `describeWrittenPhrase`
   (`score-description.ts`) → `engraveWrittenPhrase` (`vexflow-engraver.ts`), coordinated by
@@ -371,6 +513,11 @@ display-effect half comes at the endgame.
 
 ### M. Rhythm grammar generalization
 
+**Status (2026-11-24).** Variety replaced Mixed (v1.0, `src/domain/rhythm/rhythm-variety.ts`).
+Phrases are still four measures of 4/4 on the sixteenth grid (`PHRASE_MEASURE_COUNT = 4`).
+Non-downbeat starts, short phrases and other meters are v5's or the game's. v4.0's system voices
+use the same grid and length.
+
 **What it is.** A rhythm grammar that:
 
 - is not keyed on one density (variety, D59);
@@ -379,7 +526,7 @@ display-effect half comes at the endgame.
 - allows lengths other than four bars, for short exchange phrases;
 - possibly allows other meters, for imported seeds.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - `V1_BEAT_CELL_CATALOGS` in `src/domain/rhythm/rhythm-skeleton.ts` is keyed by
   `Quarter | Eighth | Sixteenth | Mixed`, and `feasibleBar` branches on density.
@@ -392,10 +539,15 @@ display-effect half comes at the endgame.
 
 ### N. Generator versioning and stream registry
 
+**Status (2026-11-24).** Met another way: kept sessions store timelines (E), replay keys carry a
+version (`ifk1.` to `ifk5.`) and the hash domains end in `/v1` (review evidence A §3.2).
+`GenerationResult` itself still carries no version stamp. v4.0's arranger adds named streams, so a
+registry version bump, and possibly a replay-key version (§2 K).
+
 **What it is.** A version stamp that says which grammar, stream registry and planner rules
 produced a result.
 
-**Current state.**
+**Current state (2026-09-25).**
 
 - Named streams come from a closed, versioned registry: `STREAM_LABELS`, with
   `STREAM_REGISTRY_VERSION = 1` (`src/domain/random/streams.ts`; atom
@@ -411,7 +563,28 @@ produced a result.
 
 **Earliest version.** v2, when history first exists.
 
+### O. The library line
+
+**What it is.** The boundary between the code that will become the shared library (the generator,
+the music model, the notation planners: everything the game will need) and this app's own code
+(the session, the audio, the screens, the storage). It was missing from the 2026-09-25 list, which
+predates the three-way split (D551).
+
+**Status (2026-11-24).** Built and enforced since v3.4 (structural review R1 and R2, D569;
+`module_library_code_boundary`, `module_session_code_boundary`): `domain/` and
+`generation-worker/` import nothing outside themselves, and `session/` imports only the library.
+The split's form is folders now and a new repository for the library and the game at game start
+(D573). The contract the split must keep: the hash-domain strings and the `ifk*` replay-key
+prefixes are never renamed (review evidence A §3.2).
+
+**Needed by:** every game-side row of §1, and v4.0's arranger, which belongs on the library side
+(§2 K).
+
 ### Cross-cutting: generation latency budget (v2)
+
+**Status (2026-11-24).** Built (v2): pre-generation keeps the next phrase ready; its worst case
+was settled for v2 (one phrase of look-ahead, O36, D72–D108). v4.0's arranger adds work per phrase and must fit the same
+budget (§2 K).
 
 - The rolling phrase needs phrase N+1 ready before phrase N ends.
 - At the top tempo of 240 BPM, four bars of 4/4 last 4 s.
@@ -423,53 +596,26 @@ produced a result.
 
 ## 3. Pull-forward recommendations
 
-### Cheap now, recommended while doing v1.0 work that touches the same code (inference, for the user to confirm)
+Revised 2026-11-24. The 2026-09-25 recommendations were for v1.0 and v2, and every one is done or
+overtaken: H's template schema, I's capability flags and M's variety (v1.0); N's versioning, L's
+event identity and D's harmony facts (v2). The "premature now" list held through v3.4 and is
+re-placed below.
 
-1. **Design ISS-003's template schema for v3 from the start (H).** Make the template one
-   validated data record parsed through the existing `InstrumentProfileParseError` boundary.
-   - It should carry transposition as plain numbers, not literal unions.
-   - It should carry a schema version.
-   - Then "my instrument" (v3) is only a new source of the same record.
-   - Do **not** add input-kind or microphone fields yet (premature, see below).
-2. **When ISS-004 adds variety to the profile bundles, keep the bundle a declarative record
-   (I).**
-   - Replacing the two `profile !== 'Jazz'` checks with named capability flags is small and
-     local, and it removes the pattern characters would otherwise multiply.
-   - Borderline: it touches planner files that ISS-004 may not otherwise touch. The user
-     decides whether it rides with ISS-004 or waits for v2.
-3. **Make ISS-004's feasibility review also look at continuation (M, A).** The review can
-   record, without implementing, whether the reworked grammar could later accept a non-downbeat
-   start and a boundary tie. Asking now costs a paragraph. Discovering it in v2 costs a second
-   grammar rework.
-
-### Cheap, but belongs at the start of v2, not in v1.0
-
-4. **A version stamp on `GenerationResult` (N)**, before any history exists.
-5. **Stable event identity through the notation pipeline (L).** This is a prerequisite of
-   acknowledgement highlighting and of review marks.
-6. **Expose the per-measure harmony facts (D)** for consumers, now that D108 has settled the
-   chord-fit rule.
-
-### Premature now: do not pull forward
-
-- **Persistence (F).** An atom forbids it for the first release, and nothing needs it before
-  v3.
-  - At most, v2 can put its in-memory session store behind an interface. (proposed)
-- **Multi-voice timeline (K).** v2 backing can be derived from harmony without it, and v4
-  roles are undefined.
-- **Ornament vocabulary (J) and character schema beyond capability flags (I).** Their shape
-  depends on the unresolved embellishment-flags question and on the endgame, which has no
-  scope yet.
-- **File import (G, import half), other meters and tuplets.** These are v4+, and they require
-  lifting grid and meter policy.
-- **The continuation interface itself (A).** It should wait for O10 and the v2 spec. Only the
-  cheap question in item 3 is worth asking early.
-- **The display-effect half of L.** It is endgame-only.
-- **Input-kind or microphone abstraction on templates.** Microphone input is out of scope in any
-  version (D554), so no such abstraction is planned. The v2 MIDI layer should
-  still sit behind a port (C), which costs nothing extra.
+- **Urgent, before v4.0's master spec:** K, as §2 K proposes.
+- **v4.0, with K:** B's async-aware session bus; G's export of the system voices.
+- **Game, not before game start:** I beyond capability flags (characters), J (ornament symbols),
+  K beyond v4.0 (voices that trade turns), M's short phrases, L's display-effect half, A's
+  exchange form. All of them sit on the library line (O).
+- **v5, waiting on O314 (a):** G's import half, A's full form for a file, M's other meters and
+  tuplets (O48).
+- **Out:** the input kind on templates (D554).
 
 ## 4. Constraint conflicts
+
+**Revised 2026-11-24.** The rows below were written on 2026-09-25 for v1.0 to the endgame. The
+v1.0 to v3 rows were dealt with when those versions were specced and are not rechecked here (O49
+still asks how first-release atoms are amended). The atoms v4.0 must amend are listed after the
+table, in [v4.0's rows](#v40s-rows).
 
 Later capabilities would have to amend the following atoms and contract clauses. Each is
 checked against the atom's rule text under `docs/`, read-only.
@@ -490,9 +636,31 @@ checked against the atom's rule text under `docs/`, read-only.
 | `entity_instrument_profile`                                     | "The first-release profiles are C MIDI keyboard 48-72, B-flat tenor 46-70, E-flat alto 51-75"                                                                      | v1.0 open templates; v3 user-defined instrument                                                                                              | The fixed list becomes "shipped presets", and the entity gains a transposition.                                                                                                               |
 | `contract_infinite_flow_first_release`                          | Guarantees generated pitches stay inside the selected profile's active range and resolved register; weakening needs a MAJOR bump                                   | v3 user-defined ranges; v2/v3 ornaments (for example a trill's upper note at the range edge); endgame "register spikes"                      | Not necessarily a conflict. Keeping the invariant for user-defined ranges and ornament notes is a design constraint on H, I and J. (inference)                                                |
 
+### v4.0's rows
+
+Checked against the atoms' text on 2026-11-24. Rewording them is `documentalist`'s, from v4.0's
+master spec; nothing changes before.
+
+| Atom                                  | What it says today                                                                                                                                                         | Why v4.0 amends it                                                                                                                                      |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `req_session_backing_track`           | Bass and block chords "synthesized … from simple oscillators, with no sample library"; "no accompaniment with musical roles such as harmonizing, responding to or contrasting" | Roles are v4.0's scope (D553). The sound ban becomes recorded samples and audio assets only (owner, 2026-10-11; [sound library survey](../../docs/sound-library-survey.md#open-questions) item 1) |
+| `rule_guide_sound_from_oscillators`   | "only from the browser's own oscillators and gains: no sample, no audio file, no new library"                                                                             | A sound library is v4.0's scope; the guides' voices move with it or stay on oscillators ([sound library](v4/sound-library.md))                          |
+| `module_guide_playback_layers`        | The seam's four sound roles; "the sounding … turns one note into an oscillator"                                                                                           | The seam widens to the accompaniment's roles; the sounding part is the one the library replaces (D491)                                                 |
+| `req_session_audio_mix`               | Eight mix controls: backing, click, melody guide, rhythm guide                                                                                                             | One more channel per part, each with its switch (D586)                                                                                                   |
+| `vision_infinite_flow_first_release`  | "a simple, deterministic backing track (bass and block chords)"; its out-of-scope list through v3.4                                                                       | Adds v4.0. "A monophonic musician" still holds: the player plays the lead only (D580)                                                                   |
+| `entity_concert_event_timeline`       | Exactly four measures, one voice                                                                                                                                           | Not amended by v4.0: system voices sit beside the timeline (§2 K)                                                                                       |
+
+`verify:boundaries` follows the first row: its rule against `createBufferSource` and
+`decodeAudioData` in authored source, and its wording "voices are oscillators and gains only",
+are reworded to ban recorded sound and audio assets (`scripts/verify-boundaries.mjs:32-39`,
+`:133`).
+
 ## 5. Questions (registered in [open questions](../open-questions.md))
 
-The IDs point to the register.
+The IDs point to the register. Revised 2026-11-24: O34–O38, O43 and O45 were answered for v2
+(D72–D108; [v2 archive](../archive/v2/README.md)) and O47 for v3.1 (D216); O33 and O32 earlier, as
+marked. O48 and O49 are still open. v4.0's questions were O317–O322; O317–O321 are ruled
+(D585–D589) and O322 waits on the spike.
 
 - **[O34]** **Continuation boundary.** Does v2's rolling phrase need only a boundary state (last chord,
   last pitch, pending figure, tie), or must phrase N+1 see more of phrase N? Is O10 settled
