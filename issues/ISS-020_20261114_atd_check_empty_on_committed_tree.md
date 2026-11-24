@@ -53,6 +53,29 @@ default diff mode compares uncommitted changes with `HEAD`.
 "atd:check": "atd check",
 ```
 
+**Confirmed, refined** (v3.4 structural review, part D, the ATD cost review, read in atd's
+`pkg/coverage/coverage.go`, `diffChangedFiles`): plain `atd check` runs `git diff --name-only`
+with no revision, which compares the working tree with the index, not with `HEAD`. Staged changes
+are invisible too (a pure `git mv` is missed), and so are untracked files. Positional arguments go
+straight to `git diff`, so `atd check main...HEAD`, `atd check <base> <head>` and
+`atd check -- --cached` all work.
+
+### What else the review and waves 2–3 established
+
+- **`atd check` exits 0 whatever it finds**, in every mode: an empty scope, and NO_IMPL or
+  NO_TESTS rows in `--full` or range mode alike. Fixing the scope alone would still leave a gate
+  that cannot fail.
+- **Unknown atom ids in links are silent in `atd check`** (and in `atd lint`): a link with a typo
+  in its id, or a project-qualified id with no workspace, is dropped without a message and only
+  lowers that atom's link count. The one guard is the repo's own `npm run lint:health`
+  (`phantom atom id`), which runs on committed trees but scans only its default roots, `src/`,
+  `tests/` and `scripts/`.
+- **The working remedy**, used by every v3.4 sync (waves 1 to 3 and the release sync):
+  `atd check main...HEAD` over the branch's range, and `atd check --full` compared by hand with the
+  baseline, **15 NO_IMPL** (BUSINESS atoms implemented through their descendants) and
+  **1 NO_TESTS**. Wave 2's and wave 3's gates still printed "No atoms found for the specified
+  scope" from the plain script.
+
 ### Where this pattern exists today
 
 Every place that runs `npm run atd:check` after committing: the end of `npm run quality`
@@ -71,12 +94,12 @@ Every place that runs `npm run atd:check` after committing: the end of `npm run 
 
 ## Risk assessment
 
-| Factor | Value |
-|---|---|
-| Likelihood | High: every gate on a committed tree |
-| Impact | Low to Medium: link drift reaches `main`; no product behaviour changes |
-| Detectability | Low: it prints a line and passes |
-| Current mitigation | the pre-commit ATD check; `documentalist`'s wave sync checks the wave's links by hand |
+| Factor             | Value                                                                                                                                                                                                |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Likelihood         | High: every gate on a committed tree                                                                                                                                                                 |
+| Impact             | Low to Medium: link drift reaches `main`; no product behaviour changes                                                                                                                               |
+| Detectability      | Low: it prints a line and passes                                                                                                                                                                     |
+| Current mitigation | the pre-commit ATD check; `npm run lint:health` for unknown ids under `src/`, `tests/`, `scripts/`; `documentalist`'s wave sync runs `atd check main...HEAD` and compares `--full` with the baseline |
 
 ---
 
@@ -88,6 +111,14 @@ files) instead of the plain script.
 **Medium term:** make `atd:check` check a committed range, e.g. the diff against the branch's base
 on `main`, or `--full` if it is fast enough; and make an empty scope a failure (or at least a
 warning) inside `npm run quality`.
+
+**Proposed (not applied; the script belongs to whoever owns the tooling):** make the
+`atd:check` script check the branch's range instead of the working tree, for example
+`"atd:check": "atd check main...HEAD"` (the diff against the merge base with `main`), and wrap it
+so it fails: on an empty scope, on any NO_IMPL or NO_TESTS row in that range, and on a `--full`
+count above the baseline (15 NO_IMPL, 1 NO_TESTS). On `main` itself the range is empty, so the
+wrapper there would run `--full` against the baseline. Leave the pre-commit hook on its current
+mode, or `atd check -- --cached`, which sees staged changes.
 
 **Long term:** —
 
@@ -108,9 +139,16 @@ Wave 5 sync: diff mode before the commit reported 25 atoms (23 OK, 2 NO_IMPL: th
 - `specs/versions/v3/build-workflow.md:83,96`
 - `README.md:60,450`
 - `specs/versions/v3/wave-log-v3.3.md`, "Wave 5 sync and report"
+- `specs/versions/v3/structural-review-evidence/D-atd-cost.md`, section 1.3 and the commands table
+- `specs/versions/v3/wave-log-v3.4.md`, "Wave 2" and "Wave 3"
+- `scripts/code-health-check.mjs` (`DEFAULT_ROOTS` in `scripts/code-health/config.mjs`)
 
 ---
 
 ## Change log
 
 - **2026-11-14**: filed.
+- **2026-11-24**: cause refined (working tree against the index, staged and untracked files
+  unseen); added what v3.4's ATD cost review and waves 2–3 established (exit 0 in every mode,
+  unknown ids silent outside `lint:health`, the `atd check main...HEAD` and `--full`-baseline
+  remedy) and a proposed script fix; status unchanged (v3.4 tidy-up).

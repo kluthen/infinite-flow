@@ -1,7 +1,7 @@
 ---
 id: module_tension_arc_cycle
 status: STABLE
-version: 0.2
+version: 0.3
 priority: 1
 tags: [v2, release-v2.0, part-v2.2, session, tension]
 type: MODULE
@@ -37,7 +37,7 @@ Flag. Whether the arc runs is a boolean of the session start, checked when the e
 Replay. The stepped value is the generation intent's own tension-arc control, so a session phrase's replay key holds it with no change to the key format, and the key replays the phrase as it was generated.
 
 ## TECHNICAL INTERFACE
-`src/session/tension-arc-cycle.ts` exports `TensionArcCycleStep` (`-1 | 0 | 1`), `tensionArcCycleStep(phraseNumber)` giving a session phrase number's cycle step, `steppedTensionArc(tension, phraseNumber)` giving the clamped stepped tension arc, `settingsGeneratedUnder(multiPhraseTensionArc, phraseNumber, settingsInEffect)` giving the settings that phrase is generated under, and `requireTensionArcFlag(multiPhraseTensionArc)` checking the start's flag; a phrase number that is not an integer from 1, a tension arc outside the vocabulary or a non-boolean flag throws `SessionEngineError`. It reads the order Settled, Lift, Build, Edge from `TENSION_ARCS` in `src/domain/controls/generation-controls.ts`. `SessionStart` (`src/session/session-types.ts`) gains `multiPhraseTensionArc: boolean`, checked by `createSessionEngine` at start through `requireTensionArcFlag` and kept in `EngineContext.multiPhraseTensionArc` (`src/session/session-engine-state.ts`). The session engine applies `settingsGeneratedUnder` when it builds a look-ahead basis, after any mutation landing on that phrase, and when a settings change requests a pending phrase again; the result is the basis's settings, which become the engine state's `lastDecidedSettings` once the phrase is decided, and so the before side `adaptCarryIn` (`src/session/carry-in-adaptation.ts`) gets for the next phrase. The workspace passes the player's `Tension across phrases` choice, `tensionAcrossPhrases.on()`, as `multiPhraseTensionArc` when it starts a session (`src/components/workspace/workspace-session-begin.ts`). The `ifk1.` replay key format is unchanged.
+`src/session/tension-arc-cycle.ts` exports `TensionArcCycleStep` (`-1 | 0 | 1`), `tensionArcCycleStep(phraseNumber)` giving a session phrase number's cycle step, `steppedTensionArc(tension, phraseNumber)` giving the clamped stepped tension arc, `settingsGeneratedUnder(multiPhraseTensionArc, phraseNumber, settingsInEffect)` giving the settings that phrase is generated under, and `requireTensionArcFlag(multiPhraseTensionArc)` checking the start's flag; a phrase number that is not an integer from 1, a tension arc outside the vocabulary or a non-boolean flag throws `SessionEngineError`. It reads the order Settled, Lift, Build, Edge from `TENSION_ARCS` in `src/domain/controls/generation-controls.ts`. `SessionStart` (`src/session/session-types.ts`) gains `multiPhraseTensionArc: boolean`, checked by `createSessionEngine` at start through `requireTensionArcFlag` and kept in `EngineContext.multiPhraseTensionArc` (`src/session/session-engine-state.ts`). The session engine applies `settingsGeneratedUnder` when it builds a look-ahead basis, after any mutation landing on that phrase, and when a settings change requests a pending phrase again; the result is the basis's settings, which become the engine state's `lastDecidedSettings` once the phrase is decided, and so the before side `adaptCarryIn` (`src/session/carry-in-adaptation.ts`) gets for the next phrase. The workspace passes the player's `Tension across phrases` choice, `tensionAcrossPhrases.on()`, as `multiPhraseTensionArc` when it starts a session (`src/components/workspace/workspace-session-begin.ts`). The arc adds nothing to the replay key format: the key holds the stepped tension as the generation intent's own tension-arc control.
 
 ## EXPECTATION
 - With the flag on, session phrases 1 to 8 are generated with the tension arc in effect, one step tenser, the tension arc in effect, one step calmer, and again, never past Settled or Edge.
@@ -47,5 +47,5 @@ Replay. The stepped value is the generation intent's own tension-arc control, so
 - A phrase requested again after a settings change, a standalone retry and the phrase after a repeat use the step of their own phrase number; a repeat is the earlier phrase unchanged.
 - Across a step, a carried harmony that no longer fits the stepped tension is dropped and the pitch part is re-checked, so every carried-in phrase passes the generation intent's own carry-in check.
 - A session start whose flag is not a boolean throws when the engine starts.
-- A session phrase's replay key holds the stepped tension under the unchanged `ifk1.` format and replays that phrase as generated.
+- A session phrase's replay key holds the stepped tension, with no change to the key format for the arc, and replays that phrase as generated.
 - The same seeds and event list give the same session.
