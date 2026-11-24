@@ -36,8 +36,10 @@
   .score-panel {
     min-inline-size: 0;
   }
+  /* v4.0 changed: items align on their first baseline (was centred), so the title stays on the
+     line of the mix's first row when the mix's two rows stack beside it. */
   .score-toolbar {
-    align-items: center;
+    align-items: baseline;
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-3);
@@ -1028,35 +1030,146 @@
     stroke: none;
   }
 
-  /* Layout only: each child carries its own states. The audio mix -- the
-     `Backing`, `Click`, `Melody guide` and `Rhythm guide` toggle buttons, in that order, then
-     `mix-volume` (the `Volume` button and its popover). From bp-tablet-landscape up it stays
-     one line (the toolbar's own wrap moves it under the title when needed); below, on its own
-     row, it wraps onto a second line in the same order. Never locked:
-     fully interactive at Idle, during a session and in the Review. From bp-tablet-landscape
-     up it sits at the toolbar's trailing end; below it, whatever the orientation (the
-     width-only block right after this rule, the same query as `session-cue-actions`), it takes
-     its own row of the wrapping `score-toolbar`, under the title. */
+  /* v4.0 changed: two `mix-row`s (was one line of five controls).
+     Layout only: each child carries its own states. The audio mix: two `mix-row`s, the first
+     holding the `Backing`, `Click`, `Melody guide` and `Rhythm guide` toggle buttons, the second
+     `mix-parts` (the four part switches) then `mix-volume` (the `Volume` button and its
+     popover); then `mix-parts-note` when shown. Never locked: fully interactive at Idle, during
+     a session and in the Review.
+     From bp-tablet-landscape up it shares the toolbar's first line with the title, at the
+     trailing end: its flex basis is zero and its minimum is its min-content, the wider row, so
+     the toolbar moves it under the title only when the wider row cannot fit beside the title;
+     otherwise it takes the rest of the line, and its own wrap sets the two rows side by side
+     when that rest holds both, or the second under the first, both at the trailing end.
+     Below bp-tablet-landscape, whatever the orientation (the width-only block right after this
+     rule, the same query as `session-cue-actions`), it takes its own line of the wrapping
+     `score-toolbar` under the title, its rows at the inline start, each starting a line of its
+     own and wrapping where the line cannot hold it. Nothing in it changes size during a
+     session (the lights keep one size; the note shows only at Idle), so the toolbar keeps its
+     size then. */
   .mix-controls {
     align-items: center;
     display: flex;
-    flex: 0 0 auto;
+    flex: 1 1 0;
     flex-wrap: wrap;
     gap: var(--spacing-2);
-    margin-inline-start: auto;
-    min-inline-size: 0;
+    justify-content: flex-end;
+    min-inline-size: min-content;
   }
   @media (max-width: 63.9375rem) {
     .mix-controls {
       flex: 1 1 100%;
-      margin-inline-start: 0;
+      justify-content: flex-start;
+      min-inline-size: 0;
     }
   }
+  /* v4.0 new -- from here to "end v4.0 new": the mix's rows, the part switches' group and its
+     note (`screens/phrase-workspace/handoff.md`, Audio mix; Responsive Behavior, The mix's
+     lines). */
+  /* Layout only: its controls carry their own states. One line of the audio mix. From
+     bp-tablet-landscape up it never splits: its controls never shrink and their labels never
+     wrap, so its min-content is its whole width. Below, it takes a line of its own and wraps
+     where the line cannot hold it, in the same order; its labels still never wrap. */
+  .mix-row {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--spacing-2);
+    white-space: nowrap;
+  }
+  .mix-row > *,
+  .mix-parts > * {
+    flex: 0 0 auto;
+  }
+  @media (max-width: 63.9375rem) {
+    .mix-row {
+      flex: 1 1 100%;
+      flex-wrap: wrap;
+      min-inline-size: 0;
+    }
+  }
+  /* Layout only: the four part switches (`btn toggle-button`, each with its `part-light`), a
+     `role="group"` named "Accompaniment parts", with no visible label or separator: the lights
+     set it apart. One unit inside the second `mix-row`, its switches `--spacing-2` apart as the
+     rest of the mix. Below bp-tablet-landscape it wraps its switches itself, so on a phone too
+     narrow for the four, `Volume` goes to the line after them. */
+  .mix-parts {
+    align-items: center;
+    display: flex;
+    gap: var(--spacing-2);
+  }
+  @media (max-width: 63.9375rem) {
+    .mix-parts {
+      flex: 0 1 auto;
+      flex-wrap: wrap;
+      min-inline-size: 0;
+    }
+  }
+  /* States: unlit (default), lit (`is-lit`). A part's playing light, inside its switch after
+     `toggle-button-state`, `aria-hidden`. Shape and fill tell the states, never colour alone:
+     unlit, a hollow ring `--part-light-size` across, `--part-light-ring-width` wide in
+     `--color-text-muted`; lit, the same disc filled with `--color-accent`, its ring too. One
+     size and one place in both states, so the switch keeps one width; the change is instant,
+     with no transition (`motion.md`). Not interactive itself: hover, focus-visible, active and
+     disabled are its switch's (`.btn:disabled` dims it with the switch; a disabled part is never
+     lit). In forced colours, where author fills are dropped, the lit disc is drawn in
+     `CanvasText` so the two states stay apart. */
+  .part-light {
+    block-size: var(--part-light-size);
+    border: var(--part-light-ring-width) solid var(--color-text-muted);
+    border-radius: 50%;
+    display: inline-block;
+    flex: 0 0 auto;
+    inline-size: var(--part-light-size);
+  }
+  .part-light.is-lit {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+  @media (forced-colors: active) {
+    .part-light {
+      border-color: CanvasText;
+    }
+    .part-light.is-lit {
+      background: CanvasText;
+      border-color: CanvasText;
+      forced-color-adjust: none;
+    }
+  }
+  /* States: shown, absent. Composed as `field-note mix-parts-note`: at Idle only, while the
+     parts' sounds are unavailable, "Their sounds didn't load. Check that you're online, then
+     reload the page.", named by the four disabled part switches with `aria-describedby`. A line
+     of its own under the second `mix-row`, aligned with it (at the trailing end from
+     bp-tablet-landscape up, at the inline start below), wrapping within the toolbar's width. */
+  .mix-parts-note {
+    flex: 1 0 100%;
+    text-align: end;
+    white-space: normal;
+  }
+  @media (max-width: 63.9375rem) {
+    .mix-parts-note {
+      text-align: start;
+    }
+  }
+  /* end v4.0 new */
   /* Layout only: the positioning anchor for the Volume popover. The `Volume` button is a plain
      `.btn` with `aria-expanded` and `aria-controls`; while its popover is open it keeps the
-     accent border (open state), in addition to `.btn`'s own states. */
+     accent border (open state), in addition to `.btn`'s own states.
+     v4.0 changed: below bp-tablet-landscape the toolbar's `Volume` is no anchor; its second
+     `mix-row`, a line of the toolbar's full width, is (the block right after this rule), so the
+     popover opens under that row at its inline end and never runs past the viewport's inline
+     start when `Volume` wraps to the start of a line. The compact `Volume` in
+     `session-cue-actions` stays its own anchor. */
   .mix-volume {
     position: relative;
+  }
+  @media (max-width: 63.9375rem) {
+    .mix-controls .mix-row {
+      position: relative;
+    }
+    .mix-controls .mix-volume {
+      position: static;
+    }
   }
   .mix-volume > .btn[aria-expanded='true'] {
     border-color: var(--color-accent);
@@ -1089,10 +1202,13 @@
   .toggle-button[aria-pressed='true'] .toggle-button-state {
     color: var(--color-text);
   }
-  /* States: closed (`hidden`: absent), open. It opens and closes instantly,
+  /* v4.0 changed: eight volume `field-group`s (was four), laid out by `mix-volume-panel`.
+     States: closed (`hidden`: absent), open. It opens and closes instantly,
      with no animation. A non-modal panel anchored under the `Volume`
-     button, aligned to its inline end, holding the four volume `field-group`s (backing, click,
-     melody guide, rhythm guide). The one element
+     button, aligned to its inline end (but for the toolbar's `Volume` below bp-tablet-landscape,
+     under the second `mix-row` at its inline end: see `.mix-volume`), holding the eight volume
+     `field-group`s (backing, click,
+     melody guide, rhythm guide, then the four parts). The one element
      allowed to cover part of the staff, since only the player opens it. Not itself
      interactive: its sliders carry their own states. */
   .popover {
@@ -1114,6 +1230,28 @@
   }
   .popover .field-group {
     margin-block-end: 0;
+  }
+  /* v4.0 new */
+  /* Layout only: its sliders carry their own states. Composed as `popover mix-volume-panel`, the
+     `Volume` popover's eight `field-group`s. From bp-tablet-landscape up, two columns of four,
+     filled column by column so the page order, and the Tab order, is column by column: `Backing
+     volume` to `Rhythm guide volume`, then `Thirds volume` to `Drums volume`; each column at
+     least `--control-group-min-inline-size` wide, so the panel stays about as tall as the four
+     sliders were. Below bp-tablet-landscape, one column of eight (the phone's popover may run
+     past the viewport's bottom edge and the page scrolls to it: no size cap, no scroll area of
+     its own). */
+  .mix-volume-panel {
+    column-gap: var(--spacing-5);
+    grid-auto-flow: column;
+    grid-template-columns: repeat(2, minmax(var(--control-group-min-inline-size), 1fr));
+    grid-template-rows: repeat(4, auto);
+  }
+  @media (max-width: 63.9375rem) {
+    .mix-volume-panel {
+      grid-auto-flow: row;
+      grid-template-columns: none;
+      grid-template-rows: none;
+    }
   }
   /* States: default, hover, focus-visible, active (dragging), disabled. A native
      `input type="range"` whose `min`, `max`, `step` and initial `value` come from the audio-mix
@@ -1577,7 +1715,7 @@
 
   /* States: default only; its buttons carry `.btn`'s states, disabled during a session
      included. The page's last block, after `control-section` inside `layout-app`: one wrapping
-     row holding `footer-note`, then `footer-actions` (v3.4 changed: was one `btn`, "Your data"). */
+     row holding `footer-note`, then `footer-actions`. */
   .layout-footer {
     align-items: center;
     color: var(--color-text-muted);
@@ -1591,7 +1729,6 @@
   .footer-note {
     margin: 0;
   }
-  /* v3.4 new */
   /* States: none of its own (layout only; its buttons carry `.btn`'s states). The footer's
      buttons, `Your data` then `Lexicon`, `--spacing-2` apart, kept together: when the footer's
      row runs out of width, the two wrap under `footer-note` as one. */
@@ -2376,8 +2513,8 @@
     outline: none;
   }
 
-  /* v3.4 new -- from here to "end v3.4 new": the lexicon page (`screens/lexicon-page/handoff.md`,
-     Layout Tree, Components and Content, Responsive Behavior). Its own classes, from existing
+  /* The lexicon page (`screens/lexicon-page/handoff.md`, Layout Tree, Components and Content,
+     Responsive Behavior). Its own classes, from existing
      tokens only; the classes it reuses (`sheet-title`, `sheet-hint`, `sheet-close`, `btn`,
      `field-label`, `text-input`) keep their own rules and states. The lexicon's breakpoint
      queries are width-only, with no orientation: the page is reading, not playing, and works in
@@ -2763,7 +2900,6 @@
       grid-area: letters;
     }
   }
-  /* end v3.4 new */
 
   /* Below bp-tablet-landscape (width-only, the same query as the notation layout's split layout
      and the cue row's shorter labels): `jam-notice` takes `jam-instruction`'s place while it

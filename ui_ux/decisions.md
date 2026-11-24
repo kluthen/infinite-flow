@@ -192,3 +192,30 @@ approved master spec (spec D596), §12's six items.
   is measured, and a failing measurement gets a remedy that keeps Stop on screen. The other three
   D506 findings and their fixes stand; the re-check passed them. Now in: `open-questions.md`
   (Q90).
+
+## v4.0's token-source pass, gate T0, 2026-11-24
+
+After the owner's approval (gate A0, build plan v4), on wave branch `v4.0-w1`.
+
+- **D508 (2026-11-24): v4.0's token-source pass; the mix's grid is settled.** The three `v3.4`
+  comments went first (D499). `mix-controls` takes a zero basis with its min-content, the wider
+  row, as minimum: the toolbar moves it under the title only when that row cannot fit beside
+  it, and its own wrap sets the rows side by side or stacked, at the trailing end. The toolbar
+  aligns on the first baseline, so the title stays on row one's line. `--part-light-size` 1rem,
+  `--part-light-ring-width` 0.125rem as proposed; the parts' volume tokens at D503's values.
+  Minor choices: on a phone `mix-parts` wraps as one group (`display: contents` would risk the
+  group's role), so `Volume` may take a line of its own; forced colours draw the lit disc in
+  `CanvasText`. Now in: `src/styles/theme.css`, `src/styles/components.css`,
+  `screens/phrase-workspace/handoff.md` (Responsive Behavior: The mix's lines).
+- **D509 (2026-11-24): below bp-tablet-landscape the toolbar's volume popover opens under the
+  second row, at its end.** Found at T0: where that row wraps, `Volume` starts a line, and a
+  popover aligned to its end ran past the viewport's inline start. The compact `Volume` keeps
+  its own anchor. Now in: `screens/phrase-workspace/handoff.md` (Responsive Behavior: Mix
+  controls placement).
+
+## The owner's approval of the v4.0 design, 2026-11-24
+
+- **D510 (2026-11-24): the owner approves v4.0's design set (ux D499-D507), gate D0.** His
+  "agreed" to v4.0's open asks (spec D601) covers the design as validated, Q90 still open for
+  the look on the reference tablet. The `versions/v4.0/` copy is not taken yet (next in
+  `todo.md`). Now in: `todo.md` (In Progress).
