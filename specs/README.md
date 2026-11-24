@@ -97,7 +97,8 @@ Status: draft v0.103
   left the timbres to us (D591). **[Master spec v1.0.1](versions/v4/master-spec.md)** (fixes after the intent ingestion, D597–D600) is
   consolidated (D595): the backing plus four parts, Thirds, Counter-melody, Fills and Drums, each
   off by default with a switch, a volume and a playing light, on Tone.js synths. The owner
-  approved it (D596); the build plan waits for `ux-writer`'s design set. Drafts: [accompaniment roles](versions/v4/accompaniment-roles.md),
+  approved it (D596); the design set is merged (ux D499–D507), and
+  [build plan v1](versions/v4/build-plan.md) (four waves, eleven chunks) awaits his approval. Drafts: [accompaniment roles](versions/v4/accompaniment-roles.md),
   [arranger](versions/v4/arranger.md), [sound library](versions/v4/sound-library.md).
   - **The owner's direction** (2026-11-22): the endgame's game is a separate app, with a
     three-way split (a library, this app, the game; D551); its form, folders with enforced

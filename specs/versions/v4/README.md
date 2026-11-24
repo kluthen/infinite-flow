@@ -21,6 +21,8 @@ direction; [O314](../../open-questions.md#after-v34-the-split-and-this-apps-hori
   ingestion, D597–D600, nothing approved changed): consolidated from the drafts below
   after the owner's rulings (D585–D594); it wins where they differ. Approved by the owner
   (D596); the build plan waits for `ux-writer`'s design set (§12).
+- **[Build plan v1](build-plan.md)** (2026-11-24): four waves, eleven chunks, from master spec
+  v1.0.1 and the design set (ux D499–D507); for the owner's approval (its gate A0).
 - Open questions: [O322](../../open-questions.md#v40-accompaniment-with-roles-o317), settled by
   the sound-library spike; O317–O321 are ruled (D585–D589).
 - Foundations: [prerequisites](../prerequisites.md), revised for v4.0 (D583); K is the urgent one.
