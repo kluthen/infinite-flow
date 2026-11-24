@@ -7,15 +7,24 @@
 import type { AudioTime } from '../session/session-types'
 
 /**
- * The mix's channels. Each has an on/off gain (`<channel>-enable`) and a volume gain
- * (`<channel>-volume`), looked up by channel, so a channel added later joins without reshaping
- * the mix.
+ * The mix's channels: the click, the backing, the two guides, then the four accompaniment parts.
+ * Each has an on/off gain (`<channel>-enable`) and a volume gain (`<channel>-volume`), looked up
+ * by channel, so a channel added later joins without reshaping the mix.
  */
 // @spec-link [[req_session_audio_mix]]
 // @spec-link [[module_guide_playback_layers]]
-export const MIX_CHANNELS = ['click', 'backing', 'melody-guide', 'rhythm-guide'] as const
+export const MIX_CHANNELS = [
+  'click',
+  'backing',
+  'melody-guide',
+  'rhythm-guide',
+  'thirds',
+  'counter-melody',
+  'fills',
+  'drums',
+] as const
 
-/** One of the mix's channels: the click, the backing, or one of the two guides. */
+/** One of the mix's channels: the click, the backing, one of the two guides or one of the parts. */
 // @spec-link [[req_session_audio_mix]]
 // @spec-link [[module_guide_playback_layers]]
 export type MixChannel = (typeof MIX_CHANNELS)[number]

@@ -35,6 +35,14 @@ const MIX_DESIGN: AudioMixDesign = readAudioMixDesign({
       '--mix-rhythm-guide-volume-default': '0.6',
       '--mix-melody-guide-volume-min': '0',
       '--mix-rhythm-guide-volume-min': '0',
+      '--mix-thirds-volume-min': '0',
+      '--mix-counter-melody-volume-min': '0',
+      '--mix-fills-volume-min': '0',
+      '--mix-drums-volume-min': '0',
+      '--mix-thirds-volume-default': '0.5',
+      '--mix-counter-melody-volume-default': '0.5',
+      '--mix-fills-volume-default': '0.6',
+      '--mix-drums-volume-default': '0.6',
     })[name] ?? '',
 })
 

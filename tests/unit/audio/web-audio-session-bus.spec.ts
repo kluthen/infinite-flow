@@ -12,7 +12,7 @@ import { envelopeOf, pathToDestination } from './fake-web-audio-context'
 import { MIDDLE_C_HZ, setUp } from './web-audio-bus-rig'
 
 /** How many mix gains the output builds before any bus opens: two per channel. */
-const MIX_GAIN_COUNT = 8
+const MIX_GAIN_COUNT = 16
 
 // @test-link [[rule_count_in_always_clicks]]
 describe('click routes', () => {

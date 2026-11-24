@@ -9,6 +9,7 @@
 
 import {
   channelOn,
+  channelVolume,
   mixGains,
   validateBackingVolume,
   validateChannelVolume,
@@ -210,10 +211,9 @@ export function createAudioTransport(deps: AudioTransportDependencies): AudioTra
     if (deps.loadedMix === undefined) return { ...mixDesign().defaults }
     const loaded = deps.loadedMix()
     const { range } = mixDesign()
-    validateClickVolume(loaded.clickVolume, range)
-    validateBackingVolume(loaded.backingVolume, range)
-    validateChannelVolume('melody-guide', loaded.melodyGuideVolume, range)
-    validateChannelVolume('rhythm-guide', loaded.rhythmGuideVolume, range)
+    for (const channel of MIX_CHANNELS) {
+      validateChannelVolume(channel, channelVolume(loaded, channel), range)
+    }
     return { ...loaded }
   }
 

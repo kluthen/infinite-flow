@@ -1,6 +1,7 @@
 /**
  * The session's audio mix: an on/off switch and a volume for each of its channels, the click, the
- * backing, the melody guide and the rhythm guide, all independent; their range and first-load
+ * backing, the melody guide, the rhythm guide and the four accompaniment parts (Thirds,
+ * Counter-melody, Fills and Drums), all independent; their range and first-load
  * levels read from the design tokens, and the gain each control sets. Each channel's controls are
  * looked up by channel, so a channel added later joins without reshaping the mix. The mix only
  * ever sets gains; it never touches timing or generated material.
@@ -20,11 +21,20 @@ export interface AudioMix {
   readonly melodyGuideVolume: number
   readonly rhythmGuideOn: boolean
   readonly rhythmGuideVolume: number
+  readonly thirdsOn: boolean
+  readonly thirdsVolume: number
+  readonly counterMelodyOn: boolean
+  readonly counterMelodyVolume: number
+  readonly fillsOn: boolean
+  readonly fillsVolume: number
+  readonly drumsOn: boolean
+  readonly drumsVolume: number
 }
 
 /**
  * The volume range, a minimum per channel and one shared maximum. The click's minimum is above
- * zero, so the click volume never reaches silence; the backing's and each guide's may be zero.
+ * zero, so the click volume never reaches silence; the backing's, each guide's and each part's may
+ * be zero.
  */
 // @spec-link [[rule_click_volume_never_silent]]
 export interface AudioMixRange {
@@ -32,15 +42,18 @@ export interface AudioMixRange {
   readonly backingVolumeMin: number
   readonly melodyGuideVolumeMin: number
   readonly rhythmGuideVolumeMin: number
+  readonly thirdsVolumeMin: number
+  readonly counterMelodyVolumeMin: number
+  readonly fillsVolumeMin: number
+  readonly drumsVolumeMin: number
   readonly volumeMax: number
 }
 
 /** The `AudioMix` and `AudioMixRange` fields of one channel's controls. */
 interface ChannelFields {
-  readonly on: 'clickOn' | 'backingOn' | 'melodyGuideOn' | 'rhythmGuideOn'
-  readonly volume: 'clickVolume' | 'backingVolume' | 'melodyGuideVolume' | 'rhythmGuideVolume'
-  readonly volumeMin:
-    'clickVolumeMin' | 'backingVolumeMin' | 'melodyGuideVolumeMin' | 'rhythmGuideVolumeMin'
+  readonly on: { [K in keyof AudioMix]: AudioMix[K] extends boolean ? K : never }[keyof AudioMix]
+  readonly volume: { [K in keyof AudioMix]: AudioMix[K] extends number ? K : never }[keyof AudioMix]
+  readonly volumeMin: Exclude<keyof AudioMixRange, 'volumeMax'>
 }
 
 /** Each channel's fields, the one place the mix names a channel's controls. */
@@ -59,12 +72,26 @@ const CHANNEL_FIELDS: Readonly<Record<MixChannel, ChannelFields>> = {
     volume: 'rhythmGuideVolume',
     volumeMin: 'rhythmGuideVolumeMin',
   },
+  thirds: { on: 'thirdsOn', volume: 'thirdsVolume', volumeMin: 'thirdsVolumeMin' },
+  'counter-melody': {
+    on: 'counterMelodyOn',
+    volume: 'counterMelodyVolume',
+    volumeMin: 'counterMelodyVolumeMin',
+  },
+  fills: { on: 'fillsOn', volume: 'fillsVolume', volumeMin: 'fillsVolumeMin' },
+  drums: { on: 'drumsOn', volume: 'drumsVolume', volumeMin: 'drumsVolumeMin' },
 }
 
 /** Whether `channel` is switched on in `mix`. */
 // @spec-link [[req_session_audio_mix]]
 export function channelOn(mix: AudioMix, channel: MixChannel): boolean {
   return mix[CHANNEL_FIELDS[channel].on]
+}
+
+/** `channel`'s volume in `mix`. */
+// @spec-link [[req_session_audio_mix]]
+export function channelVolume(mix: AudioMix, channel: MixChannel): number {
+  return mix[CHANNEL_FIELDS[channel].volume]
 }
 
 /** `mix` with `channel` switched on or off. */
@@ -149,13 +176,15 @@ function checkDesign(design: AudioMixDesign): void {
  * Read the mix design from the `--mix-*` design tokens of the loaded stylesheet (pass
  * `getComputedStyle(document.documentElement)`), by channel string: each channel's first-load
  * volume `--mix-<channel>-volume-default` and minimum `--mix-<channel>-volume-min`, and the shared
- * `--mix-volume-max`. The click's and the backing's switches start on; both guides' switches start
- * off, a default rather than a token. The levels are placeholders until the listening tests (ux
- * Q31, and v3.2 HG for the guides); a bad token throws rather than defaulting.
+ * `--mix-volume-max`. The click's and the backing's switches start on; both guides' and the four
+ * parts' switches start off, a default rather than a token. The levels are placeholders until the
+ * listening tests (ux Q31, v3.2 HG for the guides, v4.0's listening check for the parts); a bad
+ * token throws rather than defaulting.
  */
 // @spec-link [[req_session_audio_mix]]
 // @spec-link [[rule_click_volume_never_silent]]
 // @spec-link [[req_guide_playback]]
+// @spec-link [[rule_parts_off_by_default]]
 export function readAudioMixDesign(style: DesignTokenSource): AudioMixDesign {
   const level = (channel: MixChannel, which: 'default' | 'min') =>
     readToken(style, `--mix-${channel}-volume-${which}`)
@@ -169,12 +198,24 @@ export function readAudioMixDesign(style: DesignTokenSource): AudioMixDesign {
       melodyGuideVolume: level('melody-guide', 'default'),
       rhythmGuideOn: false,
       rhythmGuideVolume: level('rhythm-guide', 'default'),
+      thirdsOn: false,
+      thirdsVolume: level('thirds', 'default'),
+      counterMelodyOn: false,
+      counterMelodyVolume: level('counter-melody', 'default'),
+      fillsOn: false,
+      fillsVolume: level('fills', 'default'),
+      drumsOn: false,
+      drumsVolume: level('drums', 'default'),
     },
     range: {
       clickVolumeMin: level('click', 'min'),
       backingVolumeMin: level('backing', 'min'),
       melodyGuideVolumeMin: level('melody-guide', 'min'),
       rhythmGuideVolumeMin: level('rhythm-guide', 'min'),
+      thirdsVolumeMin: level('thirds', 'min'),
+      counterMelodyVolumeMin: level('counter-melody', 'min'),
+      fillsVolumeMin: level('fills', 'min'),
+      drumsVolumeMin: level('drums', 'min'),
       volumeMax: readToken(style, '--mix-volume-max'),
     },
   }

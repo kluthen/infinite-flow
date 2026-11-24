@@ -2,9 +2,9 @@
  * The settings records: what is written for each saved setting, and how a load reads it back.
  * Each setting is its own record, so each loads, and fails to load, on its own. Every record
  * carries the data version of its own shape and the version of the app that wrote it: 1 for the
- * settings v3.0 already saved and the records added beside them since with no step (v3.2's, and
- * v3.3's Seventh chords level), 3 for the preset selection and the figure levels, introduced at
- * data version 3.
+ * settings v3.0 already saved and the records added beside them since with no step (v3.2's,
+ * v3.3's Seventh chords level and v4.0's four parts in the mix), 3 for the preset selection and
+ * the figure levels, introduced at data version 3.
  *
  * Reading is tolerant, setting by setting, and this codec is the one place the app's "no silent
  * fallback" rule gives way: a saved value that is unknown, of the wrong type or out of range, a
@@ -34,6 +34,7 @@ import {
   type AudioMix,
   type AudioMixDesign,
 } from '@/audio/audio-mix'
+import type { MixChannel } from '@/audio/sound-roles'
 import {
   CHORD_FAMILY_IDS,
   CHORD_FAMILY_LEVEL_IDS,
@@ -279,6 +280,11 @@ function volume(validate: typeof validateClickVolume): Parse<number> {
   }
 }
 
+/** A parser accepting only a number `channel`'s volume validator accepts in the design's range. */
+function channelVolume(channel: MixChannel): Parse<number> {
+  return volume((level, range) => validateChannelVolume(channel, level, range))
+}
+
 /** Whether a value is a plain object, as a stored record or object value is. */
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false
@@ -365,18 +371,29 @@ const CHORD_FAMILY_PARSERS: GroupParsers<ChordFamilies> = Object.fromEntries(
 /**
  * Each audio mix control's parser, a switch and a volume per channel: the click's and the
  * backing's, then each guide's, records v3.2 added beside them with no upgrade step: a store
- * written before v3.2 has none, and each takes its default (the guide off, the design's level).
+ * written before v3.2 has none, and each takes its default (the guide off, the design's level);
+ * then each of the four parts', records v4.0 added the same way: a store written before v4.0 has
+ * none, and each part loads off at the design's first-load level.
  */
 // @spec-link [[rule_saved_settings_load_tolerantly]]
+// @spec-link [[rule_parts_off_by_default]]
 const MIX_PARSERS: GroupParsers<AudioMix> = {
   clickOn: readBoolean,
   clickVolume: volume(validateClickVolume),
   backingOn: readBoolean,
   backingVolume: volume(validateBackingVolume),
   melodyGuideOn: readBoolean,
-  melodyGuideVolume: volume((level, range) => validateChannelVolume('melody-guide', level, range)),
+  melodyGuideVolume: channelVolume('melody-guide'),
   rhythmGuideOn: readBoolean,
-  rhythmGuideVolume: volume((level, range) => validateChannelVolume('rhythm-guide', level, range)),
+  rhythmGuideVolume: channelVolume('rhythm-guide'),
+  thirdsOn: readBoolean,
+  thirdsVolume: channelVolume('thirds'),
+  counterMelodyOn: readBoolean,
+  counterMelodyVolume: channelVolume('counter-melody'),
+  fillsOn: readBoolean,
+  fillsVolume: channelVolume('fills'),
+  drumsOn: readBoolean,
+  drumsVolume: channelVolume('drums'),
 }
 
 /**
@@ -486,8 +503,8 @@ const LEVEL_KEY_PREFIX = 'figureLevels.'
 /**
  * The data version of one setting's record shape: 3 for the preset selection and each
  * figure level, introduced at data version 3; 1 for every setting v3.0 already saved, and for the
- * records added beside them with no step: v3.2's (session mode's three options, Jam's group) and
- * v3.3's Seventh chords level.
+ * records added beside them with no step: v3.2's (session mode's three options, Jam's group),
+ * v3.3's Seventh chords level and v4.0's eight records of the four parts in the mix.
  */
 // @spec-link [[module_settings_upgrade_step]]
 // @spec-link [[rule_outdated_tab_reads_what_it_can]]
