@@ -118,3 +118,13 @@ applies (D119, D135, archived; spec D414).
   lexicon API, as built, is a read interface with no addresses. Now in: `versions/v3.4/README.md`,
   `README.md` (Released versions and work in progress), `flows/look-up-a-word/intent.md` (What
   Was Left Out).
+
+## v4.0's design starts at the root, 2026-11-24
+
+- **D499 (2026-11-24): v4.0's design starts at the root; v3.4's marks are cleared.** The approved
+  v4.0 master spec (spec D596) starts v4.0's design, and `versions/v3.4/` holds v3.4 with its
+  marks, so the root's change blocks, `New in v3.4` lines, inline tags and layout-tree
+  annotations went in one mechanical pass before any v4.0 edit, and one note was reworded to the
+  shipped state. The token source's three `v3.4` comments go at the start of v4.0's token-source
+  pass, its first v4.0 edit, so `src/` is untouched by the design. v4.0 is marked against
+  `versions/v3.4/`. Now in: `README.md` (Released versions and work in progress).

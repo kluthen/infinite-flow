@@ -1,7 +1,5 @@
 # Lexicon Page Intent
 
-> **New in v3.4.**
-
 ## What This Screen Is
 
 The research behind this design, what the lexicon holds and how good glossary pages handle each

@@ -1,10 +1,5 @@
 # Motion
 
-> **Changes since v3.3**
->
-> - _New:_ the lexicon page's opening, closing and jumps ([Rules](#rules))
-> - _Removed:_ nothing
-
 ## Rules
 
 - Motion communicates phrase replacement and immediate interaction feedback; it never decorates the music stand.
@@ -34,5 +29,5 @@
 - Switching between session mode and Jam mode replaces the staff area and the controls at once, with no fade, slide or cross-fade, and scrolls nothing: the player's own choice is the cause, and the two modes are not one phrase replacing another. While Jam mode's part of the app loads after the first press, the mode switch only dims, with the `wait` cursor: no spinner, no progress bar, nothing that would suggest a measured progress; its failure notice appears in the notice row with no animation, like every notice.
 - In a Jam, the cue row's doodle measures light at each barline on the audio clock with no transition, like the count-in's beats; "Writing your first phrase" appears and leaves with no animation and nothing in it moves (no animated dots: it would suggest progress the app cannot measure). Phrase 1 enters the empty staff at the read-in measure with the ordinary `--duration-fade` entrance, and the empty staff with its instruction leaves with the `--duration-fade-fast` fade-out, as any refill does. The empty staff of Jam mode, its instruction and its notice, the kept doodle's bar, the line saying a Jam needs a controller and the key and mode suggestion appear and leave with no animation; `New doodle` gives the empty staff back at once. A phrase 1 written again from the kept doodle after a setting change enters with the ordinary loading and entrance. The options that appear under their switch (allowed rhythm changes, what may vary) appear and leave at once, the columns rewrapping with no transition. The review's doodle section is drawn like a phrase, with no fade.
 - Tap-in changes the tempo stepper's value at once on each tap from the fourth, with no transition, counter roll or highlight, and `Tap tempo`'s listening border comes and goes with the ordinary `--duration-feedback` button feedback; no tap sounds or flashes anything. The readings of what the app took from the doodle fill and empty at once, out of the way below the staff, with no animation.
-- **[v3.4 new]** The lexicon page (`lexicon-view`) opens and closes with the sheet's opacity transition, `--duration-feedback` with `--ease-out-fast`, with no backdrop and no spatial motion. Inside it, a jump to a letter or a word is instant, never a smooth scroll, and an entry's detail opens and closes with no animation; the search's results replace each other at once.
+- The lexicon page (`lexicon-view`) opens and closes with the sheet's opacity transition, `--duration-feedback` with `--ease-out-fast`, with no backdrop and no spatial motion. Inside it, a jump to a letter or a word is instant, never a smooth scroll, and an entry's detail opens and closes with no animation; the search's results replace each other at once.
 - Under `prefers-reduced-motion: reduce`, staff replacement is instant and only non-spatial color feedback remains.

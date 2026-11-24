@@ -1,11 +1,5 @@
 # Saved Data Handoff
 
-> **Changes since v3.3**
->
-> - _New:_ the lexicon's load-failure notice beside the saving notices
->   ([Notices](#notices): The lexicon's load-failure notice)
-> - _Removed:_ nothing
-
 Screens: [`phrase-workspace`](../../screens/phrase-workspace/handoff.md) (the load, the notice
 row, the footer), [`your-data`](../../screens/your-data/handoff.md) (the sheet),
 [`last-session-review`](../../screens/last-session-review/handoff.md) and
@@ -211,7 +205,7 @@ Drawn in `app-notice-row`, at the top of `layout-workspace` before `score-panel`
   notice above, after it, `--spacing-2` apart; the rules of one notice at a time govern the
   saving notices only, and neither kind replaces the other. Like them it is calm and held still
   during a session.
-- **[v3.4 new]** **The lexicon's load-failure notice** is not one of this flow's either: its copy,
+- **The lexicon's load-failure notice** is not one of this flow's either: its copy,
   actions and lifetime are in `screens/lexicon-page/handoff.md` (States: Load failure). The row
   holds it as it holds Jam mode's, after the saving notices, and after Jam mode's when both show.
 - **After `Dismiss`,** the save-problem notice comes back only when a save fails again after a

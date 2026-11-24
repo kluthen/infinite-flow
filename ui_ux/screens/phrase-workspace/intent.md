@@ -1,10 +1,5 @@
 # Phrase Workspace Intent
 
-> **Changes since v3.3**
->
-> - _New:_ the footer's `Lexicon` button ([The Footer](#the-footer))
-> - _Removed:_ nothing
-
 ## Focal Point and Header
 
 The score is deliberately the focal point. A player should be able to sight-read the phrase without searching for where bar three begins or which chord governs a note. Four visibly equal measure regions, strong barlines, and chord symbols placed above their harmonic entry give the phrase its form at a glance. At `bp-tablet-landscape` and above, that takes the form of one unbroken staff system holding all four measures.
@@ -189,7 +184,7 @@ The row also tells the one way opening Jam mode can fail: offline, before the ap
 
 The page ends with one quiet line: "Your settings and sessions are kept on this device only.", then a `Your data` button. It answers the question a player may reasonably have, where all this is kept, in the one place a page conventionally keeps such things, and the button opens the sheet that lists what is kept, how much room it takes, and how to delete it (see [`screens/your-data/`](../your-data/intent.md)). It is a footer, not a header button, because the header's widths are fixed and full, and because this is a place a player visits rarely: once to look, perhaps once to clean up. The list of kept sessions has the same button, for the player who is already looking at their sessions. During a session the button is disabled, like every control, and no sheet opens.
 
-**[v3.4 new]** A second button, `Lexicon`, follows `Your data` and opens the lexicon page, every
+A second button, `Lexicon`, follows `Your data` and opens the lexicon page, every
 music word and control name the app uses, in plain words. It sits here for the same reasons:
 the header is full and belongs to playing, the footer is reachable from every state outside a
 session, and a beginner who wonders about a word looks for help at the edge of the page, not

@@ -37,8 +37,9 @@ design the owner approved on 2026-11-09, is released as version 3.3.0 (tag `v3.3
 Seventh chords labels among them. v3.4 (the lexicon page), whose design the owner validated on
 2026-11-22, is released as version 3.4.0 (tag `v3.4.0` at 17e631e4, 2026-11-24); its design is
 frozen in `versions/v3.4/` and its working record is in `archive/v3.4/`, and the owner's look at
-the built page follows the tag. The root is the whole interface as v3.4 shipped it; the next
-version's design has not started. See `todo.md` for where the work stands.
+the built page follows the tag. v4.0 (accompaniment with roles,
+`specs/versions/v4/master-spec.md`) is designed at the root, marked against `versions/v3.4/`.
+See `todo.md` for where the work stands.
 
 ## Released versions and work in progress
 
@@ -58,23 +59,25 @@ version's design has not started. See `todo.md` for where the work stands.
   ships. `versions/v3.4/` is v3.4 (the lexicon page), released as version 3.4.0: frozen at its
   release, the copy not having been taken at approval, as the whole root, and corrected later
   only if the owner's look at the page after the release changes the design.
-- Everything outside `versions/` and `archive/` is the work toward the next release; until its
-  design starts, it is v3.4 as shipped. It covers the whole interface, not only what the next
+- Everything outside `versions/` and `archive/` is the work toward the next release, v4.0
+  (accompaniment with roles), whose design started on 2026-11-24 from v3.4 as shipped. It covers
+  the whole interface, not only what the next
   version adds: a screen the
   next version extends is specified here in full, old behavior included. When a version's design is approved,
   a copy of it goes into `versions/<version>/`, and the work at the root continues toward the one
   after.
 - What the version in progress adds, changes and removes is marked, so the unchanged part never
-  has to be read to find it. A document that differs from its copy in `versions/v3.3/` opens with
-  a **Changes since v3.3** block, one line per item linking to where it sits; the spot itself
-  carries a **[v3.4 new]** or **[v3.4 changed]** tag (in a code block or stylesheet, the same
+  has to be read to find it. A document that differs from its copy in `versions/v3.4/` opens with
+  a **Changes since v3.4** block, one line per item linking to where it sits; the spot itself
+  carries a **[v4.0 new]** or **[v4.0 changed]** tag (in a code block or stylesheet, the same
   words as an annotation or comment). Removals are listed only in that block, pointing to the old
-  wording in `versions/`. A document new in v3.4 says so under its title.
-  `grep -rn "v3.4 new\|v3.4 changed"` finds every mark. The marks stay until design work on the
+  wording in `versions/`. A document new in v4.0 says so under its title.
+  `grep -rn "v4.0 new\|v4.0 changed"` finds every mark. The marks stay until design work on the
   version after starts, and are cleared then, before its first edit; the copy in `versions/`
   keeps them, so `versions/v3.4/` shows what v3.4 changed and `versions/v3.3/` what v3.0 to v3.3
   changed, layer by layer. The root's marks for v3.0 to v3.3 were cleared when v3.4's design
-  started.
+  started, and v3.4's when v4.0's started; the token source's `v3.4 new` and `v3.4 changed`
+  comments go at the start of v4.0's token-source pass, before its first edit.
 
 ## Map
 
