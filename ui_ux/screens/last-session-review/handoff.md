@@ -252,7 +252,7 @@ sheet-backdrop                 (only while a confirmation is open -- see Compone
   `disabled`, each named by `aria-describedby` to a `field-note` after it reading "Your doodle
   can't be shown: part of the app didn't load. Check that you're online, then open this session
   again." (for `Export played notes`, that reason comes before every other); Format, Accompaniment
-  track, the scope and `Include very short notes` stay live. An export already waiting when the
+  tracks, the scope and `Include very short notes` stay live. An export already waiting when the
   load fails ends in that state, never in `review-export-error`.
 - **[v4.0 changed]** **Export played notes**: `btn review-export-action` reading "Export played
   notes", in `review-export-played` after `Include very short notes`, rendered only when the

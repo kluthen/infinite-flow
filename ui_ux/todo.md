@@ -113,8 +113,8 @@ Written and self-checked (D500-D505):
   `flows/review-and-export/`); the saved mix (`flows/saved-data/`);
 - `strategy.md` (goals, context, trade-off, edge-case policy) and `motion.md`.
 
-Validation: `ux-critic` (see Next Unit). Then the owner's approval, the `versions/v4.0/`
-copy, and the token-source pass.
+Validation: `ux-critic`, DRIFT with four findings, all settled (D506). Next: the owner's
+approval, the `versions/v4.0/` copy, and the token-source pass.
 
 The side work below is paused.
 
@@ -147,6 +147,9 @@ v4.0, after the owner approves the design:
   by whoever keeps the lexicon, from the popup lines in `screens/phrase-workspace/handoff.md`.
 - **The listening check** (master spec §13 item 11) retunes D503's starting levels; a change is
   a token value only.
+- **Two looks on the reference tablet on its stand** (D506): the light's size, `--part-light-size`
+  (is a filled disc and a hollow ring told apart at 70 to 100 cm?), and the two-row toolbar with
+  both staff systems in view after the start's jump. A failure changes a token or comes back here.
 
 Carried forward from v3.2:
 
@@ -207,8 +210,8 @@ Side work, not part of a version (paused):
 
 ## Next Unit
 
-v4.0: `ux-critic`'s validation of the v4.0 design set, its findings settled; then the owner's
-approval (gate), the `versions/v4.0/` copy, and the token-source pass (Remaining).
+v4.0: validated by `ux-critic`, its findings settled (D506). Next: the owner's approval (gate),
+then the `versions/v4.0/` copy and the token-source pass (Remaining).
 
 v3.4: released as version 3.4.0 and archived (`archive/v3.4/`). Next here is any design finding
 of H1, the owner's look at the lexicon page (Remaining, Carried forward from v3.4).

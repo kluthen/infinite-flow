@@ -175,3 +175,13 @@ approved master spec (spec D596), §12's six items.
   decided. A choice saved for `Backing track` carries over. Now in:
   `screens/last-session-review/handoff.md` (Exports: Generated-notes export),
   `flows/review-and-export/handoff.md` (Export).
+- **D506 (2026-11-24): `ux-critic` on v4.0's design: DRIFT, four findings, all settled here; the
+  tablet start jump widened.** The popup lines describe the written phrase, never the player
+  (the parts follow it only); a part whose sounds fail during a session counts as off and is
+  recorded off, so no unheard track is exported; "Accompaniment tracks" named exactly; the v3.4
+  sentence on the mix's second line removed, the two fixed rows replacing it. On the critic's
+  risk that the extra toolbar line cuts the bottom system on a short tablet: from
+  bp-tablet-landscape up the start also scrolls, by the least distance, when the staff's bottom is
+  below the viewport, the cue row kept in view. Now in: `screens/phrase-workspace/handoff.md`
+  (Audio mix; Responsive Behavior: Start jump on the phone), `flows/play-session/handoff.md`
+  (What the Start Does: Jump), `screens/last-session-review/handoff.md` (Exports).
