@@ -94,7 +94,7 @@ Status: draft v0.103
   (D583): K, the multi-voice representation, is the urgent foundation, proposed as parts beside
   the monophonic lead from one seeded arranger (D594). The owner ruled the five questions as
   proposed, with a playing light per part (D585–D589), locked instrument selection (D590) and
-  left the timbres to us (D591). **[Master spec v1.0](versions/v4/master-spec.md)** is
+  left the timbres to us (D591). **[Master spec v1.0.1](versions/v4/master-spec.md)** (fixes after the intent ingestion, D597–D600) is
   consolidated (D595): the backing plus four parts, Thirds, Counter-melody, Fills and Drums, each
   off by default with a switch, a volume and a playing light, on Tone.js synths. The owner
   approved it (D596); the build plan waits for `ux-writer`'s design set. Drafts: [accompaniment roles](versions/v4/accompaniment-roles.md),
