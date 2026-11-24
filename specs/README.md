@@ -1,9 +1,25 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.99
+Status: draft v0.100
 
 ## Status Snapshot
 
+- **v3.4 is released as version 3.4.0** (2026-11-24, D579): tagged `v3.4.0` on `main` at
+  17e631e4, by the owner's go to tag before his hand check H1 (D578). Its release gate passed,
+  with the evidence in the [release notes](../docs/release/v3.4-release-notes.md); CONTRACT is at
+  19.1.0. Master spec [Part E](versions/v3/master-spec.md#part-e--v34), the lexicon page and the
+  lexicon API, is with Parts A to D the contract for the running code. The structural review
+  delivered its [report](versions/v3/structural-review-report.md), ruled by the wave driver under
+  the owner's delegation; the refactors it took (the library line enforced, `session/` one-way,
+  the Jam host out of the shell, the test files' atom-spread limit) were built as waves 2 and 3 of
+  the [v3.4 build plan](versions/v3/build-plan-v3.4.md); the start-up budget stays at 400 KiB,
+  raised only by the owner; the rest is deferred or dropped
+  ([report §6](versions/v3/structural-review-report.md#6-ranked-recommendations)). The
+  milestone's working record is in [archive/v3/](archive/v3/README.md#v34-release-archived-2026-11-24)
+  (D579). Still to come after the tag, as
+  [v3.4.x follow-ups](versions/v3/README.md#v34x-notes-after-the-tag): H1 (the owner sees the
+  page), then the lexicon four's STABLE promotion proposed again (D578), and the VPS deploy, the
+  owner's.
 - **v3.3 is released as version 3.3.0** (2026-11-18, D544): tagged `v3.3.0` on `main` at
   b2a0e3fa, released before the owner's hand and listening checks by his ruling (D541). Its
   release gate, build plan [chunk 22](versions/v3/build-plan-v3.3.md#chunk-22--v33-release-gate),
@@ -62,6 +78,8 @@ Status: draft v0.99
   can play beside the backing, off by default.
   Since v3.3 the player may let seventh chords into the harmony, through one Seventh chords level
   (Off, Sometimes, Often, Always), Off by default, with its own level in Jam mode.
+  Since v3.4 a lexicon page lists every word of the music lexicon, A to Z and by search, read from
+  the lexicon file alone, with the lexicon as a typed read interface beside it.
 - **Guiding principle:** Infinite Flow acknowledges and encourages; it never penalizes, grades,
   ranks or scores the player. Anything that adapts to how you play is opt-in and visible. See the
   [far vision](vision/far-vision.md).
@@ -69,36 +87,17 @@ Status: draft v0.99
   Composer. A shared [context of use](personas.md#context-of-use) covers all three: a laptop or
   desktop in Chrome first (the one supported browser, D399), at music-stand distance, no click
   while playing.
-- **Next: the rest of v3** ([v3](versions/v3/README.md#releases-d211)):
-  - **v3.4:** a structural review before v4, with no player-facing change: soundness for
-    expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
-    milestone, after v3.3 (D389); [scoping draft](versions/v3/structural-review.md), its
-    read-only analysis started 2026-11-22; its
-    [report](versions/v3/structural-review-report.md) written and ruled on 2026-11-23: R1–R4
-    taken as waves 2 and 3 of the build plan (D569, D570), the 400 KiB budget kept with no raise
-    (D571), the rest deferred or dropped (D572), the split's form (D573). It delivers the report and the refactors the owner
-    takes, as a v3.4 build plan (D545); it looks at the code as it is, not at v4's scope (D546);
-    no runtime dependency is added besides Tone.js (D547). v3.4 is tagged `3.4.0` (D550). v3.4
-    also builds a **lexicon page**, its one player-facing item (D393, amending D389): every
-    lexicon word, A–Z and by search, read from `docs/music/lexicon.md` alone (D394); its design
-    and behaviour validated by the owner (D549; [draft](versions/v3/lexicon-page.md)). Its second
-    step, the lexicon as an API, moved into v3.4 (D555,
-    [roadmap](roadmap.md#the-lexicon-api--in-v34-d555)): a plain TypeScript module over the page's
-    parser, no server (D559). The owner left the resolution of v3.4 to the wave driver (D556), who
-    ruled the refactors' bounds (D557), the order (D558) and a docs-only lexicon pass before the
-    page's build (D560), done as lexicon v1.9. Both steps are master spec
-    [Part E](versions/v3/master-spec.md#part-e--v34), approved by the driver (D564), with the page
-    in any orientation (D562), the build failing on an empty or malformed lexicon (D563) and
-    `#lexicon` under an open sheet, the stale-phrase prompt included, opening nothing, and a sheet
-    opened during the page's first load stopping its opening (D567, D568, Part E v1.2); the
-    [v3.4 build plan](versions/v3/build-plan-v3.4.md)'s wave 1 builds them in three chunks
-    (D565), waiting on the token-source pass, Part E's ingestion and the wave preflight.
+- **Next: v4.0** ([v4](versions/v4/README.md)): Tone.js and accompaniment with roles, the other v4
+  items moved to v5 (D553); most probably this app's last update (D552, a direction; O314). Not
+  yet specced. Its first task, when its master spec starts, is revising
+  [prerequisites.md](versions/prerequisites.md) against the structural review (D575;
+  [report §2.1](versions/v3/structural-review-report.md#21-the-prerequisites)).
   - **The owner's direction** (2026-11-22): the endgame's game is a separate app, with a
-    three-way split (a library, this app, the game; D551) the structural review evaluates; v4.0
-    is most probably this app's last update (D552, a direction) and holds Tone.js and
-    accompaniment with roles, v4's other items moving to v5 (D553); microphone input is out
-    (D554); v5+ will probably move to the game's app (O314); a lexicon-only backend in Go some
-    day (D561, O316).
+    three-way split (a library, this app, the game; D551); its form, folders with enforced
+    boundaries in one package now and a new repository for the library and the game at game
+    start ([report §5](versions/v3/structural-review-report.md#5-q4-the-split)); microphone input
+    is out (D554); v5+ will probably move to the game's app (O314); a lexicon-only backend in Go
+    some day (D561, O316).
   - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
     likely to move or go. Rhythm ratios and the rhythm editor are v5 (D553); the chord-fit check,
     review tooling and the two controller-connection ideas are dropped (D211).
@@ -110,14 +109,15 @@ Status: draft v0.99
   played before the
   doodle's first barline, v3.2 wave 6), O269 (a legato doodle read as Heavily varied, at v3.2
   H5) and O271 (a note start off the doodle's grid, at v3.2 H4); the last three after the `3.2.0`
-  tag (D521). No v3.3 question is open. See the [register](open-questions.md).
-- The snapshots this index kept through v2's design and build, through v3.0's, v3.1's, v3.2's and
-  v3.3's are archived verbatim at
+  tag (D521). No v3.3 or v3.4 question is open. See the [register](open-questions.md).
+- The snapshots this index kept through v2's design and build, through v3.0's, v3.1's, v3.2's,
+  v3.3's and v3.4's are archived verbatim at
   [archive/v2/readme-status-snapshot.md](archive/v2/readme-status-snapshot.md),
   [archive/v3/readme-status-snapshot.md](archive/v3/readme-status-snapshot.md),
   [archive/v3/readme-status-snapshot-v3.1.md](archive/v3/readme-status-snapshot-v3.1.md),
-  [archive/v3/readme-status-snapshot-v3.2.md](archive/v3/readme-status-snapshot-v3.2.md) and
-  [archive/v3/readme-status-snapshot-v3.3.md](archive/v3/readme-status-snapshot-v3.3.md).
+  [archive/v3/readme-status-snapshot-v3.2.md](archive/v3/readme-status-snapshot-v3.2.md),
+  [archive/v3/readme-status-snapshot-v3.3.md](archive/v3/readme-status-snapshot-v3.3.md) and
+  [archive/v3/readme-status-snapshot-v3.4.md](archive/v3/readme-status-snapshot-v3.4.md).
 
 ## Documents
 
@@ -137,8 +137,10 @@ Status: draft v0.99
   and [v3.3](versions/v3/build-plan-v3.3.md) (v25, complete; chunk 22 is the release gate's
   record, and its hand checks and follow-ups after the tag are live, D541, D544; approved with
   Part D, D520; its [wave log](versions/v3/wave-log-v3.3.md)), then
-  [v3.4](versions/v3/build-plan-v3.4.md) (v1, its lexicon wave approved by the wave driver, D565;
-  its [wave log](versions/v3/wave-log-v3.4.md)). Every build plan runs wave by
+  [v3.4](versions/v3/build-plan-v3.4.md) (v5.5, complete; its release gate's record, and its gate
+  H1 after the tag is live, D578, D579; its lexicon wave approved by the wave driver, D565, its
+  refactor waves from the structural review's report, D569–D575; its
+  [wave log](versions/v3/wave-log-v3.4.md)). Every build plan runs wave by
   wave (D252): one intent preflight and one full wave gate per wave; a chunk checks only its own
   change.
 - [Personas](personas.md) (draft): who the product serves.
@@ -197,3 +199,7 @@ Status: draft v0.99
     At the v3.3 release (3.3.0 on 2026-11-18, archived 2026-11-22, D544) it also took decisions D261–D288, D349–D352, D511–D520
     and D524–D536, the register's notes on the questions closed during v3.3 and the former status
     snapshots; master spec Part D, the v3.3 build plan and its wave log stay in place.
+    At the v3.4 release (3.4.0 on 2026-11-24, D579) it also took decisions D389, D393–D395 and
+    D544–D574, the register's notes on the questions closed during v3.4 and the former status
+    snapshots; master spec Part E, the v3.4 build plan, its wave log, the two v3.4 scoping drafts
+    and the structural review's report and evidence stay in place.

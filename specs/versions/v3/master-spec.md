@@ -129,8 +129,8 @@ Status: this file holds five parts.
   records the release, no behaviour changed: built and released as version 3.3.0 on 2026-11-18
   (spec D544), the contract for the running code with Parts A, B and C; its hand and listening
   checks follow the tag.
-- **[Part E — v3.4](#part-e--v34), the lexicon page and the lexicon API:** master spec v1.2
-  (2026-11-23; v1.0 2026-11-22), consolidated from the [lexicon page draft](lexicon-page.md) (v2.3) and the v3.4
+- **[Part E — v3.4](#part-e--v34), the lexicon page and the lexicon API:** master spec v1.4
+  (2026-11-24; v1.0 2026-11-22), consolidated from the [lexicon page draft](lexicon-page.md) (v2.3) and the v3.4
   design at the `ui_ux/` root; **approved by the wave driver on 2026-11-22 under the owner's
   delegation of v3.4** (spec D556, D564). Its code facts were read again on `main` 828ab396
   (§E13). It changes no STABLE guarantee (§E12). Its sections are numbered E1 to E17. v3.4's other
@@ -138,7 +138,10 @@ Status: this file holds five parts.
   specified and planned on their own ([structural review](structural-review.md)). v1.1 adds §E8's
   rule for `#lexicon` reached under an open sheet (spec D567); v1.2 counts the stale-phrase prompt
   as an open sheet there and has a sheet opened during the page's first load stop its opening
-  (spec D568).
+  (spec D568); v1.3 moves §E15 item 18's hand check after the `3.4.0` tag (spec D578); v1.4
+  (2026-11-24) records the release, no behaviour changed: built and released as version 3.4.0 on
+  2026-11-24 (spec D579), the contract for the running code with Parts A to D, its hand check
+  after the tag; and states the lexicon API's home, this app (§E9.3, §E16; spec D574).
 
 Part A's history follows.
 
@@ -5945,8 +5948,8 @@ device.
 ## Part E — v3.4
 
 The lexicon page and the lexicon API. Its sections are numbered E1 to E17; a cross-reference to
-one carries a section sign (§E5), never to be read as a decisions-log entry. Master spec v1.2
-(2026-11-23; v1.0 2026-11-22), consolidated from the [lexicon page draft](lexicon-page.md) (v2.3, spec D393–D395,
+one carries a section sign (§E5), never to be read as a decisions-log entry. Master spec v1.4
+(2026-11-24; v1.0 2026-11-22), consolidated from the [lexicon page draft](lexicon-page.md) (v2.3, spec D393–D395,
 D549, D555, D558–D561) and the v3.4 design at the `ui_ux/` root (the lexicon page's screen, the
 "look up a word" flow and the footer's button; ux D488–D491), with the wave driver's rulings on
 the page's orientation (spec D562) and on the build failing for an empty or malformed lexicon
@@ -5960,7 +5963,9 @@ design's token-source pass (ux D495) and accepted by the wave driver (spec D567)
 (2026-11-23) adds two choices chunk 2's owner made where Part E was silent, accepted by the wave
 driver (spec D568): the stale-phrase prompt counts as an open sheet for §E8's rules, and a sheet
 opened while the page loads stops its opening (§E7). v1.3 (2026-11-24) moves §E15 item 18's hand
-check after the `3.4.0` tag, by the owner's go to tag first (spec D578).
+check after the `3.4.0` tag, by the owner's go to tag first (spec D578). v1.4 (2026-11-24) records
+the release as version 3.4.0 (spec D579) and the lexicon API's home settled by the structural
+review's report (§E9.3, §E16; spec D574); no behaviour changed.
 
 Music terms are explained the first time they appear; the project's
 [lexicon](../../../docs/music/lexicon.md) has one entry per term, and the page this part specifies
@@ -6303,8 +6308,10 @@ output on the real lexicon conforms to the schema.
 ### E9.3 Where it lives later
 
 Until the three-way split (a library, this app, the game; spec D551) is built, the module lives in
-this repository. Whether it then moves to the library's repository follows the structural review's
-split recommendation; that is open (§E16).
+this repository. Once it is built, it stays with this app, not the library: it has no edge to the
+music core, this app is its only caller, and being self-contained it can move later at no cost
+(spec D574, from the structural review's
+[report §5](structural-review-report.md#5-q4-the-split)).
 
 ## E10. Size, offline and the first load
 
@@ -6501,9 +6508,8 @@ check.
 
 ## E16. Deferred and open
 
-- **Open, not before v3.4's build:** where the lexicon API lives once the three-way split is built,
-  in the library's repository or in this app's; it follows the structural review's split
-  recommendation. Until then it lives here.
+- **Settled after the build:** the lexicon API lives in this app once the three-way split is built,
+  not in the library (§E9.3; spec D574).
 - **After v3.4, a direction, not scheduled:** a backend some day for the lexicon only, in Go by the
   owner's preference, sending nothing about the player. It would be the app's first network request,
   which the browser-only rule and the no-`fetch` check forbid today; their wording is revised when a

@@ -1,6 +1,6 @@
 # Open Questions
 
-Status: draft v0.97
+Status: draft v0.98
 
 Only questions that are truly open appear here. IDs are stable. Each question's full text lives in
 exactly one place: here, or in the document named. When a question is resolved it leaves this
@@ -22,8 +22,11 @@ work are recorded in the archived logs:
 [D407–D509](archive/v3/decisions-D407-D509.md),
 [D261–D288](archive/v3/decisions-D261-D288.md),
 [D349–D352](archive/v3/decisions-D349-D352.md),
-[D511–D520](archive/v3/decisions-D511-D520.md) and
-[D524–D536](archive/v3/decisions-D524-D536.md). The notes this register kept on the questions
+[D511–D520](archive/v3/decisions-D511-D520.md),
+[D524–D536](archive/v3/decisions-D524-D536.md),
+[D389](archive/v3/decisions-D389.md),
+[D393–D395](archive/v3/decisions-D393-D395.md) and
+[D544–D574](archive/v3/decisions-D544-D574.md). The notes this register kept on the questions
 closed during v2 (O24, O50–O99 and O104–O106, apart from O86) are archived verbatim in
 [archive/v2/open-questions-history.md](archive/v2/open-questions-history.md), those on the
 questions closed during v3.0 (O163, O164, O181, O182, O200, O201, O210, O211 and O220) in
@@ -34,7 +37,10 @@ questions closed during v3.2 (O247–O266, O268, O290 and O291) in
 [archive/v3/open-questions-history-v3.2.md](archive/v3/open-questions-history-v3.2.md), the
 note on O306 in [archive/v3/open-questions-O306.md](archive/v3/open-questions-O306.md), and those
 on the questions closed during v3.3 (O165–O175, O235 and O310, with O310's own note) in
-[archive/v3/open-questions-history-v3.3.md](archive/v3/open-questions-history-v3.3.md); each
+[archive/v3/open-questions-history-v3.3.md](archive/v3/open-questions-history-v3.3.md), and
+those on the questions closed during v3.4 (O230, O234, O236–O246, O312 and O315, with their own
+notes) in
+[archive/v3/open-questions-history-v3.4.md](archive/v3/open-questions-history-v3.4.md); each
 archive's README says where each answer now lives.
 
 Open on 2026-11-24: O48 and O49 (later and governance), O100–O102 (v5 rhythm ratios and editor),
@@ -43,9 +49,9 @@ O183 (the warm worker lost when pre-generation is cancelled), O190 (a newer vers
 whose read-only reopening fails), O313, O314 and O316 (the three-way split,
 this app's horizon and a lexicon backend,
 D551–D553, D561), and O267, O269 and O271 (v3.2's build,
-answered by the checks that follow the `3.2.0` tag, D521). v3.3 is released (D544) and none of its
-questions is open. O230 (a stale replay-key wording, numbered O177 on branch `plan-migration`,
-D352) closed with D577. O270, O272–O289, O292–O305 and O307–O309 were never issued; the IDs
+answered by the checks that follow the `3.2.0` tag, D521). v3.3 and v3.4 are released (D544,
+D579) and none of their questions is open; O230 (a stale replay-key wording, numbered O177 on
+branch `plan-migration`, D352) closed with D577. O270, O272–O289, O292–O305 and O307–O309 were never issued; the IDs
 reserved for v3.0's waves and left unused stay unused, and O177 stays unused. O311, reserved
 by `doc-ids` during the v3.3 archive, is unused. New IDs come from `doc-ids next spec O`.
 
@@ -116,7 +122,8 @@ Opened 2026-10-12 while recording the owner's request for richer chords as v3.3 
 in [v3](versions/v3/README.md#v33--richer-chords-optional)). v3.3 is released (D544); the notes on
 the questions this section closed (O165–O175 and O310) are in the
 [v3.3 archive](archive/v3/open-questions-history-v3.3.md). O176 is still open and isn't v3.3's to
-answer; O230, also opened here, closed with D577.
+answer; O230, also opened here, closed with D577, its note in the
+[v3.4 archive](archive/v3/open-questions-history-v3.4.md).
 
 - **O176 - Style packs and the chord level: which wins** _(D273, from O175; with style packs, no
   version)_: when a later style pack sets the `seventh-chords` capability as data and the player's
@@ -191,31 +198,17 @@ version that upgrades the saved data.
 
 ## v3.4 structural review (O234+)
 
-Opened 2026-10-21 by `spec-writer` with v3.4 (D389). The scoping draft is
-[structural-review.md](versions/v3/structural-review.md); none of these blocked v3.1, v3.2 or v3.3.
-D536 closed O235; the note recording it is in the
-[v3.3 archive](archive/v3/open-questions-history-v3.3.md). On 2026-11-22 D545 closed O234 (v3.4
-delivers the report and the refactors the owner takes, as a v3.4 build plan) and left its tag
-sub-question open as O312; D546 closed O237 (the review looks at the code as it is, not at v4's
-scope); D547 ruled the dependency part of O238 and narrowed it. The same day D550 closed O312
-(v3.4 is tagged `3.4.0`) and D551 closed O236 (the game is a separate app: the owner favours a
-three-way split, library, this app and the game). The owner then left the resolution of v3.4 to
-the wave driver (D556), whose D557 closed O238 (the bounds of a refactor, and the analysis
-tools). None of the review's own questions is open. On 2026-11-23 the report was written
-([structural-review-report.md](versions/v3/structural-review-report.md)) and the driver ruled on
-it (D569–D574).
+Opened 2026-10-21 by `spec-writer` with v3.4 (D389). v3.4 is released (D579) and every question
+this section opened is closed (O234, O236–O238, O312); its notes, and the section's former text,
+are in the [v3.4 archive](archive/v3/open-questions-history-v3.4.md). The section keeps its name so
+its links hold.
 
 ## v3.4 lexicon page (O239+)
 
-Opened 2026-10-21 by `spec-writer` with the lexicon page (D393). The scoping draft is
-[lexicon-page.md](versions/v3/lexicon-page.md); none of these blocks v3.1, v3.2 or v3.3, nor the
-structural review. On 2026-11-22 the owner left them to `ux-writer`, who researched the page and
-proposed its design and an answer to each (D548); the same day the owner validated the design,
-and D549 closed O239–O244 and O246 with `ux-writer`'s answers as written. The lexicon API joined
-v3.4 the same day (D555). Under the owner's delegation (D556), the wave driver's D558 closed O245
-(the page is built before the measurement pass) and D559 settled the API's shape. On 2026-11-23
-the driver's D574 closed O315: the lexicon API lives in this app, not the library. None of the
-lexicon page's questions is open.
+Opened 2026-10-21 by `spec-writer` with the lexicon page (D393). v3.4 is released (D579) and every
+question this section opened is closed (O239–O246, O315); its notes, and the section's former
+text, are in the [v3.4 archive](archive/v3/open-questions-history-v3.4.md). The section keeps its
+name so its links hold.
 
 ## After v3.4: the split and this app's horizon (O313+)
 

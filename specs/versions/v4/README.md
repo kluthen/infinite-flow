@@ -2,7 +2,8 @@
 
 Status: direction (2026-09-25; the rhythm ratios and the rhythm editor moved here from v3
 2026-10-07, D211; v4.0's scope ruled 2026-11-22, D553: Tone.js and accompaniment with roles, the
-other items moved to v5; the lexicon API moved to v3.4, D555). Not yet specced. "v4+" is the
+other items moved to v5; the lexicon API moved to v3.4, D555; revising the prerequisites noted as
+v4.0's first task 2026-11-24, D575). Not yet specced. "v4+" is the
 user's placement. The owner expects v4.0 to be this app's last update most probably (D552, a
 direction; [O314](../../open-questions.md#after-v34-the-split-and-this-apps-horizon-o313)).
 
@@ -58,4 +59,7 @@ version". Its record is in v3.4's [lexicon page §9](../v3/lexicon-page.md#9-ste
 ## Depends on
 
 - v2's backing and audio timing.
-- Early building blocks: [prerequisites.md](../prerequisites.md), being drafted.
+- Early building blocks: [prerequisites.md](../prerequisites.md), being drafted. Revising it
+  against v3.4's structural review (its staleness, the library line, and K) is `spec-writer`'s
+  first task when v4.0's master spec starts (D575;
+  [report §2.1](../v3/structural-review-report.md#21-the-prerequisites)).

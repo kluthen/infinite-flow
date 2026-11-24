@@ -1,6 +1,6 @@
 # Infinite Flow Roadmap
 
-Status: draft v1.21 (rewritten 2026-09-25 after the persona and vision session; browser scope
+Status: draft v1.22 (rewritten 2026-09-25 after the persona and vision session; browser scope
 added 2026-09-28, D127; review candidates added 2026-09-28, D128; session-keeping candidates and
 export by content added 2026-09-28, D129; favorites moved to v3 2026-09-28, D130; staff-only
 session view placed in v5 2026-09-28, D133; v2 replanned 2026-10-03: real-hardware checks as
@@ -26,7 +26,7 @@ candidate 2026-11-17, D540; v3.3 released as 3.3.0 2026-11-18, D541, D544; v3.4'
 and bounds ruled 2026-11-22, D545–D548; the three-way split and the v4.0 horizon noted
 2026-11-22, D551, D552; v4.0's scope ruled, its other items moved to v5 and microphone input
 ruled out 2026-11-22, D553, D554; the lexicon API moved into v3.4 2026-11-22, D555; a lexicon
-backend noted as a direction 2026-11-22, D561)
+backend noted as a direction 2026-11-22, D561; v3.4 released as 3.4.0 2026-11-24, D578, D579)
 
 This is an ordered timeline with no dates. Each version's scope lives in its folder under
 [versions/](versions/README.md). The principles every version follows are in the
@@ -129,7 +129,8 @@ record is archived at [archive/v2/](archive/v2/README.md).
     one Seventh chords level, Off by default, diatonic sevenths only. Released before the owner's
     hand and listening checks, which follow the tag (D541); endings on the seventh, not built, are
     a [candidate](#candidates-not-committed) (D540). Open: O176, for style packs.
-  - **v3.4, structural review (D389):** the last v3 milestone, after v3.3: a clear view of the code
+  - **v3.4, structural review (D389), released as version 3.4.0 on 2026-11-24 (D579):** the last
+    v3 milestone, after v3.3: a clear view of the code
     before v4 (soundness for expansion, the entry budget, refactors worth taking, a split into
     libraries), with no player-facing change. It delivers the report and the refactors the owner
     takes (D545), looks at the code as it is rather than at v4's scope (D546), and adds no
@@ -137,7 +138,10 @@ record is archived at [archive/v2/](archive/v2/README.md).
     v3.4 also builds the **lexicon page** (D393): every word of the music lexicon, A–Z and by
     search, read from the lexicon file alone (D394); v3.4's one player-facing item.
     [Scoping draft](versions/v3/lexicon-page.md). Its second step, the
-    [lexicon API](#the-lexicon-api--in-v34-d555), is v3.4's too (D555).
+    [lexicon API](#the-lexicon-api--in-v34-d555), is v3.4's too (D555). Both are stated in
+    [master spec Part E](versions/v3/master-spec.md#part-e--v34); the review's
+    [report](versions/v3/structural-review-report.md) holds its deferred recommendations and the
+    split's form. Released before the owner's hand check H1, which follows the tag (D578).
   - **v3.x:** learning from positive signals, tied to recognising played signal patterns (cues,
     D212; mandatory for the endgame); kept for now, likely to be removed or moved later.
   - Dropped (D211): the end-of-measure chord-fit check, review tooling, and the two
@@ -226,7 +230,9 @@ record is archived at [archive/v2/](archive/v2/README.md).
 
 - **Status:** planned for v4 or v5 (D395) until 2026-11-22, when the owner put it in v3.4:
   "lexicon is for this version" (D555). Step two of v3.4's
-  [lexicon page](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555), which records it.
+  [lexicon page](versions/v3/lexicon-page.md#9-step-two-the-lexicon-api-d555), which records it;
+  built and released in 3.4.0 (D579), stated in
+  [master spec Part E §E9](versions/v3/master-spec.md#e9-the-lexicon-api).
 - **The owner's words** (2026-10-21): "For later (v4 or v5 depending on how they goes) we will turn
   this in a proper API."
 - **Its shape** (D559): a plain TypeScript module over the page's build-time parser, a typed read

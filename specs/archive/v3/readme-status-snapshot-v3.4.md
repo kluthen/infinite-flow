@@ -1,0 +1,122 @@
+> **Archived 2026-11-24.** The v3.4 milestone closed: v3.4 is released as version 3.4.0 (tag
+> `v3.4.0`, 17e631e4). This is the status snapshot of the spec index, `specs/README.md` at draft
+> v0.99, moved here verbatim: the snapshot as it stood through v3.4's build and release gate. The
+> current snapshot is in the live [spec index](../../README.md). Relative links were written from
+> `specs/`; their paths were repaired on 2026-11-24 so they resolve from this folder.
+
+## Status Snapshot
+
+- **v3.3 is released as version 3.3.0** (2026-11-18, D544): tagged `v3.3.0` on `main` at
+  b2a0e3fa, released before the owner's hand and listening checks by his ruling (D541). Its
+  release gate, build plan [chunk 22](../../versions/v3/build-plan-v3.3.md#chunk-22--v33-release-gate),
+  passed its machine half, with the evidence in the
+  [release notes](../../../docs/release/v3.3-release-notes.md); the release sync left CONTRACT at
+  19.0.0. Master spec [Part D](../../versions/v3/master-spec.md#part-d--v33), richer chords (one
+  Seventh chords level, Off by default, diatonic sevenths only; Jam mode has its own), is with
+  Parts A, B and C the contract for the running code. The owner skipped L1, so v3.3 ships the
+  triad reading for endings and the join (D540); endings on the seventh are a
+  [roadmap candidate](../../roadmap.md#candidates-not-committed). The milestone's working record is in
+  [archive/v3/](README.md#v33-release-archived-2026-11-22) (D544). Still to come after
+  the tag, as [v3.3.x follow-ups](../../versions/v3/README.md#v33x-notes-after-the-tag): L2 (v3.3 H2,
+  not yet written in `HARDWARE-CHECKLIST.md`, and any share tuning as a 3.3.x patch), U1b, H3–H6,
+  M3's deciding runs and the figure restated from them (D537), and ISS-020.
+- **v3.2 is released as version 3.2.0** (2026-11-09, D523): tagged `v3.2.0` on `main` at
+  f93e552d, released as built by the owner's ruling (D521). Its release gate, build plan
+  [chunk 27](../../versions/v3/build-plan-v3.2.md#chunk-27--v32-release-gate), passed its machine half,
+  with the evidence in the [release notes](../../../docs/release/v3.2-release-notes.md); the release sync
+  left CONTRACT at 14.1.0. Master spec [Part C](../../versions/v3/master-spec.md#part-c--v32), Jam, the
+  key and mode suggestion, the rhythm lock and the guide playback, is with Parts A and B the
+  contract for the running code; the milestone's working record is in
+  [archive/v3/](README.md#v32-release-archived-2026-11-09) (D524). Still to come after
+  the tag, as [v3.2.x follow-ups](../../versions/v3/README.md#v32x-notes-after-the-tag): the owner's hand
+  and listening checks (L1, L2, L3, H3, H7, H8, HG), the Travel Sax recordings (DR) and O267, with
+  the atoms waiting on them. They confirm or send back D406's provisional answers
+  ([what confirms them](../../versions/v3/build-plan-v3.2.md#what-confirms-d406s-provisional-answers))
+  and tune the suggestion's weights and cues; a finding becomes a later 3.2.x fix, decided then.
+- **v3.1 is released as version 3.1.0** (2026-10-21, D397): the tag `v3.1.0` is on `main` at
+  55364e7, with the evidence in the [release notes](../../../docs/release/v3.1-release-notes.md). Master
+  spec [Part B](../../versions/v3/master-spec.md#part-b--v31), embellishment figures and presets, states
+  it; its working record is in [archive/v3/](README.md) (D398, D524). Its hand checks
+  after the tag are closed (D399): H4 passed, H3 and H5 waived, since Chrome is the one supported
+  browser and v3.0 had no live users
+  ([v3.1.x notes](../../versions/v3/README.md#v31x-notes-after-the-tag)).
+- **v3.0 is released as version 3.0.0** (2026-10-16, D348), tagged `v3.0.0` at e288d98 and
+  deployed. Master spec [Part A](../../versions/v3/master-spec.md#part-a--v30) states it. Still to come
+  as v3.0.x notes: hand check H8, the played-notes-export half of H5 and the later promotion of
+  17 REVIEW atoms; H7 is for information only
+  ([v3.0.x notes](../../versions/v3/README.md#v30x-notes-after-the-tag)).
+- **v2 is released as version 2.0.0**, tagged `v2.0.0` at f6bcefe and deployed on 2026-10-07
+  (D208, D209). Four hand checks follow its tag as v2.0.x checks: the USB keyboard's two,
+  MuseScore and a MIDI tool, and a DAW. The [v2 master spec](../../versions/v2/master-spec.md) states
+  what v2 built; its working record is in [archive/v2/](../v2/README.md).
+- **v1 is released as `v1.0`** (2026-09-26). Its working record, the v1.0 gate's included, is in
+  [archive/v1/](../v1/README.md).
+- Infinite Flow is a client-side web practice partner for a monophonic player. It rolls
+  four-measure phrases one after another over a backing, a click and a count-in, acknowledges the
+  expected notes a MIDI controller plays, and ends each session with a review and its export.
+  Since v3.0 it keeps the player's settings, "my instrument", kept sessions with their favorites
+  and comments, and, only after an opt-in, played notes on the player's device; nothing is sent.
+  Since v3.1 the player sets how often each of seven embellishment figures appears, and chooses
+  among eight built-in presets or saves their own.
+  Since v3.2 a Jam mode grows phrases from a short motif, the doodle, that the player plays on a
+  MIDI controller, and suggests a key and mode for it; a rhythm lock keeps the rhythm while the
+  pitches change, with optional one-phrase rhythm changes; and a melody guide and a rhythm guide
+  can play beside the backing, off by default.
+  Since v3.3 the player may let seventh chords into the harmony, through one Seventh chords level
+  (Off, Sometimes, Often, Always), Off by default, with its own level in Jam mode.
+- **Guiding principle:** Infinite Flow acknowledges and encourages; it never penalizes, grades,
+  ranks or scores the player. Anything that adapts to how you play is opt-in and visible. See the
+  [far vision](../../vision/far-vision.md).
+- **Personas:** P1, the Curious Improviser (primary); P2, the Speed Builder; P3, the Fledgling
+  Composer. A shared [context of use](../../personas.md#context-of-use) covers all three: a laptop or
+  desktop in Chrome first (the one supported browser, D399), at music-stand distance, no click
+  while playing.
+- **Next: the rest of v3** ([v3](../../versions/v3/README.md#releases-d211)):
+  - **v3.4:** a structural review before v4, with no player-facing change: soundness for
+    expansion, the entry budget, refactors worth taking, a split into libraries. The last v3
+    milestone, after v3.3 (D389); [scoping draft](../../versions/v3/structural-review.md), its
+    read-only analysis started 2026-11-22; its
+    [report](../../versions/v3/structural-review-report.md) written and ruled on 2026-11-23: R1–R4
+    taken as waves 2 and 3 of the build plan (D569, D570), the 400 KiB budget kept with no raise
+    (D571), the rest deferred or dropped (D572), the split's form (D573). It delivers the report and the refactors the owner
+    takes, as a v3.4 build plan (D545); it looks at the code as it is, not at v4's scope (D546);
+    no runtime dependency is added besides Tone.js (D547). v3.4 is tagged `3.4.0` (D550). v3.4
+    also builds a **lexicon page**, its one player-facing item (D393, amending D389): every
+    lexicon word, A–Z and by search, read from `docs/music/lexicon.md` alone (D394); its design
+    and behaviour validated by the owner (D549; [draft](../../versions/v3/lexicon-page.md)). Its second
+    step, the lexicon as an API, moved into v3.4 (D555,
+    [roadmap](../../roadmap.md#the-lexicon-api--in-v34-d555)): a plain TypeScript module over the page's
+    parser, no server (D559). The owner left the resolution of v3.4 to the wave driver (D556), who
+    ruled the refactors' bounds (D557), the order (D558) and a docs-only lexicon pass before the
+    page's build (D560), done as lexicon v1.9. Both steps are master spec
+    [Part E](../../versions/v3/master-spec.md#part-e--v34), approved by the driver (D564), with the page
+    in any orientation (D562), the build failing on an empty or malformed lexicon (D563) and
+    `#lexicon` under an open sheet, the stale-phrase prompt included, opening nothing, and a sheet
+    opened during the page's first load stopping its opening (D567, D568, Part E v1.2); the
+    [v3.4 build plan](../../versions/v3/build-plan-v3.4.md)'s wave 1 builds them in three chunks
+    (D565), waiting on the token-source pass, Part E's ingestion and the wave preflight.
+  - **The owner's direction** (2026-11-22): the endgame's game is a separate app, with a
+    three-way split (a library, this app, the game; D551) the structural review evaluates; v4.0
+    is most probably this app's last update (D552, a direction) and holds Tone.js and
+    accompaniment with roles, v4's other items moving to v5 (D553); microphone input is out
+    (D554); v5+ will probably move to the game's app (O314); a lexicon-only backend in Go some
+    day (D561, O316).
+  - **v3.x:** learning from positive signals, with recognising played signals (D213, D214);
+    likely to move or go. Rhythm ratios and the rhythm editor are v5 (D553); the chord-fit check,
+    review tooling and the two controller-connection ideas are dropped (D211).
+- **Open:** 17 questions: O48 and O49 (later and governance), O100–O102 (v5 rhythm), O115 and
+  O116 (v3.x learning), O176 (style packs and the chord level), O180 (octave signs, later), O183
+  (pre-generation's cancellation cost), O190 (a newer version's database whose read-only
+  reopening fails), O313, O314 and O316 (the
+  personas once the game is separate; what the v4.0 horizon leaves to settle; the lexicon backend), O267 (a doodle note
+  played before the
+  doodle's first barline, v3.2 wave 6), O269 (a legato doodle read as Heavily varied, at v3.2
+  H5) and O271 (a note start off the doodle's grid, at v3.2 H4); the last three after the `3.2.0`
+  tag (D521). No v3.3 question is open. See the [register](../../open-questions.md).
+- The snapshots this index kept through v2's design and build, through v3.0's, v3.1's, v3.2's and
+  v3.3's are archived verbatim at
+  [archive/v2/readme-status-snapshot.md](../v2/readme-status-snapshot.md),
+  [archive/v3/readme-status-snapshot.md](readme-status-snapshot.md),
+  [archive/v3/readme-status-snapshot-v3.1.md](readme-status-snapshot-v3.1.md),
+  [archive/v3/readme-status-snapshot-v3.2.md](readme-status-snapshot-v3.2.md) and
+  [archive/v3/readme-status-snapshot-v3.3.md](readme-status-snapshot-v3.3.md).
