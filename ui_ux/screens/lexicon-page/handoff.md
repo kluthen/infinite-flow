@@ -1,7 +1,5 @@
 # Lexicon Page Handoff
 
-> **New in v3.4.**
-
 Why the page is shaped this way is in [`intent.md`](intent.md); how it opens and closes, and what
 the browser's Back button does, in
 [`flows/look-up-a-word/handoff.md`](../../flows/look-up-a-word/handoff.md). The page shows the
@@ -63,8 +61,7 @@ lexicon-view (role="dialog" aria-modal="true" aria-labelledby="lexicon-title"; n
   `lexicon-word`, `lexicon-group`, `lexicon-popup`, `lexicon-more`, `lexicon-detail`,
   `lexicon-related`, `lexicon-link`, `lexicon-result-count`, `lexicon-matches-heading`,
   `lexicon-mentions` and `lexicon-empty` are the page's own. Each is specified below from existing tokens only (the page
-  needs no new token), and is added to `src/styles/components.css` at v3.4's token-source pass,
-  before the page is built.
+  needs no new token), and is in `src/styles/components.css`.
 - **Reused classes.** `sheet-title`, `sheet-hint`, `sheet-close`, `btn`, `field-label`,
   `text-input` and `app-notice` keep their own rules and states.
 

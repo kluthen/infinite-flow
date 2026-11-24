@@ -1,7 +1,5 @@
 # Look Up a Word Handoff
 
-> **New in v3.4.**
-
 The page itself, its entries, its search and its keys, are in
 [`screens/lexicon-page/handoff.md`](../../screens/lexicon-page/handoff.md).
 

@@ -1,5 +1,11 @@
 # Jam Handoff
 
+> **Changes since v3.4**
+>
+> - _Changed:_ no part sounds before phrase 1; the parts switched on start with it
+>   ([Routing Rules](#routing-rules): The click; Phrase 1 sounds)
+> - _Removed:_ nothing
+
 Screens: `screens/phrase-workspace/` for every step (the header's `mode-switch`, Jam's controls
 with `tap-tempo` and `doodle-readings`, `staff-jam` with `jam-instruction` and `jam-notice`, the
 cue row's `jam-capture`, `jam-writing` and `jam-needs-controller`, `jam-bar` with `New doodle` and
@@ -187,9 +193,9 @@ flowchart TD
   measure of click at Jam's tempo, its beats in `count-in`, the start's jump, the wake and
   orientation locks, the phone's `session-cue-actions`. No phrase 2 is requested and nothing
   enters the bottom system.
-- **The click** sounds from the count-in to the end of the read-in measure whatever `Click` says,
+- **[v4.0 changed]** **The click** sounds from the count-in to the end of the read-in measure whatever `Click` says,
   at the click volume, as the count-in always does; `Click`'s toggle keeps showing what the
-  player chose. From phrase 1 on, `Click` governs. No backing sounds before phrase 1.
+  player chose. From phrase 1 on, `Click` governs. No backing and no part sound before phrase 1.
 - **Capture.** From the end of the count-in, `session-cue-row` holds `jam-capture` ("Your doodle"
   and the numbers 1 to 4, all unlit). Notes pass the stray-note filter first; a note belongs to
   the doodle by its snapped start, so a note played a little early onto the first beat after the
@@ -242,7 +248,7 @@ flowchart TD
   length or an extended wait, it is the barline after phrase 1 is ready. Phrase 2's deadline is
   the start of phrase 1's last measure. In the one-system layout it enters the bottom system when
   engraved, as after v2's count-in. No playhead yet.
-- **Phrase 1 sounds** at the end of the read-in measure, with the backing: the Jam is
+- **[v4.0 changed]** **Phrase 1 sounds** at the end of the read-in measure, with the backing and the parts switched on: the Jam is
   **Session running** (`flows/play-session/`), from which it runs, ends and opens its review as
   any session, without Vary settings, Tension across phrases or Rising tempo. The silence timer
   waits for a first note played from phrase 1 on. A controller lost from here on shows the

@@ -1,7 +1,5 @@
 # Look Up a Word Intent
 
-> **New in v3.4.**
-
 ## Whose Flow It Is
 
 It serves the Curious Improviser (P1) of [`specs/personas.md`](../../../specs/personas.md),

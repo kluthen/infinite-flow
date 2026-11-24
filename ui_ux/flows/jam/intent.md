@@ -1,5 +1,10 @@
 # Jam Intent
 
+> **Changes since v3.4**
+>
+> - _New:_ no part plays before phrase 1 ([Playing the Doodle](#playing-the-doodle))
+> - _Removed:_ nothing
+
 Until v3.2 the app only ever continued its own ideas. A Jam lets the player give it one: after the
 count-in they play a short idea of their own, a **doodle** of one to four measures, over the app's
 click, and the phrases then continue it, with a rhythm close to it, the same ups and downs, and a
@@ -176,6 +181,9 @@ goes on under the doodle, and through the two measures after it, whatever the cl
 because it is what sets the measure grid the doodle is played against; there is no backing yet,
 since the backing follows a phrase's chords and there are none. From phrase 1 on, the click
 switch governs again.
+
+**[v4.0 new]** For the same reason no part plays before phrase 1: each is written from a phrase,
+so the parts switched on join with the backing when phrase 1 sounds.
 
 The row above the staff counts the doodle's measures, "Your doodle" and the numbers 1 to 4, each
 lit as its measure begins, in the same style as the count-in's beats. A glance tells the player

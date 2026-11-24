@@ -1,5 +1,18 @@
 # Last Session Review Handoff
 
+> **Changes since v3.4**
+>
+> - _Changed:_ the MIDI option reads `Accompaniment tracks`, was `Backing track`, and adds the
+>   parts' tracks ([Exports](#exports): Generated-notes export; File contents)
+> - _New:_ a note naming what the option's tracks hold
+>   ([Exports](#exports): Generated-notes export)
+> - _Changed:_ "backing" becomes "accompaniment" where the files are described
+>   ([Exports](#exports): Seventh chords; A Jam's files open with the doodle; A Jam's exports
+>   need its doodle; Export played notes)
+> - _Changed:_ the option's new name in the tab order ([Focus and Keyboard](#focus-and-keyboard):
+>   Tab order)
+> - _Removed:_ nothing
+
 `review-panel` is the phrase-workspace page's review mode
 (`screens/phrase-workspace/`): while a Review shows, it is rendered inside `score-panel`, after
 `score-toolbar`, in place of the staff area (the generation-failure banner and `session-cue-row`
@@ -49,8 +62,9 @@ layout-workspace
           field-group          (Format)
             field-label        ("Format")
             segmented-control  (MusicXML, MIDI)
-          btn toggle-button    (Backing track; aria-pressed; rendered only while MIDI is selected)
+          btn toggle-button    (v4.0 changed: Accompaniment tracks, was Backing track; aria-pressed; aria-describedby the note below; rendered only while MIDI is selected)
             toggle-button-state
+          field-note           (v4.0 new; with the toggle: what its tracks hold)
           btn review-export-action ("Export generated notes")
           field-note           (only while Export generated notes is disabled: a Jam session whose doodle could not load)
         review-export-played   (role group, aria-label "Export played notes"; rendered only when the session holds a played note)
@@ -179,16 +193,25 @@ sheet-backdrop                 (only while a confirmation is open -- see Compone
     `segmented-control` (radiogroup, roving tab stop, as every single-select control in the
     workspace) with `MusicXML` then `MIDI`. `MusicXML` is checked until the player changes it; the
     choice is saved when changed and applies to every Review, after a reload too.
-  - **Backing track**: `btn toggle-button` reading "Backing track" with
-    `toggle-button-state` "on"/"off" (`aria-pressed`; the accessible name is "Backing track"
-    alone), rendered only while `MIDI` is checked. Off until the player turns it on; saved when
-    changed, as Format is, and kept while hidden. It is independent of the audio mix's `Backing`
-    toggle.
+  - **[v4.0 changed]** **Accompaniment tracks**: `btn toggle-button` reading "Accompaniment
+    tracks" with `toggle-button-state` "on"/"off" (`aria-pressed`; the accessible name is
+    "Accompaniment tracks" alone), rendered only while `MIDI` is checked. Off until the player
+    turns it on; saved when changed, as Format is, and kept while hidden; a choice saved for v3.4's
+    `Backing track` carries over. It is independent of the audio mix's switches. On, the file
+    holds the Backing track, plus one track per part that was on when the session ended (master
+    spec §10.5).
+    - **What it holds.** A `field-note` after the toggle, rendered with it, names what its tracks
+      hold for this session, the toggle naming it by `aria-describedby`: "The backing only." when
+      no part was on at the session's end, or the session was kept before v4.0; otherwise "The
+      backing, plus the parts on when the session ended: {parts}.", the parts by their switch
+      labels in the switches' order, joined with commas and a final "and" ("Thirds, Fills and
+      Drums"). A part switched on partway through is exported for the whole session; the note
+      says "when the session ended" so that it never surprises.
   - **Export**: `btn review-export-action` reading "Export generated notes". Secondary emphasis
     (never `btn-primary`): `Close review`, in the header, is the page's one primary action while
     the Review shows. Activation builds
     exactly one file from the session history and starts a browser download.
-  - **While building.** While the file is built the button takes `is-loading` and `disabled`; Format and Backing track
+  - **[v4.0 changed]** **While building.** While the file is built the button takes `is-loading` and `disabled`; Format and Accompaniment tracks
     stay live and apply to the next export. Focus stays on the button and returns to it enabled.
     The first export of the page also loads the export code, within the same `is-loading` state.
   - **On success.** No message on success: the browser's download is the confirmation. `generation-status` and
@@ -200,44 +223,45 @@ sheet-backdrop                 (only while a confirmation is open -- see Compone
   name their content. Under `Favorites only` each name adds `-favorites` after its last word:
   `...-generated-favorites.musicxml`, `...-generated-favorites.mid`, `...-played-favorites.mid`.
   `Include very short notes` does not change the name.
-- **File contents** follow the v2 master spec's export section (MusicXML
+- **[v4.0 changed]** **File contents** follow the v2 master spec's export section (MusicXML
   score-partwise 4.0 in the session profile's written pitch with its transposition; MIDI type 1 at
-  concert pitch with the tempo map, a marker per phrase, and the backing track only when
-  `Backing track` is on), for the phrases the scope selects (master spec §6). No played note is
-  ever in either generated-notes file.
-- **Seventh chords.** A phrase's `chord-symbol`s may be seventh chords (`maj7`, `m7`,
+  concert pitch with the tempo map, a marker per phrase, and the Backing track and the parts'
+  tracks only when `Accompaniment tracks` is on, as the v4.0 master spec's §10.5 sets), for the
+  phrases the scope selects (master spec §6). No played note is ever in either generated-notes
+  file. MusicXML holds the lead only, with its chord symbols, whatever the toggle.
+- **[v4.0 changed]** **Seventh chords.** A phrase's `chord-symbol`s may be seventh chords (`maj7`, `m7`,
   `7`, `m7♭5`), drawn and fitted by the workspace Notation Contract (**Seventh chord symbols**),
   which `review-staff` applies in full at its own width, and read by the score's spoken description
   in the same words. In the files: MusicXML writes each with its chord kind and the suffix as
-  printed; the MIDI backing track, when on, holds the chords as the backing played them, four
-  notes for a seventh chord. `Backing track` keeps its label and has no description to change.
-- **A Jam's files open with the doodle**, in both scopes and in all three files:
+  printed; the MIDI Backing track, when on, holds the chords as the backing played them, four
+  notes for a seventh chord.
+- **[v4.0 changed]** **A Jam's files open with the doodle**, in both scopes and in all three files:
   a section marked "Doodle" (the MusicXML rehearsal mark and the MIDI marker), as many measures
   long as the doodle, starting at time zero, at the tempo the doodle was played at; then the
   first exported phrase at the next barline, the waiting measures between them never written.
   In the generated-notes files the section holds the quantized doodle (MusicXML in written pitch
-  with the key signature the Jam started with and no chord symbol; MIDI with no backing under
+  with the key signature the Jam started with and no chord symbol; MIDI with no accompaniment under
   it). In the played-notes file it holds the raw doodle notes, very short ones following
   `Include very short notes`, a note running past the section's end stopping there; in a Jam on
   the kept doodle the section is there, empty. Other notes played before phrase 1 are still left out.
   So the files of one Jam still line up measure for measure (master spec §C5.15).
-- **A Jam's exports need its doodle.** The doodle's part of each file comes with
+- **[v4.0 changed]** **A Jam's exports need its doodle.** The doodle's part of each file comes with
   Jam's code, as the doodle section does. An export pressed while that code loads waits for it
   inside its own `is-loading` state, as the first export of a page waits for the export code.
   When it could not load, `Export generated notes` and `Export played notes` are both
   `disabled`, each named by `aria-describedby` to a `field-note` after it reading "Your doodle
   can't be shown: part of the app didn't load. Check that you're online, then open this session
-  again." (for `Export played notes`, that reason comes before every other); Format, Backing
-  track, the scope and `Include very short notes` stay live. An export already waiting when the
+  again." (for `Export played notes`, that reason comes before every other); Format, Accompaniment
+  tracks, the scope and `Include very short notes` stay live. An export already waiting when the
   load fails ends in that state, never in `review-export-error`.
-- **Export played notes**: `btn review-export-action` reading "Export played
+- **[v4.0 changed]** **Export played notes**: `btn review-export-action` reading "Export played
   notes", in `review-export-played` after `Include very short notes`, rendered only when the
   session holds at least one played note whose onset falls in a phrase (never after a session
   without a controller, nor one in which nothing was played in a phrase, nor a kept session whose
   played notes were not kept). "Holds a played note" counts every note as received, very short
   ones included. Secondary emphasis. The file is always MIDI (one track of the played notes,
   concert pitch as received, original velocity, unquantized, the same tempo map and phrase
-  markers as the generated-notes MIDI file; never the backing), very short notes left out unless
+  markers as the generated-notes MIDI file; never the accompaniment), very short notes left out unless
   `Include very short notes` is on. File name `infinite-flow-{date}-{time}-played.mid` (or
   `-played-favorites.mid`). Activation builds exactly one file and starts a browser download,
   with the same `is-loading`, focus, code-loading and no-message-on-success behaviour as
@@ -558,12 +582,12 @@ sheet-backdrop                 (only while a confirmation is open -- see Compone
 
 ## Focus and Keyboard
 
-- **Tab order.** While the Review shows, the tab order is the header (`controller-status`,
+- **[v4.0 changed]** **Tab order.** While the Review shows, the tab order is the header (`controller-status`,
   `theme-control`, the disabled phrase action skipped, `Close review`), `score-toolbar`'s
   `mix-controls`, then `review-panel`: `All sessions`; `Pin` or `Unpin`, `Delete session` (when
   shown); the
   comment (`Add a comment` or `Edit comment`, or while editing the `text-area` then `Done`); the
-  scope; Format, Backing track when shown, `Export generated notes`; `Include very short notes`,
+  scope; Format, Accompaniment tracks when shown, `Export generated notes`; `Include very short notes`,
   `Export played notes` (when the session holds a played note); `Played notes`,
   `Keep my played notes`, `Delete played notes` (when shown); then each phrase's
   `favorite-toggle`, in list order. Then `control-section`, then the page footer. A disabled

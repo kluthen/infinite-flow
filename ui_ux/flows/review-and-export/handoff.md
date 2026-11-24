@@ -1,5 +1,12 @@
 # Review and Export Handoff
 
+> **Changes since v3.4**
+>
+> - _Changed:_ the MIDI option `Accompaniment tracks`, was `Backing track`, adds the parts on at
+>   the session's end ([Flow](#flow); [Export](#export): The two exports; Seventh chords in the
+>   files; Saved choices; A Jam's exports open with the doodle)
+> - _Removed:_ nothing
+
 ## Flow
 
 ```mermaid
@@ -26,7 +33,7 @@ flowchart TD
   RV -->|"Keep Jam's key and mode: declined for good, kept with the session; row leaves"| RV
   RV -->|"Jam again on this doodle (its doodle loaded): review mode left; Jam mode, opened if needed"| JI["Jam mode with that doodle kept, phrase 1 written from it through Loading: flows/jam/"]
   RV -->|"Jam again on this doodle, in the review of the Jam just played: as Close review"| LV
-  RV -->|"Format: MusicXML or MIDI; Backing track (MIDI only); saved"| RV
+  RV -->|"Format: MusicXML or MIDI; Accompaniment tracks (MIDI only; v4.0 changed, was Backing track); saved"| RV
   RV -->|"Export scope: Whole session or Favorites only; Include very short notes"| RV
   RV -->|"Played notes on or off (only when the session holds a played note); saved"| RV
   RV -->|Export generated notes| X[Build one file from the session, in the chosen scope: review-export-action is-loading]
@@ -276,19 +283,20 @@ flowchart TD
 
 ## Export
 
-- **The two exports.** `Export generated notes`, with its format (`MusicXML` default, or `MIDI`) and, for MIDI only,
-  `Backing track` (off by default), and `Export played notes` (MIDI only), rendered only when the
+- **[v4.0 changed]** **The two exports.** `Export generated notes`, with its format (`MusicXML` default, or `MIDI`) and, for MIDI only,
+  `Accompaniment tracks` (off by default: on, the Backing track plus one track per part on at the
+  session's end), and `Export played notes` (MIDI only), rendered only when the
   session holds a played note in a phrase. Each delivers exactly one file, built from the session,
   as a browser download; the generated-notes file never holds a played note, the played-notes
-  file never holds the backing. Both together are two separate files whose names share the
+  file never holds the accompaniment. Both together are two separate files whose names share the
   session's stem (`-generated`, `-played`). Each works whatever the hidden workspace is doing,
   including while the next phrase loads and while the staff has no room. Any failure to build or
   hand over a file, a failed load of the export code included, shows `review-export-error`.
   Details in `screens/last-session-review/handoff.md`.
-- **Seventh chords in the files.** No new control and no changed wording: the
+- **[v4.0 changed]** **Seventh chords in the files.** No new control: the
   review draws each phrase's chord symbols as displayed, seventh chords included; the MusicXML
   file writes each seventh chord's symbol with its chord kind and the suffix as printed; with
-  `Backing track` on, the MIDI backing holds the chords as the backing played them, four notes for
+  `Accompaniment tracks` on, the MIDI Backing track holds the chords as the backing played them, four notes for
   a seventh chord. No file carries the level. A Jam's doodle section still has no chord.
 - **Scope.** `review-scope`, first in `review-actions`: `Whole session` (checked at
   every Review opening, never saved) or `Favorites only`, which governs both exports: only the
@@ -306,12 +314,12 @@ flowchart TD
   So `Export played notes` is disabled whenever its file would hold no note under the current
   scope and option, and never reaches `review-export-error` that way
   (`screens/last-session-review/handoff.md`, Components and Content).
-- **Saved choices.** Format and `Backing track` are saved when changed and return
-  after a reload (master spec §4.2).
-- **A Jam's exports open with the doodle**, in both scopes (`Whole session` and
+- **[v4.0 changed]** **Saved choices.** Format and `Accompaniment tracks` are saved when changed and return
+  after a reload (master spec §4.2); a choice saved for `Backing track` carries over.
+- **[v4.0 changed]** **A Jam's exports open with the doodle**, in both scopes (`Whole session` and
   `Favorites only`; the doodle is never a favorite and always exported) and in every file:
   - the generated-notes file, MusicXML or MIDI, opens with the quantized doodle as a section marked
-    "Doodle", with no backing under it in the MIDI file even when `Backing track` is on;
+    "Doodle", with no accompaniment under it in the MIDI file even when `Accompaniment tracks` is on;
   - the played-notes file opens with the raw doodle notes in the same section, very short notes
     following `Include very short notes`; every other note played before phrase 1 (the count-in,
     the measures while phrase 1 is written and read in, an extended wait) is still left out. In a
