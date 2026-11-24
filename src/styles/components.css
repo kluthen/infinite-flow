@@ -1205,7 +1205,9 @@
   /* v4.0 changed: eight volume `field-group`s (was four), laid out by `mix-volume-panel`.
      States: closed (`hidden`: absent), open. It opens and closes instantly,
      with no animation. A non-modal panel anchored under the `Volume`
-     button, aligned to its inline end, holding the eight volume `field-group`s (backing, click,
+     button, aligned to its inline end (but for the toolbar's `Volume` below bp-tablet-landscape,
+     under the second `mix-row` at its inline end: see `.mix-volume`), holding the eight volume
+     `field-group`s (backing, click,
      melody guide, rhythm guide, then the four parts). The one element
      allowed to cover part of the staff, since only the player opens it. Not itself
      interactive: its sliders carry their own states. */

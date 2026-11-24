@@ -205,7 +205,8 @@ After the owner's approval (gate A0, build plan v4), on wave branch `v4.0-w1`.
   `--part-light-ring-width` 0.125rem as proposed; the parts' volume tokens at D503's values.
   Minor choices: on a phone `mix-parts` wraps as one group (`display: contents` would risk the
   group's role), so `Volume` may take a line of its own; forced colours draw the lit disc in
-  `CanvasText`. Now in: `src/styles/theme.css`, `src/styles/components.css`.
+  `CanvasText`. Now in: `src/styles/theme.css`, `src/styles/components.css`,
+  `screens/phrase-workspace/handoff.md` (Responsive Behavior: The mix's lines).
 - **D509 (2026-11-24): below bp-tablet-landscape the toolbar's volume popover opens under the
   second row, at its end.** Found at T0: where that row wraps, `Volume` starts a line, and a
   popover aligned to its end ran past the viewport's inline start. The compact `Volume` keeps
