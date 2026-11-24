@@ -55,3 +55,11 @@ state.
   kept-session half with A5 at chunk 8's merge. Sent to `documentalist`: reword
   `entity_accompaniment_part`'s interface to D602 (chunk 2 depends on it) and record C1 in the
   change set.
+- 2026-11-24: `documentalist` b32bef67 (`entity_accompaniment_part`, `module_accompaniment_arranger`
+  0.2 to spec D602; the atoms say the transport and export don't read parts yet, the move is worded
+  by chunks 7 and 8's revisions) and e76b2850 (gate C1 recorded in the change set with each item's
+  applying sync; VISION 0.14 applied, CONTRACT unchanged at 19.1.0).
+- 2026-11-24: gate T0 done on `v4.0-t0-tokens` (1fb4c406 token pass, ux D508 toolbar grid and D509
+  phone Volume popover anchor; a72daef3 `ux-critic`'s two low findings fixed; 9038b11c ux D510
+  records the design set's approval), merged into the wave branch. Q90 stays open for hand check
+  HT; the `ui_ux/versions/v4.0/` copy is still `ux-writer`'s next step (after Q90).
