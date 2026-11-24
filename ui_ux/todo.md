@@ -84,37 +84,25 @@
   checks after the tag (a finding may correct `versions/v3.3/`), D486 until it is built, and
   D481 and D484 between them. `versions/v3.3/` is unchanged. The root keeps v3.0's to v3.3's
   change marks until the next version's design starts.
+- v3.4 (the lexicon page), released as version 3.4.0 (tag `v3.4.0` at 17e631e4, 2026-11-24): the
+  page and the look-up-a-word flow, drafted, validated by the owner (spec D549) and adopted at the
+  root, the v3.0 to v3.3 marks cleared first (ux D487-D491), then the token-source pass, gate T0
+  (ux D492-D495), and the build's two design questions (ux D496, D497). The owner's look at the
+  built page (H1) follows the tag (spec D578). Frozen design:
+  [`versions/v3.4/`](versions/v3.4/README.md) (ux D498). Archived record:
+  [`archive/v3.4/todo.md`](archive/v3.4/todo.md); archived decisions:
+  [`archive/v3.4/decisions-D487-D497.md`](archive/v3.4/decisions-D487-D497.md); no question
+  (index: [`archive/v3.4/README.md`](archive/v3.4/README.md)).
+- v3.4 milestone archive (2026-11-24, alongside the spec tree's): the v3.4 record moved to
+  `archive/v3.4/`, and `versions/v3.4/` taken at the release, the copy not having been taken at
+  approval (ux D498, which stays live until H1 is done). The prototype and research of the
+  lexicon page stay at the root. D480-D486 stay live as before. The root keeps v3.4's change
+  marks until the next version's design starts.
 
 ## In Progress
 
-v3.4's design is in progress at the root (D488). v3.3's checks after the tag are in Remaining;
-the side work below is paused.
-
-- **v3.4's lexicon page** (D487, D489, D490): the owner validated the design on 2026-11-22 and
-  ruled yes on all four choices (spec D549; spec O239–O246 closed by spec D549 and D558);
-  adopted at the root, the v3.0 to v3.3 marks cleared first
-  (D488). Written: [`screens/lexicon-page/`](screens/lexicon-page/intent.md),
-  [`flows/look-up-a-word/`](flows/look-up-a-word/intent.md), the footer's `Lexicon` in
-  `screens/phrase-workspace/handoff.md`, the lexicon's notice in `flows/saved-data/handoff.md`,
-  a Flow Index row and an Edge-Case Policy item in `strategy.md`; prototype in
-  [`mockups/lexicon-page/`](mockups/lexicon-page/index.html), research in
-  [`research/lexicon-page.md`](research/lexicon-page.md). `ux-critic`: DRIFT, five findings, all
-  settled (D491).
-  Token-source pass (gate T0) done on branch `v3.4-t0` (D492-D495): the `lexicon-*` classes and
-  `footer-actions` in `src/styles/components.css`, Part E's two flow points in the flow;
-  `ux-critic` DRIFT, three findings, all settled (D495).
-  Build gap from wave 1 chunk 2, on branch `v3.4-t1` (D496): the matches' visually hidden `h3`
-  "Matching words", class `lexicon-matches-heading`; and spec D568 mirrored in the flow (D497).
-  Then: the owner's approval of v3.4's design as a whole and its `versions/v3.4/` copy.
-- **The lexicon follow-ups, taken as a docs-only lexicon pass in v3.4 before the build** (spec
-  D560; D489): moving a few player-worthy words out of the lexicon's Internal group (Gesture and
-  answer, Open ending, Recovery, Register window, Signature figure), each with its line
-  rewritten; shortening the eight app meanings over 1,200 characters (Vary settings, Doodle, Jam,
-  Key and mode suggestion, Drift, Allowed rhythm changes, Rhythm lock, Starting note). Both are
-  lexicon edits (`docs/music/lexicon.md`), not this tree's; the page needs no change for either.
-- **The lexicon API in v3.4** (spec D555): it moves into v3.4 with the page. If it gives entries
-  addresses or reaches the page, `flows/look-up-a-word/intent.md` (What Was Left Out: a web
-  address per word, which says the API step defines its own addresses) is revisited then.
+Nothing. v3.4 is released and archived; the root is the design as v3.4 shipped it, keeping its
+v3.4 marks until the next version's design starts. The side work below is paused.
 
 ## Remaining
 
@@ -146,6 +134,15 @@ Carried forward from v3.2:
   (tap-in ux D335; the guides ux D459-D463, whose four volume tokens HG's ear may retune). A
   finding that changes the design corrects the root and `versions/v3.2/` alike, recorded in
   `decisions.md` (ux D480).
+
+Carried forward from v3.4 (after the `v3.4.0` tag, spec D578):
+
+- **H1, the owner's look at the lexicon page**: on the built app, opened from the footer, browsed
+  A to Z, an entry opened with `More`, a word searched, the page closed (Close, Escape or Back);
+  the result goes in `docs/release/v3.4-release-notes.md`. Its design is at the root and, as v3.4
+  shipped, in [`versions/v3.4/`](versions/v3.4/README.md): `screens/lexicon-page/`,
+  `flows/look-up-a-word/`, the footer in `screens/phrase-workspace/`. A finding that changes the
+  design corrects the root and `versions/v3.4/` alike, recorded in `decisions.md` (ux D498).
 
 Carried forward from v3.3 (after the `v3.3.0` tag, spec D541):
 
@@ -182,8 +179,8 @@ Side work, not part of a version (paused):
 
 ## Next Unit
 
-v3.4's lexicon page: the owner's approval of v3.4's design and its `versions/v3.4/` copy (In
-Progress); the token-source pass is done (D492-D495).
+v3.4: released as version 3.4.0 and archived (`archive/v3.4/`). Next here is any design finding
+of H1, the owner's look at the lexicon page (Remaining, Carried forward from v3.4).
 
 v3.3: released as version 3.3.0 and archived (`archive/v3.3/`). Next here is U1b, once the
 owner's listening check L2 has run, and any design finding of hand check v3.3 H6 (Remaining,
