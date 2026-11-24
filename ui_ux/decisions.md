@@ -185,3 +185,10 @@ approved master spec (spec D596), §12's six items.
   below the viewport, the cue row kept in view. Now in: `screens/phrase-workspace/handoff.md`
   (Audio mix; Responsive Behavior: Start jump on the phone), `flows/play-session/handoff.md`
   (What the Start Does: Jump), `screens/last-session-review/handoff.md` (Exports).
+- **D507 (2026-11-24): the widened tablet start jump of D506 is withdrawn; the tablet fit becomes
+  Q90.** The re-check found it could send the header, and Stop with it, above the viewport on a
+  tablet, where no compact Stop exists, and that it missed the scrolled-down start. The start
+  jump is v3.4's again; whether the two-row toolbar leaves both systems in view on a short tablet
+  is measured, and a failing measurement gets a remedy that keeps Stop on screen. The other three
+  D506 findings and their fixes stand; the re-check passed them. Now in: `open-questions.md`
+  (Q90).

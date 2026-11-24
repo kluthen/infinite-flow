@@ -38,3 +38,18 @@ through the header of [`decisions.md`](decisions.md).
   about the pre-session, Idle-only static workspace. **Updated 2026-09-28:** an in-session misfit
   can occur after all; ux D100 handles it as a failed generation attempt (retried, never a
   notation-error display), so Q16 stays Idle-only.
+
+- **Q90 — does a short tablet still show both staff systems once the mix takes two lines?** The
+  two fixed rows (D500) add one toolbar line above the staff from bp-tablet-landscape up, where
+  the staff has no height fit (its frame keeps a fixed minimum) and the session's start jumps only
+  when the staff's top is out of view. Rough sums from the token source put a landscape Android
+  tablet in Chrome (about 720 CSS px tall) some 30 px short of the staff frame's bottom with the
+  second line, and just inside it without. A bottom system cut at a session's start is a
+  real-time reading failure (P1.G2): the hands are on the instrument. See
+  `screens/phrase-workspace/handoff.md` (Responsive Behavior: The mix's lines; Start jump on the
+  phone) and `flows/play-session/handoff.md` (What the Start Does: Jump). To settle by measuring
+  the built toolbar on the reference tablet before the owner's approval, or at the latest at the
+  token-source pass. If it fails, the remedy is `ux-writer`'s and must keep Stop in view at
+  tablet sizes, where there is no compact Stop: a widened start jump that sends the header above
+  was tried and dropped for that reason (D507). Candidates: the mix's rows beside the title only
+  (never a third line), a tighter toolbar gap, or a smaller staff-frame minimum at tablet heights.
