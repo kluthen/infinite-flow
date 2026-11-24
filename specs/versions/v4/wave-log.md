@@ -151,3 +151,19 @@ state.
 - M4, laptop: worst render 2.142 ms (`c-keyboard-levels3-Dorian-s3`), cold pass 1.945 ms, median
   0.109 ms, p95 0.168 ms over 844 phrases × 5; verdict main thread. The reference phone's figure
   is the owner's (gate figure on the phone only).
+- 2026-11-24: wave sync 6fbae4f3 (`documentalist`, paused once by the API usage limit): chunk 4's
+  revision of `module_named_stream_pseudorandomness` (0.9, REVIEW, pre-authorized); D604/D605
+  into `rule_responding_part_register`, `_rhythm`, `_target`, `_shapes` and `req_drum_part`
+  (DRAFT). No drift; no CONTRACT bump (19.1.0, VISION 0.14). `atd check main...HEAD`: 54 atoms,
+  53 OK (VISION's usual NO_IMPL); `--full` 34 NO_IMPL / 1 NO_TESTS against v3.4's 15 / 1, the 19
+  extra being `release-v4.0` atoms later waves build. Proposed, not applied: chunk 7's revision of
+  `module_guide_playback_layers` ("…apart from the mix gains each channel sets at unlock");
+  `entity_concert_event_timeline`'s drift (harmony held beside the timeline, not in its measures;
+  drop the implementation note), for the owner's OK. Asked of the owner: 17 DRAFT → REVIEW
+  promotions of the built part rules (the `req_*_part` atoms, `req_accompaniment_parts`,
+  `rule_parts_off_by_default` and the two captures stay DRAFT).
+- 2026-11-24: `doc-ids compare main v4.0-w1`: 0 collisions. Wave 1 cost: 26 agents, 1,072 tool
+  calls, 110.7M tokens in / 1.0M out, max context 238k (the driver), $66.49 at API prices (chunk 1
+  $20.52, 2 $5.79, 3 $7.99, 4 $7.80, 5 $4.19, outside chunks $20.19). Reported to the owner; the
+  merge waits on the owner's word. Open: SPK (the owner's listening HS and phone rows, then the
+  decision closing O322); M4 on the reference phone.
