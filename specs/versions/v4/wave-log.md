@@ -48,3 +48,10 @@ state.
   atoms for chunks 2–5; A6's settings half vs chunk 5), with the owner's rulings of today to record
   (VISION 0.14, C1, the design set). Left for a later sync: `entity_concert_event_timeline`'s old
   implementation note.
+- 2026-11-24: plan v2 (d2606e9d, `spec-writer`): spec D601 records the owner's "agreed" (VISION
+  0.14, C1, D0, A0; gates A0, D0, C1 set done); D602: the renderers keep their output types,
+  chunk 2's `accompaniment-part.ts` converts their notes into parts, the transport and export move
+  onto parts in chunks 7 and 8; D603: A6's settings half applies with A2–A4 at wave 3's sync, its
+  kept-session half with A5 at chunk 8's merge. Sent to `documentalist`: reword
+  `entity_accompaniment_part`'s interface to D602 (chunk 2 depends on it) and record C1 in the
+  change set.
