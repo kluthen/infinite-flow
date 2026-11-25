@@ -1,6 +1,6 @@
 ---
 id: rule_contrasting_part_voice_leading
-status: DRAFT
+status: REVIEW
 tags: [v4, release-v4.0, session, audio, accompaniment]
 parents:
   - [[req_contrasting_part]]

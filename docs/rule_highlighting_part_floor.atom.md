@@ -1,6 +1,6 @@
 ---
 id: rule_highlighting_part_floor
-status: DRAFT
+status: REVIEW
 type: RULE
 priority: 1
 human_name: The Highlighting Part Never Goes Below Its Floor

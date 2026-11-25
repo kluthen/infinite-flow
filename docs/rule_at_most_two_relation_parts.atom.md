@@ -1,6 +1,6 @@
 ---
 id: rule_at_most_two_relation_parts
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

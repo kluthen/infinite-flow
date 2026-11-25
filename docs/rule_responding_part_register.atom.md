@@ -1,6 +1,6 @@
 ---
 id: rule_responding_part_register
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 priority: 1

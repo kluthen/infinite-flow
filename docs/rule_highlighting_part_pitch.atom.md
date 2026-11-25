@@ -1,6 +1,6 @@
 ---
 id: rule_highlighting_part_pitch
-status: DRAFT
+status: REVIEW
 type: RULE
 version: 0.1
 human_name: The Highlighting Part Takes the Third or the Sixth Below

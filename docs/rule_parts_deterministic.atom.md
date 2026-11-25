@@ -1,6 +1,6 @@
 ---
 id: rule_parts_deterministic
-status: DRAFT
+status: REVIEW
 human_name: The Same Phrase Gives the Same Parts
 parents:
   - [[req_accompaniment_parts]]

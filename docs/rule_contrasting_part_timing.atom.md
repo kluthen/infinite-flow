@@ -1,6 +1,6 @@
 ---
 id: rule_contrasting_part_timing
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 priority: 1
 tags: [v4, release-v4.0, session, audio, accompaniment]

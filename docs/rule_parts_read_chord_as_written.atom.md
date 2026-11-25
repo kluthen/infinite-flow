@@ -1,6 +1,6 @@
 ---
 id: rule_parts_read_chord_as_written
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: The Parts Read Each Chord as Written
 tags: [v4, release-v4.0, session, audio, accompaniment]

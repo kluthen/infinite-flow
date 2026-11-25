@@ -1,6 +1,6 @@
 ---
 id: rule_parts_rendered_from_phrase_alone
-status: DRAFT
+status: REVIEW
 priority: 1
 parents:
   - [[req_accompaniment_parts]]

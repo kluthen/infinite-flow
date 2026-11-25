@@ -1,6 +1,6 @@
 ---
 id: rule_responding_part_rhythm
-status: DRAFT
+status: REVIEW
 parents:
   - [[req_responding_part]]
 layer: BUSINESS

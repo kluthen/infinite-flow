@@ -1,6 +1,6 @@
 ---
 id: rule_responding_part_shapes
-status: DRAFT
+status: REVIEW
 version: 0.3
 priority: 1
 human_name: A Fill Takes One of Five Shapes

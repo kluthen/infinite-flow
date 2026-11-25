@@ -1,6 +1,6 @@
 ---
 id: rule_responding_part_target
-status: DRAFT
+status: REVIEW
 priority: 1
 human_name: A Fill Leads Into the Lead's Next Note
 parents:

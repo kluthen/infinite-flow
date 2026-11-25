@@ -1,6 +1,6 @@
 ---
 id: rule_contrasting_part_guide_tones
-status: DRAFT
+status: REVIEW
 type: RULE
 layer: BUSINESS
 version: 0.1

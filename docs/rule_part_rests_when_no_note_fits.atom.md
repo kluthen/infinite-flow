@@ -1,6 +1,6 @@
 ---
 id: rule_part_rests_when_no_note_fits
-status: DRAFT
+status: REVIEW
 parents:
   - [[req_accompaniment_parts]]
 type: RULE
