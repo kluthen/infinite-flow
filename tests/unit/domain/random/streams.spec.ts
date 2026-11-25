@@ -13,16 +13,17 @@ import {
 
 // @test-link [[module_named_stream_pseudorandomness]]
 describe('STREAM_LABELS registry', () => {
-  it('is a closed registry that at minimum contains harmony, rhythm, pitch, register resolution, and tie-breaking', () => {
+  it('is a closed registry that at minimum contains harmony, rhythm, pitch, register resolution, tie-breaking and fill shape', () => {
     expect(STREAM_LABELS).toContain('harmony')
     expect(STREAM_LABELS).toContain('rhythm')
     expect(STREAM_LABELS).toContain('pitch')
     expect(STREAM_LABELS).toContain('register-resolution')
     expect(STREAM_LABELS).toContain('tie-breaking')
+    expect(STREAM_LABELS).toContain('fill-shape')
   })
 
   it('is versioned', () => {
-    expect(STREAM_REGISTRY_VERSION).toBe(1)
+    expect(STREAM_REGISTRY_VERSION).toBe(2)
   })
 })
 

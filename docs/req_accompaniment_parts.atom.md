@@ -9,6 +9,8 @@ tags: [v4, release-v4.0, session, audio, accompaniment]
 parents:
   - [[req_rolling_practice_session]]
 dependents:
+  - [[entity_accompaniment_part]]
+  - [[module_accompaniment_arranger]]
   - [[req_contrasting_part]]
   - [[req_drum_part]]
   - [[req_highlighting_part]]

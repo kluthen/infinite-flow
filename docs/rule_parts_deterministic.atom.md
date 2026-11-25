@@ -1,6 +1,6 @@
 ---
 id: rule_parts_deterministic
-status: DRAFT
+status: REVIEW
 human_name: The Same Phrase Gives the Same Parts
 parents:
   - [[req_accompaniment_parts]]
@@ -8,7 +8,8 @@ layer: BUSINESS
 version: 0.1
 priority: 1
 tags: [v4, release-v4.0, session, audio, accompaniment]
-dependents: []
+dependents:
+  - [[module_accompaniment_arranger]]
 type: RULE
 ---
 

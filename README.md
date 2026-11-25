@@ -96,7 +96,10 @@ line sets no rule on the files that import session.
   expected notes, their timing windows, latency-corrected played onsets and exact-pitch matching;
   see [`docs/midi-acknowledgement.md`](docs/midi-acknowledgement.md)), the backing renderer
   (`src/domain/backing/`: a phrase's harmony turned into bass and chord notes, shared by the audio
-  and the MIDI export; see [`docs/audio-transport.md`](docs/audio-transport.md#the-backing)), the
+  and the MIDI export; see [`docs/audio-transport.md`](docs/audio-transport.md#the-backing); beside
+  it v4.0's arranger, `accompaniment-arranger.ts`, renders a phrase's parts, the backing, the two
+  guides and the four accompaniment parts each in a file of its own, in one shape,
+  `accompaniment-part.ts`, not yet read by the audio or the export), the
   controller transposition check (`src/domain/controller-check/`: the written note the check
   shows, the expected concert pitch and the verdict on the played note, with its wording; see
   [`docs/controller-connection.md`](docs/controller-connection.md#the-transposition-check)), the

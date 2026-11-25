@@ -56,6 +56,14 @@ describe('unlocking the audio', () => {
       gain('melody-guide-volume', 0.8),
       gain('rhythm-guide-enable', 0),
       gain('rhythm-guide-volume', 0.3),
+      gain('thirds-enable', 0),
+      gain('thirds-volume', 0.5),
+      gain('counter-melody-enable', 0),
+      gain('counter-melody-volume', 0.5),
+      gain('fills-enable', 0),
+      gain('fills-volume', 0.6),
+      gain('drums-enable', 0),
+      gain('drums-volume', 0.6),
     ])
   })
 

@@ -25,6 +25,7 @@
     "measure:jam": "vitest run --config vitest.measure-sweep.config.ts jam-sweep",
     "measure:lock": "vitest run --config vitest.measure-sweep.config.ts lock-census",
     "measure:sevenths": "vitest run --config vitest.measure-sweep.config.ts seventh-census",
+    "measure:arranger": "vitest run --config vitest.measure-sweep.config.ts arranger-cost",
     "build": "npm run typecheck && vite build",
     "build:notation-harness": "vite build --config vite.notation-harness.config.ts",
     "build:workspace-harness": "vite build --config vite.workspace-harness.config.ts",

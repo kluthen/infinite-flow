@@ -53,3 +53,9 @@ through the header of [`decisions.md`](decisions.md).
   tablet sizes, where there is no compact Stop: a widened start jump that sends the header above
   was tried and dropped for that reason (D507). Candidates: the mix's rows beside the title only
   (never a third line), a tighter toolbar gap, or a smaller staff-frame minimum at tablet heights.
+  Emulated at T0 (D508; headless Chromium, v3.4's built app with the second row injected, a
+  1280 × 720 viewport): the rows stack beside the title from bp-tablet-landscape to about
+  1470 px wide (side by side above that), so the toolbar grows by one `btn` plus `--spacing-2`
+  (52 px) and the staff frame's bottom moves from 749 px (already 29 px below the viewport in
+  v3.4) to 801 px; at 1280 px a phrase is one system, its ink ending at 621 px. The session's two
+  systems were not measured (no session runs headless): the reference tablet still settles it.

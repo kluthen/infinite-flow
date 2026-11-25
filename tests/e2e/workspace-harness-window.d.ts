@@ -64,7 +64,15 @@ interface WorkspaceHarnessAudioTimeline {
 }
 
 /** One mix channel (src/audio/audio-ports.ts's `MixChannel`). */
-type WorkspaceHarnessMixChannel = 'click' | 'backing' | 'melody-guide' | 'rhythm-guide'
+type WorkspaceHarnessMixChannel =
+  | 'click'
+  | 'backing'
+  | 'melody-guide'
+  | 'rhythm-guide'
+  | 'thirds'
+  | 'counter-melody'
+  | 'fills'
+  | 'drums'
 
 /** One mix gain stage (src/audio/audio-ports.ts's `MixGain`). */
 type WorkspaceHarnessMixGain =
@@ -167,12 +175,24 @@ interface WorkspaceHarnessMixDesign {
     readonly melodyGuideVolume: number
     readonly rhythmGuideOn: boolean
     readonly rhythmGuideVolume: number
+    readonly thirdsOn: boolean
+    readonly thirdsVolume: number
+    readonly counterMelodyOn: boolean
+    readonly counterMelodyVolume: number
+    readonly fillsOn: boolean
+    readonly fillsVolume: number
+    readonly drumsOn: boolean
+    readonly drumsVolume: number
   }
   readonly range: {
     readonly clickVolumeMin: number
     readonly backingVolumeMin: number
     readonly melodyGuideVolumeMin: number
     readonly rhythmGuideVolumeMin: number
+    readonly thirdsVolumeMin: number
+    readonly counterMelodyVolumeMin: number
+    readonly fillsVolumeMin: number
+    readonly drumsVolumeMin: number
     readonly volumeMax: number
   }
 }

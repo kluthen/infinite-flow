@@ -1,10 +1,11 @@
 ---
 id: rule_parts_rendered_from_phrase_alone
-status: DRAFT
+status: REVIEW
 priority: 1
 parents:
   - [[req_accompaniment_parts]]
-dependents: []
+dependents:
+  - [[module_accompaniment_arranger]]
 type: RULE
 layer: BUSINESS
 version: 0.1

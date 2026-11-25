@@ -1,6 +1,6 @@
 # Infinite Flow Specification Index
 
-Status: draft v0.103
+Status: draft v0.104
 
 ## Status Snapshot
 
@@ -98,7 +98,8 @@ Status: draft v0.103
   consolidated (D595): the backing plus four parts, Thirds, Counter-melody, Fills and Drums, each
   off by default with a switch, a volume and a playing light, on Tone.js synths. The owner
   approved it (D596); the design set is merged (ux D499–D507), and
-  [build plan v1](versions/v4/build-plan.md) (four waves, eleven chunks) awaits his approval. Drafts: [accompaniment roles](versions/v4/accompaniment-roles.md),
+  [build plan v2](versions/v4/build-plan.md) (four waves, eleven chunks) is approved with part A's
+  wordings and the design set (D601) and carries wave 1's preflight corrections (D602, D603). Drafts: [accompaniment roles](versions/v4/accompaniment-roles.md),
   [arranger](versions/v4/arranger.md), [sound library](versions/v4/sound-library.md).
   - **The owner's direction** (2026-11-22): the endgame's game is a separate app, with a
     three-way split (a library, this app, the game; D551); its form, folders with enforced

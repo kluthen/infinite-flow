@@ -1,6 +1,6 @@
 ---
 id: rule_highlighting_part_doubled_notes
-status: DRAFT
+status: REVIEW
 layer: BUSINESS
 tags: [v4, release-v4.0, session, audio, accompaniment]
 dependents: []

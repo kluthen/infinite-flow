@@ -116,7 +116,8 @@ One numbering covers the whole database:
   [Kept sessions](#kept-sessions)); in `settings`, the `presetSelection` record and the seven
   `figureLevels.*` records (`PRESET_SETTINGS_DATA_VERSION`, by `settingDataVersion(key)`) are at
   3; every other shape, the kept played notes and every other setting included (v3.3's
-  `chordFamilies.seventh-chords` too, added with no step), still at 1.
+  `chordFamilies.seventh-chords` and v4.0's eight records of the parts in the mix too, added with
+  no step), still at 1.
 - **A migration to data version N rewrites only the stores whose shape changes at N**, giving
   their records data version N. The records of every other store keep their number, so an older
   tab still reads them.
@@ -883,6 +884,17 @@ reach the policy at once, so the hold takes effect inside the Start click.
 | The "During a session" options                                                     | `useSessionOptions`, once the session controller accepted the change.                                                                                                                                                                                   |
 | The review's preferences                                                           | The review host's `setFormat`, `setBackingTrack` and `setPlayedNotesShown`.                                                                                                                                                                             |
 | Jam's own settings                                                                 | Jam's settings change handlers at Jam's Idle (`createJamSettings`, `src/jam/jam-settings.ts`): one `jam.*` record per setting a change changed.                                                                                                         |
+
+**The parts in the mix (v4.0).** The audio mix holds a switch and a volume for each of the four
+accompaniment parts, eight records of the `mix` group beside the click's, the backing's and the
+guides': `mix.thirdsOn`, `mix.thirdsVolume`, `mix.counterMelodyOn`, `mix.counterMelodyVolume`,
+`mix.fillsOn`, `mix.fillsVolume`, `mix.drumsOn` and `mix.drumsVolume`, each at data version 1,
+added with no step and no change of the database's data version, as v3.2's guide records were. A
+store saved by v3.4 has none of them, so the codec's tolerant read loads each part off at its
+first-load level (`--mix-{thirds,counter-melody,fills,drums}-volume-default`, read with the rest of
+the mix design), every other setting as saved; a value that cannot be read falls back the same
+way. They are saved through `saveSettings` like the mix's other records; the screen's switches
+and sliders that call it arrive with the parts' mix controls.
 
 A visit that saves nothing (an outdated tab, a visit whose read failed) writes no level, as it
 writes no other setting, and Delete everything removes the record with the database, so the next
@@ -1749,6 +1761,7 @@ kept-session codec's need no database (see
 | `settings-saver.spec.ts`                | The saves of the player's settings: one batch per change, the order kept before and after the policy loads, the hold, and `chosenControlChanges`.                                                      |
 | `settings-seventh-chords-level.spec.ts` | The Seventh chords level's record: its key and data version, its round trip at each level, Off when absent, damaged, newer or unknown (a seeded property), and the preset selection judged with it.    |
 | `storage-bootstrap.spec.ts`             | The load before the first draw: the saved settings, an invalid value's default, each failing, late and outdated case with its settings, saving state and load outcome, and the defects that reject.    |
+| `storage-bootstrap-parts-mix.spec.ts`   | The four parts' mix records: a v3.4 store loads unchanged with the parts off at their first-load levels, a first visit starts them off, a changed switch and volume save and load back.                |
 | `kept-phrase-parsers.spec.ts`           | The harmony and intent validators: real values read back, frozen copies, each refusal, and an intent's profile read from its data.                                                                     |
 | `kept-session-record.spec.ts`           | The kept-session codec: exact keys, nothing kept beyond them, times in seconds from phrase 1, newer and unreadable records, the encoder's refusals, and the size of a 30-minute session.               |
 | `kept-session-summary.spec.ts`          | The session-wide record: its facts, its length, the recording app version, and newer and unreadable records.                                                                                           |

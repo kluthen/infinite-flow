@@ -121,10 +121,10 @@ describe('muting the backing', () => {
     expect(muted.rig.clicks()).toEqual(plain.rig.clicks())
     expect(muted.transport.now()).toBe(plain.transport.now())
     expect(withoutBackingGains(muted.rig.events())).toEqual(withoutBackingGains(plain.rig.events()))
-    expect(plain.rig.events().filter((event) => event.kind === 'gain')).toHaveLength(8)
+    expect(plain.rig.events().filter((event) => event.kind === 'gain')).toHaveLength(16)
     const backingGains = muted.rig
       .events()
-      .slice(8)
+      .slice(16)
       .filter((event) => event.kind === 'gain')
       .map((event) => (event.kind === 'gain' ? [event.gain, event.value] : []))
     expect(backingGains).toEqual([

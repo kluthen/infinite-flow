@@ -186,6 +186,16 @@ function isGuideGain(event: FakeAudioEvent): boolean {
   )
 }
 
+/** The four accompaniment parts' channels, added to the mix after the guides. */
+const PART_CHANNELS = ['thirds', 'counter-melody', 'fills', 'drums'] as const
+
+/** Whether an event is a gain change of one of the parts' channels. */
+function isPartGain(event: FakeAudioEvent): boolean {
+  return (
+    event.kind === 'gain' && PART_CHANNELS.some((channel) => event.gain.startsWith(`${channel}-`))
+  )
+}
+
 // @test-link [[module_guide_playback_layers]]
 // @test-link [[req_guide_playback]]
 // @test-link [[rule_guide_changes_only_sound]]
@@ -193,7 +203,7 @@ describe('the guides off: the session as before the guides', () => {
   // @test-link [[module_guide_playback_layers]]
   // @test-link [[req_guide_playback]]
   // @test-link [[rule_guide_changes_only_sound]]
-  it('makes exactly the calls it made before the guides, apart from the guide gains set at unlock', () => {
+  it("makes exactly the calls it made before the guides, apart from the guides' and the parts' gains set at unlock", () => {
     const scenarios = recordGuideOffScenarios((transport, n, harmony, tempo) =>
       transport.queueBacking(n, harmony, timelineFor(n), tempo),
     )
@@ -210,10 +220,20 @@ describe('the guides off: the session as before the guides', () => {
         { kind: 'gain', gain: 'rhythm-guide-enable', value: 0, ...at },
         { kind: 'gain', gain: 'rhythm-guide-volume', value: 0.6, ...at },
       ])
+      expect(scenario.events.filter(isPartGain)).toEqual([
+        { kind: 'gain', gain: 'thirds-enable', value: 0, ...at },
+        { kind: 'gain', gain: 'thirds-volume', value: 0.5, ...at },
+        { kind: 'gain', gain: 'counter-melody-enable', value: 0, ...at },
+        { kind: 'gain', gain: 'counter-melody-volume', value: 0.5, ...at },
+        { kind: 'gain', gain: 'fills-enable', value: 0, ...at },
+        { kind: 'gain', gain: 'fills-volume', value: 0.6, ...at },
+        { kind: 'gain', gain: 'drums-enable', value: 0, ...at },
+        { kind: 'gain', gain: 'drums-volume', value: 0.6, ...at },
+      ])
       expect(guideEventsOf(scenario.events)).toEqual([])
-      expect(asRecorded(scenario.events.filter((event) => !isGuideGain(event)))).toEqual(
-        PRE_GUIDE_SCENARIOS[index]!.events,
-      )
+      expect(
+        asRecorded(scenario.events.filter((event) => !isGuideGain(event) && !isPartGain(event))),
+      ).toEqual(PRE_GUIDE_SCENARIOS[index]!.events)
     })
   })
 })

@@ -114,8 +114,9 @@ Written and self-checked (D500-D505):
 - `strategy.md` (goals, context, trade-off, edge-case policy) and `motion.md`.
 
 Validation: `ux-critic`, DRIFT with four findings, settled (D506); a re-check passed them and
-rejected D506's widened tablet jump, withdrawn (D507), the tablet fit now open as Q90. Next: the
-owner's approval, the `versions/v4.0/` copy, and the token-source pass.
+rejected D506's widened tablet jump, withdrawn (D507), the tablet fit now open as Q90. The owner
+approved the design (gate D0, spec D601, D510). Token-source pass, gate T0, done on branch
+`v4.0-t0-tokens` (D508, D509). Next: the `versions/v4.0/` copy.
 
 The side work below is paused.
 
@@ -137,12 +138,6 @@ Standing working rules (ux D119, D135, archived; still in force):
 
 v4.0, after the owner approves the design:
 
-- **v4.0's token-source pass** (after approval, before the build, as v3.x's): first clear the
-  token source's three `v3.4` comments (D499), then add `mix-row`, `mix-parts`, `part-light`
-  (`is-lit`), `mix-volume-panel` (two columns from bp-tablet-landscape up), `mix-parts-note`,
-  `--part-light-size` (proposed 1rem), `--part-light-ring-width` (proposed 0.125rem), and
-  `--mix-{thirds,counter-melody,fills,drums}-volume-{min,default}` at D503's starting values.
-  The toolbar's grid for **The mix's lines** is settled there.
 - **The lexicon entries** (D501): the four App controls entries and the app-meaning updates of
   Accompaniment, Counter-melody, Fill, Groove and Parallel thirds and sixths, added with the build
   by whoever keeps the lexicon, from the popup lines in `screens/phrase-workspace/handoff.md`.

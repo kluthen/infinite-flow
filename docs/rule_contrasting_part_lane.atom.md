@@ -1,6 +1,6 @@
 ---
 id: rule_contrasting_part_lane
-status: DRAFT
+status: REVIEW
 version: 0.1
 priority: 1
 human_name: The Contrasting Part's Lane

@@ -7,12 +7,12 @@ import {
   NAMED_STREAM_GOLDEN_FIXTURE_VERSION,
   NAMED_STREAM_GOLDEN_SAMPLE_COUNT,
   NAMED_STREAM_GOLDEN_SEED,
-} from './fixtures/named-stream-golden.v1'
+} from './fixtures/named-stream-golden.v2'
 
 // @test-link [[module_named_stream_pseudorandomness]]
 describe('named-stream golden fixtures', () => {
   it('carries an explicit version marker', () => {
-    expect(NAMED_STREAM_GOLDEN_FIXTURE_VERSION).toBe(1)
+    expect(NAMED_STREAM_GOLDEN_FIXTURE_VERSION).toBe(2)
   })
 
   it('has a committed literal fixture for every registered stream label', () => {
