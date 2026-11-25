@@ -4,7 +4,9 @@
 **Ref:** `ISS-021`
 **Date:** 2026-11-24
 **Severity:** High
-**Status:** Open
+**Status:** Resolved
+**Fixed in:** `0072130b` (`.dockerignore` re-includes `docs/music/lexicon.md`)
+**Covered by:** `docker build --target build .` (succeeds on the fixed ref)
 **Component:** `.dockerignore`
 **Affects:** `scripts/lexicon-words-plugin.ts` (the lexicon's build step, a Vite plugin), `vite.config.ts`, `Dockerfile` (build stage), `scripts/vps.sh update` (the VPS deploy), the deploy of `v3.4.0` and every later ref
 **Seen on:** not seen on the VPS yet; found while serving the v4.0 sound-library spike (branch `v4.0-c1-spike`, b79c5c93), which served the host's `dist/` instead of the image's
@@ -120,3 +122,4 @@ The spike's report (v4.0 wave 1, chunk 1) noted it; the spike's serving helper s
 ## Change log
 
 - **2026-11-24**: filed.
+- **2026-11-25**: resolved in 0072130b; verified with docker build --target build .
