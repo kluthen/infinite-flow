@@ -167,3 +167,13 @@ state.
   $20.52, 2 $5.79, 3 $7.99, 4 $7.80, 5 $4.19, outside chunks $20.19). Reported to the owner; the
   merge waits on the owner's word. Open: SPK (the owner's listening HS and phone rows, then the
   decision closing O322); M4 on the reference phone.
+- 2026-11-25: the owner signed off ("ok promote, fix the old wording, fix the docker build,
+  commit merge and push"). `documentalist` f03e5eae: the 17 built part rules DRAFT → REVIEW;
+  `entity_concert_event_timeline` 0.2 (harmony held beside the timeline, not in its measures; the
+  implementation note dropped; its stale tag `partial-impl-step5` left). `atd check main...HEAD`:
+  56 atoms, all OK but VISION and `rule_at_most_two_relation_parts` (NO_IMPL: an invariant that
+  holds by the two parts' own rules, test-linked only; accepted as is). ISS-021 fixed on `main`
+  (`.dockerignore` ships `docs/music/lexicon.md`). Wave merged into `main`; branch and worktree
+  `v4.0-w1` removed. Kept: `v4.0-c1-spike` and its worktree until SPK. Open for wave 2: SPK (the
+  owner's HS listening and phone rows, then the decision closing O322), M4 on the reference phone,
+  P2 preflight; chunk 7 applies `module_guide_playback_layers`' wording.
