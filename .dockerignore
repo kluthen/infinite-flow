@@ -4,7 +4,8 @@
 # root-level *.config.ts -- not just src/ and public/ -- so those all have to stay in the build
 # context. Only exclude what the build graph provably never touches: dependencies (reinstalled from
 # the lockfile), build outputs, test/tooling run state, VCS/agent state, and docs/specs/ui_ux
-# (markdown/CSS-reference content nothing in the TS project graph imports).
+# (markdown/CSS-reference content nothing in the TS project graph imports), except the one docs/
+# file the build reads (docs/music/lexicon.md, see below).
 
 # Dependencies -- reinstalled from package-lock.json inside the image.
 node_modules
@@ -45,8 +46,12 @@ precusor.md
 *.log
 
 # Documentation/reference content: not part of the tsconfig project graph, so not needed to
-# typecheck or build.
+# typecheck. The build does read one docs/ file, re-included below; anything else the build ever
+# reads from these paths has to be re-included the same way.
 docs
+# The lexicon: the lexicon's build step (scripts/lexicon-words-plugin.ts, a Vite plugin) reads it
+# at build time.
+!docs/music/lexicon.md
 specs
 ui_ux
 README.md
