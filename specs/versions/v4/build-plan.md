@@ -1,8 +1,8 @@
 # Infinite Flow v4.0 — Build Plan
 
-Status: v2 (2026-11-24): approved by the owner (spec D601); wave 1's preflight corrections (P1)
-written into chunks 2–5, 7, 8 and 9, with spec D602 (the renderers keep their output types) and
-D603 (A6's settings half at wave 3's sync).
+Status: v3 (2026-11-25): one chunk open at a time; wave 2 runs 8, 6, 7, with chunk 7 keeping a
+part whose sounds failed off (spec D606). Approved by the owner (spec D601); carries wave 1's
+preflight corrections (spec D602, D603).
 
 Written from the [v4.0 master spec](master-spec.md) v1.0.1 (approved by the owner on 2026-11-24,
 spec D596; v1.0.1 by spec D597) and the v4.0 design at the `ui_ux/` root (ux D499–D507, merged on
@@ -52,8 +52,8 @@ again on ade38c12 for this plan (gate G0). The plan follows the build-plan model
 | **S1**  | `security-advisor` dependency check (skill `dependency-gating-protocol`, preflight) on `tone` 15.1.22 and its runtime dependencies (`standardized-audio-context`, `tslib`), before chunk 1 installs it on the spike branch.                                                                                                                                                             | `security-advisor`               | 1                                            | done (2026-11-24, clear; see the wave log) |
 | **C1**  | The owner signs off part A's STABLE wordings (A1–A6), recorded in the change set and in the commit that applies each (build workflow, contract sign-off).                                                                                                                                                                                                                             | The owner, `documentalist`       | The merges of 6 (A1), 8 (A5, A6's kept sessions), 9 (A2–A4, A6's settings) | done (2026-11-24, spec D601; recorded in the change set at each applying sync) |
 | **P1**  | Wave 1's preflight: a verdict per chunk; before any code, the captures of chunk 2 (`entity_accompaniment_part`, `module_accompaniment_arranger`); `rule_responding_part_target` and `rule_responding_part_shapes` reworded to master spec v1.0.1 (spec D597: the target's chord, the four-note turn).                                                                                     | `documentalist`                  | 1–5                                          | done (2026-11-24, d00357dd)             |
-| **SPK** | The spike's decision (O322): the measure table of [M3](#m3--the-spike) on the reference laptop and the owner's Android phone, and **hand check HS**, the owner hearing adapters A and B and accepting one. Decided by the survey's rule ([master spec §9.1](master-spec.md#91-the-library)); recorded as a decision closing O322; `spec-writer` marks chunk 6's standing scope.         | The wave driver, the owner       | 6                                            | open                                    |
-| **P2**  | Wave 2's preflight: a verdict per chunk; before any code, chunk 6's capture (the sound library's loading and sounding, and the recorded-sound boundary with the library chunk's budget and the security policy) and chunk 7's (a phrase's parts queued and sounded by part).                                                                                                          | `documentalist`                  | 6, 7, 8                                      | open                                    |
+| **SPK** | The spike's decision (O322): the measure table of [M3](#m3--the-spike) on the reference laptop and the owner's Android phone, and **hand check HS**, the owner hearing adapters A and B and accepting one. Decided by the survey's rule ([master spec §9.1](master-spec.md#91-the-library)); recorded as a decision closing O322; `spec-writer` marks chunk 6's standing scope, and `documentalist` drops the other scope's items from P2's capture of chunk 6 before chunk 6's branch is cut. Gate work: it runs while chunk 8 builds. | The wave driver, the owner       | 6                                            | open                                    |
+| **P2**  | Wave 2's preflight, before chunk 8 starts and after M4's phone figure (which may revise chunk 7's scope): a verdict per chunk, chunk 6's on both its scopes; before any code, chunk 6's capture (the sound library's loading and sounding, and the recorded-sound boundary with the library chunk's budget and the security policy), written for both scopes with each scope's own items marked, chunk 7's (a phrase's parts queued and sounded by part) and chunk 8's (the parts a session ends with). | `documentalist`                  | 6, 7, 8                                      | open                                    |
 | **S2**  | `security-advisor` dependency check after chunk 6 merges: the resolved versions in the lockfile, `.tech` brought up to date. Not run if the fallback is taken (no dependency).                                                                                                                                                                                                       | `security-advisor`               | Wave 2's gate                                | open                                    |
 | **P3**  | Wave 3's preflight: a verdict for chunks 9 and 10. No capture: neither decides an interface.                                                                                                                                                                                                                                                                                         | `documentalist`                  | 9, 10                                        | open                                    |
 | **HT**  | **Hand check on the reference tablet on its stand**, right after chunk 9 merges: Q90 (do both staff systems stay in view under the two-row toolbar at a session's start?) and the playing light's readability at 70 to 100 cm (a filled disc told from a hollow ring). `ux-writer` stands by: a failure gets its remedy, one that keeps Stop in view (Q90) or a token value (the light), built in chunk 11. | The owner; `ux-writer` on a fail | 11                                           | open                                    |
@@ -66,13 +66,14 @@ again on ade38c12 for this plan (gate G0). The plan follows the build-plan model
 | Wave | Chunks                                                                                                                                                               | Waits for                                                                                                                                                                                                                                                                              | Status  |
 | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | 1    | 1 The sound-library spike · 2 The part shape and the arranger · 3 Thirds and Counter-melody · 4 Fills and Drums · 5 The parts' mix channels and saved settings      | A0, G0, I0, P1; S1 (1); T0 (5). In-wave 2 → 3 and 2 → 4: P1's captures fix the part shape and the arranger's per-part functions, so 3 and 4 fill files 2 creates. 1, 3, 4 and 5 have no path between them and share no source file.                                                     | merged (2026-11-25; chunk 1 waits on SPK) |
-| 2    | 6 The sound library adopted · 7 The parts played · 8 Kept sessions and the MIDI export                                                                                | Wave 1 merged; SPK (6); P2; C1 (merges of 6 and 8). In-wave 6 → 7: P2's capture of the sounding fixes what 7 calls. 8 has no path to 6 or 7 and shares no source file with them.                                                                                                        | planned |
+| 2    | 8 Kept sessions and the MIDI export · 6 The sound library adopted · 7 The parts played                                                                                | Wave 1 merged; M4's phone figure, then P2 (before 8); SPK (6); C1 (merges of 6 and 8). Order 8, 6, 7: 8 needs neither SPK nor 6, so it builds while SPK is open. In-wave 6 → 7: P2's capture of the sounding fixes what 7 calls; 8 → 7: P2's capture of the parts a session ends with fixes what 7 narrows. 8 has no path to 6 and shares no source file with it. | planned |
 | 3    | 9 The part switches, lights and volumes · 10 The accompaniment tracks option                                                                                         | Wave 2 merged; T0; P3; C1 (merge of 9). Two chunks: both need wave 2's sounding and records, and nothing else is left before the owner's checks. Hand check HT follows 9's merge.                                                                                                     | planned |
 | 4    | 11 Tuning after the listening check and the tablet fit                                                                                                                | Wave 3 merged; HT; L1. One chunk: it can only be written from the owner's checks on the built app. Dropped by decision if HT and L1 change nothing; the wave sync still runs to reword any atom number L1 moved (spec D598).                                                              | planned |
 
-The [release gate](#release-gate) follows wave 4. κ is 1: inside wave 1 the order is 1, 2, 3, 4,
-5 (chunk 1 waits on the owner's listening while 2 to 5 build); inside wave 2, 6, 7, 8; inside wave
-3, 9, then 10.
+The [release gate](#release-gate) follows wave 4. κ is 1, strictly (spec D606; the rule is in the
+[workflow deltas](#workflow-deltas)): exactly one chunk is open at a time, a built chunk waiting
+on a merge gate or an owner check still counts, and only gate work runs beside it. Inside wave 1
+the order was 1, 2, 3, 4, 5; inside wave 2 it is 8, 6, 7; inside wave 3, 9, then 10.
 
 ```mermaid
 flowchart LR
@@ -122,6 +123,7 @@ flowchart LR
   W1 --> P2
   P2 --> K6
   K6 --> K7
+  K8 --> K7
   K6 --> S2
   C1 --> K6
   C1 --> K8
@@ -137,7 +139,7 @@ flowchart LR
 ```
 
 The critical path runs P1 → 1 → SPK → 6 → 7 → wave 2's gate → 9 → HT and L1 → 11 → the release
-gate. SPK waits on the owner's listening; wave 1's other chunks build meanwhile.
+gate. SPK waits on the owner's listening; chunk 8 builds meanwhile.
 
 ## Workflow deltas
 
@@ -145,9 +147,19 @@ The [build workflow](../v3/build-workflow.md) holds for v4.0 with release name `
 branches `v4.0-w<n>` in `/home/bastien/work/infinite_flow-v4.0-w<n>`, chunk branches
 `v4.0-c<id>-<slug>` in `/home/bastien/work/infinite_flow-v4.0-c<id>`. v4.0's own:
 
+- **One chunk open at a time** (κ = 1, strict, spec D606; for v4.0 it replaces the build
+  workflow's κ line, whose exception for a chunk waiting on a sign-off no longer holds). A chunk
+  is open from its dispatch until it has merged into the wave branch, or has left the wave by a
+  recorded decision. A chunk that is built and waits on a merge gate or an owner check is still
+  open: the next chunk starts only once it clears. Gate work that is not a chunk (a preflight, a
+  capture, a measurement, the owner's checks) may run before a chunk starts or while one builds;
+  a second chunk never runs beside the open one.
 - **Chunk 1 is a spike and is not merged.** It runs on `v4.0-c1-spike` and stays there: its
   record is the measure table and the listening result in the wave log (`wave-log.md`, the wave driver's), and gate
-  SPK. Its branch is removed with wave 1's.
+  SPK. It is the one-chunk rule's only exception: since it never merges, it closed when it was
+  built (b79c5c93), and what is left of it, M3's phone rows, hand check HS and the decision
+  closing O322, is gate SPK's work. Its branch and worktree stay for SPK and are removed once
+  that decision is recorded.
 - **Corpus guard** (chunk level) for chunks 2, 4, 7 and 8: the v3.2 backing and file corpus
   (`tests/fixtures/sessions/v3.2-backing-and-files/`), the replay-key corpora
   (`tests/fixtures/replay-keys/`) and the cold-generation goldens run unchanged. Chunk 4's new
@@ -218,7 +230,7 @@ item 7). Wave 3's gate adds the lights against the playhead's tolerance (item 6)
 
 | Check | What                                                                                                                         | Who, when                                                    |
 | ----- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| HS    | The owner hears the spike's adapters A and B playing the test pattern and accepts one (gate SPK).                            | The owner, in wave 1, once M3's measures are taken           |
+| HS    | The owner hears the spike's adapters A and B playing the test pattern and accepts one (gate SPK).                            | The owner, with M3's phone rows; it may run while chunk 8 builds |
 | HT    | Q90 and the lights' readability on the reference tablet on its stand (gate HT).                                              | The owner, right after chunk 9 merges; `ux-writer` standing by |
 | L1    | The listening check (gate L1).                                                                                               | The owner, after wave 3 merges                               |
 
@@ -248,9 +260,9 @@ Architecture capture: none (nothing is merged)
 - **Atoms:** none (a spike); its outcome informs `rule_voices_keep_lead_clear` and
   `rule_no_recorded_sound` (v4.0).
 - **Revisions:** none.
-- **Done when:** M3's table is complete on both machines; the owner has heard A and B (HS); the
-  survey's decision rule names one; the decision is recorded and closes O322.
-- **Verification:** M3 only; the branch is not merged.
+- **Done when:** adapters A and B play the fixed test pattern on the spike branch, and M3's
+  laptop rows are in the wave log. The phone rows, HS and the decision closing O322 are gate SPK's.
+- **Verification:** M3's laptop rows; the branch is not merged.
 
 ### Chunk 2 — The part shape and the arranger
 
@@ -416,7 +428,10 @@ library set onto it, its own transport never started; ready, loading and failed 
 sound as one data entry behind the sound-roles seam, sounded with an exact audio time; the
 backing on oscillators when the library is late; the recorded-sound boundary, the library chunk's
 budget and the security policy's `worker-src` (part F's last item). Recorded as a new module or as
-a revision of `module_guide_playback_layers`, as P2 decides.
+a revision of `module_guide_playback_layers`, as P2 decides. P2 records it before SPK decides, so
+for both scopes, each scope's own items marked (A: the lazy chunk, its budget, `worker-src`; B:
+the worklet module); once SPK decides, `documentalist` drops the other scope's items before this
+chunk's branch is cut.
 
 - **Goal:** the system voices have their v4.0 sounds, loaded without touching start-up or the
   synchronous Start.
@@ -461,7 +476,8 @@ a revision of `module_guide_playback_layers`, as P2 decides.
 
 Status: planned
 Wave: 2
-Depends on: 6 (P2's capture fixes the sounding), wave 1 (2–5)
+Depends on: 6 (P2's capture fixes the sounding), 8 (P2's capture fixes the parts a session ends
+with), wave 1 (2–5)
 Architecture capture: **a phrase's parts queued and sounded by part**: the transport queues the
 arranger's parts per phrase; the session bus sounds a note by part through the part's channel
 gains; each part's notes as heard are available to the interface on the audio clock, corrected
@@ -472,13 +488,15 @@ for the output latency as the playhead is (the lights' source).
 - **Scope:** the transport queuing the arranger's output; every part rendered whether on or off;
   a part switched off silent at once, switched on joining at its next note; never in the count-in
   or a fresh Jam's capture, writing or read-in; the parts joining at the next phrase start when the
-  library becomes ready mid-session; the heard-note signal for the lights; the arranger's render
-  where M4 put it; the backing and the guides queued from their parts, no longer from the
-  renderers' output (spec D602). Out: the switches and lights on screen (chunk 9).
+  library becomes ready mid-session; a part whose sounds failed during the session counted off in
+  the parts the session ends with (chunk 8 keeps them); the heard-note signal for the lights; the
+  arranger's render where M4 put it; the backing and the guides queued from their parts, no longer
+  from the renderers' output (spec D602). Out: the switches and lights on screen (chunk 9).
 - **Files:** `src/audio/transport-session.ts`, `src/audio/audio-transport.ts`,
   `src/audio/audio-ports.ts`, `src/audio/backing-track.ts`, `src/audio/guide-track.ts`; the
   workspace session start and phrase wiring (`src/components/workspace/workspace-session-start.ts`,
-  `workspace-session-phrases.ts`); their tests.
+  `workspace-session-phrases.ts`); the parts a session ends with (`workspace-session-ends.ts`);
+  their tests.
 - **Spec sections:** [§6.1](master-spec.md#61-rules-every-part-keeps),
   [§7](master-spec.md#7-the-playing-lights), [§8](master-spec.md#8-controls),
   [§10.3](master-spec.md#103-playing); items 1, 5, 6.
@@ -487,7 +505,8 @@ for the output latency as the playhead is (the lights' source).
   [Jam](../../../ui_ux/flows/jam/handoff.md) (Routing Rules: Phrase 1 sounds).
 - **Atoms:** `req_accompaniment_parts`, `rule_parts_play_from_phrase_one`,
   `rule_parts_change_only_sound`, `rule_part_switch_takes_effect`, `rule_app_writes_every_part_note`,
-  `rule_playing_light_follows_heard_sound` (v4.0); `rule_jam_no_backing_before_phrase_one`,
+  `rule_playing_light_follows_heard_sound`, `rule_parts_unavailable_without_sound_library` (v4.0);
+  `rule_kept_session_content` (revised with chunk 8); `rule_jam_no_backing_before_phrase_one`,
   `rule_click_volume_never_silent`, `module_session_transport_tempo_map`,
   `module_session_start_without_phrase_one`, `req_guide_playback`, `rule_melody_guide_notes`,
   `rule_rhythm_guide_notes` (kept true). Drift check: `module_guide_playback_layers`.
@@ -495,7 +514,7 @@ for the output latency as the playhead is (the lights' source).
   `module_guide_playback_layers`.
 - **Done when:** a harness session with every part on plays each part's notes at their audio times;
   a mid-session switch behaves as §8 states; Jam's parts start with phrase 1; Stop fades every
-  voice and the reverb's tail.
+  voice and the reverb's tail; a session whose sounds failed is kept with every part off.
 - **Verification:** chunk checks; the corpus guard; M5 at wave 2's gate.
 - **Split rule:** 7a the transport and the bus (with the backing and guide tracks); 7b the session
   wiring, Jam and the heard-note signal.
@@ -505,20 +524,25 @@ for the output latency as the playhead is (the lights' source).
 Status: planned
 Wave: 2
 Depends on: wave 1 (2–5), C1 (merge, A5 and A6's kept-session half)
-Architecture capture: none (the kept record's new fields are worded from the built code at the
-sync, A6)
+Architecture capture: **the parts a session ends with**: at a session's end its save is handed
+the parts on then, read from the mix's switches, beside the arranger's version; chunk 7 narrows
+them (a part whose sounds failed counts off). The kept record's and codec's new fields are worded
+from the built code at the sync (A6).
 
 - **Goal:** a kept session remembers which parts were on at its end, and the MIDI export carries
   them as tracks.
 - **Scope:** the kept-session record's parts at the end and the arranger's version (1), with its
-  codec and tolerant reading (sessions kept before v4.0 have none and render the backing only); a
-  part whose sounds failed during the session recorded off; the MIDI encoder writing the Backing
+  codec and tolerant reading (sessions kept before v4.0 have none and render the backing only); the
+  parts on at the end read from the mix's switches as the session ends (chunk 7 counts a part
+  whose sounds failed off); the MIDI encoder writing the Backing
   track plus one track per part on at the end, rendered again for every exported phrase, drums on
   channel 10 with GM notes 36, 38, 42, the other parts at velocity 64; for the whole session and for
   favorites; the export taking the backing from the arranger's parts, no longer from
   `renderBacking`'s output (spec D602). MusicXML unchanged. Out: the option's wording on screen (chunk 10).
 - **Files:** `src/storage/records/kept-session-record.ts`, `kept-session-body.ts`,
-  `kept-session-body-read.ts`; `src/session/session-history.ts`; `src/export/generated-notes-file.ts`,
+  `kept-session-body-read.ts`; `src/session/session-history.ts`; the session's save at its end
+  (`src/components/workspace/workspace-session-ends.ts`, `workspace-session-save.ts`);
+  `src/export/generated-notes-file.ts`,
   `src/export/midi/midi-encoder.ts`, `src/export/midi/midi-tracks.ts`,
   `src/export/midi/midi-export-input.ts`; their tests.
 - **Spec sections:** [§10.4](master-spec.md#104-keeping-and-replay),

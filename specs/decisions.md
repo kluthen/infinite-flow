@@ -363,3 +363,11 @@ archive notice lists.
   chords would reopen it. Three facts go to the listening check (gate L1). Now in:
   [§6.5](versions/v4/master-spec.md#65-fills-responding), [§6.7](versions/v4/master-spec.md#67-drums-foundation),
   [§14](versions/v4/master-spec.md#14-deferred-and-open), [gate L1](versions/v4/build-plan.md#gates).
+- **D606 (2026-11-25, the owner, between v4.0's waves 1 and 2): one chunk open at a time.** "Update
+  the plan so that we only work on chunk at a time." κ 1 is strict: a built chunk waiting on a
+  merge gate or an owner check stays open, and only gate work runs beside the open chunk. The spike
+  counts closed at built: it never merges, and what is left of it is gate SPK's. Wave 2 runs 8, 6,
+  7, so chunk 8 builds while SPK waits on the owner's ear; keeping a part whose sounds failed off
+  moves from 8 to 7, which follows 6, under P2's capture. Rejected: 6, 7, 8, leaving the wave idle
+  on SPK. Now in: [workflow deltas](versions/v4/build-plan.md#workflow-deltas),
+  [waves](versions/v4/build-plan.md#waves), chunks 1, 6, 7 and 8.
